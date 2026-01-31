@@ -4,12 +4,13 @@ import { OrderService } from './order.service';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
 import { ORDER_SERVICE_TOKEN, ORDER_REPOSITORY_TOKEN } from '../../interfaces';
+import { CouponModule } from '../coupon/coupon.module';
 
 /**
  * Order Module (Handling Orders and Payments)
  */
 @Module({
-    imports: [PrismaModule, NatsClientModule],
+    imports: [PrismaModule, NatsClientModule, CouponModule],
     providers: [
         OrderService,
         PayOSService,

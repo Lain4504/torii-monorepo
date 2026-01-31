@@ -15,6 +15,7 @@ import {
 import type { IOrderService } from '../../interfaces/services';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
+import { CouponService } from '../coupon/coupon.service';
 import type { Prisma } from '@prisma/generated';
 import { lastValueFrom } from 'rxjs';
 
@@ -29,6 +30,7 @@ export class OrderService implements IOrderService {
     constructor(
         private readonly orderRepository: OrderRepository,
         private readonly payOSService: PayOSService,
+        private readonly couponService: CouponService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
     ) { }
@@ -185,6 +187,8 @@ export class OrderService implements IOrderService {
      * Create a new order
      */
     async create(userId: string, input: OrderCreateDTO): Promise<OrderResponseDTO> {
+        this.logger.log(`[OrderService] Creating order for user: ${userId} with input: ${JSON.stringify(input)}`);
+
         let amount = 0;
         let course: any = null;
 
@@ -260,74 +264,126 @@ export class OrderService implements IOrderService {
             }
         }
 
+        // Handle Coupon Redemption (Distributed Lock)
+        let couponId: string | undefined;
+        let couponDiscount = 0;
+
+        if (input.couponCode) {
+            this.logger.log(`[OrderService] Attempting to redeem coupon: ${input.couponCode}`);
+            try {
+                // Redeem coupon - this increments usage count safely
+                const redemption = await this.couponService.redeemCoupon(input.couponCode, userId, amount);
+                couponId = redemption.couponId;
+                couponDiscount = redemption.discountAmount;
+
+                // Recalculate amount
+                amount = Math.max(0, amount - couponDiscount);
+
+                this.logger.log(`Coupon ${input.couponCode} applied. Discount: ${couponDiscount}. Final Amount: ${amount}`);
+            } catch (error: any) {
+                this.logger.warn(`Failed to apply coupon ${input.couponCode}: ${error.message}`);
+                throw new BadRequestException(`Coupon error: ${error.message}`);
+            }
+        } else {
+            this.logger.log(`[OrderService] No coupon code provided in input.`);
+        }
+
         try {
             const metadata = {
                 ...input.metadata,
                 courseId: courseId,
                 ...(originalAmount !== undefined && { originalAmount }),
-                ...(discountAmount !== undefined && { discountAmount }),
+                ...(discountAmount !== undefined && { discountAmount: (discountAmount || 0) + couponDiscount }), // Combine course discount and coupon discount
+                couponCode: input.couponCode,
+                couponDiscount: couponDiscount,
             };
 
-            const created = await this.orderRepository.create({
-                user: { connect: { id: userId } },
-                amount,
-                currency: 'VND',
-                paymentMethod: input.paymentMethod || 'mock',
-                paymentGateway: input.paymentGateway || 'mock',
-                status: OrderStatus.PENDING,
-                orderType: input.orderType || OrderType.COURSE_PURCHASE,
-                description: input.description || undefined,
-                metadata,
-            });
+            try {
+                const created = await this.orderRepository.create({
+                    user: { connect: { id: userId } },
+                    amount,
+                    currency: 'VND',
+                    paymentMethod: input.paymentMethod || 'mock',
+                    paymentGateway: input.paymentGateway || 'mock',
+                    status: OrderStatus.PENDING,
+                    orderType: input.orderType || OrderType.COURSE_PURCHASE,
+                    description: input.description || undefined,
+                    enrollmentId: undefined,
+                    coupon: couponId ? { connect: { id: couponId } } : undefined,
+                    metadata,
+                });
 
-            // If PayOS payment method, create payment link
-            if (input.paymentMethod === PaymentMethod.PAYOS) {
-                try {
-                    const orderCode = Number(Date.now().toString().slice(-10));
-                    const description = `Torii ${orderCode}`;
-                    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-                    const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
-                    const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
+                // If PayOS payment method, create payment link
+                if (input.paymentMethod === PaymentMethod.PAYOS) {
+                    try {
+                        const orderCode = Number(Date.now().toString().slice(-10));
+                        const description = `Torii ${orderCode}`;
+                        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+                        const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
+                        const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
 
-                    const paymentLinkData = await this.payOSService.createPaymentLink({
-                        orderCode: orderCode,
-                        amount: Number(created.amount),
-                        description: description,
-                        cancelUrl: cancelUrl,
-                        returnUrl: returnUrl,
-                    });
+                        const paymentLinkData = await this.payOSService.createPaymentLink({
+                            orderCode: orderCode,
+                            amount: Number(created.amount),
+                            description: description,
+                            cancelUrl: cancelUrl,
+                            returnUrl: returnUrl,
+                        });
 
-                    // Update order with transaction info
-                    await this.orderRepository.update(created.id, {
-                        transactionId: orderCode.toString(),
-                        gatewayTransactionId: orderCode.toString(),
-                        metadata: {
-                            ...(created.metadata as any),
-                            checkoutUrl: paymentLinkData.checkoutUrl,
-                            paymentLinkId: paymentLinkData.paymentLinkId,
-                            payOsOrderCode: orderCode,
+                        // Update order with transaction info
+                        await this.orderRepository.update(created.id, {
+                            transactionId: orderCode.toString(),
+                            gatewayTransactionId: orderCode.toString(),
+                            metadata: {
+                                ...(created.metadata as any),
+                                checkoutUrl: paymentLinkData.checkoutUrl,
+                                paymentLinkId: paymentLinkData.paymentLinkId,
+                                payOsOrderCode: orderCode,
+                            }
+                        });
+
+                        this.logger.log(`Created PayOS payment link for order ${created.id}: ${paymentLinkData.checkoutUrl}`);
+
+                        return {
+                            ...this.toOrderDto(created),
+                            transactionId: orderCode.toString(),
+                            metadata: {
+                                ...(created.metadata as any),
+                                checkoutUrl: paymentLinkData.checkoutUrl,
+                                paymentLinkId: paymentLinkData.paymentLinkId,
+                            },
+                            paymentMethod: PaymentMethod.PAYOS,
+                        };
+                    } catch (error: any) {
+                        this.logger.error(`Failed to create PayOS payment link: ${error.message}`);
+                        // If payment link creation fails, also rollback coupon!
+                        if (couponId) {
+                            await this.couponService.releaseCoupon(couponId);
                         }
-                    });
+                        // Also delete the created order? Or mark as failed?
+                        // For now mark as failed is safer than delete
+                        await this.orderRepository.update(created.id, {
+                            status: OrderStatus.FAILED,
+                            failedAt: new Date(),
+                            metadata: {
+                                ...(created.metadata as any),
+                                failureReason: `PayOS Init Error: ${error.message}`
+                            }
+                        });
 
-                    this.logger.log(`Created PayOS payment link for order ${created.id}: ${paymentLinkData.checkoutUrl}`);
-
-                    return {
-                        ...this.toOrderDto(created),
-                        transactionId: orderCode.toString(),
-                        metadata: {
-                            ...(created.metadata as any),
-                            checkoutUrl: paymentLinkData.checkoutUrl,
-                            paymentLinkId: paymentLinkData.paymentLinkId,
-                        },
-                        paymentMethod: PaymentMethod.PAYOS,
-                    };
-                } catch (error: any) {
-                    this.logger.error(`Failed to create PayOS payment link: ${error.message}`);
-                    throw new BadRequestException(`Failed to initialize payment gateway: ${error.message}`);
+                        throw new BadRequestException(`Failed to initialize payment gateway: ${error.message}`);
+                    }
                 }
-            }
 
-            return this.toOrderDto(created);
+                return this.toOrderDto(created);
+
+            } catch (dbError: any) {
+                // DB Creation failed
+                if (couponId) {
+                    await this.couponService.releaseCoupon(couponId);
+                }
+                throw dbError;
+            }
         } catch (error: any) {
             this.logger.error(`Error creating order: ${error.message}`, error.stack);
             throw error;
@@ -468,6 +524,10 @@ export class OrderService implements IOrderService {
                 },
             });
 
+            if (order.couponId) {
+                await this.couponService.releaseCoupon(order.couponId);
+            }
+
             this.logger.error(`Error confirming order: ${error.message}`, error.stack);
             throw error;
         }
@@ -478,35 +538,51 @@ export class OrderService implements IOrderService {
      */
     async handleWebhook(webhookData: any): Promise<any> {
         const { orderCode, amount, code, desc } = webhookData;
-
-        if (code !== '00') {
-            this.logger.warn(`PayOS transaction failed/cancelled: ${desc} (Code: ${code}, OrderCode: ${orderCode})`);
-            return { success: true, message: 'Transaction failed' };
-        }
-
         const payOsOrderCode = orderCode.toString();
         const order = await this.orderRepository.findByTransactionId(payOsOrderCode);
 
+        if (!order) {
+            this.logger.warn(`Order not found for PayOS OrderCode: ${payOsOrderCode}`);
+            return { success: true, message: 'Order not found' };
+        }
+
+        if (code !== '00') {
+            this.logger.warn(`PayOS transaction failed/cancelled: ${desc} (Code: ${code}, OrderCode: ${orderCode})`);
+
+            if (order.status === OrderStatus.PENDING) {
+                await this.orderRepository.update(order.id, {
+                    status: OrderStatus.FAILED,
+                    failedAt: new Date(),
+                    metadata: {
+                        ...(order.metadata as Record<string, any>),
+                        failureReason: desc,
+                        webhookCode: code
+                    }
+                });
+
+                if (order.couponId) {
+                    await this.couponService.releaseCoupon(order.couponId);
+                }
+            }
+            return { success: true, message: 'Transaction failed' };
+        }
+
+        // Logic for success case (code === '00')
         try {
             await this.orderRepository.createPayment({
-                order: order ? { connect: { id: order.id } } : undefined,
-                user: order ? { connect: { id: order.userId } } : undefined,
+                order: { connect: { id: order.id } },
+                user: { connect: { id: order.userId } },
                 transactionId: payOsOrderCode,
                 gateway: 'payos',
                 amount: amount.toString(),
                 currency: 'VND',
                 content: desc || 'PayOS Webhook',
-                status: order ? (order.status === OrderStatus.COMPLETED ? 'duplicate' : 'success') : 'orphan',
+                status: order.status === OrderStatus.COMPLETED ? 'duplicate' : 'success',
                 rawResponse: webhookData,
                 processedAt: new Date(),
             });
         } catch (txError) {
             this.logger.error(`Failed to save payment transaction log: ${txError}`);
-        }
-
-        if (!order) {
-            this.logger.warn(`Order not found for PayOS OrderCode: ${payOsOrderCode}`);
-            return { success: true, message: 'Order not found' };
         }
 
         if (Number(amount) < Number(order.amount)) {
