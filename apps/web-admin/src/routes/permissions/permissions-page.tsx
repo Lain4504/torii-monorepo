@@ -159,10 +159,6 @@ export function PermissionsPage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-1">
-                        <Lock className="size-3.5" />
-                        Phân quyền Hệ thống
-                    </div>
                     <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         Quản lý <span className="text-primary not-italic">Quyền truy cập</span>
                     </h1>

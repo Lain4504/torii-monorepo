@@ -23,16 +23,15 @@ import { Eye, ShieldCheck, Activity, Terminal, Calendar, Search, Fingerprint, Za
 import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
+import { SmartPagination } from '@/components/common/smart-pagination';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@workspace/ui/components/pagination";
-import { cn } from '@workspace/ui/lib/utils';
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@workspace/ui/components/select";
 
 function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
     return (
@@ -181,100 +180,16 @@ export function AuditLogsPage() {
         setPage(1);
     }, [debouncedAction, debouncedEntity, dateRange]);
 
-    const renderPaginationItems = () => {
-        if (!data) return null;
-        const items = [];
-        const maxVisiblePages = 5;
 
-        let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(data.totalPages, startPage + maxVisiblePages - 1);
-
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(1, endPage - maxVisiblePages + 1);
-        }
-
-        if (startPage > 1) {
-            items.push(
-                <PaginationItem key={1}>
-                    <PaginationLink
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setPage(1);
-                        }}
-                        className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
-                    >
-                        1
-                    </PaginationLink>
-                </PaginationItem>
-            );
-            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-50" />);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            items.push(
-                <PaginationItem key={i}>
-                    <PaginationLink
-                        isActive={page === i}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setPage(i);
-                        }}
-                        className={cn(
-                            "rounded-md border h-9 w-9 text-xs font-semibold transition-all",
-                            page === i
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background border-border hover:bg-muted text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        {i}
-                    </PaginationLink>
-                </PaginationItem>
-            );
-        }
-
-        if (endPage < data.totalPages) {
-            if (endPage < data.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-50" />);
-            items.push(
-                <PaginationItem key={data.totalPages}>
-                    <PaginationLink
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setPage(data.totalPages);
-                        }}
-                        className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
-                    >
-                        {data.totalPages}
-                    </PaginationLink>
-                </PaginationItem>
-            );
-        }
-
-        return items;
-    };
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-                <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-bold tracking-wide uppercase mb-1">
-                        <Activity className="size-3.5" />
-                        Cơ sở hạ tầng
-                    </div>
-`                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                        Nhật ký <span className="text-primary not-italic">Hệ thống</span>
-                    </h1>
-                    <p className="text-sm font-medium border-l-2 border-primary/20 pl-4 mt-2 text-muted-foreground/70 leading-relaxed max-w-xl">
-                        Theo dõi và truy vết tất cả các hoạt động hệ thống và thay đổi dữ liệu để đảm bảo tính toàn vẹn của <span className="text-foreground font-semibold">Nền tảng Torii</span>.
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-                        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Tổng số nhật ký</span>
-                        <span className="text-2xl font-bold text-foreground tabular-nums">{data?.total || 0}</span>
-                    </div>
-                </div>
+            <div className="flex flex-col gap-1">
+                <h1 className="text-2xl font-bold tracking-tight">Nhật ký Hệ thống</h1>
+                <p className="text-sm text-muted-foreground">
+                    Theo dõi và truy vết tất cả các hoạt động hệ thống và thay đổi dữ liệu để đảm bảo tính toàn vẹn.
+                </p>
             </div>
 
             <div className="space-y-4">
@@ -301,15 +216,24 @@ export function AuditLogsPage() {
                                 <Fingerprint className="size-3.5" />
                                 Đối tượng
                             </label>
-                            <div className="relative group">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50" />
-                                <Input
-                                    placeholder="Tìm kiếm đối tượng..."
-                                    value={entity}
-                                    onChange={(e) => setEntity(e.target.value)}
-                                    className="h-10 pl-9 rounded-lg border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-sm"
-                                />
-                            </div>
+                            <Select value={entity || 'all'} onValueChange={(val) => setEntity(val === 'all' ? '' : val)}>
+                                <SelectTrigger className="h-10 bg-background border-border">
+                                    <SelectValue placeholder="Chọn đối tượng" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả</SelectItem>
+                                    <SelectItem value="User">Người dùng</SelectItem>
+                                    <SelectItem value="Auth">Xác thực</SelectItem>
+                                    <SelectItem value="Course">Khóa học</SelectItem>
+                                    <SelectItem value="Lesson">Bài học</SelectItem>
+                                    <SelectItem value="Order">Đơn hàng</SelectItem>
+                                    <SelectItem value="Payment">Giao dịch</SelectItem>
+                                    <SelectItem value="Review">Đánh giá</SelectItem>
+                                    <SelectItem value="Coupon">Mã giảm giá</SelectItem>
+                                    <SelectItem value="Ticket">Hỗ trợ</SelectItem>
+                                    <SelectItem value="System">Hệ thống</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
@@ -366,22 +290,24 @@ export function AuditLogsPage() {
                                         <TableCell className="py-3 px-4 border-r border-border/10 last:border-r-0"><Skeleton className="h-8 w-8 bg-muted/20 ml-auto" /></TableCell>
                                     </TableRow>
                                 ))
-                            ) : data?.data.length === 0 ? (
+                            ) : data?.data?.length === 0 ? (
                                 <TableRow className="hover:bg-transparent border-none">
-                                    <TableCell colSpan={5} className="h-[300px] text-center p-0">
-                                        <div className="flex flex-col items-center justify-center p-8">
-                                            <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground/30 mb-4">
-                                                <ShieldAlert className="size-8" />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-lg font-semibold text-foreground/50">Không tìm thấy nhật ký</p>
-                                                <p className="text-sm text-muted-foreground/40">Không tìm thấy bản ghi nhật ký nào khớp với bộ lọc hiện tại.</p>
-                                            </div>
-                                        </div>
+                                    <TableCell colSpan={5} className="h-[400px] text-center p-0">
+                                        <Empty>
+                                            <EmptyMedia>
+                                                <ShieldAlert className="size-8 text-muted-foreground" />
+                                            </EmptyMedia>
+                                            <EmptyContent>
+                                                <EmptyTitle>Không tìm thấy nhật ký</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Không tìm thấy bản ghi nhật ký nào khớp với bộ lọc hiện tại.
+                                                </EmptyDescription>
+                                            </EmptyContent>
+                                        </Empty>
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                data?.data.map((log) => (
+                                (data?.data || []).map((log) => (
                                     <TableRow key={log.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
                                         <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-mono">
                                             {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
@@ -417,51 +343,14 @@ export function AuditLogsPage() {
                 </div>
 
                 {/* Pagination */}
-                {(data?.total || 0) > 0 && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1">
-                        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                            <span>Hiển thị trang <span className="text-foreground">{page}</span> / {data?.totalPages}</span>
-                            <span className="mx-1 text-border">|</span>
-                            <span>Tổng cộng <span className="text-foreground">{data?.total}</span> bản ghi</span>
-                        </div>
-
-                        {data && data.totalPages > 1 && (
-                            <Pagination className="w-auto mx-0">
-                                <PaginationContent className="flex items-center gap-1">
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setPage(p => Math.max(1, p - 1));
-                                            }}
-                                            className={cn(
-                                                "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
-                                            )}
-                                        />
-                                    </PaginationItem>
-
-                                    <div className="hidden md:flex items-center gap-1">
-                                        {renderPaginationItems()}
-                                    </div>
-
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setPage(p => Math.min(data.totalPages, p + 1));
-                                            }}
-                                            className={cn(
-                                                "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                                                page === data.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
-                                            )}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        )}
-                    </div>
-                )}
+                <SmartPagination
+                    page={page}
+                    totalPages={data?.totalPages || 1}
+                    totalItems={data?.total || 0}
+                    onPageChange={setPage}
+                    itemName="nhật ký"
+                    className="border-t border-border/10 px-6 py-4"
+                />
             </div>
         </div>
     );

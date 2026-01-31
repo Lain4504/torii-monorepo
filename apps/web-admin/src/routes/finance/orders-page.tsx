@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select";
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import {
   Sheet,
   SheetContent,
@@ -33,13 +34,7 @@ import { orderApi } from '@/api/services/order-api.ts';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@workspace/ui/components/pagination";
+import { SmartPagination } from '@/components/common/smart-pagination';
 
 export default function OrdersPage() {
   const [payments, setPayments] = useState<OrderResponseDTO[]>([]);
@@ -108,15 +103,9 @@ export default function OrdersPage() {
     <div className="space-y-6 animate-in fade-in duration-700 pb-20 p-4 md:p-6">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic tracking-wide uppercase mb-1">
-            <CreditCard className="size-3.5" />
-            Quản lý Doanh thu
-          </div>
-          <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-            Tài chính & <span className="text-primary not-italic">Doanh thu</span>
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight">Tài chính & Doanh thu</h1>
+          <p className="text-sm text-muted-foreground">
             Theo dõi dòng tiền và tối ưu hiệu suất Torii Academy
           </p>
         </div>
@@ -207,12 +196,12 @@ export default function OrdersPage() {
           <Table className="border-collapse">
             <TableHeader className="bg-muted/30">
               <TableRow className="border-b border-border/50 hover:bg-transparent">
-                <TableHead className="h-12 w-[80px] text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/50 last:border-r-0">#</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/50 last:border-r-0">Người dùng</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/50 last:border-r-0">Số tiền</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/50 last:border-r-0">Phương thức</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/50 last:border-r-0">Trạng thái</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right border-r border-border/50 last:border-r-0">Ngày tạo</TableHead>
+                <TableHead className="h-12 w-[80px] text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">#</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">Người dùng</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Số tiền</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Phương thức</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Trạng thái</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right border-r border-border/30 last:border-r-0">Ngày tạo</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -228,17 +217,17 @@ export default function OrdersPage() {
               ) : payments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-[400px] text-center">
-                    <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-                      <div className="p-4 rounded-full bg-muted/30">
-                        <CreditCard className="size-8 opacity-50" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Không tìm thấy giao dịch</p>
-                        <p className="text-sm text-muted-foreground/70">
+                    <Empty>
+                      <EmptyMedia>
+                        <CreditCard className="size-8 text-muted-foreground" />
+                      </EmptyMedia>
+                      <EmptyContent>
+                        <EmptyTitle>Không tìm thấy giao dịch</EmptyTitle>
+                        <EmptyDescription>
                           Chưa có dữ liệu giao dịch nào được ghi nhận.
-                        </p>
-                      </div>
-                    </div>
+                        </EmptyDescription>
+                      </EmptyContent>
+                    </Empty>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -293,49 +282,13 @@ export default function OrdersPage() {
         </div>
 
         {/* Pagination */}
-        {(total > 0 || isLoading) && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1">
-            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <span>Hiển thị trang <span className="text-foreground">{page}</span> / {totalPages}</span>
-              <span className="mx-1 text-border">|</span>
-              <span>Tổng cộng <span className="text-foreground">{total}</span> giao dịch</span>
-            </div>
-
-            <Pagination className="w-auto mx-0">
-              <PaginationContent className="flex items-center gap-1">
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage(p => Math.max(1, p - 1));
-                    }}
-                    className={cn(
-                      "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                      page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
-                    )}
-                  />
-                </PaginationItem>
-
-                <div className="hidden md:flex items-center px-4">
-                  <span className="text-xs text-muted-foreground">Trang {page}</span>
-                </div>
-
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage(p => Math.min(totalPages, p + 1));
-                    }}
-                    className={cn(
-                      "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                      page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
-                    )}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        )}
+        <SmartPagination
+          page={page}
+          totalPages={totalPages}
+          totalItems={total}
+          onPageChange={setPage}
+          itemName="giao dịch"
+        />
       </div>
 
       {/* Order Detail Sheet */}

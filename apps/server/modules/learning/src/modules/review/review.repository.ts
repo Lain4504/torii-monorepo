@@ -16,9 +16,17 @@ export class ReviewRepository implements IReviewRepository {
   /**
    * Find review by ID
    */
-  async findById(reviewId: string): Promise<Review | null> {
+  async findById(reviewId: string, includeRelations = false): Promise<any | null> {
     return this.prisma.review.findUnique({
       where: { id: reviewId },
+      include: includeRelations ? {
+        user: {
+          select: { id: true, displayName: true, avatarUrl: true }
+        },
+        course: {
+          select: { id: true, title: true }
+        }
+      } : undefined
     });
   }
 

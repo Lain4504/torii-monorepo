@@ -17,6 +17,7 @@ import { useState } from 'react';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { getUsersColumns } from './users-columns.tsx';
 import { Fingerprint } from 'lucide-react';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 import { Skeleton } from '@workspace/ui/components/skeleton';
 
@@ -55,7 +56,7 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit, isLoad
                         <TableRow key={headerGroup.id} className="hover:bg-transparent border-none">
                             {headerGroup.headers.map((header) => {
                                 return (
-                                    <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">
+                                    <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -100,19 +101,19 @@ export function UsersTable({ data, onView, onEdit, onDelete, page, limit, isLoad
                         <TableRow className="hover:bg-transparent border-none">
                             <TableCell
                                 colSpan={columns.length}
-                                className="h-[300px] text-center p-0"
+                                className="h-[400px] text-center p-0"
                             >
-                                <div className="flex flex-col items-center justify-center p-8">
-                                    <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground/30 mb-4">
-                                        <Fingerprint className="size-8" />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy dữ liệu</p>
-                                        <p className="text-sm text-muted-foreground/40">
+                                <Empty>
+                                    <EmptyMedia>
+                                        <Fingerprint className="size-8 text-muted-foreground" />
+                                    </EmptyMedia>
+                                    <EmptyContent>
+                                        <EmptyTitle>Không tìm thấy dữ liệu</EmptyTitle>
+                                        <EmptyDescription>
                                             Thử thay đổi điều kiện lọc hoặc từ khóa tìm kiếm.
-                                        </p>
-                                    </div>
-                                </div>
+                                        </EmptyDescription>
+                                    </EmptyContent>
+                                </Empty>
                             </TableCell>
                         </TableRow>
                     )}

@@ -470,9 +470,6 @@ importers:
       prisma:
         specifier: ^7.1.0
         version: 7.1.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
-      rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
