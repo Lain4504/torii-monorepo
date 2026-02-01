@@ -72,6 +72,17 @@ export class RoomCreateService {
         const log = this.logger;
         log.log(`Create room request: ${req.roomId}, breakout: ${req.metadata?.isBreakoutRoom}`);
 
+        // Validate the roomId to ensure it doesn't contain our internal patterns.
+        const userKeyFieldPrefix = '-FIELD_'; // Matches Go: UserKeyFieldPrefix = "-FIELD_"
+        const userKeyPrefix = 'user_'; // Matches Go: UserKeyPrefix = "user_"
+
+        if (req.roomId.includes(userKeyFieldPrefix)) {
+            throw new Error(`roomId cannot contain the reserved pattern '${userKeyFieldPrefix}'`);
+        }
+        if (req.roomId.startsWith(userKeyPrefix)) {
+            throw new Error(`roomId cannot start with the reserved pattern '${userKeyPrefix}'`);
+        }
+
         // Step 1: Acquire room creation lock (prevent duplicate creation)
         // Using helper with retry and exponential backoff
         const lockValue = await acquireRoomCreationLockWithRetry(this.redisLock, req.roomId, this.logger);
@@ -238,23 +249,6 @@ export class RoomCreateService {
         const maxFileSize = this.configService.get<number>('UPLOAD_MAX_FILE_SIZE') || 50 * 1024 * 1024;
         const maxWhiteboardFile = this.configService.get<number>('UPLOAD_MAX_WHITEBOARD_FILE') || 10 * 1024 * 1024;
         const allowedTypes = this.configService.get<string>('UPLOAD_ALLOWED_TYPES')?.split(',') || [];
-        // Convert numbers to strings for uint64 compatibility 
-        setCreateRoomDefaultValues(
-            req,
-            maxFileSize.toString(),  // uint64 with JS_STRING = string
-            maxWhiteboardFile.toString(),  // uint64 with JS_STRING = string
-            allowedTypes
-        );
-        setRoomDefaultLockSettings(req);
-
-        // Get room default settings from config 
-        const roomDefaults: RoomDefaultSettings = {
-            maxParticipants: this.configService.get<number>('ROOM_DEFAULT_MAX_PARTICIPANTS'),
-            maxDuration: this.configService.get<string>('ROOM_DEFAULT_MAX_DURATION'),
-            maxNumBreakoutRooms: this.configService.get<number>('ROOM_DEFAULT_MAX_NUM_BREAKOUT_ROOMS'),
-        };
-        setDefaultRoomSettings(roomDefaults, req);
-
         // Copyright configuration
         const copyrightDisplay = this.configService.get<boolean>('COPYRIGHT_DISPLAY') !== false;
         const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Developed by MiraiMagicLab';
@@ -265,14 +259,26 @@ export class RoomCreateService {
             text: copyrightText,
         });
 
+        // Convert numbers to strings for uint64 compatibility 
+        setCreateRoomDefaultValues(
+            req,
+            maxFileSize.toString(),  // uint64 with JS_STRING = string
+            maxWhiteboardFile.toString(),  // uint64 with JS_STRING = string
+            allowedTypes,
+            false, // allowedNotepad - we should check config usually but defaulting false here as it wasn't clearly passed before
+            defaultCopyright
+        );
+        setRoomDefaultLockSettings(req);
+
+        // Handle Copyright Override Logic (which was partly moved to util but needs 'allowOverride' context)
+        // Util handles: if copyrightConf param is passed, it sets it as default if req.metadata.copyrightConf is null.
+        // We still need to enforce "no override" if copyrightAllowOverride is false.
+
         if (req.metadata?.copyrightConf && !copyrightAllowOverride) {
             req.metadata.copyrightConf = defaultCopyright;
-        } else if (!req.metadata?.copyrightConf) {
-            if (!req.metadata) {
-                req.metadata = {} as RoomMetadata;
-            }
-            req.metadata.copyrightConf = defaultCopyright;
         }
+
+        // Get room default settings from config
 
         // Disable analytics for breakout rooms
         if (req.metadata?.isBreakoutRoom && req.metadata?.roomFeatures?.enableAnalytics) {

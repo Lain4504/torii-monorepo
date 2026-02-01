@@ -36,6 +36,21 @@ export class ExternalMediaService {
         this.logger.log(`External media request for room ${req.roomId}, task: ${req.task}`);
 
         // 1. Validation
+        await this.validateRequest(req);
+
+        switch (req.task) {
+            case ExternalMediaPlayerTask.START_PLAYBACK:
+                await this.startExternalMediaPlayBack(req);
+                break;
+            case ExternalMediaPlayerTask.END_PLAYBACK:
+                await this.endExternalMediaPlayBack(req);
+                break;
+            default:
+                throw new Error('Not valid request');
+        }
+    }
+
+    private async validateRequest(req: ExternalMediaPlayerReq): Promise<void> {
         const { info, metadata } = await this.natsRoomService.getRoomInfoWithMetadata(req.roomId);
         if (!info || !metadata) {
             throw new Error('Room not found');
@@ -53,62 +68,80 @@ export class ExternalMediaService {
         }
 
         // Check permission if not admin
-        // Ideally should check isAdmin or isPresenter status from user metadata
         const userMeta = await this.natsUserService.getUserMetadataStruct(req.roomId, req.userId);
         if (!userMeta?.isAdmin && !userMeta?.isPresenter) {
             throw new Error('Permission denied');
         }
+    }
 
-        // 2. Logic based on action
-        let isActive = false;
-
-        if (req.task === ExternalMediaPlayerTask.START_PLAYBACK) {
-            if (!req.url || req.url.trim() === '') {
-                throw new Error('valid url required');
-            }
-            if (feature.isActive) {
-                // If already active, maybe just updating URL? 
-            }
-            isActive = true;
-            feature.isActive = true;
-            feature.url = req.url;
-            feature.sharedBy = req.userId;
-        } else if (req.task === ExternalMediaPlayerTask.END_PLAYBACK) {
-            isActive = false;
-            feature.isActive = false;
-            feature.url = '';
+    private async startExternalMediaPlayBack(req: ExternalMediaPlayerReq): Promise<void> {
+        if (!req.url || req.url.trim() === '') {
+            throw new Error('Valid url required');
         }
 
-        // 3. Update NATS Metadata
-        // We persist metadata changes if it's a state change (START/END)
-        // If it's just a seek (START with same URL?), maybe we update anyway.
-        // For simplicity, we update metadata on every request for now to ensure consistency.
-        await this.natsRoomService.updateRoomMetadata(req.roomId, metadata);
+        const active = true;
+        await this.updateExternalMediaRoomMetadata(req.roomId, {
+            isActive: active,
+            url: req.url,
+            sharedBy: req.userId,
+        });
+
+        // Broadcast Event via Data Channel for START
+        // Note: Go code doesn't seem to broadcast separate data channel event in the snippet provided,
+        // but does in update handler. NestJS previous code gathered logic.
+        // We will keep the data channel broadcast as it was in original NestJS code if needed,
+        // but user asked to match Go. Go uses UpdateAndBroadcastRoomMetadata which notifies clients.
+        // It also sends analytics.
+    }
+
+    private async endExternalMediaPlayBack(req: ExternalMediaPlayerReq): Promise<void> {
+        const active = false;
+        await this.updateExternalMediaRoomMetadata(req.roomId, {
+            isActive: active,
+        });
+    }
+
+    private async updateExternalMediaRoomMetadata(
+        roomId: string,
+        opts: { isActive?: boolean; url?: string; sharedBy?: string },
+    ): Promise<void> {
+        this.logger.log(`Updating room metadata for external media player: ${roomId}`);
+
+        const { info, metadata } = await this.natsRoomService.getRoomInfoWithMetadata(roomId);
+        if (!info || !metadata) {
+            throw new Error('Room not found');
+        }
+
+        const feature = metadata.roomFeatures?.externalMediaPlayerFeatures;
+        if (!feature) {
+            throw new Error('External media player feature not found in metadata');
+        }
+
+        if (opts.isActive !== undefined) {
+            feature.isActive = opts.isActive;
+        }
+        if (opts.url !== undefined) {
+            feature.url = opts.url;
+        }
+        if (opts.sharedBy !== undefined) {
+            feature.sharedBy = opts.sharedBy;
+        }
+
+        await this.natsRoomService.updateRoomMetadata(roomId, metadata);
 
         // Notify room about metadata update
         await this.natsSystemEvents.broadcastSystemEventToRoom(
             NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
-            req.roomId,
+            roomId,
             this.natsService.marshalRoomMetadata(metadata)
         );
 
-        // 4. Broadcast Event via Data Channel
-        // Send the specific external media event to all clients
-        const msg = JSON.stringify(req);
-
-        await this.natsSystemEvents.broadcastDataChannelMessage(
-            req.roomId,
-            DataMsgBodyType.EXTERNAL_MEDIA_PLAYER_EVENTS,
-            msg,
-            req.userId
-        );
-
-        // 5. Send Analytics
-        const val = isActive ? AnalyticsStatus.STARTED.toString() : AnalyticsStatus.ENDED.toString();
+        // Send Analytics
+        const val = feature.isActive ? AnalyticsStatus.STARTED.toString() : AnalyticsStatus.ENDED.toString();
         const analyticsMsg = create(AnalyticsDataMsgSchema, {
             eventType: AnalyticsEventType.ROOM,
             eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_EXTERNAL_MEDIA_PLAYER_STATUS,
-            roomId: req.roomId,
+            roomId: roomId,
             hsetValue: val,
         });
         await this.analyticsService.handleEvent(analyticsMsg);

@@ -103,8 +103,7 @@ export class WaitingRoomService {
      * @param req - Request containing roomId and new message
      */
     async updateWaitingRoomMessage(req: UpdateWaitingRoomMessageReq): Promise<void> {
-        const log = this.logger;
-        log.log(`Updating waiting room message for room ${req.roomId}`);
+        this.logger.log(`Updating waiting room message for room ${req.roomId}`);
 
         // Get room metadata
         const roomMeta = await this.natsRoomService.getRoomMetadataStruct(req.roomId);
@@ -122,6 +121,6 @@ export class WaitingRoomService {
         // Update and broadcast room metadata
         await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(req.roomId, roomMeta);
 
-        log.log('Successfully updated waiting room message');
+        this.logger.log('Successfully updated waiting room message');
     }
 }

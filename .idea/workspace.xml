@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix dependecy injection">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="optimize logic">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +37,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="analysics-meet" />
+        <entry key="$PROJECT_DIR$" value="agent-analysic" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -120,47 +121,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "JavaScript Debug.localhost:3000.executor": "Debug",
-    "JavaScript Debug.localhost:5173.executor": "Debug",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#113 on agent-analysic",
-    "go.import.settings.migrated": "true",
-    "ignore.virus.scanning.warn.message": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/outsource/ten-framework",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
+    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;optimize-webrtc-logic&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/outsource/ten-framework&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "redis",
-      "mongo",
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;redis&quot;,
+      &quot;mongo&quot;,
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>
@@ -210,9 +211,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
@@ -348,134 +349,6 @@
       <workItem from="1769848661014" duration="95000" />
       <workItem from="1769849840092" duration="424000" />
       <workItem from="1769932867652" duration="613000" />
-    </task>
-    <task id="LOCAL-00704" summary="user-learning-progress">
-      <option name="closed" value="true" />
-      <created>1768276017097</created>
-      <option name="number" value="00704" />
-      <option name="presentableId" value="LOCAL-00704" />
-      <option name="project" value="LOCAL" />
-      <updated>1768276017097</updated>
-    </task>
-    <task id="LOCAL-00705" summary="update ui">
-      <option name="closed" value="true" />
-      <created>1768276034963</created>
-      <option name="number" value="00705" />
-      <option name="presentableId" value="LOCAL-00705" />
-      <option name="project" value="LOCAL" />
-      <updated>1768276034963</updated>
-    </task>
-    <task id="LOCAL-00706" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
-      <option name="closed" value="true" />
-      <created>1768277345514</created>
-      <option name="number" value="00706" />
-      <option name="presentableId" value="LOCAL-00706" />
-      <option name="project" value="LOCAL" />
-      <updated>1768277345514</updated>
-    </task>
-    <task id="LOCAL-00707" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
-      <option name="closed" value="true" />
-      <created>1768277847239</created>
-      <option name="number" value="00707" />
-      <option name="presentableId" value="LOCAL-00707" />
-      <option name="project" value="LOCAL" />
-      <updated>1768277847240</updated>
-    </task>
-    <task id="LOCAL-00708" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
-      <option name="closed" value="true" />
-      <created>1768278378550</created>
-      <option name="number" value="00708" />
-      <option name="presentableId" value="LOCAL-00708" />
-      <option name="project" value="LOCAL" />
-      <updated>1768278378551</updated>
-    </task>
-    <task id="LOCAL-00709" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
-      <option name="closed" value="true" />
-      <created>1768278904843</created>
-      <option name="number" value="00709" />
-      <option name="presentableId" value="LOCAL-00709" />
-      <option name="project" value="LOCAL" />
-      <updated>1768278904843</updated>
-    </task>
-    <task id="LOCAL-00710" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
-      <option name="closed" value="true" />
-      <created>1768279788874</created>
-      <option name="number" value="00710" />
-      <option name="presentableId" value="LOCAL-00710" />
-      <option name="project" value="LOCAL" />
-      <updated>1768279788874</updated>
-    </task>
-    <task id="LOCAL-00711" summary="update">
-      <option name="closed" value="true" />
-      <created>1768388030432</created>
-      <option name="number" value="00711" />
-      <option name="presentableId" value="LOCAL-00711" />
-      <option name="project" value="LOCAL" />
-      <updated>1768388030433</updated>
-    </task>
-    <task id="LOCAL-00712" summary="refactor: refactor meet service">
-      <option name="closed" value="true" />
-      <created>1768472322264</created>
-      <option name="number" value="00712" />
-      <option name="presentableId" value="LOCAL-00712" />
-      <option name="project" value="LOCAL" />
-      <updated>1768472322265</updated>
-    </task>
-    <task id="LOCAL-00713" summary="refactor: refactor meet service">
-      <option name="closed" value="true" />
-      <created>1768472697536</created>
-      <option name="number" value="00713" />
-      <option name="presentableId" value="LOCAL-00713" />
-      <option name="project" value="LOCAL" />
-      <updated>1768472697536</updated>
-    </task>
-    <task id="LOCAL-00714" summary="refactor: refactor meet service">
-      <option name="closed" value="true" />
-      <created>1768474181556</created>
-      <option name="number" value="00714" />
-      <option name="presentableId" value="LOCAL-00714" />
-      <option name="project" value="LOCAL" />
-      <updated>1768474181556</updated>
-    </task>
-    <task id="LOCAL-00715" summary="refactor: refactor meet service">
-      <option name="closed" value="true" />
-      <created>1768474233020</created>
-      <option name="number" value="00715" />
-      <option name="presentableId" value="LOCAL-00715" />
-      <option name="project" value="LOCAL" />
-      <updated>1768474233020</updated>
-    </task>
-    <task id="LOCAL-00716" summary="refactor: refactor meet service">
-      <option name="closed" value="true" />
-      <created>1768475184226</created>
-      <option name="number" value="00716" />
-      <option name="presentableId" value="LOCAL-00716" />
-      <option name="project" value="LOCAL" />
-      <updated>1768475184228</updated>
-    </task>
-    <task id="LOCAL-00717" summary="feat(identity): implement identity module with authentication and authorization handlers">
-      <option name="closed" value="true" />
-      <created>1768477087425</created>
-      <option name="number" value="00717" />
-      <option name="presentableId" value="LOCAL-00717" />
-      <option name="project" value="LOCAL" />
-      <updated>1768477087426</updated>
-    </task>
-    <task id="LOCAL-00718" summary="refactor(identity): refactor identity service">
-      <option name="closed" value="true" />
-      <created>1768477480432</created>
-      <option name="number" value="00718" />
-      <option name="presentableId" value="LOCAL-00718" />
-      <option name="project" value="LOCAL" />
-      <updated>1768477480432</updated>
-    </task>
-    <task id="LOCAL-00719" summary="refactor(identity): refactor identity service">
-      <option name="closed" value="true" />
-      <created>1768478279276</created>
-      <option name="number" value="00719" />
-      <option name="presentableId" value="LOCAL-00719" />
-      <option name="project" value="LOCAL" />
-      <updated>1768478279277</updated>
     </task>
     <task id="LOCAL-00720" summary="refactor(identity): refactor identity service">
       <option name="closed" value="true" />
@@ -741,7 +614,135 @@
       <option name="project" value="LOCAL" />
       <updated>1769936923240</updated>
     </task>
-    <option name="localTasksCounter" value="753" />
+    <task id="LOCAL-00753" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769953785245</created>
+      <option name="number" value="00753" />
+      <option name="presentableId" value="LOCAL-00753" />
+      <option name="project" value="LOCAL" />
+      <updated>1769953785247</updated>
+    </task>
+    <task id="LOCAL-00754" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769954957769</created>
+      <option name="number" value="00754" />
+      <option name="presentableId" value="LOCAL-00754" />
+      <option name="project" value="LOCAL" />
+      <updated>1769954957769</updated>
+    </task>
+    <task id="LOCAL-00755" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769956533040</created>
+      <option name="number" value="00755" />
+      <option name="presentableId" value="LOCAL-00755" />
+      <option name="project" value="LOCAL" />
+      <updated>1769956533040</updated>
+    </task>
+    <task id="LOCAL-00756" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769957160442</created>
+      <option name="number" value="00756" />
+      <option name="presentableId" value="LOCAL-00756" />
+      <option name="project" value="LOCAL" />
+      <updated>1769957160442</updated>
+    </task>
+    <task id="LOCAL-00757" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769961073493</created>
+      <option name="number" value="00757" />
+      <option name="presentableId" value="LOCAL-00757" />
+      <option name="project" value="LOCAL" />
+      <updated>1769961073493</updated>
+    </task>
+    <task id="LOCAL-00758" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769962166102</created>
+      <option name="number" value="00758" />
+      <option name="presentableId" value="LOCAL-00758" />
+      <option name="project" value="LOCAL" />
+      <updated>1769962166102</updated>
+    </task>
+    <task id="LOCAL-00759" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769962182263</created>
+      <option name="number" value="00759" />
+      <option name="presentableId" value="LOCAL-00759" />
+      <option name="project" value="LOCAL" />
+      <updated>1769962182263</updated>
+    </task>
+    <task id="LOCAL-00760" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769962256852</created>
+      <option name="number" value="00760" />
+      <option name="presentableId" value="LOCAL-00760" />
+      <option name="project" value="LOCAL" />
+      <updated>1769962256852</updated>
+    </task>
+    <task id="LOCAL-00761" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769963650414</created>
+      <option name="number" value="00761" />
+      <option name="presentableId" value="LOCAL-00761" />
+      <option name="project" value="LOCAL" />
+      <updated>1769963650414</updated>
+    </task>
+    <task id="LOCAL-00762" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769964744494</created>
+      <option name="number" value="00762" />
+      <option name="presentableId" value="LOCAL-00762" />
+      <option name="project" value="LOCAL" />
+      <updated>1769964744494</updated>
+    </task>
+    <task id="LOCAL-00763" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769965340175</created>
+      <option name="number" value="00763" />
+      <option name="presentableId" value="LOCAL-00763" />
+      <option name="project" value="LOCAL" />
+      <updated>1769965340175</updated>
+    </task>
+    <task id="LOCAL-00764" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769965680540</created>
+      <option name="number" value="00764" />
+      <option name="presentableId" value="LOCAL-00764" />
+      <option name="project" value="LOCAL" />
+      <updated>1769965680540</updated>
+    </task>
+    <task id="LOCAL-00765" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769966741421</created>
+      <option name="number" value="00765" />
+      <option name="presentableId" value="LOCAL-00765" />
+      <option name="project" value="LOCAL" />
+      <updated>1769966741421</updated>
+    </task>
+    <task id="LOCAL-00766" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769967707333</created>
+      <option name="number" value="00766" />
+      <option name="presentableId" value="LOCAL-00766" />
+      <option name="project" value="LOCAL" />
+      <updated>1769967707333</updated>
+    </task>
+    <task id="LOCAL-00767" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769968705663</created>
+      <option name="number" value="00767" />
+      <option name="presentableId" value="LOCAL-00767" />
+      <option name="project" value="LOCAL" />
+      <updated>1769968705664</updated>
+    </task>
+    <task id="LOCAL-00768" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769969068392</created>
+      <option name="number" value="00768" />
+      <option name="presentableId" value="LOCAL-00768" />
+      <option name="project" value="LOCAL" />
+      <updated>1769969068392</updated>
+    </task>
+    <option name="localTasksCounter" value="769" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -758,7 +759,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="agent-analysic" />
+                        <option value="optimize-webrtc-logic" />
                       </list>
                     </value>
                   </entry>
@@ -776,8 +777,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="rebuild UI" />
-    <MESSAGE value="build aadmin" />
     <MESSAGE value="user-learning-progress" />
     <MESSAGE value="update ui" />
     <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
@@ -801,7 +800,9 @@
     <MESSAGE value="update" />
     <MESSAGE value="fix meet config" />
     <MESSAGE value="fix dependecy injection" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix dependecy injection" />
+    <MESSAGE value="feat: implement agent analysic for meet webrtc (#113)&#10;&#10;* add ai agent&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;&#10;* add missing logic&#10;&#10;* feat: enhance recording functionality with cloud and RTMP recording support&#10;&#10;* remove shared note&#10;&#10;* update&#10;&#10;* fix dependecy injection" />
+    <MESSAGE value="optimize logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="optimize logic" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

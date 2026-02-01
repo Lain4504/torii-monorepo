@@ -37,6 +37,21 @@ export class ExternalDisplayService {
         this.logger.log(`External display request for room ${req.roomId}, task: ${req.task}`);
 
         // 1. Validation
+        await this.validateRequest(req);
+
+        switch (req.task) {
+            case ExternalDisplayLinkTask.START_EXTERNAL_LINK:
+                await this.startExternalDisplay(req);
+                break;
+            case ExternalDisplayLinkTask.STOP_EXTERNAL_LINK:
+                await this.endExternalDisplay(req);
+                break;
+            default:
+                throw new Error('Not valid request');
+        }
+    }
+
+    private async validateRequest(req: ExternalDisplayLinkReq): Promise<void> {
         const { info, metadata } = await this.natsRoomService.getRoomInfoWithMetadata(req.roomId);
         if (!info || !metadata) {
             throw new Error('Room not found');
@@ -58,56 +73,72 @@ export class ExternalDisplayService {
         if (!userMeta?.isAdmin && !userMeta?.isPresenter) {
             throw new Error('Permission denied');
         }
+    }
 
-        // 2. Logic based on action
-        let isActive = false;
-
-        if (req.task === ExternalDisplayLinkTask.START_EXTERNAL_LINK) {
-            if (!req.url) {
-                throw new Error('Valid url required');
-            }
-            isActive = true;
-            feature.isActive = true;
-            feature.link = req.url;
-            feature.sharedBy = req.userId;
-        } else if (req.task === ExternalDisplayLinkTask.STOP_EXTERNAL_LINK) {
-            isActive = false;
-            feature.isActive = false;
-        } else {
-            throw new Error('Invalid request task');
+    private async startExternalDisplay(req: ExternalDisplayLinkReq): Promise<void> {
+        if (!req.url || req.url === '') {
+            throw new Error('Valid url required');
         }
 
-        // 3. Update NATS Metadata
-        await this.natsRoomService.updateRoomMetadata(req.roomId, metadata);
+        const active = true;
+        await this.updateExternalDisplayRoomMetadata(req.roomId, {
+            isActive: active,
+            url: req.url,
+            sharedBy: req.userId,
+        });
+    }
+
+    private async endExternalDisplay(req: ExternalDisplayLinkReq): Promise<void> {
+        const active = false;
+        await this.updateExternalDisplayRoomMetadata(req.roomId, {
+            isActive: active,
+        });
+    }
+
+    private async updateExternalDisplayRoomMetadata(
+        roomId: string,
+        opts: { isActive?: boolean; url?: string; sharedBy?: string },
+    ): Promise<void> {
+        this.logger.log(`Updating room metadata for external display: ${roomId}`);
+
+        const { info, metadata } = await this.natsRoomService.getRoomInfoWithMetadata(roomId);
+        if (!info || !metadata) {
+            throw new Error('Room not found');
+        }
+
+        const feature = metadata.roomFeatures?.displayExternalLinkFeatures;
+        if (!feature) {
+            // Note: Go code checks feature.isAllow here implicitly via if check? 
+            // NestJS existing code checked !feature || !feature.isAllow
+            // Go code: invalid nil room metadata information error if roomMeta is nil.
+            throw new Error('External display feature not found in metadata');
+        }
+
+        if (opts.isActive !== undefined) {
+            feature.isActive = opts.isActive;
+        }
+        if (opts.url !== undefined) {
+            feature.link = opts.url;
+        }
+        if (opts.sharedBy !== undefined) {
+            feature.sharedBy = opts.sharedBy;
+        }
+
+        await this.natsRoomService.updateRoomMetadata(roomId, metadata);
 
         // Notify room about metadata update
         await this.natsSystemEvents.broadcastSystemEventToRoom(
             NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
-            req.roomId,
+            roomId,
             this.natsService.marshalRoomMetadata(metadata)
         );
 
-        // 4. Broadcast Event via Data Channel
-        // Send the specific external display event to all clients
-        // Note: DataMsgBodyType.EXTERNAL_DISPLAY_LINK_EVENTS is missing in protocol definition
-        // We will skip sending this for now.
-
-        /*
-        const msg = toJsonString(ExternalDisplayLinkReqSchema, req);
-        await this.natsSystemEvents.broadcastDataChannelMessage(
-            req.roomId,
-            DataMsgBodyType.EXTERNAL_DISPLAY_LINK_EVENTS,
-            msg,
-            req.userId
-        );
-        */
-
-        // 5. Send Analytics
-        const val = isActive ? AnalyticsStatus.STARTED.toString() : AnalyticsStatus.ENDED.toString();
+        // Send Analytics
+        const val = feature.isActive ? AnalyticsStatus.STARTED.toString() : AnalyticsStatus.ENDED.toString();
         const analyticsMsg = create(AnalyticsDataMsgSchema, {
             eventType: AnalyticsEventType.ROOM,
             eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_EXTERNAL_DISPLAY_LINK_STATUS,
-            roomId: req.roomId,
+            roomId: roomId,
             hsetValue: val,
         });
         await this.analyticsService.handleEvent(analyticsMsg);

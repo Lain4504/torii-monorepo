@@ -3,7 +3,7 @@
  *
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     generateWajlcJWTAccessToken
@@ -14,6 +14,7 @@ import {
 import {
     verifyWebhookRequest
 } from '@server/shared/utils/webhook_verify';
+import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
 import * as jwt from 'jsonwebtoken';
 
 /**
@@ -39,7 +40,10 @@ export class WajlcAuthService {
     private readonly livekitApiKey: string;
     private readonly livekitSecret: string;
 
-    constructor(private readonly configService: ConfigService) {
+    constructor(
+        private readonly configService: ConfigService,
+        @Inject(forwardRef(() => NatsUserInfoService)) private readonly natsUserInfoService: NatsUserInfoService,
+    ) {
         this.apiKey = this.configService.get<string>('WAJLC_API_KEY') || '';
         this.secret = this.configService.get<string>('WAJLC_API_SECRET') || '';
         this.tokenValidity = this.configService.get<number>('WAJLC_TOKEN_VALIDITY') || 3600; // 1 hour default
@@ -141,9 +145,20 @@ export class WajlcAuthService {
      * Renew Wajlc token
      * Note: This requires NATS service to check user status
      */
-    renewWajlcToken(oldToken: string, gracefulPeriodSeconds: number = 0): string {
+    async renewWajlcToken(oldToken: string, gracefulPeriodSeconds: number = 0): Promise<string> {
         // Verify old token first (calls shared utils)
         const claims = this.verifyWajlcAccessToken(oldToken, gracefulPeriodSeconds);
+
+        // Check if user exists in the room
+        try {
+            const status = await this.natsUserInfoService.getRoomUserStatus(claims.roomId, claims.userId);
+            if (!status || status === '') {
+                throw new Error('user not found');
+            }
+        } catch (error) {
+            this.logger.error(`Failed to check user status during token renewal: ${error.message}`);
+            throw error;
+        }
 
         // Generate new token with same claims (calls shared utils)
         return this.generateWajlcJoinToken(claims);

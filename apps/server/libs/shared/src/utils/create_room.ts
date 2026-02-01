@@ -24,6 +24,9 @@ import {
     InsightsAIFeaturesSchema,
     InsightsAITextChatFeaturesSchema,
     InsightsAIMeetingSummarizationFeaturesSchema,
+    SharedNotePadFeaturesSchema,
+    CopyrightConf,
+    CopyrightConfSchema,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { generateSecureRandomString, generateRandomString } from './common';
@@ -62,7 +65,18 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
         }
     }
 
-
+    if (!rf.sharedNotePadFeatures) {
+        rf.sharedNotePadFeatures = create(SharedNotePadFeaturesSchema, {
+            isAllow: false,
+            isActive: false,
+            visible: false,
+        });
+    } else {
+        // backward compatibility
+        if (rf.sharedNotePadFeatures.allowedSharedNotePad !== undefined) {
+            rf.sharedNotePadFeatures.isAllow = rf.sharedNotePadFeatures.allowedSharedNotePad;
+        }
+    }
 
     if (!rf.whiteboardFeatures) {
         rf.whiteboardFeatures = create(WhiteboardFeaturesSchema, {
@@ -223,16 +237,62 @@ export function setCreateRoomDefaultValues(
     r: CreateRoomReq,
     maxSize: string, // uint64 with JS_STRING
     maxSizeWhiteboardFile: string, // uint64 with JS_STRING
-    allowedTypes: string[]
+    allowedTypes: string[],
+    allowedNotepad: boolean,
+    copyrightConf: CopyrightConf | null
 ): void {
-    const rf = r.metadata!.roomFeatures!;
+    const rf = r.metadata!.roomFeatures!; // r.metadata is ensured by caller or prepareDefaultRoomFeatures
+
+    // Copyright Config Logic matching Go setRoomDefaults
+    const defaultCopyright = create(CopyrightConfSchema, {
+        display: true,
+        text: 'Powered by <a href="https://www.plugnmeet.org" target="_blank">plugNmeet</a>',
+    });
+
+    if (copyrightConf === null) {
+        if (!r.metadata!.copyrightConf) {
+            r.metadata!.copyrightConf = defaultCopyright;
+        }
+    } else {
+        const d = create(CopyrightConfSchema, {
+            display: copyrightConf.display,
+            text: copyrightConf.text,
+        });
+
+        // Go Logic:
+        // if r.Metadata.CopyrightConf != nil && !copyrightConf.AllowOverride { r.Metadata.CopyrightConf = d }
+        // else if r.Metadata.CopyrightConf == nil { r.Metadata.CopyrightConf = d }
+        // Note: CopyrightConf in protobuf doesn't have 'allowOverride', it's likely from Server Config struct which is passed here as 'copyrightConf'?
+        // Ah, looking at Go code: m.app.Client.CopyrightConf is the source of truth for config.
+        // Let's assume the passed `copyrightConf` here is the Server Config object mapped to CopyrightConfSchema but we need 'allowOverride' which isn't in Schema.
+        // Wait, 'CopyrightConf' import is from protocol.
+        // We probably need to pass 'allowOverride' as separate arg or assume it's handled by caller.
+        // For now let's implement the override logic if caller passes it. 
+        // Actually, looking at room-create.service.ts, it calculates this.
+        // Let's Move the copyright logic fully to `setCreateRoomDefaultValues` to match Go's `setRoomDefaults` structure better, 
+        // OR keep it in service and just update the util signature to support what's needed.
+
+        // Go's `setRoomDefaults` does A LOT more now. 
+        // Let's update `setCreateRoomDefaultValues` to take the object and handle it.
+
+        // RE-READING GO CODE:
+        // copyrightConf := m.app.Client.CopyrightConf
+        // It uses app config. 
+
+        if (!r.metadata!.copyrightConf) {
+            r.metadata!.copyrightConf = d;
+        }
+        // Verification of override should happen where we have access to config (Service)
+    }
 
     if (rf.autoGenUserId === undefined) {
         // by default, auto user id generation will be disabled
         rf.autoGenUserId = false;
     }
 
-
+    if (rf.sharedNotePadFeatures?.isAllow && !allowedNotepad) {
+        rf.sharedNotePadFeatures.isAllow = false;
+    }
 
     if (rf.chatFeatures?.isAllowFileUpload) {
         if (!rf.chatFeatures.allowedFileTypes || rf.chatFeatures.allowedFileTypes.length === 0) {
@@ -279,6 +339,9 @@ export function setRoomDefaultLockSettings(r: CreateRoomReq): void {
     }
     if (r.metadata!.defaultLockSettings!.lockWhiteboard === undefined) {
         r.metadata!.defaultLockSettings!.lockWhiteboard = lock;
+    }
+    if (r.metadata!.defaultLockSettings!.lockSharedNotepad === undefined) {
+        r.metadata!.defaultLockSettings!.lockSharedNotepad = lock;
     }
 
 }

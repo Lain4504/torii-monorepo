@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import type { NatsKvRoomInfo } from '@workspace/protocol';
 
-const REDIS_PREFIX = 'wajlc:';
+const REDIS_PREFIX = 'wajlc:'; // Customized prefix (Go uses "pnm:")
 const TEMPORARY_ROOM_DATA_KEY = `${REDIS_PREFIX}temporaryRoomData:%s`;
 
 /**
@@ -128,6 +128,8 @@ export class RedisRoomService {
      * @param info - RoomDurationInfo with duration and startedAt
      */
     async addRoomWithDurationInfo(roomId: string, info: { duration: number; startedAt: number }): Promise<void> {
+        // Go: fmt.Sprintf("%s:%s", RoomWithDurationInfoKey, roomId)
+        // Result: wajlc:roomWithDurationInfo:roomId (using customized prefix)
         const key = `${REDIS_PREFIX}roomWithDurationInfo:${roomId}`;
 
         try {
@@ -239,6 +241,43 @@ export class RedisRoomService {
         } catch (error) {
             this.logger.error(`Failed to delete room duration: ${error.message}`);
             throw error;
+        }
+    }
+
+    /**
+     * GetRoomsWithDurationKeys retrieves all room duration keys
+     * @returns Array of keys
+     */
+    async getRoomsWithDurationKeys(): Promise<string[]> {
+        try {
+            return await this.redis.keys(`${REDIS_PREFIX}roomWithDurationInfo:*`);
+        } catch (error) {
+            this.logger.error(`Failed to get room duration keys: ${error.message}`);
+            return [];
+        }
+    }
+
+    /**
+     * GetRoomWithDurationInfoByKey retrieves room duration info by full key
+     * 
+     * @param key - Full Redis key
+     * @returns RoomDurationInfo or null
+     */
+    async getRoomWithDurationInfoByKey(key: string): Promise<{ duration: number; startedAt: number } | null> {
+        try {
+            const result = await this.redis.hgetall(key);
+
+            if (!result || Object.keys(result).length === 0) {
+                return null;
+            }
+
+            return {
+                duration: parseInt(result.duration || '0', 10),
+                startedAt: parseInt(result.startedAt || '0', 10),
+            };
+        } catch (error) {
+            this.logger.error(`Failed to get room duration info by key: ${error.message}`);
+            return null;
         }
     }
 

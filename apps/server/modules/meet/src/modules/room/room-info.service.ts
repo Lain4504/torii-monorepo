@@ -63,43 +63,29 @@ export class RoomInfoService {
         metadata: RoomMetadata | null;
         meta?: RoomMetadata | null;
     }> {
-        const log = this.logger;
-        log.log(`IsRoomActive check: ${req.roomId}`);
-
-        // Wait until room creation completes
-        await waitUntilRoomCreationCompletes(this.redisLock, req.roomId, log);
-
         const res = create(IsRoomActiveResSchema, {
             status: true,
             msg: 'room is not active',
             isActive: false,
         });
 
-        // Check database first
-        const roomDbInfo = await this.getRoomInfoByRoomId(req.roomId, true);
-        if (!roomDbInfo || !roomDbInfo.id) {
-            res.status = false;
-            res.msg = 'Room not found in database';
-            return { res, roomDbInfo: null, rInfo: null, metadata: null };
-        }
-
-        // Check NATS for actual room info
+        // NATS is the single source of truth for this check.
         const { info: rInfo, metadata } = await this.natsRoomService.getRoomInfoWithMetadata(req.roomId);
 
         if (!rInfo || !metadata) {
-            // Room isn't active. Change status in DB
-            await this.updateRoomStatus(req.roomId, false);
+            // Room isn't active in NATS.
             return { res, roomDbInfo: null, rInfo: null, metadata: null };
         }
 
-        // Check room status
         if (rInfo.status === 'created' || rInfo.status === 'active') {
             res.isActive = true;
             res.msg = 'room is active';
         }
+        // If status is "ended" or anything else, it will correctly return IsActive: false and "room is not active".
 
-        // Return full context for callers that need both DB and KV data
-        return { res, roomDbInfo, rInfo, metadata, meta: metadata };
+        // Return full context
+        // roomDbInfo is null because Go implementation doesn't fetch it
+        return { res, roomDbInfo: null, rInfo, metadata, meta: metadata };
     }
 
     /**

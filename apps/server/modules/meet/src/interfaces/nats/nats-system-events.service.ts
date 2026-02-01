@@ -106,7 +106,7 @@ export class NatsSystemEventsService {
             // Plain object - stringify
             msg = JSON.stringify(data);
         } else {
-            throw new Error('invalid data type');
+            throw new Error('Invalid data type');
         }
 
         // Create NATS message payload

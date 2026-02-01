@@ -64,6 +64,14 @@ export class RoomUserService {
     }
 
     /**
+     * Get online users count
+     */
+    async getOnlineUsersCount(roomId: string): Promise<number> {
+        const userIds = await this.natsUserInfo.getOnlineUsersId(roomId);
+        return userIds.length;
+    }
+
+    /**
      * Generate Wajlc join token for a user
      *
      * This is the main entry point for users joining a room
@@ -144,6 +152,15 @@ export class RoomUserService {
             const validUserIdRegex = /^[a-zA-Z0-9-_]+$/;
             if (!validUserIdRegex.test(req.userInfo.userId)) {
                 throw new Error('user_id should only contain ASCII letters (a-z A-Z), digits (0-9) or -_');
+            }
+            // Add an extra check to ensure our chosen separator pattern is not present.
+            // Matches Go: strings.Contains(g.UserInfo.UserId, natsservice.UserKeyFieldPrefix)
+            if (req.userInfo.userId.includes('-FIELD_')) {
+                throw new Error("user_id cannot contain the reserved pattern '-FIELD_'");
+            }
+            // Matches Go: strings.HasPrefix(g.UserInfo.UserId, natsservice.UserKeyPrefix)
+            if (req.userInfo.userId.startsWith('user_')) {
+                throw new Error("user_id cannot start with the reserved pattern 'user_'");
             }
 
             // Step 8: Assign permissions and lock settings based on whether the user is an admin
