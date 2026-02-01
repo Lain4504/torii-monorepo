@@ -56,20 +56,30 @@ export class WebhookService {
 
     constructor(
         private readonly configService: ConfigService,
+        @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
+        @Inject(forwardRef(() => NatsUserInfoService))
         private readonly natsUserInfoService: NatsUserInfoService,
+        @Inject(forwardRef(() => NatsUserService))
         private readonly natsUserService: NatsUserService,
+        @Inject(forwardRef(() => NatsService))
         private readonly natsService: NatsService,
         private readonly redisRoomService: RedisRoomService,
         private readonly livekitService: LiveKitService,
+        @Inject(forwardRef(() => RoomDurationService))
         private readonly roomDurationService: RoomDurationService,
+        @Inject(forwardRef(() => RoomInfoService))
         private readonly roomInfoService: RoomInfoService,
+        @Inject(forwardRef(() => NatsRoomEventsService))
         private readonly natsRoomEventsService: NatsRoomEventsService,
         private readonly webhookNotifierService: WebhookNotifierService,
+        @Inject(forwardRef(() => AnalyticsService))
         private readonly analyticsService: AnalyticsService,
+        @Inject(forwardRef(() => SpeechToTextService))
         private readonly speechService: SpeechToTextService,
         @Inject(forwardRef(() => RoomEndService))
         private readonly roomEndService: RoomEndService,
+        @Inject(forwardRef(() => BreakoutService))
         private readonly breakoutService: BreakoutService,
     ) { }
 

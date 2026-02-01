@@ -50,6 +50,7 @@ export class AnalyticsService {
         private readonly redisLock: RedisLockService,
         @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
+        @Inject(forwardRef(() => ArtifactsService))
         private readonly artifactsService: ArtifactsService,
     ) { }
 

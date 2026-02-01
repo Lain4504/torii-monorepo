@@ -2,19 +2,21 @@
  * Insights Module
  */
 
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { InsightsService } from './insights.service';
 import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
 import { NatsModule } from '../../interfaces/nats/nats.module';
 import { ArtifactsModule } from '../artifacts/artifacts.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
 
 @Module({
     imports: [
         ConfigModule,
         NatsModule,
-        ArtifactsModule,
+        forwardRef(() => ArtifactsModule),
+        forwardRef(() => AnalyticsModule),
         ClientsModule.registerAsync([
             {
                 name: 'NATS_CLIENT',

@@ -35,6 +35,7 @@ export class RecordingService {
         private readonly roomInfoService: RoomInfoService,
         private readonly artifactsService: ArtifactsService,
         private readonly analyticsService: AnalyticsService,
+        @Inject(forwardRef(() => WebhookService))
         private readonly webhookService: WebhookService,
         private readonly natsRoomEventsService: NatsRoomEventsService,
         private readonly natsSystemEventsService: NatsSystemEventsService,

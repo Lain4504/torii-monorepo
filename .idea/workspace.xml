@@ -4,25 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update">
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/adminMenus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/adminMenus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/useSharedNotepad.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/iconsInMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/iconsInMenu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/sharedNotePad.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/lockSettingsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/lockSettingsModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useSharedNotepad.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/mainView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/mainView.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/lock.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/lock.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/shared-notepad/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/shared-notepad/useNotepadUrl.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleParticipants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleParticipants.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/roomConfig.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/roomConfig.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/bottomIconsActivitySlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/bottomIconsActivitySlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/bottomIcons.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/bottomIcons.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/sessionSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/sessionSlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/i18n/src/locales/en/meet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/i18n/src/locales/en/meet.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/i18n/src/locales/vi/meet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/i18n/src/locales/vi/meet.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix dependecy injection">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,52 +52,52 @@
     &quot;state&quot;: &quot;OPEN&quot;
   }
 }</component>
-  <component name="GitHubPullRequestState"><![CDATA[{
-  "prStates": [
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
     {
-      "id": {
-        "id": "PR_kwDOQmD9iM66sc24",
-        "number": 35
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM66sc24&quot;,
+        &quot;number&quot;: 35
       },
-      "lastSeen": 1766837511440
+      &quot;lastSeen&quot;: 1766837511440
     },
     {
-      "id": {
-        "id": "PR_kwDOQmD9iM66twAD",
-        "number": 38
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM66twAD&quot;,
+        &quot;number&quot;: 38
       },
-      "lastSeen": 1766885614934
+      &quot;lastSeen&quot;: 1766885614934
     },
     {
-      "id": {
-        "id": "PR_kwDOQmD9iM66oPXy",
-        "number": 31
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM66oPXy&quot;,
+        &quot;number&quot;: 31
       },
-      "lastSeen": 1766974161892
+      &quot;lastSeen&quot;: 1766974161892
     },
     {
-      "id": {
-        "id": "PR_kwDOQmD9iM67ZerY",
-        "number": 48
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM67ZerY&quot;,
+        &quot;number&quot;: 48
       },
-      "lastSeen": 1767495744090
+      &quot;lastSeen&quot;: 1767495744090
     },
     {
-      "id": {
-        "id": "PR_kwDOQmD9iM7AaErH",
-        "number": 113
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AaErH&quot;,
+        &quot;number&quot;: 113
       },
-      "lastSeen": 1769855142628
+      &quot;lastSeen&quot;: 1769855142628
     }
   ]
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "git@github.com:Lain4504/torii-monorepo.git",
-    "accountId": "36ac2fd8-9a60-42a4-b2bf-7fe947db4431"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
   },
-  "editorReviewEnabled": false
-}]]></component>
+  &quot;editorReviewEnabled&quot;: false
+}</component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
@@ -364,14 +347,7 @@
       <workItem from="1769846484321" duration="1011000" />
       <workItem from="1769848661014" duration="95000" />
       <workItem from="1769849840092" duration="424000" />
-    </task>
-    <task id="LOCAL-00703" summary="user-learning-progress">
-      <option name="closed" value="true" />
-      <created>1768275655161</created>
-      <option name="number" value="00703" />
-      <option name="presentableId" value="LOCAL-00703" />
-      <option name="project" value="LOCAL" />
-      <updated>1768275655161</updated>
+      <workItem from="1769932867652" duration="613000" />
     </task>
     <task id="LOCAL-00704" summary="user-learning-progress">
       <option name="closed" value="true" />
@@ -757,7 +733,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769868471608</updated>
     </task>
-    <option name="localTasksCounter" value="752" />
+    <task id="LOCAL-00752" summary="fix dependecy injection">
+      <option name="closed" value="true" />
+      <created>1769936923239</created>
+      <option name="number" value="00752" />
+      <option name="presentableId" value="LOCAL-00752" />
+      <option name="project" value="LOCAL" />
+      <updated>1769936923240</updated>
+    </task>
+    <option name="localTasksCounter" value="753" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -792,7 +776,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="payos" />
     <MESSAGE value="rebuild UI" />
     <MESSAGE value="build aadmin" />
     <MESSAGE value="user-learning-progress" />
@@ -815,9 +798,10 @@
     <MESSAGE value="feat: add artifacts module and analytics service for handling telemetry data" />
     <MESSAGE value="feat: integrate etherpad module" />
     <MESSAGE value="fix bug" />
-    <MESSAGE value="fix meet config" />
     <MESSAGE value="update" />
-    <option name="LAST_COMMIT_MESSAGE" value="update" />
+    <MESSAGE value="fix meet config" />
+    <MESSAGE value="fix dependecy injection" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix dependecy injection" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
@@ -842,7 +826,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts</url>
-          <line>80</line>
+          <line>89</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

@@ -4,7 +4,7 @@
  * Manages all room artifacts (analytics, summaries, transcripts, etc.)
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@server/shared';
 import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
@@ -49,7 +49,7 @@ export class ArtifactsService {
         private readonly webhookNotifier: WebhookNotifierService,
         private readonly redisInsightsService: RedisInsightsService,
         private readonly natsService: NatsService,
-        private readonly natsRoomService: NatsRoomService,
+        @Inject(forwardRef(() => NatsRoomService)) private readonly natsRoomService: NatsRoomService,
     ) {
         this.storagePath = this.configService.get<string>('STORAGE_PATH') || './storage';
         this.apiKey = this.configService.get<string>('API_KEY') || '';

@@ -112,9 +112,7 @@ export class RedisPollService {
         }
     }
 
-    async cleanUpPolls(roomId: string): Promise<void> {
-        const pollIds = await this.getPollIdsByRoomId(roomId);
-        if (!pollIds) return;
+    async cleanUpPolls(roomId: string, pollIds: string[]): Promise<void> {
 
         const pipeline = this.redis.pipeline();
 

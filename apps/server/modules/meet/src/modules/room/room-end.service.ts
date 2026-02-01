@@ -37,22 +37,32 @@ export class RoomEndService {
 
     constructor(
         private readonly configService: ConfigService,
+        @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
+        @Inject(forwardRef(() => NatsSystemEventsService))
         private readonly natsSystemEvents: NatsSystemEventsService,
+        @Inject(forwardRef(() => NatsStreamService))
         private readonly natsStreamService: NatsStreamService,
+        @Inject(forwardRef(() => NatsUserService))
         private readonly natsUserService: NatsUserService,
         private readonly redisLock: RedisLockService,
         private readonly redisRoom: RedisRoomService,
         private readonly livekit: LiveKitService,
         private readonly roomInfoService: RoomInfoService,
         private readonly roomDuration: RoomDurationService,
+        @Inject(forwardRef(() => PollsService))
         private readonly pollsService: PollsService,
+        @Inject(forwardRef(() => AnalyticsService))
         private readonly analyticsService: AnalyticsService,
         @Inject(forwardRef(() => BreakoutService))
         private readonly breakoutService: BreakoutService,
+        @Inject(forwardRef(() => FileService))
         private readonly fileService: FileService,
+        @Inject(forwardRef(() => InsightsService))
         private readonly insightsService: InsightsService,
+        @Inject(forwardRef(() => RecordingService))
         private readonly recordingService: RecordingService,
+        @Inject(forwardRef(() => SpeechToTextService))
         private readonly speechToText: SpeechToTextService,
     ) { }
 

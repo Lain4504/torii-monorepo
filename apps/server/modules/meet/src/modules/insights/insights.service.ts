@@ -56,6 +56,7 @@ export class InsightsService {
         private readonly natsSystemEvents: NatsSystemEventsService,
         private readonly redisInsightsService: RedisInsightsService,
         private readonly artifactsService: ArtifactsService,
+        @Inject(forwardRef(() => AnalyticsService))
         private readonly analyticsService: AnalyticsService,
     ) { }
 

@@ -31,7 +31,7 @@ const getJsonEnv = <T>(key: string, defaultValue: T): T => {
     return defaultValue;
 };
 
-export const SERVER_URL: string = getEnv('VITE_API_URL', 'https://api.torii.sbs');
+export const SERVER_URL: string = getEnv('VITE_API_URL', 'http://localhost:8080');
 export const STATIC_ASSETS_PATH: string = getEnv('VITE_STATIC_ASSETS_PATH', './assets');
 
 export const ENABLE_DYNACAST: boolean = getBoolEnv('VITE_ENABLE_DYNACAST', true);

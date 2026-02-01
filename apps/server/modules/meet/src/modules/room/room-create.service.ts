@@ -4,7 +4,7 @@
  * Handles room creation logic with all validation and defaults
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
@@ -51,12 +51,17 @@ export class RoomCreateService {
     constructor(
         private readonly configService: ConfigService,
         private readonly redisLock: RedisLockService,
+        @Inject(forwardRef(() => NatsStreamService))
         private readonly natsStream: NatsStreamService,
+        @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoom: NatsRoomService,
+        @Inject(forwardRef(() => WebhookNotifierService))
         private readonly webhookNotifier: WebhookNotifierService,
         private readonly roomInfoService: RoomInfoService,
+        @Inject(forwardRef(() => FileService))
         private readonly fileService: FileService,
         private readonly roomDurationService: RoomDurationService,
+        @Inject(forwardRef(() => NatsRoomEventsService))
         private readonly natsRoomEvents: NatsRoomEventsService,
     ) { }
 
@@ -252,7 +257,7 @@ export class RoomCreateService {
 
         // Copyright configuration
         const copyrightDisplay = this.configService.get<boolean>('COPYRIGHT_DISPLAY') !== false;
-        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Powered by <a href="https://www.plugnmeet.org" target="_blank">plugNmeet</a>';
+        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Developed by MiraiMagicLab';
         const copyrightAllowOverride = this.configService.get<boolean>('COPYRIGHT_ALLOW_OVERRIDE') || false;
 
         const defaultCopyright = create(CopyrightConfSchema, {

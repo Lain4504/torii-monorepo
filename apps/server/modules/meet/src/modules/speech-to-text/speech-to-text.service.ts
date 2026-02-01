@@ -4,7 +4,7 @@
  * Handles legacy Azure Speech Services token generation and usage
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import {
@@ -40,7 +40,9 @@ export class SpeechToTextService {
         private readonly natsRoomService: NatsRoomService,
         private readonly redisSpeechService: RedisSpeechToTextService,
         private readonly natsSystemEvents: NatsSystemEventsService,
+        @Inject(forwardRef(() => WebhookNotifierService))
         private readonly webhookNotifier: WebhookNotifierService,
+        @Inject(forwardRef(() => AnalyticsService))
         private readonly analyticsModel: AnalyticsService,
     ) { }
 

@@ -10,10 +10,9 @@ import { InsightsModule } from '../insights/insights.module';
 import { RecordingModule } from '../recording/recording.module';
 import { SpeechToTextModule } from '../speech-to-text/speech-to-text.module';
 
-// Controllers
-
-// NOTE: NatsAuthCalloutController removed - auth callout is now handled
-// directly in NatsController via raw NATS subscription to bypass JSON parsing
+import { NatsModule } from '../../interfaces/nats/nats.module';
+import { LiveKitModule } from '../../infrastructure/livekit/livekit.module';
+import { WajlcAuthModule } from '../auth/wajlc-auth.module';
 
 // Services
 import { RoomCreateService } from './room-create.service';
@@ -24,32 +23,27 @@ import { RoomDurationService } from './room-duration.service';
 import { RoomUserService } from './room-user.service';
 import { WaitingRoomService } from '../waiting-room/waiting-room.service';
 
-// NATS Services
-import { NatsService } from '../../interfaces/nats/nats.service';
-import { NatsCacheService } from '../../interfaces/nats/nats-cache.service';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
-import { NatsStreamService } from '../../interfaces/nats/nats-stream.service';
-import { NatsUserService } from '../../interfaces/nats/nats-user.service';
-import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
-import { NatsAuthCalloutService } from '../../interfaces/nats/nats-auth-callout.service';
-import { NatsConsumerService } from '../../interfaces/nats/nats-consumer.service';
-import { NatsController } from '../../interfaces/nats/nats.controller';
-
 // Redis Services
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
-import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
-
-// Auth services
-import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
-  imports: [SharedModule, FileModule, forwardRef(() => WebhookModule), ArtifactsModule, AnalyticsModule, PollsModule, forwardRef(() => BreakoutModule), InsightsModule, forwardRef(() => RecordingModule), SpeechToTextModule],
-  controllers: [
-    // NatsAuthCalloutController removed - handled in NatsController now
+  imports: [
+    SharedModule,
+    forwardRef(() => FileModule),
+    forwardRef(() => WebhookModule),
+    forwardRef(() => ArtifactsModule),
+    forwardRef(() => AnalyticsModule),
+    forwardRef(() => PollsModule),
+    forwardRef(() => BreakoutModule),
+    forwardRef(() => InsightsModule),
+    forwardRef(() => RecordingModule),
+    forwardRef(() => SpeechToTextModule),
+    forwardRef(() => NatsModule),
+    LiveKitModule,
+    WajlcAuthModule,
   ],
+  controllers: [],
   providers: [
     // Room services
     RoomCreateService,
@@ -60,28 +54,9 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     RoomUserService,
     WaitingRoomService,
 
-    // Auth services
-    WajlcAuthService,
-
-    // NATS services
-    NatsService,
-    NatsCacheService,
-    NatsRoomService,
-    NatsRoomEventsService,
-    NatsSystemEventsService,
-    NatsStreamService,
-    NatsUserService,
-    NatsUserInfoService,
-    NatsAuthCalloutService,
-    NatsConsumerService,
-    NatsController,
-
     // Redis services
     RedisLockService,
     RedisRoomService,
-
-    // LiveKit services
-    LiveKitService,
   ],
   exports: [
     RoomInfoService,
@@ -91,15 +66,6 @@ import { WajlcAuthService } from '../auth/wajlc-auth.service';
     RoomUserService,
     RoomDurationService,
     WaitingRoomService,
-    LiveKitService,
-    NatsService,
-    NatsRoomService,
-    NatsRoomEventsService,
-    NatsUserService,
-    NatsSystemEventsService,
-    NatsUserInfoService,
-    NatsCacheService,
-    NatsStreamService,
   ],
 })
 export class RoomModule { }

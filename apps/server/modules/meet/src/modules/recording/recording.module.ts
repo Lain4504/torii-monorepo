@@ -11,8 +11,8 @@ import { WebhookModule } from '../../infrastructure/webhook/webhook.module';
     imports: [
         SharedModule,
         forwardRef(() => RoomModule),
-        ArtifactsModule,
-        AnalyticsModule,
+        forwardRef(() => ArtifactsModule),
+        forwardRef(() => AnalyticsModule),
         forwardRef(() => WebhookModule),
     ],
     providers: [
