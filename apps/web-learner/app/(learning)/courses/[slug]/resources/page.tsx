@@ -26,7 +26,7 @@ export default function CourseResourcesPage() {
                     // TODO: Fetch resources from API
                     // const resourcesData = await courseApi.getCourseResources(courseData.id)
                     // setResources(resourcesData)
-                    
+
                     // Mock data
                     setResources([
                         {
@@ -96,17 +96,17 @@ export default function CourseResourcesPage() {
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
-            <div className="border-b bg-card">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="border-b border-border bg-background">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
                         <Link href={`/courses/${slug}`}>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-foreground">Tài liệu khóa học</h1>
-                            <p className="text-sm text-muted-foreground mt-1">{course.title}</p>
+                            <h1 className="text-xl font-bold text-foreground">Tài liệu</h1>
+                            <p className="text-sm text-muted-foreground">{course.title}</p>
                         </div>
                     </div>
                 </div>

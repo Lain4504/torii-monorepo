@@ -122,38 +122,35 @@ export default function FlashcardsPage() {
     const decks = decksData?.data || []
 
     return (
+
         <div className="space-y-8 animate-in fade-in duration-700 pb-20">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
-                        <BrainCircuit className="size-3.5" />
-                        Trí nhớ
-                    </div>
-                    <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                        Kho <span className="text-primary not-italic">Thẻ Nhớ</span>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-2 border-b border-border">
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-bold text-foreground">
+                        Kho thẻ nhớ
                     </h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                        Hệ thống ghi nhớ dài hạn tích cực. Thuật toán SRS đã sẵn sàng.
+                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                        Hệ thống ghi nhớ dài hạn tích cực. Tạo và quản lý các bộ thẻ của bạn.
                     </p>
                 </div>
 
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="relative group w-full md:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
-                            placeholder="TÌM KIẾM BỘ THẺ..."
-                            className="pl-10 h-12 rounded-2xl bg-muted/10 border-border/40 focus:bg-background/80 transition-all font-bold uppercase tracking-wider text-[10px]"
+                            placeholder="Tìm kiếm bộ thẻ..."
+                            className="pl-10 h-10 rounded-xl bg-background border-input focus:ring-1 focus:ring-primary transition-all text-sm font-medium"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                     <Button
                         onClick={() => { resetForm(); setIsDeckModalOpen(true) }}
-                        className="h-12 px-6 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
+                        className="h-10 px-4 rounded-xl font-bold shadow-sm"
                     >
                         <Plus className="size-4 mr-2" />
-                        Tạo Bộ Thẻ Mới
+                        Tạo bộ thẻ
                     </Button>
                 </div>
             </div>
@@ -162,90 +159,88 @@ export default function FlashcardsPage() {
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
-                        <Card key={i} className="h-64 animate-pulse bg-muted/10 border-white/5 rounded-[2rem]" />
+                        <Card key={i} className="h-64 animate-pulse bg-muted/10 border-border rounded-2xl" />
                     ))}
                 </div>
             ) : decks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-[3rem] bg-white/5">
-                    <div className="p-6 rounded-full bg-muted/10 mb-6">
-                        <Layers className="size-10 text-muted-foreground/30" />
+                <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl bg-muted/5">
+                    <div className="p-4 rounded-full bg-muted/20 mb-4">
+                        <Layers className="size-8 text-muted-foreground/40" />
                     </div>
-                    <h3 className="text-xl font-black uppercase tracking-tight italic text-muted-foreground/50">Không tìm thấy bộ thẻ</h3>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30 mt-2">Tạo bộ thẻ mới để bắt đầu quá trình ôn tập ghi nhớ.</p>
+                    <h3 className="text-lg font-bold text-foreground">Không tìm thấy bộ thẻ</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Tạo bộ thẻ mới để bắt đầu quá trình ôn tập ghi nhớ.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {decks.map((deck) => (
-                        <Card key={deck.id} className="group relative overflow-hidden transition-all hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 bg-background/50 backdrop-blur-xl border-border/40 rounded-[2rem] h-full shadow-md">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                            <div className="p-6 space-y-6 relative z-10">
+                        <Card key={deck.id} className="group relative overflow-hidden transition-all hover:shadow-lg bg-card border-border rounded-2xl h-full shadow-sm flex flex-col">
+                            <div className="p-6 space-y-6 relative z-10 flex-1 flex flex-col">
                                 <div className="flex justify-between items-start">
-                                    <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500">
+                                    <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                         <Sparkles className="size-6" />
                                     </div>
                                     <div className="flex items-start gap-2">
                                         {deck.jlptLevel && (
-                                            <span className="px-3 py-1 rounded-full bg-muted/10 border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
+                                            <span className="px-2.5 py-0.5 rounded-md bg-muted text-xs font-bold text-muted-foreground">
                                                 {deck.jlptLevel}
                                             </span>
                                         )}
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="size-8 rounded-xl hover:bg-muted/20">
-                                                    <MoreVertical className="size-4 text-muted-foreground/40" />
+                                                <Button variant="ghost" size="icon" className="size-8 rounded-lg hover:bg-muted text-muted-foreground">
+                                                    <MoreVertical className="size-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-56 rounded-xl bg-background/90 backdrop-blur-3xl p-1">
+                                            <DropdownMenuContent align="end" className="w-48 rounded-xl p-1">
                                                 <DropdownMenuItem
                                                     onClick={() => startEditing(deck)}
-                                                    className="text-[10px] font-bold uppercase tracking-wider rounded-lg p-2 cursor-pointer"
+                                                    className="text-xs font-medium rounded-lg cursor-pointer"
                                                 >
-                                                    <Edit className="size-3 mr-2" /> Chỉnh sửa bộ thẻ
+                                                    <Edit className="size-3.5 mr-2" /> Chỉnh sửa
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => router.push(`/dashboard/flashcards/${deck.id}/manage`)}
-                                                    className="text-[10px] font-bold uppercase tracking-wider rounded-lg p-2 cursor-pointer"
+                                                    className="text-xs font-medium rounded-lg cursor-pointer"
                                                 >
-                                                    <Layers className="size-3 mr-2" /> Quản lý nội dung
+                                                    <Layers className="size-3.5 mr-2" /> Quản lý nội dung
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => deleteDeckMutation.mutate(deck.id)}
-                                                    className="text-[10px] font-bold uppercase tracking-wider rounded-lg p-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                                    className="text-xs font-medium rounded-lg cursor-pointer text-destructive focus:text-destructive"
                                                 >
-                                                    <Trash2 className="size-3 mr-2" /> Xóa bộ thẻ
+                                                    <Trash2 className="size-3.5 mr-2" /> Xóa bộ thẻ
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <h3 className="text-lg font-black uppercase italic tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                                <div className="space-y-2 flex-1">
+                                    <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">
                                         {deck.name}
                                     </h3>
-                                    <p className="text-[11px] text-muted-foreground/60 line-clamp-2 min-h-[2.5em]">
+                                    <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5em]">
                                         {deck.description || "Không có mô tả cho bộ thẻ này."}
                                     </p>
                                 </div>
 
-                                <div className="pt-6 border-t border-border/20 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-muted-foreground/40">
+                                <div className="pt-4 border-t border-border/50 flex flex-col gap-4 mt-auto">
+                                    <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                                        <div className="flex items-center gap-1.5">
                                             <Layers className="size-3.5" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">{deck.cardCount} Thẻ</span>
+                                            <span>{deck.cardCount} thẻ</span>
                                         </div>
                                         {deck.lastStudiedAt && (
-                                            <div className="flex items-center gap-2 text-primary/60">
+                                            <div className="flex items-center gap-1.5">
                                                 <Clock className="size-3.5" />
-                                                <span className="text-[10px] font-bold uppercase tracking-wider">
+                                                <span>
                                                     {formatDistanceToNow(new Date(deck.lastStudiedAt))} trước
                                                 </span>
                                             </div>
                                         )}
                                     </div>
                                     <Link href={`/dashboard/flashcards/${deck.id}`} className="w-full">
-                                        <Button className="w-full h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-primary hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.2em]">
+                                        <Button className="w-full h-10 rounded-xl font-bold shadow-sm">
                                             Bắt đầu học
                                         </Button>
                                     </Link>
@@ -258,42 +253,42 @@ export default function FlashcardsPage() {
 
             {/* Create/Edit Deck Modal */}
             <Dialog open={isDeckModalOpen} onOpenChange={setIsDeckModalOpen}>
-                <DialogContent className="sm:max-w-[425px] bg-background/80 backdrop-blur-2xl border-white/10 rounded-[2.5rem]">
+                <DialogContent className="sm:max-w-[425px] rounded-2xl border-border bg-background shadow-lg">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">
+                        <DialogTitle className="text-xl font-bold">
                             {editingDeck ? 'Cập nhật bộ thẻ' : 'Tạo bộ thẻ mới'}
                         </DialogTitle>
-                        <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                        <DialogDescription className="text-sm text-muted-foreground">
                             Hệ thống quản lý kho tri thức cá nhân
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-6 py-4">
                         <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Tên bộ thẻ</Label>
+                            <Label className="text-xs font-bold text-muted-foreground uppercase">Tên bộ thẻ</Label>
                             <Input
                                 value={deckName}
                                 onChange={(e) => setDeckName(e.target.value)}
-                                className="h-12 rounded-xl bg-white/5 border-white/10 font-bold"
+                                className="h-10 rounded-lg text-sm font-medium"
                                 placeholder="VD: 2000 Kanji thông dụng"
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mô tả</Label>
+                            <Label className="text-xs font-bold text-muted-foreground uppercase">Mô tả</Label>
                             <Input
                                 value={deckDesc}
                                 onChange={(e) => setDeckDesc(e.target.value)}
-                                className="h-12 rounded-xl bg-white/5 border-white/10"
+                                className="h-10 rounded-lg text-sm"
                                 placeholder="Mục tiêu học tập của bạn..."
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Cấp độ JLPT</Label>
+                            <Label className="text-xs font-bold text-muted-foreground uppercase">Cấp độ JLPT</Label>
                             <Select value={jlptLevel} onValueChange={setJlptLevel}>
-                                <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10">
+                                <SelectTrigger className="h-10 rounded-lg bg-background">
                                     <SelectValue placeholder="Chọn cấp độ" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-white/10 bg-background/95 backdrop-blur-xl">
+                                <SelectContent className="rounded-xl border-border">
                                     <SelectItem value="N5">N5</SelectItem>
                                     <SelectItem value="N4">N4</SelectItem>
                                     <SelectItem value="N3">N3</SelectItem>
@@ -308,9 +303,9 @@ export default function FlashcardsPage() {
                     <DialogFooter>
                         <Button
                             onClick={handleSaveDeck}
-                            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px]"
+                            className="w-full h-10 rounded-xl font-bold"
                         >
-                            {editingDeck ? 'CẬP NHẬT' : 'XÁC NHẬN TẠO'}
+                            {editingDeck ? 'Cập nhật' : 'Xác nhận tạo'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

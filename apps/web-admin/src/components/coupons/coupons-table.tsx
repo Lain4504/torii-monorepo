@@ -16,6 +16,7 @@ import {
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
 import { Ticket } from 'lucide-react'; // Using Ticket as generic "coupon" icon
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 import type { CouponResponseDTO } from '@workspace/schemas';
 import { getCouponsColumns } from './coupons-columns.tsx';
@@ -109,19 +110,19 @@ export function CouponsTable({
                     <TableRow className="hover:bg-transparent border-none">
                         <TableCell
                             colSpan={columns.length}
-                            className="h-[300px] text-center p-0"
+                            className="h-[400px] text-center p-0"
                         >
-                            <div className="flex flex-col items-center justify-center p-8">
-                                <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground/30 mb-4">
-                                    <Ticket className="size-8" />
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-lg font-serif font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy mã giảm giá</p>
-                                    <p className="text-sm text-muted-foreground/40">
+                            <Empty>
+                                <EmptyMedia>
+                                    <Ticket className="size-8 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Không tìm thấy mã giảm giá</EmptyTitle>
+                                    <EmptyDescription>
                                         Chưa có mã giảm giá nào được tạo hoặc không khớp với bộ lọc.
-                                    </p>
-                                </div>
-                            </div>
+                                    </EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
                         </TableCell>
                     </TableRow>
                 )}

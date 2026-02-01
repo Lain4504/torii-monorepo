@@ -62,13 +62,21 @@ export const mainNavItems: NavItem[] = [
         descriptionKey: "common:navDescriptions.questionBank",
     },
     {
-        titleKey: "Người dùng",
-        url: "/users",
+        titleKey: "Quản lý Học viên",
+        url: "/learners",
         icon: Users,
         permission: "user.manage",
-        descriptionKey: "common:navDescriptions.users",
+        descriptionKey: "Quản lý hồ sơ & lộ trình học viên",
+    },
+    {
+        titleKey: "Quản lý Nhân sự",
+        url: "/personnel",
+        icon: ShieldCheck,
+        permission: "user.manage",
+        descriptionKey: "Quản lý Giảng viên & Nhân viên trung tâm",
         items: [
-            { titleKey: "Danh sách người dùng", url: "/users", permission: "user.view" },
+            { titleKey: "Đội ngũ Giảng viên", url: "/personnel/lecturers", permission: "user.manage" },
+            { titleKey: "Nhân viên vận hành", url: "/personnel/staff", permission: "user.manage" },
             { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "user.manage" },
         ]
     },
@@ -104,18 +112,23 @@ export const managementNavItems: NavItem[] = [
         descriptionKey: "Quản lý ticket & hoàn tiền",
     },
     {
-        titleKey: "Báo cáo nội dung",
-        url: "/analytics",
+        titleKey: "Phân tích Hệ thống",
+        url: "/analytics/revenue",
         icon: BarChart3,
         permission: "report.view",
         descriptionKey: "common:navDescriptions.analytics",
+        items: [
+            { titleKey: "Doanh thu & Thu nhập", url: "/analytics/revenue", permission: "report.view" },
+            { titleKey: "Hiệu suất Học tập", url: "/analytics/learning", permission: "report.view" },
+            { titleKey: "Học viên & Tương tác", url: "/analytics/users", permission: "report.view" },
+        ]
     },
 ];
 
 export const systemNavItems: NavItem[] = [
     {
         titleKey: "Nhật ký hệ thống",
-        url: "/authorization/audit-logs",
+        url: "/audit-logs",
         icon: ShieldCheck,
         permission: "audit.view",
         descriptionKey: "common:navDescriptions.auditLogs",

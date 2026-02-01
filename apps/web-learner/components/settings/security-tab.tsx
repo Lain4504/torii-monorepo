@@ -28,35 +28,29 @@ export function SecurityTab() {
     const isEnabled = status?.isEnabled || false;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Security Header */}
-            <div className="flex items-center gap-3 px-1">
-                <div className="w-1 h-4 bg-amber-500/40 rounded-full" />
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <Shield className="w-4 h-4 text-amber-500" />
-                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Bảo mật</h3>
-            </div>
+                Bảo mật & Xác thực
+            </h3>
 
             {/* Two-Factor Authentication Card */}
-            <div className="divide-y divide-border/10 bg-card/40 backdrop-blur-md rounded-2xl border border-border/40 overflow-hidden shadow-sm">
+            <div className="divide-y divide-border bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                 {/* Header Section */}
-                <div className="p-6 space-y-6">
+                <div className="p-5 space-y-5">
                     <div className="flex items-start justify-between">
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                                    <Smartphone className="size-5" />
-                                </div>
-                                <h3 className="text-lg font-serif font-bold italic text-foreground">
-                                    Xác thực hai yếu tố
-                                </h3>
-                            </div>
-                            <p className="text-xs text-muted-foreground/60 font-medium ml-[52px]">
-                                Thêm lớp bảo mật bổ sung cho tài khoản của bạn
+                        <div className="space-y-1">
+                            <h3 className="text-base font-bold text-foreground">
+                                Xác thực hai yếu tố (2FA)
+                            </h3>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                Thêm lớp bảo mật bổ sung cho tài khoản của bạn bằng cách yêu cầu mã xác thực.
                             </p>
                         </div>
-                        <div className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${isEnabled
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                            : 'bg-muted/50 text-muted-foreground/60 border border-border/20'
+                        <div className={`rounded-xl px-2.5 py-1 text-xs font-bold border ${isEnabled
+                            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                            : 'bg-muted text-muted-foreground border-transparent'
                             }`}>
                             {isEnabled ? 'Đã bật' : 'Đã tắt'}
                         </div>
@@ -64,84 +58,47 @@ export function SecurityTab() {
 
                     {/* Status Info */}
                     {isEnabled && status && (
-                        <div className="grid gap-3 sm:grid-cols-2 pt-2">
-                            <div className="rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm p-4 space-y-1 shadow-sm">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Phương thức</p>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-1">
+                                <p className="text-xs font-medium text-muted-foreground">Phương thức</p>
                                 <p className="text-sm font-bold text-foreground">
-                                    {status.method === 'totp' ? 'Ứng dụng xác thực' : 'Không xác định'}
+                                    {status.method === 'totp' ? 'Authenticator App' : 'Không xác định'}
                                 </p>
                             </div>
-                            <div className="rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm p-4 space-y-1 shadow-sm">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mã dự phòng</p>
+                            <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-1">
+                                <p className="text-xs font-medium text-muted-foreground">Mã dự phòng</p>
                                 <p className="text-sm font-bold text-foreground">
                                     {status.backupCodesRemaining || 0} mã còn lại
                                 </p>
-                            </div>
-                            {status.enabledAt && (
-                                <div className="rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm p-4 space-y-1 shadow-sm">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Đã bật</p>
-                                    <p className="text-sm font-bold text-foreground">
-                                        {formatDistanceToNow(new Date(status.enabledAt), { addSuffix: true, locale: vi })}
-                                    </p>
-                                </div>
-                            )}
-                            {status.lastUsedAt && (
-                                <div className="rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm p-4 space-y-1 shadow-sm">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Sử dụng lần cuối</p>
-                                    <p className="text-sm font-bold text-foreground">
-                                        {formatDistanceToNow(new Date(status.lastUsedAt), { addSuffix: true, locale: vi })}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Description */}
-                    {!isEnabled && (
-                        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5">
-                            <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0 flex items-center justify-center">
-                                    <Shield className="size-5" />
-                                </div>
-                                <div className="space-y-2 flex-1">
-                                    <p className="text-sm font-bold text-foreground">
-                                        Bảo vệ tài khoản với 2FA
-                                    </p>
-                                    <p className="text-xs text-muted-foreground/70 leading-relaxed font-medium">
-                                        Xác thực hai yếu tố thêm lớp bảo mật bổ sung bằng cách yêu cầu mã từ điện thoại của bạn ngoài mật khẩu.
-                                    </p>
-                                </div>
                             </div>
                         </div>
                     )}
 
                     {/* Actions */}
-                    <div className="flex flex-wrap gap-3 pt-2">
+                    <div className="flex flex-wrap gap-3">
                         {!isEnabled ? (
                             <Button
                                 onClick={() => setShowEnableDialog(true)}
-                                className="gap-2 h-11 rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+                                className="h-9 rounded-xl font-bold text-xs"
                             >
-                                <Shield className="size-4" />
-                                Bật xác thực hai yếu tố
+                                Bật xác thực 2FA
                             </Button>
                         ) : (
                             <>
                                 <Button
                                     onClick={() => setShowBackupCodesDialog(true)}
                                     variant="outline"
-                                    className="gap-2 h-11 rounded-xl border-border/20 bg-background hover:bg-muted/30"
+                                    className="h-9 rounded-xl font-bold text-xs"
                                 >
-                                    <RefreshCw className="size-4" />
-                                    <span className="text-xs font-medium">Tạo lại mã dự phòng</span>
+                                    <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                                    Mã dự phòng
                                 </Button>
                                 <Button
                                     onClick={() => setShowDisableDialog(true)}
                                     variant="outline"
-                                    className="gap-2 h-11 rounded-xl border-rose-500/20 text-rose-600 hover:bg-rose-500/5 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-400"
+                                    className="h-9 rounded-xl font-bold text-xs text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
                                 >
-                                    <AlertTriangle className="size-4" />
-                                    <span className="text-xs font-medium">Tắt 2FA</span>
+                                    Tắt 2FA
                                 </Button>
                             </>
                         )}
@@ -149,19 +106,11 @@ export function SecurityTab() {
 
                     {/* Warning for backup codes */}
                     {isEnabled && status && status.backupCodesRemaining !== undefined && status.backupCodesRemaining < 3 && (
-                        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                            <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0 flex items-center justify-center">
-                                    <AlertTriangle className="size-5" />
-                                </div>
-                                <div className="space-y-2 flex-1">
-                                    <p className="text-sm font-bold text-foreground">
-                                        Mã dự phòng sắp hết
-                                    </p>
-                                    <p className="text-xs text-muted-foreground/70 leading-relaxed font-medium">
-                                        Bạn còn {status.backupCodesRemaining} mã dự phòng. Hãy cân nhắc tạo lại chúng.
-                                    </p>
-                                </div>
+                        <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 text-sm">
+                            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-bold">Mã dự phòng sắp hết</p>
+                                <p className="text-xs opacity-90 mt-0.5">Bạn còn {status.backupCodesRemaining} mã. Hãy tạo mã mới.</p>
                             </div>
                         </div>
                     )}

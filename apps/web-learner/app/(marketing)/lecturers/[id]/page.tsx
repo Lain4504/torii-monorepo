@@ -177,13 +177,10 @@ export default function InstructorProfilePage() {
                     <div className="flex flex-col md:flex-row gap-8 md:gap-12 max-w-6xl mx-auto">
                         {/* Avatar Column (Mobile: Top, Desktop: Left) */}
                         <div className="flex-shrink-0 mx-auto md:mx-0">
-                            <div className="relative group">
-                                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-                                <Avatar className="w-24 h-24 md:w-32 md:h-32 ring-4 md:ring-8 ring-background shadow-2xl relative">
-                                    <AvatarImage src={profile.avatarUrl} alt={profile.name} className="object-cover" />
-                                    <AvatarFallback className="text-xl md:text-3xl bg-primary/10 text-primary font-serif font-black">{profile.name[0]}</AvatarFallback>
-                                </Avatar>
-                            </div>
+                            <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 md:border-8 border-background shadow-lg">
+                                <AvatarImage src={profile.avatarUrl} alt={profile.name} className="object-cover" />
+                                <AvatarFallback className="text-xl md:text-3xl bg-primary/10 text-primary font-bold">{profile.name[0]}</AvatarFallback>
+                            </Avatar>
 
                             <div className="flex justify-center gap-3 mt-6">
                                 {profile.socials.website && (
@@ -220,8 +217,8 @@ export default function InstructorProfilePage() {
                         {/* Information Column */}
                         <div className="flex-1 text-center md:text-left space-y-6">
                             <div>
-                                <h4 className="text-sm font-black uppercase tracking-widest text-primary mb-2">Giảng viên / Chuyên gia</h4>
-                                <h1 className="text-3xl md:text-5xl font-serif font-bold italic text-foreground tracking-tight mb-3">
+                                <h4 className="text-sm font-semibold text-primary mb-2">Giảng viên / Chuyên gia</h4>
+                                <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-3">
                                     {profile.name}
                                 </h1>
                                 <p className="text-lg md:text-xl text-muted-foreground font-medium">{profile.headline}</p>
@@ -229,10 +226,10 @@ export default function InstructorProfilePage() {
 
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-8">
                                 <div className="flex items-center gap-2">
-                                    <Users className="w-5 h-5 text-primary/60" />
+                                    <Users className="w-5 h-5 text-primary" />
                                     <div>
                                         <p className="text-lg font-bold leading-none">{profile.stats.totalStudents.toLocaleString()}</p>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Học viên</p>
+                                        <p className="text-xs font-medium text-muted-foreground">Học viên</p>
                                     </div>
                                 </div>
                                 <div className="w-px h-8 bg-border/40 hidden md:block"></div>
@@ -240,24 +237,24 @@ export default function InstructorProfilePage() {
                                     <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
                                     <div>
                                         <p className="text-lg font-bold leading-none">{profile.stats.averageRating} ({profile.stats.totalReviews.toLocaleString()})</p>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Đánh giá</p>
+                                        <p className="text-xs font-medium text-muted-foreground">Đánh giá</p>
                                     </div>
                                 </div>
                                 <div className="w-px h-8 bg-border/40 hidden md:block"></div>
                                 <div className="flex items-center gap-2">
-                                    <PlayCircle className="w-5 h-5 text-primary/60" />
+                                    <PlayCircle className="w-5 h-5 text-primary" />
                                     <div>
                                         <p className="text-lg font-bold leading-none">{profile.stats.totalCourses}</p>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Khóa học</p>
+                                        <p className="text-xs font-medium text-muted-foreground">Khóa học</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
-                                <Button className="h-10 px-6 rounded-full font-bold uppercase tracking-wide bg-foreground hover:bg-primary">
+                                <Button className="h-10 px-6 rounded-lg font-semibold">
                                     Theo dõi
                                 </Button>
-                                <Button variant="outline" className="h-10 px-6 rounded-full font-bold uppercase tracking-wide border-primary/20 text-primary hover:bg-primary/5">
+                                <Button variant="outline" className="h-10 px-6 rounded-lg font-semibold border-primary/20 text-primary hover:bg-primary/5">
                                     Gửi tin nhắn
                                 </Button>
                             </div>
@@ -273,14 +270,11 @@ export default function InstructorProfilePage() {
                     <div className="lg:col-span-2 space-y-12">
                         {/* About Me */}
                         <section className="space-y-6 animate-in slide-in-from-bottom-5 duration-700">
-                            <div className="flex items-center gap-3">
-                                <span className="w-1.5 h-6 bg-primary rounded-full"></span>
-                                <h2 className="text-xl font-bold font-serif italic text-foreground uppercase tracking-wider">
-                                    Giới thiệu
-                                </h2>
-                            </div>
+                            <h2 className="text-2xl font-bold text-foreground">
+                                Giới thiệu
+                            </h2>
                             <div
-                                className="prose prose-sm md:prose-base prose-neutral dark:prose-invert max-w-none text-muted-foreground/90 leading-relaxed font-light"
+                                className="prose prose-sm md:prose-base prose-neutral dark:prose-invert max-w-none text-muted-foreground leading-relaxed"
                                 dangerouslySetInnerHTML={{ __html: profile.bio }}
                             />
                         </section>
@@ -289,14 +283,9 @@ export default function InstructorProfilePage() {
 
                         {/* Courses */}
                         <section className="space-y-6 animate-in slide-in-from-bottom-5 duration-700 delay-100">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <span className="w-1.5 h-6 bg-primary rounded-full"></span>
-                                    <h2 className="text-xl font-bold font-serif italic text-foreground uppercase tracking-wider">
-                                        Khóa học của tôi ({profile.courses.length})
-                                    </h2>
-                                </div>
-                            </div>
+                            <h2 className="text-2xl font-bold text-foreground">
+                                Khóa học của tôi ({profile.courses.length})
+                            </h2>
 
                             {profile.courses.length > 0 ? (
                                 <div className="grid sm:grid-cols-2 gap-6">

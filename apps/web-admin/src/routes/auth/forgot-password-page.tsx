@@ -2,13 +2,11 @@ import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
-import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
-import { Spinner } from '@workspace/ui/components/spinner'
-import { Mail, Send, CheckCircle2, KeyRound, ChevronLeft } from 'lucide-react'
+import { Mail, CheckCircle2, ChevronLeft, Sparkles, Loader2, ShieldCheck, ArrowRight } from 'lucide-react'
 import { forgotPassword } from '@/api/services/auth'
 
 const forgotPasswordSchema = z.object({
@@ -18,6 +16,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
 
 export default function ForgotPasswordPage() {
+    const navigate = useNavigate()
     const [isLoading, setIsLoading] = useState(false)
     const [emailSent, setEmailSent] = useState(false)
 
@@ -32,7 +31,6 @@ export default function ForgotPasswordPage() {
         setIsLoading(true)
         try {
             await forgotPassword(data.email)
-            // Assuming API returns standard success/failure structure
             setEmailSent(true)
             toast.success('Email đã được gửi', {
                 description: 'Vui lòng kiểm tra hộp thư của bạn để đặt lại mật khẩu',
@@ -48,117 +46,152 @@ export default function ForgotPasswordPage() {
     }
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center p-4 bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
-            {/* Zen Background Elements */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/[0.03] blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/[0.02] blur-[100px] rounded-full" />
-            </div>
+        <div className="flex min-h-screen w-full bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary overflow-hidden">
+            {/* Left Panel: Info */}
+            <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-muted/30 flex-col justify-between p-16 border-r border-border/40">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-            <div className="container relative z-10 max-w-md mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
-                {/* Logo & Branding */}
-                <div className="flex justify-center mb-8">
-                    <div className="flex flex-col items-center gap-3">
-                        <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20">
-                            <span className="text-white font-bold text-xl">A</span>
+                {/* Header Section */}
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 group">
+                        <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg group-hover:scale-105 transition-transform duration-500">
+                            <ShieldCheck className="w-8 h-8" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight leading-none text-foreground">Torii <span className="text-primary">Admin</span></span>
+                        <div className="flex flex-col">
+                            <span className="text-2xl font-bold tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
+                            <span className="text-xs font-medium text-muted-foreground/60">Khôi Phục Tài Khoản</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Main Card */}
-                <div className="relative p-8 bg-card rounded-3xl border border-border/50 shadow-sm overflow-hidden text-center">
+                {/* Hero Section */}
+                <div className="relative z-10 max-w-xl space-y-8">
+                    <div className="space-y-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary">
+                            <Sparkles className="size-3" />
+                            Quên mật khẩu?
+                        </div>
+                        <h1 className="text-5xl font-bold tracking-tight text-foreground leading-tight">
+                            Đừng lo lắng, chúng tôi <br />
+                            sẽ giúp bạn quay lại
+                        </h1>
+                        <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
+                            Quy trình khôi phục mật khẩu của Torii Admin được bảo mật và nhanh chóng. Chỉ cần nhập email, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Footer Info */}
+                <div className="relative z-10 flex items-center justify-between">
+                    <div className="flex items-center gap-6 text-xs font-medium text-muted-foreground/40">
+                        <span>© 2026 TORII HOLDINGS</span>
+                        <div className="h-px w-8 bg-border/40"></div>
+                        <span className="flex items-center gap-1.5">
+                            <ShieldCheck className="size-3" />
+                            PROTECTED ACCESS
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Panel: Content */}
+            <div className="flex flex-1 flex-col items-center justify-center p-8 lg:p-24 relative bg-background">
+                <div className="w-full max-w-[420px] space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                    {/* Back Button */}
+                    <button
+                        onClick={() => navigate('/auth/login')}
+                        className="flex items-center gap-2 text-xs font-semibold text-muted-foreground/60 hover:text-primary transition-all group"
+                    >
+                        <ChevronLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
+                        Quay lại đăng nhập
+                    </button>
+
                     {emailSent ? (
-                        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
-                            <div className="flex flex-col items-center text-center space-y-4 p-6 bg-primary/[0.03] rounded-2xl border border-primary/10">
-                                <div className="w-12 h-12 rounded-xl bg-background shadow-sm flex items-center justify-center">
-                                    <CheckCircle2 className="w-6 h-6 text-primary" />
+                        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                            <div className="space-y-6">
+                                <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 border border-emerald-500/20">
+                                    <CheckCircle2 className="w-8 h-8" />
                                 </div>
-                                <div className="space-y-1">
-                                    <h3 className="text-base font-semibold text-foreground">
-                                        Email Đã Gửi
-                                    </h3>
-                                    <p className="text-xs text-muted-foreground/80 max-w-[250px] mx-auto leading-relaxed">
-                                        Chúng tôi đã gửi link đặt lại mật khẩu đến <strong className="text-foreground">{form.getValues('email')}</strong>
+                                <div className="space-y-3">
+                                    <h2 className="text-3xl font-bold tracking-tight text-foreground">Email đã được gửi</h2>
+                                    <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                                        Chúng tôi đã gửi hướng dẫn đặt lại mật khẩu đến email: <br />
+                                        <span className="text-foreground font-semibold uppercase">{form.getValues('email')}</span>
                                     </p>
                                 </div>
-                                <button
-                                    onClick={() => setEmailSent(false)}
-                                    className="text-xs font-medium text-primary/80 hover:text-primary hover:underline hover:underline-offset-4 transition-all"
-                                >
-                                    Gửi lại hoặc thử email khác
-                                </button>
-                            </div>
 
-                            <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/30 border border-border/40">
-                                <div className="w-1 h-8 bg-primary/40 rounded-full shrink-0" />
-                                <p className="text-[11px] text-muted-foreground/70 leading-relaxed text-left">
-                                    Link đặt lại mật khẩu sẽ hết hạn sau 60 phút.
-                                </p>
+                                <div className="p-4 rounded-xl bg-muted/20 border border-border/40 space-y-2">
+                                    <p className="text-xs font-medium text-muted-foreground leading-relaxed">
+                                        Nếu bạn không nhận được email, hãy kiểm tra hộp thư rác (spam) hoặc thử lại sau vài phút.
+                                    </p>
+                                </div>
+
+                                <Button
+                                    onClick={() => setEmailSent(false)}
+                                    variant="outline"
+                                    className="w-full h-12 rounded-xl text-sm font-semibold border-border bg-background hover:bg-muted"
+                                >
+                                    Gửi lại yêu cầu
+                                </Button>
                             </div>
                         </div>
                     ) : (
-                        <>
-                            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                                <KeyRound className="h-7 w-7" />
+                        <div className="space-y-10">
+                            <div className="space-y-3">
+                                <h2 className="text-3xl font-bold tracking-tight text-foreground">Quên mật khẩu</h2>
+                                <p className="text-sm font-medium text-muted-foreground">Nhập email liên kết với tài khoản quản trị của bạn</p>
                             </div>
 
-                            <div className="flex flex-col space-y-2 mb-8">
-                                <h1 className="text-xl font-bold tracking-tight text-foreground uppercase pb-1">
-                                    Quên mật khẩu?
-                                </h1>
-                                <p className="text-sm text-muted-foreground/80">
-                                    Nhập email để nhận link khôi phục mật khẩu admin
-                                </p>
-                            </div>
-
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" noValidate>
                                 <Controller
                                     control={form.control}
                                     name="email"
                                     render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid} className="space-y-1.5 text-left">
-                                            <FieldLabel htmlFor={field.name} className="text-xs font-medium text-foreground/80 pl-1">Email</FieldLabel>
+                                        <div className="space-y-2.5">
+                                            <label htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80 ml-1">
+                                                Địa chỉ Email
+                                            </label>
                                             <div className="relative group">
-                                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 transition-colors group-focus-within:text-primary group-hover:text-foreground/60" />
+                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
                                                 <Input
                                                     {...field}
                                                     id={field.name}
-                                                    placeholder="admin@domain.com"
-                                                    className="pl-10 h-11 rounded-xl bg-muted/30 border-border/40 focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/[0.03] text-sm font-medium transition-all placeholder:text-muted-foreground/30 hover:bg-muted/50 hover:border-border/60"
-                                                    aria-invalid={fieldState.invalid}
+                                                    placeholder="admin@torii.academy"
+                                                    className="h-12 pl-12 rounded-xl border-border bg-background transition-all text-sm font-medium placeholder:text-muted-foreground/20 focus-visible:ring-primary/20 shadow-none outline-none"
+                                                    autoComplete="email"
+                                                    type="email"
                                                 />
                                             </div>
-                                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive mt-1 pl-1" />}
-                                        </Field>
+                                            {fieldState.invalid && <p className="text-xs font-medium text-rose-500 mt-2 ml-1">{fieldState.error?.message}</p>}
+                                        </div>
                                     )}
                                 />
 
                                 <Button
                                     type="submit"
-                                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all duration-300"
+                                    className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all group"
                                     disabled={isLoading}
                                 >
                                     {isLoading ? (
-                                        <Spinner className="mr-2 h-4 w-4" />
+                                        <>
+                                            <Loader2 className="mr-2 size-4 animate-spin" />
+                                            Đang xử lý...
+                                        </>
                                     ) : (
-                                        <span className="flex items-center gap-2">
-                                            Gửi link khôi phục <Send className="w-3.5 h-3.5 ml-0.5" />
-                                        </span>
+                                        <>
+                                            Gửi liên kết khôi phục
+                                            <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
+                                        </>
                                     )}
                                 </Button>
                             </form>
-                        </>
+                        </div>
                     )}
 
-                    <div className="mt-8 pt-6 border-t border-border/40">
-                        <Link
-                            to="/login"
-                            className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground/60 hover:text-foreground transition-all group"
-                        >
-                            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            Quay lại Đăng nhập
-                        </Link>
+                    <div className="pt-8 text-center text-muted-foreground/30">
+                        <p className="text-[10px] font-medium uppercase tracking-widest">
+                            Authorized Personnel Only
+                        </p>
                     </div>
                 </div>
             </div>

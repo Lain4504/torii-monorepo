@@ -53,6 +53,29 @@ export class AuthHandler {
         });
     }
 
+    @MessagePattern({ cmd: 'identity.session.list' })
+    async listSessions(@Payload() userId: string) {
+        return this.sessionService.getUserSessions(userId);
+    }
+
+    @MessagePattern({ cmd: 'identity.session.revoke' })
+    async revokeSession(@Payload() data: { sessionId: string; userId: string }) {
+        await this.sessionService.revokeSessionById(data.sessionId, data.userId);
+        return { success: true };
+    }
+
+    @MessagePattern({ cmd: 'identity.session.revokeAllOther' })
+    async revokeAllOtherUserSessions(@Payload() data: { userId: string; currentRefreshToken: string }) {
+        const currentHash = this.sessionService.hashTokenPublic(data.currentRefreshToken);
+        await this.sessionService.revokeAllOtherUserSessions(data.userId, currentHash);
+        return { success: true };
+    }
+
+    @MessagePattern({ cmd: 'identity.auth.hashToken' })
+    async hashToken(@Payload() data: { token: string }) {
+        return this.sessionService.hashTokenPublic(data.token);
+    }
+
     @MessagePattern({ cmd: 'identity.auth.refreshToken' })
     async refreshToken(@Payload() data: { refreshToken: string; ipAddress?: string; userAgent?: string }) {
         // Verify refresh token
@@ -67,18 +90,18 @@ export class AuthHandler {
             throw new Error('User not found');
         }
 
-        // Revoke old session
-        const tokenHash = this.sessionService.hashTokenPublic(data.refreshToken);
-        await this.sessionService.revokeSession(tokenHash);
-
         // Generate new tokens
         const accessToken = await this.authService.generateAccessToken(user.id, user.role);
-        const refreshToken = await this.sessionService.createSession(user.id, {
-            ipAddress: data.ipAddress,
-            userAgent: data.userAgent,
-        });
 
-        return { user, accessToken, refreshToken };
+        // 2FA check or other logic can be here if needed 
+        // (but for pure refresh, we just rotate the refresh token on the SAME stable row)
+        const newRefreshToken = await this.authService.generateRefreshToken(user.id, payload.sid);
+
+        // Update the stable session record with the new hash
+        const newTokenHash = this.sessionService.hashTokenPublic(newRefreshToken);
+        await this.sessionService.updateSessionTokenHash(payload.sid, newTokenHash);
+
+        return { user, accessToken, refreshToken: newRefreshToken };
     }
 
     @MessagePattern({ cmd: 'identity.auth.logout' })

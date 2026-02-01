@@ -34,7 +34,7 @@ export function LessonHeader({ courseTitle, lessonTitle, progress, sidebarOpen, 
                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 truncate">
                             {courseTitle}
                         </p>
-                        <h1 className="text-xl font-serif font-bold text-foreground truncate max-w-[200px] sm:max-w-md mt-0.5 uppercase italic tracking-tight">
+                        <h1 className="text-xl font-sans font-bold text-foreground truncate max-w-[200px] sm:max-w-md mt-0.5 uppercase italic tracking-tight">
                             {lessonTitle}
                         </h1>
                     </div>

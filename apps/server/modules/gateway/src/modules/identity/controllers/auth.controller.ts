@@ -15,6 +15,7 @@ import {
     BadRequestException,
     InternalServerErrorException,
     Query,
+    Param,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -610,6 +611,92 @@ export class AuthController {
             return successResponse({ user: userData });
         } catch (error) {
             throw new UnauthorizedException('Failed to get user');
+        }
+    }
+
+    @Get('sessions')
+    @UseGuards(GatewayAuthGuard)
+    async getSessions(@Req() req: Request) {
+        const user = req.user as any;
+        const refreshToken = req.cookies?.refresh_token;
+
+        try {
+            const sessions = await firstValueFrom(
+                this.natsClient.send({ cmd: 'identity.session.list' }, user.sub),
+            );
+
+            // Hash current refresh token to identify it in the list
+            let currentSessionHash = null;
+            if (refreshToken) {
+                // We need to call identify.auth.hashToken (public) but better to just do it in the service or handler
+                // For now, let's just return the sessions, the frontend will see the hash.
+                // Wait, AuthHandler has access to sessionService.hashTokenPublic. 
+                // Let's just return a "isCurrent" flag by comparing on the backend if possible, or just send the hash.
+                // Actually, let's add a helper to hash in the controller or use a dedicated nats call.
+                currentSessionHash = await firstValueFrom(
+                    this.natsClient.send({ cmd: 'identity.auth.hashToken' }, { token: refreshToken })
+                ).catch(() => null);
+            }
+
+            return successResponse({
+                sessions: sessions.map((s: any) => ({
+                    ...s,
+                    isCurrent: s.tokenHash === currentSessionHash,
+                    tokenHash: undefined // Don't leak other hashes
+                }))
+            });
+        } catch (error: unknown) {
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to get sessions',
+            );
+        }
+    }
+
+    @Delete('sessions/other')
+    @UseGuards(GatewayAuthGuard)
+    async revokeOtherSessions(@Req() req: Request) {
+        const user = req.user as any;
+        const refreshToken = req.cookies?.refresh_token || req.body?.refreshToken;
+
+        if (!refreshToken) {
+            throw new BadRequestException('Refresh token is required');
+        }
+
+        try {
+            await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'identity.session.revokeAllOther' },
+                    { userId: user.sub, currentRefreshToken: refreshToken }
+                ),
+            );
+            return successResponse(null, 'Other sessions revoked successfully');
+        } catch (error: unknown) {
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to revoke other sessions',
+            );
+        }
+    }
+
+    @Delete('sessions/:id')
+    @UseGuards(GatewayAuthGuard)
+    async revokeSession(@Req() req: Request, @Param('id') sessionId: string) {
+        const user = req.user as any;
+        if (!sessionId) {
+            throw new BadRequestException('Session ID is required');
+        }
+
+        try {
+            await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'identity.session.revoke' },
+                    { sessionId, userId: user.sub }
+                ),
+            );
+            return successResponse(null, 'Session revoked successfully');
+        } catch (error: unknown) {
+            return errorResponse(
+                error instanceof Error ? error.message : 'Failed to revoke session',
+            );
         }
     }
 

@@ -18,6 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@workspace/ui/components/pagination'
+import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/api/services/notifications'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
@@ -110,8 +111,10 @@ function mapNotificationToUI(notification: NotificationResponseDTO): Notificatio
   }
 }
 
+import { PageHeader } from '@/components/common/page-header';
+
 export default function NotificationsPage() {
-  const [filter, setFilter] = useState<'all' | 'unread' | 'system' | 'security' | 'finance' | 'identity'>('all')
+  const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [page, setPage] = useState(1)
 
   // Fetch notifications with pagination
@@ -137,10 +140,6 @@ export default function NotificationsPage() {
     return notifications.filter((n: Notification) => {
       if (filter === 'all') return true
       if (filter === 'unread') return !n.read
-      if (filter === 'system') return n.category === 'system'
-      if (filter === 'security') return n.category === 'security'
-      if (filter === 'finance') return n.category === 'finance'
-      if (filter === 'identity') return n.category === 'identity'
       return true
     })
   }, [notifications, filter])
@@ -165,73 +164,51 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 p-4 md:p-6">
-      {/* Header Section */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <div className="p-2 rounded-xl bg-primary/10 text-primary">
-            <Bell className="size-5" />
-          </div>
-          <h1 className="text-2xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-            Thông báo <span className="text-primary not-italic">Hệ thống</span>
-          </h1>
-        </div>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4">
-            Cập nhật tin tức và cảnh báo bảo mật Torii
-          </p>
-          <div className="flex items-center gap-3">
-            {unreadCount > 0 && (
-              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/10">
-                {unreadCount} chưa đọc
-              </span>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => markAllAsReadMutation.mutate()}
-              disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-              className="rounded-xl h-9 px-4 text-xs font-bold uppercase tracking-wide border-border/40 hover:bg-primary/5 hover:text-primary transition-all cursor-pointer disabled:opacity-50"
-            >
-              <Check className="size-3.5 mr-2" />
-              {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        {[
-          { id: 'all', label: 'Tất cả' },
-          { id: 'unread', label: 'Chưa đọc' },
-          { id: 'system', label: 'Hệ thống' },
-          { id: 'security', label: 'Bảo mật' },
-          { id: 'finance', label: 'Tài chính' },
-          { id: 'identity', label: 'Tài khoản' }
-        ].map((btn) => (
+    <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
+      <PageHeader
+        title="Thông báo Hệ thống"
+        subtitle="Cập nhật tin tức và cảnh báo bảo mật Torii Academy"
+        stats={[
+          { label: "Chưa đọc", value: unreadCount.toLocaleString() }
+        ]}
+        actions={
           <Button
-            key={btn.id}
-            variant="ghost"
-            onClick={() => {
-              setFilter(btn.id as any);
-              setPage(1);
-            }}
-            className={cn(
-              "rounded-xl h-9 px-4 text-xs font-medium transition-all cursor-pointer border border-transparent",
-              filter === btn.id
-                ? "bg-background border-border shadow-sm text-foreground font-semibold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
+            onClick={() => markAllAsReadMutation.mutate()}
+            disabled={markAllAsReadMutation.isPending || unreadCount === 0}
+            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
           >
-            <span className="font-serif font-bold italic uppercase tracking-wider">{btn.label}</span>
+            <Check className="size-4 mr-2" />
+            {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
           </Button>
-        ))}
-      </div>
+        }
+      />
+
+
+      {/* Filters (Tabs Style) */}
+      <Tabs value={filter} onValueChange={(v) => { setFilter(v as any); setPage(1); }} className="w-full">
+        <TabsList className="flex h-auto w-full max-w-3xl gap-1 bg-muted/20 p-1 rounded-xl border border-border/50 backdrop-blur-sm overflow-x-auto no-scrollbar justify-start">
+          {[
+            { id: 'all', label: 'Tất cả' },
+            { id: 'unread', label: 'Chưa đọc' }
+          ].map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className={cn(
+                "flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-bold uppercase italic tracking-wider transition-all duration-200",
+                "data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm data-[state=active]:border-border/50",
+                "hover:text-primary/70"
+              )}
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {/* Notifications List */}
       <div className="">
-        <div className="bg-background rounded-xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
           <div className="divide-y divide-border/40">
             {isLoading ? (
               <div className="py-20 text-center space-y-4">
@@ -239,7 +216,7 @@ export default function NotificationsPage() {
                   <Bell className="size-5 text-muted-foreground/30 animate-pulse" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-serif font-bold italic uppercase tracking-widest text-muted-foreground/60">Đang tải thông báo...</p>
+                  <p className="text-sm font-sans font-bold italic uppercase tracking-widest text-muted-foreground/60">Đang tải thông báo...</p>
                 </div>
               </div>
             ) : filteredNotifications.length > 0 ? (
@@ -272,7 +249,7 @@ export default function NotificationsPage() {
                             {notification.title}
                           </h3>
                           <div className="flex flex-wrap items-center gap-2.5">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/50 text-[10px] font-serif font-bold italic uppercase tracking-wider text-muted-foreground border border-border/50">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/50 text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground border border-border/50">
                               {notification.node}
                             </span>
                             <span className="text-border text-[10px]">|</span>
@@ -324,7 +301,7 @@ export default function NotificationsPage() {
                   <BellOff className="size-8 text-muted-foreground/20" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-serif font-bold italic uppercase tracking-tight text-foreground">Không có thông báo</h3>
+                  <h3 className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Không có thông báo</h3>
                   <p className="text-sm text-muted-foreground/60">Bạn đã xem hết tất cả thông tin quan trọng.</p>
                 </div>
               </div>

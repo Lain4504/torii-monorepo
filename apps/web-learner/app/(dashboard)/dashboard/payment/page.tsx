@@ -41,6 +41,15 @@ import { Separator } from '@workspace/ui/components/separator'
 import { OrderStatus } from '@workspace/schemas'
 import { formatDateTime, isWithinGracePeriod } from '@/utils/time-utils'
 import { useRouter } from 'next/navigation'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@workspace/ui/components/table'
+import { Card } from '@workspace/ui/components/card'
 
 export default function PaymentHistoryPage() {
     const [searchTerm, setSearchTerm] = useState('')
@@ -135,19 +144,15 @@ export default function PaymentHistoryPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-7xl animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500 pb-20">
             {/* Header */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/30">
-                <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
-                        <Clock className="size-3.5" />
-                        Billing
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                        Lịch sử <span className="text-primary not-italic">Đơn hàng</span>
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2 border-b border-border">
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-bold text-foreground">
+                        Lịch sử đơn hàng
                     </h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                        Theo dõi các giao dịch và trạng thái thanh toán Torii Learner
+                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                        Theo dõi các giao dịch và trạng thái thanh toán Torii Learner.
                     </p>
                 </div>
 
@@ -158,9 +163,9 @@ export default function PaymentHistoryPage() {
                             setStatusFilter(val)
                             setCurrentPage(1) // Reset to page 1 on filter change
                         }}>
-                            <SelectTrigger className="h-10 w-full bg-background/40 backdrop-blur-md border-border/40 rounded-xl text-xs font-medium focus:ring-1 ring-primary/20 transition-all shadow-sm">
+                            <SelectTrigger className="h-10 w-full bg-background border-input rounded-xl text-sm font-medium focus:ring-1 focus:ring-primary transition-all shadow-sm">
                                 <div className="flex items-center gap-2">
-                                    <Filter className="w-3.5 h-3.5 text-muted-foreground/40" />
+                                    <Filter className="w-4 h-4 text-muted-foreground" />
                                     <SelectValue placeholder="Trạng thái" />
                                 </div>
                             </SelectTrigger>
@@ -177,10 +182,10 @@ export default function PaymentHistoryPage() {
 
                     {/* Search */}
                     <div className="relative flex-1 md:flex-initial w-full sm:w-auto">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/30" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                             placeholder="Tìm kiếm mã đơn, nội dung..."
-                            className="pl-9 h-10 w-full md:w-64 bg-background/40 backdrop-blur-md border-border/40 rounded-xl text-xs placeholder:text-muted-foreground/40 focus:ring-1 ring-primary/20 transition-all shadow-sm"
+                            className="pl-9 h-10 w-full md:w-64 bg-background border-input rounded-xl text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary transition-all shadow-sm"
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value)
@@ -197,65 +202,73 @@ export default function PaymentHistoryPage() {
                     <ComponentLoading className="h-64" />
                 ) : (
                     <div className="space-y-6">
-                        <div className="space-y-4">
-                            <div className="hidden md:grid grid-cols-7 px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
-                                <div className="col-span-1">Mã đơn</div>
-                                <div className="col-span-2">Nội dung</div>
-                                <div className="col-span-1">Ngày tạo</div>
-                                <div className="col-span-1 text-right">Tổng tiền</div>
-                                <div className="col-span-1 text-center">Trạng thái</div>
-                                <div className="col-span-1 text-right">Thao tác</div>
+                        <Card className="rounded-2xl border-border bg-card overflow-hidden p-0 shadow-sm">
+                            <div className="relative overflow-x-auto">
+                                <Table className="min-w-[1000px] border-collapse bg-transparent">
+                                    <TableHeader className="bg-muted/30 border-b border-border">
+                                        <TableRow className="hover:bg-transparent border-none">
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[150px]">Mã đơn</TableHead>
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Nội dung</TableHead>
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[180px]">Ngày tạo</TableHead>
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-right w-[150px]">Tổng tiền</TableHead>
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-center w-[150px]">Trạng thái</TableHead>
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-right w-[100px]">Thao tác</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {orders.length > 0 ? orders.map((order) => {
+                                            const statusInfo = getStatusInfo(order.status)
+                                            return (
+                                                <TableRow key={order.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
+                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-mono text-muted-foreground">
+                                                        #{order.transactionId || order.id.slice(-6).toUpperCase()}
+                                                    </TableCell>
+                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold text-foreground truncate max-w-[300px]">{order.description || 'Thanh toán khóa học'}</span>
+                                                            <span className="text-xs text-muted-foreground font-medium">{order.paymentMethod || 'Cổng thanh toán'}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-muted-foreground font-medium">
+                                                        {formatDateTime(order.createdAt)}
+                                                    </TableCell>
+                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right font-bold">
+                                                        {order.amount.toLocaleString('vi-VN')}₫
+                                                    </TableCell>
+                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                                        <div className="flex justify-center">
+                                                            <span className={cn(
+                                                                "px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1.5",
+                                                                statusInfo.color
+                                                            )}>
+                                                                {statusInfo.icon}
+                                                                {statusInfo.label}
+                                                            </span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                                                            onClick={() => handleViewDetail(order.id)}
+                                                        >
+                                                            <Eye className="w-4 h-4" />
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        }) : (
+                                            <TableRow>
+                                                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                                                    Bạn chưa có đơn hàng nào.
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
                             </div>
-                            <div className="divide-y divide-border/20 border-y border-border/40 bg-background/20 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm">
-                                {orders.length > 0 ? orders.map((order) => {
-                                    const statusInfo = getStatusInfo(order.status)
-                                    return (
-                                        <div key={order.id} className="grid grid-cols-1 md:grid-cols-7 items-center p-4 hover:bg-muted/5 transition-colors group">
-                                            <div className="col-span-1 text-xs font-mono text-primary/60 mb-2 md:mb-0 flex items-center gap-2">
-                                                <span className="md:hidden text-muted-foreground/40 font-bold uppercase text-[10px]">Mã:</span>
-                                                #{order.transactionId || order.id.slice(-6).toUpperCase()}
-                                            </div>
-                                            <div className="col-span-2 mb-2 md:mb-0">
-                                                <p className="text-sm font-bold text-foreground truncate">{order.description || 'Thanh toán khóa học'}</p>
-                                                <p className="text-[10px] text-muted-foreground/40 font-medium uppercase">{order.paymentMethod || 'Cổng thanh toán'}</p>
-                                            </div>
-                                            <div className="col-span-1 text-xs text-muted-foreground font-medium md:table-cell hidden">
-                                                {formatDateTime(order.createdAt)}
-                                            </div>
-                                            <div className="col-span-1 text-right flex md:block justify-between items-center mb-2 md:mb-0">
-                                                <span className="md:hidden text-muted-foreground/40 font-bold uppercase text-[10px]">Tổng tiền:</span>
-                                                <span className="text-sm font-bold text-foreground">
-                                                    {order.amount.toLocaleString('vi-VN')}₫
-                                                </span>
-                                            </div>
-                                            <div className="col-span-1 flex justify-center mt-0 md:mt-0 mb-3 md:mb-0">
-                                                <span className={cn(
-                                                    "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border flex items-center gap-1.5",
-                                                    statusInfo.color
-                                                )}>
-                                                    {statusInfo.icon}
-                                                    {statusInfo.label}
-                                                </span>
-                                            </div>
-                                            <div className="col-span-1 text-right flex justify-end">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-8 w-8 p-0 rounded-full"
-                                                    onClick={() => handleViewDetail(order.id)}
-                                                >
-                                                    <Eye className="w-4 h-4 text-muted-foreground" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    )
-                                }) : (
-                                    <div className="py-20 text-center">
-                                        <p className="text-sm text-muted-foreground font-medium">Bạn chưa có đơn hàng nào.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        </Card>
 
                         {/* Pagination */}
                         {orders.length > 0 && meta.totalPages > 1 && (
@@ -296,10 +309,10 @@ export default function PaymentHistoryPage() {
 
             {/* Order Detail Dialog */}
             <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-                <DialogContent className="max-w-md rounded-[2rem] p-8 border-border/10">
-                    <DialogHeader className="space-y-4">
-                        <DialogTitle className="text-2xl font-serif font-bold italic">Chi tiết đơn hàng</DialogTitle>
-                        <DialogDescription className="text-xs font-medium tracking-wide uppercase text-muted-foreground/60">
+                <DialogContent className="max-w-md rounded-2xl p-6 border-border bg-background shadow-lg">
+                    <DialogHeader className="space-y-1">
+                        <DialogTitle className="text-xl font-bold">Chi tiết đơn hàng</DialogTitle>
+                        <DialogDescription className="text-sm font-medium text-muted-foreground">
                             Mã đơn: #{orderDetails?.transactionId || orderDetails?.id.slice(-6).toUpperCase() || selectedOrderId?.slice(-6).toUpperCase()}
                         </DialogDescription>
                     </DialogHeader>
@@ -309,12 +322,12 @@ export default function PaymentHistoryPage() {
                             <ComponentLoading />
                         </div>
                     ) : orderDetails ? (
-                        <div className="space-y-8 mt-6">
+                        <div className="space-y-6 mt-4">
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center bg-muted/10 p-4 rounded-2xl border border-border/30 shadow-inner">
-                                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60">Trạng thái</span>
+                                <div className="flex justify-between items-center bg-muted/30 p-4 rounded-xl border border-border">
+                                    <span className="text-xs font-semibold uppercase text-muted-foreground">Trạng thái</span>
                                     <span className={cn(
-                                        "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                                        "px-2.5 py-0.5 rounded-full text-xs font-medium border",
                                         getStatusInfo(orderDetails.status).color
                                     )}>
                                         {getStatusInfo(orderDetails.status).label}
@@ -323,28 +336,28 @@ export default function PaymentHistoryPage() {
 
                                 <div className="space-y-3 px-1">
                                     <div className="flex justify-between text-sm items-baseline">
-                                        <span className="text-muted-foreground/60 font-medium">Nội dung</span>
-                                        <span className="font-bold text-right max-w-[200px] leading-tight">{orderDetails.description || 'N/A'}</span>
+                                        <span className="text-muted-foreground font-medium">Nội dung</span>
+                                        <span className="font-semibold text-right max-w-[200px] leading-tight text-foreground">{orderDetails.description || 'N/A'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm items-baseline">
-                                        <span className="text-muted-foreground/60 font-medium">Thời gian</span>
-                                        <span className="font-mono text-xs">{formatDateTime(orderDetails.createdAt)}</span>
+                                        <span className="text-muted-foreground font-medium">Thời gian</span>
+                                        <span className="font-mono text-xs text-foreground">{formatDateTime(orderDetails.createdAt)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm items-baseline">
-                                        <span className="text-muted-foreground/60 font-medium">Phương thức</span>
-                                        <span className="font-bold uppercase tracking-tighter text-xs">{orderDetails.paymentMethod || 'Thanh toán trực tuyến'}</span>
+                                        <span className="text-muted-foreground font-medium">Phương thức</span>
+                                        <span className="font-semibold text-xs text-foreground">{orderDetails.paymentMethod || 'Thanh toán trực tuyến'}</span>
                                     </div>
-                                    <Separator className="bg-border/10 my-4" />
+                                    <Separator className="bg-border my-4" />
                                     <div className="flex justify-between items-center pt-2">
-                                        <span className="text-sm font-black uppercase tracking-[0.2em] text-primary">Tổng tiền</span>
-                                        <span className="text-2xl font-serif font-black italic">{orderDetails.amount.toLocaleString('vi-VN')}₫</span>
+                                        <span className="text-sm font-bold text-foreground">Tổng tiền</span>
+                                        <span className="text-xl font-bold text-primary">{orderDetails.amount.toLocaleString('vi-VN')}₫</span>
                                     </div>
                                 </div>
                             </div>
 
                             {orderDetails.status === 'pending' && isWithinGracePeriod(orderDetails.createdAt, 30) && (
                                 <Button
-                                    className="w-full h-14 rounded-2xl bg-emerald-600 text-white font-bold uppercase tracking-widest text-[10px] shadow-xl shadow-emerald-600/20 hover:shadow-emerald-600/30 transition-all"
+                                    className="w-full h-11 rounded-xl font-bold shadow-sm"
                                     onClick={() => {
                                         const checkoutUrl = orderDetails.metadata?.checkoutUrl;
                                         if (checkoutUrl) {
@@ -358,19 +371,19 @@ export default function PaymentHistoryPage() {
 
                             <Button
                                 variant="outline"
-                                className="w-full h-14 rounded-2xl border-border/40 text-muted-foreground font-bold uppercase tracking-widest text-[10px] hover:bg-muted/5 transition-all"
+                                className="w-full h-11 rounded-xl border-border font-bold text-muted-foreground hover:bg-muted/50 transition-all"
                                 onClick={() => setIsDetailOpen(false)}
                             >
                                 Đóng
                             </Button>
                         </div>
                     ) : (
-                        <div className="py-12 text-center text-red-500 font-medium">
+                        <div className="py-12 text-center text-destructive font-medium">
                             Không thể tải chi tiết đơn hàng.
                         </div>
                     )}
                 </DialogContent>
             </Dialog>
-        </div >
+        </div>
     )
 }

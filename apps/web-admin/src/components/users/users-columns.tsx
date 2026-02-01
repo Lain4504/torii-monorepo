@@ -48,14 +48,28 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 </Button>
             );
         },
-        cell: (info) => (
-            <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                    <UserCircle className="size-4.5" />
+        cell: (info) => {
+            const user = info.row.original;
+            const avatarUrl = user.avatarUrl;
+            const displayName = info.getValue();
+
+            return (
+                <div className="flex items-center gap-3">
+                    {avatarUrl ? (
+                        <img
+                            src={avatarUrl}
+                            alt={displayName}
+                            className="w-8 h-8 rounded-full object-cover border border-border"
+                        />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                            <UserCircle className="size-4.5" />
+                        </div>
+                    )}
+                    <div className="font-semibold text-foreground text-[14px]">{displayName}</div>
                 </div>
-                <div className="font-semibold text-foreground text-[14px]">{info.getValue()}</div>
-            </div>
-        ),
+            );
+        },
     }),
     columnHelper.accessor('email', {
         header: ({ column }) => {
@@ -76,6 +90,36 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 {info.getValue()}
             </div>
         ),
+    }),
+    columnHelper.accessor('linkedMethods', {
+        header: () => <div className="px-1 text-xs font-semibold">Phương thức đăng nhập</div>,
+        cell: (info) => {
+            const methods = info.getValue() || [];
+            if (methods.length === 0) {
+                return <span className="text-xs text-muted-foreground/40">Chưa liên kết</span>;
+            }
+
+            const methodLabels: Record<string, string> = {
+                'password': 'Mật khẩu',
+                'google': 'Google',
+                'facebook': 'Facebook',
+                'github': 'GitHub',
+            };
+
+            return (
+                <div className="flex flex-wrap gap-1">
+                    {methods.map((method, idx) => (
+                        <span
+                            key={idx}
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20"
+                        >
+                            {methodLabels[method] || method}
+                        </span>
+                    ))}
+                </div>
+            );
+        },
+        size: 180,
     }),
     columnHelper.accessor('role', {
         header: () => <div className="px-1 text-xs font-semibold">Vai trò</div>,

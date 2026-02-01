@@ -46,7 +46,7 @@ export function LessonContent({ description }: LessonContentProps) {
                 <div className="space-y-8">
                     <div className="flex items-center gap-3">
                         <div className="w-1 h-5 bg-primary/40 rounded-full" />
-                        <h3 className="text-xl font-serif font-bold italic text-foreground uppercase tracking-tight">
+                        <h3 className="text-xl font-sans font-bold italic text-foreground uppercase tracking-tight">
                             Nội dung bài học
                         </h3>
                     </div>
@@ -77,7 +77,7 @@ export function LessonContent({ description }: LessonContentProps) {
                             </div>
                             <div className="space-y-1">
                                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Tài liệu đi kèm</p>
-                                <h4 className="text-2xl font-serif font-bold italic text-foreground tracking-tight uppercase leading-none">Giáo trình bài học (PDF)</h4>
+                                <h4 className="text-2xl font-sans font-bold italic text-foreground tracking-tight uppercase leading-none">Giáo trình bài học (PDF)</h4>
                                 <p className="text-[10px] text-muted-foreground/30 font-black uppercase tracking-[0.2em] flex items-center gap-2">
                                     <span>ĐỊNH DẠNG PDF</span> <div className="w-1 h-1 bg-primary/40 rounded-full" /> <span>DUNG LƯỢNG 4.2 MB</span>
                                 </p>
@@ -98,7 +98,7 @@ export function LessonContent({ description }: LessonContentProps) {
                     </div>
                     <div className="space-y-3">
                         <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Diễn đàn thảo luận</h4>
-                        <p className="text-3xl font-serif font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto leading-none">
+                        <p className="text-3xl font-sans font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto leading-none">
                             Tham gia <span className="text-primary not-italic">Trao đổi kiến thức</span>
                         </p>
                         <p className="text-[11px] text-muted-foreground/50 font-black uppercase tracking-[0.1em] max-w-sm mx-auto">

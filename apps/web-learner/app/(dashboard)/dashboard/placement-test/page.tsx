@@ -8,17 +8,19 @@ export const metadata: Metadata = {
 
 export default function PlacementTestPage() {
     return (
-        <div className="flex flex-col min-h-[calc(100vh-4rem)] p-4 md:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto w-full">
-            {/* Header Section */}
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Placement Test</h1>
-                <p className="text-muted-foreground text-lg">
-                    Discover your level and get a personalized learning path.
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-5xl animate-in fade-in duration-500 pb-20">
+            {/* Header */}
+            <div className="space-y-4 pb-2 border-b border-border">
+                <h1 className="text-3xl font-bold text-foreground">
+                    Kiểm tra trình độ
+                </h1>
+                <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                    Đánh giá năng lực tiếng Nhật của bạn để nhận lộ trình học phù hợp nhất.
                 </p>
             </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 w-full bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 md:p-10 flex items-center justify-center">
+            {/* Test Wizard Component */}
+            <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden p-6 md:p-8">
                 <PlacementTestWizard />
             </div>
         </div>

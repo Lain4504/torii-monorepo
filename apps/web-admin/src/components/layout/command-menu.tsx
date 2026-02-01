@@ -150,11 +150,11 @@ export function CommandMenu() {
                         <CommandSeparator className="bg-border/10 my-1" />
 
                         <CommandGroup heading="Hệ thống & Bảo mật" className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest px-2 py-1.5">
-                            <CommandItem onSelect={() => runCommand(() => navigate("/authorization/permissions"))} className="rounded-lg aria-selected:bg-red-500/10 aria-selected:text-red-500 group cursor-pointer py-2.5">
+                            <CommandItem onSelect={() => runCommand(() => navigate("/permissions"))} className="rounded-lg aria-selected:bg-red-500/10 aria-selected:text-red-500 group cursor-pointer py-2.5">
                                 <Shield className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
                                 <span className="text-xs font-medium">Phân quyền vai trò</span>
                             </CommandItem>
-                            <CommandItem onSelect={() => runCommand(() => navigate("/authorization/audit-logs"))} className="rounded-lg aria-selected:bg-red-500/10 aria-selected:text-red-500 group cursor-pointer py-2.5">
+                            <CommandItem onSelect={() => runCommand(() => navigate("/audit-logs"))} className="rounded-lg aria-selected:bg-red-500/10 aria-selected:text-red-500 group cursor-pointer py-2.5">
                                 <FileSearch className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
                                 <span className="text-xs font-medium">Nhật ký hoạt động</span>
                             </CommandItem>

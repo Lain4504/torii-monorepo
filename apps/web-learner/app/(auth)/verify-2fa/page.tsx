@@ -122,22 +122,16 @@ export default function TwoFactorVerifyPage() {
     }
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center p-4 lg:p-0 bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
-            {/* Zen Background Elements */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/[0.03] blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/[0.02] blur-[100px] rounded-full" />
-            </div>
-
-            <div className="container relative z-10 max-w-7xl mx-auto h-[min(900px,calc(100vh-2rem))] lg:grid lg:grid-cols-2 lg:px-0 bg-background/40 backdrop-blur-3xl rounded-[3rem] border border-border/40 shadow-2xl shadow-primary/5 overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center p-4 lg:p-0 bg-background">
+            <div className="w-full max-w-7xl h-[min(900px,calc(100vh-2rem))] lg:grid lg:grid-cols-2 bg-background rounded-3xl lg:rounded-[3rem] border border-border/40 shadow-xl overflow-hidden">
                 {/* Left Panel - Hero */}
-                <div className="relative hidden h-full flex-col p-16 lg:flex overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/[0.02] -z-10" />
+                <div className="hidden lg:flex flex-col justify-between p-16 bg-muted/30 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
                     {/* Center Content */}
                     <div className="relative z-20 flex-1 flex flex-col justify-center max-w-md">
                         <div className="space-y-6 mb-16 animate-in fade-in slide-in-from-left-8 duration-700">
-                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
+                            <h2 className="text-4xl lg:text-4xl font-sans font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
                                 Bảo mật <br />
                                 <span className="text-primary not-italic">Hai lớp</span>
                             </h2>
@@ -161,7 +155,7 @@ export default function TwoFactorVerifyPage() {
                         </button>
 
                         <div className="space-y-2 text-center lg:text-left">
-                            <h1 className="text-4xl font-serif font-bold italic uppercase tracking-tight text-foreground">
+                            <h1 className="text-4xl font-sans font-bold italic uppercase tracking-tight text-foreground">
                                 Xác thực 2FA
                             </h1>
                             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">

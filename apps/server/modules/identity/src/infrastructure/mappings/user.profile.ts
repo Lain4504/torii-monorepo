@@ -88,6 +88,26 @@ export class UserProfile extends AutomapperProfile {
           (dest: UserResponseDTO) => dest.deletedAt,
           mapFrom((src: User) => src.deletedAt || undefined),
         ),
+        forMember(
+          (dest: UserResponseDTO) => dest.linkedMethods,
+          mapFrom((src: User & { identities?: { provider: string }[] }) => {
+            const methods: string[] = [];
+
+            // Check for password (local auth)
+            if (src.password) {
+              methods.push('password');
+            }
+
+            // Check for linked identities
+            if (src.identities && Array.isArray(src.identities)) {
+              src.identities.forEach(identity => {
+                methods.push(identity.provider);
+              });
+            }
+
+            return [...new Set(methods)];
+          }),
+        ),
       );
     };
   }

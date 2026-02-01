@@ -5,6 +5,7 @@ import type {
     PaymentResponseDTO,
     PaymentQueryDTO,
     PaginatedApiResponse,
+    StandardApiResponse,
 } from '@workspace/schemas';
 
 export const orderApi = {
@@ -22,8 +23,8 @@ export const orderApi = {
      * Get order by ID
      */
     async getOrder(id: string): Promise<OrderResponseDTO> {
-        const response = await apiClient.get<OrderResponseDTO>(`/api/orders/${id}`);
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${id}`);
+        return response.data.data!.order;
     },
 
     /**

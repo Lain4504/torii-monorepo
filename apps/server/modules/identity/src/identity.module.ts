@@ -20,6 +20,7 @@ import { UsersHandler } from './interfaces/nats/users.handler';
 import { AuthorizationHandler } from './interfaces/nats/authorization.handler';
 import { AuditLogHandler } from './interfaces/nats/audit-log.handler';
 import { TwoFactorAuthHandler } from './interfaces/nats/two-factor-auth.handler';
+import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
 
 // Filters
 import { GlobalRpcExceptionFilter } from '@server/shared';
@@ -51,6 +52,7 @@ import { DefaultAdminService } from './services/default-admin.service';
     AuthorizationHandler,
     AuditLogHandler,
     TwoFactorAuthHandler,
+    AnalyticsHandler,
   ],
   providers: [
     // Global RPC exception filter for Identity module

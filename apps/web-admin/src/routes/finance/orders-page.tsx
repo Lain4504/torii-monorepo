@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select";
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import {
   Sheet,
   SheetContent,
@@ -33,13 +34,9 @@ import { orderApi } from '@/api/services/order-api.ts';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@workspace/ui/components/pagination";
+import { SmartPagination } from '@/components/common/smart-pagination';
+import { Card } from "@workspace/ui/components/card";
+import { PageHeader } from '@/components/common/page-header';
 
 export default function OrdersPage() {
   const [payments, setPayments] = useState<OrderResponseDTO[]>([]);
@@ -106,36 +103,24 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700 pb-20 p-4 md:p-6">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic tracking-wide uppercase mb-1">
-            <CreditCard className="size-3.5" />
-            Quản lý Doanh thu
-          </div>
-          <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-            Tài chính & <span className="text-primary not-italic">Doanh thu</span>
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-            Theo dõi dòng tiền và tối ưu hiệu suất Torii Academy
-          </p>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Tổng số Giao dịch</span>
-            <span className="text-2xl font-bold text-foreground tabular-nums">{total}</span>
-          </div>
+      <PageHeader
+        title="Tài chính & Doanh thu"
+        subtitle="Theo dõi dòng tiền và tối ưu hiệu suất Torii Academy"
+        stats={[
+          { label: "Tổng số Giao dịch", value: total.toLocaleString() }
+        ]}
+        actions={
           <Button
             onClick={loadPayments}
             disabled={isLoading}
-            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-serif font-bold italic text-xs uppercase tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
+            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all group"
           >
             Làm mới
             <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
           </Button>
-        </div>
-      </div>
+        }
+      />
+
 
       {/* Stats Quick Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-1">
@@ -144,27 +129,27 @@ export default function OrdersPage() {
           { label: 'Trạng thái Hệ thống', value: 'Ổn định', sub: 'Độ trễ < 12ms', icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
           { label: 'Bảo mật', value: 'Hoạt động', sub: '99.9% Tỷ lệ an toàn', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
         ].map((stat, i) => (
-          <div key={i}
-            className="group p-6 rounded-xl bg-background border border-border shadow-sm hover:shadow-md transition-all duration-300">
+          <Card key={i}
+            className="group p-6 rounded-xl border border-border bg-card shadow-sm hover:shadow-md transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <div className={cn("p-2.5 rounded-lg transition-transform group-hover:scale-105", stat.bg, stat.color)}>
                 <stat.icon className="size-5" />
               </div>
               <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-serif font-bold italic mb-1">{stat.label}</h3>
+            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-sans font-bold italic mb-1">{stat.label}</h3>
             <div className="flex items-baseline gap-2">
               <p className="text-2xl font-bold text-foreground leading-none">{stat.value}</p>
               <span className="text-[10px] font-bold text-muted-foreground/40">{stat.sub}</span>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
       {/* Main Table Container */}
       <div className="space-y-4">
         {/* Toolbar */}
-        <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+        <Card className="bg-card p-4 rounded-xl border border-border shadow-sm">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50" />
@@ -200,19 +185,19 @@ export default function OrdersPage() {
               </Select>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Table */}
-        <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
+        <Card className="bg-card p-0 rounded-xl border border-border overflow-hidden shadow-sm">
           <Table className="border-collapse">
             <TableHeader className="bg-muted/30">
               <TableRow className="border-b border-border/50 hover:bg-transparent">
-                <TableHead className="h-12 w-[80px] text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/50 last:border-r-0">#</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/50 last:border-r-0">Người dùng</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/50 last:border-r-0">Số tiền</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/50 last:border-r-0">Phương thức</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/50 last:border-r-0">Trạng thái</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right border-r border-border/50 last:border-r-0">Ngày tạo</TableHead>
+                <TableHead className="h-12 w-[80px] text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">#</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">Người dùng</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Số tiền</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Phương thức</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Trạng thái</TableHead>
+                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right border-r border-border/30 last:border-r-0">Ngày tạo</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -221,24 +206,24 @@ export default function OrdersPage() {
                   <TableCell colSpan={6} className="h-[400px] text-center">
                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                       <RotateCcw className="h-8 w-8 animate-spin text-primary/60" />
-                      <p className="text-xs font-serif font-bold italic uppercase tracking-widest">Đang tải dữ liệu...</p>
+                      <p className="text-xs font-sans font-bold italic uppercase tracking-widest">Đang tải dữ liệu...</p>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : payments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-[400px] text-center">
-                    <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-                      <div className="p-4 rounded-full bg-muted/30">
-                        <CreditCard className="size-8 opacity-50" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-base font-serif font-bold italic uppercase tracking-tight text-foreground">Không tìm thấy giao dịch</p>
-                        <p className="text-sm text-muted-foreground/70">
+                    <Empty>
+                      <EmptyMedia>
+                        <CreditCard className="size-8 text-muted-foreground" />
+                      </EmptyMedia>
+                      <EmptyContent>
+                        <EmptyTitle>Không tìm thấy giao dịch</EmptyTitle>
+                        <EmptyDescription>
                           Chưa có dữ liệu giao dịch nào được ghi nhận.
-                        </p>
-                      </div>
-                    </div>
+                        </EmptyDescription>
+                      </EmptyContent>
+                    </Empty>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -290,60 +275,24 @@ export default function OrdersPage() {
               )}
             </TableBody>
           </Table>
-        </div>
+        </Card>
 
         {/* Pagination */}
-        {(total > 0 || isLoading) && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1">
-            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <span>Hiển thị trang <span className="text-foreground">{page}</span> / {totalPages}</span>
-              <span className="mx-1 text-border">|</span>
-              <span>Tổng cộng <span className="text-foreground">{total}</span> giao dịch</span>
-            </div>
-
-            <Pagination className="w-auto mx-0">
-              <PaginationContent className="flex items-center gap-1">
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage(p => Math.max(1, p - 1));
-                    }}
-                    className={cn(
-                      "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                      page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
-                    )}
-                  />
-                </PaginationItem>
-
-                <div className="hidden md:flex items-center px-4">
-                  <span className="text-xs text-muted-foreground">Trang {page}</span>
-                </div>
-
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage(p => Math.min(totalPages, p + 1));
-                    }}
-                    className={cn(
-                      "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                      page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
-                    )}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        )}
+        <SmartPagination
+          page={page}
+          totalPages={totalPages}
+          totalItems={total}
+          onPageChange={setPage}
+          itemName="giao dịch"
+        />
       </div>
 
       {/* Order Detail Sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent
-          className="sm:max-w-xl p-0 border-l border-border/40 bg-background/95 backdrop-blur-3xl rounded-l-2xl shadow-2xl">
+          className="sm:max-w-xl p-0 border-l border-border/40 bg-card/95 backdrop-blur-3xl rounded-l-2xl shadow-2xl">
           {selectedOrder && (
-            <div className="h-full flex flex-col">
+            <div className="h-full flex flex-col font-sans">
               {/* Sheet Header Overlay */}
               <div className="relative h-40 bg-primary/5 border-b border-border/10 overflow-hidden shrink-0">
                 <div
@@ -357,7 +306,7 @@ export default function OrdersPage() {
                     <Hash className="size-3" />
                     Mã đơn: {selectedOrder.id.slice(0, 12)}
                   </div>
-                  <h2 className="text-3xl font-serif font-bold italic text-foreground leading-none tracking-tight uppercase">Chi tiết Đơn hàng</h2>
+                  <h2 className="text-3xl font-sans font-black text-foreground leading-none tracking-tight uppercase">Chi tiết Đơn hàng</h2>
                 </div>
               </div>
 
@@ -367,35 +316,35 @@ export default function OrdersPage() {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-1.5">
                     <div
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-bold">
+                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-black">
                       <User className="size-3.5" />
                       Người dùng
                     </div>
-                    <p className="text-sm font-semibold text-foreground truncate">{selectedOrder.userId}</p>
+                    <p className="text-sm font-bold text-foreground truncate">{selectedOrder.userId}</p>
                   </div>
                   <div className="space-y-1.5">
                     <div
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-bold">
+                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-black">
                       <Database className="size-3.5" />
                       Phương thức
                     </div>
-                    <p className="text-sm font-semibold text-foreground uppercase tracking-wide">{selectedOrder.paymentMethod}</p>
+                    <p className="text-sm font-bold text-foreground uppercase tracking-wide">{selectedOrder.paymentMethod}</p>
                   </div>
                   <div className="space-y-1.5">
                     <div
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-bold">
+                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-black">
                       <Globe className="size-3.5" />
                       Nền tảng
                     </div>
-                    <p className="text-sm font-medium text-foreground italic">Torii Academy Web</p>
+                    <p className="text-sm font-bold text-foreground">Torii Academy Web</p>
                   </div>
                   <div className="space-y-1.5">
                     <div
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-bold">
+                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-black">
                       <CalendarDays className="size-3.5" />
                       Ngày tạo
                     </div>
-                    <p className="text-sm font-medium text-foreground italic">{formatDateTime(selectedOrder.createdAt)}</p>
+                    <p className="text-sm font-bold text-foreground">{formatDateTime(selectedOrder.createdAt)}</p>
                   </div>
                 </div>
 
@@ -403,8 +352,8 @@ export default function OrdersPage() {
                 <div className="p-6 rounded-2xl bg-muted/20 border border-border/10 space-y-4">
                   <div className="flex items-center justify-between border-b border-border/10 pb-4">
                     <div className="space-y-1">
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Loại giao dịch</p>
-                      <h4 className="text-sm font-medium text-foreground italic">Đăng ký khóa học</h4>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-black">Loại giao dịch</p>
+                      <h4 className="text-sm font-bold text-foreground">Đăng ký khóa học</h4>
                     </div>
                     <div
                       className={cn("px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shadow-sm flex items-center gap-2", getStatusColor(selectedOrder.status))}>
@@ -416,17 +365,17 @@ export default function OrdersPage() {
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center text-muted-foreground/80">
-                      <span className="text-[11px] font-medium uppercase tracking-wide">Giá gốc</span>
-                      <span className="font-bold text-sm">{formatCurrency(selectedOrder.amount)}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wide">Giá gốc</span>
+                      <span className="font-black text-sm">{formatCurrency(selectedOrder.amount)}</span>
                     </div>
                     <div className="flex justify-between items-center text-muted-foreground/80">
-                      <span className="text-[11px] font-medium uppercase tracking-wide">Phí</span>
-                      <span className="font-bold text-sm">{formatCurrency(0)}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wide">Phí</span>
+                      <span className="font-black text-sm">{formatCurrency(0)}</span>
                     </div>
                     <div className="pt-4 border-t border-border/10 flex justify-between items-center">
-                      <span className="text-xs font-serif font-bold italic uppercase tracking-wider text-primary">Tổng cộng</span>
+                      <span className="text-xs font-black uppercase tracking-wider text-primary">Tổng cộng</span>
                       <span
-                        className="text-2xl font-bold text-foreground tracking-tight">{formatCurrency(selectedOrder.amount)}</span>
+                        className="text-2xl font-black text-foreground tracking-tight">{formatCurrency(selectedOrder.amount)}</span>
                     </div>
                   </div>
                 </div>
@@ -436,7 +385,7 @@ export default function OrdersPage() {
                   <ShieldCheck className="size-5 text-primary/70 shrink-0" />
                   <div className="space-y-1">
                     <h5 className="text-[10px] font-bold uppercase tracking-wider text-primary">Xác minh giao dịch</h5>
-                    <p className="text-[11px] font-medium text-muted-foreground/70 leading-relaxed">
+                    <p className="text-[11px] font-bold text-muted-foreground/70 leading-relaxed">
                       Giao dịch này đã được hệ thống xác minh và ghi nhận.
                     </p>
                   </div>
@@ -450,15 +399,13 @@ export default function OrdersPage() {
                   className="w-full h-11 rounded-xl border-primary/20 text-primary font-bold uppercase tracking-wide text-xs hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
                   onClick={() => {
                     setIsSheetOpen(false);
-                    // Navigate to transactions with orderId filter
-                    window.location.href = `/transactions?orderId=${selectedOrder.id}`;
                   }}
                 >
                   <Database className="size-3.5" />
                   Xem nhật ký giao dịch
                 </Button>
                 <Button
-                  className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
+                  className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
                   onClick={() => setIsSheetOpen(false)}
                 >
                   Đóng chi tiết

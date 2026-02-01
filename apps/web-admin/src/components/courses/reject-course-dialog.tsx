@@ -71,7 +71,7 @@ export function RejectCourseDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px] border-destructive/20 bg-background/95 backdrop-blur-xl">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-destructive font-serif italic text-xl">
+                    <DialogTitle className="flex items-center gap-2 text-destructive font-sans italic text-xl">
                         <XCircle className="w-5 h-5" />
                         Từ chối khóa học
                     </DialogTitle>

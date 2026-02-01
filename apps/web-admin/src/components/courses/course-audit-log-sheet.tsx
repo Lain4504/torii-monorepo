@@ -137,7 +137,7 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
                                 <History className="size-5" />
                             </div>
                             <div className="space-y-0.5">
-                                <SheetTitle className="text-xl font-serif font-bold italic tracking-tight uppercase">
+                                <SheetTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
                                     Lịch sử <span className="text-primary not-italic">Kiểm duyệt</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-xs font-medium text-muted-foreground/60 flex items-center gap-1.5">

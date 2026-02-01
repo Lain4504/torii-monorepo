@@ -27,17 +27,17 @@ export default function CourseProgressPage() {
                     setCourse(courseData)
                     const curriculumData = await courseApi.getCurriculum(courseData.id)
                     setCurriculum(curriculumData.modules || [])
-                    
+
                     // TODO: Fetch user progress from API
                     // const progressData = await courseApi.getCourseProgress(courseData.id)
                     // setProgress(progressData)
-                    
+
                     // Mock progress data
                     const totalLessons = curriculumData.modules?.reduce(
                         (sum: number, module: any) => sum + (module.lessons?.length || 0),
                         0
                     ) || 0
-                    
+
                     setProgress({
                         totalLessons,
                         completedLessons: Math.floor(totalLessons * 0.45),
@@ -80,17 +80,17 @@ export default function CourseProgressPage() {
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
-            <div className="border-b bg-card">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="border-b border-border bg-background">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
                         <Link href={`/courses/${slug}`}>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-foreground">Tiến độ học tập</h1>
-                            <p className="text-sm text-muted-foreground mt-1">{course.title}</p>
+                            <h1 className="text-xl font-bold text-foreground">Tiến độ</h1>
+                            <p className="text-sm text-muted-foreground">{course.title}</p>
                         </div>
                     </div>
                 </div>
@@ -179,7 +179,7 @@ export default function CourseProgressPage() {
                             {curriculum.map((module, index) => {
                                 const moduleLessons = module.lessons?.length || 0
                                 const completedModuleLessons = Math.floor(moduleLessons * (progress.completionPercentage / 100))
-                                const moduleProgress = moduleLessons > 0 
+                                const moduleProgress = moduleLessons > 0
                                     ? Math.round((completedModuleLessons / moduleLessons) * 100)
                                     : 0
 

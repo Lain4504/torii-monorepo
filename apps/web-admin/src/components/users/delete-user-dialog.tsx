@@ -51,7 +51,7 @@ export function DeleteUserDialog({
                     <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-rose-500/10 text-rose-500 ring-8 ring-rose-500/5">
                         <AlertTriangle className="h-8 w-8 animate-pulse" />
                     </div>
-                    <AlertDialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight text-foreground">
+                    <AlertDialogTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight text-foreground">
                         Delete <span className="text-rose-500">Account</span>
                     </AlertDialogTitle>
                     <AlertDialogDescription className="text-sm text-muted-foreground/80 font-medium leading-relaxed max-w-[280px] mx-auto">

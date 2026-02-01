@@ -16,19 +16,11 @@ import { CourseAuditLogSheet } from "@/components/courses/course-audit-log-sheet
 import { LiveSessionManagementSheet } from "@/components/courses/live-session-management-sheet.tsx";
 import { usePermissions } from "@/hooks/use-permissions.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@workspace/ui/components/pagination";
+import { SmartPagination } from '@/components/common/smart-pagination';
 import { toast } from '@workspace/ui/components/sonner';
-import { cn } from '@workspace/ui/lib/utils';
 import { Plus, ShieldAlert } from 'lucide-react';
-
+import { Card } from "@workspace/ui/components/card";
+import { PageHeader } from '@/components/common/page-header';
 
 export default function CoursesPage() {
   const navigate = useNavigate();
@@ -98,115 +90,37 @@ export default function CoursesPage() {
           <ShieldAlert className="size-8 text-destructive/50" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-lg font-serif font-bold italic uppercase tracking-tight text-foreground">Thông báo hệ thống</h3>
+          <h3 className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground">Thông báo hệ thống</h3>
           <p className="text-sm text-muted-foreground">{error.message}</p>
         </div>
       </div>
     );
   }
 
-  const renderPaginationItems = () => {
-    if (!meta) return null;
-    const items = [];
-    const maxVisiblePages = 5;
-
-    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(meta.totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    if (startPage > 1) {
-      items.push(
-        <PaginationItem key={1}>
-          <PaginationLink
-            onClick={(e) => {
-              e.preventDefault();
-              setPage(1);
-            }}
-            className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
-          >
-            1
-          </PaginationLink>
-        </PaginationItem>
-      );
-      if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-50" />);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      items.push(
-        <PaginationItem key={i}>
-          <PaginationLink
-            isActive={page === i}
-            onClick={(e) => {
-              e.preventDefault();
-              setPage(i);
-            }}
-            className={cn(
-              "rounded-md border h-9 w-9 text-xs font-semibold transition-all",
-              page === i
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-background border-border hover:bg-muted text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {i}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-
-    if (endPage < meta.totalPages) {
-      if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-50" />);
-      items.push(
-        <PaginationItem key={meta.totalPages}>
-          <PaginationLink
-            onClick={(e) => {
-              e.preventDefault();
-              setPage(meta.totalPages);
-            }}
-            className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
-          >
-            {meta.totalPages}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-
-    return items;
-  };
-
   return (
     <div className="space-y-6 animate-in fade-in duration-700 pb-10">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="space-y-4 max-w-2xl">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-            Quản lý <span className="text-primary not-italic">Khóa học</span>
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-            Hệ sinh thái chương trình giảng dạy Torii Academy
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Tổng số khóa học</span>
-            <span className="text-2xl font-bold text-foreground tabular-nums">{meta?.total.toLocaleString() || 0}</span>
-          </div>
+      <PageHeader
+        title="Quản lý Khóa học"
+        subtitle="Hệ sinh thái chương trình giảng dạy Torii Academy"
+        stats={[
+          { label: "Tổng số khóa học", value: meta?.total.toLocaleString() || 0 }
+        ]}
+        actions={
           <Can permission="course.create">
             <Button
               onClick={() => setShowCreateDialog(true)}
-              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-serif font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
+              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
             >
               Tạo Khóa học Mới
               <Plus className="ml-2 size-4" />
             </Button>
           </Can>
-        </div>
-      </div>
+        }
+      />
+
 
       <div className="space-y-4">
-        <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+        <Card className="bg-card p-4 rounded-xl border-border shadow-sm">
           <CoursesPrimaryToolbar
             search={search}
             onSearchChange={setSearch}
@@ -215,9 +129,9 @@ export default function CoursesPage() {
             jlptLevelFilter={jlptLevelFilter}
             onJlptLevelFilterChange={setJlptLevelFilter}
           />
-        </div>
+        </Card>
 
-        <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
+        <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
           <CoursesTable
             data={courses}
             onEdit={setEditingCourse}
@@ -237,54 +151,16 @@ export default function CoursesPage() {
             limit={queryParams.limit || 10}
             isLoading={isLoading}
           />
-        </div>
+        </Card>
 
         {/* Pagination */}
-        {(meta && (meta.total > 0 || isLoading)) && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1">
-            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <span>Hiển thị trang <span className="text-foreground">{page}</span> / {meta.totalPages}</span>
-              <span className="mx-1 text-border">|</span>
-              <span>Tổng cộng <span className="text-foreground">{meta.total}</span> khóa học</span>
-            </div>
-
-            {meta.totalPages > 1 && (
-              <Pagination className="w-auto mx-0">
-                <PaginationContent className="flex items-center gap-1">
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPage(p => Math.max(1, p - 1));
-                      }}
-                      className={cn(
-                        "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                        page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
-                      )}
-                    />
-                  </PaginationItem>
-
-                  <div className="hidden md:flex items-center gap-1">
-                    {renderPaginationItems()}
-                  </div>
-
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPage(p => Math.min(meta.totalPages, p + 1));
-                      }}
-                      className={cn(
-                        "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                        page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
-                      )}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
-          </div>
-        )}
+        <SmartPagination
+          page={page}
+          totalPages={meta?.totalPages || 0}
+          totalItems={meta?.total || 0}
+          onPageChange={setPage}
+          itemName="khóa học"
+        />
       </div>
 
       {/* Dialogs & Sheets */}

@@ -57,9 +57,9 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     const discount = calculateDiscount()
 
     return (
-        <div className="sticky top-32 space-y-6 relative z-20 w-full max-w-full">
+        <div className="sticky top-24 space-y-6 relative z-20 w-full max-w-full">
             {/* Video Preview Section */}
-            <div className="rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-background bg-background p-1 md:p-1.5">
+            <div className="rounded-2xl overflow-hidden shadow-lg border border-border">
                 <CourseVideoPreview
                     thumbnailUrl={course.thumbnailUrl}
                     previewVideoUrl={course.previewVideoUrl}
@@ -68,47 +68,45 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
             </div>
 
             {/* Pricing Card */}
-            <Card className="rounded-[2rem] md:rounded-[2.5rem] border-border/40 bg-background/60 backdrop-blur-2xl shadow-xl overflow-hidden group">
-                <CardContent className="p-6 md:p-10 space-y-6 md:space-y-8">
-                    <div className="space-y-3 md:space-y-4">
-                        <div className="flex items-center gap-2 text-primary opacity-60">
-                            <Sparkles className="w-3 h-3" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Đăng ký Premium</span>
+            <Card className="rounded-2xl border-border shadow-lg overflow-hidden md:p-1">
+                <CardContent className="p-6 space-y-6">
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-primary font-bold text-sm">
+                            <Sparkles className="w-4 h-4" />
+                            <span>Đăng ký Premium</span>
                         </div>
 
                         <div className="flex flex-col">
-                            <div className="flex items-end gap-3 filter-none min-w-0 flex-wrap">
-                                <span className="text-3xl md:text-4xl font-serif font-bold italic text-foreground tracking-tight leading-none break-all">
+                            <div className="flex items-end gap-3 flex-wrap">
+                                <span className="text-3xl font-extrabold text-foreground tracking-tight">
                                     {course.isFree ? 'MIỄN PHÍ' : (course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price)))}
                                 </span>
                                 {course.discountPrice && !course.isFree && (
-                                    <span className="text-xs md:text-sm text-muted-foreground/40 line-through mb-1 md:mb-2 font-bold tracking-tight">
+                                    <span className="text-sm text-muted-foreground line-through mb-1.5 font-medium">
                                         {formatPrice(Number(course.price))}
                                     </span>
                                 )}
                             </div>
                             {discount && !course.isFree && (
-                                <div className="mt-2">
-                                    <Badge className="bg-destructive/10 text-destructive border-none px-2 md:px-3 py-1 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest">
-                                        Tiết kiệm {discount}%
-                                    </Badge>
+                                <div className="mt-2 text-destructive font-bold text-sm">
+                                    Tiết kiệm {discount}%
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {isEnrolled ? (
                             <Button
-                                className="w-full h-12 md:h-16 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 cursor-pointer active:scale-95 transition-all"
+                                className="w-full h-12 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer active:scale-[0.98] transition-all"
                                 onClick={() => router.push(`/courses/${course.slug}/learn`)}
                             >
                                 Tiếp tục học tập
                             </Button>
                         ) : (
-                            <div className="flex gap-3 md:gap-4">
+                            <div className="flex gap-3">
                                 <Button
-                                    className="flex-1 h-12 md:h-16 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 cursor-pointer active:scale-95 transition-all"
+                                    className="flex-1 h-12 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer active:scale-[0.98] transition-all"
                                     onClick={handlePurchase}
                                     disabled={isEnrolling || isLoadingEnrollment}
                                 >
@@ -119,13 +117,13 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        className="h-12 w-12 md:h-16 md:w-16 rounded-xl md:rounded-2xl border-border/40 hover:bg-muted group/heart cursor-pointer transition-all active:scale-90"
+                                        className="h-12 w-12 rounded-xl border-border hover:bg-muted group/heart cursor-pointer transition-all active:scale-95"
                                         onClick={handleToggleWishlist}
                                         disabled={isToggling || isLoadingWishlist}
                                     >
                                         <Heart
                                             className={cn(
-                                                "w-5 h-5 md:w-6 md:h-6 transition-all duration-300",
+                                                "w-5 h-5 transition-all duration-300",
                                                 isInWishlist ? "fill-destructive text-destructive" : "text-muted-foreground group-hover/heart:text-primary"
                                             )}
                                         />
@@ -135,36 +133,36 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                         )}
                     </div>
 
-                    <div className="space-y-4 md:space-y-6 pt-6 md:pt-8 border-t border-border/20">
-                        <h4 className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
+                    <div className="space-y-4 pt-6 border-t border-border/50">
+                        <h4 className="text-sm font-bold text-foreground">
                             Khóa học bao gồm:
                         </h4>
-                        <ul className="space-y-3 md:space-y-4">
+                        <ul className="space-y-3">
                             {[
                                 { icon: BookOpen, text: `${course.totalLessons} bài giảng chi tiết` },
                                 { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : 'Thời gian học không giới hạn' },
                                 { icon: Globe, text: 'Truy cập trọn đời' },
                                 { icon: Award, text: 'Chứng chỉ hoàn thành Torii' },
                             ].map((item, idx) => (
-                                <li key={idx} className="flex items-center gap-3 md:gap-4 group/item">
-                                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-muted/30 flex items-center justify-center text-muted-foreground group-hover/item:text-primary group-hover/item:bg-primary/10 transition-colors">
-                                        <item.icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                <li key={idx} className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
+                                        <item.icon className="w-4 h-4" />
                                     </div>
-                                    <span className="text-[10px] md:text-[11px] font-bold text-muted-foreground/80 group-hover/item:text-foreground transition-colors">{item.text}</span>
+                                    <span className="text-sm font-medium text-muted-foreground">{item.text}</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-center gap-2 text-emerald-500/60">
-                        <ShieldCheck className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Đảm bảo trong 30 ngày</span>
+                    <div className="pt-2 flex items-center justify-center gap-2 text-emerald-600 font-medium text-xs">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>Đảm bảo hoàn tiền trong 30 ngày</span>
                     </div>
                 </CardContent>
             </Card>
 
-            <div className="text-center px-4 md:px-6">
-                <p className="text-[9px] md:text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-relaxed">
+            <div className="text-center px-4">
+                <p className="text-xs font-medium text-muted-foreground leading-relaxed">
                     Được tin dùng bởi hơn 50,000 học viên chuyên nghiệp trên toàn quốc.
                 </p>
             </div>

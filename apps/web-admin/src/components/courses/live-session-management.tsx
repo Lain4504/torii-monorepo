@@ -86,7 +86,7 @@ export function LiveSessionManagement({ course }: LiveSessionManagementProps) {
             <Card className="border-border/40 shadow-sm overflow-hidden">
                 <CardHeader className="bg-muted/30 pb-4">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-serif font-bold italic uppercase tracking-wider">Trạng thái lớp học</CardTitle>
+                        <CardTitle className="text-sm font-sans font-bold italic uppercase tracking-wider">Trạng thái lớp học</CardTitle>
                         <Badge variant={isLive ? "destructive" : "secondary"} className={cn("animate-pulse", !isLive && "animate-none")}>
                             {isLive ? "LIVE" : "OFFLINE"}
                         </Badge>
@@ -131,7 +131,7 @@ export function LiveSessionManagement({ course }: LiveSessionManagementProps) {
 
             {/* Attendance Card */}
             <Card className="border-border/40 shadow-sm">
-                <CardHeader className="bg-muted/30 pb-4 text-xs font-serif font-bold italic uppercase tracking-wider">
+                <CardHeader className="bg-muted/30 pb-4 text-xs font-sans font-bold italic uppercase tracking-wider">
                     Thống kê tham gia
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
@@ -164,7 +164,7 @@ export function LiveSessionManagement({ course }: LiveSessionManagementProps) {
 
             {/* Session Info */}
             <Card className="border-border/40 shadow-sm">
-                <CardHeader className="bg-muted/30 pb-4 text-xs font-serif font-bold italic uppercase tracking-wider">
+                <CardHeader className="bg-muted/30 pb-4 text-xs font-sans font-bold italic uppercase tracking-wider">
                     Thông tin phiên học
                 </CardHeader>
                 <CardContent className="pt-6 space-y-4 text-sm">

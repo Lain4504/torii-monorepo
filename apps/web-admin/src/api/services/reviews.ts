@@ -31,19 +31,27 @@ export type ReviewQueryDTO = {
 // API Functions
 // ============================================================================
 
-export const reviewsApi = {
+export class ReviewsApi {
     // GET /api/courses/reviews
-    async findAll(params: ReviewQueryDTO): Promise<PaginatedApiResponse<ReviewResponseDTO>> {
+    static async findAll(params: ReviewQueryDTO): Promise<PaginatedApiResponse<ReviewResponseDTO>> {
         const response = await apiClient.get<PaginatedApiResponse<ReviewResponseDTO>>('/api/courses/reviews', { params });
         return response.data;
-    },
+    }
+
+    // GET /api/courses/reviews/:id
+    static async findOne(id: string): Promise<ReviewResponseDTO> {
+        const response = await apiClient.get<StandardApiResponse<ReviewResponseDTO>>(`/api/courses/reviews/${id}`);
+        return response.data.data!;
+    }
 
     // DELETE /api/courses/reviews/:id
-    async delete(id: string): Promise<boolean> {
+    static async delete(id: string): Promise<boolean> {
         const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/courses/reviews/${id}`);
         return response.data.success;
-    },
-};
+    }
+}
+
+export const reviewsApi = ReviewsApi;
 
 // ============================================================================
 // React Query Hooks
@@ -57,6 +65,17 @@ export function useReviews(params: ReviewQueryDTO) {
         queryKey: ['reviews', params],
         queryFn: () => reviewsApi.findAll(params),
         staleTime: 30000,
+    });
+}
+
+/**
+ * Hook: Get single review detail
+ */
+export function useReview(id: string | null) {
+    return useQuery({
+        queryKey: ['review', id],
+        queryFn: () => reviewsApi.findOne(id!),
+        enabled: !!id,
     });
 }
 

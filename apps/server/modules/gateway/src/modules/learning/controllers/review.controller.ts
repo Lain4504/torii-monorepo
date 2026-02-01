@@ -42,6 +42,22 @@ export class ReviewController {
         }
     }
 
+    @Get('reviews/:id')
+    @UseGuards(GatewayAuthGuard)
+    async getReviewById(@Param('id') id: string) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.review.findOne' },
+                    { id }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch review');
+        }
+    }
+
     @Get(':courseId/reviews')
     @Public()
     async getReviewsByCourse(@Param('courseId') courseId: string, @Query() query: any) {

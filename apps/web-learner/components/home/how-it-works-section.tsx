@@ -36,68 +36,59 @@ const steps = [
 
 export function HowItWorksSection() {
     return (
-        <section className="py-32 relative bg-muted/30 overflow-hidden">
-            {/* Zen Decorative Elements */}
-            <div className="absolute top-0 right-0 w-1/3 h-full bg-primary/[0.02] -skew-x-12 transform origin-top" />
-
+        <section className="py-24 bg-muted/30">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {/* Section Header */}
-                <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
-                    <h2 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground uppercase italic">
-                        Hành trình <span className="text-primary not-italic">Học Tập</span>
+                <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                    <h2 className="text-3xl md:text-5xl font-sans font-bold text-foreground tracking-tight">
+                        Hành trình <span className="text-primary">Học Tập</span>
                     </h2>
-                    <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic">
+                    <p className="text-lg text-muted-foreground font-medium">
                         Bốn bước đơn giản để thay đổi cách bạn chinh phục tiếng Nhật mãi mãi.
                     </p>
                 </div>
 
                 {/* Steps Grid */}
-                <div className="grid lg:grid-cols-4 gap-12 relative">
+                <div className="grid lg:grid-cols-4 gap-8 relative">
                     {/* Desktop Connector Line */}
-                    <div className="hidden lg:block absolute top-[2.75rem] left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+                    <div className="hidden lg:block absolute top-[2.5rem] left-[10%] right-[10%] h-[2px] bg-border border-t border-dashed border-muted-foreground/30" />
 
                     {steps.map((step, index) => {
                         const Icon = step.icon
                         return (
-                            <div key={index} className="flex flex-col items-center group">
+                            <div key={index} className="flex flex-col items-center group relative z-10">
                                 {/* Step Icon Box */}
                                 <div className={cn(
-                                    "w-24 h-24 rounded-[2rem] flex items-center justify-center relative mb-8 transition-all duration-700 group-hover:scale-110",
+                                    "w-20 h-20 rounded-2xl flex items-center justify-center relative mb-6 transition-all duration-500 group-hover:scale-110 shadow-sm",
                                     step.bg,
-                                    step.color
+                                    step.color,
+                                    "bg-card border border-border"
                                 )}>
-                                    <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-background border border-border/10 flex items-center justify-center text-[11px] font-black text-foreground shadow-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                                        0{index + 1}
+                                    <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-lg">
+                                        {index + 1}
                                     </div>
-                                    <Icon className="w-10 h-10" />
+                                    <Icon className="w-8 h-8" />
                                 </div>
 
                                 {/* Step Content */}
-                                <div className="text-center space-y-4 px-4">
-                                    <h3 className="text-xl font-serif font-bold italic text-foreground group-hover:text-primary transition-all">
+                                <div className="text-center space-y-3 px-2">
+                                    <h3 className="text-lg font-sans font-bold text-foreground group-hover:text-primary transition-colors">
                                         {step.title}
                                     </h3>
-                                    <p className="text-[11px] text-muted-foreground/60 font-medium uppercase tracking-wider leading-relaxed">
+                                    <p className="text-sm text-muted-foreground leading-relaxed">
                                         {step.description}
                                     </p>
                                 </div>
 
                                 {/* Mobile Arrow */}
                                 {index < steps.length - 1 && (
-                                    <div className="lg:hidden my-8">
+                                    <div className="lg:hidden my-6">
                                         <ChevronRight className="w-6 h-6 text-muted-foreground/20 rotate-90" />
                                     </div>
                                 )}
                             </div>
                         )
                     })}
-                </div>
-
-                {/* Bottom Tip */}
-                <div className="mt-20 text-center">
-                    <div className="inline-flex items-center gap-3 px-6 py-3 bg-background/50 backdrop-blur-sm border border-border/40 rounded-full">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tư duy tự chủ là chìa khóa của thành công</span>
-                    </div>
                 </div>
             </div>
         </section>

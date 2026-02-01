@@ -1,143 +1,208 @@
 'use client'
 
-import { ArrowRight, Play, Sparkles, Video, Brain, GraduationCap, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, Play, Sparkles, Video, Brain, CheckCircle2, Star, Users, BookOpen } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import Link from 'next/link'
-import { cn } from '@workspace/ui/lib/utils'
+import { motion } from 'framer-motion'
+import Image from 'next/image'
 
 export function HeroSection() {
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-20">
-            {/* Zen Ambient Background */}
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-[50%] h-[50%] bg-primary/[0.03] rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-[40%] h-[40%] bg-blue-500/[0.03] rounded-full blur-[100px] animate-pulse duration-5000" />
+        <section className="relative min-h-[90vh] lg:min-h-screen flex items-center justify-center overflow-hidden bg-background pt-24 pb-12">
+            {/* Dynamic Background Elements */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1.5 }}
+                    className="absolute -top-[10%] -right-[5%] w-[60vw] h-[60vw] bg-primary/10 rounded-full blur-[120px]"
+                />
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1.5, delay: 0.2 }}
+                    className="absolute bottom-[0%] -left-[10%] w-[50vw] h-[50vw] bg-accent/5 rounded-full blur-[100px]"
+                />
             </div>
 
-            <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-24">
-                <div className="grid lg:grid-cols-2 gap-16 items-center">
-                    {/* Left Column - Zen Text */}
-                    <div className="space-y-12 text-center lg:text-left">
-                        <div className="space-y-6">
-                            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] animate-in fade-in slide-in-from-top-2 duration-500">
-                                <Sparkles className="w-3.5 h-3.5" />
-                                <span>Học trực tuyến & Trợ lý AI</span>
+            <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid lg:grid-cols-2 gap-12 xl:gap-24 items-center">
+                    {/* Left Column - Content */}
+                    <div className="flex flex-col space-y-8 text-center lg:text-left">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="space-y-6"
+                        >
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold w-fit mx-auto lg:mx-0">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
+                                <span>Tiêu chuẩn giáo dục Nhật Bản</span>
                             </div>
 
-                            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-serif font-bold tracking-tight leading-[0.8] text-foreground animate-in fade-in slide-in-from-left-4 duration-700 uppercase italic">
-                                <span className="text-primary/20 block mb-4 not-italic font-sans font-black tracking-tighter text-4xl lg:text-4xl">Chinh Phục</span>
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary to-blue-600">Tiếng Nhật</span>
-                                <br />
-                                <span className="text-3xl lg:text-4xl text-muted-foreground font-black tracking-[0.4em] uppercase opacity-30 not-italic font-sans mt-8 block">
-                                    日本語マスター
+                            <h1 className="text-4xl sm:text-6xl xl:text-7xl font-sans font-black tracking-tight text-foreground leading-[1.1]">
+                                Học Tiếng Nhật <br /> Nhận <span className="text-primary italic relative">
+                                    Tương Lai
+                                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/30" viewBox="0 0 100 10" preserveAspectRatio="none">
+                                        <path d="M0 5 Q 25 0 50 5 T 100 5" stroke="currentColor" strokeWidth="4" fill="none" />
+                                    </svg>
                                 </span>
                             </h1>
 
-                            <p className="text-lg md:text-xl text-muted-foreground/80 max-w-2xl leading-relaxed font-medium animate-in fade-in slide-in-from-left-6 duration-1000">
-                                Trải nghiệm nền tảng học tập tiếng Nhật thế hệ mới. Lớp trực tuyến WebRTC,
-                                AI Sensei đồng hành 24/7 và lộ trình JLPT cá nhân hóa hoàn hảo.
+                            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                                Kết hợp công nghệ <span className="text-foreground font-bold underline decoration-primary/30 underline-offset-4">AI tiên tiến</span> và
+                                phương pháp giảng dạy truyền thống để rút ngắn <span className="text-primary font-bold">50% thời gian</span> chinh phục JLPT.
                             </p>
-                        </div>
+                        </motion.div>
 
                         {/* CTAs */}
-                        <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+                        >
                             <Link href="/register">
                                 <Button
                                     size="lg"
-                                    className="h-16 px-10 text-sm font-bold uppercase tracking-widest rounded-2xl bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20 transition-all cursor-pointer active:scale-95"
+                                    className="h-16 px-10 text-base font-black uppercase tracking-wider rounded-2xl bg-primary text-white shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all hover:-translate-y-1 active:scale-95 group"
                                 >
-                                    Bắt đầu hành trình
-                                    <ArrowRight className="ml-3 w-5 h-5 text-white" />
+                                    Bắt đầu miễn phí
+                                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </Button>
                             </Link>
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="h-16 px-10 text-sm font-bold uppercase tracking-widest rounded-2xl border-border/50 hover:bg-muted cursor-pointer transition-all active:scale-95"
+                                className="h-16 px-10 text-base font-bold rounded-2xl border-border bg-background/50 backdrop-blur-sm hover:bg-muted/50 transition-all active:scale-95"
                             >
-                                <Play className="mr-3 w-5 h-5 text-primary" />
-                                Xem Demo
+                                <Play className="mr-2 w-5 h-5 fill-primary text-primary" />
+                                Xem lộ trình học
                             </Button>
-                        </div>
+                        </motion.div>
 
-                        {/* JLPT Levels - Zen Style */}
-                        <div className="flex flex-wrap gap-2.5 pt-4 justify-center lg:justify-start">
-                            {['N5', 'N4', 'N3', 'N2', 'N1'].map((level, idx) => (
-                                <div key={level}
-                                    className={cn(
-                                        "px-5 py-2.5 rounded-xl border border-border/40 text-[11px] font-black uppercase tracking-widest transition-all duration-300",
-                                        idx === 0 ? "bg-primary/10 text-primary border-primary/20 shadow-sm" : "bg-muted/30 text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 cursor-default"
-                                    )}
-                                >
-                                    JLPT {level}
+                        {/* Trust Badges */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.8, delay: 0.4 }}
+                            className="pt-8 flex flex-wrap items-center gap-8 justify-center lg:justify-start"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="flex -space-x-3">
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-background overflow-hidden relative shadow-sm">
+                                            <Image
+                                                src={`/avatars/avatar-${i}.svg`}
+                                                alt="User"
+                                                fill
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                                <div className="text-sm">
+                                    <div className="flex items-center gap-1 text-yellow-500">
+                                        {[1, 2, 3, 4, 5].map((s) => <Star key={s} className="w-3 h-3 fill-current" />)}
+                                    </div>
+                                    <p className="text-muted-foreground font-medium"><span className="text-foreground font-bold">12k+</span> học viên hài lòng</p>
+                                </div>
+                            </div>
 
-                        {/* Stats - Refined */}
-                        <div className="flex flex-wrap gap-12 pt-12 border-t border-border/30 justify-center lg:justify-start">
-                            {[
-                                { label: 'Học viên tin dùng', value: '5000+' },
-                                { label: 'Khóa học chất lượng', value: '200+' },
-                                { label: 'Tỉ lệ đỗ JLPT', value: '98%' },
-                            ].map((stat) => (
-                                <div key={stat.label} className="space-y-1 group">
-                                    <div className="text-3xl font-black text-foreground tracking-tighter group-hover:text-primary transition-colors">{stat.value}</div>
-                                    <div className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em]">{stat.label}</div>
+                            <div className="h-10 w-px bg-border hidden sm:block" />
+
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                    <Users className="w-6 h-6" />
                                 </div>
-                            ))}
-                        </div>
+                                <div className="text-sm">
+                                    <p className="font-bold text-foreground">80+ Giáo viên</p>
+                                    <p className="text-muted-foreground font-medium">Top 5% JLPT</p>
+                                </div>
+                            </div>
+                        </motion.div>
                     </div>
 
-                    {/* Right Column - Zen Visuals */}
-                    <div className="relative hidden lg:flex justify-center items-center h-full min-h-[600px] animate-in fade-in zoom-in-95 duration-1000">
-                        <div className="relative w-full max-w-[500px] aspect-square">
-                            {/* Abstract Shapes */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary/10 rounded-[4rem] rotate-45 animate-pulse" />
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border-2 border-primary/5 rounded-[3rem] -rotate-12" />
+                    {/* Right Column - Visuals */}
+                    <div className="relative lg:block h-[500px] sm:h-[600px] w-full">
+                        {/* Main Illustration Wrapper */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, rotateY: 20 }}
+                            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                            transition={{ duration: 1.2, ease: "easeOut" }}
+                            className="relative w-full h-full flex items-center justify-center perspective-[1000px]"
+                        >
+                            {/* Decorative Glow */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
-                            {/* Floating Zen Cards */}
-                            <div className="absolute top-0 right-4 w-72 bg-background/60 backdrop-blur-2xl rounded-[2.5rem] border border-border/40 p-8 shadow-2xl animate-in slide-in-from-top-12 duration-700 hover:-translate-y-2 transition-transform cursor-default">
-                                <div className="flex flex-col items-center text-center space-y-4">
-                                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                                        <Video className="w-8 h-8 text-primary font-bold" />
+                            {/* Center Image */}
+                            <motion.div
+                                animate={{ y: [0, -20, 0] }}
+                                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                                className="relative z-10 w-full max-w-[480px] aspect-square group"
+                            >
+                                <Image
+                                    src="/images/hero-art.png"
+                                    alt="Torii Academy Learning Experience"
+                                    fill
+                                    className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-transform duration-700 group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal"
+                                    priority
+                                />
+                            </motion.div>
+
+                            {/* Floating Stats Cards */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 20, y: -20 }}
+                                animate={{ opacity: 1, x: 0, y: 0 }}
+                                transition={{ delay: 0.6, duration: 0.8 }}
+                                className="absolute top-[10%] -right-4 sm:right-0 z-20"
+                            >
+                                <div className="bg-background/80 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border border-primary/10 flex items-center gap-4 hover:border-primary/30 transition-colors cursor-default">
+                                    <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600">
+                                        <BookOpen className="w-6 h-6" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-sm font-black uppercase tracking-widest text-foreground">WebRTC Live</h3>
-                                        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest leading-loose">Học trực tiếp không độ trễ</p>
-                                    </div>
-                                    <div className="px-4 py-1.5 bg-emerald-500/10 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-500/20">
-                                        Online Now
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Khoá học</p>
+                                        <p className="text-lg font-black text-foreground">50+ Chuyên sâu</p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
-                            <div className="absolute bottom-10 left-0 w-80 bg-background/60 backdrop-blur-3xl rounded-[2.5rem] border border-border/40 p-8 shadow-2xl animate-in slide-in-from-bottom-12 duration-1000 delay-200 hover:scale-105 transition-transform cursor-default">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-20 h-20 rounded-3xl bg-secondary flex items-center justify-center shrink-0 border border-border/40 shadow-inner">
-                                        <Brain className="w-10 h-10 text-foreground opacity-80" />
+                            <motion.div
+                                initial={{ opacity: 0, x: -20, y: 20 }}
+                                animate={{ opacity: 1, x: 0, y: 0 }}
+                                transition={{ delay: 0.8, duration: 0.8 }}
+                                className="absolute bottom-[20%] -left-4 sm:left-0 z-20"
+                            >
+                                <div className="bg-background/80 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border border-primary/10 flex items-center gap-4 hover:border-primary/30 transition-colors cursor-default">
+                                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                        <Brain className="w-6 h-6" />
                                     </div>
-                                    <div className="space-y-3 flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-primary">AI Sensei</span>
-                                            <Sparkles className="w-3.5 h-3.5 text-primary" />
-                                        </div>
-                                        <h3 className="text-xs font-black uppercase tracking-widest leading-tight">FastMCP Learning</h3>
-                                        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                                            <div className="h-full w-2/3 bg-primary rounded-full shadow-sm shadow-primary/40" />
-                                        </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">AI Sensei</p>
+                                        <p className="text-lg font-black text-foreground">Hỗ trợ 24/7</p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
-                            {/* Decorative Checkmarks */}
-                            <div className="absolute top-1/3 left-10 p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xl flex items-center gap-3 animate-bounce duration-3000">
-                                <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                            {/* Floating Success Indicator */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 1, duration: 0.5, type: "spring" }}
+                                className="absolute top-1/2 -left-12 sm:-left-6 z-20 hidden md:block"
+                            >
+                                <div className="bg-emerald-500 text-white px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Lộ trình JLPT N2 đạt 100%
                                 </div>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Lộ trình N1 → N5</span>
-                            </div>
-                        </div>
+                            </motion.div>
+
+                            {/* Abstract Shapes for Depth */}
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.05)_0%,transparent_70%)] rounded-full animate-pulse pointer-events-none" />
+                        </motion.div>
                     </div>
                 </div>
             </div>
