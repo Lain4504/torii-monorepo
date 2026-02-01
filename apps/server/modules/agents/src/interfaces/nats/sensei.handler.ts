@@ -88,4 +88,20 @@ export class SenseiHandler {
       data.resourceType || 'all',
     );
   }
+
+  @MessagePattern({ cmd: 'agents.sensei.chat' })
+  async chat(
+    @Payload()
+    data: {
+      message: string;
+      history: any[];
+      userId: string;
+    },
+  ) {
+    return this.fastMcpService.chat(
+      data.userId,
+      data.message,
+      data.history || [],
+    );
+  }
 }

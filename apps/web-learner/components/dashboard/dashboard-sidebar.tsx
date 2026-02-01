@@ -15,6 +15,7 @@ import {
     GraduationCap,
     TrendingUp,
     ChevronRight,
+    BrainCircuit,
 } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { Progress } from '@workspace/ui/components/progress'
@@ -26,6 +27,7 @@ import { DailyCheckInCard } from './daily-check-in-card'
 const learningNav = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen, badge: null },
+    { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit, badge: null },
 ]
 
 // Nhóm tiến độ và thành tích

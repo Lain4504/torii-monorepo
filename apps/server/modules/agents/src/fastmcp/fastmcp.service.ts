@@ -173,6 +173,20 @@ export class FastMcpService implements OnModuleInit {
     return response.data;
   }
 
+  async chat(
+    userId: string,
+    message: string,
+    history: any[] = [],
+  ): Promise<any> {
+    const userContext = await this.getUserContext(userId);
+    const response = await this.httpClient.post('/api/sensei/chat', {
+      message,
+      history,
+      userContext,
+    });
+    return response.data;
+  }
+
   // ==================== ASSESSMENT AGENT METHODS ====================
 
   async generateJlptTest(
