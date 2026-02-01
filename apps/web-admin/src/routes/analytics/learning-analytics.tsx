@@ -32,6 +32,7 @@ import {
 } from 'recharts'
 
 import { PageLoading } from "@workspace/ui/components/page-loading"
+import { PageHeader } from "@/components/common/page-header"
 
 export default function LearningAnalytics() {
     const { data: courseStats, isLoading: isCourseLoading, refetch: refetchCourse } = useCourseAnalytics()
@@ -48,21 +49,14 @@ export default function LearningAnalytics() {
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-500">
-                            <BookOpen className="size-4" />
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500">Education & Quality</span>
-                    </div>
-                    <h1 className="text-3xl font-black tracking-tight uppercase">Phân tích <span className="text-blue-500">Nội dung</span></h1>
-                    <p className="text-sm text-muted-foreground max-w-xl">
-                        Đánh giá chất lượng bài giảng, tỷ lệ hoàn thành và mức độ tương tác của học viên với chương trình học.
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-3">
+            <PageHeader
+                title={<span>Phân tích <span className="text-blue-500">Nội dung</span></span>}
+                subtitle="Đánh giá chất lượng bài giảng, tỷ lệ hoàn thành và mức độ tương tác của học viên với chương trình học."
+                stats={[
+                    { label: "Hoàn thành TB", value: `${(courseStats?.averageCompletion || 0).toFixed(1)}%` },
+                    { label: "Khóa học active", value: courseStats?.statsByLevel.reduce((acc, curr) => acc + curr.count, 0) || 0 }
+                ]}
+                actions={
                     <Button
                         onClick={() => refetchCourse()}
                         className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
@@ -70,8 +64,8 @@ export default function LearningAnalytics() {
                         <RefreshCw className="size-3.5" />
                         Làm mới
                     </Button>
-                </div>
-            </div>
+                }
+            />
 
             {/* Metrics Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

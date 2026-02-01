@@ -2,9 +2,9 @@
 @import "@workspace/ui/globals.css";
 
 :root {
-  --font-sans: "Nunito", "Inter", "Noto Sans JP", sans-serif;
-  --font-serif: "Nunito", "Inter", "Noto Sans JP", sans-serif;
-  --font-heading: "Nunito", "Inter", "Noto Sans JP", sans-serif;
+  --font-sans: "Nunito", sans-serif;
+  --font-serif: "Nunito", serif;
+  --font-heading: "Nunito", sans-serif;
 }
 
 body {

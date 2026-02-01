@@ -9,8 +9,7 @@ import { TicketsTable } from '@/components/tickets/tickets-table';
 import { TicketDetailSheet } from '@/components/tickets/ticket-detail-sheet';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
-
-
+import { Card } from "@workspace/ui/components/card";
 import { PageHeader } from '@/components/common/page-header';
 
 export default function TicketsPage() {
@@ -82,17 +81,19 @@ export default function TicketsPage() {
 
             <div className="space-y-4">
                 {/* Toolbar */}
-                <TicketsPrimaryToolbar
-                    search={search}
-                    onSearchChange={handleSearch}
-                    type={type}
-                    onTypeChange={(val) => handleFilterChange('type', val)}
-                    status={status}
-                    onStatusChange={(val) => handleFilterChange('status', val)}
-                />
+                <Card className="p-4 rounded-xl border-border bg-card shadow-sm">
+                    <TicketsPrimaryToolbar
+                        search={search}
+                        onSearchChange={handleSearch}
+                        type={type}
+                        onTypeChange={(val) => handleFilterChange('type', val)}
+                        status={status}
+                        onStatusChange={(val) => handleFilterChange('status', val)}
+                    />
+                </Card>
 
                 {/* Table */}
-                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+                <Card className="bg-card rounded-xl border-border overflow-hidden shadow-sm">
                     <TicketsTable
                         data={tickets}
                         isLoading={isLoading}
@@ -108,7 +109,7 @@ export default function TicketsPage() {
                         itemName="yêu cầu"
                         className="border-t border-border bg-muted/5 px-6 py-4"
                     />
-                </div>
+                </Card>
             </div>
 
             {/* Ticket Detail Detail Detail Sheet */}

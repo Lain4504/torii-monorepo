@@ -11,7 +11,6 @@ import {
     TrendingUp,
     ArrowUpRight,
     RefreshCw,
-    Wallet,
     CreditCard,
     ArrowDownRight,
     Filter,
@@ -38,6 +37,7 @@ import {
     ChartTooltipContent,
 } from "@workspace/ui/components/chart"
 import { PageLoading } from "@workspace/ui/components/page-loading"
+import { PageHeader } from "@/components/common/page-header"
 
 const revenueChartConfig = {
     total: {
@@ -60,38 +60,33 @@ export default function RevenueAnalytics() {
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-500">
-                            <Wallet className="size-4" />
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Finance & Growth</span>
-                    </div>
-                    <h1 className="text-3xl font-black tracking-tight uppercase">Phân tích <span className="text-emerald-500">Doanh thu</span></h1>
-                    <p className="text-sm text-muted-foreground max-w-xl">
-                        Theo dõi dòng tiền, tăng trưởng và hiệu suất kinh doanh trên từng phân khúc khóa học.
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" className="h-10 px-4 rounded-xl border-border/40 font-bold uppercase text-[10px] tracking-widest hover:bg-muted/30 transition-all flex items-center gap-2">
-                        <Filter className="size-3.5" />
-                        Lọc dữ liệu
-                    </Button>
-                    <Button variant="outline" className="h-10 px-4 rounded-xl border-border/40 font-bold uppercase text-[10px] tracking-widest hover:bg-muted/30 transition-all flex items-center gap-2">
-                        <Download className="size-3.5" />
-                        Xuất báo cáo
-                    </Button>
-                    <Button
-                        onClick={() => refetch()}
-                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
-                    >
-                        <RefreshCw className="size-3.5" />
-                        Làm mới
-                    </Button>
-                </div>
-            </div>
+            <PageHeader
+                title={<span>Phân tích <span className="text-emerald-500">Doanh thu</span></span>}
+                subtitle="Theo dõi dòng tiền, tăng trưởng và hiệu suất kinh doanh trên từng phân khúc khóa học."
+                stats={[
+                    { label: "Tổng doanh thu", value: formatCurrency(overview?.overview.totalRevenue || 0) },
+                    { label: "Đơn hàng hoàn tất", value: overview?.overview.totalEnrollments.toLocaleString() || "0" }
+                ]}
+                actions={
+                    <>
+                        <Button variant="outline" className="h-10 px-4 rounded-xl border-border/40 font-bold uppercase text-[10px] tracking-widest hover:bg-muted/30 transition-all flex items-center gap-2">
+                            <Filter className="size-3.5" />
+                            Lọc dữ liệu
+                        </Button>
+                        <Button variant="outline" className="h-10 px-4 rounded-xl border-border/40 font-bold uppercase text-[10px] tracking-widest hover:bg-muted/30 transition-all flex items-center gap-2">
+                            <Download className="size-3.5" />
+                            Xuất báo cáo
+                        </Button>
+                        <Button
+                            onClick={() => refetch()}
+                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
+                        >
+                            <RefreshCw className="size-3.5" />
+                            Làm mới
+                        </Button>
+                    </>
+                }
+            />
 
             {/* Financial Health Overview */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

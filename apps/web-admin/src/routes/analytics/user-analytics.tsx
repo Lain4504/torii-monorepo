@@ -34,6 +34,7 @@ import {
     ChartTooltipContent,
 } from "@workspace/ui/components/chart"
 import { PageLoading } from "@workspace/ui/components/page-loading"
+import { PageHeader } from "@/components/common/page-header"
 
 const userChartConfig = {
     count: {
@@ -50,21 +51,14 @@ export default function UserAnalytics() {
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="p-1.5 rounded-md bg-purple-500/10 text-purple-500">
-                            <Users className="size-4" />
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-purple-500">Audience & Demographics</span>
-                    </div>
-                    <h1 className="text-3xl font-black tracking-tight uppercase">Phân tích <span className="text-purple-500">Học viên</span></h1>
-                    <p className="text-sm text-muted-foreground max-w-xl">
-                        Tìm hiểu chân dung học viên, tốc độ tăng trưởng và hành vi tương tác trên nền tảng.
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-3">
+            <PageHeader
+                title={<span>Phân tích <span className="text-purple-500">Học viên</span></span>}
+                subtitle="Tìm hiểu chân dung học viên, tốc độ tăng trưởng và hành vi tương tác trên nền tảng."
+                stats={[
+                    { label: "Tổng học viên", value: userStats?.roles.reduce((acc, curr) => acc + curr.count, 0).toLocaleString() || "0" },
+                    { label: "Hoạt động (7d)", value: "84%" }
+                ]}
+                actions={
                     <Button
                         onClick={() => refetch()}
                         className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
@@ -72,8 +66,8 @@ export default function UserAnalytics() {
                         <RefreshCw className="size-3.5" />
                         Làm mới
                     </Button>
-                </div>
-            </div>
+                }
+            />
 
             {/* Stats Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
