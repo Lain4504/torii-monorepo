@@ -51,26 +51,26 @@ const jlptLevels = [
 
 export function CourseCategoriesSection() {
     return (
-        <section className="py-32 relative bg-background overflow-hidden">
+        <section className="py-24 bg-background">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Zen Section Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                {/* Section Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <div className="max-w-2xl space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                            <Layers className="w-3 h-3" />
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold">
+                            <Layers className="w-3.5 h-3.5" />
                             <span>Lộ trình học tập</span>
                         </div>
-                        <h2 className="text-5xl md:text-7xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
-                            Lộ Trình <span className="text-primary not-italic">JLPT</span> <br /> Chuẩn Quốc Tế
+                        <h2 className="text-3xl md:text-5xl font-sans font-bold text-foreground tracking-tight leading-tight">
+                            Lộ Trình <span className="text-primary">JLPT</span> Chuẩn Quốc Tế
                         </h2>
-                        <p className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 py-1">
+                        <p className="text-lg text-muted-foreground font-medium">
                             Hệ thống khóa học bám sát cấu trúc đề thi năng lực tiếng Nhật mới nhất.
                         </p>
                     </div>
                     <Link href="/courses">
-                        <Button variant="outline" className="rounded-2xl h-14 px-8 text-xs font-bold uppercase tracking-widest border-border/40 hover:bg-muted cursor-pointer transition-all active:scale-95 group">
+                        <Button variant="outline" className="rounded-xl h-12 px-6 text-sm font-bold border-border hover:bg-muted transition-all active:scale-95 bg-background group">
                             Xem tất cả khóa học
-                            <ArrowRight className="ml-3 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </Link>
                 </div>
@@ -81,72 +81,69 @@ export function CourseCategoriesSection() {
                         <div
                             key={index}
                             className={cn(
-                                "group relative overflow-hidden rounded-[2.5rem] p-10 border border-border/40 transition-all duration-500 cursor-default flex flex-col h-full",
-                                level.active ? "bg-primary/5 border-primary/20" : "bg-muted/10 hover:bg-background hover:border-primary/10 hover:shadow-2xl hover:shadow-primary/5"
+                                "group relative overflow-hidden rounded-2xl p-8 border border-border transition-all duration-300 flex flex-col h-full",
+                                level.active ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-card hover:shadow-md hover:-translate-y-1"
                             )}
                         >
                             {/* JLPT Badge */}
                             <div className={cn(
-                                "inline-flex items-center justify-center px-6 py-2 rounded-2xl text-xs font-black uppercase tracking-[0.2em] mb-8 border transition-colors",
-                                level.active ? "bg-primary text-white border-primary" : "bg-background text-foreground border-border/40 group-hover:bg-primary group-hover:text-white group-hover:border-primary"
+                                "inline-flex items-center justify-center px-4 py-1.5 rounded-lg text-xs font-bold mb-6 transition-colors",
+                                level.active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground"
                             )}>
                                 JLPT {level.level}
                             </div>
 
                             {/* Content */}
-                            <div className="space-y-4 flex-1 text-center">
-                                <h3 className="text-3xl font-sans font-bold italic text-foreground leading-tight">{level.title}</h3>
-                                <p className="text-[11px] text-muted-foreground/60 font-medium uppercase tracking-wider">{level.description}</p>
+                            <div className="space-y-4 flex-1">
+                                <h3 className="text-2xl font-bold text-foreground">{level.title}</h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed">{level.description}</p>
                             </div>
 
                             {/* Stats List */}
-                            <div className="mt-8 pt-8 border-t border-border/20 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3 text-muted-foreground/40 group-hover:text-primary transition-colors">
+                            <div className="mt-8 pt-6 border-t border-border/50 space-y-3">
+                                <div className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
                                         <BookOpen className="w-4 h-4" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Tài liệu</span>
+                                        <span>Tài liệu</span>
                                     </div>
-                                    <span className="text-xs font-black text-foreground">{level.courses} Khóa học</span>
+                                    <span className="font-semibold text-foreground">{level.courses} Khóa học</span>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3 text-muted-foreground/40 group-hover:text-primary transition-colors">
+                                <div className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
                                         <Clock className="w-4 h-4" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Thời gian</span>
+                                        <span>Thời gian</span>
                                     </div>
-                                    <span className="text-xs font-black text-foreground">{level.hours}</span>
+                                    <span className="font-semibold text-foreground">{level.hours}</span>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3 text-muted-foreground/40 group-hover:text-primary transition-colors">
+                                <div className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
                                         <Layers className="w-4 h-4" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Từ vựng</span>
+                                        <span>Từ vựng</span>
                                     </div>
-                                    <span className="text-xs font-black text-foreground">{level.kanji} Kanji</span>
+                                    <span className="font-semibold text-foreground">{level.kanji} Kanji</span>
                                 </div>
                             </div>
-
-                            {/* Decorative Line */}
-                            <div className="absolute bottom-0 left-0 h-1 bg-primary w-0 group-hover:w-full transition-all duration-700" />
                         </div>
                     ))}
 
                     {/* Special Promo Card */}
-                    <div className="group relative overflow-hidden rounded-[2.5rem] p-10 bg-foreground text-background transition-all duration-500 hover:shadow-2xl hover:shadow-foreground/20 cursor-default flex flex-col justify-between">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-[60px]" />
+                    <div className="group relative overflow-hidden rounded-2xl p-8 bg-foreground text-background transition-all duration-300 hover:shadow-xl cursor-pointer hover:-translate-y-1 flex flex-col justify-between">
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-3xl" />
 
                         <div className="space-y-6 relative z-10">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary text-white rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                                <Sparkles className="w-3 h-3" />
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white rounded-full text-xs font-bold backdrop-blur-sm">
+                                <Sparkles className="w-3.5 h-3.5" />
                                 <span>High Interactive</span>
                             </div>
-                            <h3 className="text-3xl font-black uppercase tracking-tighter italic leading-none">
-                                Lớp Trực Tuyến <br /> <span className="text-primary not-italic">WebRTC</span>
+                            <h3 className="text-2xl font-bold leading-tight">
+                                Lớp Trực Tuyến <br /> <span className="text-primary">WebRTC</span>
                             </h3>
-                            <p className="text-sm font-bold opacity-60 leading-relaxed">
+                            <p className="text-sm font-medium opacity-80 leading-relaxed">
                                 Học trực tiếp cùng giảng viên N1, tương tác không giới hạn qua bảng trắng kỹ thuật số và âm thanh Hi-Fi.
                             </p>
                         </div>
 
-                        <Button className="mt-8 rounded-2xl h-14 bg-white text-black hover:bg-white/90 font-black uppercase tracking-widest text-xs relative z-10 cursor-pointer transition-all active:scale-95">
+                        <Button className="mt-8 rounded-xl h-12 bg-white text-black hover:bg-white/90 font-bold text-sm w-full relative z-10 transition-all active:scale-95 shadow-lg">
                             Tham gia ngay
                         </Button>
                     </div>

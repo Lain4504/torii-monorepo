@@ -72,32 +72,34 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
     }
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700">
+        <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border/40">
-                <div className="space-y-3">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[9px] font-black uppercase tracking-[0.3em]">
-                        <Clock className="w-3 h-3" />
-                        <span>Tiến độ chương trình</span>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                            <Clock className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-foreground">
+                            Nội dung khóa học
+                        </h2>
                     </div>
-                    <h2 className="text-4xl md:text-4xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
-                        Nội dung <span className="text-primary not-italic">Khóa học</span>
-                    </h2>
-                    <div className="flex flex-wrap items-center gap-4 pt-1">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
-                            <Layers className="w-3.5 h-3.5" />
+
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground font-medium">
+                        <div className="flex items-center gap-2">
+                            <Layers className="w-4 h-4" />
                             <span>{curriculum.modules.length} chương</span>
                         </div>
                         <span className="w-1 h-1 rounded-full bg-border" />
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
-                            <PlayCircle className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-2">
+                            <PlayCircle className="w-4 h-4" />
                             <span>{totalLessons} bài học</span>
                         </div>
                         {getTotalDuration() && (
                             <>
                                 <span className="w-1 h-1 rounded-full bg-border" />
-                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
-                                    <Clock className="w-3.5 h-3.5" />
+                                <div className="flex items-center gap-2">
+                                    <Clock className="w-4 h-4" />
                                     <span>{getTotalDuration()}</span>
                                 </div>
                             </>
@@ -107,9 +109,9 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
 
                 <button
                     onClick={toggleAllSections}
-                    className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary/70 transition-colors cursor-pointer border-b-2 border-primary/20 pb-1"
+                    className="text-sm font-bold text-primary hover:text-primary/80 transition-colors"
                 >
-                    {allExpanded ? 'Thu gọn tất cả [-]' : 'Mở rộng tất cả [+]'}
+                    {allExpanded ? 'Thu gọn tất cả' : 'Mở rộng tất cả'}
                 </button>
             </div>
 
@@ -119,29 +121,33 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                     <div
                         key={module.id}
                         className={cn(
-                            "rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border border-border/40 transition-all duration-500",
-                            openChapters.includes(index) ? "bg-background shadow-2xl shadow-primary/5" : "bg-muted/10 hover:bg-muted/20"
+                            "rounded-2xl overflow-hidden border transition-all duration-300",
+                            openChapters.includes(index)
+                                ? "bg-card border-border shadow-sm"
+                                : "bg-muted/30 border-border/50 hover:bg-muted/50"
                         )}
                     >
                         <button
                             onClick={() => toggleChapter(index)}
-                            className="w-full flex flex-col md:flex-row md:items-center justify-between p-5 md:p-8 text-left transition-colors cursor-pointer group gap-4 md:gap-0"
+                            className="w-full flex flex-col md:flex-row md:items-center justify-between p-6 text-left transition-colors cursor-pointer group gap-4 md:gap-0"
                         >
-                            <div className="flex items-start md:items-center gap-4 md:gap-5">
+                            <div className="flex items-start md:items-center gap-4">
                                 <div className={cn(
-                                    "w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-500 shrink-0",
-                                    openChapters.includes(index) ? "bg-primary text-white shadow-lg shadow-primary/20 rotate-0" : "bg-background border border-border/40 text-muted-foreground group-hover:border-primary/40 group-hover:text-primary -rotate-3"
+                                    "w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 shrink-0",
+                                    openChapters.includes(index)
+                                        ? "bg-primary/10 text-primary"
+                                        : "bg-background border border-border text-muted-foreground group-hover:bg-primary/5 group-hover:text-primary"
                                 )}>
-                                    <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
+                                    <Sparkles className="w-5 h-5" />
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 group-hover:text-primary transition-colors">Chương 0{index + 1}</p>
-                                    <h3 className="text-xl md:text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase line-clamp-2 md:line-clamp-none leading-[1.1]">{module.title}</h3>
+                                <div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Chương {index + 1}</p>
+                                    <h3 className="text-lg font-bold text-foreground">{module.title}</h3>
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto pl-14 md:pl-0">
-                                <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                                <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
                                     <span className="shrink-0">{module.lessons.length} bài giảng</span>
                                     {module.durationMinutes && (
                                         <>
@@ -152,57 +158,59 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                 </div>
                                 <ChevronDown
                                     className={cn(
-                                        "w-5 h-5 text-muted-foreground transition-all duration-500 shrink-0",
-                                        openChapters.includes(index) ? "rotate-180 text-primary" : "group-hover:text-primary"
+                                        "w-5 h-5 text-muted-foreground transition-transform duration-300 shrink-0",
+                                        openChapters.includes(index) ? "rotate-180 text-primary" : ""
                                     )}
                                 />
                             </div>
                         </button>
 
                         <div className={cn(
-                            "grid transition-all duration-500 ease-in-out",
+                            "grid transition-all duration-300 ease-in-out",
                             openChapters.includes(index) ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                         )}>
-                            <div className="overflow-hidden border-t border-border/20">
-                                <div className="px-5 md:px-8 pb-5 md:pb-8 space-y-2 pt-4">
+                            <div className="overflow-hidden border-t border-border/50">
+                                <div className="p-4 space-y-2">
                                     {module.lessons.map((lesson) => (
                                         <div
                                             key={lesson.id}
                                             className={cn(
-                                                "p-3 md:p-5 rounded-xl md:rounded-2xl flex items-center justify-between group/lesson transition-all duration-300 gap-3 md:gap-4",
-                                                lesson.isPreview ? "bg-primary/[0.03] border border-primary/10 cursor-pointer hover:bg-primary/5" : "bg-muted/20 border border-transparent grayscale select-none"
+                                                "p-4 rounded-xl flex items-center justify-between group/lesson transition-all duration-200 gap-3 md:gap-4",
+                                                lesson.isPreview
+                                                    ? "hover:bg-primary/5 cursor-pointer"
+                                                    : "opacity-80 select-none"
                                             )}
                                             onClick={() => handleLessonClick(lesson.id, lesson.isPreview)}
                                         >
                                             <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                                                 <div className={cn(
-                                                    "w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center transition-colors shrink-0",
-                                                    lesson.isPreview ? "bg-white text-primary shadow-sm group-hover/lesson:bg-primary group-hover/lesson:text-white" : "bg-background text-muted-foreground/40"
+                                                    "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                                                    lesson.isPreview ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                                                 )}>
-                                                    {lesson.contentType === 'video' ? <PlayCircle className="w-4 h-4 md:w-5 md:h-5" /> : <FileText className="w-4 h-4 md:w-5 md:h-5" />}
+                                                    {lesson.contentType === 'video' ? <PlayCircle className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                                                 </div>
-                                                <div className="space-y-0.5 min-w-0">
+                                                <div className="min-w-0">
                                                     <h4 className={cn(
-                                                        "text-[10px] md:text-[11px] font-black uppercase tracking-tight transition-colors truncate",
-                                                        lesson.isPreview ? "text-foreground" : "text-muted-foreground/60"
+                                                        "text-sm font-medium truncate",
+                                                        lesson.isPreview ? "text-foreground" : "text-muted-foreground"
                                                     )}>
                                                         {lesson.title}
                                                     </h4>
-                                                    <span className="text-[8px] md:text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest block truncate">
-                                                        {lesson.contentType === 'video' ? 'Bài giảng Video' : 'Tài liệu học tập'}
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {lesson.contentType === 'video' ? 'Video' : 'Tài liệu'}
                                                     </span>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                                            <div className="flex items-center gap-3 shrink-0">
                                                 {lesson.isPreview && (
-                                                    <span className="hidden sm:inline-block text-[8px] md:text-[9px] font-black uppercase tracking-widest px-2 md:px-3 py-1 rounded-full bg-primary/10 text-primary whitespace-nowrap">Xem thử</span>
+                                                    <span className="hidden sm:inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary">Xem thử</span>
                                                 )}
-                                                <div className="flex items-center justify-end min-w-[40px] md:min-w-[50px]">
+                                                <div className="flex items-center justify-end min-w-[40px]">
                                                     {lesson.isPreview && lesson.videoDuration ? (
-                                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{formatDuration(lesson.videoDuration)}</span>
+                                                        <span className="text-xs font-medium text-muted-foreground">{formatDuration(lesson.videoDuration)}</span>
                                                     ) : (
-                                                        <Lock className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground/20" />
+                                                        <Lock className="w-4 h-4 text-muted-foreground/40" />
                                                     )}
                                                 </div>
                                             </div>

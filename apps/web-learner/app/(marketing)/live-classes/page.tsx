@@ -9,13 +9,12 @@ import { Input } from '@workspace/ui/components/input'
 import { Label } from '@workspace/ui/components/label'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import {
-    Calendar, Clock, Users, ArrowRight, CheckCircle2, Sparkles, Youtube, ShieldCheck, Zap,
-    ChevronRight, ArrowLeft, Star, PlayCircle, BookOpen, GraduationCap
+    Calendar, Clock, GraduationCap, ArrowRight, Sparkles, ShieldCheck, Zap,
+    ChevronRight
 } from 'lucide-react'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { cn } from '@workspace/ui/lib/utils'
 import { toast } from '@workspace/ui/components/sonner'
-// removed Table imports as they are no longer used
 
 // Type definition for a Live Course Cohort
 interface LiveCourse {
@@ -43,7 +42,7 @@ export default function LiveClassesPage() {
     const [selectedCourse, setSelectedCourse] = useState<LiveCourse | null>(null)
     const [isRegisterOpen, setIsRegisterOpen] = useState(false)
 
-    // Mock Data representing "Cohorts" or "Term Courses"
+    // Mock Data
     const liveCourses: LiveCourse[] = [
         {
             id: 1,
@@ -109,13 +108,10 @@ export default function LiveClassesPage() {
         setIsLoading(true)
         setIsRegisterOpen(false)
 
-        // Simulate API
         setTimeout(() => {
             setIsLoading(false)
             toast.success("Đăng ký thành công!", {
-                description: `Chúng tôi đã nhận được yêu cầu của bạn cho lớp ${selectedCourse?.title}. Email xác nhận đã được gửi.`,
-                className: "border-emerald-500/20 bg-background/90 backdrop-blur-xl",
-                duration: 5000
+                description: `Chúng tôi đã nhận được yêu cầu của bạn cho lớp ${selectedCourse?.title}. Email xác nhận đã được gửi.`
             })
             setSelectedCourse(null)
         }, 1500)
@@ -126,192 +122,182 @@ export default function LiveClassesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+        <div className="min-h-screen bg-background text-foreground pb-20">
             {/* Hero Section */}
-            <section className="relative py-24 lg:py-32 overflow-hidden border-b border-white/5">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background opacity-50" />
+            <section className="relative py-20 overflow-hidden bg-primary/5">
                 <div className="container relative z-10 px-4 mx-auto max-w-7xl">
-                    <div className="flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-                        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/10 bg-primary/5 text-primary text-[9px] font-black uppercase tracking-[0.3em] mb-4">
-                            <div className="relative flex h-2 w-2">
+                    <div className="text-center space-y-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background text-primary text-xs font-bold border border-primary/20 shadow-sm">
+                            <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                            </div>
+                            </span>
                             <span>Lịch khai giảng 2024/25</span>
                         </div>
 
-                        <h1 className="max-w-4xl text-4xl md:text-7xl font-sans font-bold tracking-tight text-foreground uppercase italic leading-[0.9]">
-                            Làm chủ tiếng Nhật <br />
-                            <span className="text-primary not-italic">Trực tuyến.</span>
+                        <h1 className="text-4xl md:text-6xl font-sans font-extrabold tracking-tight text-foreground leading-tight">
+                            Lớp Học Trực Tuyến <br />
+                            <span className="text-primary">Tương Tác Real-time</span>
                         </h1>
 
-                        <p className="max-w-2xl text-[11px] md:text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-8 mx-auto py-2 leading-relaxed">
-                            Lộ trình bài bản, tương tác trực tiếp và cộng đồng học viên <br /> năng động, cam kết đạt mục tiêu đầu ra.
+                        <p className="max-w-2xl text-lg text-muted-foreground mx-auto font-medium">
+                            Học trực tiếp cùng giáo viên bản ngữ và chuyên gia. Lộ trình bài bản, cam kết đầu ra JLPT.
                         </p>
                     </div>
                 </div>
             </section>
 
-            {/* Courses Schedule Table */}
-            <section className="py-20 lg:py-24">
-                <div className="container px-4 mx-auto max-w-7xl">
-                    <div className="rounded-[2.5rem] border border-white/5 bg-background/40 backdrop-blur-xl overflow-hidden shadow-2xl shadow-black/5">
-                        <div className="grid grid-cols-1 gap-4">
-                            {liveCourses.map((course) => (
-                                <Link
-                                    href={`/live-classes/${course.id === 1 ? 'jlpt-n4-bootcamp' : 'other-course'}`}
-                                    key={course.id}
-                                    className="group block"
-                                >
-                                    <div className="flex flex-col lg:flex-row lg:items-center gap-6 p-6 rounded-[2rem] bg-background/60 backdrop-blur-xl border border-white/5 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 relative overflow-hidden">
+            {/* Courses List */}
+            <section className="py-16 container max-w-6xl mx-auto px-4">
+                <div className="grid grid-cols-1 gap-6">
+                    {liveCourses.map((course) => (
+                        <Link
+                            href={`/live-classes/${course.id === 1 ? 'jlpt-n4-bootcamp' : 'other-course'}`}
+                            key={course.id}
+                            className="group block"
+                        >
+                            <div className="bg-card rounded-2xl border border-border p-6 md:p-8 hover:shadow-lg hover:border-primary/20 transition-all duration-300 relative overflow-hidden">
+                                <div className="flex flex-col lg:flex-row gap-8">
+                                    <div className="flex-1 space-y-4">
+                                        <div className="flex items-center gap-3">
+                                            <Badge className={cn(
+                                                "rounded-full px-3 py-1 text-xs font-bold border-none",
+                                                course.level === 'N5' ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" :
+                                                    course.level === 'N4' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" :
+                                                        course.level === 'N2' ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" : "bg-muted"
+                                            )}>
+                                                Cấp độ {course.level}
+                                            </Badge>
+                                            <span className="text-xs font-bold text-muted-foreground/60">{course.code}</span>
+                                            {course.status === 'filling_fast' && (
+                                                <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
+                                                    <Sparkles className="w-3 h-3" /> Sắp đầy
+                                                </span>
+                                            )}
+                                        </div>
 
-                                        {/* Status Accent Line */}
-                                        <div className={cn(
-                                            "absolute left-0 top-0 bottom-0 w-1 lg:w-1.5",
-                                            course.status === 'filling_fast' ? "bg-amber-500" :
-                                                course.status === 'open' ? "bg-primary" : "bg-muted"
-                                        )} />
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
+                                                {course.title}
+                                            </h3>
+                                            <p className="text-muted-foreground mt-2 line-clamp-2">
+                                                {course.description}
+                                            </p>
+                                        </div>
 
-                                        {/* 1. Level & Basic Info */}
-                                        <div className="flex-1 min-w-0 space-y-4">
-                                            <div className="flex items-center gap-4">
-                                                <Badge className={cn(
-                                                    "rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] border-none shadow-sm",
-                                                    course.level === 'N5' ? "bg-blue-500 text-white" :
-                                                        course.level === 'N4' ? "bg-emerald-500 text-white" :
-                                                            course.level === 'N2' ? "bg-purple-500 text-white" : "bg-muted text-foreground"
-                                                )}>
-                                                    Cấp độ {course.level}
-                                                </Badge>
-                                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">{course.code}</span>
-                                            </div>
-                                            <div>
-                                                <h3 className="text-2xl md:text-3xl font-sans font-bold text-foreground group-hover:text-primary transition-colors pr-4 uppercase italic leading-tight">
-                                                    {course.title}
-                                                </h3>
-                                                <p className="text-[13px] font-medium text-muted-foreground/70 mt-2 line-clamp-2 max-w-xl leading-relaxed italic">
-                                                    {course.description}
-                                                </p>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 pt-2">
-                                                <Avatar className="w-8 h-8 border-2 border-primary/10 shadow-sm">
+                                        <div className="flex items-center gap-4 pt-2">
+                                            <div className="flex items-center gap-3">
+                                                <Avatar className="w-10 h-10 border-2 border-background shadow-sm">
                                                     <AvatarImage src={course.instructor.avatar || undefined} />
-                                                    <AvatarFallback className="bg-primary text-white font-black text-[10px]">
+                                                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
                                                         {course.instructor?.name?.[0] || 'I'}
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-wider text-foreground/80">{course.instructor.name}</span>
-                                                    <span className="text-[8px] font-black uppercase tracking-[0.1em] text-muted-foreground/40">{course.instructor.role}</span>
+                                                <div>
+                                                    <p className="text-sm font-bold text-foreground">{course.instructor.name}</p>
+                                                    <p className="text-xs text-muted-foreground">{course.instructor.role}</p>
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        {/* 2. Key Specs (Grid on mobile, Flex on desktop) */}
-                                        <div className="grid grid-cols-2 lg:flex lg:items-center gap-y-6 gap-x-12 lg:shrink-0 lg:min-w-fit pt-6 lg:pt-0 border-t lg:border-t-0 border-border/40">
-                                            <div className="space-y-2">
-                                                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                                                    <Calendar className="w-3 h-3 text-primary/40" /> Ngày bắt đầu
-                                                </div>
-                                                <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.startDate}</p>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                                                    <Clock className="w-3 h-3 text-primary/40" /> Lịch học
-                                                </div>
-                                                <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.schedule}</p>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                                                    <GraduationCap className="w-3 h-3 text-primary/40" /> Thời lượng
-                                                </div>
-                                                <p className="text-[11px] font-black uppercase tracking-wider text-foreground">{course.duration}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* 3. Price & Action */}
-                                        <div className="flex items-center justify-between lg:justify-end gap-10 pt-6 lg:pt-0 border-t lg:border-t-0 border-border/40 lg:w-[280px] lg:shrink-0">
-                                            <div className="text-right space-y-1">
-                                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Học phí</p>
-                                                <p className="text-3xl font-sans font-bold text-foreground tracking-tighter italic">{course.price}</p>
-                                            </div>
-
-                                            <div className={cn(
-                                                "w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-primary/5 text-primary border border-primary/10 group-hover:bg-primary group-hover:text-white group-hover:shadow-lg group-hover:shadow-primary/20",
-                                                course.status === 'closed' && "opacity-50"
-                                            )}>
-                                                <ChevronRight className="w-6 h-6" />
                                             </div>
                                         </div>
                                     </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
+
+                                    <div className="lg:w-80 shrink-0 flex flex-col justify-between space-y-6 lg:border-l border-border lg:pl-8">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="text-muted-foreground flex items-center gap-2">
+                                                    <Calendar className="w-4 h-4" /> Khai giảng
+                                                </span>
+                                                <span className="font-bold text-foreground">{course.startDate}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="text-muted-foreground flex items-center gap-2">
+                                                    <Clock className="w-4 h-4" /> Lịch học
+                                                </span>
+                                                <span className="font-bold text-foreground text-right">{course.schedule}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="text-muted-foreground flex items-center gap-2">
+                                                    <GraduationCap className="w-4 h-4" /> Thời lượng
+                                                </span>
+                                                <span className="font-bold text-foreground">{course.duration}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-4 border-t border-border flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs text-muted-foreground font-medium">Học phí trọn gói</p>
+                                                <p className="text-2xl font-bold text-primary">{course.price}</p>
+                                            </div>
+                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                                <ChevronRight className="w-5 h-5" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
                 </div>
             </section>
 
             {/* Registration Dialog */}
             <Dialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen}>
-                <DialogContent className="sm:max-w-lg bg-background/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-0 overflow-hidden gap-0">
-                    <DialogHeader className="p-10 pb-6 bg-muted/5 border-b border-border/40">
-                        <DialogTitle className="text-4xl font-sans font-bold uppercase italic tracking-tight flex items-center gap-4">
-                            <Sparkles className="w-8 h-8 text-primary/40 animate-pulse" />
+                <DialogContent className="sm:max-w-lg bg-background p-6 rounded-3xl border-border">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+                            <Zap className="w-6 h-6 text-primary" />
                             Đăng ký nhập học
                         </DialogTitle>
-                        <DialogDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-2">
-                            Đang đăng ký khóa: <span className="text-primary">{selectedCourse?.code}</span>
+                        <DialogDescription className="text-muted-foreground">
+                            Đang đăng ký khóa: <span className="font-bold text-foreground">{selectedCourse?.code}</span>
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="p-10 space-y-10">
+                    <div className="py-6 space-y-6">
                         {/* Course Summary Check */}
-                        <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-primary/5 border border-primary/10 shadow-inner">
-                            <div className="h-16 w-16 rounded-2xl bg-background flex items-center justify-center border border-border/40 shadow-sm">
-                                <Zap className="w-8 h-8 text-primary" />
+                        <div className="p-4 rounded-xl bg-muted/50 border border-border flex items-start gap-4">
+                            <div className="h-12 w-12 rounded-lg bg-background flex items-center justify-center border border-border shrink-0">
+                                <GraduationCap className="w-6 h-6 text-primary" />
                             </div>
-                            <div className="space-y-1">
-                                <h4 className="font-sans text-xl font-bold text-foreground italic uppercase tracking-tight">{selectedCourse?.title}</h4>
-                                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">Khai giảng {selectedCourse?.startDate} • {selectedCourse?.schedule}</p>
+                            <div>
+                                <h4 className="font-bold text-sm text-foreground">{selectedCourse?.title}</h4>
+                                <p className="text-xs text-muted-foreground mt-1">Khai giảng {selectedCourse?.startDate} • {selectedCourse?.schedule}</p>
                             </div>
                         </div>
 
-                        <form id="enroll-form" onSubmit={handleConfirmRegistration} className="space-y-6">
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2.5">
-                                    <Label htmlFor="fname" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Họ</Label>
-                                    <Input id="fname" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="VD: Nguyễn" />
+                        <form id="enroll-form" onSubmit={handleConfirmRegistration} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="fname">Họ</Label>
+                                    <Input id="fname" required placeholder="Nguyễn" className="rounded-xl" />
                                 </div>
-                                <div className="space-y-2.5">
-                                    <Label htmlFor="lname" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Tên</Label>
-                                    <Input id="lname" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="VD: Văn A" />
+                                <div className="space-y-2">
+                                    <Label htmlFor="lname">Tên</Label>
+                                    <Input id="lname" required placeholder="Văn A" className="rounded-xl" />
                                 </div>
                             </div>
-                            <div className="space-y-2.5">
-                                <Label htmlFor="email" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Địa chỉ Email</Label>
-                                <Input id="email" type="email" required className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="nguyenvan@example.com" />
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" type="email" required placeholder="nguyenvan@example.com" className="rounded-xl" />
                             </div>
-                            <div className="space-y-2.5">
-                                <Label htmlFor="phone" className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Số điện thoại</Label>
-                                <Input id="phone" type="tel" className="bg-muted/10 border-border/40 h-14 rounded-2xl focus:bg-background focus:ring-primary/20 transition-all text-sm font-medium" placeholder="090 ..." />
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Số điện thoại</Label>
+                                <Input id="phone" type="tel" placeholder="090 ..." className="rounded-xl" />
                             </div>
                         </form>
 
-                        <div className="flex items-start gap-4 p-5 rounded-2xl bg-muted/5 text-[11px] text-muted-foreground/60 leading-relaxed italic border border-border/40">
-                            <ShieldCheck className="w-5 h-5 text-primary/40 shrink-0 mt-0.5" />
-                            <p>Bằng việc tiếp tục, bạn đồng ý với các điều khoản nhập học. Thông tin thanh toán sẽ được thực hiện trong bước tiếp theo qua cổng bảo mật.</p>
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/10 text-orange-600 dark:text-orange-400 text-xs">
+                            <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+                            <p>Thông tin của bạn được bảo mật tuyệt đối. Chúng tôi sẽ liên hệ để xác nhận trong vòng 24h.</p>
                         </div>
                     </div>
 
-                    <DialogFooter className="p-10 pt-6 bg-muted/5 border-t border-border/40 flex items-center justify-between">
-                        <Button variant="ghost" onClick={() => setIsRegisterOpen(false)} className="rounded-2xl h-14 px-8 hover:bg-primary/5 group/btn">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-foreground transition-colors">Hủy</span>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="ghost" onClick={() => setIsRegisterOpen(false)} className="rounded-xl font-bold">
+                            Hủy bỏ
                         </Button>
-                        <Button type="submit" form="enroll-form" className="rounded-2xl h-14 px-10 bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Tiếp tục thanh toán</span>
+                        <Button type="submit" form="enroll-form" className="rounded-xl font-bold bg-primary hover:bg-primary/90">
+                            Tiếp tục
                         </Button>
                     </DialogFooter>
                 </DialogContent>

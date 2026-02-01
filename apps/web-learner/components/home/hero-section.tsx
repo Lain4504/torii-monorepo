@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, Play, Sparkles, Video, Brain, GraduationCap, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, Play, Sparkles, Video, Brain, CheckCircle2 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
@@ -8,134 +8,128 @@ import { cn } from '@workspace/ui/lib/utils'
 export function HeroSection() {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-20">
-            {/* Zen Ambient Background */}
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-[50%] h-[50%] bg-primary/[0.03] rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-[40%] h-[40%] bg-blue-500/[0.03] rounded-full blur-[100px] animate-pulse duration-5000" />
+            {/* Soft Gradient Background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] bg-primary/5 rounded-full blur-[100px] animate-pulse" />
+                <div className="absolute bottom-[0%] -left-[10%] w-[50vw] h-[50vw] bg-blue-500/5 rounded-full blur-[80px]" />
             </div>
 
-            <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-24">
-                <div className="grid lg:grid-cols-2 gap-16 items-center">
-                    {/* Left Column - Zen Text */}
-                    <div className="space-y-12 text-center lg:text-left">
+            <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+                <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                    {/* Left Column - Content */}
+                    <div className="space-y-8 text-center lg:text-left">
                         <div className="space-y-6">
-                            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] animate-in fade-in slide-in-from-top-2 duration-500">
-                                <Sparkles className="w-3.5 h-3.5" />
-                                <span>Học trực tuyến & Trợ lý AI</span>
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold animate-in fade-in slide-in-from-top-2 duration-500">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
+                                <span>Nền tảng học tiếng Nhật số 1 Việt Nam</span>
                             </div>
 
-                            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-sans font-bold tracking-tight leading-[0.8] text-foreground animate-in fade-in slide-in-from-left-4 duration-700 uppercase italic">
-                                <span className="text-primary/20 block mb-4 not-italic font-sans font-black tracking-tighter text-4xl lg:text-4xl">Chinh Phục</span>
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary to-blue-600">Tiếng Nhật</span>
-                                <br />
-                                <span className="text-3xl lg:text-4xl text-muted-foreground font-black tracking-[0.4em] uppercase opacity-30 not-italic font-sans mt-8 block">
-                                    日本語マスター
-                                </span>
+                            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-sans font-extrabold tracking-tight text-foreground animate-in fade-in slide-in-from-left-4 duration-700 leading-[1.1]">
+                                Chinh Phục <br className="hidden lg:block" />
+                                <span className="text-primary bg-primary/5 px-2 rounded-lg inline-block mt-2">Tiếng Nhật</span>
                             </h1>
 
-                            <p className="text-lg md:text-xl text-muted-foreground/80 max-w-2xl leading-relaxed font-medium animate-in fade-in slide-in-from-left-6 duration-1000">
-                                Trải nghiệm nền tảng học tập tiếng Nhật thế hệ mới. Lớp trực tuyến WebRTC,
-                                AI Sensei đồng hành 24/7 và lộ trình JLPT cá nhân hóa hoàn hảo.
+                            <p className="font-jp text-2xl text-muted-foreground/60 font-bold">
+                                日本語をマスターしよう
+                            </p>
+
+                            <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium animate-in fade-in slide-in-from-left-6 duration-1000">
+                                Học tiếng Nhật dễ dàng và hiệu quả hơn với lộ trình cá nhân hóa,
+                                lớp học trực tuyến tương tác cao và trợ lý AI 24/7.
                             </p>
                         </div>
 
                         {/* CTAs */}
-                        <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-4 duration-1000">
                             <Link href="/register">
                                 <Button
                                     size="lg"
-                                    className="h-16 px-10 text-sm font-bold uppercase tracking-widest rounded-2xl bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20 transition-all cursor-pointer active:scale-95"
+                                    className="h-14 px-8 text-base font-bold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 active:scale-95"
                                 >
-                                    Bắt đầu hành trình
-                                    <ArrowRight className="ml-3 w-5 h-5 text-white" />
+                                    Đăng ký học ngay
+                                    <ArrowRight className="ml-2 w-5 h-5" />
                                 </Button>
                             </Link>
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="h-16 px-10 text-sm font-bold uppercase tracking-widest rounded-2xl border-border/50 hover:bg-muted cursor-pointer transition-all active:scale-95"
+                                className="h-14 px-8 text-base font-bold rounded-xl border-border hover:bg-muted/50 transition-all active:scale-95 bg-background"
                             >
-                                <Play className="mr-3 w-5 h-5 text-primary" />
-                                Xem Demo
+                                <Play className="mr-2 w-4 h-4 fill-current" />
+                                Xem Video Giới thiệu
                             </Button>
                         </div>
 
-                        {/* JLPT Levels - Zen Style */}
-                        <div className="flex flex-wrap gap-2.5 pt-4 justify-center lg:justify-start">
-                            {['N5', 'N4', 'N3', 'N2', 'N1'].map((level, idx) => (
-                                <div key={level}
-                                    className={cn(
-                                        "px-5 py-2.5 rounded-xl border border-border/40 text-[11px] font-black uppercase tracking-widest transition-all duration-300",
-                                        idx === 0 ? "bg-primary/10 text-primary border-primary/20 shadow-sm" : "bg-muted/30 text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 cursor-default"
-                                    )}
-                                >
-                                    JLPT {level}
+                        {/* Social Proof / Trust */}
+                        <div className="pt-8 border-t border-border/40 flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start animate-in fade-in duration-1000 delay-300">
+                            <div className="flex -space-x-3">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-bold overflow-hidden bg-white dark:bg-slate-800">
+                                        <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${i}`} alt="User" />
+                                    </div>
+                                ))}
+                                <div className="w-10 h-10 rounded-full border-2 border-background bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                                    +5k
                                 </div>
-                            ))}
-                        </div>
-
-                        {/* Stats - Refined */}
-                        <div className="flex flex-wrap gap-12 pt-12 border-t border-border/30 justify-center lg:justify-start">
-                            {[
-                                { label: 'Học viên tin dùng', value: '5000+' },
-                                { label: 'Khóa học chất lượng', value: '200+' },
-                                { label: 'Tỉ lệ đỗ JLPT', value: '98%' },
-                            ].map((stat) => (
-                                <div key={stat.label} className="space-y-1 group">
-                                    <div className="text-3xl font-black text-foreground tracking-tighter group-hover:text-primary transition-colors">{stat.value}</div>
-                                    <div className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em]">{stat.label}</div>
-                                </div>
-                            ))}
+                            </div>
+                            <div className="text-sm font-medium text-muted-foreground">
+                                <span className="font-bold text-foreground">5,000+</span> học viên đang theo học
+                            </div>
                         </div>
                     </div>
 
-                    {/* Right Column - Zen Visuals */}
-                    <div className="relative hidden lg:flex justify-center items-center h-full min-h-[600px] animate-in fade-in zoom-in-95 duration-1000">
-                        <div className="relative w-full max-w-[500px] aspect-square">
-                            {/* Abstract Shapes */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary/10 rounded-[4rem] rotate-45 animate-pulse" />
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border-2 border-primary/5 rounded-[3rem] -rotate-12" />
+                    {/* Right Column - Visuals */}
+                    <div className="relative hidden lg:block h-[600px] animate-in fade-in zoom-in-95 duration-1000">
+                        {/* Main Image Container */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="relative w-[450px] h-[450px] bg-primary/5 rounded-full flex items-center justify-center">
+                                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-primary/10 rounded-full animate-spin-slow" style={{ animationDuration: '20s' }} />
 
-                            {/* Floating Zen Cards */}
-                            <div className="absolute top-0 right-4 w-72 bg-background/60 backdrop-blur-2xl rounded-[2.5rem] border border-border/40 p-8 shadow-2xl animate-in slide-in-from-top-12 duration-700 hover:-translate-y-2 transition-transform cursor-default">
-                                <div className="flex flex-col items-center text-center space-y-4">
-                                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                                        <Video className="w-8 h-8 text-primary font-bold" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-sm font-black uppercase tracking-widest text-foreground">WebRTC Live</h3>
-                                        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest leading-loose">Học trực tiếp không độ trễ</p>
-                                    </div>
-                                    <div className="px-4 py-1.5 bg-emerald-500/10 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-500/20">
-                                        Online Now
-                                    </div>
+                                {/* Center Illustration Placeholder */}
+                                <div className="w-80 h-80 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl flex items-center justify-center relative z-10 overflow-hidden border border-border/50">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-blue-500/5" />
+                                    <span className="text-6xl select-none animate-bounce delay-700">⛩️</span>
                                 </div>
-                            </div>
 
-                            <div className="absolute bottom-10 left-0 w-80 bg-background/60 backdrop-blur-3xl rounded-[2.5rem] border border-border/40 p-8 shadow-2xl animate-in slide-in-from-bottom-12 duration-1000 delay-200 hover:scale-105 transition-transform cursor-default">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-20 h-20 rounded-3xl bg-secondary flex items-center justify-center shrink-0 border border-border/40 shadow-inner">
-                                        <Brain className="w-10 h-10 text-foreground opacity-80" />
-                                    </div>
-                                    <div className="space-y-3 flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-primary">AI Sensei</span>
-                                            <Sparkles className="w-3.5 h-3.5 text-primary" />
+                                {/* Floating Cards */}
+                                <div className="absolute -right-12 top-20 bg-card p-4 rounded-2xl shadow-xl border border-border/50 animate-bounce cursor-default" style={{ animationDuration: '4s' }}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-600">
+                                            <CheckCircle2 className="w-6 h-6" />
                                         </div>
-                                        <h3 className="text-xs font-black uppercase tracking-widest leading-tight">FastMCP Learning</h3>
-                                        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                                            <div className="h-full w-2/3 bg-primary rounded-full shadow-sm shadow-primary/40" />
+                                        <div>
+                                            <div className="text-xs font-medium text-muted-foreground">Mục tiêu</div>
+                                            <div className="font-bold text-sm">Đạt chứng chỉ N2</div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Decorative Checkmarks */}
-                            <div className="absolute top-1/3 left-10 p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xl flex items-center gap-3 animate-bounce duration-3000">
-                                <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                                <div className="absolute -left-12 bottom-32 bg-card p-4 rounded-2xl shadow-xl border border-border/50 animate-bounce cursor-default" style={{ animationDuration: '5s', animationDelay: '1s' }}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-blue-500/10 rounded-lg text-blue-600">
+                                            <Video className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="text-xs font-medium text-muted-foreground">Lớp học Live</div>
+                                            <div className="font-bold text-sm">Đang diễn ra...</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Lộ trình N1 → N5</span>
+
+                                <div className="absolute -bottom-4 right-10 bg-card p-4 rounded-2xl shadow-xl border border-border/50 animate-bounce cursor-default" style={{ animationDuration: '6s', animationDelay: '0.5s' }}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-purple-500/10 rounded-lg text-purple-600">
+                                            <Brain className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="text-xs font-medium text-muted-foreground">AI Sensei</div>
+                                            <div className="font-bold text-sm">Sẵn sàng hỗ trợ</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
