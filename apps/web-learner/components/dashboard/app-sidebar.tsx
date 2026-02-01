@@ -23,9 +23,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             collapsible="icon"
             variant="sidebar"
             {...props}
-            className="border-r border-border/10 bg-card/40 backdrop-blur-xl"
+            className="border-r border-border bg-card"
         >
-            <SidebarHeader className="h-20 justify-center group-data-[collapsible=icon]:px-0">
+            <SidebarHeader className="h-16 justify-center group-data-[collapsible=icon]:px-0">
                 <SidebarMenu>
                     <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
                         <SidebarMenuButton
@@ -35,12 +35,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                             )}
                         >
-                            <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 shrink-0 group-data-[collapsible=icon]:size-8">
+                            <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shrink-0 group-data-[collapsible=icon]:size-8">
                                 <GraduationCap className="size-6 group-data-[collapsible=icon]:size-5" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-sans font-black italic text-lg tracking-tight">Torii Nihongo</span>
-                                <span className="truncate text-[9px] font-bold uppercase tracking-[0.2em] opacity-50">Cổng học viên</span>
+                                <span className="truncate font-bold text-base text-foreground">Torii Nihongo</span>
+                                <span className="truncate text-xs font-medium text-muted-foreground">Cổng học viên</span>
                             </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -27,7 +27,7 @@ export default function CourseQuizzesPage() {
                     // TODO: Fetch quizzes from API
                     // const quizzesData = await courseApi.getCourseQuizzes(courseData.id)
                     // setQuizzes(quizzesData)
-                    
+
                     // Mock data
                     setQuizzes([
                         {
@@ -80,17 +80,17 @@ export default function CourseQuizzesPage() {
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
-            <div className="border-b bg-card">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="border-b border-border bg-background">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
                         <Link href={`/courses/${slug}`}>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-foreground">Bài kiểm tra</h1>
-                            <p className="text-sm text-muted-foreground mt-1">{course.title}</p>
+                            <h1 className="text-xl font-bold text-foreground">Bài kiểm tra</h1>
+                            <p className="text-sm text-muted-foreground">{course.title}</p>
                         </div>
                     </div>
                 </div>

@@ -10,38 +10,34 @@ import { SecurityTab } from '@/components/settings/security-tab'
 
 export default function SettingsPage() {
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-4xl animate-in fade-in duration-500">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-4xl animate-in fade-in duration-500">
             {/* Simple Header */}
-            <div className="space-y-4 pb-8 border-b border-border/10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wide">
-                    <Globe className="size-3.5" />
-                    Hệ thống
-                </div>
-                <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                    Cài đặt <span className="text-primary not-italic">Tài khoản</span>
+            <div className="space-y-4 pb-2 border-b border-border">
+                <h1 className="text-3xl font-bold text-foreground">
+                    Cài đặt tài khoản
                 </h1>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                    Tùy chỉnh trải nghiệm học tập Torii Academy
+                <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                    Tùy chỉnh trải nghiệm học tập Torii Academy và quản lý thông tin bảo mật.
                 </p>
             </div>
 
             <div className="space-y-8">
                 {/* Notifications */}
                 <div className="space-y-4">
-                    <div className="flex items-center gap-3 px-1">
-                        <div className="w-1 h-4 bg-primary/40 rounded-full" />
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Thông báo</h3>
-                    </div>
-                    <div className="divide-y divide-border/10 bg-card/40 backdrop-blur-md rounded-2xl border border-border/40 overflow-hidden shadow-sm">
+                    <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                        <Bell className="w-4 h-4 text-primary" />
+                        Thông báo
+                    </h3>
+                    <div className="divide-y divide-border bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                         {[
                             { id: 'email-notifications', label: 'Email thông báo', desc: 'Các cập nhật về khóa học qua email', checked: true },
                             { id: 'course-updates', label: 'Bài học mới', desc: 'Thông báo khi giảng viên đăng bài mới', checked: true },
                             { id: 'marketing', label: 'Ưu đãi & Sự kiện', desc: 'Tin tức khuyến mãi và sự kiện đặc biệt', checked: false },
                         ].map((item) => (
-                            <div key={item.id} className="flex items-center justify-between p-5 hover:bg-muted/5 transition-colors">
+                            <div key={item.id} className="flex items-center justify-between p-5 hover:bg-muted/30 transition-colors">
                                 <div className="space-y-1">
                                     <Label htmlFor={item.id} className="text-sm font-bold cursor-pointer">{item.label}</Label>
-                                    <p className="text-[11px] text-muted-foreground/60 font-medium">{item.desc}</p>
+                                    <p className="text-xs text-muted-foreground">{item.desc}</p>
                                 </div>
                                 <Switch id={item.id} defaultChecked={item.checked} className="data-[state=checked]:bg-primary" />
                             </div>
@@ -51,28 +47,28 @@ export default function SettingsPage() {
 
                 {/* Privacy & Language */}
                 <div className="space-y-4">
-                    <div className="flex items-center gap-3 px-1">
-                        <div className="w-1 h-4 bg-emerald-500/40 rounded-full" />
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Riêng tư & Ngôn ngữ</h3>
-                    </div>
-                    <div className="divide-y divide-border/10 bg-card/40 backdrop-blur-md rounded-2xl border border-border/40 overflow-hidden shadow-sm">
-                        <div className="flex items-center justify-between p-5 hover:bg-muted/5 transition-colors">
+                    <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-emerald-500" />
+                        Riêng tư & Ngôn ngữ
+                    </h3>
+                    <div className="divide-y divide-border bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                        <div className="flex items-center justify-between p-5 hover:bg-muted/30 transition-colors">
                             <div className="space-y-1">
                                 <Label htmlFor="profile-visibility" className="text-sm font-bold cursor-pointer">Hồ sơ công khai</Label>
-                                <p className="text-[11px] text-muted-foreground/60 font-medium">Hiển thị thông tin học tập của bạn với mọi người</p>
+                                <p className="text-xs text-muted-foreground">Hiển thị thông tin học tập của bạn với mọi người</p>
                             </div>
                             <Switch id="profile-visibility" className="data-[state=checked]:bg-primary" />
                         </div>
-                        <div className="flex items-center justify-between p-5 hover:bg-muted/5 transition-colors">
+                        <div className="flex items-center justify-between p-5 hover:bg-muted/30 transition-colors">
                             <div className="space-y-1">
                                 <Label className="text-sm font-bold cursor-pointer">Ngôn ngữ giao diện</Label>
-                                <p className="text-[11px] text-muted-foreground/60 font-medium">Chọn ngôn ngữ bạn muốn sử dụng</p>
+                                <p className="text-xs text-muted-foreground">Chọn ngôn ngữ bạn muốn sử dụng</p>
                             </div>
                             <Select defaultValue="vi">
-                                <SelectTrigger className="w-32 h-8 text-[10px] font-bold uppercase tracking-wider bg-background border-border/10 rounded-lg cursor-pointer">
+                                <SelectTrigger className="w-32 h-9 text-xs font-bold bg-background border-border hover:bg-muted/50 rounded-lg cursor-pointer">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-border/10">
+                                <SelectContent className="rounded-xl border-border">
                                     <SelectItem value="vi" className="text-xs font-medium">Tiếng Việt</SelectItem>
                                     <SelectItem value="en" className="text-xs font-medium">English</SelectItem>
                                 </SelectContent>
@@ -85,22 +81,22 @@ export default function SettingsPage() {
                 <SecurityTab />
 
                 {/* Danger Zone */}
-                <div className="space-y-6 pt-4">
-                    <div className="flex items-center gap-2 px-1 text-destructive">
+                <div className="space-y-4 pt-4">
+                    <h3 className="text-sm font-bold text-destructive flex items-center gap-2">
                         <Trash2 className="w-4 h-4" />
-                        <h3 className="text-sm font-bold uppercase tracking-widest opacity-80">Vùng nguy hiểm</h3>
-                    </div>
-                    <Card className="border-destructive/20 shadow-none bg-destructive/5 overflow-hidden">
-                        <CardContent className="p-5 flex items-center justify-between">
-                            <div className="space-y-0.5">
+                        Vùng nguy hiểm
+                    </h3>
+                    <div className="bg-destructive/5 rounded-2xl border border-destructive/20 overflow-hidden">
+                        <div className="p-5 flex items-center justify-between">
+                            <div className="space-y-1">
                                 <p className="text-sm font-bold text-destructive">Xóa tài khoản</p>
-                                <p className="text-xs text-destructive/70 font-medium">Xóa vĩnh viễn tài khoản và tất cả dữ liệu. Không thể hoàn tác.</p>
+                                <p className="text-xs text-muted-foreground">Xóa vĩnh viễn tài khoản và tất cả dữ liệu. Không thể hoàn tác.</p>
                             </div>
-                            <Button variant="destructive" size="sm" className="rounded-full h-8 text-[10px] font-bold uppercase tracking-widest px-4 cursor-pointer">
+                            <Button variant="destructive" size="sm" className="rounded-xl h-9 text-xs font-bold px-4 cursor-pointer shadow-sm">
                                 Xóa tài khoản
                             </Button>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -4,60 +4,107 @@ import { Suspense } from 'react';
 import { VerificationContent } from '@/components/auth/verification-content';
 import { Spinner } from '@workspace/ui/components/spinner';
 import Link from 'next/link';
-import { cn } from "@workspace/ui/lib/utils"
+import { CheckCircle2, Shield, Mail } from 'lucide-react';
 
 export default function VerifyPage() {
     return (
-        <div className="relative min-h-screen flex items-center justify-center p-4 bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
-            {/* Zen Background Elements */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/[0.03] blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/[0.02] blur-[100px] rounded-full" />
-            </div>
+        <div className="min-h-screen flex items-center justify-center p-4 lg:p-0 bg-background">
+            <div className="w-full max-w-7xl h-[min(900px,calc(100vh-2rem))] lg:grid lg:grid-cols-2 bg-background rounded-3xl lg:rounded-[3rem] border border-border/40 shadow-xl overflow-hidden">
+                {/* Left Panel - Info */}
+                <div className="hidden lg:flex flex-col justify-between p-16 bg-muted/30 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-            <div className="container relative z-10 max-w-xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
-                {/* Logo & Branding */}
-                <div className="flex justify-center mb-12">
-                    <Link href="/" className="flex flex-col items-center gap-3 group cursor-pointer text-center">
-                        <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20 group-hover:scale-105 transition-all duration-500">
-                            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M3 10h18" strokeLinecap="round" />
-                                <path d="M5 10v8" strokeLinecap="round" />
-                                <path d="M19 10v8" strokeLinecap="round" />
-                                <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-                            </svg>
-                        </div>
-                        <span className="text-xl font-bold tracking-tight leading-none">Torii <span className="text-primary">Nihongo</span></span>
-                    </Link>
-                </div>
-
-                {/* Verification Card */}
-                <div className="relative p-8 md:p-12 bg-card rounded-3xl border border-border/50 shadow-sm overflow-hidden text-center">
-                    <div className="flex flex-col space-y-2 mb-8">
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                            Xác thực tài khoản
-                        </h1>
-                        <p className="text-sm text-muted-foreground/80">
-                            Đang xác minh thông tin của bạn...
-                        </p>
+                    <div className="relative z-10">
+                        <Link href="/" className="inline-flex items-center gap-3 group">
+                            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+                                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M3 10h18" strokeLinecap="round" />
+                                    <path d="M5 10v8" strokeLinecap="round" />
+                                    <path d="M19 10v8" strokeLinecap="round" />
+                                    <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
+                                </svg>
+                            </div>
+                            <span className="text-lg font-bold">Torii <span className="text-primary">Nihongo</span></span>
+                        </Link>
                     </div>
 
-                    <Suspense
-                        fallback={
-                            <div className="flex flex-col items-center justify-center py-10 space-y-4">
-                                <Spinner className="h-8 w-8 text-primary/80" />
-                                <p className="text-xs font-medium text-muted-foreground/50 animate-pulse">Vui lòng chờ trong giây lát...</p>
+                    <div className="relative z-10 space-y-8">
+                        <div className="space-y-4">
+                            <h2 className="text-4xl font-bold tracking-tight leading-tight">
+                                Xác thực<br />
+                                <span className="text-primary">Tài khoản</span>
+                            </h2>
+                            <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+                                Chúng tôi đang xác minh thông tin của bạn để đảm bảo tính bảo mật và an toàn cho tài khoản.
+                            </p>
+                        </div>
+
+                        <div className="space-y-4 pt-4">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <Shield className="w-5 h-5 text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-sm mb-1">Bảo mật cao</h3>
+                                    <p className="text-xs text-muted-foreground leading-relaxed">Thông tin của bạn được mã hóa và bảo vệ tuyệt đối</p>
+                                </div>
                             </div>
-                        }
-                    >
-                        <VerificationContent />
-                    </Suspense>
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <Mail className="w-5 h-5 text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-sm mb-1">Xác thực qua email</h3>
+                                    <p className="text-xs text-muted-foreground leading-relaxed">Kiểm tra hộp thư để hoàn tất đăng ký</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 flex gap-6 text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                        <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
+                        <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+                    </div>
                 </div>
 
-                {/* Legal Section */}
-                <div className="flex justify-center gap-6 pt-4 text-[10px] font-medium text-muted-foreground/40 uppercase tracking-widest">
-                    <Link href="/terms" className="hover:text-primary transition-colors cursor-pointer">Terms</Link>
-                    <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy</Link>
+                {/* Right Panel - Verification */}
+                <div className="flex items-center justify-center p-8 lg:p-16 relative bg-background">
+                    <div className="w-full max-w-md space-y-8">
+                        {/* Mobile Logo */}
+                        <div className="lg:hidden flex justify-center mb-8">
+                            <Link href="/" className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl">
+                                    <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <path d="M3 10h18" strokeLinecap="round" />
+                                        <path d="M5 10v8" strokeLinecap="round" />
+                                        <path d="M19 10v8" strokeLinecap="round" />
+                                        <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
+                                    </svg>
+                                </div>
+                                <span className="text-lg font-bold">Torii <span className="text-primary">Nihongo</span></span>
+                            </Link>
+                        </div>
+
+                        <div className="text-center space-y-2">
+                            <h1 className="text-3xl font-bold tracking-tight">
+                                Xác thực tài khoản
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                Đang xác minh thông tin của bạn...
+                            </p>
+                        </div>
+
+                        <Suspense
+                            fallback={
+                                <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                                    <Spinner className="h-8 w-8 text-primary" />
+                                    <p className="text-xs font-medium text-muted-foreground animate-pulse">Vui lòng chờ trong giây lát...</p>
+                                </div>
+                            }
+                        >
+                            <VerificationContent />
+                        </Suspense>
+                    </div>
                 </div>
             </div>
         </div>

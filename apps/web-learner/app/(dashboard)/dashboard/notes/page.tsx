@@ -31,26 +31,23 @@ export default function NotesPage() {
     ]
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-5xl animate-in fade-in duration-500">
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-5xl animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
-                <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wide">
-                        <FileText className="size-3.5" />
-                        Knowledge
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                        Ghi chú <span className="text-primary not-italic">Vạn năng</span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-border">
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-bold text-foreground">
+                        Ghi chú của tôi
                     </h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                        Lưu giữ tinh hoa kiến thức Torii Academy
+                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                        Lưu giữ những ghi chú quan trọng từ các bài học để ôn tập hiệu quả hơn.
                     </p>
                 </div>
                 <div className="relative w-full md:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                         placeholder="Tìm kiếm ghi chú..."
-                        className="pl-9 h-10 bg-muted/20 border-border/50 focus:bg-background transition-all rounded-full text-sm"
+                        className="pl-10 h-10 bg-background border-input focus:ring-1 focus:ring-primary transition-all rounded-xl text-sm"
                     />
                 </div>
             </div>
@@ -58,32 +55,32 @@ export default function NotesPage() {
             {/* Notes Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {notes.map((note) => (
-                    <Card key={note.id} className="border-border/60 shadow-sm bg-card/40 backdrop-blur-xl hover:border-primary/40 hover:bg-card/60 transition-all group cursor-pointer flex flex-col h-full">
+                    <Card key={note.id} className="border-border bg-card shadow-sm hover:shadow-md transition-all group cursor-pointer flex flex-col h-full rounded-2xl">
                         <CardContent className="p-6 space-y-4 flex-1 flex flex-col">
                             <div className="flex items-start justify-between">
-                                <div className="p-2.5 rounded-xl bg-primary/5 text-primary">
+                                <div className="p-3 rounded-xl bg-primary/10 text-primary">
                                     <FileText className="w-5 h-5" />
                                 </div>
-                                <Button variant="ghost" size="icon" className="rounded-full w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button variant="ghost" size="icon" className="rounded-full w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted">
                                     <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                                 </Button>
                             </div>
 
                             <div className="space-y-2 flex-1">
-                                <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{note.title}</h3>
-                                <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-                                    <BookOpen className="w-3 h-3" />
+                                <h3 className="text-lg font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{note.title}</h3>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                                    <BookOpen className="w-3.5 h-3.5" />
                                     <span className="truncate">{note.course}</span>
                                 </div>
-                                <p className="text-xs text-muted-foreground/80 leading-relaxed line-clamp-3">
+                                <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3">
                                     {note.preview}
                                 </p>
                             </div>
 
-                            <div className="pt-4 flex items-center justify-between border-t border-border/20">
-                                <span className="text-[10px] text-muted-foreground/60 font-medium uppercase tracking-tighter">{note.date}</span>
-                                <Button variant="ghost" className="h-7 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-transparent p-0 group/link">
-                                    Xem chi tiết <ChevronRight className="ml-1 w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
+                            <div className="pt-4 flex items-center justify-between border-t border-border/50">
+                                <span className="text-xs text-muted-foreground font-medium">{note.date}</span>
+                                <Button variant="link" className="h-auto p-0 text-xs font-bold text-primary hover:no-underline group/link">
+                                    Xem chi tiết <ChevronRight className="ml-1 w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" />
                                 </Button>
                             </div>
                         </CardContent>
@@ -92,11 +89,14 @@ export default function NotesPage() {
             </div>
 
             {notes.length === 0 && (
-                <div className="py-20 text-center space-y-4">
-                    <div className="w-16 h-16 bg-muted/10 rounded-full flex items-center justify-center mx-auto">
-                        <FileText className="w-8 h-8 text-muted-foreground/20" />
+                <div className="py-20 text-center space-y-4 rounded-2xl border border-dashed border-border bg-muted/5">
+                    <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto">
+                        <FileText className="w-8 h-8 text-muted-foreground/30" />
                     </div>
-                    <p className="text-sm text-muted-foreground font-medium">Bạn chưa có ghi chú nào</p>
+                    <div>
+                        <h3 className="text-lg font-bold text-foreground">Bạn chưa có ghi chú nào</h3>
+                        <p className="text-sm text-muted-foreground mt-1">Các ghi chú bạn tạo trong quá trình học sẽ xuất hiện tại đây.</p>
+                    </div>
                 </div>
             )}
         </div>
