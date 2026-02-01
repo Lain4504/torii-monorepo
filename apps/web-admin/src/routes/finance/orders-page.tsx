@@ -188,7 +188,7 @@ export default function OrdersPage() {
         </Card>
 
         {/* Table */}
-        <Card className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+        <Card className="bg-card p-0 rounded-xl border border-border overflow-hidden shadow-sm">
           <Table className="border-collapse">
             <TableHeader className="bg-muted/30">
               <TableRow className="border-b border-border/50 hover:bg-transparent">

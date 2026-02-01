@@ -50,7 +50,7 @@ export function DashboardHeader() {
                 <React.Fragment key={href}>
                   <BreadcrumbItem>
                     {isLast ? (
-                      <BreadcrumbPage className="capitalize text-xs font-sans font-bold italic text-foreground flex items-center gap-2 max-w-[150px] truncate">
+                      <BreadcrumbPage className="capitalize text-xs font-bold italic text-foreground flex items-center gap-2 max-w-[150px] truncate">
                         {segment.replace('-', ' ')}
                       </BreadcrumbPage>
                     ) : (

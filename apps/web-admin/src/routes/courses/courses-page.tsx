@@ -131,7 +131,7 @@ export default function CoursesPage() {
           />
         </Card>
 
-        <Card className="bg-card rounded-xl border-border overflow-hidden shadow-sm">
+        <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
           <CoursesTable
             data={courses}
             onEdit={setEditingCourse}

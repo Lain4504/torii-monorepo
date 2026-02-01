@@ -93,7 +93,7 @@ export default function TicketsPage() {
                 </Card>
 
                 {/* Table */}
-                <Card className="bg-card rounded-xl border-border overflow-hidden shadow-sm">
+                <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
                     <TicketsTable
                         data={tickets}
                         isLoading={isLoading}

@@ -10,7 +10,6 @@ import { Input } from '@workspace/ui/components/input';
 import { toast } from '@workspace/ui/components/sonner';
 import { Eye, EyeOff, Loader2, ShieldCheck, Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
 import { Checkbox } from "@workspace/ui/components/checkbox";
-import { cn } from "@workspace/ui/lib/utils";
 
 export default function LoginPage() {
   const navigate = useNavigate();

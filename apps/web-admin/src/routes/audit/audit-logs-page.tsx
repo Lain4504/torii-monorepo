@@ -19,6 +19,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@workspace/ui/components/dialog';
+import { Card } from '@workspace/ui/components/card';
 import { Eye, ShieldCheck, Activity, Terminal, Calendar, Search, Fingerprint, Zap, ShieldAlert, Clock } from 'lucide-react';
 import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -263,7 +264,7 @@ export function AuditLogsPage() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+                <Card className="bg-card p-0 rounded-xl border border-border overflow-hidden shadow-sm">
                     <Table className="min-w-[1000px] border-collapse bg-transparent">
                         <TableHeader className="bg-muted/30 border-b border-border">
                             <TableRow className="border-none hover:bg-transparent">
@@ -271,7 +272,7 @@ export function AuditLogsPage() {
                                 <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Người dùng</TableHead>
                                 <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Hành động</TableHead>
                                 <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Mô tả</TableHead>
-                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0 text-right">Truy cập</TableHead>
+                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0 text-right">Thao tác</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -290,7 +291,7 @@ export function AuditLogsPage() {
                                         <TableCell className="py-3 px-4 border-r border-border/10 last:border-r-0"><Skeleton className="h-8 w-8 bg-muted/20 ml-auto" /></TableCell>
                                     </TableRow>
                                 ))
-                            ) : data?.data?.length === 0 ? (
+                            ) : !data?.data?.length ? (
                                 <TableRow className="hover:bg-transparent border-none">
                                     <TableCell colSpan={5} className="h-[400px] text-center p-0">
                                         <Empty>
@@ -340,7 +341,7 @@ export function AuditLogsPage() {
                             )}
                         </TableBody>
                     </Table>
-                </div>
+                </Card>
 
                 {/* Pagination */}
                 <SmartPagination

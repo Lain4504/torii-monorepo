@@ -114,7 +114,7 @@ export default function PersonnelPage() {
                 </Card>
 
                 {/* Table container */}
-                <Card className="rounded-2xl border-border bg-card overflow-hidden shadow-sm">
+                <Card className="rounded-2xl p-0 border-border bg-card overflow-hidden shadow-sm">
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
