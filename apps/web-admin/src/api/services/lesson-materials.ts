@@ -3,7 +3,8 @@ import { apiClient } from '@/api/api-client.ts';
 import type {
     LessonMaterialResponseDTO,
     LessonMaterialCreateDTO,
-    LessonMaterialUpdateDTO
+    LessonMaterialUpdateDTO,
+    StandardApiResponse
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -22,37 +23,41 @@ export const lessonMaterialsApi = {
         const { fileId } = await storageApi.uploadFile(file, 'lesson-materials');
 
         // 2. Create the lesson material record with the fileId
-        const response = await apiClient.post<LessonMaterialResponseDTO>(
+        const response = await apiClient.post<StandardApiResponse<{ material: LessonMaterialResponseDTO }>>(
             '/api/lesson-materials',
             {
                 dto,
                 fileId
             }
         );
-        return response.data;
+
+        return response.data.data!.material;
     },
 
     // GET /api/lesson-materials/by-lesson/:lessonId
     async getMaterialsByLesson(lessonId: string): Promise<LessonMaterialResponseDTO[]> {
-        const response = await apiClient.get<LessonMaterialResponseDTO[]>(
+        const response = await apiClient.get<StandardApiResponse<{ materials: LessonMaterialResponseDTO[] }>>(
             `/api/lesson-materials/by-lesson/${lessonId}`
         );
-        return response.data;
+
+        return response.data.data!.materials;
     },
 
     // PATCH /api/lesson-materials/:id
     async updateMaterial(id: string, dto: LessonMaterialUpdateDTO): Promise<LessonMaterialResponseDTO> {
-        const response = await apiClient.patch<LessonMaterialResponseDTO>(
+        const response = await apiClient.patch<StandardApiResponse<{ material: LessonMaterialResponseDTO }>>(
             `/api/lesson-materials/${id}`,
             dto
         );
-        return response.data;
+
+        return response.data.data!.material;
     },
 
     // DELETE /api/lesson-materials/:id
     async deleteMaterial(id: string): Promise<{ message: string }> {
-        const response = await apiClient.delete<{ message: string }>(`/api/lesson-materials/${id}`);
-        return response.data;
+        const response = await apiClient.delete<StandardApiResponse<{ message: string }>>(`/api/lesson-materials/${id}`);
+
+        return response.data.data!;
     },
 };
 

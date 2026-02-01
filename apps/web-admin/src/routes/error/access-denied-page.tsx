@@ -4,11 +4,11 @@ import { ErrorState } from "@workspace/ui/components/error-state"
 export default function AccessDeniedPage() {
     const navigate = useNavigate()
     return (
-        <div className="flex h-[calc(100vh-8rem)] items-center justify-center p-8">
+        <div className="flex flex-1 items-center justify-center p-8">
             <ErrorState
                 code="403"
-                title="Unauthorized Grid Access"
-                description="Your neural signature does not match the clearance levels required for this secure node."
+                title="Truy cập bị từ chối"
+                description="Tài khoản của bạn không có đủ quyền hạn để truy cập vào vùng dữ liệu này."
                 variant="403"
                 onBack={() => navigate(-1)}
                 onHome={() => navigate("/")}

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { apiClient } from "../api-client"
+import type { StandardApiResponse } from "@workspace/schemas"
 
 export interface PlatformOverview {
     totalUsers: number
@@ -63,10 +64,11 @@ export const usePlatformOverview = () => {
     return useQuery({
         queryKey: ["analytics", "overview"],
         queryFn: async () => {
-            const { data } = await apiClient.get<{ data: AnalyticsOverviewResponse }>(
+            const response = await apiClient.get<StandardApiResponse<AnalyticsOverviewResponse>>(
                 "/api/analytics/overview"
             )
-            return data.data
+
+            return response.data.data!
         },
     })
 }
@@ -75,8 +77,9 @@ export const useUserAnalytics = () => {
     return useQuery({
         queryKey: ["analytics", "users"],
         queryFn: async () => {
-            const { data } = await apiClient.get<{ data: UserAnalyticsResponse }>("/api/analytics/users")
-            return data.data
+            const response = await apiClient.get<StandardApiResponse<UserAnalyticsResponse>>("/api/analytics/users")
+
+            return response.data.data!
         },
     })
 }
@@ -85,8 +88,9 @@ export const useCourseAnalytics = () => {
     return useQuery({
         queryKey: ["analytics", "courses"],
         queryFn: async () => {
-            const { data } = await apiClient.get<{ data: CourseAnalyticsResponse }>("/api/analytics/courses")
-            return data.data
+            const response = await apiClient.get<StandardApiResponse<CourseAnalyticsResponse>>("/api/analytics/courses")
+
+            return response.data.data!
         },
     })
 }

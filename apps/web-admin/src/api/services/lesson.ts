@@ -46,8 +46,8 @@ export const lessonsApi = {
 
     // PATCH /api/admin/lessons/:id/restore
     async restore(id: string): Promise<LessonResponseDTO> {
-        const response = await apiClient.patch<LessonResponseDTO>(`/api/lessons/${id}/restore`);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ lesson: LessonResponseDTO }>>(`/api/lessons/${id}/restore`);
+        return response.data.data!.lesson;
     },
 };
 

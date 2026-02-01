@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
+import type { StandardApiResponse } from '@workspace/schemas';
 
 // Types
 export interface AuditLog {
@@ -45,14 +46,14 @@ export interface PaginatedAuditLogs {
 // API calls
 const auditLogsApi = {
     async query(params: AuditLogFilters) {
-        const res = await apiClient.get<{ success: boolean; data: PaginatedAuditLogs }>('/api/admin/audit-logs', { params });
-        return res.data.data;
+        const res = await apiClient.get<StandardApiResponse<PaginatedAuditLogs>>('/api/admin/audit-logs', { params });
+        return res.data.data!;
     },
     async getEntityActivity(entity: string, entityId: string, limit: number = 20) {
-        const res = await apiClient.get<{ success: boolean; data: AuditLog[] }>(`/api/admin/audit-logs/entity/${entity}/${entityId}`, {
+        const res = await apiClient.get<StandardApiResponse<AuditLog[]>>(`/api/admin/audit-logs/entity/${entity}/${entityId}`, {
             params: { limit }
         });
-        return res.data.data;
+        return res.data.data!;
     },
 };
 

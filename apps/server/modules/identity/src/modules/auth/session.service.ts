@@ -74,8 +74,11 @@ export class SessionService implements ISessionService {
             // Security: If sid not found OR hash doesn't match, it's a potential replay attack
             if (!storedSession || storedSession.tokenHash !== tokenHash) {
                 if (storedSession) {
-                    this.logger.warn(`REPLAY ATTACK DETECTED for session ${storedSession.id}. Revoking...`);
-                    await this.revokeSession(tokenHash);
+                    this.logger.warn(
+                        `REPLAY ATTACK DETECTED for session ${storedSession.id} (User: ${storedSession.userId}). Revoking entire session lifecycle...`
+                    );
+                    // Revoke by ID to ensure we kill the current valid session regardless of hash rotation
+                    await this.revokeSessionById(storedSession.id, storedSession.userId);
                 }
                 return null;
             }

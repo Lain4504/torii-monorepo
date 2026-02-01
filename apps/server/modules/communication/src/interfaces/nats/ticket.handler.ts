@@ -33,14 +33,6 @@ export class TicketHandler {
 
     @MessagePattern({ cmd: 'communication.analytics.tickets' })
     async getTicketStats() {
-        const tickets = await this.ticketService.getTickets({ limit: 1000, page: 1 });
-        const pendingCount = tickets.data.filter(t => t.status === TicketStatus.PENDING).length;
-        const refundCount = tickets.data.filter(t => t.type === 'REFUND' && t.status === TicketStatus.PENDING).length;
-
-        return {
-            pendingCount,
-            refundCount,
-            totalCount: tickets.total
-        };
+        return this.ticketService.getTicketStats();
     }
 }
