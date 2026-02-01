@@ -1,6 +1,20 @@
 import type { Review, Prisma } from '@prisma/generated';
 
 /**
+ * Type for Review with relations included
+ */
+export type ReviewWithRelations = Prisma.ReviewGetPayload<{
+    include: {
+        user: {
+            select: { id: true; displayName: true; avatarUrl: true };
+        };
+        course: {
+            select: { id: true; title: true };
+        };
+    };
+}>;
+
+/**
  * Review Repository Interface
  * Defines the contract for all review data access operations
  */
@@ -8,9 +22,12 @@ export interface IReviewRepository {
     /**
      * Find review by ID
      * @param reviewId - The review's unique identifier
+     * @param includeRelations - Whether to include user and course relations
      * @returns The review if found, null otherwise
      */
-    findById(reviewId: string): Promise<Review | null>;
+    findById(reviewId: string, includeRelations?: false): Promise<Review | null>;
+    findById(reviewId: string, includeRelations: true): Promise<ReviewWithRelations | null>;
+    findById(reviewId: string, includeRelations?: boolean): Promise<Review | ReviewWithRelations | null>;
 
     /**
      * Find review by userId and courseId
