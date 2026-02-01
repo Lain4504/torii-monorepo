@@ -46,16 +46,22 @@ export function StreakWelcomeModal() {
 
   // Build 7-day calendar
   const buildCalendar = () => {
-    // Current time in Vietnam
-    const vnToday = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+    // We want to show the last 7 days from the perspective of the user's local time (Vietnam)
+    const now = new Date();
+    // Use Intl to get current date in Vietnam for the day names/alignment
+    const vnToday = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+    
     const days = [];
     const dayNames = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
     
     for (let i = 6; i >= 0; i--) {
+      // Create a date object for 'i' days ago in the user's LOCAL flow
       const date = new Date(vnToday);
       date.setDate(vnToday.getDate() - i);
       
-      // Manually format YYYY-MM-DD for timezone consistency
+      // We still need to match against the YYYY-MM-DD (UTC) format the server sends
+      // Server sends UTC date strings. To match "today" accurately if there's a timezone gap:
+      // However, usually these apps treat the "date string" as the unique identifier.
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');

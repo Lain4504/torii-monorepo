@@ -67,18 +67,17 @@ export class StreakService {
         const today = this.getToday();
         const redisKey = `streak_toast:${userId}:${today}`;
         
-        // Calculate seconds until end of day in Vietnam
+        // Calculate seconds until end of day (UTC midnight)
         const now = new Date();
-        const vnNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-        const vnEndOfDay = new Date(vnNow);
-        vnEndOfDay.setHours(23, 59, 59, 999);
+        const endOfDay = new Date(now);
+        endOfDay.setUTCHours(23, 59, 59, 999);
         
-        const secondsUntilEndDay = Math.max(1, Math.floor((vnEndOfDay.getTime() - vnNow.getTime()) / 1000));
+        const secondsUntilEndDay = Math.max(1, Math.floor((endOfDay.getTime() - now.getTime()) / 1000));
         
-        // Set flag in Redis with TTL until end of day
+        // Set flag in Redis with TTL until end of day (UTC)
         await this.redis.set(redisKey, '1', 'EX', secondsUntilEndDay);
         
-        this.logger.log(`Marked streak toast as shown for user ${userId} on ${today} (Redis TTL: ${secondsUntilEndDay}s)`);
+        this.logger.log(`Marked streak toast as shown for user ${userId} on ${today} (UTC TTL: ${secondsUntilEndDay}s)`);
     }
 
     /**
@@ -242,19 +241,19 @@ export class StreakService {
     // ========================================
 
     private getToday(): string {
-        return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+        return new Date().toISOString().split('T')[0]; // YYYY-MM-DD (UTC)
     }
 
     private getYesterday(): string {
-        const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-        date.setDate(date.getDate() - 1);
-        return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const date = new Date();
+        date.setUTCDate(date.getUTCDate() - 1);
+        return date.toISOString().split('T')[0];
     }
 
     private getDaysAgo(days: number): string {
-        const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-        date.setDate(date.getDate() - days);
-        return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const date = new Date();
+        date.setUTCDate(date.getUTCDate() - days);
+        return date.toISOString().split('T')[0];
     }
 
     private parseDateToUtc(dateStr: string): Date {

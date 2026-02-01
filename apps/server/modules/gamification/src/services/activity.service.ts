@@ -147,12 +147,12 @@ export class ActivityService {
     // ========================================
 
     private getToday(): string {
-        return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+        return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     }
 
     private getDaysAgo(days: number): string {
-        const date = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-        date.setDate(date.getDate() - days);
-        return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const date = new Date();
+        date.setUTCDate(date.getUTCDate() - days);
+        return date.toISOString().split('T')[0];
     }
 }
