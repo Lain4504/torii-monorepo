@@ -19,6 +19,8 @@ import { ReviewsPrimaryToolbar } from '@/components/reviews/reviews-primary-tool
 import { ReviewsTable } from '@/components/reviews/reviews-table';
 
 
+import { PageHeader } from '@/components/common/page-header';
+
 export default function CourseReviewsPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
@@ -53,22 +55,14 @@ export default function CourseReviewsPage() {
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold tracking-tight">Đánh giá Khóa học</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Quản lý phản hồi và xếp hạng học thuật Torii
-                    </p>
-                </div>
+            <PageHeader
+                title="Đánh giá Khóa học"
+                subtitle="Quản lý phản hồi và xếp hạng học thuật Torii"
+                stats={[
+                    { label: "Tổng số đánh giá", value: data?.total?.toLocaleString() || 0 }
+                ]}
+            />
 
-                <div className="flex items-center gap-4">
-                    <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-                        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Tổng số đánh giá</span>
-                        <span className="text-2xl font-bold text-foreground tabular-nums">{data?.total?.toLocaleString() || 0}</span>
-                    </div>
-                </div>
-            </div>
 
             <div className="space-y-4">
                 {/* Toolbar */}
@@ -86,7 +80,7 @@ export default function CourseReviewsPage() {
                 />
 
                 {/* Table Section */}
-                <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
+                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
                     <ReviewsTable
                         data={reviews}
                         isLoading={isLoading}

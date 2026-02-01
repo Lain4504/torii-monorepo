@@ -15,7 +15,7 @@ import {
 } from "@workspace/ui/components/pagination";
 import { QuestionJlptLevel } from '@workspace/schemas';
 import { Input } from '@workspace/ui/components/input';
-import { Search, Plus, Target, Zap, Layers, FileQuestion, Pencil, Trash, Eye, Sparkles, Inbox } from 'lucide-react';
+import { Search, Plus, Target, Zap, FileQuestion, Pencil, Trash, Eye, Sparkles, Inbox } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import {
     Select,
@@ -46,6 +46,8 @@ import { EditQuestionPoolDialog } from '@/components/question-pools/edit-questio
 import { ViewQuestionPoolDialog } from '@/components/question-pools/view-question-pool-dialog.tsx';
 import { DeleteQuestionPoolDialog } from '@/components/question-pools/delete-question-pool-dialog.tsx';
 import { useQuestionsByPool } from '@/api/services/questions.ts';
+
+import { PageHeader } from '@/components/common/page-header';
 
 export default function QuestionPoolsPage() {
     const [page, setPage] = useState(1);
@@ -156,34 +158,28 @@ export default function QuestionPoolsPage() {
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-20 px-2 lg:px-6">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-8 relative px-2">
-                <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
-                        <Layers className="size-3" />
-                        Quản lý Tài nguyên Logic
-                    </div>
-                    <h1 className="text-3xl md:text-5xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                        Quản lý <span className="text-primary not-italic">Kho đề</span>
-                    </h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                        Quản lý các kho đề thi và ngân hàng câu hỏi Torii
-                    </p>
-                </div>
+            <PageHeader
+                title="Quản lý Kho đề"
+                subtitle="Quản lý các kho đề thi và ngân hàng câu hỏi Torii"
+                stats={[
+                    { label: "Tổng số kho đề", value: meta?.total.toLocaleString() || 0 }
+                ]}
+                actions={
+                    <Can permission="question_pool.create">
+                        <Button
+                            onClick={() => setShowCreateDialog(true)}
+                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
+                        >
+                            <Plus className="mr-2 size-4" />
+                            Tạo Kho đề mới
+                        </Button>
+                    </Can>
+                }
+            />
 
-                <Can permission="question_pool.create">
-                    <Button
-                        onClick={() => setShowCreateDialog(true)}
-                        className="h-16 px-10 rounded-[1.5rem] bg-primary shadow-xl shadow-primary/20 hover:scale-[1.05] hover:-translate-y-1 transition-all active:scale-95 group"
-                    >
-                        <Plus className="mr-3 size-5 group-hover:rotate-90 transition-transform duration-500" />
-                        <span className="text-xs font-black uppercase tracking-widest">Tạo Kho đề mới</span>
-                    </Button>
-                </Can>
-            </div>
 
             {/* Matrix Filters */}
-            <Card className="rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 p-8 lg:p-10">
+            <Card className="rounded-[2.5rem] bg-card border border-border/20 p-8 lg:p-10">
                 <div className="flex flex-col lg:flex-row gap-6">
                     <div className="relative flex-1 group">
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
@@ -219,7 +215,7 @@ export default function QuestionPoolsPage() {
             </Card>
 
             {/* Registry Table */}
-            <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
+            <Card className="rounded-[3rem] bg-card border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="overflow-x-auto">
                     <Table className="min-w-[1000px] border-collapse bg-transparent">
                         <TableHeader className="bg-muted/10 border-b border-border/20">

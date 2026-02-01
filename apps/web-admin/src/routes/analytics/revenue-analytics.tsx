@@ -130,7 +130,7 @@ export default function RevenueAnalytics() {
 
             {/* Main Charts */}
             <div className="grid gap-6 md:grid-cols-12">
-                <Card className="md:col-span-8 rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm overflow-hidden">
+                <Card className="md:col-span-8 rounded-2xl border-border/40 shadow-sm bg-card overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                             <CardTitle className="text-lg font-bold uppercase tracking-tight">Biểu đồ <span className="text-primary">Tăng trưởng</span></CardTitle>
@@ -156,7 +156,7 @@ export default function RevenueAnalytics() {
                     </CardContent>
                 </Card>
 
-                <Card className="md:col-span-4 rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm">
+                <Card className="md:col-span-4 rounded-2xl border-border/40 shadow-sm bg-card">
                     <CardHeader>
                         <CardTitle className="text-lg font-bold uppercase tracking-tight">Doanh thu <span className="text-emerald-500">Cấp độ</span></CardTitle>
                         <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Báo cáo theo trình độ JLPT (N5 - N1)</CardDescription>
@@ -192,7 +192,7 @@ export default function RevenueAnalytics() {
             </div>
 
             {/* Recent Transactions Table */}
-            <Card className="rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm">
+            <Card className="rounded-2xl border-border/40 shadow-sm bg-card">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle className="text-lg font-bold uppercase tracking-tight">Giao dịch <span className="text-primary">Gần đây</span></CardTitle>
@@ -242,7 +242,7 @@ export default function RevenueAnalytics() {
 
 function RevenueCard({ title, value, sub, icon: Icon, trend, trendUp, inverseColor }: any) {
     return (
-        <Card className="rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm group overflow-hidden relative">
+        <Card className="rounded-2xl border-border/40 shadow-sm bg-card group overflow-hidden relative">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className="p-2.5 rounded-xl bg-muted/50 group-hover:bg-primary/10 group-hover:text-primary transition-all">

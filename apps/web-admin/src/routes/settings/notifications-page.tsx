@@ -111,6 +111,8 @@ function mapNotificationToUI(notification: NotificationResponseDTO): Notificatio
   }
 }
 
+import { PageHeader } from '@/components/common/page-header';
+
 export default function NotificationsPage() {
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [page, setPage] = useState(1)
@@ -163,30 +165,24 @@ export default function NotificationsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">Thông báo Hệ thống</h1>
-          <p className="text-sm text-muted-foreground">
-            Cập nhật tin tức và cảnh báo bảo mật Torii Academy
-          </p>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Chưa đọc</span>
-            <span className="text-2xl font-bold text-foreground tabular-nums">{unreadCount}</span>
-          </div>
+      <PageHeader
+        title="Thông báo Hệ thống"
+        subtitle="Cập nhật tin tức và cảnh báo bảo mật Torii Academy"
+        stats={[
+          { label: "Chưa đọc", value: unreadCount.toLocaleString() }
+        ]}
+        actions={
           <Button
             onClick={() => markAllAsReadMutation.mutate()}
             disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
+            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
           >
             <Check className="size-4 mr-2" />
             {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
           </Button>
-        </div>
-      </div>
+        }
+      />
+
 
       {/* Filters (Tabs Style) */}
       <Tabs value={filter} onValueChange={(v) => { setFilter(v as any); setPage(1); }} className="w-full">
@@ -212,7 +208,7 @@ export default function NotificationsPage() {
 
       {/* Notifications List */}
       <div className="">
-        <div className="bg-background rounded-xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
           <div className="divide-y divide-border/40">
             {isLoading ? (
               <div className="py-20 text-center space-y-4">

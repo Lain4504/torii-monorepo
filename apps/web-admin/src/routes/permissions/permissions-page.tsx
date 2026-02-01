@@ -21,6 +21,8 @@ import {
 import { useQueries } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 
+import { PageHeader } from '@/components/common/page-header';
+
 export function PermissionsPage() {
     useTranslation(['admin', 'common']);
 
@@ -155,26 +157,17 @@ export function PermissionsPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-40 px-6 max-w-full mx-auto">
-            {/* Header Section - Refined for Consistency */}
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold tracking-tight">Quản lý Quyền truy cập</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Kiểm soát quyền truy cập chi tiết hệ thống
-                    </p>
-                </div>
+            <PageHeader
+                title="Quản lý Quyền truy cập"
+                subtitle="Kiểm soát quyền truy cập chi tiết hệ thống"
+                stats={[
+                    { label: "Tổng số vai trò", value: roles?.length || 0 }
+                ]}
+            />
 
-                <div className="flex items-center gap-4">
-                    <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-                        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Tổng số vai trò</span>
-                        <span className="text-2xl font-bold text-foreground tabular-nums">{roles?.length || 0}</span>
-                    </div>
-                </div>
-            </div>
 
             {/* Matrix Table */}
-            <div className="rounded-xl bg-background border border-border shadow-sm overflow-hidden">
+            <div className="rounded-xl bg-card border border-border shadow-sm overflow-hidden">
                 <div className="relative overflow-x-auto">
                     <Table className="min-w-full border-collapse">
                         <TableHeader className="bg-muted/30">
@@ -237,7 +230,7 @@ export function PermissionsPage() {
                                         )}
                                     >
                                         <TableCell className={cn(
-                                            "sticky left-0 z-30 bg-background border-r border-border min-w-[200px] px-6 py-4 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors",
+                                            "sticky left-0 z-30 bg-card border-r border-border min-w-[200px] px-6 py-4 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors",
                                             !isLearner && "group-hover:bg-muted/30"
                                         )}>
                                             <div className="flex flex-col gap-0.5">

@@ -2,6 +2,8 @@ import { useLocation, useNavigate, Outlet, Navigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { Database, FileQuestion } from 'lucide-react';
 
+import { PageHeader } from '@/components/common/page-header';
+
 export default function QuestionBankPage() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -33,17 +35,13 @@ export default function QuestionBankPage() {
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full space-y-8">
                 {/* Custom Tabs Navigation */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    {/* Page Title - Hidden on mobile if needed, but keeping for context */}
-                    <div className="hidden md:block space-y-1">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">
-                            <Database className="size-3.5" />
-                            <span>Cơ sở tri thức</span>
-                        </div>
-                        <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                            Ngân hàng <span className="text-primary not-italic">Câu hỏi</span>
-                        </h1>
-                    </div>
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
+                    <PageHeader
+                        title="Ngân hàng Câu hỏi"
+                        subtitle="Quản lý và tổ chức hệ thống câu hỏi, bộ đề thi"
+                        className="p-0"
+                    />
+
 
                     <TabsList className="h-auto p-1.5 bg-muted/20 backdrop-blur-xl border border-border/10 rounded-[1.5rem] flex gap-1 w-full md:w-auto">
                         <TabsTrigger

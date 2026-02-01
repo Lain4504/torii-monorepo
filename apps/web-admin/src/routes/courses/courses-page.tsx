@@ -19,7 +19,8 @@ import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { toast } from '@workspace/ui/components/sonner';
 import { Plus, ShieldAlert } from 'lucide-react';
-
+import { Card } from "@workspace/ui/components/card";
+import { PageHeader } from '@/components/common/page-header';
 
 export default function CoursesPage() {
   const navigate = useNavigate();
@@ -96,23 +97,15 @@ export default function CoursesPage() {
     );
   }
 
-
-
   return (
     <div className="space-y-6 animate-in fade-in duration-700 pb-10">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">Quản lý Khóa học</h1>
-          <p className="text-sm text-muted-foreground">
-            Hệ sinh thái chương trình giảng dạy Torii Academy
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex flex-col items-end px-4 border-r border-border/40">
-            <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Tổng số khóa học</span>
-            <span className="text-2xl font-bold text-foreground tabular-nums">{meta?.total.toLocaleString() || 0}</span>
-          </div>
+      <PageHeader
+        title="Quản lý Khóa học"
+        subtitle="Hệ sinh thái chương trình giảng dạy Torii Academy"
+        stats={[
+          { label: "Tổng số khóa học", value: meta?.total.toLocaleString() || 0 }
+        ]}
+        actions={
           <Can permission="course.create">
             <Button
               onClick={() => setShowCreateDialog(true)}
@@ -122,11 +115,12 @@ export default function CoursesPage() {
               <Plus className="ml-2 size-4" />
             </Button>
           </Can>
-        </div>
-      </div>
+        }
+      />
+
 
       <div className="space-y-4">
-        <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+        <Card className="bg-card p-4 rounded-xl border-border shadow-sm">
           <CoursesPrimaryToolbar
             search={search}
             onSearchChange={setSearch}
@@ -135,9 +129,9 @@ export default function CoursesPage() {
             jlptLevelFilter={jlptLevelFilter}
             onJlptLevelFilterChange={setJlptLevelFilter}
           />
-        </div>
+        </Card>
 
-        <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
+        <Card className="bg-card rounded-xl border-border overflow-hidden shadow-sm">
           <CoursesTable
             data={courses}
             onEdit={setEditingCourse}
@@ -157,7 +151,7 @@ export default function CoursesPage() {
             limit={queryParams.limit || 10}
             isLoading={isLoading}
           />
-        </div>
+        </Card>
 
         {/* Pagination */}
         <SmartPagination

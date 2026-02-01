@@ -7,20 +7,18 @@ import { SecurityTab } from '@/components/settings/security-tab';
 import { SessionsTab } from '@/components/settings/sessions-tab';
 import { PasswordTab } from '@/components/settings/password-tab';
 
+import { PageHeader } from '@/components/common/page-header';
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile');
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">Cài đặt Tài khoản</h1>
-          <p className="text-sm text-muted-foreground">
-            Quản lý cấu hình cá nhân và bảo mật Torii Academy
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Cài đặt Tài khoản"
+        subtitle="Quản lý cấu hình cá nhân và bảo mật Torii Academy"
+      />
+
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

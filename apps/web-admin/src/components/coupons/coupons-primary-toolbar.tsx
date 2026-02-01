@@ -26,7 +26,7 @@ export function CouponsPrimaryToolbar({
     onStatusChange,
 }: CouponsPrimaryToolbarProps) {
     return (
-        <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+        <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
             <div className="flex flex-col md:flex-row gap-4">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50" />

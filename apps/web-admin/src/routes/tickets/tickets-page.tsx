@@ -11,6 +11,8 @@ import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
 
 
+import { PageHeader } from '@/components/common/page-header';
+
 export default function TicketsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -72,15 +74,11 @@ export default function TicketsPage() {
 
     return (
         <div className="flex flex-col gap-8 p-4 md:p-8 animate-in fade-in duration-700 pb-20 max-w-[1600px] mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold tracking-tight">Yêu cầu & Hỗ trợ</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Quản lý các ticket hỗ trợ kỹ thuật và hoàn tiền
-                    </p>
-                </div>
-            </div>
+            <PageHeader
+                title="Yêu cầu & Hỗ trợ"
+                subtitle="Quản lý các ticket hỗ trợ kỹ thuật và hoàn tiền"
+            />
+
 
             <div className="space-y-4">
                 {/* Toolbar */}
@@ -94,7 +92,7 @@ export default function TicketsPage() {
                 />
 
                 {/* Table */}
-                <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
+                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
                     <TicketsTable
                         data={tickets}
                         isLoading={isLoading}

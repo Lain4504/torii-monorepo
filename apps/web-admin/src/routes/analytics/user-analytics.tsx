@@ -109,7 +109,7 @@ export default function UserAnalytics() {
 
             <div className="grid gap-6 md:grid-cols-12">
                 {/* Registration Growth Chart */}
-                <Card className="md:col-span-12 lg:col-span-8 rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm overflow-hidden">
+                <Card className="md:col-span-12 lg:col-span-8 rounded-2xl border-border/40 shadow-sm bg-card overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                             <CardTitle className="text-lg font-bold uppercase tracking-tight">Tăng trưởng <span className="text-primary">Đăng ký</span></CardTitle>
@@ -137,7 +137,7 @@ export default function UserAnalytics() {
                 </Card>
 
                 {/* Audience Mix */}
-                <Card className="md:col-span-12 lg:col-span-4 rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm">
+                <Card className="md:col-span-12 lg:col-span-4 rounded-2xl border-border/40 shadow-sm bg-card">
                     <CardHeader>
                         <CardTitle className="text-lg font-bold uppercase tracking-tight">Cơ cấu <span className="text-purple-500">Vai trò</span></CardTitle>
                         <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Phân loại người dùng hệ thống</CardDescription>
@@ -166,7 +166,7 @@ export default function UserAnalytics() {
 
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Daily Momentum */}
-                <Card className="rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm overflow-hidden">
+                <Card className="rounded-2xl border-border/40 shadow-sm bg-card overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                             <CardTitle className="text-lg font-bold uppercase tracking-tight">Xung nhịp <span className="text-emerald-500">Hoạt động</span></CardTitle>
@@ -200,7 +200,7 @@ export default function UserAnalytics() {
                 </Card>
 
                 {/* Geographical Distribution Mock */}
-                <Card className="rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm">
+                <Card className="rounded-2xl border-border/40 shadow-sm bg-card">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                             <CardTitle className="text-lg font-bold uppercase tracking-tight">Vị trí <span className="text-blue-500">Người học</span></CardTitle>
@@ -223,7 +223,7 @@ export default function UserAnalytics() {
 
 function AnalyticsCard({ title, value, sub, icon: Icon, colorClass }: any) {
     return (
-        <Card className="rounded-2xl border-border/40 shadow-sm bg-background/50 backdrop-blur-sm group overflow-hidden">
+        <Card className="rounded-2xl border-border/40 shadow-sm bg-card group overflow-hidden">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className={cn("p-2.5 rounded-xl transition-all", colorClass)}>

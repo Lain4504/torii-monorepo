@@ -69,7 +69,7 @@ export function SmartPagination({
                             "rounded-md border h-9 w-9 text-xs font-semibold transition-all cursor-pointer",
                             page === i
                                 ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background border-border hover:bg-muted text-muted-foreground hover:text-foreground"
+                                : "bg-card border-border hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
                     >
                         {i}
@@ -117,7 +117,7 @@ export function SmartPagination({
                                 }}
                                 className={cn(
                                     "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                                    page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
+                                    page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
                                 )}
                             />
                         </PaginationItem>
@@ -134,7 +134,7 @@ export function SmartPagination({
                                 }}
                                 className={cn(
                                     "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                                    page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-muted cursor-pointer"
+                                    page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
                                 )}
                             />
                         </PaginationItem>

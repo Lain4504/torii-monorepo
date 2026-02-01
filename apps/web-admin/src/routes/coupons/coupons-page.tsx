@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import {
     Plus,
-    Ticket,
 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { CouponsPrimaryToolbar } from '@/components/coupons/coupons-primary-toolbar';
@@ -19,6 +18,8 @@ import { CreateCouponSheet } from '@/components/coupons/create-coupon-sheet';
 import { EditCouponSheet } from '@/components/coupons/edit-coupon-sheet';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { DeleteCouponDialog } from '@/components/coupons/delete-coupon-dialog';
+
+import { PageHeader } from '@/components/common/page-header';
 
 export default function CouponsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -93,27 +94,22 @@ export default function CouponsPage() {
 
     return (
         <div className="flex flex-col gap-8 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold tracking-tight">Mã Giảm Giá</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Quản lý các chương trình khuyến mãi và mã giảm giá cho khóa học.
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-3">
+            <PageHeader
+                title="Mã Giảm Giá"
+                subtitle="Quản lý các chương trình khuyến mãi và mã giảm giá cho khóa học."
+                actions={
                     <Can permission="coupon.manage">
                         <Button
                             onClick={handleCreate}
-                            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
+                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
                         >
                             <Plus className="mr-2 size-4" />
                             Tạo Coupon Mới
                         </Button>
                     </Can>
-                </div>
-            </div>
+                }
+            />
+
 
             {/* Filters & Search */}
             <div className="space-y-4">
@@ -125,7 +121,7 @@ export default function CouponsPage() {
                 />
 
                 {/* Table */}
-                <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
+                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
                     <CouponsTable
                         data={coupons}
                         isLoading={isLoading}

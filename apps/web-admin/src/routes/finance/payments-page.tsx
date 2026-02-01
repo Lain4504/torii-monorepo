@@ -35,6 +35,8 @@ import {
 } from "@workspace/ui/components/sheet";
 import { useSearchParams } from 'react-router-dom';
 
+import { PageHeader } from '@/components/common/page-header';
+
 export default function TransactionsPage() {
     const [searchParams] = useSearchParams();
     const orderIdParam = searchParams.get('orderId');
@@ -114,30 +116,27 @@ export default function TransactionsPage() {
 
     return (
         <div className="p-4 lg:p-10 space-y-10 animate-in fade-in duration-700">
-            {/* Header Section */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-4">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold tracking-tight">Nhật ký Giao dịch</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Tra cứu dòng tiền và xác minh webhook SePay/PayOS
-                    </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
+            <PageHeader
+                title="Nhật ký Giao dịch"
+                subtitle="Tra cứu dòng tiền và xác minh webhook SePay/PayOS"
+                stats={[
+                    { label: "Tổng số bản ghi", value: total.toLocaleString() }
+                ]}
+                actions={
                     <Button
                         onClick={loadTransactions}
                         disabled={isLoading}
-                        variant="outline"
-                        className="w-full sm:w-auto h-11 px-6 rounded-xl font-sans font-bold italic text-xs uppercase tracking-wide border-primary/20 text-primary hover:bg-primary/5 transition-all group"
+                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all group"
                     >
                         Cập nhật Nhật ký
                         <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
                     </Button>
-                </div>
-            </div>
+                }
+            />
+
 
             {/* Main Table Container */}
-            <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-border/40 shadow-sm overflow-hidden">
+            <Card className="rounded-2xl bg-card border border-border/40 shadow-sm overflow-hidden">
                 <div className="p-4 lg:p-6 space-y-6">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                         <div className="relative flex-1 w-full">
@@ -151,7 +150,7 @@ export default function TransactionsPage() {
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-border/40 bg-background/40 overflow-hidden relative shadow-sm">
+                    <div className="rounded-xl border border-border/40 bg-card overflow-hidden relative shadow-sm">
                         <Table className="border-collapse bg-transparent">
                             <TableHeader className="bg-muted/30 border-b border-border">
                                 <TableRow className="border-none hover:bg-transparent">

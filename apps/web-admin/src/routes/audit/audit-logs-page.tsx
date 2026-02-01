@@ -153,6 +153,8 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
     );
 }
 
+import { PageHeader } from '@/components/common/page-header';
+
 export function AuditLogsPage() {
     const [action, setAction] = useState('');
     const [entity, setEntity] = useState('');
@@ -184,17 +186,15 @@ export function AuditLogsPage() {
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
-            {/* Header Section */}
-            <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold tracking-tight">Nhật ký Hệ thống</h1>
-                <p className="text-sm text-muted-foreground">
-                    Theo dõi và truy vết tất cả các hoạt động hệ thống và thay đổi dữ liệu để đảm bảo tính toàn vẹn.
-                </p>
-            </div>
+            <PageHeader
+                title="Nhật ký Hệ thống"
+                subtitle="Theo dõi và truy vết tất cả các hoạt động hệ thống và thay đổi dữ liệu để đảm bảo tính toàn vẹn."
+            />
+
 
             <div className="space-y-4">
                 {/* Toolbar */}
-                <div className="bg-background p-4 rounded-xl border border-border shadow-sm">
+                <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-1">
                             <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 flex items-center gap-2 ml-1">
@@ -263,7 +263,7 @@ export function AuditLogsPage() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-background rounded-xl border border-border overflow-hidden shadow-sm">
+                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
                     <Table className="min-w-[1000px] border-collapse bg-transparent">
                         <TableHeader className="bg-muted/30 border-b border-border">
                             <TableRow className="border-none hover:bg-transparent">

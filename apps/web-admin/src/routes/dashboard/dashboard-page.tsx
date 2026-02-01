@@ -38,7 +38,7 @@ import { Badge } from "@workspace/ui/components/badge"
 function StatsCard({ title, value, sub, icon: Icon, trend, colorClass, highlight }: any) {
   return (
     <Card className={cn(
-      "group relative overflow-hidden rounded-xl bg-background border border-border/50 hover:border-primary/20 transition-all duration-300 shadow-sm hover:shadow-md",
+      "group relative overflow-hidden rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-all duration-300 shadow-sm hover:shadow-md",
       highlight && "ring-1 ring-primary/20 bg-primary/[0.01]"
     )}>
       <CardHeader className="flex flex-row items-center justify-between pb-4 space-y-0">
@@ -118,7 +118,7 @@ function AdminDashboard() {
 
       <div className="grid gap-6 md:grid-cols-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
         {/* Operational Queue */}
-        <Card className="md:col-span-8 rounded-xl bg-background border border-border/50 shadow-sm overflow-hidden min-h-[500px]">
+        <Card className="md:col-span-8 rounded-xl bg-card border border-border/50 shadow-sm overflow-hidden min-h-[500px]">
           <CardHeader className="border-b border-border/40 bg-muted/5 py-6">
             <div className="flex items-center justify-between">
               <div>
@@ -189,7 +189,7 @@ function AdminDashboard() {
 
         {/* Platform Pulse */}
         <div className="md:col-span-4 space-y-6">
-          <Card className="rounded-xl border border-border/50 bg-background shadow-sm">
+          <Card className="rounded-xl border border-border/50 bg-card shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Nhịp độ Hệ thống</CardTitle>
             </CardHeader>
@@ -200,7 +200,7 @@ function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border border-border/50 bg-background shadow-sm overflow-hidden">
+          <Card className="rounded-xl border border-border/50 bg-card shadow-sm overflow-hidden">
             <CardHeader className="bg-muted/10 border-b border-border/40">
               <div className="flex items-center gap-2">
                 <Terminal className="size-4 text-primary" />
@@ -232,8 +232,8 @@ function OperationItem({ icon: Icon, title, desc, tag, tagColor, time, link }: a
     emerald: "bg-emerald-500/10 text-emerald-500"
   }
   return (
-    <div className="group flex items-center gap-4 p-5 hover:bg-muted/30 transition-all cursor-pointer">
-      <div className={cn("size-12 flex items-center justify-center rounded-xl bg-muted/50 transition-colors group-hover:bg-background group-hover:shadow-sm", colorClasses[tagColor]?.split(' ')[1])}>
+    <div className="group flex items-center gap-4 p-5 hover:bg-muted/10 transition-all cursor-pointer">
+      <div className={cn("size-12 flex items-center justify-center rounded-xl bg-background transition-colors group-hover:bg-muted/20 group-hover:shadow-sm", colorClasses[tagColor]?.split(' ')[1])}>
         <Icon className="size-5" />
       </div>
       <div className="flex-1 min-w-0 space-y-1">
@@ -299,7 +299,7 @@ function StaffDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <Card className="rounded-xl bg-background border border-border/50 shadow-sm">
+        <Card className="rounded-xl bg-card border border-border/50 shadow-sm">
           <CardHeader className="p-6 pb-4">
             <CardTitle className="text-lg font-bold uppercase tracking-tight">Kế hoạch <span className="text-primary">Vận hành</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/60 mt-1">Danh sách công việc cần làm trong ca trực</p>
@@ -311,7 +311,7 @@ function StaffDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-xl bg-background border border-border/50 shadow-sm overflow-hidden">
+        <Card className="rounded-xl bg-card border border-border/50 shadow-sm overflow-hidden">
           <CardHeader className="p-6 pb-4">
             <CardTitle className="text-lg font-bold uppercase tracking-tight">Cập nhật <span className="text-amber-500">Giảng viên</span></CardTitle>
             <p className="text-xs font-medium text-muted-foreground/60 mt-1">Phản hồi và câu hỏi từ đội ngũ giảng dạy</p>
@@ -331,7 +331,7 @@ function StaffDashboard() {
 function LecturerDashboard() {
   return (
     <div className="space-y-6">
-      <div className="relative group rounded-xl border border-primary/10 bg-background/50 backdrop-blur-xl p-8 overflow-hidden shadow-lg animate-in fade-in zoom-in-95 duration-700">
+      <div className="relative group rounded-xl border border-primary/10 bg-card p-8 overflow-hidden shadow-lg animate-in fade-in zoom-in-95 duration-700">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[100px] -z-10 rounded-full" />
         <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="space-y-4">
@@ -384,6 +384,8 @@ function TaskItem({ title, status, code }: { title: string, status: string, code
   )
 }
 
+import { PageHeader } from "@/components/common/page-header"
+
 export default function DashboardPage() {
   const user = useAppSelector(selectUser)
   const role = user?.role
@@ -397,37 +399,34 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full pb-20">
-      {/* Dynamic Command Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 font-mono">Hệ thống: Trực tuyến</span>
+      <PageHeader
+        title={`${getGreeting()}, ${user?.displayName?.split(' ')[0] || 'ADMIN'}`}
+        subtitle={
+          <span>
+            Bảng chỉ huy trung tâm Torii Admin • <span className="font-mono opacity-50">v4.2.0-stable</span>
+          </span>
+        }
+        actions={
+          <div className="flex items-center gap-3">
+            <div className="flex bg-muted/20 p-1 rounded-xl border border-border/40">
+              <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
+                <Link to="/analytics/revenue">Tài chính</Link>
+              </Button>
+              <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
+                <Link to="/analytics/learning">Học tập</Link>
+              </Button>
+              <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
+                <Link to="/analytics/users">Học viên</Link>
+              </Button>
+            </div>
+            <Button className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all">
+              <Zap className="size-3.5 mr-2" />
+              Lệnh Tắt
+            </Button>
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-foreground uppercase">{getGreeting()}, <span className="text-primary italic">{user?.displayName?.split(' ')[0] || 'ADMIN'}</span></h1>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60 max-w-xl">
-            Bảng chỉ huy trung tâm Torii Admin • <span className="text-primary/40 font-mono">v4.2.0-stable</span>
-          </p>
-        </div>
+        }
+      />
 
-        <div className="flex items-center gap-3">
-          <div className="flex bg-muted/20 p-1 rounded-xl border border-border/40">
-            <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
-              <Link to="/analytics/revenue">Tài chính</Link>
-            </Button>
-            <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
-              <Link to="/analytics/learning">Học tập</Link>
-            </Button>
-            <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
-              <Link to="/analytics/users">Học viên</Link>
-            </Button>
-          </div>
-          <Button className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all">
-            <Zap className="size-3.5 mr-2" />
-            Lệnh Tắt
-          </Button>
-        </div>
-      </div>
 
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -translate-y-10" />

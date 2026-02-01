@@ -12,8 +12,9 @@ import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { useBoolean } from "@workspace/ui/hooks/use-boolean";
 
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { UserPlus, ShieldCheck, GraduationCap } from 'lucide-react';
-
+import { UserPlus, ShieldCheck } from 'lucide-react';
+import { Card } from "@workspace/ui/components/card";
+import { PageHeader } from '@/components/common/page-header';
 
 export default function LearnersPage() {
     const [page, setPage] = useState(1);
@@ -69,39 +70,27 @@ export default function LearnersPage() {
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                            <GraduationCap className="size-4" />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Quản lý Học viên</span>
-                    </div>
-                    <h1 className="text-3xl font-black tracking-tight uppercase">Hồ sơ <span className="text-primary italic">Học viên</span></h1>
-                    <p className="text-sm text-muted-foreground max-w-md">
-                        Danh sách học viên đăng ký trên hệ thống. Theo dõi lộ trình và kết quả học tập.
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <div className="hidden lg:flex flex-col items-end px-6 border-r border-border/40">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 font-mono">Tổng số học viên</span>
-                        <span className="text-3xl font-black text-foreground tabular-nums">{total.toLocaleString()}</span>
-                    </div>
+            <PageHeader
+                title="Hồ sơ Học viên"
+                subtitle="Danh sách học viên đăng ký trên hệ thống. Theo dõi lộ trình và kết quả học tập."
+                stats={[
+                    { label: "Tổng số học viên", value: total.toLocaleString() }
+                ]}
+                actions={
                     <Button
                         onClick={createDialog.setTrue}
-                        className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
+                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
                     >
                         Tạo tài khoản học viên
-                        <UserPlus className="ml-3 size-4" />
+                        <UserPlus className="ml-2 size-4" />
                     </Button>
-                </div>
-            </div>
+                }
+            />
+
 
             <div className="space-y-4">
                 {/* Search & Filter */}
-                <div className="bg-background/50 backdrop-blur-sm p-4 rounded-2xl border border-border/40 shadow-sm">
+                <Card className="p-4 rounded-2xl border-border bg-card shadow-sm">
                     <UsersPrimaryToolbar
                         search={search}
                         onSearchChange={setSearch}
@@ -115,10 +104,10 @@ export default function LearnersPage() {
                         }}
                         hideRoleFilter={true}
                     />
-                </div>
+                </Card>
 
                 {/* Table container */}
-                <div className="bg-background rounded-2xl border border-border/40 overflow-hidden shadow-sm">
+                <Card className="rounded-2xl border-border bg-card overflow-hidden shadow-sm">
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
@@ -128,7 +117,7 @@ export default function LearnersPage() {
                         limit={limit}
                         isLoading={isLoading}
                     />
-                </div>
+                </Card>
 
                 {/* Footer / Pagination */}
                 <SmartPagination
