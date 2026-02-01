@@ -5,8 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="optimize logic">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_analytics.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_analytics.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_auth_analytics.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_auth_analytics.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_auth_artifact.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_auth_artifact.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_auth_recording.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_auth_recording.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_auth_room.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_auth_room.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_breakout_room.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_breakout_room.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_common.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_common.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_common_api.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_common_api.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_create_room.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_create_room.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_datamessage.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_datamessage.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_gen_token.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_gen_token.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_ingress.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_ingress.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_insights.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_insights.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_lti_v1.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_lti_v1.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_nats_msg.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_nats_msg.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_polls.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_polls.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_recorder.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_recorder.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_recording.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_recording.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/protocol/proto/wajlc_room_artifacts.proto" beforeDir="false" afterPath="$PROJECT_DIR$/packages/protocol/proto/wajlc_room_artifacts.proto" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -349,14 +366,6 @@
       <workItem from="1769848661014" duration="95000" />
       <workItem from="1769849840092" duration="424000" />
       <workItem from="1769932867652" duration="613000" />
-    </task>
-    <task id="LOCAL-00720" summary="refactor(identity): refactor identity service">
-      <option name="closed" value="true" />
-      <created>1768478430191</created>
-      <option name="number" value="00720" />
-      <option name="presentableId" value="LOCAL-00720" />
-      <option name="project" value="LOCAL" />
-      <updated>1768478430191</updated>
     </task>
     <task id="LOCAL-00721" summary="`refactor(learning): remove unused HTTP controllers for cleaner module structure`">
       <option name="closed" value="true" />
@@ -742,7 +751,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769969068392</updated>
     </task>
-    <option name="localTasksCounter" value="769" />
+    <task id="LOCAL-00769" summary="optimize logic">
+      <option name="closed" value="true" />
+      <created>1769969618118</created>
+      <option name="number" value="00769" />
+      <option name="presentableId" value="LOCAL-00769" />
+      <option name="project" value="LOCAL" />
+      <updated>1769969618118</updated>
+    </task>
+    <option name="localTasksCounter" value="770" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
