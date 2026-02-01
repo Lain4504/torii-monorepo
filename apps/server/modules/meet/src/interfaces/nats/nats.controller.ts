@@ -9,7 +9,7 @@
  * - Auth callout service
  */
 
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, OnModuleDestroy, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NatsService } from './nats.service';
 import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
@@ -64,6 +64,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
         private readonly natsUserService: NatsUserService,
         private readonly authCalloutService: NatsAuthCalloutService,
         private readonly natsSystemEventsService: NatsSystemEventsService,
+        @Inject(forwardRef(() => RoomUserService))
         private readonly roomUserService: RoomUserService,
         private readonly analyticsService: AnalyticsService,
     ) { }

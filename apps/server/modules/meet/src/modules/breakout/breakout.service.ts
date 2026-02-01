@@ -60,16 +60,25 @@ export class BreakoutService {
   private readonly waitBeforePostStart = 2000; // 2 seconds
 
   constructor(
+    @Inject(forwardRef(() => NatsRoomService))
     private readonly natsRoomService: NatsRoomService,
+    @Inject(forwardRef(() => NatsSystemEventsService))
     private readonly natsSystemEvents: NatsSystemEventsService,
+    @Inject(forwardRef(() => RoomCreateService))
     private readonly roomCreateService: RoomCreateService,
     @Inject(forwardRef(() => RoomEndService))
     private readonly roomEndService: RoomEndService,
+    @Inject(forwardRef(() => RoomDurationService))
     private readonly roomDurationService: RoomDurationService,
+    @Inject(forwardRef(() => NatsService))
     private readonly natsService: NatsService,
+    @Inject(forwardRef(() => NatsUserService))
     private readonly natsUserService: NatsUserService,
+    @Inject(forwardRef(() => LiveKitService))
     private readonly liveKitService: LiveKitService,
+    @Inject(forwardRef(() => AnalyticsService))
     private readonly analyticsService: AnalyticsService,
+    @Inject(forwardRef(() => NatsRoomEventsService))
     private readonly natsRoomEventsService: NatsRoomEventsService,
     @Inject(forwardRef(() => RoomUserService))
     private readonly roomUserService: RoomUserService,

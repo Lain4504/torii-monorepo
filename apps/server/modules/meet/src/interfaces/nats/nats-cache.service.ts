@@ -220,6 +220,15 @@ export class NatsCacheService implements OnModuleDestroy {
     }
 
     /**
+     * deleteRoomInfo manually removes room from cache and stops watcher
+     */
+    async deleteRoomInfo(roomId: string): Promise<void> {
+        this.cleanRoomCache(roomId);
+        this.cleanRoomUserStatusCache(roomId);
+        this.roomUsersInfoStore.delete(roomId);
+    }
+
+    /**
      * Clean room cache
      */
     private cleanRoomCache(roomId: string): void {

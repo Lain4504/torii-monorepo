@@ -4,7 +4,7 @@
  * Handles room creation logic with all validation and defaults
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
@@ -38,6 +38,7 @@ import { FileService } from '../file/file.service';
 import { acquireRoomCreationLockWithRetry } from './room-lock.helper';
 
 import { RoomDurationService } from './room-duration.service';
+import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 
 /**
  * RoomCreateService handles the creation of new rooms
@@ -50,12 +51,18 @@ export class RoomCreateService {
     constructor(
         private readonly configService: ConfigService,
         private readonly redisLock: RedisLockService,
+        @Inject(forwardRef(() => NatsStreamService))
         private readonly natsStream: NatsStreamService,
+        @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoom: NatsRoomService,
+        @Inject(forwardRef(() => WebhookNotifierService))
         private readonly webhookNotifier: WebhookNotifierService,
         private readonly roomInfoService: RoomInfoService,
+        @Inject(forwardRef(() => FileService))
         private readonly fileService: FileService,
         private readonly roomDurationService: RoomDurationService,
+        @Inject(forwardRef(() => NatsRoomEventsService))
+        private readonly natsRoomEvents: NatsRoomEventsService,
     ) { }
 
     /**
@@ -92,7 +99,7 @@ export class RoomCreateService {
             const { roomInfo, sid } = this.prepareRoomDbInfo(req, roomDbInfo);
 
             // Step 6: Save to database using atomic upsert
-            // Returns full object with ID - matches GORM Save() behavior
+            // Returns full object with ID
             const savedRoomInfo = await this.roomInfoService.insertOrUpdateRoomInfo({
                 id: roomInfo.id,
                 roomTitle: roomInfo.roomTitle,
@@ -117,16 +124,8 @@ export class RoomCreateService {
             await this.natsStream.createRoomNatsStreams(req.roomId);
             log.log(`NATS streams created: ${req.roomId}`);
 
-            // Step 8.5: Add room duration info if set
-            if (req.metadata?.roomFeatures?.roomDuration) {
-                const duration = Number(req.metadata.roomFeatures.roomDuration);
-                if (duration > 0) {
-                    await this.roomDurationService.addRoomWithDurationInfo(req.roomId, {
-                        duration: duration,
-                        startedAt: roomInfo.creationTime, // Using the creation time set in DB/model
-                    });
-                }
-            }
+            // Step 8.5: Room duration info will be added in WebhookService.roomStarted
+            // This ensures duration starts precisely when the room "starts" for users.
 
 
             // Step 9: Get room info from NATS
@@ -239,15 +238,12 @@ export class RoomCreateService {
         const maxFileSize = this.configService.get<number>('UPLOAD_MAX_FILE_SIZE') || 50 * 1024 * 1024;
         const maxWhiteboardFile = this.configService.get<number>('UPLOAD_MAX_WHITEBOARD_FILE') || 10 * 1024 * 1024;
         const allowedTypes = this.configService.get<string>('UPLOAD_ALLOWED_TYPES')?.split(',') || [];
-        const sharedNotePadEnabled = this.configService.get<boolean>('SHARED_NOTEPAD_ENABLED') || true;
-
         // Convert numbers to strings for uint64 compatibility 
         setCreateRoomDefaultValues(
             req,
             maxFileSize.toString(),  // uint64 with JS_STRING = string
             maxWhiteboardFile.toString(),  // uint64 with JS_STRING = string
-            allowedTypes,
-            sharedNotePadEnabled
+            allowedTypes
         );
         setRoomDefaultLockSettings(req);
 
@@ -377,7 +373,7 @@ export class RoomCreateService {
             metadata.roomFeatures!.whiteboardFeatures!.totalPages = result.totalPages;
 
             // Update and broadcast room metadata
-            await this.natsRoom.updateRoomMetadata(roomId, metadata);
+            await this.natsRoomEvents.updateAndBroadcastRoomMetadata(roomId, metadata);
 
             this.logger.log(`Preloaded whiteboard file processed successfully`);
         } catch (error) {

@@ -9,7 +9,6 @@ import {
     LockSettingsSchema,
     RecordingFeaturesSchema,
     ChatFeaturesSchema,
-    SharedNotePadFeaturesSchema,
     WhiteboardFeaturesSchema,
     ExternalMediaPlayerFeaturesSchema,
     WaitingRoomFeaturesSchema,
@@ -63,22 +62,7 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
         }
     }
 
-    if (!rf.sharedNotePadFeatures) {
-        rf.sharedNotePadFeatures = create(SharedNotePadFeaturesSchema, {
-            isAllow: false,
-            isActive: false,
-            visible: false,
-            nodeId: '',
-            host: '',
-            notePadId: '',
-            readOnlyPadId: '',
-        });
-    } else {
-        // backward compatibility
-        if (rf.sharedNotePadFeatures.allowedSharedNotePad !== undefined) {
-            rf.sharedNotePadFeatures.isAllow = rf.sharedNotePadFeatures.allowedSharedNotePad;
-        }
-    }
+
 
     if (!rf.whiteboardFeatures) {
         rf.whiteboardFeatures = create(WhiteboardFeaturesSchema, {
@@ -239,8 +223,7 @@ export function setCreateRoomDefaultValues(
     r: CreateRoomReq,
     maxSize: string, // uint64 with JS_STRING
     maxSizeWhiteboardFile: string, // uint64 with JS_STRING
-    allowedTypes: string[],
-    allowedNotepad: boolean
+    allowedTypes: string[]
 ): void {
     const rf = r.metadata!.roomFeatures!;
 
@@ -249,9 +232,7 @@ export function setCreateRoomDefaultValues(
         rf.autoGenUserId = false;
     }
 
-    if (rf.sharedNotePadFeatures?.isAllow && !allowedNotepad) {
-        rf.sharedNotePadFeatures.isAllow = false;
-    }
+
 
     if (rf.chatFeatures?.isAllowFileUpload) {
         if (!rf.chatFeatures.allowedFileTypes || rf.chatFeatures.allowedFileTypes.length === 0) {
@@ -299,9 +280,7 @@ export function setRoomDefaultLockSettings(r: CreateRoomReq): void {
     if (r.metadata!.defaultLockSettings!.lockWhiteboard === undefined) {
         r.metadata!.defaultLockSettings!.lockWhiteboard = lock;
     }
-    if (r.metadata!.defaultLockSettings!.lockSharedNotepad === undefined) {
-        r.metadata!.defaultLockSettings!.lockSharedNotepad = lock;
-    }
+
 }
 
 /**

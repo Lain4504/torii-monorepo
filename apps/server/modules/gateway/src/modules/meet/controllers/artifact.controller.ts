@@ -77,7 +77,6 @@ export class ArtifactController {
 
             // In a real monorepo with shared storage, Gateway can serve the file
             // Otherwise, we might need a separate storage service or proxy.
-            // The Go version serves it directly from the local disk.
 
             const { absolutePath, fileName } = verifyRes;
             res.download(absolutePath, fileName);

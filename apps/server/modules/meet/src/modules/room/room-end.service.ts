@@ -14,16 +14,19 @@ import { NatsUserService } from '../../interfaces/nats/nats-user.service';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
-import { NatsMsgServerToClientEvents, CleanEtherpadReqSchema } from '@workspace/protocol';
+import { NatsMsgServerToClientEvents, RecordingReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { RoomInfoService } from './room-info.service';
 import { RoomDurationService } from './room-duration.service';
 import { PollsService } from "../polls/polls.service";
 import { AnalyticsService } from '../analytics/analytics.service';
-import { EtherpadService } from '../etherpad/etherpad.service';
 import { BreakoutService } from '../breakout/breakout.service';
 import { FileService } from '../file/file.service';
+import { InsightsService } from '../insights/insights.service';
+import { RecordingService } from '../recording/recording.service';
+import { SpeechToTextService } from '../speech-to-text/speech-to-text.service';
+import { RecordingTasks } from '@workspace/protocol';
 
 /**
  * RoomEndService handles room termination and cleanup
@@ -34,21 +37,33 @@ export class RoomEndService {
 
     constructor(
         private readonly configService: ConfigService,
+        @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
+        @Inject(forwardRef(() => NatsSystemEventsService))
         private readonly natsSystemEvents: NatsSystemEventsService,
+        @Inject(forwardRef(() => NatsStreamService))
         private readonly natsStreamService: NatsStreamService,
+        @Inject(forwardRef(() => NatsUserService))
         private readonly natsUserService: NatsUserService,
         private readonly redisLock: RedisLockService,
         private readonly redisRoom: RedisRoomService,
         private readonly livekit: LiveKitService,
         private readonly roomInfoService: RoomInfoService,
         private readonly roomDuration: RoomDurationService,
+        @Inject(forwardRef(() => PollsService))
         private readonly pollsService: PollsService,
+        @Inject(forwardRef(() => AnalyticsService))
         private readonly analyticsService: AnalyticsService,
-        private readonly etherpadService: EtherpadService,
         @Inject(forwardRef(() => BreakoutService))
         private readonly breakoutService: BreakoutService,
+        @Inject(forwardRef(() => FileService))
         private readonly fileService: FileService,
+        @Inject(forwardRef(() => InsightsService))
+        private readonly insightsService: InsightsService,
+        @Inject(forwardRef(() => RecordingService))
+        private readonly recordingService: RecordingService,
+        @Inject(forwardRef(() => SpeechToTextService))
+        private readonly speechToText: SpeechToTextService,
     ) { }
 
     /**
@@ -247,8 +262,15 @@ export class RoomEndService {
         }
 
         // Step 6: Send a stop signal to any active recorders for this room
-        // TODO: Implement recorder model
-        // await this.recorderModel.sendMsgToRecorder({ task: 'STOP', sid: roomSID, roomId: roomId });
+        try {
+            await this.recordingService.sendMsgToRecorder(create(RecordingReqSchema, {
+                task: RecordingTasks.STOP,
+                sid: roomSID,
+                roomId: roomId,
+            }));
+        } catch (error) {
+            this.logger.error(`Error sending stop to recorder: ${error.message}`);
+        }
 
         // Step 7: Delete all uploaded files for this session (if not configured to keep)
         const keepFilesForever = this.configService.get<boolean>('UPLOAD_KEEP_FOREVER', false);
@@ -267,12 +289,7 @@ export class RoomEndService {
             this.logger.error(`Error deleting room duration: ${error.message}`);
         }
 
-        // Step 9: Clean up any associated Etherpad (shared notepad) pads
-        try {
-            await this.etherpadService.cleanAfterRoomEnd(create(CleanEtherpadReqSchema, { roomId }));
-        } catch (error) {
-            this.logger.error(`Error cleaning up Etherpad: ${error.message}`);
-        }
+
 
         // Step 10: Clean up any polls created during the session
         try {
@@ -289,12 +306,18 @@ export class RoomEndService {
         }
 
         // Step 12: Finalize and clean up any speech-to-text service usage stats
-        // TODO: Implement speech service
-        // await this.speechToText.onAfterRoomEnded(roomId, roomSID);
+        try {
+            await this.speechToText.onAfterRoomEnded(roomId, roomSID);
+        } catch (error) {
+            this.logger.error(`Error in speech service cleanup: ${error.message}`);
+        }
 
-        // Step 13: End all the agent tasks for this room
-        // TODO: Implement insights model
-        // await this.insightsModel.onAfterRoomEnded(dbTableId, roomId, roomSID);
+        // Step 13: End all the agent tasks for this room and create usage artifacts
+        try {
+            await this.insightsService.onAfterRoomEnded(dbTableId, roomId, roomSID);
+        } catch (error) {
+            this.logger.error(`Error in insights post-end tasks: ${error.message}`);
+        }
 
         // Step 14: Perform the final NATS cleanup
         try {
@@ -306,8 +329,9 @@ export class RoomEndService {
         this.logger.log(`Room has been cleaned properly: ${roomId}`);
 
         // Step 15: Schedule the analytics export to run after a delay
+        const analyticsDelay = this.configService.get<number>('WAIT_BEFORE_ANALYTICS_START_PROCESSING', 10000);
         setTimeout(() => {
             this.analyticsService.prepareToExportAnalytics(roomId, roomSID, metadata);
-        }, 10000); // 10 seconds delay
+        }, analyticsDelay);
     }
 }

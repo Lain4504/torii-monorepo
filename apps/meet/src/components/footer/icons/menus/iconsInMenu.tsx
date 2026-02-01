@@ -6,7 +6,6 @@ import FooterMenuItem from './menuItem';
 import {
   setActiveSidePanel,
   updateDisplaySpeechSettingOptionsModal,
-  updateIsActiveSharedNotePad,
   updateIsActiveWhiteboard,
 } from '../../../../store/slices/bottomIconsActivitySlice';
 import { BarChart2, PenTool, NotebookPen, Captions } from 'lucide-react';
@@ -33,12 +32,7 @@ const IconsInMenu = () => {
     dispatch(updateIsActiveWhiteboard(!isActiveWhiteboard));
   }, [dispatch, isActiveWhiteboard]);
 
-  const isActiveSharedNotePad = useAppSelector(
-    (state) => state.bottomIconsActivity.isActiveSharedNotePad,
-  );
-  const toggleSharedNotePad = useCallback(() => {
-    dispatch(updateIsActiveSharedNotePad(!isActiveSharedNotePad));
-  }, [dispatch, isActiveSharedNotePad]);
+
 
   const isActivePoll = useAppSelector(
     (state) =>
@@ -81,18 +75,7 @@ const IconsInMenu = () => {
           }
         />
       )}
-      {roomFeatures?.sharedNotePadFeatures?.isActive && (
-        <FooterMenuItem
-          onClick={toggleSharedNotePad}
-          isActive={isActiveSharedNotePad}
-          icon={<NotebookPen />}
-          text={
-            isActiveSharedNotePad
-              ? t('footer.icons.hide-shared-notepad')
-              : t('footer.icons.show-shared-notepad')
-          }
-        />
-      )}
+
       {isActivePoll && (
         <FooterMenuItem
           onClick={togglePollsPanel}

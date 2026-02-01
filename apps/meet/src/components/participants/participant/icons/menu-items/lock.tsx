@@ -25,7 +25,7 @@ const serviceToLockSettingMap: Record<
   webcam: 'lockWebcam',
   screenShare: 'lockScreenSharing',
   whiteboard: 'lockWhiteboard',
-  sharedNotepad: 'lockSharedNotepad',
+
   chat: 'lockChat',
   sendChatMsg: 'lockChatSendMessage',
   chatFile: 'lockChatFileShare',
@@ -123,13 +123,7 @@ const LockSettingMenuItem = ({ userId }: ILockSettingMenuItemProps) => {
       lockText: t('left-panel.menus.items.lock-whiteboard'),
       unlockText: t('left-panel.menus.items.unlock-whiteboard'),
     },
-    {
-      key: 'sharedNotepad',
-      isDisplayed: roomFeatures?.sharedNotePadFeatures?.isAllow,
-      isLocked: lockSettings?.lockSharedNotepad,
-      lockText: t('left-panel.menus.items.lock-shared-notepad'),
-      unlockText: t('left-panel.menus.items.unlock-shared-notepad'),
-    },
+
     {
       key: 'chat',
       isDisplayed: roomFeatures?.chatFeatures?.isAllow,

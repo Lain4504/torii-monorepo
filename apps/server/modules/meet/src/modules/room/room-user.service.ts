@@ -16,6 +16,8 @@ import { create } from '@bufbuild/protobuf';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
+import { AnalyticsService } from '../analytics/analytics.service';
+import { AnalyticsDataMsgSchema, AnalyticsEventType, AnalyticsEvents } from '@workspace/protocol';
 
 /**
  * RoomUserService handles business logic for user operations within rooms
@@ -34,6 +36,7 @@ export class RoomUserService {
         private readonly natsRoom: NatsRoomService,
         private readonly natsRoomEvents: NatsRoomEventsService,
         private readonly authService: WajlcAuthService,
+        private readonly analyticsService: AnalyticsService,
     ) { }
 
     /**
@@ -792,6 +795,14 @@ export class RoomUserService {
                     }
                 }
             }
+
+            // Analytics
+            await this.analyticsService.handleEvent(create(AnalyticsDataMsgSchema, {
+                eventType: AnalyticsEventType.USER,
+                eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_RAISE_HAND,
+                roomId: roomId,
+                userId: userId,
+            }));
 
             this.logger.log(`Hand raised successfully for ${userId}`);
         } catch (error) {
