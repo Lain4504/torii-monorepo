@@ -78,43 +78,35 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen w-full bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary overflow-hidden">
-      {/* Left Panel: Hero / Brand - Zen UI Pro */}
-      <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-muted/5 flex-col justify-between p-16 border-r border-border/50">
-        {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 opacity-60" />
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3 opacity-40" />
+      {/* Left Panel: Info */}
+      <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-muted/30 flex-col justify-between p-16 border-r border-border/40">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
         {/* Header Section */}
         <div className="relative z-10">
           <div className="flex items-center gap-4 group">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-white shadow-2xl shadow-primary/30 group-hover:scale-105 transition-transform duration-500">
-              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                <path d="M3 10h18" strokeLinecap="round" />
-                <path d="M5 10v8" strokeLinecap="round" />
-                <path d="M19 10v8" strokeLinecap="round" />
-                <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-              </svg>
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg group-hover:scale-105 transition-transform duration-500">
+              <ShieldCheck className="w-8 h-8" />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-black tracking-tighter text-foreground uppercase italic leading-none">Torii <span className="text-primary not-italic">Admin</span></span>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 mt-1">Management Matrix</span>
+              <span className="text-2xl font-bold tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
+              <span className="text-xs font-medium text-muted-foreground/60">Hệ Thống Quản Trị</span>
             </div>
           </div>
         </div>
 
         {/* Hero Section */}
-        <div className="relative z-10 max-w-xl space-y-10">
+        <div className="relative z-10 max-w-xl space-y-8">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-wider text-primary">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary">
               <Sparkles className="size-3" />
-              Zen OS v4.0
+              Phiên bản 4.0
             </div>
-            <h1 className="text-6xl font-black tracking-tight text-foreground leading-[0.9] uppercase italic">
-              Quản lý <br />
-              <span className="text-primary not-italic">Hệ sinh thái</span> <br />
-              <span className="text-foreground/20">Giáo dục</span>
+            <h1 className="text-5xl font-bold tracking-tight text-foreground leading-tight">
+              Quản lý hệ sinh thái <br />
+              giáo dục toàn diện
             </h1>
-            <p className="text-base font-bold text-muted-foreground/40 leading-relaxed max-w-md">
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
               Hệ thống vận hành Torii Academy được tối ưu hóa cho hiệu suất cao, bảo mật tuyệt đối và trải nghiệm quản trị mượt mà.
             </p>
           </div>
@@ -122,23 +114,23 @@ export default function LoginPage() {
 
         {/* Footer Info */}
         <div className="relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-6 text-[10px] font-black text-muted-foreground/20 uppercase tracking-[0.2em]">
+          <div className="flex items-center gap-6 text-xs font-medium text-muted-foreground/40">
             <span>© 2026 TORII HOLDINGS</span>
-            <div className="h-px w-8 bg-border/10"></div>
+            <div className="h-px w-8 bg-border/40"></div>
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="size-3" />
-              SECURE ACCESS NODE
+              Đăng nhập an toàn
             </span>
           </div>
         </div>
       </div>
 
-      {/* Right Panel: Login Form - Zen UI Pro */}
+      {/* Right Panel: Login Form */}
       <div className="flex flex-1 flex-col items-center justify-center p-8 lg:p-24 relative bg-background">
-        <div className="w-full max-w-[420px] space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-          <div className="space-y-4 text-center lg:text-left">
-            <h2 className="text-4xl font-black tracking-tight text-foreground uppercase italic leading-none">Chào mừng <br /><span className="text-primary not-italic">Trở lại</span></h2>
-            <p className="text-sm font-bold text-muted-foreground/40 uppercase tracking-widest leading-none">Xác thực quyền truy cập hệ thống</p>
+        <div className="w-full max-w-[420px] space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="space-y-3 text-center lg:text-left">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Chào mừng trở lại</h2>
+            <p className="text-sm font-medium text-muted-foreground">Vui lòng đăng nhập để quản trị hệ thống</p>
           </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" noValidate>
@@ -147,8 +139,8 @@ export default function LoginPage() {
                 name="email"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <div className="space-y-2">
-                    <label htmlFor={field.name} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">
+                  <div className="space-y-2.5">
+                    <label htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80 ml-1">
                       Địa chỉ Email
                     </label>
                     <div className="relative group">
@@ -157,11 +149,11 @@ export default function LoginPage() {
                         {...field}
                         id={field.name}
                         placeholder="admin@torii.academy"
-                        className="h-12 pl-12 rounded-xl border-border bg-background hover:border-primary/50 focus-visible:ring-primary/20 transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm"
+                        className="h-12 pl-12 rounded-xl border-border bg-background transition-all text-sm font-medium placeholder:text-muted-foreground/20 shadow-none focus-visible:ring-primary/20"
                         autoComplete="email"
                         type="email"
                       />
-                      {fieldState.invalid && <p className="text-[10px] font-bold text-rose-500 mt-2 ml-1 uppercase tracking-tight italic">{fieldState.error?.message}</p>}
+                      {fieldState.invalid && <p className="text-xs font-medium text-rose-500 mt-2 ml-1">{fieldState.error?.message}</p>}
                     </div>
                   </div>
                 )}
@@ -171,15 +163,15 @@ export default function LoginPage() {
                 name="password"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     <div className="flex items-center justify-between ml-1">
-                      <label htmlFor={field.name} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                        Khóa bảo mật
+                      <label htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80">
+                        Mật khẩu
                       </label>
                       <button
                         type="button"
                         onClick={() => navigate('/forgot-password')}
-                        className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-colors italic"
+                        className="text-xs font-semibold text-primary/60 hover:text-primary transition-colors"
                       >
                         Quên mật khẩu?
                       </button>
@@ -191,7 +183,7 @@ export default function LoginPage() {
                         id={field.name}
                         type={showPassword ? "text" : "password"}
                         placeholder="Nhập mật khẩu"
-                        className="h-12 pl-12 pr-12 rounded-xl border-border bg-background hover:border-primary/50 focus-visible:ring-primary/20 transition-all text-sm font-medium placeholder:text-muted-foreground/30 shadow-sm"
+                        className="h-12 pl-12 pr-12 rounded-xl border-border bg-background transition-all text-sm font-medium placeholder:text-muted-foreground/20 shadow-none focus-visible:ring-primary/20"
                         autoComplete="current-password"
                       />
                       <Button
@@ -203,7 +195,7 @@ export default function LoginPage() {
                       >
                         {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </Button>
-                      {fieldState.invalid && <p className="text-[10px] font-bold text-rose-500 mt-2 ml-1 uppercase tracking-tight italic">{fieldState.error?.message}</p>}
+                      {fieldState.invalid && <p className="text-xs font-medium text-rose-500 mt-2 ml-1">{fieldState.error?.message}</p>}
                     </div>
                   </div>
                 )}
@@ -211,44 +203,44 @@ export default function LoginPage() {
             </div>
 
             <div className="flex flex-col gap-6">
-              <div className="flex items-center gap-3 px-1">
+              <div className="flex items-center gap-2.5 px-1">
                 <Checkbox
                   id="remember"
-                  className="rounded-lg size-5 border-border bg-background data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all shadow-sm"
+                  className="rounded-md size-4 border-border bg-background data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all shadow-none"
                 />
-                <label htmlFor="remember" className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/30 cursor-pointer select-none hover:text-primary transition-colors leading-none">Duy trì phiên đăng nhập 30 ngày</label>
+                <label htmlFor="remember" className="text-xs font-medium text-muted-foreground/60 cursor-pointer select-none hover:text-primary transition-colors">Duy trì đăng nhập 30 ngày</label>
               </div>
 
               {error && (
-                <div className="rounded-xl bg-rose-500/5 border border-rose-500/20 p-4 flex items-center gap-4 animate-in fade-in zoom-in-95">
-                  <div className="size-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
-                  <p className="text-[11px] font-black text-rose-600 uppercase tracking-tight leading-none italic">{error}</p>
+                <div className="rounded-xl bg-destructive/5 border border-destructive/20 p-3.5 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                  <div className="size-1.5 rounded-full bg-destructive shrink-0" />
+                  <p className="text-xs font-semibold text-destructive">{error}</p>
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all duration-500 group"
+                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all group"
                 disabled={loading}
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-3 size-4 animate-spin opacity-50" />
-                    ĐANG XÁC THỰC...
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Đang xác thực...
                   </>
                 ) : (
                   <>
-                    ĐĂNG NHẬP HỆ THỐNG
-                    <ArrowRight className="ml-3 size-4 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    Đăng nhập vào hệ thống
+                    <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </Button>
             </div>
           </form>
 
-          <div className="pt-8 text-center text-muted-foreground/10 italic">
-            <p className="text-[9px] font-black uppercase tracking-[0.3em]">
-              Access restricted to authorized personnel.
+          <div className="pt-8 text-center text-muted-foreground/30">
+            <p className="text-[10px] font-medium uppercase tracking-widest">
+              Authorized Personnel Only
             </p>
           </div>
         </div>

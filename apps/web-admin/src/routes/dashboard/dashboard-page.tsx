@@ -43,7 +43,7 @@ function StatsCard({ title, value, sub, icon: Icon, trend, colorClass, highlight
     )}>
       <CardHeader className="flex flex-row items-center justify-between pb-4 space-y-0">
         <div className="space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">{title}</p>
+          <p className="text-xs font-semibold text-muted-foreground">{title}</p>
         </div>
         <div className={cn("p-2.5 rounded-lg bg-muted/50 text-muted-foreground/50 group-hover:bg-primary/5 group-hover:text-primary transition-colors duration-300", colorClass)}>
           <Icon className="size-4.5" />
@@ -52,7 +52,7 @@ function StatsCard({ title, value, sub, icon: Icon, trend, colorClass, highlight
 
       <CardContent className="pb-6">
         <div className="flex items-baseline gap-2">
-          <h3 className="text-3xl font-black tracking-tight text-foreground">{value}</h3>
+          <h3 className="text-3xl font-bold tracking-tight text-foreground">{value}</h3>
           {trend && (
             <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded-md mb-0.5">
               <ArrowUpRight className="size-3" />
@@ -60,7 +60,7 @@ function StatsCard({ title, value, sub, icon: Icon, trend, colorClass, highlight
             </div>
           )}
         </div>
-        <p className="text-[10px] font-bold text-muted-foreground/60 mt-2 uppercase tracking-wide">
+        <p className="text-xs font-medium text-muted-foreground/60 mt-1">
           {sub}
         </p>
       </CardContent>
@@ -119,14 +119,14 @@ function AdminDashboard() {
       <div className="grid gap-6 md:grid-cols-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
         {/* Operational Queue */}
         <Card className="md:col-span-8 rounded-xl bg-card border border-border/50 shadow-sm overflow-hidden min-h-[500px]">
-          <CardHeader className="border-b border-border/40 bg-muted/5 py-6">
+          <CardHeader className="border-b border-border/40 bg-muted/5 py-5 px-6">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-bold uppercase tracking-tight">Hàng đợi <span className="text-primary">Vận hành</span></CardTitle>
-                <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Tác vụ cần xử lý ưu tiên từ cao xuống thấp</CardDescription>
+                <CardTitle className="text-xl font-bold">Hàng đợi <span className="text-primary font-bold">vận hành</span></CardTitle>
+                <CardDescription className="text-xs font-medium text-muted-foreground/60 mt-0.5">Tác vụ cần xử lý ưu tiên từ cao xuống thấp</CardDescription>
               </div>
-              <Button size="sm" variant="ghost" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary">
-                Xem toàn bộ <ChevronRight className="ml-1 size-3" />
+              <Button size="sm" variant="ghost" className="text-xs font-semibold text-muted-foreground hover:text-primary">
+                Xem toàn bộ <ChevronRight className="ml-1 size-3.5" />
               </Button>
             </div>
           </CardHeader>
@@ -189,9 +189,9 @@ function AdminDashboard() {
 
         {/* Platform Pulse */}
         <div className="md:col-span-4 space-y-6">
-          <Card className="rounded-xl border border-border/50 bg-card shadow-sm">
+          <Card className="rounded-xl border border-border/40 bg-card shadow-sm">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Nhịp độ Hệ thống</CardTitle>
+              <CardTitle className="text-sm font-bold text-muted-foreground/70">Nhịp độ hệ thống</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <PulseMetric label="Người dùng Trực tuyến" value={overview?.activeToday || 0} color="emerald" icon={Activity} />
@@ -200,11 +200,11 @@ function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border border-border/50 bg-card shadow-sm overflow-hidden">
+          <Card className="rounded-xl border border-border/40 bg-card shadow-sm overflow-hidden">
             <CardHeader className="bg-muted/10 border-b border-border/40">
               <div className="flex items-center gap-2">
                 <Terminal className="size-4 text-primary" />
-                <CardTitle className="text-[10px] font-black uppercase tracking-widest">Nhật ký Hoạt động</CardTitle>
+                <CardTitle className="text-sm font-bold">Nhật ký hoạt động</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-4 space-y-4">
@@ -212,8 +212,8 @@ function AdminDashboard() {
               <LogItem time="12:32" user="System" action="Tự động gia hạn 12 Subscription" />
               <LogItem time="11:58" user="Sarah" action="Phê duyệt User 'Nguyễn Văn A'" />
               <LogItem time="10:15" user="Linh" action="Phản hồi Ticket #991" />
-              <Button variant="link" className="w-full text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/40 hover:text-primary h-auto p-0 pt-2">
-                Xem Log chi tiết <History className="ml-1.5 size-3" />
+              <Button variant="link" className="w-full text-xs font-semibold text-muted-foreground/60 hover:text-primary h-auto p-0 pt-2 shadow-none">
+                Xem Log chi tiết <History className="ml-1.5 size-3.5" />
               </Button>
             </CardContent>
           </Card>
@@ -236,17 +236,17 @@ function OperationItem({ icon: Icon, title, desc, tag, tagColor, time, link }: a
       <div className={cn("size-12 flex items-center justify-center rounded-xl bg-background transition-colors group-hover:bg-muted/20 group-hover:shadow-sm", colorClasses[tagColor]?.split(' ')[1])}>
         <Icon className="size-5" />
       </div>
-      <div className="flex-1 min-w-0 space-y-1">
+      <div className="flex-1 min-w-0 space-y-0.5">
         <div className="flex items-center gap-2">
-          <h4 className="text-sm font-bold tracking-tight text-foreground truncate group-hover:text-primary transition-colors">{title}</h4>
-          <Badge variant="outline" className={cn("text-[8px] font-black uppercase py-0 h-4 border-none", colorClasses[tagColor])}>{tag}</Badge>
+          <h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">{title}</h4>
+          <Badge variant="outline" className={cn("text-[10px] font-medium py-0 h-4 border-none", colorClasses[tagColor])}>{tag}</Badge>
         </div>
         <p className="text-xs text-muted-foreground/60 truncate">{desc}</p>
       </div>
       <div className="text-right shrink-0">
         <p className="text-[10px] font-medium text-muted-foreground/40 mb-1">{time}</p>
         <Link to={link}>
-          <Button variant="ghost" size="sm" className="h-7 px-2 text-[10px] font-black uppercase hover:bg-primary/10 hover:text-primary">Xử lý</Button>
+          <Button variant="ghost" size="sm" className="h-8 px-3 text-xs font-semibold hover:bg-primary/5 hover:text-primary">Xử lý</Button>
         </Link>
       </div>
     </div>
@@ -263,11 +263,11 @@ function PulseMetric({ label, value, color, icon: Icon }: any) {
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div className={cn("size-2 rounded-full animate-pulse", colors[color])} />
-        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{label}</span>
+        <span className="text-xs font-semibold text-muted-foreground/70">{label}</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-lg font-black tracking-tighter">{value.toLocaleString()}</span>
-        {Icon && <Icon className="size-3.5 text-muted-foreground/20" />}
+        <span className="text-lg font-bold">{value.toLocaleString()}</span>
+        {Icon && <Icon className="size-4 text-muted-foreground/30" />}
       </div>
     </div>
   )
@@ -276,10 +276,10 @@ function PulseMetric({ label, value, color, icon: Icon }: any) {
 function LogItem({ time, user, action }: any) {
   return (
     <div className="flex items-start gap-3">
-      <span className="text-[9px] font-black text-muted-foreground/30 pt-0.5">{time}</span>
+      <span className="text-[10px] font-semibold text-muted-foreground/40 pt-0.5">{time}</span>
       <div className="space-y-0.5">
-        <p className="text-[10px] font-bold uppercase tracking-tight text-foreground">{user}</p>
-        <p className="text-[11px] font-medium text-muted-foreground/60 leading-tight">{action}</p>
+        <p className="text-xs font-bold text-foreground">{user}</p>
+        <p className="text-xs font-medium text-muted-foreground/70 leading-relaxed">{action}</p>
       </div>
     </div>
   )
@@ -299,10 +299,10 @@ function StaffDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <Card className="rounded-xl bg-card border border-border/50 shadow-sm">
+        <Card className="rounded-xl bg-card border border-border/40 shadow-sm">
           <CardHeader className="p-6 pb-4">
-            <CardTitle className="text-lg font-bold uppercase tracking-tight">Kế hoạch <span className="text-primary">Vận hành</span></CardTitle>
-            <p className="text-xs font-medium text-muted-foreground/60 mt-1">Danh sách công việc cần làm trong ca trực</p>
+            <CardTitle className="text-xl font-bold">Kế hoạch vận hành</CardTitle>
+            <p className="text-sm font-medium text-muted-foreground/60 mt-1">Danh sách công việc cần làm trong ca trực</p>
           </CardHeader>
           <CardContent className="px-6 pb-6 space-y-3">
             <TaskItem title="Duyệt video 'Mina no Nihongo Bài 12'" status="Khẩn cấp" code="CONT-502" />
@@ -311,10 +311,10 @@ function StaffDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-xl bg-card border border-border/50 shadow-sm overflow-hidden">
+        <Card className="rounded-xl bg-card border border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="p-6 pb-4">
-            <CardTitle className="text-lg font-bold uppercase tracking-tight">Cập nhật <span className="text-amber-500">Giảng viên</span></CardTitle>
-            <p className="text-xs font-medium text-muted-foreground/60 mt-1">Phản hồi và câu hỏi từ đội ngũ giảng dạy</p>
+            <CardTitle className="text-xl font-bold">Cập nhật giảng viên</CardTitle>
+            <p className="text-sm font-medium text-muted-foreground/60 mt-1">Phản hồi và câu hỏi từ đội ngũ giảng dạy</p>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-border/30">
@@ -335,12 +335,12 @@ function LecturerDashboard() {
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[100px] -z-10 rounded-full" />
         <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="space-y-4">
-            <Badge variant="outline" className="text-[10px] font-black uppercase bg-primary/10 text-primary border-none">PHỔ BIẾN</Badge>
-            <h2 className="text-4xl font-black tracking-tight uppercase leading-tight">Masterclass <span className="text-primary">Kaiwa N4</span></h2>
-            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-widest">Bắt đầu sau: <span className="text-primary animate-pulse">24 PHÚT 32 GIÂY</span></p>
+            <Badge variant="outline" className="text-xs font-semibold bg-primary/10 text-primary border-none">PHỔ BIẾN</Badge>
+            <h2 className="text-4xl font-bold tracking-tight">Masterclass <span className="text-primary">Kaiwa N4</span></h2>
+            <p className="text-sm font-semibold text-muted-foreground/70">Bắt đầu sau: <span className="text-primary animate-pulse">24 phút 32 giây</span></p>
             <div className="flex gap-4 pt-2">
-              <Button className="rounded-xl font-black uppercase text-[10px] px-8 py-6 h-auto tracking-widest shadow-xl shadow-primary/20 hover:-translate-y-1 transition-all">Vào Lớp Ngay</Button>
-              <Button variant="outline" className="rounded-xl font-black uppercase text-[10px] px-8 py-6 h-auto tracking-widest border-border/40">Chuẩn bị Tài liệu</Button>
+              <Button className="rounded-xl font-bold text-xs px-8 py-5 h-auto transition-all shadow-md">Vào Lớp Ngay</Button>
+              <Button variant="outline" className="rounded-xl font-bold text-xs px-8 py-5 h-auto border-border/50">Chuẩn bị tài liệu</Button>
             </div>
           </div>
           <div className="hidden lg:grid grid-cols-2 gap-4 translate-x-10 opacity-30">
@@ -372,11 +372,11 @@ function TaskItem({ title, status, code }: { title: string, status: string, code
         <CheckCircle2 className="size-4.5" />
       </div>
       <div className="flex-1 space-y-0.5">
-        <p className="text-xs font-bold uppercase tracking-wide text-foreground group-hover:text-primary transition-colors leading-tight">{title}</p>
+        <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">{title}</p>
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/30">{code}</span>
-          <div className="w-0.5 h-0.5 rounded-full bg-border" />
-          <span className={cn("text-[9px] font-bold uppercase tracking-wider", isUrgent ? "text-rose-500" : "text-primary/50")}>{status}</span>
+          <span className="text-[10px] font-semibold text-muted-foreground/40">{code}</span>
+          <div className="w-1 h-1 rounded-full bg-border" />
+          <span className={cn("text-[10px] font-bold uppercase", isUrgent ? "text-rose-500" : "text-primary/70")}>{status}</span>
         </div>
       </div>
       <ArrowUpRight className="size-3.5 opacity-0 group-hover:opacity-40 transition-all -translate-y-1 group-hover:translate-x-1" />
@@ -408,20 +408,20 @@ export default function DashboardPage() {
         }
         actions={
           <div className="flex items-center gap-3">
-            <div className="flex bg-muted/20 p-1 rounded-xl border border-border/40">
-              <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
+            <div className="flex bg-muted/20 p-1.5 rounded-xl border border-border/40">
+              <Button variant="ghost" asChild className="h-8 px-4 rounded-lg font-bold text-xs hover:bg-background hover:shadow-sm transition-all shadow-none">
                 <Link to="/analytics/revenue">Tài chính</Link>
               </Button>
-              <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
+              <Button variant="ghost" asChild className="h-8 px-4 rounded-lg font-bold text-xs hover:bg-background hover:shadow-sm transition-all shadow-none">
                 <Link to="/analytics/learning">Học tập</Link>
               </Button>
-              <Button variant="ghost" asChild className="h-9 px-4 rounded-lg font-bold uppercase text-[9px] tracking-widest hover:bg-background hover:shadow-sm transition-all">
+              <Button variant="ghost" asChild className="h-8 px-4 rounded-lg font-bold text-xs hover:bg-background hover:shadow-sm transition-all shadow-none">
                 <Link to="/analytics/users">Học viên</Link>
               </Button>
             </div>
-            <Button className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all">
+            <Button className="h-10 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-xs transition-all shadow-md">
               <Zap className="size-3.5 mr-2" />
-              Lệnh Tắt
+              Lệnh nhanh
             </Button>
           </div>
         }
@@ -437,10 +437,10 @@ export default function DashboardPage() {
 
         {!['admin', 'staff', 'lecturer'].includes(role || '') && !role?.startsWith('staff-') && (
           <div className="p-20 text-center space-y-4 bg-muted/10 rounded-xl border border-dashed border-border/40">
-            <ShieldAlert className="size-12 text-muted-foreground/20 mx-auto" strokeWidth={1} />
+            <ShieldAlert className="size-12 text-muted-foreground/30 mx-auto" strokeWidth={1.5} />
             <div className="space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Truy cập bị Hạn chế</p>
-              <p className="text-base font-medium text-foreground">Giao diện quản trị không khả dụng cho vai trò của bạn ({role}).</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/40">Truy cập bị hạn chế</p>
+              <p className="text-base font-semibold text-foreground">Giao diện quản trị không khả dụng cho vai trò của bạn ({role}).</p>
             </div>
           </div>
         )}

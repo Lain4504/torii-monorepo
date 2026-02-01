@@ -106,6 +106,7 @@ const isPublicPage = (): boolean => {
         '/forgot-password',
         '/reset-password',
         '/verify',
+        '/verify-otp',
         '/verify-request',
     ];
 
@@ -161,22 +162,20 @@ const redirectToLogin = async () => {
         return;
     }
 
-    // Don't redirect if already on public auth page
-    if (isPublicPage()) {
-        console.log('Already on public auth page, skipping redirect');
-        return;
-    }
-
     isRedirecting = true;
-    console.warn('Authentication failed - redirecting to login');
+    console.warn('Authentication failed - clearing session and redirecting to login');
 
     try {
-        // Call logout to clear server-side cookies
-        await apiClient.post('/api/auth/logout').catch(() => {
-            // Ignore errors - we're logging out anyway
-        });
+        // Force clear all local states by calling logout API
+        await apiClient.post('/api/auth/logout').catch(() => { });
     } catch (e) {
-        // Ignore - continue with redirect
+        // Ignore
+    }
+
+    // Don't redirect if already on public auth page
+    if (isPublicPage()) {
+        isRedirecting = false;
+        return;
     }
 
     window.location.href = '/login';
@@ -223,26 +222,25 @@ apiClient.interceptors.response.use(
                 return Promise.reject(error);
             }
 
-            // Don't retry refresh endpoint itself
+            // If refresh endpoint itself fails, abort everything
             if (url.includes('/auth/refresh')) {
-                console.warn('Token refresh failed');
+                console.warn('Refresh token is invalid or expired. Aborting refresh flow.');
                 isRefreshing = false;
                 processQueue(error);
+                redirectToLogin();
+                return Promise.reject(error);
+            }
 
-                // Only redirect if we're not on a public page
-                if (!isPublicPage()) {
-                    redirectToLogin();
-                }
+            // If we're already on a public page, don't even try to refresh.
+            if (isPublicPage()) {
+                console.log('Already on public page, skipping token refresh for 401 error');
                 return Promise.reject(error);
             }
 
             // Check if refresh token exists before attempting refresh
             if (!hasRefreshToken()) {
                 console.log('No refresh token found, skipping token refresh');
-                // Only redirect if we're not on a public page
-                if (!isPublicPage()) {
-                    redirectToLogin();
-                }
+                redirectToLogin();
                 return Promise.reject(error);
             }
 
