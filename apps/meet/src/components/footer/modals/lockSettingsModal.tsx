@@ -102,11 +102,6 @@ const LockSettingsModal = () => {
       service: 'whiteboard',
     },
     {
-      label: t('footer.modal.lock-shared-notepad'),
-      checked: roomLockSettings?.lockSharedNotepad ?? false,
-      service: 'sharedNotepad',
-    },
-    {
       label: t('footer.modal.lock-chat'),
       checked: roomLockSettings?.lockChat ?? false,
       service: 'chat',

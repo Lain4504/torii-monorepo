@@ -80,6 +80,8 @@ export type UserCondDTO = z.infer<typeof userCondDTOSchema>;
 // Response DTO (safe for client - no password)
 export const userResponseDTOSchema = userSchema.omit({
     password: true,
+}).extend({
+    linkedMethods: z.array(z.string()).optional(),
 });
 
 export type UserResponseDTO = z.infer<typeof userResponseDTOSchema>;

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import FooterMenuItem from './menuItem';
 import { store, useAppDispatch, useAppSelector } from '../../../../store';
-import useSharedNotepad from './hooks/useSharedNotepad';
+
 import usePolls from './hooks/usePolls';
 import useMuteAll from './hooks/useMuteAll';
 import useExternalMediaPlayer from './hooks/useExternalMediaPlayer';
@@ -33,7 +33,6 @@ const AdminMenus = () => {
     };
   }, []);
 
-  const { toggleSharedNotepad, sharedNotepadStatus } = useSharedNotepad();
   const { togglePolls, isActivePoll } = usePolls();
   const { muteAllUsers } = useMuteAll();
   const { toggleExternalMediaPlayer, isActiveExternalMediaPlayer } =
@@ -132,18 +131,7 @@ const AdminMenus = () => {
           }
         />
       )}
-      {roomFeatures?.sharedNotePadFeatures?.isAllow && (
-        <FooterMenuItem
-          onClick={toggleSharedNotepad}
-          isActive={sharedNotepadStatus}
-          icon={<NotebookPen />}
-          text={
-            sharedNotepadStatus
-              ? t('footer.menus.disable-shared-notepad')
-              : t('footer.menus.enable-shared-notepad')
-          }
-        />
-      )}
+
       <div className="divider h-1 w-[110%] bg-muted -ml-3 my-0.5"></div>
       <FooterMenuItem
         onClick={muteAllUsers}

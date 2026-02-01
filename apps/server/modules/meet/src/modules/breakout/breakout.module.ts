@@ -11,10 +11,18 @@ import { NatsUserService } from '../../interfaces/nats/nats-user.service';
 import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
 import { NatsStreamService } from '../../interfaces/nats/nats-stream.service';
 import { NatsCacheService } from '../../interfaces/nats/nats-cache.service';
-import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
+import { LiveKitModule } from '../../infrastructure/livekit/livekit.module';
+import { NatsModule } from '../../interfaces/nats/nats.module';
+import { RoomUserService } from '../room/room-user.service';
 
 @Module({
-  imports: [SharedModule, forwardRef(() => RoomModule), AnalyticsModule],
+  imports: [
+    SharedModule,
+    forwardRef(() => RoomModule),
+    forwardRef(() => AnalyticsModule),
+    LiveKitModule,
+    forwardRef(() => NatsModule),
+  ],
   controllers: [BreakoutNatsController],
   providers: [BreakoutService],
   exports: [BreakoutService],

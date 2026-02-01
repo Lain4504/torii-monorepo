@@ -50,6 +50,7 @@ export class AnalyticsService {
         private readonly redisLock: RedisLockService,
         @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
+        @Inject(forwardRef(() => ArtifactsService))
         private readonly artifactsService: ArtifactsService,
     ) { }
 
@@ -140,8 +141,8 @@ export class AnalyticsService {
 
         const uInfo = create(AnalyticsRedisUserInfoSchema, {
             name: d.userName,
-            isAdmin: umeta.is_admin ?? false,
-            exUserId: umeta.ex_user_id,
+            isAdmin: umeta.isAdmin ?? false,
+            exUserId: umeta.exUserId,
         });
 
         const userInfoJson = toJsonString(AnalyticsRedisUserInfoSchema, uInfo);

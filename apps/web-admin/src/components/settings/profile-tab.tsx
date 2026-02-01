@@ -17,7 +17,7 @@ export function ProfileTab() {
 
     return (
         <div className="space-y-6">
-            <Card className="rounded-xl border border-border bg-background shadow-sm">
+            <Card className="rounded-xl border border-border bg-card shadow-sm">
                 <div className="p-6 space-y-6">
                     {/* Header */}
                     <div className="flex items-start justify-between">

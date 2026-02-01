@@ -107,7 +107,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[540px] border border-border/50 shadow-2xl bg-background rounded-3xl p-0">
                 <DialogHeader className="px-8 py-6 border-b border-border/10 bg-muted/5">
-                    <DialogTitle className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground">
+                    <DialogTitle className="text-xl font-sans font-bold italic uppercase tracking-tight text-foreground">
                         Xuất Bản Khóa Học
                     </DialogTitle>
                     <DialogDescription className="text-xs font-medium text-muted-foreground/60 mt-1">
@@ -119,7 +119,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                     {/* Critical Requirements */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between pb-2">
-                            <h4 className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-destructive/80 flex items-center gap-2">
+                            <h4 className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-destructive/80 flex items-center gap-2">
                                 <AlertCircle className="h-3.5 w-3.5" />
                                 Yêu Cầu Bắt Buộc
                             </h4>
@@ -168,7 +168,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                     {/* Recommended Checks */}
                     <div className="space-y-4 pt-2">
                         <div className="flex items-center justify-between pb-2 border-b border-border/10">
-                            <h4 className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-amber-600/80 flex items-center gap-2">
+                            <h4 className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-amber-600/80 flex items-center gap-2">
                                 <AlertTriangle className="h-3.5 w-3.5" />
                                 Đề Xuất Tối Ưu
                             </h4>

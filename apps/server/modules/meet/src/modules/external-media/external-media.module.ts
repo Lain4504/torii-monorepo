@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ExternalMediaService } from './external-media.service';
 import { ExternalMediaNatsController } from './external-media.nats.controller';
 import { SharedModule } from '@server/shared';
@@ -12,8 +12,8 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 @Module({
     imports: [
         SharedModule,
-        RoomModule,
-        AnalyticsModule,
+        forwardRef(() => RoomModule),
+        forwardRef(() => AnalyticsModule),
     ],
     controllers: [ExternalMediaNatsController],
     providers: [

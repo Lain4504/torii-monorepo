@@ -15,6 +15,9 @@ import { EtherpadController } from './controllers/etherpad.controller';
 import { ExternalMediaController } from './controllers/external-media.controller';
 import { RecordingController } from './controllers/recording.controller';
 import { RtmpController } from './controllers/rtmp.controller';
+import { IngressController } from './controllers/ingress.controller';
+import { InsightsController } from './controllers/insights.controller';
+import { SpeechToTextController } from './controllers/speech-to-text.controller';
 
 /**
  * Meet Module for Gateway
@@ -37,6 +40,9 @@ import { RtmpController } from './controllers/rtmp.controller';
         ExternalMediaController,
         RecordingController,
         RtmpController,
+        IngressController,
+        InsightsController,
+        SpeechToTextController,
     ],
 })
 export class MeetModule { }

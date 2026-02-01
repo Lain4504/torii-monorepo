@@ -55,21 +55,28 @@ export class UsersService implements IUsersService {
     /**
      * Find all users with pagination and search
      */
-    async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<UserResponseDTO>> {
-        const { page = 1, limit = 10, search = '' } = options;
+    async findAll(options: PaginationOptionsDTO & { role?: string }): Promise<PaginatedResponseDTO<UserResponseDTO>> {
+        const { page = 1, limit = 10, search = '', role = '' } = options;
 
         const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
         const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
         const skip = (pageNum - 1) * limitNum;
 
-        const where: Prisma.UserWhereInput = search
-            ? {
-                OR: [
-                    { email: { contains: search, mode: 'insensitive' } },
-                    { displayName: { contains: search, mode: 'insensitive' } },
-                ],
-            }
-            : {};
+        const where: Prisma.UserWhereInput = {
+            AND: [
+                search ? {
+                    OR: [
+                        { email: { contains: search, mode: 'insensitive' } },
+                        { displayName: { contains: search, mode: 'insensitive' } },
+                    ],
+                } : {},
+                role ? (
+                    role === 'staff'
+                        ? { OR: [{ role: { startsWith: 'staff' } }, { role: 'admin' }] }
+                        : { role }
+                ) : {}
+            ]
+        };
 
         const [users, total] = await Promise.all([
             this.usersRepository.findMany({

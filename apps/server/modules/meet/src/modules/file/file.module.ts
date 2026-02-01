@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { FileService } from './file.service';
 import { FileNatsController } from './file.nats.controller';
 import { SharedModule } from '@server/shared';
@@ -15,7 +15,7 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 import { WajlcAuthService } from '../auth/wajlc-auth.service';
 
 @Module({
-    imports: [SharedModule, AnalyticsModule],
+    imports: [SharedModule, forwardRef(() => AnalyticsModule)],
     providers: [
         FileService,
         NatsService,

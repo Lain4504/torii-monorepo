@@ -13,6 +13,7 @@ import { CouponModule } from './modules/coupon/coupon.module';
 // Handlers
 import { OrderHandler } from './interfaces/nats/order.handler';
 import { CouponHandler } from './interfaces/nats/coupon.handler';
+import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
 
 @Module({
     imports: [
@@ -31,6 +32,7 @@ import { CouponHandler } from './interfaces/nats/coupon.handler';
         // NATS Handlers
         OrderHandler,
         CouponHandler,
+        AnalyticsHandler,
     ],
     providers: [
         {

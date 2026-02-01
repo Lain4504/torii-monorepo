@@ -32,9 +32,6 @@ export const getDefaultRoomInfo = (roomId: string) => ({
                 maxFileSize: '50',
                 allowedFileTypes: ['jpg', 'png', 'zip', 'pdf'],
             },
-            sharedNotePadFeatures: {
-                isAllow: true,
-            },
             whiteboardFeatures: {
                 isAllow: true,
             },

@@ -240,4 +240,12 @@ export interface IAuthService {
      * @returns The generated JWT access token
      */
     generateAccessToken(userId: string, role: string): Promise<string>;
+
+    /**
+     * Generate refresh token for a user using a stable session ID
+     * @param userId - The user's unique identifier
+     * @param sessionId - The stable session record ID
+     * @returns The generated JWT refresh token
+     */
+    generateRefreshToken(userId: string, sessionId: string): Promise<string>;
 }

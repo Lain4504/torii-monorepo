@@ -12,27 +12,20 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Card } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import {
     Search,
     RotateCcw,
-    Database,
     Clock,
     Globe,
-    Info,
-    Sparkles
+    Info
 } from 'lucide-react';
 import { orderApi } from '../../api/services/order-api';
 import type { PaymentResponseDTO } from '@workspace/schemas';
 import { formatCurrency, formatDateTime } from '../../lib/format-utils';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { cn } from "@workspace/ui/lib/utils";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationNext,
-    PaginationPrevious,
-} from "@workspace/ui/components/pagination";
+import { SmartPagination } from '@/components/common/smart-pagination';
 import {
     Sheet,
     SheetContent,
@@ -41,6 +34,8 @@ import {
     SheetTitle,
 } from "@workspace/ui/components/sheet";
 import { useSearchParams } from 'react-router-dom';
+
+import { PageHeader } from '@/components/common/page-header';
 
 export default function TransactionsPage() {
     const [searchParams] = useSearchParams();
@@ -121,37 +116,27 @@ export default function TransactionsPage() {
 
     return (
         <div className="p-4 lg:p-10 space-y-10 animate-in fade-in duration-700">
-            {/* Header Section */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-4">
-                <div className="space-y-4 max-w-2xl text-center sm:text-left">
-                    <div
-                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
-                        <Database className="size-3.5" />
-                        Hạ tầng
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                        Nhật ký <span className="text-primary not-italic">Giao dịch</span>
-                    </h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                        Tra cứu dòng tiền và xác minh webhook SePay/PayOS
-                    </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0">
+            <PageHeader
+                title="Nhật ký Giao dịch"
+                subtitle="Tra cứu dòng tiền và xác minh webhook SePay/PayOS"
+                stats={[
+                    { label: "Tổng số bản ghi", value: total.toLocaleString() }
+                ]}
+                actions={
                     <Button
                         onClick={loadTransactions}
                         disabled={isLoading}
-                        variant="outline"
-                        className="w-full sm:w-auto h-11 px-6 rounded-xl font-serif font-bold italic text-xs uppercase tracking-wide border-primary/20 text-primary hover:bg-primary/5 transition-all group"
+                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all group"
                     >
                         Cập nhật Nhật ký
                         <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
                     </Button>
-                </div>
-            </div>
+                }
+            />
+
 
             {/* Main Table Container */}
-            <Card className="rounded-2xl bg-background/50 backdrop-blur-3xl border border-border/40 shadow-sm overflow-hidden">
+            <Card className="rounded-2xl bg-card border border-border/40 shadow-sm overflow-hidden">
                 <div className="p-4 lg:p-6 space-y-6">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
                         <div className="relative flex-1 w-full">
@@ -165,14 +150,14 @@ export default function TransactionsPage() {
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-border/40 bg-background/40 overflow-hidden relative shadow-sm">
+                    <div className="rounded-xl border border-border/40 bg-card overflow-hidden relative shadow-sm">
                         <Table className="border-collapse bg-transparent">
                             <TableHeader className="bg-muted/30 border-b border-border">
                                 <TableRow className="border-none hover:bg-transparent">
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Nguồn</TableHead>
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">Mã giao dịch</TableHead>
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0 text-center">Số tiền</TableHead>
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0 text-center">Trạng thái</TableHead>
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Nguồn</TableHead>
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Mã giao dịch</TableHead>
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-center">Số tiền</TableHead>
+                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-center">Trạng thái</TableHead>
                                     <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-right">Thời gian xử lý</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -187,11 +172,18 @@ export default function TransactionsPage() {
                                     ))
                                 ) : transactions.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-64 text-center">
-                                            <div className="flex flex-col items-center justify-center p-12 space-y-4 text-muted-foreground/40">
-                                                <Info className="size-8 opacity-50" />
-                                                <p className="text-sm font-serif font-bold italic uppercase tracking-tight">Không tìm thấy nhật ký giao dịch nào.</p>
-                                            </div>
+                                        <TableCell colSpan={5} className="h-[400px] text-center">
+                                            <Empty>
+                                                <EmptyMedia>
+                                                    <Info className="size-8 text-muted-foreground" />
+                                                </EmptyMedia>
+                                                <EmptyContent>
+                                                    <EmptyTitle>Không tìm thấy nhật ký giao dịch</EmptyTitle>
+                                                    <EmptyDescription>
+                                                        Không tìm thấy bản ghi giao dịch nào khớp với bộ lọc hiện tại.
+                                                    </EmptyDescription>
+                                                </EmptyContent>
+                                            </Empty>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -239,48 +231,14 @@ export default function TransactionsPage() {
                     </div>
 
                     {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t border-border/10">
-                            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/60">
-                                <Sparkles className="size-3.5 text-primary/60" />
-                                <span><span className="font-bold text-foreground">{total}</span> bản ghi</span>
-                            </div>
-
-                            <Pagination className="w-auto mx-0">
-                                <PaginationContent className="flex items-center gap-2">
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setPage(p => Math.max(1, p - 1));
-                                            }}
-                                            className={cn(
-                                                "h-9 px-3 rounded-lg border border-border/40 text-xs font-medium transition-all hover:bg-muted/50",
-                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:text-primary cursor-pointer"
-                                            )}
-                                        />
-                                    </PaginationItem>
-
-                                    <div className="flex items-center gap-1 mx-2">
-                                        <span className="text-xs font-medium text-muted-foreground/60 px-2">Trang {page} trên {totalPages}</span>
-                                    </div>
-
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setPage(p => Math.min(totalPages, p + 1));
-                                            }}
-                                            className={cn(
-                                                "h-9 px-3 rounded-lg border border-border/40 text-xs font-medium transition-all hover:bg-muted/50",
-                                                page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:text-primary cursor-pointer"
-                                            )}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        </div>
-                    )}
+                    <SmartPagination
+                        page={page}
+                        totalPages={totalPages}
+                        totalItems={total}
+                        onPageChange={setPage}
+                        itemName="bản ghi"
+                        className="border-t border-border/10 pt-4"
+                    />
                 </div>
             </Card>
 
@@ -293,7 +251,7 @@ export default function TransactionsPage() {
                                 <div className="flex items-center gap-2 px-2.5 py-1 bg-primary/10 text-primary border border-primary/10 rounded-full text-[10px] font-bold w-fit mb-4 uppercase tracking-wider">
                                     Bản ghi hệ thống
                                 </div>
-                                <SheetTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">Chi tiết Giao dịch</SheetTitle>
+                                <SheetTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">Chi tiết Giao dịch</SheetTitle>
                                 <SheetDescription className="text-xs font-mono font-medium text-muted-foreground/60">
                                     ID: {selectedTx.id}
                                 </SheetDescription>

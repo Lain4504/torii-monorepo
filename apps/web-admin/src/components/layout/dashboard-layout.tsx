@@ -23,7 +23,7 @@ export default function DashboardLayout() {
 
         <SidebarInset className="relative z-10 flex flex-col min-w-0 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] bg-transparent">
           {/* Header - Sticky with Deep Glassmorphism */}
-          <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center gap-4 bg-background/20 px-4 md:px-6 backdrop-blur-3xl transition-all duration-500 border-b border-border/10">
+          <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center gap-4 bg-card/60 px-4 md:px-6 backdrop-blur-xl transition-all duration-500 border-b border-border/10">
             <div className="flex items-center gap-4 flex-1">
               <SidebarTrigger className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary transition-all duration-300" />
               <Separator orientation="vertical" className="h-6 bg-border/20" />

@@ -38,13 +38,8 @@ export default function DashboardLayout({
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
-                {/* Zen Ambient Background Elements */}
-                <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/[0.03] rounded-full blur-[140px] animate-pulse duration-[8s]" />
-                    <div className="absolute bottom-[-15%] right-[-10%] w-[40%] h-[40%] bg-primary/[0.02] rounded-full blur-[120px] animate-pulse duration-[10s]" />
-                    <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-primary/[0.04] rounded-full blur-[100px]" />
-                </div>
+            {/* Main Layout Container */}
+            <div className="flex min-h-screen w-full bg-background overflow-hidden">
 
                 <AppSidebar />
 

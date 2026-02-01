@@ -1,82 +1,141 @@
 'use client';
 
-import { Mail, Sparkles, ChevronLeft, ArrowRight } from 'lucide-react';
+import { Mail, CheckCircle2, ArrowRight, Shield, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@workspace/ui/components/button';
-import { cn } from "@workspace/ui/lib/utils"
 
 export default function VerifyRequestPage() {
     return (
-        <div className="relative min-h-screen flex items-center justify-center p-4 bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
-            {/* Zen Background Elements */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/[0.03] blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/[0.02] blur-[100px] rounded-full" />
-            </div>
+        <div className="min-h-screen flex items-center justify-center p-4 lg:p-0 bg-background">
+            <div className="w-full max-w-7xl h-[min(900px,calc(100vh-2rem))] lg:grid lg:grid-cols-2 bg-background rounded-3xl lg:rounded-[3rem] border border-border/40 shadow-xl overflow-hidden">
+                {/* Left Panel - Info */}
+                <div className="hidden lg:flex flex-col justify-between p-16 bg-muted/30 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-            <div className="container relative z-10 max-w-xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
-                {/* Logo & Branding */}
-                <div className="flex justify-center mb-8">
-                    <Link href="/" className="flex flex-col items-center gap-3 group cursor-pointer text-center">
-                        <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20 group-hover:scale-105 transition-all duration-500">
-                            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M3 10h18" strokeLinecap="round" />
-                                <path d="M5 10v8" strokeLinecap="round" />
-                                <path d="M19 10v8" strokeLinecap="round" />
-                                <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
+                    <div className="relative z-10">
+                        <Link href="/" className="inline-flex items-center gap-3 group">
+                            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+                                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M3 10h18" strokeLinecap="round" />
+                                    <path d="M5 10v8" strokeLinecap="round" />
+                                    <path d="M19 10v8" strokeLinecap="round" />
+                                    <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
+                                </svg>
+                            </div>
+                            <span className="text-lg font-bold">Torii <span className="text-primary">Nihongo</span></span>
+                        </Link>
+                    </div>
+
+                    <div className="relative z-10 space-y-8">
+                        <div className="space-y-4">
+                            <h2 className="text-4xl font-bold tracking-tight leading-tight">
+                                Kiểm tra<br />
+                                <span className="text-primary">Email</span>
+                            </h2>
+                            <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+                                Chúng tôi đã gửi email xác thực đến hộp thư của bạn. Vui lòng kiểm tra để hoàn tất đăng ký.
+                            </p>
+                        </div>
+
+                        <div className="space-y-4 pt-4">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <Mail className="w-5 h-5 text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-sm mb-1">Kiểm tra hộp thư</h3>
+                                    <p className="text-xs text-muted-foreground leading-relaxed">Email xác thực đã được gửi đến địa chỉ của bạn</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <Shield className="w-5 h-5 text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-sm mb-1">Liên kết bảo mật</h3>
+                                    <p className="text-xs text-muted-foreground leading-relaxed">Click vào link trong email để kích hoạt tài khoản</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <Clock className="w-5 h-5 text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-sm mb-1">Kiểm tra Spam</h3>
+                                    <p className="text-xs text-muted-foreground leading-relaxed">Nếu không thấy email, hãy kiểm tra thư mục Spam</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10">
+                        <Link
+                            href="/"
+                            className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground/60 hover:text-foreground transition-colors group"
+                        >
+                            <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
-                        </div>
-                        <span className="text-xl font-bold tracking-tight leading-none">Torii <span className="text-primary">Nihongo</span></span>
-                    </Link>
-                </div>
-
-                {/* Verification Card */}
-                <div className="relative p-8 md:p-12 bg-card rounded-3xl border border-border/50 shadow-sm text-center">
-                    <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                        <Mail className="h-8 w-8" />
-                    </div>
-
-                    <div className="space-y-2 mb-8">
-                        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground uppercase italic pb-1">
-                            Kiểm tra hộp thư
-                        </h1>
-                        <p className="text-sm text-muted-foreground/80 font-medium">
-                            Email xác thực đã được gửi tới hòm thư của bạn
-                        </p>
-                    </div>
-
-                    <div className="p-6 rounded-xl bg-muted/30 border border-border/20 mb-8 max-w-sm mx-auto">
-                        <p className="text-sm text-muted-foreground/70 leading-relaxed">
-                            Chúng tôi đã gửi một liên kết bảo mật. Vui lòng kiểm tra hộp thư đến (và cả thư mục Spam) để hoàn tất kích hoạt tài khoản.
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col gap-4 max-w-sm mx-auto">
-                        <Button asChild className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:shadow-lg transition-all">
-                            <Link href="/login" className="flex items-center justify-center gap-2">
-                                Đăng nhập ngay
-                                <ArrowRight className="w-4 h-4" />
-                            </Link>
-                        </Button>
-
-                        <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground/60">
-                            Không nhận được email?
-                            <Link href="/resend-verification" className="text-primary hover:text-primary/70 transition-colors underline underline-offset-4 cursor-pointer">
-                                Gửi lại mã
-                            </Link>
-                        </div>
+                            Về trang chủ
+                        </Link>
                     </div>
                 </div>
 
-                {/* Footer Back Link */}
-                <div className="flex justify-center pt-8">
-                    <Link
-                        href="/"
-                        className="flex items-center gap-2 text-xs font-medium text-muted-foreground/50 hover:text-foreground transition-all group"
-                    >
-                        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        Về trang chủ
-                    </Link>
+                {/* Right Panel - Verification */}
+                <div className="flex items-center justify-center p-8 lg:p-16 relative bg-background">
+                    <div className="w-full max-w-md space-y-8">
+                        {/* Mobile Logo */}
+                        <div className="lg:hidden flex justify-center mb-8">
+                            <Link href="/" className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl">
+                                    <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <path d="M3 10h18" strokeLinecap="round" />
+                                        <path d="M5 10v8" strokeLinecap="round" />
+                                        <path d="M19 10v8" strokeLinecap="round" />
+                                        <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
+                                    </svg>
+                                </div>
+                                <span className="text-lg font-bold">Torii <span className="text-primary">Nihongo</span></span>
+                            </Link>
+                        </div>
+
+                        <div className="text-center space-y-6">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <Mail className="h-8 w-8" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <h1 className="text-3xl font-bold tracking-tight">
+                                    Kiểm tra hộp thư
+                                </h1>
+                                <p className="text-sm text-muted-foreground">
+                                    Email xác thực đã được gửi tới hòm thư của bạn
+                                </p>
+                            </div>
+
+                            <div className="p-6 rounded-2xl bg-muted/30 border border-border/20 max-w-sm mx-auto">
+                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                    Chúng tôi đã gửi một liên kết bảo mật. Vui lòng kiểm tra hộp thư đến (và cả thư mục Spam) để hoàn tất kích hoạt tài khoản.
+                                </p>
+                            </div>
+
+                            <div className="space-y-4 pt-4">
+                                <Button asChild className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all">
+                                    <Link href="/login" className="flex items-center justify-center gap-2">
+                                        Đăng nhập ngay
+                                        <ArrowRight className="w-4 h-4" />
+                                    </Link>
+                                </Button>
+
+                                <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground">
+                                    Không nhận được email?
+                                    <Link href="/resend-verification" className="text-primary hover:text-primary/80 transition-colors underline underline-offset-4">
+                                        Gửi lại mã
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -44,16 +44,16 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
     }
 
     return (
-        <div className="space-y-10 p-2">
-            <div className="flex items-center justify-between pb-6 border-b border-border/40">
-                <div className="flex items-center gap-3">
+        <div className="space-y-8 p-1">
+            <div className="flex items-center justify-between pb-4 border-b border-border/50">
+                <div className="flex items-center gap-2 text-foreground font-bold">
                     <Filter className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Bộ Lọc</span>
+                    <span>Bộ Lọc</span>
                 </div>
                 {(selectedLevels.length > 0 || priceFilter !== "all") && (
                     <button
                         onClick={handleClearFilters}
-                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1.5"
+                        className="text-xs font-bold text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
                     >
                         <X className="w-3 h-3" />
                         Xóa tất cả
@@ -62,22 +62,22 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
             </div>
 
             {/* JLPT Level */}
-            <div className="space-y-6">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Cấp độ JLPT</h3>
-                <div className="space-y-4">
+            <div className="space-y-4">
+                <h3 className="text-sm font-bold text-foreground">Cấp độ JLPT</h3>
+                <div className="space-y-3">
                     {JLPT_LEVELS.map(({ label, value }) => (
                         <div key={value} className="flex items-center group">
                             <Checkbox
                                 id={`level-${value}`}
                                 checked={selectedLevels.includes(value)}
                                 onCheckedChange={(checked) => handleLevelChange(value, checked as boolean)}
-                                className="w-5 h-5 rounded-lg border-border/40 data-[state=checked]:bg-primary transition-all"
+                                className="w-5 h-5 rounded-md border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all"
                             />
                             <Label
                                 htmlFor={`level-${value}`}
                                 className={cn(
-                                    "ml-3 text-sm font-bold transition-colors cursor-pointer",
-                                    selectedLevels.includes(value) ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                                    "ml-3 text-sm font-medium transition-colors cursor-pointer",
+                                    selectedLevels.includes(value) ? "text-primary font-bold" : "text-muted-foreground group-hover:text-foreground"
                                 )}
                             >
                                 {label}
@@ -88,9 +88,9 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
             </div>
 
             {/* Price */}
-            <div className="space-y-6">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">Phân loại chi phí</h3>
-                <div className="space-y-4">
+            <div className="space-y-4">
+                <h3 className="text-sm font-bold text-foreground">Phân loại chi phí</h3>
+                <div className="space-y-3">
                     {[
                         { label: 'Miễn phí', value: 'free' },
                         { label: 'Trả phí', value: 'paid' }
@@ -100,13 +100,13 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
                                 id={`price-${item.value}`}
                                 checked={priceFilter === item.value}
                                 onCheckedChange={(checked) => handlePriceChange(item.value as any, checked as boolean)}
-                                className="w-5 h-5 rounded-lg border-border/40 transition-all dark:bg-muted/20"
+                                className="w-5 h-5 rounded-md border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all"
                             />
                             <Label
                                 htmlFor={`price-${item.value}`}
                                 className={cn(
-                                    "ml-3 text-sm font-bold transition-colors cursor-pointer",
-                                    priceFilter === item.value ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                                    "ml-3 text-sm font-medium transition-colors cursor-pointer",
+                                    priceFilter === item.value ? "text-primary font-bold" : "text-muted-foreground group-hover:text-foreground"
                                 )}
                             >
                                 {item.label}
@@ -117,28 +117,15 @@ export function FilterSidebar({ selectedLevels = [], onLevelChange, priceFilter,
             </div>
 
             {/* Coming Soon Filters */}
-            <div className="space-y-6 opacity-40">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/50">Kỹ năng chuyên sâu</h3>
+            <div className="space-y-4 opacity-50 pointer-events-none">
+                <h3 className="text-sm font-bold text-muted-foreground">Kỹ năng chuyên sâu</h3>
                 <div className="space-y-3">
                     {['Ngữ pháp', 'Hán tự', 'Nghe hiểu'].map((topic) => (
-                        <div key={topic} className="flex items-center space-x-3 grayscale pointer-events-none">
-                            <Checkbox id={`topic-${topic}`} disabled className="w-5 h-5 rounded-lg" />
-                            <Label className="text-sm font-bold text-muted-foreground">{topic}</Label>
+                        <div key={topic} className="flex items-center space-x-3">
+                            <Checkbox id={`topic-${topic}`} disabled className="w-5 h-5 rounded-md border-border" />
+                            <Label className="text-sm font-medium text-muted-foreground">{topic}</Label>
                         </div>
                     ))}
-                </div>
-            </div>
-
-            <div className="pt-8">
-                <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 space-y-3 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full -mr-8 -mt-8 blur-2xl group-hover:bg-primary/20 transition-all" />
-                    <h4 className="text-[11px] font-serif font-bold italic uppercase tracking-widest text-primary">Academic Guidance</h4>
-                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/40 leading-[1.6]">
-                        Connect with Torii Academic Advisors for a personalized roadmap.
-                    </p>
-                    <Button variant="link" className="p-0 h-auto text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:no-underline">
-                        Initiate Consultation →
-                    </Button>
                 </div>
             </div>
         </div>

@@ -94,7 +94,7 @@ export function CoursesTable({
                     <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">
+                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -146,7 +146,7 @@ export function CoursesTable({
                                     <SearchCode className="size-8" />
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-lg font-serif font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy khóa học</p>
+                                    <p className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy khóa học</p>
                                     <p className="text-sm text-muted-foreground/40">
                                         Chưa có dữ liệu khóa học nào trong hệ thống hoặc không khớp với bộ lọc hiện tại.
                                     </p>

@@ -150,4 +150,18 @@ export class TicketService implements ITicketService {
 
         return updatedTicket;
     }
+
+    async getTicketStats(): Promise<{ pendingCount: number; refundCount: number; totalCount: number }> {
+        const [pendingCount, refundCount, totalCount] = await Promise.all([
+            this.ticketRepository.count({ status: TicketStatus.PENDING }),
+            this.ticketRepository.count({ type: TicketType.REFUND, status: TicketStatus.PENDING }),
+            this.ticketRepository.count({}),
+        ]);
+
+        return {
+            pendingCount,
+            refundCount,
+            totalCount,
+        };
+    }
 }

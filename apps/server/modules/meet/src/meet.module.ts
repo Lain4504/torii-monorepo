@@ -15,12 +15,19 @@ import { WebhookHandler } from './interfaces/nats/webhook.handler';
 import { UserHandler } from './interfaces/nats/user.handler';
 import { ArtifactsHandler } from './interfaces/nats/artifacts.handler';
 import { BreakoutModule } from './modules/breakout/breakout.module';
-import { EtherpadModule } from './modules/etherpad/etherpad.module';
 import { ExternalMediaModule } from './modules/external-media/external-media.module';
 import { ExternalDisplayModule } from './modules/external-display/external-display.module';
 import { RecordingModule } from './modules/recording/recording.module';
 import { PollsModule } from './modules/polls/polls.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { IngressModule } from './modules/ingress/ingress.module';
+import { InsightsModule } from './modules/insights/insights.module';
+import { SpeechToTextModule } from './modules/speech-to-text/speech-to-text.module';
+
+// NATS Handlers
+import { IngressHandler } from './interfaces/nats/ingress.handler';
+import { InsightsHandler } from './interfaces/nats/insights.handler';
+import { SpeechToTextHandler } from './interfaces/nats/speech-to-text.handler';
 
 @Module({
   imports: [
@@ -34,12 +41,15 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     PollsModule,
     AnalyticsModule,
     BreakoutModule,
-    EtherpadModule,
+
     ExternalMediaModule,
     ExternalDisplayModule,
     RecordingModule,
     ArtifactsModule,
     WebhookModule,
+    IngressModule,
+    InsightsModule,
+    SpeechToTextModule,
   ],
   controllers: [
     // NATS Handlers (not HTTP controllers)
@@ -49,6 +59,9 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     WebhookHandler,
     UserHandler,
     ArtifactsHandler,
+    IngressHandler,
+    InsightsHandler,
+    SpeechToTextHandler,
   ],
   providers: [
     {

@@ -108,7 +108,7 @@ export function NotificationsDropdown() {
                 <div className="px-5 py-4 border-b border-border/10 bg-muted/5">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-sm font-serif font-bold italic text-foreground uppercase tracking-tight">Thông báo</h3>
+                            <h3 className="text-sm font-sans font-bold italic text-foreground uppercase tracking-tight">Thông báo</h3>
                             <p className="text-[11px] font-medium text-muted-foreground mt-0.5">
                                 {unreadCount > 0 ? `Bạn có ${unreadCount} tin nhắn chưa đọc` : 'Bạn đã xem hết thông báo'}
                             </p>
@@ -204,7 +204,7 @@ export function NotificationsDropdown() {
                     <Link to="/notifications" className="block">
                         <Button
                             variant="ghost"
-                            className="w-full h-10 rounded-xl bg-background border border-border/40 hover:border-primary/20 hover:text-primary text-xs font-serif font-bold italic uppercase tracking-wide transition-all shadow-sm text-muted-foreground hover:bg-background group"
+                            className="w-full h-10 rounded-xl bg-background border border-border/40 hover:border-primary/20 hover:text-primary text-xs font-sans font-bold italic uppercase tracking-wide transition-all shadow-sm text-muted-foreground hover:bg-background group"
                         >
                             Xem tất cả thông báo
                             <ExternalLink className="ml-2 size-3 opacity-50 group-hover:opacity-100 transition-opacity" />

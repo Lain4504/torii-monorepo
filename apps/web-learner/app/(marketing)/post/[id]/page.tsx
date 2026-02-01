@@ -62,7 +62,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     }, [post?.id])
 
     if (loading) {
-        return <PageLoading text="Cố lên, kiến thức đang đến..." />
+        return <PageLoading text="Đang tải nội dung..." />
     }
 
     if (!post) {
@@ -74,8 +74,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 <h1 className="text-2xl font-bold">Ôi! Không tìm thấy bài viết này</h1>
                 <p className="text-muted-foreground">Có vẻ như bài viết đã bị gỡ bỏ hoặc link không chính xác.</p>
                 <Link href="/post">
-                    <Button className="rounded-full px-8 h-12 font-bold shadow-lg shadow-primary/20">
-                        Quay lại chuyên mục bài viết
+                    <Button className="rounded-xl px-8 h-12 font-bold shadow-lg shadow-primary/20">
+                        Quay lại danh sách bài viết
                     </Button>
                 </Link>
             </div>
@@ -95,27 +95,27 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         })) : []
 
     return (
-        <article className="min-h-screen pt-24 pb-20 bg-background">
+        <article className="min-h-screen pt-20 pb-20 bg-background">
             {/* Post Header */}
-            <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 space-y-8">
-                {/* Zen UI Breadcrumb */}
+            <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 space-y-8">
+                {/* Breadcrumb */}
                 <div className="flex">
                     <Breadcrumb>
-                        <BreadcrumbList className="gap-2 sm:gap-3 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+                        <BreadcrumbList className="gap-2 sm:gap-3 text-xs font-bold text-muted-foreground">
                             <BreadcrumbItem>
                                 <BreadcrumbLink href="/" className="hover:text-primary transition-colors">Trang chủ</BreadcrumbLink>
                             </BreadcrumbItem>
-                            <BreadcrumbSeparator className="scale-75 opacity-20">
+                            <BreadcrumbSeparator className="scale-75 opacity-40">
                                 <ChevronRight className="w-4 h-4" />
                             </BreadcrumbSeparator>
                             <BreadcrumbItem>
                                 <BreadcrumbLink href="/post" className="hover:text-primary transition-colors">Bài viết</BreadcrumbLink>
                             </BreadcrumbItem>
-                            <BreadcrumbSeparator className="scale-75 opacity-20">
+                            <BreadcrumbSeparator className="scale-75 opacity-40">
                                 <ChevronRight className="w-4 h-4" />
                             </BreadcrumbSeparator>
                             <BreadcrumbItem>
-                                <BreadcrumbPage className="text-muted-foreground/70 font-bold max-w-[200px] sm:max-w-sm md:max-w-xl truncate normal-case tracking-tight">
+                                <BreadcrumbPage className="text-foreground font-bold max-w-[200px] sm:max-w-sm md:max-w-xl truncate">
                                     {post.title}
                                 </BreadcrumbPage>
                             </BreadcrumbItem>
@@ -123,61 +123,51 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                     </Breadcrumb>
                 </div>
 
-                <div className="space-y-6 max-w-5xl">
+                <div className="space-y-6 max-w-4xl">
                     <div className="flex flex-wrap gap-2">
                         {post.tags?.map(tag => (
-                            <Badge key={tag} className="px-3 py-1 rounded-full bg-primary/10 text-primary border-none text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer">
+                            <Badge key={tag} className="px-3 py-1 rounded-full bg-primary/10 text-primary border-none text-xs font-bold hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer">
                                 {tag}
                             </Badge>
                         ))}
                     </div>
 
-                    <h1 className="text-4xl md:text-4xl lg:text-7xl font-serif font-bold tracking-tight leading-[1.1] text-foreground uppercase italic mb-8">
+                    <h1 className="text-3xl md:text-5xl lg:text-5xl font-sans font-extrabold tracking-tight leading-tight text-foreground">
                         {post.title}
                     </h1>
 
-                    <div className="flex flex-wrap items-center gap-8 pt-8 border-t border-border/40">
-                        <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                            <div className="flex items-center gap-2.5 group">
-                                <div className="p-1.5 rounded-lg bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                                    <Calendar className="w-3.5 h-3.5" />
-                                </div>
-                                <span className="text-muted-foreground/60">{format(new Date(post.publishedAt || post.createdAt), 'dd MMMM, yyyy', { locale: vi })}</span>
-                            </div>
-                            <div className="flex items-center gap-2.5 group">
-                                <div className="p-1.5 rounded-lg bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                                    <Clock className="w-3.5 h-3.5" />
-                                </div>
-                                <span className="text-muted-foreground/60">{readingTime} phút đọc</span>
-                            </div>
-                            <div className="flex items-center gap-2.5 group hidden sm:flex">
-                                <div className="p-1.5 rounded-lg bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                                    <Eye className="w-3.5 h-3.5" />
-                                </div>
-                                <span className="text-muted-foreground/60">{post.viewCount || 0} lượt xem</span>
-                            </div>
+                    <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-border/40">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+                            <Calendar className="w-4 h-4 text-primary" />
+                            <span>{format(new Date(post.publishedAt || post.createdAt), 'dd MMMM, yyyy', { locale: vi })}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+                            <Clock className="w-4 h-4 text-primary" />
+                            <span>{readingTime} phút đọc</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium hidden sm:flex">
+                            <Eye className="w-4 h-4 text-primary" />
+                            <span>{post.viewCount || 0} lượt xem</span>
                         </div>
                     </div>
                 </div>
-
-                {/* Cover Image Removed from header */}
             </header>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid lg:grid-cols-12 gap-16">
+                <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
                     {/* Main Content Area */}
-                    <div className="lg:col-span-8 space-y-16">
+                    <div className="lg:col-span-8 space-y-12">
                         {/* TOC Mobile */}
                         {headings.length > 0 && (
-                            <div className="lg:hidden p-6 bg-accent/5 rounded-3xl border border-border space-y-4">
-                                <h3 className="font-bold flex items-center gap-2">
+                            <div className="lg:hidden p-6 bg-secondary/30 rounded-2xl border border-border/50 space-y-4">
+                                <h3 className="font-bold flex items-center gap-2 text-foreground">
                                     <List className="w-4 h-4 text-primary" />
                                     Mục lục nội dung
                                 </h3>
                                 <ul className="space-y-2">
                                     {headings.slice(0, 5).map((h, i) => (
                                         <li key={i} className={`text-sm ${h.level === 3 ? 'pl-4' : ''}`}>
-                                            <a href={`#${h.id}`} className="text-muted-foreground hover:text-primary transition-colors">
+                                            <a href={`#${h.id}`} className="text-muted-foreground hover:text-primary transition-colors font-medium">
                                                 {h.text}
                                             </a>
                                         </li>
@@ -186,8 +176,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
                         )}
 
-                        {/* Cover Image (Moved here) */}
-                        <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border border-border/50 shadow-sm shadow-primary/5 group mb-8">
+                        {/* Cover Image */}
+                        <div className="relative aspect-[16/9] rounded-2xl overflow-hidden border border-border/50 shadow-sm group">
                             <img
                                 src={post.coverImageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2000&auto=format&fit=crop'}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -196,7 +186,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                         </div>
 
                         {/* Editor Content */}
-                        <div className="prose prose-lg prose-primary dark:prose-invert max-w-none">
+                        <div className="prose prose-lg prose-neutral dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-primary prose-img:rounded-2xl">
                             <TiptapEditor
                                 content={post.content}
                                 mode="readonly"
@@ -205,18 +195,18 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                         </div>
 
                         {/* Share & Actions */}
-                        <div className="pt-12 border-t flex flex-col sm:flex-row items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
+                        <div className="pt-10 border-t flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-3">
                                 <Button
                                     variant="outline"
-                                    className={`rounded-full h-12 px-6 gap-2 border-primary/20 ${isAuthenticated ? 'hover:bg-primary/10' : 'opacity-50 cursor-not-allowed'}`}
+                                    className={`rounded-xl h-11 px-6 gap-2 border-border ${isAuthenticated ? 'hover:bg-primary/5 hover:text-primary hover:border-primary/20' : 'opacity-50 cursor-not-allowed'}`}
                                     disabled={!isAuthenticated}
                                 >
-                                    <Heart className="w-5 h-5 text-primary" />
+                                    <Heart className="w-4 h-4" />
                                     Yêu thích
                                 </Button>
-                                <Button variant="outline" className="rounded-full h-12 w-12 p-0 border-border">
-                                    <Bookmark className="w-5 h-5" />
+                                <Button variant="outline" className="rounded-xl h-11 w-11 p-0 border-border hover:bg-muted">
+                                    <Bookmark className="w-4 h-4" />
                                 </Button>
                             </div>
                             <div className="flex items-center gap-4">
@@ -225,7 +215,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                                     <Button variant="outline" size="icon" className="h-10 w-10 rounded-full bg-[#1877F2] text-white hover:opacity-90 border-none">
                                         <Share2 className="w-4 h-4" />
                                     </Button>
-                                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-full">
+                                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-full border-border hover:bg-muted">
                                         <LinkIcon className="w-4 h-4" />
                                     </Button>
                                 </div>
@@ -233,7 +223,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                         </div>
 
                         {/* Comments System */}
-                        <div className="pt-20 border-t">
+                        <div className="pt-16 border-t">
                             <CommentSection postId={post.id} />
                         </div>
                     </div>

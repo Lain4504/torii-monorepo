@@ -6,127 +6,106 @@ import { Video, Brain, GraduationCap, Sparkles, ChevronLeft, ShieldCheck } from 
 
 export default function ForgotPasswordPage() {
     return (
-        <div className="relative min-h-screen flex items-center justify-center p-4 lg:p-0 bg-background selection:bg-primary/10 selection:text-primary overflow-hidden">
-            {/* Zen Background Elements */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/[0.03] blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/[0.02] blur-[100px] rounded-full" />
-            </div>
+        <div className="min-h-screen grid lg:grid-cols-2 overflow-hidden bg-background">
+            {/* Left Panel - Japanese Learning Value Props */}
+            <div className="relative hidden lg:flex flex-col justify-between p-12 bg-muted/20 border-r border-border/50">
+                <div className="absolute inset-0 bg-grid-slate-200/50 dark:bg-grid-slate-800/20 [mask-image:linear-gradient(0deg,transparent,black)] -z-10" />
 
-            <div className="container relative z-10 max-w-7xl mx-auto h-[min(900px,calc(100vh-2rem))] lg:grid lg:grid-cols-2 lg:px-0 bg-background/40 backdrop-blur-3xl rounded-[3rem] border border-border/40 shadow-2xl shadow-primary/5 overflow-hidden">
+                {/* Logo & Branding */}
+                <Link href="/" className="flex items-center gap-3 w-fit group">
+                    <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
+                        <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M3 10h18" strokeLinecap="round" />
+                            <path d="M5 10v8" strokeLinecap="round" />
+                            <path d="M19 10v8" strokeLinecap="round" />
+                            <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
+                        </svg>
+                    </div>
+                    <span className="text-xl font-bold tracking-tight text-foreground">Torii <span className="text-primary">Nihongo</span></span>
+                </Link>
 
-                {/* Left Panel - Japanese Learning Value Props */}
-                <div className="relative hidden h-full flex-col p-16 lg:flex overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/[0.02] -z-10" />
-
-                    {/* Logo & Branding */}
-                    <Link href="/" className="relative z-20 flex items-center gap-4 group cursor-pointer">
-                        <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-2xl shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
-                            <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M3 10h18" strokeLinecap="round" />
-                                <path d="M5 10v8" strokeLinecap="round" />
-                                <path d="M19 10v8" strokeLinecap="round" />
-                                <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-                            </svg>
+                {/* Center Content - Value Props */}
+                <div className="space-y-8 max-w-lg">
+                    <div className="space-y-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium tracking-wide w-fit">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Giáo viên tin dùng</span>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="text-lg font-bold tracking-tight leading-none text-foreground">Torii <span className="text-primary">Nihongo</span></span>
-                            <span className="text-[10px] font-medium tracking-widest text-muted-foreground/60 mt-0.5">Japanese Learning Platform</span>
-                        </div>
-                    </Link>
-
-                    {/* Center Content - Value Props */}
-                    <div className="relative z-20 flex-1 flex flex-col justify-center max-w-md">
-                        <div className="space-y-6 mb-16 animate-in fade-in slide-in-from-left-8 duration-700">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium tracking-wide">
-                                <Sparkles className="w-3.5 h-3.5" />
-                                <span>Sensei Approved</span>
-                            </div>
-                            <h2 className="text-4xl lg:text-4xl font-serif font-bold tracking-tight text-foreground leading-[0.9] uppercase italic">
-                                Học tiếng Nhật <br />
-                                <span className="text-primary not-italic">Thông minh hơn.</span>
-                            </h2>
-                            <p className="text-base text-muted-foreground/80 leading-relaxed font-medium">
-                                Kết hợp sức mạnh của WebRTC và AI Sensei để chinh phục JLPT từ N5 tới N1.
-                            </p>
-                        </div>
-
-                        {/* Feature Cards Grid */}
-                        <div className="grid gap-4 animate-in fade-in slide-in-from-left-12 duration-1000">
-                            {[
-                                { icon: Video, title: 'WebRTC Live', desc: 'Tương tác thời gian thực' },
-                                { icon: Brain, title: 'AI Sensei', desc: 'Trợ lý học tập 24/7' },
-                                { icon: GraduationCap, title: 'JLPT Mastery', desc: 'Lộ trình chuẩn quốc tế' }
-                            ].map((f, i) => (
-                                <div key={i} className="group flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/40 hover:border-primary/20 hover:bg-background transition-all">
-                                    <div className="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                        <f.icon className="w-5 h-5" />
-                                    </div>
-                                    <div className="space-y-0.5">
-                                        <h3 className="text-sm font-semibold">{f.title}</h3>
-                                        <p className="text-xs text-muted-foreground/60">{f.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
+                            Học tiếng Nhật <br />
+                            <span className="text-primary">Thông minh hơn.</span>
+                        </h2>
+                        <p className="text-lg text-muted-foreground/80 leading-relaxed font-medium">
+                            Kết hợp sức mạnh của WebRTC và AI Sensei để chinh phục JLPT từ N5 tới N1.
+                        </p>
                     </div>
 
-                    {/* Footer Shield */}
-                    <div className="mt-auto flex items-center gap-3 text-muted-foreground/30">
-                        <ShieldCheck className="w-4 h-4" />
-                        <span className="text-[9px] font-black uppercase tracking-[0.3em]">AES-256 Cloud Security Verified</span>
+                    <div className="grid gap-4">
+                        {[
+                            { icon: Video, title: 'Lớp học trực tuyến', desc: 'Tương tác thời gian thực' },
+                            { icon: Brain, title: 'AI Sensei trợ lực', desc: 'Trợ lý học tập 24/7' },
+                            { icon: GraduationCap, title: 'Lộ trình cá nhân', desc: 'Chinh phục JLPT N5 - N1' }
+                        ].map((f, i) => (
+                            <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-background border border-border shadow-sm">
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                                    <f.icon className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold">{f.title}</h3>
+                                    <p className="text-xs text-muted-foreground">{f.desc}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Right Panel - Forgot Password Form */}
-                <div className="flex items-center justify-center p-8 lg:p-20 relative bg-background/20 lg:border-l border-border/20 overflow-y-auto">
-                    <div className="w-full max-w-[420px] space-y-12 animate-in fade-in slide-in-from-right-8 duration-700">
-                        {/* Header */}
-                        <div className="space-y-4">
-                            {/* Mobile Logo Only */}
-                            <div className="lg:hidden flex justify-center mb-10">
-                                <Link href="/" className="flex flex-col items-center gap-3">
-                                    <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-2xl">
-                                        <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                            <path d="M3 10h18" strokeLinecap="round" />
-                                            <path d="M5 10v8" strokeLinecap="round" />
-                                            <path d="M19 10v8" strokeLinecap="round" />
-                                            <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-                                        </svg>
-                                    </div>
-                                    <span className="text-xl font-black tracking-tighter uppercase italic leading-none">Torii <span className="text-primary not-italic">Nihongo</span></span>
-                                </Link>
+                {/* Footer Shield */}
+                <div className="flex items-center gap-2 text-muted-foreground/50 text-xs font-medium">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Bảo mật chuẩn AES-256</span>
+                </div>
+            </div>
+
+            {/* Right Panel - Forgot Password Form */}
+            <div className="flex items-center justify-center p-6 lg:p-12 relative">
+                <div className="w-full max-w-[400px] space-y-8">
+                    {/* Mobile Header */}
+                    <div className="lg:hidden flex flex-col items-center gap-4 mb-8">
+                        <Link href="/" className="flex items-center gap-2">
+                            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl">
+                                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M3 10h18" strokeLinecap="round" />
+                                    <path d="M5 10v8" strokeLinecap="round" />
+                                    <path d="M19 10v8" strokeLinecap="round" />
+                                    <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
+                                </svg>
                             </div>
+                            <span className="text-xl font-bold tracking-tight">Torii <span className="text-primary">Nihongo</span></span>
+                        </Link>
+                    </div>
 
-                            <div className="space-y-2 text-center lg:text-left">
-                                <h1 className="text-3xl font-serif font-bold italic uppercase tracking-tight text-foreground">Quên Mật Khẩu</h1>
-                                <p className="text-xs font-medium text-muted-foreground/60">Nhập email để nhận link khôi phục mật khẩu</p>
-                            </div>
-                        </div>
+                    <div className="text-center lg:text-left space-y-2">
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Quên Mật Khẩu</h1>
+                        <p className="text-sm text-muted-foreground">Nhập email để nhận link khôi phục mật khẩu</p>
+                    </div>
 
-                        {/* Forgot Password Form */}
-                        <ForgotPasswordForm />
+                    <ForgotPasswordForm />
 
-                        {/* Navigation Links */}
-                        <div className="space-y-6 pt-6 border-t border-border/20">
-                            <p className="text-center text-xs font-medium text-muted-foreground/60">
-                                Nhớ mật khẩu rồi?{" "}
-                                <Link
-                                    href="/login"
-                                    className="text-primary hover:text-primary/80 transition-colors ml-2 font-semibold"
-                                >
-                                    Đăng nhập ngay
-                                </Link>
-                            </p>
-
-                            <Link
-                                href="/"
-                                className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground/50 hover:text-foreground transition-all group"
-                            >
-                                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                                Quay về trang chủ
+                    <div className="pt-6 text-center space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                            Nhớ mật khẩu rồi?{" "}
+                            <Link href="/login" className="text-primary font-semibold hover:underline">
+                                Đăng nhập ngay
                             </Link>
-                        </div>
+                        </p>
+
+                        <Link
+                            href="/"
+                            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                            Quay về trang chủ
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -15,6 +15,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { getTicketsColumns } from './tickets-columns';
 import { MessageSquareOff } from 'lucide-react';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 interface TicketsTableProps {
     data: TicketResponseDTO[];
@@ -87,17 +88,17 @@ export function TicketsTable({
                             colSpan={columns.length}
                             className="h-[400px] text-center p-0"
                         >
-                            <div className="flex flex-col items-center justify-center p-8">
-                                <div className="w-20 h-20 rounded-[2rem] bg-muted/20 flex items-center justify-center text-muted-foreground/20 mb-6 rotate-12 group-hover:rotate-0 transition-transform duration-500">
-                                    <MessageSquareOff className="size-10" />
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground/50">Yên bình quá...</p>
-                                    <p className="text-xs text-muted-foreground/40 font-black uppercase tracking-widest">
+                            <Empty>
+                                <EmptyMedia>
+                                    <MessageSquareOff className="size-8 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Yên bình quá...</EmptyTitle>
+                                    <EmptyDescription>
                                         Không có yêu cầu hỗ trợ nào cần xử lý lúc này.
-                                    </p>
-                                </div>
-                            </div>
+                                    </EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
                         </TableCell>
                     </TableRow>
                 )}

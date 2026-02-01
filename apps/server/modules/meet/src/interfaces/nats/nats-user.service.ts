@@ -67,7 +67,7 @@ export class NatsUserService {
         private readonly natsUserInfo: NatsUserInfoService,
         @Inject(forwardRef(() => NatsSystemEventsService)) private readonly natsSystemEvents: NatsSystemEventsService,
         private readonly livekitService: LiveKitService,
-        private readonly analyticsService: AnalyticsService,
+        @Inject(forwardRef(() => AnalyticsService)) private readonly analyticsService: AnalyticsService,
     ) { }
 
     /**

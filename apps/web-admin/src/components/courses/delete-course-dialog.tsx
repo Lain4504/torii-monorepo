@@ -50,7 +50,7 @@ export function DeleteCourseDialog({
                             <Trash2 className="size-6 text-destructive" />
                         </div>
                         <div className="space-y-1.5 pt-1">
-                            <AlertDialogTitle className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground">
+                            <AlertDialogTitle className="text-xl font-sans font-bold italic uppercase tracking-tight text-foreground">
                                 Xóa Khóa Học
                             </AlertDialogTitle>
                             <AlertDialogDescription className="text-sm font-medium text-muted-foreground/60 leading-relaxed">

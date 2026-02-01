@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { create, toJson, fromJson, toJsonString, fromJsonString } from '@bufbuild/protobuf';
 import type { RoomMetadata, UserMetadata } from '@workspace/protocol';
-import { RoomMetadataSchema, UserMetadataSchema } from '@workspace/protocol';
+import { RoomMetadataSchema, UserMetadataSchema, RecorderInfoKeys } from '@workspace/protocol';
 import { NatsCacheService } from './nats-cache.service';
 import {
     connect,
@@ -18,7 +18,16 @@ import {
     JetStreamManager,
     nkeyAuthenticator,
     DeliverPolicy,
+    KV,
+    KvEntry,
 } from 'nats';
+
+export interface RecorderInfo {
+    recorderId: string;
+    maxLimit: bigint;
+    currentProgress: bigint;
+    lastPing: bigint;
+}
 
 // Constants
 const NATS_PREFIX = 'wajlc-';
@@ -500,7 +509,214 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         } catch (error) {
             // Silent fail
         }
-
         this.logger.log(`Deleted all consumers for user ${userId} in room ${roomId}`);
+    }
+
+    /**
+     * getTranscriptionChunks retrieves all transcription chunks for a given room
+     */
+    async getTranscriptionChunks(roomId: string): Promise<Record<string, Uint8Array>> {
+        try {
+            const bucketName = `${NATS_PREFIX}transcription_chunks-${roomId}`;
+            const kv = await this.js.views.kv(bucketName);
+            const keys = await kv.keys();
+
+            const chunks: Record<string, Uint8Array> = {};
+            for await (const key of keys) {
+                const entry = await kv.get(key);
+                if (entry && entry.value) {
+                    chunks[key] = entry.value;
+                }
+            }
+            return chunks;
+        } catch (error) {
+            if (error.message && (error.message.includes('bucket not found') || error.message.includes('no keys found'))) {
+                return {};
+            }
+            this.logger.error(`Failed to get transcription chunks: ${error.message}`);
+            return {};
+        }
+    }
+
+    /**
+     * addTranscriptionChunk adds a new transcription chunk to the room's KV bucket
+     */
+    async addTranscriptionChunk(roomId: string, userId: string, name: string, lang: string, text: string): Promise<void> {
+        try {
+            const bucketName = `${NATS_PREFIX}transcription_chunks-${roomId}`;
+            const kv = await this.js.views.kv(bucketName, {
+                history: 1,
+                ttl: DEFAULT_TTL,
+                replicas: this.configService.get<number>('NATS_NUM_REPLICAS') || 1,
+            });
+
+            const chunk = {
+                from_user_id: userId,
+                name: name,
+                lang: lang,
+                text: text,
+            };
+
+            const key = Date.now().toString() + Math.floor(Math.random() * 1000).toString();
+            await kv.put(key, new TextEncoder().encode(JSON.stringify(chunk)));
+        } catch (error) {
+            this.logger.error(`Failed to add transcription chunk: ${error.message}`);
+        }
+    }
+
+    /**
+     * deleteTranscriptionBucket deletes the entire KV bucket for a room's transcription
+     */
+    async deleteTranscriptionBucket(roomId: string): Promise<void> {
+        try {
+            const bucketName = `${NATS_PREFIX}transcription_chunks-${roomId}`;
+            await this.jsm.streams.delete(`KV_${bucketName}`);
+        } catch (error) {
+            // Ignore error if bucket doesn't exist
+        }
+    }
+
+    /**
+     * onAfterSessionEndCleanup performs final NATS cleanup
+     */
+    async onAfterSessionEndCleanup(roomId: string): Promise<void> {
+        this.logger.log(`Performing final NATS cleanup for room: ${roomId}`);
+
+        // 1. Delete room info from KV
+        await this.cacheService.deleteRoomInfo(roomId);
+
+        // 2. Delete room user bucket (KV_wajlc-roomUsers-{roomId})
+        try {
+            await this.jsm.streams.delete(`KV_${NATS_PREFIX}roomUsers-${roomId}`);
+            this.logger.debug(`Deleted room user bucket for room: ${roomId}`);
+        } catch (e) { }
+
+        // 3. Delete webhook data
+        await this.deleteWebhookData(roomId);
+
+        // 4. Delete room user block list
+        try {
+            await this.jsm.streams.delete(`KV_${NATS_PREFIX}usersBlockList-${roomId}`);
+            this.logger.debug(`Deleted user block list for room: ${roomId}`);
+        } catch (e) { }
+
+        // 5. Delete transcription bucket
+        await this.deleteTranscriptionBucket(roomId);
+
+        // 6. Delete room files bucket
+        try {
+            await this.jsm.streams.delete(`KV_${NATS_PREFIX}roomFiles-${roomId}`);
+            this.logger.debug(`Deleted room files bucket for room: ${roomId}`);
+        } catch (e) { }
+    }
+
+    /**
+     * DeleteRoomUsersBlockList deletes the user block list for a room
+     */
+    async deleteRoomUsersBlockList(roomId: string): Promise<void> {
+        try {
+            await this.jsm.streams.delete(`KV_${NATS_PREFIX}usersBlockList-${roomId}`);
+        } catch (e) { }
+    }
+
+    /**
+     * BroadcastSystemEventToRoom broadcasts a system event to all clients in a room
+     */
+    async broadcastSystemEventToRoom(event: any, roomId: string, msg: string, userId?: string): Promise<void> {
+        const subject = userId
+            ? `${roomId}.${this.configService.get('NATS_SUBJECT_SYSTEM_PRIVATE', 'sysPrivate')}.${userId}.RESP`
+            : `${roomId}.${this.configService.get('NATS_SUBJECT_SYSTEM_PUBLIC', 'sysPublic')}.RESP`;
+
+        const payload = JSON.stringify({
+            event: event,
+            msg: msg
+        });
+
+        if (this.nc) {
+            await this.nc.publish(subject, new TextEncoder().encode(payload));
+        }
+    }
+
+    /**
+     * getAllActiveRecorders finds all active recorders from NATS KV
+     */
+    async getAllActiveRecorders(): Promise<RecorderInfo[]> {
+        const recorders: RecorderInfo[] = [];
+        const prefix = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
+        const searchPrefix = `KV_${NATS_PREFIX}${prefix}-`;
+
+        try {
+            const streams = await this.jsm.streams.list();
+            const validThreshold = BigInt(Date.now() - 8000); // 8 seconds threshold
+
+            for await (const s of streams) {
+                if (s.config.name.startsWith(searchPrefix)) {
+                    const recorderId = s.config.name.replace(searchPrefix, '');
+                    const info = await this.getRecorderInfo(recorderId);
+                    if (info && info.lastPing >= validThreshold) {
+                        recorders.push(info);
+                    }
+                }
+            }
+        } catch (error) {
+            this.logger.error(`Failed to list recorders: ${error.message}`);
+        }
+
+        return recorders;
+    }
+
+    async getRecorderInfo(recorderId: string): Promise<RecorderInfo | null> {
+        const prefix = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
+        const bucketName = `${NATS_PREFIX}${prefix}-${recorderId}`;
+        const kv = await this.getKV(bucketName);
+        if (!kv) return null;
+
+        try {
+            // Keys from plugnmeet protocol (RecorderInfoKeys)
+            const maxLimit = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_MAX_LIMIT.toString());
+            const lastPing = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_LAST_PING.toString());
+            const currentProgress = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_CURRENT_PROGRESS.toString());
+
+            return {
+                recorderId,
+                maxLimit,
+                currentProgress,
+                lastPing,
+            };
+        } catch (error) {
+            this.logger.error(`Failed to get recorder info for ${recorderId}: ${error.message}`);
+            return null;
+        }
+    }
+
+    private async getKV(bucket: string): Promise<KV | null> {
+        try {
+            return await this.js.views.kv(bucket);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    private async getInt64Value(kv: KV, key: string): Promise<bigint> {
+        try {
+            const entry = await kv.get(key);
+            if (entry && entry.value) {
+                return BigInt(new TextDecoder().decode(entry.value));
+            }
+        } catch (e) { }
+        return BigInt(0);
+    }
+
+    /**
+     * BroadcastSystemNotificationToRoom broadcasts a system notification
+     */
+    async broadcastSystemNotificationToRoom(roomId: string, msg: string, type: any, hideAction: boolean, userId?: string): Promise<void> {
+        const event = 7; // RESP_SYSTEM_NOTIFICATION
+        const notification = JSON.stringify({
+            msg,
+            type,
+            hideAction
+        });
+        await this.broadcastSystemEventToRoom(event, roomId, notification, userId);
     }
 }

@@ -49,4 +49,31 @@ export interface ISessionService {
      * @returns The SHA-256 hash of the token
      */
     hashTokenPublic(token: string): string;
+
+    /**
+     * Get all active sessions for a user
+     * @param userId - The user's unique identifier
+     */
+    getUserSessions(userId: string): Promise<any[]>;
+
+    /**
+     * Revoke a specific session by its database ID
+     * @param sessionId - The session's unique database identifier
+     * @param userId - The owner of the session (for security check)
+     */
+    revokeSessionById(sessionId: string, userId: string): Promise<void>;
+
+    /**
+     * Revoke all sessions for a user EXCEPT the current one
+     * @param userId - The user's unique identifier
+     * @param currentTokenHash - The hash of the current session token to keep
+     */
+    revokeAllOtherUserSessions(userId: string, currentTokenHash: string): Promise<void>;
+
+    /**
+     * Update the token hash for an existing session (Rotation)
+     * @param sessionId - The session identifier
+     * @param newTokenHash - The new hash to store
+     */
+    updateSessionTokenHash(sessionId: string, newTokenHash: string): Promise<void>;
 }

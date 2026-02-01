@@ -10,8 +10,11 @@ import { ThemeProvider } from "@/lib/providers/theme-provider.tsx"
 import DashboardLayout from "@/components/layout/dashboard-layout.tsx";
 // Feature imports
 import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
-import AnalyticsPage from '@/routes/dashboard/analytics-page.tsx'
-import { UsersPage } from '@/routes/users/users-page.tsx'
+import RevenueAnalytics from '@/routes/analytics/revenue-analytics.tsx'
+import LearningAnalytics from '@/routes/analytics/learning-analytics.tsx'
+import UserAnalytics from '@/routes/analytics/user-analytics.tsx'
+import LearnersPage from '@/routes/users/learners-page.tsx'
+import PersonnelPage from '@/routes/users/personnel-page.tsx'
 import CouponsPage from '@/routes/coupons/coupons-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
 import CourseReviewsPage from '@/routes/courses/course-reviews-page.tsx'
@@ -75,7 +78,10 @@ function App() {
 
                 {/* Guarded Routes */}
                 <Route element={<RoutePermissionGuard permission="user.manage" />}>
-                  <Route path="users" element={<UsersPage />} />
+                  <Route path="learners" element={<LearnersPage />} />
+                  <Route path="personnel/lecturers" element={<PersonnelPage />} />
+                  <Route path="personnel/staff" element={<PersonnelPage />} />
+                  <Route path="permissions" element={<PermissionsPage />} />
                 </Route>
 
                 <Route element={<RoutePermissionGuard permission="post.manage" />}>
@@ -102,13 +108,14 @@ function App() {
                 </Route>
 
                 <Route element={<RoutePermissionGuard permission="report.view" />}>
-                  <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="analytics/revenue" element={<RevenueAnalytics />} />
+                  <Route path="analytics/learning" element={<LearningAnalytics />} />
+                  <Route path="analytics/users" element={<UserAnalytics />} />
                 </Route>
 
                 <Route element={<RoutePermissionGuard permission="system.config" />}>
                   <Route path="notifications" element={<NotificationsPage />} />
-                  <Route path="authorization/audit-logs" element={<AuditLogsPage />} />
-                  <Route path="permissions" element={<PermissionsPage />} />
+                  <Route path="audit-logs" element={<AuditLogsPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 

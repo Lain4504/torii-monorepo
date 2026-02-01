@@ -66,7 +66,7 @@ export default function MyCoursesPage() {
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
             <div className="space-y-4 max-w-2xl text-left">
-                <h1 className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                     Khóa học <span className="text-primary not-italic">Của Tôi</span>
                 </h1>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -87,7 +87,7 @@ export default function MyCoursesPage() {
                 <Can permission="course.create">
                     <Button
                         onClick={() => setShowCreateDialog(true)}
-                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-serif font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all whitespace-nowrap"
+                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all whitespace-nowrap"
                     >
                         Tạo Khóa học Mới
                         <Plus className="ml-2 size-4" />

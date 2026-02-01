@@ -42,6 +42,15 @@ import { ComponentLoading } from '@workspace/ui/components/component-loading';
 import { Separator } from '@workspace/ui/components/separator';
 import { TicketType, TicketStatus } from '@workspace/schemas';
 import { toast } from 'sonner';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@workspace/ui/components/table';
+import { Card } from '@workspace/ui/components/card';
 
 export default function SupportPage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -148,29 +157,25 @@ export default function SupportPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-7xl animate-in fade-in duration-700">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-7xl animate-in fade-in duration-700 pb-20">
             {/* Header Section */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/10">
-                <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wider">
-                        <LifeBuoy className="size-3.5" />
-                        Support Center
-                    </div>
-                    <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.85]">
-                        Trung tâm <span className="text-primary not-italic">Hỗ trợ</span>
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2 border-b border-border">
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-bold text-foreground">
+                        Trung tâm hỗ trợ
                     </h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                        Gửi yêu cầu hỗ trợ hoặc hoàn tiền khóa học Torii
+                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                        Gửi yêu cầu hỗ trợ hoặc hoàn tiền khóa học Torii.
                     </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                         <div className="relative flex-1 md:flex-initial w-full sm:w-64 mt-4 lg:mt-0">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/30" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="Tìm kiếm yêu cầu..."
-                                className="pl-9 h-11 w-full bg-background/30 backdrop-blur-xl border-border/20 rounded-2xl text-xs placeholder:text-muted-foreground/30 focus:ring-1 ring-primary/20 transition-all"
+                                className="pl-9 h-10 w-full bg-background border-input rounded-xl text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary transition-all shadow-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -179,31 +184,26 @@ export default function SupportPage() {
                             value={statusFilter}
                             onValueChange={(val) => setStatusFilter(val as TicketStatus | 'ALL')}
                         >
-                            <SelectTrigger className="h-11 w-full sm:w-40 bg-background/30 backdrop-blur-xl border-border/20 rounded-2xl text-[10px] font-bold uppercase tracking-wider focus:ring-1 ring-primary/20 transition-all">
+                            <SelectTrigger className="h-10 w-full sm:w-40 bg-background border-input rounded-xl text-sm font-medium shadow-sm">
                                 <SelectValue placeholder="Trạng thái" />
                             </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-border/10 shadow-xl overflow-hidden">
-                                <SelectItem value="ALL" className="text-[10px] font-bold uppercase tracking-wider py-3">Tất cả trạng thái</SelectItem>
-                                <SelectItem value={TicketStatus.PENDING} className="text-[10px] font-bold uppercase tracking-wider py-3">Đang chờ</SelectItem>
-                                <SelectItem value={TicketStatus.PROCESSING} className="text-[10px] font-bold uppercase tracking-wider py-3">Đang xử lý</SelectItem>
-                                <SelectItem value={TicketStatus.APPROVED} className="text-[10px] font-bold uppercase tracking-wider py-3">Đã chấp nhận</SelectItem>
-                                <SelectItem value={TicketStatus.REJECTED} className="text-[10px] font-bold uppercase tracking-wider py-3">Đã từ chối</SelectItem>
+                            <SelectContent>
+                                <SelectItem value="ALL">Tất cả</SelectItem>
+                                <SelectItem value={TicketStatus.PENDING}>Đang chờ</SelectItem>
+                                <SelectItem value={TicketStatus.PROCESSING}>Đang xử lý</SelectItem>
+                                <SelectItem value={TicketStatus.APPROVED}>Đã chấp nhận</SelectItem>
+                                <SelectItem value={TicketStatus.REJECTED}>Đã từ chối</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                     <Button
                         onClick={() => setIsCreateOpen(true)}
-                        className="h-11 w-full sm:w-auto px-6 rounded-2xl bg-primary text-primary-foreground font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95 group flex items-center gap-2"
+                        className="h-10 w-full sm:w-auto px-4 rounded-xl font-bold shadow-sm"
                     >
-                        <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" />
+                        <Plus className="w-4 h-4 mr-2" />
                         Gửi yêu cầu mới
                     </Button>
                 </div>
-            </div>
-
-            {/* Content Stats Section (Subtle) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Quick Stats Cards could go here */}
             </div>
 
             {/* Tickets Table */}
@@ -211,128 +211,136 @@ export default function SupportPage() {
                 <ComponentLoading className="h-64" />
             ) : (
                 <div className="space-y-4">
-                    <div className="hidden md:grid grid-cols-6 px-6 text-[10px] font-black uppercase tracking-[2px] text-muted-foreground/30">
-                        <div className="col-span-2">Tiêu đề / Loại</div>
-                        <div className="col-span-1">Ngày tạo</div>
-                        <div className="col-span-1 text-center">Trạng thái</div>
-                        <div className="col-span-1">Mã yêu cầu</div>
-                        <div className="col-span-1 text-right">Chi tiết</div>
-                    </div>
-
-                    <div className="divide-y divide-border/5 border border-border/10 bg-card/20 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl shadow-black/5">
-                        {tickets.length > 0 ? tickets.map((ticket) => {
-                            const statusInfo = getStatusInfo(ticket.status as TicketStatus);
-                            return (
-                                <div key={ticket.id} className="grid grid-cols-1 md:grid-cols-6 items-center p-6 hover:bg-muted/5 transition-all group relative">
-                                    <div className="col-span-2 space-y-2 mb-3 md:mb-0">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-xl bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                                                <MessageSquare className="w-4 h-4" />
-                                            </div>
-                                            <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
-                                                {ticket.subject}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-2 ml-10">
-                                            <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0 h-3.5 border-primary/20 text-primary/60 bg-primary/5">
-                                                {getTypeLabel(ticket.type as TicketType)}
-                                            </Badge>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-span-1 text-xs text-muted-foreground/50 font-medium md:table-cell hidden px-2">
-                                        <div className="flex items-center gap-2 font-mono">
-                                            <History className="w-3 h-3" />
-                                            {new Date(ticket.createdAt).toLocaleDateString('vi-VN')}
-                                        </div>
-                                    </div>
-
-                                    <div className="col-span-1 flex justify-center mb-3 md:mb-0">
-                                        <div className={cn(
-                                            "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border flex items-center gap-2",
-                                            statusInfo.color
-                                        )}>
-                                            {statusInfo.icon}
-                                            {statusInfo.label}
-                                        </div>
-                                    </div>
-
-                                    <div className="col-span-1 text-xs font-mono text-muted-foreground/30 uppercase hidden md:block">
-                                        #{ticket.id.slice(0, 8)}
-                                    </div>
-
-                                    <div className="col-span-1 text-right">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-9 w-9 p-0 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
-                                            onClick={() => handleViewDetail(ticket.id)}
-                                        >
-                                            <ChevronRight className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            );
-                        }) : (
-                            <div className="py-24 text-center space-y-4">
-                                <div className="mx-auto w-16 h-16 rounded-full bg-muted/10 flex items-center justify-center">
-                                    <HelpCircle className="w-8 h-8 text-muted-foreground/20" />
-                                </div>
-                                <div>
-                                    <p className="text-sm text-foreground/60 font-serif italic">Bạn chưa gửi yêu cầu hỗ trợ nào.</p>
-                                    <p className="text-[10px] text-muted-foreground/30 uppercase tracking-widest mt-1">Chúng tôi luôn sẵn sàng lắng nghe bạn</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    <Card className="rounded-2xl border-border bg-card overflow-hidden p-0 shadow-sm">
+                        <div className="relative overflow-x-auto">
+                            <Table className="min-w-[1000px] border-collapse bg-transparent">
+                                <TableHeader className="bg-muted/30 border-b border-border">
+                                    <TableRow className="hover:bg-transparent border-none">
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[400px]">Tiêu đề / Loại</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[150px]">Ngày tạo</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-center w-[150px]">Trạng thái</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[150px]">Mã yêu cầu</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-right w-[100px]">Chi tiết</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {tickets.length > 0 ? tickets.map((ticket) => {
+                                        const statusInfo = getStatusInfo(ticket.status as TicketStatus);
+                                        return (
+                                            <TableRow key={ticket.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
+                                                <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                                    <div className="space-y-2 mb-0">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                                                                <MessageSquare className="w-4 h-4" />
+                                                            </div>
+                                                            <p className="text-sm font-semibold text-foreground truncate max-w-[300px]">
+                                                                {ticket.subject}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 ml-10">
+                                                            <Badge variant="outline" className="text-xs font-medium border-border text-muted-foreground px-2 py-0.5 h-auto">
+                                                                {getTypeLabel(ticket.type as TicketType)}
+                                                            </Badge>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-muted-foreground font-medium">
+                                                    <div className="flex items-center gap-2">
+                                                        <History className="w-3.5 h-3.5" />
+                                                        {new Date(ticket.createdAt).toLocaleDateString('vi-VN')}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                                    <div className="flex justify-center">
+                                                        <span className={cn(
+                                                            "px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1.5",
+                                                            statusInfo.color
+                                                        )}>
+                                                            {statusInfo.icon}
+                                                            {statusInfo.label}
+                                                        </span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-xs font-mono text-muted-foreground uppercase">
+                                                    #{ticket.id.slice(0, 8)}
+                                                </TableCell>
+                                                <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                                                        onClick={() => handleViewDetail(ticket.id)}
+                                                    >
+                                                        <ChevronRight className="w-4 h-4" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    }) : (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="h-[200px] text-center p-0">
+                                                <div className="py-8 text-center space-y-4">
+                                                    <div className="mx-auto w-12 h-12 rounded-full bg-muted/20 flex items-center justify-center">
+                                                        <HelpCircle className="w-6 h-6 text-muted-foreground" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-foreground">Bạn chưa gửi yêu cầu hỗ trợ nào.</p>
+                                                        <p className="text-sm text-muted-foreground mt-1">Chúng tôi luôn sẵn sàng lắng nghe bạn.</p>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </Card>
                 </div>
             )}
 
             {/* Create Ticket Dialog */}
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <DialogContent className="max-w-xl rounded-[2.5rem] p-10 border-border/10 bg-background/80 backdrop-blur-2xl overflow-hidden shadow-2xl">
-                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-                    <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-
-                    <DialogHeader className="relative space-y-4">
-                        <DialogTitle className="text-3xl font-serif font-bold italic uppercase leading-none">
-                            Yêu cầu <span className="text-primary not-italic">Mới</span>
+                <DialogContent className="max-w-xl rounded-2xl p-6 border-border bg-background shadow-lg">
+                    <DialogHeader className="space-y-1">
+                        <DialogTitle className="text-xl font-bold">
+                            Yêu cầu mới
                         </DialogTitle>
-                        <DialogDescription className="text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground/40 italic">
-                            Vui lòng cung cấp chi tiết vấn đề bạn đang gặp phải
+                        <DialogDescription className="text-sm text-muted-foreground">
+                            Vui lòng cung cấp chi tiết vấn đề bạn đang gặp phải.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-6 py-6 relative">
+                    <div className="grid gap-6 py-4">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-2">Phân loại</label>
+                            <label className="text-xs font-semibold uppercase text-muted-foreground">Phân loại</label>
                             <Select
                                 value={newTicketType}
                                 onValueChange={(val) => setNewTicketType(val as TicketType)}
                             >
-                                <SelectTrigger className="h-12 bg-muted/10 border-border/10 rounded-2xl text-xs font-bold transition-all focus:ring-1 ring-primary/20 shadow-inner">
+                                <SelectTrigger className="h-10 rounded-lg bg-background border-input text-sm">
                                     <SelectValue placeholder="Chọn loại yêu cầu" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-2xl border-border/10 shadow-xl overflow-hidden">
-                                    <SelectItem value={TicketType.SUPPORT} className="text-xs font-bold py-3 transition-colors">⚙️ Hỗ trợ kỹ thuật</SelectItem>
-                                    <SelectItem value={TicketType.REFUND} className="text-xs font-bold py-3 transition-colors">💰 Yêu cầu hoàn tiền</SelectItem>
-                                    <SelectItem value={TicketType.ERROR_REPORT} className="text-xs font-bold py-3 transition-colors">⚠️ Báo lỗi ứng dụng</SelectItem>
+                                <SelectContent>
+                                    <SelectItem value={TicketType.SUPPORT}>⚙️ Hỗ trợ kỹ thuật</SelectItem>
+                                    <SelectItem value={TicketType.REFUND}>💰 Yêu cầu hoàn tiền</SelectItem>
+                                    <SelectItem value={TicketType.ERROR_REPORT}>⚠️ Báo lỗi ứng dụng</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
 
                         {newTicketType === TicketType.REFUND && (
                             <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 px-2">Khóa học cần hoàn tiền</label>
+                                <label className="text-xs font-semibold uppercase text-muted-foreground">Khóa học cần hoàn tiền</label>
                                 <Select
                                     onValueChange={setNewTicketCourseId}
                                 >
-                                    <SelectTrigger className="h-12 bg-primary/5 border-primary/10 rounded-2xl text-xs font-black transition-all focus:ring-1 ring-primary/20 shadow-inner">
+                                    <SelectTrigger className="h-10 rounded-lg bg-background border-input text-sm">
                                         <SelectValue placeholder="Chọn khóa học của bạn" />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-2xl border-border/10 shadow-xl overflow-hidden">
+                                    <SelectContent>
                                         {enrollments.map((en: any) => (
-                                            <SelectItem key={en.courseId} value={en.courseId} className="text-xs font-bold py-3">
+                                            <SelectItem key={en.courseId} value={en.courseId}>
                                                 {en.courseId.slice(0, 8)} (Khóa học của tôi)
                                             </SelectItem>
                                         ))}
@@ -342,36 +350,36 @@ export default function SupportPage() {
                         )}
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-2">Tiêu đề</label>
+                            <label className="text-xs font-semibold uppercase text-muted-foreground">Tiêu đề</label>
                             <Input
                                 placeholder="VD: Không vào được bài học số 5"
-                                className="h-12 bg-muted/10 border-border/10 rounded-2xl text-xs font-bold placeholder:text-muted-foreground/30 focus:ring-1 ring-primary/20 shadow-inner"
+                                className="h-10 rounded-lg text-sm"
                                 value={newTicketSubject}
                                 onChange={(e) => setNewTicketSubject(e.target.value)}
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-2">Nội dung chi tiết</label>
+                            <label className="text-xs font-semibold uppercase text-muted-foreground">Nội dung chi tiết</label>
                             <Textarea
                                 placeholder="Mô tả cụ thể vấn đề bạn cần giúp đỡ..."
-                                className="min-h-[120px] bg-muted/10 border-border/10 rounded-[1.5rem] text-xs font-medium p-4 placeholder:text-muted-foreground/30 focus:ring-1 ring-primary/20 shadow-inner resize-none"
+                                className="min-h-[120px] rounded-xl text-sm p-4 resize-none"
                                 value={newTicketDescription}
                                 onChange={(e) => setNewTicketDescription(e.target.value)}
                             />
                         </div>
                     </div>
 
-                    <DialogFooter className="flex-col sm:flex-row gap-3 pt-4 border-t border-border/10 mt-4 px-2">
+                    <DialogFooter className="flex-col sm:flex-row gap-3">
                         <Button
-                            variant="ghost"
-                            className="flex-1 h-12 rounded-2xl font-black uppercase tracking-widest text-[9px] hover:bg-muted/10 transition-all sm:order-1"
+                            variant="outline"
+                            className="flex-1 h-10 rounded-xl font-bold sm:order-1"
                             onClick={() => setIsCreateOpen(false)}
                         >
                             Hủy bỏ
                         </Button>
                         <Button
-                            className="flex-1 h-12 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-[9px] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all sm:order-2"
+                            className="flex-1 h-10 rounded-xl font-bold sm:order-2"
                             onClick={handleCreateTicket}
                             disabled={createTicketMutation.isPending}
                         >
@@ -383,17 +391,15 @@ export default function SupportPage() {
 
             {/* Ticket Detail Dialog */}
             <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-                <DialogContent className="max-w-2xl rounded-[2.5rem] p-10 border-border/10 bg-background/80 backdrop-blur-2xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-primary/20" />
-
-                    <DialogHeader className="space-y-6">
+                <DialogContent className="max-w-2xl rounded-2xl p-6 border-border bg-background shadow-lg">
+                    <DialogHeader className="space-y-4">
                         <div className="flex items-center justify-between gap-4 flex-wrap">
-                            <DialogTitle className="text-3xl font-serif font-bold italic leading-tight">
+                            <DialogTitle className="text-xl font-bold tracking-tight">
                                 {ticketDetail?.subject || 'Đang tải...'}
                             </DialogTitle>
                             {ticketDetail && (
                                 <div className={cn(
-                                    "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[2px] border flex items-center gap-2 shadow-sm",
+                                    "px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 border",
                                     getStatusInfo(ticketDetail.status as TicketStatus).color
                                 )}>
                                     {getStatusInfo(ticketDetail.status as TicketStatus).icon}
@@ -401,13 +407,13 @@ export default function SupportPage() {
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                        <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
                             <div className="flex items-center gap-1.5">
-                                <FileText className="size-3" />
+                                <FileText className="size-3.5" />
                                 ID: #{ticketDetail?.id.slice(0, 12).toUpperCase()}
                             </div>
-                            <div className="flex items-center gap-1.5 border-l border-border/20 pl-4">
-                                <Clock className="size-3" />
+                            <div className="flex items-center gap-1.5 border-l border-border pl-4">
+                                <Clock className="size-3.5" />
                                 {ticketDetail && new Date(ticketDetail.createdAt).toLocaleString('vi-VN')}
                             </div>
                         </div>
@@ -418,37 +424,34 @@ export default function SupportPage() {
                             <ComponentLoading />
                         </div>
                     ) : ticketDetail ? (
-                        <div className="space-y-10 mt-8">
+                        <div className="space-y-8 mt-4">
                             {/* Problem Section */}
-                            <div className="space-y-4">
-                                <h3 className="text-[10px] font-black uppercase tracking-[3px] text-primary/50 px-1 border-b border-primary/10 pb-2">Vấn đề của bạn</h3>
-                                <div className="bg-muted/5 p-6 rounded-3xl border border-border/10 shadow-inner">
-                                    <p className="text-sm leading-relaxed font-medium text-foreground/80">
+                            <div className="space-y-3">
+                                <h3 className="text-xs font-bold uppercase text-muted-foreground pb-2 border-b border-border">Vấn đề của bạn</h3>
+                                <div className="bg-muted/30 p-4 rounded-xl border border-border">
+                                    <p className="text-sm leading-relaxed text-foreground">
                                         {ticketDetail.description}
                                     </p>
                                 </div>
                             </div>
 
                             {/* Response Section */}
-                            <div className="space-y-4 relative">
-                                <h3 className="text-[10px] font-black uppercase tracking-[3px] text-emerald-500/50 px-1 border-b border-emerald-500/10 pb-2">Phản hồi từ Torii</h3>
+                            <div className="space-y-3">
+                                <h3 className="text-xs font-bold uppercase text-emerald-600 pb-2 border-b border-emerald-100">Phản hồi từ Torii</h3>
                                 {ticketDetail.response ? (
-                                    <div className="bg-emerald-500/[0.03] p-6 rounded-3xl border border-emerald-500/10 shadow-inner relative overflow-hidden group">
-                                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                            <CheckCircle2 className="size-16 text-emerald-500" />
-                                        </div>
-                                        <p className="text-sm leading-relaxed font-bold text-foreground relative z-10 italic">
+                                    <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 relative overflow-hidden">
+                                        <p className="text-sm leading-relaxed font-medium text-foreground relative z-10 italic">
                                             "{ticketDetail.response}"
                                         </p>
-                                        <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-600/60 transition-all relative z-10">
-                                            <div className="w-8 h-[1px] bg-emerald-500/30" />
+                                        <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-emerald-700">
+                                            <div className="w-6 h-[1px] bg-emerald-300" />
                                             Admin Team
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="p-8 border border-dashed border-border/20 rounded-3xl text-center bg-muted/5 group">
-                                        <p className="text-xs text-muted-foreground/40 italic font-serif flex items-center justify-center gap-2">
-                                            <Clock className="size-4 animate-pulse" />
+                                    <div className="p-8 border border-dashed border-border rounded-xl text-center bg-muted/5">
+                                        <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+                                            <Clock className="size-4" />
                                             Yêu cầu của bạn đang được xem xét. Vui lòng chờ phản hồi...
                                         </p>
                                     </div>
@@ -456,15 +459,14 @@ export default function SupportPage() {
                             </div>
 
                             <Button
-                                className="w-full h-14 rounded-2xl bg-foreground text-background font-black uppercase tracking-[4px] text-[10px] hover:bg-primary hover:text-white transition-all duration-500 group relative overflow-hidden shadow-xl"
+                                className="w-full h-11 rounded-xl font-bold shadow-sm"
                                 onClick={() => setIsDetailOpen(false)}
                             >
-                                <span className="relative z-10 group-hover:scale-110 transition-transform inline-block">Đóng hội thoại</span>
-                                <div className="absolute inset-x-0 bottom-0 h-0 bg-primary group-hover:h-full transition-all duration-500 z-0 opacity-50" />
+                                Đóng hội thoại
                             </Button>
                         </div>
                     ) : (
-                        <div className="py-20 text-center text-red-500 font-bold uppercase tracking-widest text-xs">
+                        <div className="py-20 text-center text-destructive font-medium text-sm">
                             Lỗi: Không thể tải thông tin yêu cầu.
                         </div>
                     )}

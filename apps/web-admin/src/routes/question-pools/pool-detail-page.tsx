@@ -90,7 +90,7 @@ export default function PoolDetailPage() {
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-20">
             {/* Sticky Sub-Header */}
-            <div className="sticky top-0 z-40 -mt-6 pt-6 pb-4 bg-background/40 backdrop-blur-3xl border-b border-border/10 px-2 lg:px-6 mb-8">
+            <div className="sticky top-0 z-40 -mt-6 pt-6 pb-4 bg-card border-b border-border/10 px-2 lg:px-6 mb-8">
                 <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
                         <Button
@@ -133,7 +133,7 @@ export default function PoolDetailPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                     {/* Left: Metadata & Actions */}
                     <div className="lg:col-span-4 space-y-8">
-                        <Card className="rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/20 p-8 space-y-8 relative overflow-hidden group">
+                        <Card className="rounded-[2.5rem] bg-card border border-border/20 p-8 space-y-8 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
                                 <Fingerprint className="size-32" />
                             </div>
@@ -215,7 +215,7 @@ export default function PoolDetailPage() {
                             </div>
                         </div>
 
-                        <Card className="rounded-[3rem] bg-background/40 backdrop-blur-3xl border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
+                        <Card className="rounded-[3rem] bg-card border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
                             <div className="overflow-x-auto">
                                 <Table className="min-w-[800px] border-collapse bg-transparent">
                                     <TableHeader className="bg-muted/10 border-b border-border/20">

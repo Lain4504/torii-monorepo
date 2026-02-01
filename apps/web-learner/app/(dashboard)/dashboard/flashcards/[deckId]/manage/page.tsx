@@ -241,11 +241,11 @@ export default function ManageDeckPage() {
                         <ArrowLeft className="size-3" />
                         Quay lại kho thẻ
                     </button>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-serif font-bold italic uppercase tracking-wide">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wide">
                         <BrainCircuit className="size-3.5" />
                         Quản lý nội dung
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-serif font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-5xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
                         {deck?.name}
                     </h1>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
@@ -319,7 +319,7 @@ export default function ManageDeckPage() {
                                     <TableCell colSpan={4} className="h-64 text-center">
                                         <div className="flex flex-col items-center justify-center opacity-30">
                                             <BrainCircuit className="size-12 mb-4" />
-                                            <p className="font-serif italic text-lg capitalize">Chưa có thẻ nào trong bộ này</p>
+                                            <p className="font-sans italic text-lg capitalize">Chưa có thẻ nào trong bộ này</p>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -378,7 +378,7 @@ export default function ManageDeckPage() {
             <Dialog open={isAddCardOpen} onOpenChange={setIsAddCardOpen}>
                 <DialogContent className="sm:max-w-[500px] bg-background/80 backdrop-blur-2xl border-white/10 rounded-[2.5rem]">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">
+                        <DialogTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">
                             {editingCard ? 'Cập nhật thẻ' : 'Thêm thẻ mới'}
                         </DialogTitle>
                         <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
@@ -419,7 +419,7 @@ export default function ManageDeckPage() {
                             <Textarea
                                 value={exampleSentence}
                                 onChange={(e) => setExampleSentence(e.target.value)}
-                                className="min-h-[100px] rounded-xl bg-white/5 border-white/10 font-serif italic"
+                                className="min-h-[100px] rounded-xl bg-white/5 border-white/10 font-sans italic"
                                 placeholder="VD: 毎日勉強します。"
                             />
                         </div>
@@ -445,7 +445,7 @@ export default function ManageDeckPage() {
             <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
                 <DialogContent className="sm:max-w-[700px] bg-background/80 backdrop-blur-2xl border-white/10 rounded-[2.5rem]">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">
+                        <DialogTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">
                             Nhập thẻ từ TSV
                         </DialogTitle>
                         <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">

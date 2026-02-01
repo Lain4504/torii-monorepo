@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import { toast } from '@workspace/ui/components/sonner';
+import type { StandardApiResponse } from '@workspace/schemas';
 
 // Types
 export interface RoleDefinition {
@@ -24,30 +25,30 @@ export interface PermissionsResponse {
 // API calls
 const permissionsApi = {
     async getRoles() {
-        const res = await apiClient.get('/api/authorization/roles');
-        return res.data.data as RoleDefinition[];
+        const res = await apiClient.get<StandardApiResponse<RoleDefinition[]>>('/api/authorization/roles');
+        return res.data.data!;
     },
 
     async getPermissions() {
-        const res = await apiClient.get('/api/authorization/permissions');
-        return res.data.data as PermissionsResponse;
+        const res = await apiClient.get<StandardApiResponse<PermissionsResponse>>('/api/authorization/permissions');
+        return res.data.data!;
     },
 
     async getRolePermissions(roleCode: string) {
-        const res = await apiClient.get(`/api/authorization/roles/${roleCode}/permissions`);
-        return res.data.data.permissions as string[];
+        const res = await apiClient.get<StandardApiResponse<{ permissions: string[] }>>(`/api/authorization/roles/${roleCode}/permissions`);
+        return res.data.data!.permissions;
     },
 
     async updateRolePermissions(roleCode: string, permissions: string[]) {
-        const res = await apiClient.put(`/api/authorization/roles/${roleCode}/permissions`, {
+        const res = await apiClient.put<StandardApiResponse<any>>(`/api/authorization/roles/${roleCode}/permissions`, {
             permissions,
         });
-        return res.data;
+        return res.data.data;
     },
 
     async reseed() {
-        const res = await apiClient.post('/api/authorization/reseed');
-        return res.data;
+        const res = await apiClient.post<StandardApiResponse<any>>('/api/authorization/reseed');
+        return res.data.data;
     },
 };
 

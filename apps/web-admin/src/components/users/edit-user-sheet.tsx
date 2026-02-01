@@ -79,7 +79,7 @@ export function EditUserSheet({
                             <UserCog className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-xl font-serif font-bold italic uppercase tracking-tight text-foreground">
+                            <SheetTitle className="text-xl font-sans font-bold italic uppercase tracking-tight text-foreground">
                                 Chỉnh Sửa Người Dùng
                             </SheetTitle>
                             <SheetDescription className="text-xs font-medium text-muted-foreground">
@@ -97,7 +97,7 @@ export function EditUserSheet({
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/20">
                                     <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground/40 text-center">
+                                    <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/40 text-center">
                                         Basic Information
                                     </h3>
                                     <div className="h-px flex-1 bg-border/20" />

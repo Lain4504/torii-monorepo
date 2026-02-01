@@ -41,41 +41,41 @@ export function CourseGrid({
     const isEmpty = !isLoading && courses.length === 0;
 
     return (
-        <div className="space-y-20">
+        <div className="space-y-16">
             {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
-                        <div key={i} className="aspect-[4/5] rounded-[2rem] bg-muted/20 animate-pulse flex items-center justify-center">
+                        <div key={i} className="aspect-[4/5] rounded-2xl bg-muted/20 animate-pulse flex items-center justify-center">
                             <Loader2 className="w-8 h-8 text-muted-foreground/20 animate-spin" />
                         </div>
                     ))}
                 </div>
             ) : error ? (
-                <div className="flex flex-col items-center justify-center py-24 px-6 rounded-[2.5rem] bg-destructive/5 border border-destructive/10 text-center space-y-4">
-                    <div className="w-20 h-20 rounded-3xl bg-destructive/5 flex items-center justify-center border border-destructive/10">
-                        <Inbox className="w-10 h-10 text-destructive/40" />
+                <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl bg-destructive/5 border border-destructive/10 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center border border-destructive/10">
+                        <Inbox className="w-8 h-8 text-destructive/60" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-2xl font-serif font-bold italic text-destructive uppercase tracking-tight">Data Sync Error</h3>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 max-w-xs">{error?.message || 'Connection to academy servers lost'}</p>
+                        <h3 className="text-xl font-bold text-destructive">Không thể tải dữ liệu</h3>
+                        <p className="text-sm font-medium text-muted-foreground max-w-xs">{error?.message || 'Kết nối đến máy chủ bị gián đoạn'}</p>
                     </div>
                 </div>
             ) : isEmpty ? (
-                <div className="flex justify-center py-24 px-6 rounded-[2.5rem] bg-muted/20 border border-border/40">
+                <div className="flex justify-center py-20 px-6 rounded-3xl bg-muted/10 border border-border/50">
                     <Empty className="max-w-md">
                         <EmptyHeader>
-                            <EmptyMedia variant="icon" className="bg-background shadow-2xl border border-primary/10">
-                                <Search className="text-primary/40 w-8 h-8" />
+                            <EmptyMedia variant="icon" className="bg-background shadow-sm border border-border">
+                                <Search className="text-muted-foreground w-6 h-6" />
                             </EmptyMedia>
-                            <EmptyTitle className="text-3xl font-serif font-bold italic uppercase tracking-tight">No courses found</EmptyTitle>
-                            <EmptyDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-4 leading-relaxed">
-                                We couldn't find any courses matching your current filters. Try adjusting your selection.
+                            <EmptyTitle className="text-xl font-bold text-foreground">Không tìm thấy khóa học</EmptyTitle>
+                            <EmptyDescription className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                                Chúng tôi không tìm thấy khóa học nào phù hợp với bộ lọc hiện tại của bạn. Vui lòng thử lại với các tiêu chí khác.
                             </EmptyDescription>
                         </EmptyHeader>
                     </Empty>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in duration-1000">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-700">
                     {courses.map((course) => (
                         <CourseCard key={course.id} {...course} />
                     ))}
@@ -83,7 +83,7 @@ export function CourseGrid({
             )}
 
             {!isEmpty && !isLoading && totalPages > 1 && (
-                <div className="pt-8 flex justify-center border-t border-border/40">
+                <div className="pt-8 flex justify-center border-t border-border/50">
                     <Pagination>
                         <PaginationContent className="gap-2">
                             <PaginationItem>
@@ -95,7 +95,7 @@ export function CourseGrid({
                                             onPageChange(currentPage - 1)
                                         }
                                     }}
-                                    className={currentPage === 1 ? "pointer-events-none opacity-30 h-12 w-12 rounded-xl" : "cursor-pointer h-12 w-12 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"}
+                                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-primary/5 hover:text-primary transition-all"}
                                 />
                             </PaginationItem>
 
@@ -109,9 +109,9 @@ export function CourseGrid({
                                             onPageChange(page)
                                         }}
                                         className={cn(
-                                            "h-12 w-12 rounded-xl font-black transition-all",
+                                            "transition-all font-bold",
                                             currentPage === page
-                                                ? "bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                                ? "bg-primary text-white hover:bg-primary/90 shadow-sm"
                                                 : "hover:bg-primary/5 hover:text-primary text-muted-foreground"
                                         )}
                                     >
@@ -129,7 +129,7 @@ export function CourseGrid({
                                             onPageChange(currentPage + 1)
                                         }
                                     }}
-                                    className={currentPage === totalPages ? "pointer-events-none opacity-30 h-12 w-12 rounded-xl" : "cursor-pointer h-12 w-12 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"}
+                                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-primary/5 hover:text-primary transition-all"}
                                 />
                             </PaginationItem>
                         </PaginationContent>

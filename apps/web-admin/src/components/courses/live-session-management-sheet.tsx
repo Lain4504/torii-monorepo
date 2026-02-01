@@ -98,7 +98,7 @@ export function LiveSessionManagementSheet({ open, onOpenChange, course }: LiveS
                                         Livestream Mode
                                     </Badge>
                                 </div>
-                                <SheetTitle className="text-2xl font-serif font-bold italic tracking-tight uppercase leading-none">
+                                <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight uppercase leading-none">
                                     Quản lý <span className="text-primary not-italic tracking-normal">Lịch dạy Live</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-xs font-medium text-muted-foreground/60 uppercase tracking-wider">
@@ -108,7 +108,7 @@ export function LiveSessionManagementSheet({ open, onOpenChange, course }: LiveS
 
                             <Button
                                 onClick={() => setIsCreateOpen(true)}
-                                className="w-fit h-10 px-4 rounded-xl bg-primary text-primary-foreground font-serif font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 transition-all"
+                                className="w-fit h-10 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 transition-all"
                             >
                                 <Plus className="mr-2 size-4" />
                                 Lên lịch buổi mới
@@ -128,7 +128,7 @@ export function LiveSessionManagementSheet({ open, onOpenChange, course }: LiveS
                             <div className="flex flex-col items-center justify-center p-12 text-center space-y-4 border-2 border-dashed border-border/40 rounded-3xl bg-muted/5">
                                 <Calendar className="size-12 text-muted-foreground/20" />
                                 <div className="space-y-1">
-                                    <p className="font-serif font-bold italic text-muted-foreground/50 uppercase">Chưa có lịch dạy nào</p>
+                                    <p className="font-sans font-bold italic text-muted-foreground/50 uppercase">Chưa có lịch dạy nào</p>
                                     <p className="text-xs text-muted-foreground/40">Hãy bắt đầu bằng cách lên lịch buổi học đầu tiên cho khóa này.</p>
                                 </div>
                             </div>
@@ -154,7 +154,7 @@ export function LiveSessionManagementSheet({ open, onOpenChange, course }: LiveS
                                                     <span className="text-[10px] text-muted-foreground/40 font-mono tracking-tighter">#{session.id.slice(0, 8)}</span>
                                                 </div>
 
-                                                <h4 className="font-serif font-bold text-base leading-tight">
+                                                <h4 className="font-sans font-bold text-base leading-tight">
                                                     {session.title}
                                                 </h4>
 

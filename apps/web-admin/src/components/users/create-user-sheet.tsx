@@ -184,10 +184,10 @@ export function CreateUserSheet({
                             <ScanFace className="h-5 w-5" />
                         </div>
                         <div className="flex-1 space-y-0.5">
-                            <SheetTitle className="text-xl font-serif font-bold italic uppercase tracking-tight">
+                            <SheetTitle className="text-xl font-sans font-bold italic uppercase tracking-tight">
                                 Thêm <span className="text-primary">Người dùng mới</span>
                             </SheetTitle>
-                            <SheetDescription className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground/60">
+                            <SheetDescription className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/60">
                                 {currentStep === 1
                                     ? 'Bước 01: Thông tin cá nhân'
                                     : 'Bước 02: Phân quyền vai trò'}

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { StaffDashboardResponseDTO } from '@workspace/schemas';
+import type { StaffDashboardResponseDTO, StandardApiResponse } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -9,8 +9,8 @@ import type { StaffDashboardResponseDTO } from '@workspace/schemas';
 export const staffDashboardApi = {
     // GET /api/staff/dashboard
     async getDashboardMetrics(): Promise<StaffDashboardResponseDTO> {
-        const response = await apiClient.get<StaffDashboardResponseDTO>('/api/staff/dashboard');
-        return response.data;
+        const response = await apiClient.get<StandardApiResponse<StaffDashboardResponseDTO>>('/api/staff/dashboard');
+        return response.data.data!;
     },
 };
 

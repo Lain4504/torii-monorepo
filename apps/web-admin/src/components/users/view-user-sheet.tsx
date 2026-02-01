@@ -55,7 +55,7 @@ export function ViewUserSheet({
                             <ScanEye className="h-6 w-6" />
                         </div>
                         <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight">
+                            <SheetTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">
                                 Hồ sơ <span className="text-primary">Người dùng</span>
                             </SheetTitle>
                             <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
@@ -79,7 +79,7 @@ export function ViewUserSheet({
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 space-y-1.5 overflow-hidden">
-                                    <h3 className="text-xl font-serif font-bold italic tracking-tight text-foreground truncate">{user.displayName}</h3>
+                                    <h3 className="text-xl font-sans font-bold italic tracking-tight text-foreground truncate">{user.displayName}</h3>
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                         <Mail className="h-3.5 w-3.5" />
                                         <p className="font-medium text-xs truncate">{user.email}</p>
@@ -96,7 +96,7 @@ export function ViewUserSheet({
                             <div className="p-5 rounded-xl bg-muted/5 border border-border/10 space-y-3 group hover:bg-muted/10 transition-colors">
                                 <div className="flex items-center gap-2 text-muted-foreground/60 group-hover:text-primary/80 transition-colors">
                                     <Shield className="h-4 w-4" />
-                                    <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest">Vai trò</span>
+                                    <span className="text-[10px] font-sans font-bold italic uppercase tracking-widest">Vai trò</span>
                                 </div>
                                 <div className="pt-1">
                                     <Badge variant="outline" className="w-full justify-center py-1.5 capitalize border-border/20 bg-background text-foreground font-medium text-xs tracking-wide shadow-sm">
@@ -108,7 +108,7 @@ export function ViewUserSheet({
                             <div className="p-5 rounded-xl bg-muted/5 border border-border/10 space-y-3 group hover:bg-muted/10 transition-colors">
                                 <div className="flex items-center gap-2 text-muted-foreground/60 group-hover:text-primary/80 transition-colors">
                                     <Activity className="h-4 w-4" />
-                                    <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest">Trạng thái</span>
+                                    <span className="text-[10px] font-sans font-bold italic uppercase tracking-widest">Trạng thái</span>
                                 </div>
                                 <div className="pt-1">
                                     <Badge className={cn("w-full justify-center py-1.5 capitalize border font-medium text-xs tracking-wide", statusBadgeClass)}>
@@ -123,7 +123,7 @@ export function ViewUserSheet({
                         <div className="space-y-6">
                             <div className="flex items-center gap-3">
                                 <div className="h-px flex-1 bg-border/20" />
-                                <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground/40">Lịch sử</span>
+                                <span className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/40">Lịch sử</span>
                                 <div className="h-px flex-1 bg-border/20" />
                             </div>
 

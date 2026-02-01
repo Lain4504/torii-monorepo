@@ -3,7 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { SubmitPollResponseReq, ClosePollReq, PollInfo } from '@workspace/protocol';
 
-const POLLS_KEY = 'wajlc:polls:';
+const REDIS_PREFIX = 'wajlc:';
+const POLLS_KEY = `${REDIS_PREFIX}polls:`;
 const POLL_RESPONDENTS_SUB_KEY = ':respondents:';
 const POLL_VOTED_USERS_SUB_KEY = ':voted_users';
 const POLL_ALL_RES_SUB_KEY = ':all_respondents';
@@ -112,6 +113,7 @@ export class RedisPollService {
     }
 
     async cleanUpPolls(roomId: string, pollIds: string[]): Promise<void> {
+
         const pipeline = this.redis.pipeline();
 
         for (const id of pollIds) {

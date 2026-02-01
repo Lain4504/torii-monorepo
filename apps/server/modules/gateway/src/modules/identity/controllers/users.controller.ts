@@ -40,12 +40,13 @@ export class UsersController {
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('search') search: string = '',
+        @Query('role') role: string = '',
     ) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.users.findAll' },
-                    { page: Number(page), limit: Number(limit), search },
+                    { page: Number(page), limit: Number(limit), search, role },
                 ),
             );
             return successPaginatedResponse(result);

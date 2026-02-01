@@ -213,8 +213,8 @@ export default function LessonDetailPage() {
                                             <FileText className="w-6 h-6" />
                                         </div>
                                         <div className="space-y-1">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">Bài học lý thuyết</span>
-                                            <h2 className="text-3xl font-serif font-bold italic tracking-tight">{currentLesson.title}</h2>
+                                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Bài học lý thuyết</span>
+                                            <h2 className="text-3xl font-bold tracking-tight text-foreground">{currentLesson.title}</h2>
                                         </div>
                                     </div>
 
@@ -226,7 +226,7 @@ export default function LessonDetailPage() {
                                     <div className="pt-8 flex justify-center">
                                         <Button
                                             size="lg"
-                                            className="h-14 px-10 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-primary/20"
+                                            className="h-12 px-8 rounded-xl font-bold"
                                             onClick={() => {
                                                 learningProgressApi.trackProgress(lessonId, 1, 1)
                                                     .then(() => {

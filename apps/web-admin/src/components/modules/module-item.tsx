@@ -141,18 +141,18 @@ export function ModuleItem({
                                 <Layers className="size-4" />
                             </div>
                             <div className="flex flex-col items-start gap-1 flex-1 min-w-0 text-left">
-                                <span className="font-serif font-bold italic text-sm text-foreground leading-tight truncate w-full group-hover/module:text-primary transition-colors duration-300">
+                                <span className="font-sans font-bold italic text-sm text-foreground leading-tight truncate w-full group-hover/module:text-primary transition-colors duration-300">
                                     {module.title}
                                 </span>
                                 <div className="flex flex-wrap items-center gap-3">
                                     <div className="flex items-center gap-1.5 ">
-                                        <span className="text-[10px] font-serif font-bold italic text-muted-foreground uppercase tracking-wider">
+                                        <span className="text-[10px] font-sans font-bold italic text-muted-foreground uppercase tracking-wider">
                                             STT: 0{module.orderIndex}
                                         </span>
                                     </div>
                                     <div className="w-px h-3 bg-border/40" />
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-serif font-bold italic text-muted-foreground uppercase tracking-wider">
+                                        <span className="text-[10px] font-sans font-bold italic text-muted-foreground uppercase tracking-wider">
                                             {lessons.length} Bài học
                                         </span>
                                     </div>
@@ -160,7 +160,7 @@ export function ModuleItem({
                                         <>
                                             <div className="w-px h-3 bg-border/40" />
                                             <div className="flex items-center gap-1.5">
-                                                <span className="text-[10px] font-serif font-bold italic text-muted-foreground uppercase tracking-wider">
+                                                <span className="text-[10px] font-sans font-bold italic text-muted-foreground uppercase tracking-wider">
                                                     {module.durationMinutes} phút
                                                 </span>
                                             </div>
@@ -224,7 +224,7 @@ export function ModuleItem({
                             <div className="py-8 text-center flex justify-center">
                                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/20 border border-border/20">
                                     <div className="h-4 w-4 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-                                    <span className="text-[10px] font-serif font-bold italic uppercase tracking-widest text-muted-foreground">Đang tải dữ liệu...</span>
+                                    <span className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground">Đang tải dữ liệu...</span>
                                 </div>
                             </div>
                         ) : lessons.length === 0 ? (

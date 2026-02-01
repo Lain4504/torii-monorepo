@@ -23,6 +23,7 @@ import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { cn } from '@workspace/ui/lib/utils';
 import { Plus, ShieldAlert, Sparkles } from 'lucide-react';
+import { Card } from "@workspace/ui/components/card";
 
 export default function QuestionsPage() {
     const [page, setPage] = useState(1);
@@ -193,16 +194,14 @@ export default function QuestionsPage() {
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-20">
             {/* Header Section */}
-            {/* Header Section */}
-            {/* Header Section - Actions Only (Title handled by layout) */}
             <div className="flex flex-col sm:flex-row items-start justify-end gap-8 relative px-2">
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0 ml-auto">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/20 backdrop-blur-xl hidden sm:flex shadow-sm">
+                    <Card className="flex items-center gap-4 p-4 rounded-2xl border-border bg-card hidden sm:flex shadow-sm">
                         <div className="space-y-0.5">
                             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Tổng số Câu hỏi</p>
                             <h3 className="text-2xl font-bold text-center text-primary">{meta?.total || 0}</h3>
                         </div>
-                    </div>
+                    </Card>
                     <Can permission="question.create">
                         <Button
                             onClick={() => setShowCreateDialog(true)}
@@ -237,7 +236,7 @@ export default function QuestionsPage() {
                     </div>
                 </div>
 
-                <div className="rounded-3xl border border-white/20 bg-background/50 backdrop-blur-3xl overflow-hidden relative group/table shadow-sm">
+                <Card className="rounded-3xl border-border bg-card overflow-hidden relative group/table shadow-sm">
                     <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
                     <QuestionsTable
                         data={questions}
@@ -252,7 +251,7 @@ export default function QuestionsPage() {
                         limit={queryParams.limit || 10}
                         isLoading={isLoading}
                     />
-                </div>
+                </Card>
 
                 {/* Pagination */}
                 {meta && (
@@ -276,7 +275,7 @@ export default function QuestionsPage() {
                                                 setPage(p => Math.max(1, p - 1));
                                             }}
                                             className={cn(
-                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                                                "h-10 px-4 rounded-xl bg-card border border-border/20 text-xs font-medium transition-all",
                                                 page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
                                             )}
                                         />
@@ -293,7 +292,7 @@ export default function QuestionsPage() {
                                                 setPage(p => Math.min(meta.totalPages, p + 1));
                                             }}
                                             className={cn(
-                                                "h-10 px-4 rounded-xl bg-background/50 border border-border/20 text-xs font-medium transition-all",
+                                                "h-10 px-4 rounded-xl bg-card border border-border/20 text-xs font-medium transition-all",
                                                 page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
                                             )}
                                         />

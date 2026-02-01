@@ -13,7 +13,7 @@ export class UsersHandler {
     constructor(@Inject(USERS_SERVICE_TOKEN) private readonly usersService: IUsersService) { }
 
     @MessagePattern({ cmd: 'identity.users.findAll' })
-    async findAll(@Payload() data: { page: number; limit: number; search: string }) {
+    async findAll(@Payload() data: { page: number; limit: number; search: string; role?: string }) {
         return this.usersService.findAll(data);
     }
 

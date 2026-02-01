@@ -46,6 +46,7 @@ export const userSchema = z.object({
     updatedAt: z.date(),
     deletedAt: z.date().optional().nullable(),
     permissions: z.array(z.string()).optional(),
+    linkedMethods: z.array(z.string()).optional(),
 });
 
 export type User = z.infer<typeof userSchema>;

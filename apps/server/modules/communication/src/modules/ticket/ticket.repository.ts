@@ -92,4 +92,8 @@ export class TicketRepository implements ITicketRepository {
             },
         }) as any;
     }
+
+    async count(where: any): Promise<number> {
+        return this.prisma.ticket.count({ where });
+    }
 }

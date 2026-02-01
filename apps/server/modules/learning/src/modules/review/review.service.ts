@@ -268,6 +268,36 @@ export class ReviewService implements IReviewService {
   }
 
   /**
+   * Find a single review by ID
+   */
+  async findOne(id: string): Promise<ReviewResponseDTO & { courseTitle?: string }> {
+    try {
+      const review = await this.reviewRepository.findById(id, true);
+
+      if (!review) {
+        throw new RpcException({
+          status: 404,
+          message: `Review with id ${id} not found`,
+        });
+      }
+
+      return {
+        ...this.toReviewResponseDto(review),
+        courseTitle: review.course?.title
+      };
+    } catch (error: any) {
+      this.logger.error(`Failed to find review ${id}`, error);
+      if (error instanceof RpcException) {
+        throw error;
+      }
+      throw new RpcException({
+        status: 500,
+        message: `Failed to find review: ${error?.message || 'Unknown error'}`,
+      });
+    }
+  }
+
+  /**
    * Delete a review
    */
   async delete(reviewId: string, userId: string): Promise<boolean> {

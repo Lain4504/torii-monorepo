@@ -46,8 +46,8 @@ export const modulesApi = {
 
     // PATCH /api/admin/modules/:id/restore
     async restore(id: string): Promise<ModuleResponseDTO> {
-        const response = await apiClient.patch<ModuleResponseDTO>(`/api/modules/${id}/restore`);
-        return response.data;
+        const response = await apiClient.patch<StandardApiResponse<{ module: ModuleResponseDTO }>>(`/api/modules/${id}/restore`);
+        return response.data.data!.module;
     },
 };
 

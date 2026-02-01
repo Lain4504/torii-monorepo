@@ -4,13 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix meet config">
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/livekit.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/livekit.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/deploy/deploy.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/deploy/docker-compose.deploy.template.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/deploy/haproxy.template.cfg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/deploy/livekit.template.yaml" beforeDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix dependecy injection">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,14 +81,22 @@
         &quot;number&quot;: 48
       },
       &quot;lastSeen&quot;: 1767495744090
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AaErH&quot;,
+        &quot;number&quot;: 113
+      },
+      &quot;lastSeen&quot;: 1769855142628
     }
   ]
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
-  }
+    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
+  },
+  &quot;editorReviewEnabled&quot;: false
 }</component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
@@ -132,13 +135,13 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "turn-server",
+    "git-widget-placeholder": "#113 on agent-analysic",
     "go.import.settings.migrated": "true",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo",
+    "last_opened_file_path": "/home/lain4504/outsource/ten-framework",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -147,7 +150,7 @@
     "nodejs_package_manager_path": "pnpm",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -337,54 +340,14 @@
       <workItem from="1769181804062" duration="422000" />
       <workItem from="1769215771483" duration="3323000" />
       <workItem from="1769677668828" duration="174000" />
-    </task>
-    <task id="LOCAL-00698" summary="build aadmin">
-      <option name="closed" value="true" />
-      <created>1768271978056</created>
-      <option name="number" value="00698" />
-      <option name="presentableId" value="LOCAL-00698" />
-      <option name="project" value="LOCAL" />
-      <updated>1768271978056</updated>
-    </task>
-    <task id="LOCAL-00699" summary="build aadmin">
-      <option name="closed" value="true" />
-      <created>1768272196113</created>
-      <option name="number" value="00699" />
-      <option name="presentableId" value="LOCAL-00699" />
-      <option name="project" value="LOCAL" />
-      <updated>1768272196114</updated>
-    </task>
-    <task id="LOCAL-00700" summary="build aadmin">
-      <option name="closed" value="true" />
-      <created>1768272689801</created>
-      <option name="number" value="00700" />
-      <option name="presentableId" value="LOCAL-00700" />
-      <option name="project" value="LOCAL" />
-      <updated>1768272689806</updated>
-    </task>
-    <task id="LOCAL-00701" summary="user-learning-progress">
-      <option name="closed" value="true" />
-      <created>1768274147657</created>
-      <option name="number" value="00701" />
-      <option name="presentableId" value="LOCAL-00701" />
-      <option name="project" value="LOCAL" />
-      <updated>1768274147658</updated>
-    </task>
-    <task id="LOCAL-00702" summary="user-learning-progress">
-      <option name="closed" value="true" />
-      <created>1768275437237</created>
-      <option name="number" value="00702" />
-      <option name="presentableId" value="LOCAL-00702" />
-      <option name="project" value="LOCAL" />
-      <updated>1768275437237</updated>
-    </task>
-    <task id="LOCAL-00703" summary="user-learning-progress">
-      <option name="closed" value="true" />
-      <created>1768275655161</created>
-      <option name="number" value="00703" />
-      <option name="presentableId" value="LOCAL-00703" />
-      <option name="project" value="LOCAL" />
-      <updated>1768275655161</updated>
+      <workItem from="1769776646079" duration="635000" />
+      <workItem from="1769784933135" duration="31000" />
+      <workItem from="1769833098000" duration="11000" />
+      <workItem from="1769833117426" duration="20000" />
+      <workItem from="1769846484321" duration="1011000" />
+      <workItem from="1769848661014" duration="95000" />
+      <workItem from="1769849840092" duration="424000" />
+      <workItem from="1769932867652" duration="613000" />
     </task>
     <task id="LOCAL-00704" summary="user-learning-progress">
       <option name="closed" value="true" />
@@ -730,7 +693,55 @@
       <option name="project" value="LOCAL" />
       <updated>1768987585986</updated>
     </task>
-    <option name="localTasksCounter" value="747" />
+    <task id="LOCAL-00747" summary="update">
+      <option name="closed" value="true" />
+      <created>1769862260218</created>
+      <option name="number" value="00747" />
+      <option name="presentableId" value="LOCAL-00747" />
+      <option name="project" value="LOCAL" />
+      <updated>1769862260218</updated>
+    </task>
+    <task id="LOCAL-00748" summary="update">
+      <option name="closed" value="true" />
+      <created>1769864248089</created>
+      <option name="number" value="00748" />
+      <option name="presentableId" value="LOCAL-00748" />
+      <option name="project" value="LOCAL" />
+      <updated>1769864248089</updated>
+    </task>
+    <task id="LOCAL-00749" summary="update">
+      <option name="closed" value="true" />
+      <created>1769867756116</created>
+      <option name="number" value="00749" />
+      <option name="presentableId" value="LOCAL-00749" />
+      <option name="project" value="LOCAL" />
+      <updated>1769867756116</updated>
+    </task>
+    <task id="LOCAL-00750" summary="update">
+      <option name="closed" value="true" />
+      <created>1769867951378</created>
+      <option name="number" value="00750" />
+      <option name="presentableId" value="LOCAL-00750" />
+      <option name="project" value="LOCAL" />
+      <updated>1769867951379</updated>
+    </task>
+    <task id="LOCAL-00751" summary="update">
+      <option name="closed" value="true" />
+      <created>1769868471608</created>
+      <option name="number" value="00751" />
+      <option name="presentableId" value="LOCAL-00751" />
+      <option name="project" value="LOCAL" />
+      <updated>1769868471608</updated>
+    </task>
+    <task id="LOCAL-00752" summary="fix dependecy injection">
+      <option name="closed" value="true" />
+      <created>1769936923239</created>
+      <option name="number" value="00752" />
+      <option name="presentableId" value="LOCAL-00752" />
+      <option name="project" value="LOCAL" />
+      <updated>1769936923240</updated>
+    </task>
+    <option name="localTasksCounter" value="753" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -747,7 +758,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="agent-analysic" />
                       </list>
                     </value>
                   </entry>
@@ -765,13 +776,11 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="payos" />
     <MESSAGE value="rebuild UI" />
     <MESSAGE value="build aadmin" />
     <MESSAGE value="user-learning-progress" />
     <MESSAGE value="update ui" />
     <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
-    <MESSAGE value="update" />
     <MESSAGE value="refactor: refactor meet service" />
     <MESSAGE value="feat(identity): implement identity module with authentication and authorization handlers" />
     <MESSAGE value="refactor(identity): refactor identity service" />
@@ -789,12 +798,13 @@
     <MESSAGE value="feat: add artifacts module and analytics service for handling telemetry data" />
     <MESSAGE value="feat: integrate etherpad module" />
     <MESSAGE value="fix bug" />
+    <MESSAGE value="update" />
     <MESSAGE value="fix meet config" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix meet config" />
+    <MESSAGE value="fix dependecy injection" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix dependecy injection" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
-    <settings-migrated>true</settings-migrated>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -816,7 +826,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts</url>
-          <line>80</line>
+          <line>89</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

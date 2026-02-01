@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Review, Prisma } from '@prisma/generated';
-import type { IReviewRepository } from '../../interfaces/repositories';
+import type { IReviewRepository, ReviewWithRelations } from '../../interfaces/repositories';
 
 /**
  * Review Repository
@@ -16,9 +16,19 @@ export class ReviewRepository implements IReviewRepository {
   /**
    * Find review by ID
    */
-  async findById(reviewId: string): Promise<Review | null> {
+  async findById(reviewId: string, includeRelations?: false): Promise<Review | null>;
+  async findById(reviewId: string, includeRelations: true): Promise<ReviewWithRelations | null>;
+  async findById(reviewId: string, includeRelations = false): Promise<Review | ReviewWithRelations | null> {
     return this.prisma.review.findUnique({
       where: { id: reviewId },
+      include: includeRelations ? {
+        user: {
+          select: { id: true, displayName: true, avatarUrl: true }
+        },
+        course: {
+          select: { id: true, title: true }
+        }
+      } : undefined
     });
   }
 

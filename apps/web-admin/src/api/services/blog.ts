@@ -40,7 +40,7 @@ export const blogApi = {
 
     // DELETE /api/posts/:id
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/api/posts/${id}`);
+        await apiClient.delete<StandardApiResponse<any>>(`/api/posts/${id}`);
     },
 };
 
