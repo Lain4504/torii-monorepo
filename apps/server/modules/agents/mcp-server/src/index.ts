@@ -57,13 +57,47 @@ async function callGemini(prompt: string): Promise<string> {
 }
 
 function cleanJsonResponse(text: string): any {
+  console.log('----------------------------------------');
+  console.log('🤖 Raw Gemini Response:');
+  console.log(text);
+  console.log('----------------------------------------');
+
   let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '');
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```\s*\n?/, '').replace(/\n?```\s*$/, '');
+
+  // 1. Try to extract from code blocks first
+  const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  if (codeBlockMatch) {
+    cleaned = codeBlockMatch[1];
   }
-  return JSON.parse(cleaned.trim());
+
+  // 2. If valid JSON chars are wrapped in other text, extract them
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+
+  if (firstBrace !== -1 && lastBrace !== -1) {
+    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+  }
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    console.error('❌ JSON Parse Error:', e);
+    console.error('Text attempted to parse:', cleaned);
+    // Return a safe fallback error object instead of crashing
+    return {
+      error: 'Failed to parse AI response',
+      raw: text,
+      isCorrect: false,
+      originalText: text,
+      correctedText: text,
+      errors: [],
+      suggestions: ['Please try again.'],
+      translation: { originalText: text, translatedText: text, sourceLanguage: 'auto', targetLanguage: 'en' },
+      flashcards: [],
+      drills: [],
+      conversation: []
+    };
+  }
 }
 
 app.post('/api/sensei/check-grammar', async (req, res) => {
@@ -146,6 +180,21 @@ app.post('/api/sensei/recommend-resources', async (req, res) => {
     const { topic, resourceType = 'all', userContext } = req.body;
     const template = loadPromptTemplate('sensei/resource-recommendation.md');
     const prompt = template({ topic, resourceType, userContext: userContext || {}, timestamp: new Date().toISOString() });
+    const response = await callGemini(prompt);
+    res.json(cleanJsonResponse(response));
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * 6.5 General Chat
+ */
+app.post('/api/sensei/chat', async (req, res) => {
+  try {
+    const { message, history, userContext } = req.body;
+    const template = loadPromptTemplate('sensei/chat.md');
+    const prompt = template({ message, history, userContext: userContext || {}, timestamp: new Date().toISOString() });
     const response = await callGemini(prompt);
     res.json(cleanJsonResponse(response));
   } catch (error: any) {
@@ -335,6 +384,7 @@ app.listen(PORT, () => {
   console.log('   4. POST /api/sensei/generate-drill');
   console.log('   5. POST /api/sensei/simulate-conversation');
   console.log('   6. POST /api/sensei/recommend-resources');
+  console.log('   7. POST /api/sensei/chat');
   console.log('');
   console.log('📋 ASSESSMENT AGENT:');
   console.log('   7. POST /api/assessment/generate-test');

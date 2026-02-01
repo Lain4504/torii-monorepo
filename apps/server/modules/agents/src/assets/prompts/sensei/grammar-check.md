@@ -42,4 +42,4 @@ Structure your response as follows:
 }
 ```
 
-Remember: Output ONLY valid JSON, no other text!
+Remember: Output ONLY valid JSON. Do NOT wrap the response in markdown code blocks (```json). Just raw JSON.

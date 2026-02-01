@@ -41,13 +41,17 @@ import { Label } from '@workspace/ui/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
 import { toast } from '@workspace/ui/components/sonner'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { agentApi } from '@/apis/services/agent-api'
 
 export default function FlashcardsPage() {
     const router = useRouter()
     const [searchQuery, setSearchQuery] = useState('')
     const [debouncedSearchQuery] = useDebounceValue(searchQuery, 300)
     const [isDeckModalOpen, setIsDeckModalOpen] = useState(false)
+    const [isAiDeckModalOpen, setIsAiDeckModalOpen] = useState(false)
     const [editingDeck, setEditingDeck] = useState<any>(null)
+    const [aiTopic, setAiTopic] = useState('')
+    const [isGeneratingAi, setIsGeneratingAi] = useState(false)
     const queryClient = useQueryClient()
 
     // Form states
@@ -121,6 +125,52 @@ export default function FlashcardsPage() {
 
     const decks = decksData?.data || []
 
+    const handleAiDeckCreate = async () => {
+        if (!deckName.trim() || !aiTopic.trim()) {
+            toast.error("Vui lòng nhập tên bộ thẻ và chủ đề.")
+            return
+        }
+        setIsGeneratingAi(true)
+        try {
+            // 1. Create Deck
+            const deck = await flashcardApi.createDeck({
+                name: deckName,
+                description: `AI Generated: ${aiTopic}`,
+                jlptLevel
+            })
+
+            // 2. Generate Cards
+            const level = jlptLevel === 'All' ? 'intermediate' : jlptLevel.toLowerCase() as 'beginner' | 'intermediate' | 'advanced'
+            const result = await agentApi.sensei.createFlashcard(aiTopic, level)
+
+            // 3. Save Cards
+            const createData = result.flashcards.map(card => ({
+                deckId: deck.id,
+                frontText: card.front,
+                backText: card.back,
+                furigana: card.reading || '',
+                exampleSentence: ''
+            }))
+
+            if (createData.length > 0) {
+                await flashcardApi.bulkOperations({ create: createData })
+            }
+
+            queryClient.invalidateQueries({ queryKey: ['flashcard-decks'] })
+            setIsAiDeckModalOpen(false)
+            resetForm()
+            setAiTopic('')
+            toast.success("Đã tạo bộ thẻ AI thành công!")
+            router.push(`/dashboard/flashcards/${deck.id}/manage`)
+
+        } catch (error: any) {
+            toast.error(error.message || "Lỗi khi tạo bộ thẻ AI.")
+            console.error(error)
+        } finally {
+            setIsGeneratingAi(false)
+        }
+    }
+
     return (
 
         <div className="space-y-8 animate-in fade-in duration-700 pb-20">
@@ -151,6 +201,14 @@ export default function FlashcardsPage() {
                     >
                         <Plus className="size-4 mr-2" />
                         Tạo bộ thẻ
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => { resetForm(); setIsAiDeckModalOpen(true) }}
+                        className="h-12 px-6 rounded-2xl border-pink-500/20 bg-pink-500/10 text-pink-500 font-black uppercase tracking-widest text-[10px] hover:bg-pink-500/20 transition-all"
+                    >
+                        <Sparkles className="size-4 mr-2" />
+                        AI Create Deck
                     </Button>
                 </div>
             </div>
@@ -306,6 +364,74 @@ export default function FlashcardsPage() {
                             className="w-full h-10 rounded-xl font-bold"
                         >
                             {editingDeck ? 'Cập nhật' : 'Xác nhận tạo'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* AI Create Deck Modal */}
+            <Dialog open={isAiDeckModalOpen} onOpenChange={setIsAiDeckModalOpen}>
+                <DialogContent className="sm:max-w-[500px] bg-background/80 backdrop-blur-2xl border-pink-500/20 rounded-[2.5rem]">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight flex items-center gap-2">
+                            <Sparkles className="size-6 text-pink-500" />
+                            AI Sensei Deck Creator
+                        </DialogTitle>
+                        <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                            Tạo bộ thẻ & sinh từ vựng tự động
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-6 py-6">
+                        <div className="bg-pink-500/5 border border-pink-500/10 rounded-2xl p-4 flex gap-4">
+                            <BrainCircuit className="size-5 text-pink-500 shrink-0" />
+                            <p className="text-[10px] leading-relaxed text-muted-foreground/80">
+                                Nhập tên bộ thẻ và chủ đề. AI sẽ tự động tạo bộ thẻ mới và điền sẵn các từ vựng phù hợp cho bạn.
+                            </p>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Tên bộ thẻ</Label>
+                            <Input
+                                value={deckName}
+                                onChange={(e) => setDeckName(e.target.value)}
+                                className="h-12 rounded-xl bg-white/5 border-pink-500/20 font-bold"
+                                placeholder="VD: Từ vựng Du lịch Nhật Bản"
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Chủ đề từ khóa (Cho AI)</Label>
+                            <Input
+                                value={aiTopic}
+                                onChange={(e) => setAiTopic(e.target.value)}
+                                className="h-12 rounded-xl bg-white/5 border-pink-500/20 font-bold"
+                                placeholder="VD: Nhà hàng, Sân bay, Khách sạn..."
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Cấp độ JLPT</Label>
+                            <Select value={jlptLevel} onValueChange={setJlptLevel}>
+                                <SelectTrigger className="h-12 rounded-xl bg-white/5 border-pink-500/20">
+                                    <SelectValue placeholder="Chọn cấp độ" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-white/10 bg-background/95 backdrop-blur-xl">
+                                    <SelectItem value="N5">N5</SelectItem>
+                                    <SelectItem value="N4">N4</SelectItem>
+                                    <SelectItem value="N3">N3</SelectItem>
+                                    <SelectItem value="N2">N2</SelectItem>
+                                    <SelectItem value="N1">N1</SelectItem>
+                                    <SelectItem value="All">All Levels</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            onClick={handleAiDeckCreate}
+                            className="w-full h-12 rounded-xl bg-pink-500 text-white hover:bg-pink-600 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-pink-500/20"
+                            disabled={!aiTopic.trim() || !deckName.trim() || isGeneratingAi}
+                        >
+                            {isGeneratingAi ? 'ĐANG TẠO & SINH THẺ...' : 'TẠO BỘ THẺ AI'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

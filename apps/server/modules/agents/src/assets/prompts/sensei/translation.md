@@ -24,4 +24,4 @@ You MUST respond with valid JSON only. No extra text, no markdown, just pure JSO
 }
 ```
 
-Remember: Output ONLY valid JSON, no other text!
+Remember: Output ONLY valid JSON. Do NOT wrap the response in markdown code blocks (```json). Just raw JSON.

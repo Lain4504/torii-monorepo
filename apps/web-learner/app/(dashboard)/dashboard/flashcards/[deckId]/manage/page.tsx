@@ -28,8 +28,10 @@ import {
     MoreVertical,
     CheckCircle2,
     XCircle,
-    Info
+    Info,
+    Sparkles
 } from 'lucide-react'
+import { agentApi } from '@/apis/services/agent-api'
 import {
     Dialog,
     DialogContent,
@@ -59,8 +61,11 @@ export default function ManageDeckPage() {
     const [searchQuery, setSearchQuery] = useState('')
     const [isAddCardOpen, setIsAddCardOpen] = useState(false)
     const [isImportOpen, setIsImportOpen] = useState(false)
+    const [isAiImportOpen, setIsAiImportOpen] = useState(false)
     const [editingCard, setEditingCard] = useState<any>(null)
     const [tsvContent, setTsvContent] = useState('')
+    const [aiTopic, setAiTopic] = useState('')
+    const [isGeneratingAi, setIsGeneratingAi] = useState(false)
 
     // Form states for individual card
     const [frontText, setFrontText] = useState('')
@@ -173,6 +178,36 @@ export default function ManageDeckPage() {
         bulkImportMutation.mutate({ create: createData })
     }
 
+    const handleAiGenerate = async () => {
+        if (!aiTopic.trim()) return
+        setIsGeneratingAi(true)
+        try {
+            const result = await agentApi.sensei.createFlashcard(aiTopic, 'intermediate')
+
+            const createData = result.flashcards.map(card => ({
+                deckId,
+                frontText: card.front,
+                backText: card.back,
+                furigana: card.reading || '',
+                exampleSentence: '' // AI doesn't return example sentence in this format currently
+            }))
+
+            if (createData.length > 0) {
+                bulkImportMutation.mutate({ create: createData }, {
+                    onSuccess: () => {
+                        setIsAiImportOpen(false)
+                        setAiTopic('')
+                    }
+                })
+            }
+        } catch (error) {
+            toast.error("Lỗi khi tạo thẻ bằng AI.")
+            console.error(error)
+        } finally {
+            setIsGeneratingAi(false)
+        }
+    }
+
     const resetCardForm = () => {
         setFrontText('')
         setBackText('')
@@ -233,6 +268,14 @@ export default function ManageDeckPage() {
                     >
                         <FileUp className="size-4 mr-2" />
                         Import TSV
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => setIsAiImportOpen(true)}
+                        className="h-12 px-6 rounded-2xl border-pink-500/20 bg-pink-500/10 text-pink-500 font-black uppercase tracking-widest text-[10px] hover:bg-pink-500/20 transition-all"
+                    >
+                        <Sparkles className="size-4 mr-2" />
+                        AI Sensei
                     </Button>
                 </div>
             </div>
@@ -445,6 +488,49 @@ export default function ManageDeckPage() {
                             disabled={bulkImportMutation.isPending}
                         >
                             {bulkImportMutation.isPending ? 'Đang xử lý...' : 'NHẬP TOÀN BỘ'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* AI Generation Modal */}
+            <Dialog open={isAiImportOpen} onOpenChange={setIsAiImportOpen}>
+                <DialogContent className="sm:max-w-[500px] bg-background/80 backdrop-blur-2xl border-pink-500/20 rounded-[2.5rem]">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight flex items-center gap-2">
+                            <Sparkles className="size-6 text-pink-500" />
+                            AI Sensei Generator
+                        </DialogTitle>
+                        <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                            Tạo thẻ từ vựng tự động theo chủ đề
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-6 py-6">
+                        <div className="bg-pink-500/5 border border-pink-500/10 rounded-2xl p-4 flex gap-4">
+                            <BrainCircuit className="size-5 text-pink-500 shrink-0" />
+                            <p className="text-[10px] leading-relaxed text-muted-foreground/80">
+                                Nhập chủ đề bạn muốn học (VD: "Đồ dùng nhà bếp", "Từ lóng giới trẻ", "Email công việc"). AI sẽ tạo danh sách thẻ và tự động thêm vào bộ này.
+                            </p>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Chủ đề từ vựng</Label>
+                            <Input
+                                value={aiTopic}
+                                onChange={(e) => setAiTopic(e.target.value)}
+                                className="h-14 rounded-xl bg-white/5 border-pink-500/20 font-bold text-lg"
+                                placeholder="VD: Món ăn Nhật Bản..."
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            onClick={handleAiGenerate}
+                            className="w-full h-12 rounded-xl bg-pink-500 text-white hover:bg-pink-600 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-pink-500/20"
+                            disabled={!aiTopic.trim() || isGeneratingAi || bulkImportMutation.isPending}
+                        >
+                            {isGeneratingAi || bulkImportMutation.isPending ? 'ĐANG TẠO & LƯU...' : 'TẠO & THÊM VÀO BỘ THẺ'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -10,6 +10,7 @@ import {
     CreditCard,
     Settings,
     LifeBuoy,
+    BrainCircuit,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -27,6 +28,7 @@ export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
     { name: 'Kiểm tra đầu vào', href: '/dashboard/placement-test', icon: Award },
+    { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
 ]
 
 export const progressNav: NavItem[] = [

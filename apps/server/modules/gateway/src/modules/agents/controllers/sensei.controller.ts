@@ -144,4 +144,24 @@ export class SenseiHandler {
             return errorResponse(error.message || 'Failed to recommend resources');
         }
     }
+
+    @Post('chat')
+    @UseGuards(GatewayAuthGuard)
+    async chat(@Req() req: Request, @Body() body: any) {
+        const user = req.user as any;
+        const userId = user.sub;
+        try {
+            this.logger.log(`💬 Chat request from user ${userId}`);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.sensei.chat' },
+                    { userId, ...body }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Chat failed for user ${userId}`, error.stack);
+            return errorResponse(error.message || 'Failed to chat');
+        }
+    }
 }

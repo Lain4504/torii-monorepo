@@ -13,7 +13,9 @@ import {
     Calendar,
     ArrowRight,
     ChevronRight,
-    Target
+    Target,
+    Bot,
+    Sparkles
 } from 'lucide-react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
