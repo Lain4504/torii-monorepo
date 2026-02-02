@@ -5,6 +5,7 @@ export interface CreatePostDto {
     title?: string
     content: string
     type: 'QA'
+    tags?: string[]
 }
 
 export const qaApi = {
