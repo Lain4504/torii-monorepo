@@ -261,7 +261,8 @@ export class RoomEndService {
 
         // Step 5: Clear any user blocklists associated with the room
         try {
-            await this.natsUserService.deleteRoomUsersBlockList(roomId);
+            // Blocklist is part of the consolidated room bucket, which will be deleted in the final cleanup step.
+            // await this.natsUserService.deleteRoomUsersBlockList(roomId);
         } catch (error) {
             this.logger.error(`Error deleting room users blocklist: ${error.message}`);
         }

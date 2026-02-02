@@ -14,29 +14,7 @@ const ROOM_CREATION_LOCK_KEY = `${REDIS_PREFIX}roomCreationLock-%s`;
 const JANITOR_LOCK_KEY = `${REDIS_PREFIX}janitorLeaderLock`;
 
 /**
- * Lua script for atomic check-and-delete (unlock)
- */
-const UNLOCK_SCRIPT = `
-if redis.call("GET", KEYS[1]) == ARGV[1] then
-    return redis.call("DEL", KEYS[1])
-else
-    return 0
-end
-`;
-
-/**
- * Lua script for atomic check-and-set TTL (renew)
- */
-const RENEW_SCRIPT = `
-if redis.call("GET", KEYS[1]) == ARGV[1] then
-    return redis.call("EXPIRE", KEYS[1], ARGV[2])
-else
-    return 0
-end
-`;
-
-/**
- * Lock class represents a single distributed lock instance
+ * Distributed Lock Class
  */
 export class Lock {
     constructor(
@@ -46,9 +24,6 @@ export class Lock {
         private readonly ttl: number, // in seconds
     ) { }
 
-    /**
-     * TryLock attempts to acquire the lock
-     */
     async tryLock(): Promise<boolean> {
         try {
             const result = await this.redis.set(this.key, this.value, 'EX', this.ttl, 'NX');
@@ -58,31 +33,25 @@ export class Lock {
         }
     }
 
-    /**
-     * Unlock releases the lock
-     */
     async unlock(): Promise<void> {
         try {
-            await this.redis.eval(UNLOCK_SCRIPT, 1, this.key, this.value);
+            await (this.redis as any).unlock(this.key, this.value);
         } catch (error) {
-            if (error && typeof error === 'object' && 'message' in error && error.message !== 'NOSCRIPT') {
-                throw new Error(`Redis Eval error for unlock script on key ${this.key}: ${error instanceof Error ? error.message : error}`);
+            if (error.message !== 'NOSCRIPT') {
+                throw new Error(`Redis unlock error for key ${this.key}: ${error instanceof Error ? error.message : error}`);
             }
         }
     }
 
-    /**
-     * Refresh extends the TTL of the lock
-     */
     async refresh(): Promise<void> {
         try {
-            const renewed = await this.redis.eval(RENEW_SCRIPT, 1, this.key, this.value, this.ttl);
+            const renewed = await (this.redis as any).renew(this.key, this.value, this.ttl);
             if (renewed === 0) {
                 throw new Error('Lock expired or was taken by another process');
             }
         } catch (error) {
-            if (error && typeof error === 'object' && 'message' in error && error.message !== 'NOSCRIPT') {
-                throw new Error(`Redis Eval error for renew script on key ${this.key}: ${error instanceof Error ? error.message : error}`);
+            if (error.message !== 'NOSCRIPT') {
+                throw new Error(`Redis renew error for key ${this.key}: ${error instanceof Error ? error.message : error}`);
             }
             throw error;
         }
@@ -114,6 +83,29 @@ export class RedisLockService {
         }
 
         this.redis = new Redis(redisUrl);
+
+        // Define custom Lua commands (Align with Go: redis.NewScript)
+        this.redis.defineCommand('unlock', {
+            numberOfKeys: 1,
+            lua: `
+                if redis.call("GET", KEYS[1]) == ARGV[1] then
+                    return redis.call("DEL", KEYS[1])
+                else
+                    return 0
+                end
+            `,
+        });
+
+        this.redis.defineCommand('renew', {
+            numberOfKeys: 1,
+            lua: `
+                if redis.call("GET", KEYS[1]) == ARGV[1] then
+                    return redis.call("EXPIRE", KEYS[1], ARGV[2])
+                else
+                    return 0
+                end
+            `,
+        });
 
         this.redis.on('error', (error) => {
             this.logger.error(`Redis connection error: ${error.message}`);
@@ -168,12 +160,7 @@ export class RedisLockService {
         }
 
         try {
-            const deleted = await this.redis.eval(
-                UNLOCK_SCRIPT,
-                1,
-                key,
-                lockValue,
-            ) as number;
+            const deleted = await (this.redis as any).unlock(key, lockValue);
 
             if (deleted === 0) {
                 throw new Error(
@@ -183,7 +170,7 @@ export class RedisLockService {
         } catch (error) {
             // Ignore if key doesn't exist (already expired/released)
             if (error && typeof error === 'object' && 'message' in error && !error.message.includes('NOSCRIPT')) {
-                throw new Error(`Redis Eval error for unlock script on key ${key} (roomId: ${roomId}): ${error instanceof Error ? error.message : error}`);
+                throw new Error(`Redis unlock error for key ${key} (roomId: ${roomId}): ${error instanceof Error ? error.message : error}`);
             }
         }
     }
@@ -231,7 +218,7 @@ export class RedisLockService {
         }
 
         try {
-            await this.redis.eval(UNLOCK_SCRIPT, 1, JANITOR_LOCK_KEY, lockValue);
+            await (this.redis as any).unlock(JANITOR_LOCK_KEY, lockValue);
         } catch (error) {
             this.logger.error(`Failed to unlock janitor leadership with lockValue ${lockValue}: ${error instanceof Error ? error.message : error}`);
         }
@@ -246,9 +233,7 @@ export class RedisLockService {
         }
 
         try {
-            const renewed = await this.redis.eval(
-                RENEW_SCRIPT,
-                1,
+            const renewed = await (this.redis as any).renew(
                 JANITOR_LOCK_KEY,
                 lockValue,
                 ttlSeconds,
@@ -258,7 +243,7 @@ export class RedisLockService {
         } catch (error) {
             // Key doesn't exist, couldn't renew
             if (error && typeof error === 'object' && 'message' in error && !error.message.includes('NOSCRIPT')) {
-                throw new Error(`Redis Eval error for renew script on key ${JANITOR_LOCK_KEY}: ${error instanceof Error ? error.message : error}`);
+                throw new Error(`Redis renew error for key ${JANITOR_LOCK_KEY}: ${error instanceof Error ? error.message : error}`);
             }
             return false;
         }

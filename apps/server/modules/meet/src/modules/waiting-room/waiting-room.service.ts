@@ -91,7 +91,7 @@ export class WaitingRoomService {
 
         // Update and broadcast user metadata
         try {
-            await this.natsUserService.updateAndBroadcastUserMetadata(roomId, userId, mt, null);
+            await this.natsUserService.updateAndBroadcastUserMetadata(roomId, userId, mt, undefined);
         } catch (error) {
             throw new Error('Failed to approve user. Please try again.');
         }

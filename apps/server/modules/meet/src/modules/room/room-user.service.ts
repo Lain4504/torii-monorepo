@@ -91,13 +91,18 @@ export class RoomUserService {
             // Step 2: Validate the user's name to prevent conflicts with reserved system names
             const RECORDER_USER_AUTH_NAME = 'RECORDER_BOT';
             if (userName === RECORDER_USER_AUTH_NAME) {
-                throw new Error(`Name: ${RECORDER_USER_AUTH_NAME} is reserved for internal use only`);
+                throw new Error(`name: ${RECORDER_USER_AUTH_NAME} is reserved for internal use only`);
+            }
+            // Logic for internal user ID check (internal users like system bots)
+            // Go: if config.IsUserIdInternal(g.GetUserInfo().GetUserId()) { ... }
+            if (userId === 'RECORDER_BOT' || userId === 'RTMP_BOT' || userId === 'system') {
+                throw new Error(`user_id: ${userId} is reserved for internal use only`);
             }
 
             // Step 3: Fetch the current room information and metadata from NATS
             const roomInfo = await this.natsRoom.getRoomInfoWithMetadata(roomId);
             if (!roomInfo || !roomInfo.metadata) {
-                throw new Error('Did not find correct room info');
+                throw new Error('did not find correct room info');
             }
 
             const rInfo = roomInfo.info;
@@ -105,7 +110,7 @@ export class RoomUserService {
 
             // Step 4: Ensure the room is not in an ended state
             if (rInfo?.status === 'ended') {
-                throw new Error('Room found in delete status, need to recreate it');
+                throw new Error('room found in delete status, need to recreate it');
             }
 
             // Step 5: Initialize user metadata if not provided
@@ -154,11 +159,13 @@ export class RoomUserService {
                 throw new Error('user_id should only contain ASCII letters (a-z A-Z), digits (0-9) or -_');
             }
             // Add an extra check to ensure our chosen separator pattern is not present.
-            // Matches Go: strings.Contains(g.UserInfo.UserId, natsservice.UserKeyFieldPrefix)
-            if (req.userInfo.userId.includes('-FIELD_')) {
-                throw new Error("user_id cannot contain the reserved pattern '-FIELD_'");
+            // Go: strings.Contains(g.UserInfo.UserId, natsservice.UserKeyFieldPrefix)
+            // Assuming UserKeyFieldPrefix is 'field_' (implied by context of NATS keys)
+            if (req.userInfo.userId.includes('field_')) {
+                throw new Error("user_id cannot contain the reserved pattern 'field_'");
             }
-            // Matches Go: strings.HasPrefix(g.UserInfo.UserId, natsservice.UserKeyPrefix)
+            // Go: strings.HasPrefix(g.UserInfo.UserId, natsservice.UserKeyPrefix)
+            // Assuming UserKeyPrefix is 'user_'
             if (req.userInfo.userId.startsWith('user_')) {
                 throw new Error("user_id cannot start with the reserved pattern 'user_'");
             }
@@ -386,7 +393,7 @@ export class RoomUserService {
         this.assignNewLockSetting(service, direction, metadata.lockSettings);
 
         // Persist the change and notify the clients
-        await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+        await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, undefined);
     }
 
     /**
@@ -774,7 +781,7 @@ export class RoomUserService {
 
         // Broadcast the change
         try {
-            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, undefined);
         } catch (error) {
             throw new Error(`Failed to update and broadcast metadata for ${userId}: ${error.message}`);
         }
@@ -801,7 +808,7 @@ export class RoomUserService {
             metadata.raisedHand = true;
 
             // Update and broadcast
-            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, undefined);
 
             // Notify all admins (except the user who raised hand)
             const participants = await this.natsUserInfo.getOnlineUsersList(roomId);
@@ -845,7 +852,7 @@ export class RoomUserService {
             metadata.raisedHand = false;
 
             // Update and broadcast
-            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, undefined);
 
             this.logger.log(`Hand lowered successfully for ${userId}`);
         } catch (error) {

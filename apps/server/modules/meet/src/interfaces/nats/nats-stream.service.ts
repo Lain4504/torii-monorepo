@@ -18,8 +18,8 @@ export class NatsStreamService {
     // Subject names
     private readonly subjects = {
         chat: 'chat',
-        systemPublic: 'sysPublic',   // Fixed: sysPublic (was systemPublic)
-        systemPrivate: 'sysPrivate', // Fixed: sysPrivate (was systemPrivate)
+        systemPublic: 'sysPublic',
+        systemPrivate: 'sysPrivate',
         whiteboard: 'whiteboard',
         dataChannel: 'dataChannel',
     };
@@ -30,85 +30,60 @@ export class NatsStreamService {
     ) { }
 
     /**
-     * CreateRoomNatsStreams creates JetStream for a room
-     *
-     * Creates stream with name = roomId
-     * Subjects:
-     * - {roomId}:chat.*
-     * - {roomId}:systemPublic.*
-     * - {roomId}:systemPrivate.*.*
-     * - {roomId}:whiteboard.*
-     * - {roomId}:dataChannel.*
+     * CreateRoomNatsStreams ensures subjects are ready for a room.
+     * In Go, this is handled by a single global stream.
+     * We purge subjects for this room to ensure a clean start if needed.
      */
     async createRoomNatsStreams(roomId: string): Promise<void> {
-        this.logger.log(`Creating NATS streams for room: ${roomId}`);
-
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
-
-        // Build subjects array
-        const subjects = [
-            `${roomId}:${this.subjects.chat}.*`,
-            `${roomId}:${this.subjects.systemPublic}.*`,
-            `${roomId}:${this.subjects.systemPrivate}.*.*`,
-        ];
+        this.logger.log(`Ensuring NATS subjects are clean for room: ${roomId}`);
 
         try {
             const jsm = this.natsService.getJetStreamManager();
+            const streamName = this.natsService.getRoomStreamName();
 
-            // Try to get existing stream
-            const existingStream = await jsm.streams.info(roomId).catch(() => null);
+            // Match Go: DeleteRoomNatsStream behavior which is purging subjects
+            const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
+            const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
 
-            // Define 1 second in nanoseconds
-            const ONE_SECOND_NS = 1_000_000_000;
-            const sevenDaysNs = 7 * 24 * 60 * 60 * ONE_SECOND_NS;
+            await jsm.streams.purge(streamName, {
+                filter: `${sysPublic}.${roomId}.>`,
+            }).catch(() => { });
 
-            if (existingStream) {
-                // Update existing stream
-                this.logger.debug(`Updating existing stream: ${roomId}`);
+            await jsm.streams.purge(streamName, {
+                filter: `${sysPrivate}.${roomId}.>`,
+            }).catch(() => { });
 
-                await jsm.streams.update(roomId, {
-                    subjects,
-                    max_age: sevenDaysNs,
-                });
-            } else {
-                // Create new stream
-                this.logger.debug(`Creating new stream: ${roomId}`);
-
-                this.logger.debug(`Creating stream ${roomId} with max_age: ${sevenDaysNs}`);
-
-                await jsm.streams.add({
-                    name: roomId,
-                    subjects,
-                    num_replicas: numReplicas,
-                    max_age: sevenDaysNs,
-                });
-            }
-
-            this.logger.log(`NATS streams created/updated successfully: ${roomId}`);
+            this.logger.log(`NATS room subjects purged for: ${roomId}`);
         } catch (error) {
-            this.logger.error(`Error creating NATS streams for ${roomId}: ${error.message}`);
-            throw new Error(`Failed to create NATS streams: ${error.message}`);
+            this.logger.error(`Error during NATS room setup for ${roomId}: ${error.message}`);
         }
     }
 
     /**
-     * DeleteRoomNatsStream deletes JetStream for a room
+     * DeleteRoomNatsStream purges subjects for a room from the global stream.
+     * Go: pkg/services/nats/js_stream.go -> DeleteRoomNatsStream
      */
     async deleteRoomNatsStream(roomId: string): Promise<void> {
-        this.logger.log(`Deleting NATS stream: ${roomId}`);
+        this.logger.log(`Deleting/Purging NATS room subjects: ${roomId}`);
 
         try {
             const jsm = this.natsService.getJetStreamManager();
-            await jsm.streams.delete(roomId);
+            const streamName = this.natsService.getRoomStreamName();
 
-            this.logger.log(`NATS stream deleted successfully: ${roomId}`);
+            const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
+            const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
+
+            await jsm.streams.purge(streamName, {
+                filter: `${sysPublic}.${roomId}.>`,
+            });
+
+            await jsm.streams.purge(streamName, {
+                filter: `${sysPrivate}.${roomId}.>`,
+            });
+
+            this.logger.log(`NATS room subjects deleted for: ${roomId}`);
         } catch (error) {
-            // Ignore if stream not found
-            if (error.message && error.message.includes('stream not found')) {
-                this.logger.debug(`Stream already deleted: ${roomId}`);
-                return;
-            }
-            throw new Error(`Failed to delete NATS stream: ${error.message}`);
+            this.logger.debug(`Error purging subjects for room ${roomId}: ${error.message}`);
         }
     }
 

@@ -160,6 +160,12 @@ export class RecordingService {
             if (task === RecordingTasks.START_RTMP) {
                 toSend.rtmpUrl = req.rtmpUrl;
             }
+
+            // if we have custom design, then we'll set custom design with token
+            if (req.customDesign && req.customDesign !== '') {
+                log.log('Appending custom design to access token');
+                toSend.accessToken += '&custom_design=' + encodeURIComponent(req.customDesign);
+            }
         }
 
         const payload = toBinary(WajlcToRecorderSchema, toSend);

@@ -13,7 +13,7 @@ import { NatsUserInfoService } from './nats-user-info.service';
 import * as crypto from 'crypto';
 
 // Constants
-const RECORDER_USER_AUTH_NAME = 'RECORDER';
+const RECORDER_USER_AUTH_NAME = 'PLUGNMEET_RECORDER_AUTH';
 const TRANSCODER_CONSUMER_DURABLE = 'transcoderWorker';
 
 interface ConnectOptions {
@@ -212,20 +212,23 @@ export class NatsAuthCalloutService {
     /**
      * Set permissions for recorder
      */
+    /**
+     * Set permissions for recorder
+     */
     private setPermissionForRecorder(tokenData: any, natsClaims: any): void {
         const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'recorderChannel';
         const recorderInfoKv = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
         const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'recorderTranscoderJobs';
-        const userId = tokenData.userId || tokenData.user_id;
+        // Go implementation does not append userId to recorderInfoKv
+        // const userId = tokenData.userId || tokenData.user_id; 
 
+        // Match Go: pkg/controllers/nats_auth_controller.go setPermissionForRecorder
         const pubAllow = [
             '$JS.API.INFO',
             '_INBOX.>', // otherwise won't be able to send respond msg
-            `$JS.API.STREAM.INFO.KV_${recorderInfoKv}-${userId}`,
-            `$JS.API.STREAM.UPDATE.KV_${recorderInfoKv}-${userId}`,
-            `$JS.API.STREAM.CREATE.KV_${recorderInfoKv}-${userId}`,
-            `$KV.${recorderInfoKv}-${userId}.>`,
-            `$JS.API.DIRECT.GET.KV_${recorderInfoKv}-${userId}.>`,
+            `$JS.API.STREAM.INFO.KV_${recorderInfoKv}`,
+            `$KV.${recorderInfoKv}.>`,
+            `$JS.API.DIRECT.GET.KV_${recorderInfoKv}.>`,
             // Allow publishing the job to the stream
             transcodingJobs,
             // Allow fetching the next message from the consumer & send ack
@@ -234,13 +237,18 @@ export class NatsAuthCalloutService {
             `$JS.ACK.${transcodingJobs}.${TRANSCODER_CONSUMER_DURABLE}.>`,
         ];
 
-        natsClaims.pub = { allow: pubAllow };
-        natsClaims.sub = {
-            allow: [
-                recorderChannel,
-                '_INBOX.>',
-            ],
+        natsClaims.permissions = {
+            pub: { allow: pubAllow },
+            sub: {
+                allow: [
+                    recorderChannel,
+                    '_INBOX.>',
+                ],
+            },
         };
+        // Clean up old structure if exists
+        delete natsClaims.pub;
+        delete natsClaims.sub;
     }
 
     /**
@@ -250,49 +258,54 @@ export class NatsAuthCalloutService {
         const roomId = tokenData.roomId || tokenData.room_id;
         const userId = tokenData.userId || tokenData.user_id;
 
-        // ✅ CRITICAL: Check user info exists (lines 142-148)
+        // ✅ CRITICAL: Check user info exists (lines 142-148 in Go)
         const userInfo = await this.userInfoService.getUserInfo(roomId, userId);
         if (!userInfo) {
             throw new Error(`User info not found for userId: ${userId}, roomId: ${roomId}`);
         }
 
+        // Create single user consumer (Matches Go: CreateUserConsumer)
+        const consumerPermissions = await this.consumerService.createUserConsumer(roomId, userId);
+
         const sysJsWorker = this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker';
-
-        // Initialize allowPub (lines 150-155)
-        const allowPub = [
-            '$JS.API.INFO',
-            `$JS.API.STREAM.INFO.${roomId}`,
-            // allow sending messages to the system
-            `${sysJsWorker}.${roomId}.${userId}`,
-        ];
-
-        // Create consumers and add permissions (lines 157-185)
-        const chatPermission = await this.consumerService.createChatConsumer(roomId, userId);
-        allowPub.push(...chatPermission);
-
-        const sysPublicPermission = await this.consumerService.createSystemPublicConsumer(roomId, userId);
-        allowPub.push(...sysPublicPermission);
-
-        const sysPrivatePermission = await this.consumerService.createSystemPrivateConsumer(roomId, userId);
-        allowPub.push(...sysPrivatePermission);
-
+        const sysPublicSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
+        const chatSubject = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
         const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
         const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
 
-        // to allow to publish in whiteboard channel in core pub/sub
-        allowPub.push(`${whiteboardSubject}.${roomId}`);
-        // to allow to publish in DataChannel channel in core pub/sub
-        allowPub.push(`${dataChannelSubject}.${roomId}`);
+        // Match Go: pkg/controllers/nats_auth_controller.go (setPermissionForClient)
+        const allowPub = [
+            '$JS.API.INFO',
+            // permissions for consumer (JetStream)
+            ...consumerPermissions,
+            // permission to publish messages to the system (JetStream)
+            `${sysJsWorker}.${roomId}.${userId}`,
+            // permission to publish in core pub/sub
+            `${chatSubject}.${roomId}`,
+            `${whiteboardSubject}.${roomId}`,
+            `${dataChannelSubject}.${roomId}`,
+        ];
 
-        // Assign Permissions (lines 187-197)
-        natsClaims.pub = { allow: allowPub };
-        natsClaims.sub = {
-            allow: [
-                '_INBOX.>', // otherwise break request-reply patterns
-                `${whiteboardSubject}.${roomId}`,
-                `${dataChannelSubject}.${roomId}`,
-            ],
+        // Assign Permissions, adhering to JWT Claims structure (permissions field in Go)
+        // Go: claims.Permissions = jwt.Permissions{ Pub: ..., Sub: ... }
+        natsClaims.permissions = {
+            pub: { allow: allowPub },
+            sub: {
+                allow: [
+                    '_INBOX.>', // otherwise break request-reply patterns
+                    // allow to subscribe in pub/sub channel system public which is different from JetStream
+                    `${sysPublicSubject}.${roomId}`,
+                    // other core pub/sub channels
+                    `${chatSubject}.${roomId}`,
+                    `${whiteboardSubject}.${roomId}`,
+                    `${dataChannelSubject}.${roomId}`,
+                ],
+            },
         };
+
+        // Clean up old structure if exists in object
+        delete natsClaims.pub;
+        delete natsClaims.sub;
     }
 
     /**
@@ -324,9 +337,9 @@ export class NatsAuthCalloutService {
         };
 
         if (error) {
-            responseObject.nats.error = error.message;
+            responseObject.error = error.message;
         } else {
-            responseObject.nats.jwt = userJWT;
+            responseObject.jwt = userJWT;
         }
 
         // Encode response (lines 210-216)

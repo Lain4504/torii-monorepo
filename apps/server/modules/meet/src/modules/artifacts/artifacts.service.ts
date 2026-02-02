@@ -163,6 +163,20 @@ export class ArtifactsService {
         await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.RTMP_RECORDING, metadata, true);
     }
 
+    async createMeetingSummaryArtifact(roomTableId: number, roomId: string, roomSid: string, summary: string): Promise<void> {
+        const metadata = create(RoomArtifactMetadataSchema, {
+            usageDetails: {
+                case: 'summary',
+                value: {
+                    summaryText: summary,
+                },
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.MEETING_SUMMARY, metadata);
+    }
+
+
     /**
      * createAllRoomUsageArtifacts creates all types of usage artifacts for a room
      */
@@ -210,13 +224,13 @@ export class ArtifactsService {
      * createSpeechTranscriptionFileArtifact creates a VTT file from NATS transcription chunks
      */
     async createSpeechTranscriptionFileArtifact(roomId: string, roomSid: string, roomTableId: number): Promise<string | undefined> {
-        const chunks = await this.natsService.getTranscriptionChunks(roomId);
+        const chunks = await this.redisInsightsService.getTranscriptionHistory(roomId);
         if (!chunks || Object.keys(chunks).length === 0) return undefined;
 
-        // Clean up bucket
-        await this.natsService.deleteTranscriptionBucket(roomId);
+        // Clean up history
+        await this.redisInsightsService.deleteTranscriptionHistory(roomId);
 
-        const keys = Object.keys(chunks).sort();
+        const keys = Object.keys(chunks).sort((a, b) => Number(a) - Number(b));
         let fileContent = 'WEBVTT\n\n';
         fileContent += `NOTE Transcription for meeting: ${roomId}\n\n`;
 
@@ -225,7 +239,7 @@ export class ArtifactsService {
 
         keys.forEach((key, i) => {
             try {
-                const chunk = JSON.parse(new TextDecoder().decode(chunks[key]));
+                const chunk = JSON.parse(chunks[key]);
                 const ts = parseInt(key, 10);
                 if (firstTimestamp === -1) firstTimestamp = ts;
 

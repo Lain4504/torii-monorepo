@@ -41,6 +41,7 @@ import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
 import { ArtifactsService } from '../artifacts/artifacts.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { v4 as uuidv4 } from 'uuid';
 import { InsightsTaskPayload, InsightsServiceType, InsightsTaskType, AgentTaskResponse } from './insights.types';
 
 @Injectable()
@@ -148,11 +149,11 @@ export class InsightsService {
     }
 
     /**
-     * TranscriptionUserSession starts/ends personal transcription for a user
+     * TranscriptionUserSession handles starting/stopping a user's transcription session
      */
     async transcriptionUserSession(roomId: string, userId: string, r: InsightsTranscriptionUserSessionReq): Promise<CommonResponse> {
         if (r.action === InsightsUserSessionAction.USER_SESSION_ACTION_START) {
-            if (!r.spokenLang || r.spokenLang === '') {
+            if (!r.spokenLang) {
                 throw new Error('spoken lang is required');
             }
 
@@ -163,21 +164,17 @@ export class InsightsService {
                 throw new Error('insights.feature-disable-while-e2ee-self-key-enabled');
             }
 
-            const userInfo = await this.natsUserService.getUser(roomId, userId);
-            if (!userInfo) {
-                throw new Error('empty user info');
-            }
+            const userInfo = await this.natsUserService.getUserInfo(roomId, userId);
+            if (!userInfo) throw new Error('empty user info');
 
             const options = {
                 spokenLang: r.spokenLang,
                 userName: userInfo.name,
                 allowedTranscriptionStorage: r.allowedTranscriptionStorage,
-            } as any;
-
-            if (metadata.roomFeatures?.insightsFeatures?.transcriptionFeatures?.isEnabledTranslation) {
-                options.transLangs = metadata.roomFeatures.insightsFeatures.transcriptionFeatures.allowedTransLangs;
-            }
-
+                transLangs: metadata.roomFeatures?.insightsFeatures?.transcriptionFeatures?.isEnabledTranslation
+                    ? metadata.roomFeatures.insightsFeatures.transcriptionFeatures.allowedTransLangs
+                    : [],
+            };
 
             const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
             const payload: InsightsTaskPayload = {
@@ -190,6 +187,10 @@ export class InsightsService {
             };
 
             await this.configureAgent(payload);
+
+            // Track session start in Redis
+            await this.redisInsightsService.handleTranscriptionUsage(roomId, userId, true);
+
             return create(CommonResponseSchema, { status: true, msg: 'success' });
 
         } else if (r.action === InsightsUserSessionAction.USER_SESSION_ACTION_STOP) {
@@ -203,10 +204,14 @@ export class InsightsService {
             };
 
             await this.configureAgent(payload);
+
+            // Track session end in Redis
+            await this.redisInsightsService.handleTranscriptionUsage(roomId, userId, false);
+
             return create(CommonResponseSchema, { status: true, msg: 'success' });
         }
 
-        throw new Error('unknown action');
+        throw new Error(`unknown action '${r.action}'`);
     }
 
     async endTranscription(roomId: string): Promise<CommonResponse> {
@@ -398,18 +403,10 @@ export class InsightsService {
     /**
      * ExecuteAITextChat sends a message to AI
      */
+    /**
+     * ExecuteAITextChat sends a message to AI and manages conversation history
+     */
     async executeAITextChat(roomId: string, userId: string, r: InsightsAITextChatContent): Promise<CommonResponse> {
-        const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
-        const payload: InsightsTaskPayload = {
-            task: InsightsTaskType.UserStart,
-            service_type: InsightsServiceType.AITextChat,
-            room_id: roomId,
-            room_table_id: roomInfo ? Number(roomInfo.dbTableId) : 0,
-            user_id: userId,
-            options: new TextEncoder().encode(r.text),
-        };
-
-
         const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
         if (!metadata) throw new Error('invalid room metadata');
 
@@ -429,9 +426,140 @@ export class InsightsService {
             throw new Error("you're not allowed to use this service");
         }
 
-        return await firstValueFrom(
-            this.natsClient.send<CommonResponse>('plug-n-meet-insights', payload)
+        // 1. Build history (matches Go buildHistoryWithUserPrompt)
+        const history = await this.buildHistoryWithUserPrompt(roomId, userId, r.text, metadata);
+
+        // 2. Forward request to agent (or handle locally if providers existed)
+        const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
+        const payload: InsightsTaskPayload = {
+            task: InsightsTaskType.UserStart,
+            service_type: InsightsServiceType.AITextChat,
+            room_id: roomId,
+            room_table_id: roomInfo ? Number(roomInfo.dbTableId) : 0,
+            user_id: userId,
+            options: new TextEncoder().encode(JSON.stringify(history)),
+        };
+
+        // We use NATS Request-Response for the agent call
+        const res = await firstValueFrom(
+            this.natsClient.send<any>('plug-n-meet-insights', payload)
         );
+
+        if (res.status && res.result) {
+            // result is InsightsAITextChatStreamResult (or similar containing totalTokens)
+            const aiRes = res.result;
+
+            // 3. Append AI response to history
+            const aiMsg = create(InsightsAITextChatContentSchema, {
+                role: 3, // MODEL
+                text: aiRes.text,
+            });
+            await this.redisInsightsService.appendToAITextChatContext(roomId, userId, aiMsg);
+
+            // 4. Update token usage
+            await this.redisInsightsService.updateAITextChatUsage(
+                roomId,
+                userId,
+                'chat',
+                aiRes.promptTokens || 0,
+                aiRes.completionTokens || 0,
+                aiRes.totalTokens || 0
+            );
+
+            // 5. Trigger background summarization
+            this.checkAndSummarize(roomId, userId, metadata).catch(err => {
+                this.logger.error(`Failed to summarize AI chat: ${err.message}`);
+            });
+        }
+
+        return create(CommonResponseSchema, { status: true, msg: 'success' });
+    }
+
+    private async buildHistoryWithUserPrompt(roomId: string, userId: string, prompt: string, metadata: any): Promise<InsightsAITextChatContent[]> {
+        const history: InsightsAITextChatContent[] = [];
+
+        // 1. Get summary
+        const summary = await this.redisInsightsService.getAITextChatSummary(roomId, userId);
+        if (summary) {
+            history.push(create(InsightsAITextChatContentSchema, {
+                role: 1, // SYSTEM
+                text: `This is a summary of the previous conversation: ${summary}`,
+            }));
+        }
+
+        // 2. Get recent context
+        const contextWindow = 5; // default
+        const contextMessages = await this.redisInsightsService.getAITextChatContext(roomId, userId, -contextWindow, -1);
+        if (contextMessages && contextMessages.length > 0) {
+            history.push(...contextMessages);
+        }
+
+        // 3. Append new user prompt
+        const userMsg = create(InsightsAITextChatContentSchema, {
+            role: 2, // USER
+            text: prompt,
+            streamId: uuidv4(),
+        });
+        history.push(userMsg);
+
+        // 4. Update context in Redis
+        await this.redisInsightsService.appendToAITextChatContext(roomId, userId, userMsg);
+
+        return history;
+    }
+
+    private async checkAndSummarize(roomId: string, userId: string, metadata: any): Promise<void> {
+        const contextWindow = 5; // default
+        const length = await this.redisInsightsService.getAITextChatContextLength(roomId, userId);
+
+        if (length < contextWindow) {
+            return;
+        }
+
+        this.logger.log(`Context window reached for AI chat, starting summarization for user ${userId} in room ${roomId}`);
+
+        // Get history for summarization
+        const summary = await this.redisInsightsService.getAITextChatSummary(roomId, userId);
+        const contextMessages = await this.redisInsightsService.getAITextChatContext(roomId, userId, -contextWindow, -1);
+
+        const historyToSummarize: InsightsAITextChatContent[] = [];
+        if (summary) {
+            historyToSummarize.push(create(InsightsAITextChatContentSchema, {
+                role: 1, // SYSTEM
+                text: `This is a summary of the previous conversation: ${summary}`,
+            }));
+        }
+        historyToSummarize.push(...contextMessages);
+
+        // Call agent to summarize
+        const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
+        const payload: InsightsTaskPayload = {
+            task: 'summarize', // Custom task for summarization
+            service_type: InsightsServiceType.AITextChat,
+            room_id: roomId,
+            room_table_id: roomInfo ? Number(roomInfo.dbTableId) : 0,
+            user_id: userId,
+            options: new TextEncoder().encode(JSON.stringify(historyToSummarize)),
+        };
+
+        const res = await firstValueFrom(
+            this.natsClient.send<any>('plug-n-meet-insights', payload)
+        );
+
+        if (res.status && res.summary) {
+            // Update summary in Redis
+            await this.redisInsightsService.setAITextChatSummary(roomId, userId, res.summary);
+
+            // Update token usage for summarization
+            await this.redisInsightsService.updateAITextChatUsage(
+                roomId,
+                userId,
+                'summarize',
+                res.promptTokens || 0,
+                res.completionTokens || 0,
+                (res.promptTokens || 0) + (res.completionTokens || 0)
+            );
+        }
     }
 
     /**
@@ -527,6 +655,36 @@ export class InsightsService {
 
         return create(CommonResponseSchema, { status: true, msg: 'success' });
     }
+
+    async checkBatchJobStatus(jobId: string): Promise<any> {
+        const payload: InsightsTaskPayload = {
+            task: InsightsTaskType.CheckBatchJobStatus,
+            service_type: InsightsServiceType.MeetingSummarizing,
+            room_id: '', // Not used for this task usually, but part of payload
+            room_table_id: 0,
+            options: new TextEncoder().encode(jobId),
+        };
+
+        return await firstValueFrom(
+            this.natsClient.send<any>('plug-n-meet-insights', payload)
+        );
+    }
+
+    async deleteUploadedFile(fileName: string): Promise<any> {
+        const payload: InsightsTaskPayload = {
+            task: InsightsTaskType.DeleteUploadedFile,
+            service_type: InsightsServiceType.MeetingSummarizing,
+            room_id: '',
+            room_table_id: 0,
+            options: new TextEncoder().encode(fileName),
+        };
+
+        return await firstValueFrom(
+            this.natsClient.send<any>('plug-n-meet-insights', payload)
+        );
+    }
+
+
 
 
     /**

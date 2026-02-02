@@ -18,7 +18,10 @@ import { NatsAuthCalloutService } from './nats-auth-callout.service';
 import { RetentionPolicy, AckPolicy } from 'nats';
 import { NatsSystemEventsService } from './nats-system-events.service';
 import { fromBinary, fromJsonString } from '@bufbuild/protobuf';
-import { NatsMsgClientToServerSchema, NatsMsgClientToServerEvents, AnalyticsDataMsgSchema } from '@workspace/protocol';
+import {
+    NatsMsgClientToServerSchema, NatsMsgClientToServerEvents,
+    NatsMsgServerToClientEvents, AnalyticsDataMsgSchema
+} from '@workspace/protocol';
 import { RoomUserService } from '../../modules/room/room-user.service';
 import { AnalyticsService } from '../../modules/analytics/analytics.service';
 
@@ -27,7 +30,7 @@ const DEFAULT_NUM_WORKERS = 50; //50
 const DEFAULT_JOB_QUEUE_SIZE = 1000; //1000
 const NATS_AUTH_SERVICE_ENDPOINT_SUBJECT = '$SYS.REQ.USER.AUTH';
 const NATS_CONNECTION_EVENT_SUBJECT_FORMAT = '$SYS.ACCOUNT.%s.>';
-const PREFIX = 'wajlc-';
+const PREFIX = 'pnm-';
 const NATS_AUTH_SERVICE_NAME = PREFIX + 'auth';
 const NATS_AUTH_SERVICE_QUEUE_GROUP = PREFIX + 'auth-queue';
 const NATS_CONNECTION_EVENT_QUEUE_GROUP = PREFIX + 'conn-event-queue';
@@ -292,10 +295,22 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             const jsm = this.natsService.getJetStreamManager();
             const js = this.natsService.getJetStream();
 
+            // List and clean up conflicting consumers to avoid "filtered consumer not unique" error
+            const consumerList = await jsm.consumers.list(sysJsWorker);
+            for await (const ci of consumerList) {
+                // If it's not our current target consumer, it's a conflict on a WorkQueue stream
+                // We delete our target consumer too to ensure a fresh recreate with correct config
+                this.logger.warn(`Deleting conflicting consumer: ${ci.name}`);
+                await jsm.consumers.delete(sysJsWorker, ci.name).catch(e => {
+                    this.logger.warn(`Failed to delete consumer ${ci.name}: ${e.message}`);
+                });
+            }
+
             // Create consumer
             const consumer = await jsm.consumers.add(sysJsWorker, {
                 durable_name: `${PREFIX}${sysJsWorker}`,
                 ack_policy: AckPolicy.Explicit,
+                filter_subject: `${sysJsWorker}.*.*`,
             });
 
             // Get consumer instance and subscribe to messages
@@ -371,10 +386,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     await this.natsSystemEventsService.handleMediaServerInfo(roomId, userId, undefined, true);
                     break;
 
-                case NatsMsgClientToServerEvents.REQ_RENEW_WAJLC_TOKEN:
-                    // Message format is roomI:userId but usually token is sent
-
-                    await this.natsSystemEventsService.renewWajlcToken(roomId, userId, req.msg);
+                case NatsMsgClientToServerEvents.REQ_RENEW_PNM_TOKEN:
+                    await this.natsSystemEventsService.renewPNMToken(roomId, userId, req.msg);
                     break;
 
                 case NatsMsgClientToServerEvents.PING:
@@ -407,6 +420,14 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                             this.logger.error(`Failed to parse or handle analytics data: ${error.message}`);
                         }
                     }
+                    break;
+
+                case NatsMsgClientToServerEvents.REQ_ONLINE_USERS_LIST:
+                    await this.natsSystemEventsService.handleSendUsersList(roomId, userId, NatsMsgServerToClientEvents.RESP_ONLINE_USERS_LIST);
+                    break;
+
+                case NatsMsgClientToServerEvents.REQ_PRIVATE_DATA_DELIVERY:
+                    await this.natsSystemEventsService.handleToDeliveryPrivateData(roomId, userId, req);
                     break;
 
                 default:
@@ -549,7 +570,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             }
 
             // Skip recorder connections
-            if (claims.name === 'RECORDER') {
+            if (claims.name === 'PLUGNMEET_RECORDER_AUTH') {
                 return;
             }
 

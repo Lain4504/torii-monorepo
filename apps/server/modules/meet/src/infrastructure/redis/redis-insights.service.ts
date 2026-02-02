@@ -1,36 +1,34 @@
-/**
- * Redis Insights Service
- *
- * Handles Redis operations for AI Insights (Transcription, Translation, AI Chat)
- */
-
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import Redis from 'ioredis';
+import { REDIS_CLIENT } from '@server/shared';
 
 const REDIS_PREFIX = 'wajlc:';
 const TRANSCRIPTION_SESSIONS_KEY = `${REDIS_PREFIX}insights:transcription_sessions:%s`;
 const TRANSCRIPTION_USAGE_KEY = `${REDIS_PREFIX}insights:transcription_usage:%s`;
-const CHAT_TRANSLATION_USAGE_KEY = `${REDIS_PREFIX}insights:chat_translation_usage:%s`;
-const AI_TEXT_CHAT_USAGE_KEY = `${REDIS_PREFIX}insights:ai_text_chat_usage:%s`;
+const CHAT_TRANSLATION_USAGE_KEY = `${REDIS_PREFIX}insights:chatTranslationService:%s:usage`;
+const AI_TEXT_CHAT_KEY = `${REDIS_PREFIX}insights:aiTextChat`;
+const AI_TEXT_CHAT_USAGE_KEY = `${AI_TEXT_CHAT_KEY}:usage:%s`;
+const AI_TEXT_CHAT_CONTEXT_KEY = `${AI_TEXT_CHAT_KEY}:context:%s:%s`;
+const AI_TEXT_CHAT_SUMMARY_KEY = `${AI_TEXT_CHAT_KEY}:summary:%s:%s`;
 const TTS_SERVICE_USAGE_KEY = `${REDIS_PREFIX}insights:ttsService:%s:usage`;
+const TRANSCRIPTION_HISTORY_PREFIX = `${REDIS_PREFIX}transcription_history:`;
+const PENDING_SUMMARIZE_JOBS_KEY = `${REDIS_PREFIX}insights:pending_summarize_jobs`;
 const TOTAL_USAGE_FIELD = 'total_usage';
+const DEFAULT_TTL = 60 * 60 * 24; // 24 hours in seconds
+
+
+export interface TranscriptionChunk {
+    from_user_id: string;
+    name: string;
+    lang: string;
+    text: string;
+}
 
 @Injectable()
 export class RedisInsightsService {
     private readonly logger = new Logger(RedisInsightsService.name);
-    private redis: Redis;
 
-    constructor(private readonly configService: ConfigService) {
-        let redisUrl = this.configService.get<string>('REDIS_URL');
-        if (!redisUrl) {
-            const host = this.configService.get<string>('REDIS_HOST', 'localhost');
-            const port = this.configService.get<string>('REDIS_PORT', '6379');
-            const password = this.configService.get<string>('REDIS_PASSWORD');
-            redisUrl = password ? `redis://:${password}@${host}:${port}` : `redis://${host}:${port}`;
-        }
-        this.redis = new Redis(redisUrl);
-    }
+    constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) { }
 
     /**
      * HandleTranscriptionUsage manages transcription session lifecycle and usage
@@ -41,8 +39,8 @@ export class RedisInsightsService {
 
         if (isStarted) {
             const pipeline = this.redis.pipeline();
-            pipeline.hset(sessionsKey, userId, Math.floor(Date.now() / 1000));
-            pipeline.expire(sessionsKey, 24 * 60 * 60);
+            pipeline.hset(sessionsKey, userId, Math.floor(Date.now() / 1000).toString());
+            pipeline.expire(sessionsKey, DEFAULT_TTL);
             await pipeline.exec();
             return 0;
         }
@@ -59,7 +57,7 @@ export class RedisInsightsService {
         const pipeline = this.redis.pipeline();
         pipeline.hincrby(usageKey, userId, finalDuration);
         pipeline.hincrby(usageKey, TOTAL_USAGE_FIELD, finalDuration);
-        pipeline.expire(usageKey, 24 * 60 * 60);
+        pipeline.expire(usageKey, DEFAULT_TTL);
         await pipeline.exec();
 
         return finalDuration;
@@ -88,7 +86,7 @@ export class RedisInsightsService {
         const pipeline = this.redis.pipeline();
         pipeline.hincrby(key, userId, characters);
         pipeline.hincrby(key, TOTAL_USAGE_FIELD, characters);
-        pipeline.expire(key, 24 * 60 * 60);
+        pipeline.expire(key, DEFAULT_TTL);
         const results = await pipeline.exec();
         return (results?.[0]?.[1] as number) || 0;
     }
@@ -105,36 +103,104 @@ export class RedisInsightsService {
     }
 
     /**
-     * IncrementAITextChatUsage records AI chat token usage
+     * UpdateAITextChatUsage records AI chat token usage
+     * Match Go: pkg/services/redis/insights_ai_chat.go -> UpdateAITextChatUsage
      */
-    async incrementAITextChatUsage(roomId: string, userId: string, tokens: number): Promise<number> {
+    async updateAITextChatUsage(
+        roomId: string,
+        userId: string,
+        taskType: 'chat' | 'summarize',
+        promptTokens: number,
+        completionTokens: number,
+        totalTokens: number,
+    ): Promise<void> {
         const key = AI_TEXT_CHAT_USAGE_KEY.replace('%s', roomId);
         const pipeline = this.redis.pipeline();
-        pipeline.hincrby(key, userId, tokens);
-        pipeline.hincrby(key, TOTAL_USAGE_FIELD, tokens);
-        pipeline.expire(key, 24 * 60 * 60);
-        const results = await pipeline.exec();
-        return (results?.[0]?.[1] as number) || 0;
+
+        // Per-user, per-task tracking
+        pipeline.hincrby(key, `${userId}:${taskType}:prompt`, promptTokens);
+        pipeline.hincrby(key, `${userId}:${taskType}:completion`, completionTokens);
+        pipeline.hincrby(key, `${userId}:${taskType}:total`, totalTokens);
+
+        // Global, per-task tracking
+        pipeline.hincrby(key, `total_${taskType}_prompt_tokens`, promptTokens);
+        pipeline.hincrby(key, `total_${taskType}_completion_tokens`, completionTokens);
+        pipeline.hincrby(key, `total_${taskType}_tokens`, totalTokens);
+
+        pipeline.expire(key, DEFAULT_TTL);
+        await pipeline.exec();
     }
 
     async getAITextChatRoomUsage(roomId: string, cleanup = false): Promise<Record<string, number>> {
         const key = AI_TEXT_CHAT_USAGE_KEY.replace('%s', roomId);
         const rawMap = await this.redis.hgetall(key);
-        if (cleanup) await this.redis.del(key);
         const usageMap: Record<string, number> = {};
+        const userIds = new Set<string>();
+
         for (const [k, v] of Object.entries(rawMap)) {
             usageMap[k] = parseInt(v, 10) || 0;
+            if (!k.startsWith('total_')) {
+                const parts = k.split(':');
+                if (parts.length > 0) userIds.add(parts[0]);
+            }
         }
+
+        if (cleanup && Object.keys(usageMap).length > 0) {
+            const pipeline = this.redis.pipeline();
+            pipeline.del(key);
+            for (const userId of userIds) {
+                pipeline.del(AI_TEXT_CHAT_CONTEXT_KEY.replace('%s', roomId).replace('%s', userId));
+                pipeline.del(AI_TEXT_CHAT_SUMMARY_KEY.replace('%s', roomId).replace('%s', userId));
+            }
+            await pipeline.exec();
+        }
+
         return usageMap;
+    }
+
+    async getAITextChatSummary(roomId: string, userId: string): Promise<string | null> {
+        const key = AI_TEXT_CHAT_SUMMARY_KEY.replace('%s', roomId).replace('%s', userId);
+        return await this.redis.get(key);
+    }
+
+    async setAITextChatSummary(roomId: string, userId: string, summary: string): Promise<void> {
+        const key = AI_TEXT_CHAT_SUMMARY_KEY.replace('%s', roomId).replace('%s', userId);
+        await this.redis.set(key, summary, 'EX', DEFAULT_TTL);
+    }
+
+    async getAITextChatContext(roomId: string, userId: string, start: number, stop: number): Promise<any[]> {
+        const key = AI_TEXT_CHAT_CONTEXT_KEY.replace('%s', roomId).replace('%s', userId);
+        const res = await this.redis.lrange(key, start, stop);
+        return res.map(r => JSON.parse(r));
+    }
+
+    async appendToAITextChatContext(roomId: string, userId: string, ...messages: any[]): Promise<void> {
+        const key = AI_TEXT_CHAT_CONTEXT_KEY.replace('%s', roomId).replace('%s', userId);
+        const pipeline = this.redis.pipeline();
+        for (const msg of messages) {
+            pipeline.rpush(key, JSON.stringify(msg));
+        }
+        pipeline.expire(key, DEFAULT_TTL);
+        await pipeline.exec();
+    }
+
+    async getAITextChatContextLength(roomId: string, userId: string): Promise<number> {
+        const key = AI_TEXT_CHAT_CONTEXT_KEY.replace('%s', roomId).replace('%s', userId);
+        return await this.redis.llen(key);
+    }
+
+    async deleteAITextChatContext(roomId: string, userId: string): Promise<void> {
+        const key = AI_TEXT_CHAT_CONTEXT_KEY.replace('%s', roomId).replace('%s', userId);
+        await this.redis.del(key);
     }
 
     async updateTTSServiceUsage(roomId: string, userId: string, language: string, incBy: number): Promise<void> {
         const key = TTS_SERVICE_USAGE_KEY.replace('%s', roomId);
         const pipeline = this.redis.pipeline();
         pipeline.hincrby(key, userId, incBy);
-        pipeline.hincrby(key, language, incBy);
+        pipeline.hincrby(key, `lang:${language}`, incBy);
         pipeline.hincrby(key, TOTAL_USAGE_FIELD, incBy);
-        pipeline.expire(key, 24 * 60 * 60);
+        pipeline.expire(key, DEFAULT_TTL);
         await pipeline.exec();
     }
 
@@ -148,4 +214,73 @@ export class RedisInsightsService {
         }
         return usageMap;
     }
+
+    /**
+     * Transcription History Methods
+     * Matches Go: pkg/services/redis/insights_transcription_history.go
+     */
+
+    private formatTranscriptionHistoryKey(roomId: string): string {
+        return `${TRANSCRIPTION_HISTORY_PREFIX}${roomId}`;
+    }
+
+    async addTranscriptionToHistory(roomId: string, userId: string, name: string, lang: string, text: string): Promise<void> {
+        const key = this.formatTranscriptionHistoryKey(roomId);
+        const chunk: TranscriptionChunk = {
+            from_user_id: userId,
+            name,
+            lang,
+            text,
+        };
+
+        const field = process.hrtime.bigint().toString(); // Use high-res time for nano-seconds
+        try {
+            const pipeline = this.redis.pipeline();
+            pipeline.hset(key, field, JSON.stringify(chunk));
+            pipeline.expire(key, DEFAULT_TTL);
+            await pipeline.exec();
+        } catch (error) {
+            this.logger.error(`AddTranscriptionToHistory failed for roomId ${roomId}: ${error.message}`);
+            throw error;
+        }
+    }
+
+    async getTranscriptionHistory(roomId: string): Promise<Record<string, string> | null> {
+        const key = this.formatTranscriptionHistoryKey(roomId);
+        try {
+            const result = await this.redis.hgetall(key);
+            if (Object.keys(result).length === 0) return null;
+            return result;
+        } catch (error) {
+            this.logger.error(`GetTranscriptionHistory failed for roomId ${roomId}: ${error.message}`);
+            throw error;
+        }
+    }
+
+    async deleteTranscriptionHistory(roomId: string): Promise<void> {
+        const key = this.formatTranscriptionHistoryKey(roomId);
+        try {
+            await this.redis.del(key);
+        } catch (error) {
+            this.logger.error(`DeleteTranscriptionHistory failed for roomId ${roomId}: ${error.message}`);
+        }
+    }
+
+    async getPendingSummarizeJobs(): Promise<Record<string, string>> {
+        try {
+            return await this.redis.hgetall(PENDING_SUMMARIZE_JOBS_KEY);
+        } catch (error) {
+            this.logger.error(`getPendingSummarizeJobs failed: ${error.message}`);
+            return {};
+        }
+    }
+
+    async removePendingSummarizeJob(jobId: string): Promise<void> {
+        try {
+            await this.redis.hdel(PENDING_SUMMARIZE_JOBS_KEY, jobId);
+        } catch (error) {
+            this.logger.error(`removePendingSummarizeJob failed for job ${jobId}: ${error.message}`);
+        }
+    }
 }
+

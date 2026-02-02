@@ -29,6 +29,8 @@ import {
     GetRoomUploadedFilesResSchema,
     UploadBase64EncodedDataReqSchema,
     UploadBase64EncodedDataResSchema,
+    GetClientFilesRes,
+    GetClientFilesResSchema,
 } from '@workspace/protocol';
 import {
     sendProtoJsonResponse,
@@ -66,6 +68,16 @@ export class FileController {
     @UseGuards(JwtAuthGuard)
     async handleChunkCheck(@Query() query: any, @Res() res: Response) {
         const req = this.mapResumableQuery(query);
+        const jwtRoomId = (res.req as any).roomId;
+        const jwtUserId = (res.req as any).requestedUserId;
+
+        if (req.roomId !== jwtRoomId) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token roomId & requested roomId didn't matched" });
+        }
+        if (req.userId !== jwtUserId) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token roomId & requested roomId didn't matched" });
+        }
+
         const tempFolder = path.join(this.uploadPath, req.roomSid, 'tmp');
         const chunkDir = path.join(tempFolder, req.resumableIdentifier);
         const chunkPath = path.join(chunkDir, `part${req.resumableChunkNumber}`);
@@ -73,11 +85,11 @@ export class FileController {
         if (fs.existsSync(chunkPath)) {
             const stats = fs.statSync(chunkPath);
             if (stats.size === Number(req.resumableCurrentChunkSize)) {
-                return res.status(HttpStatus.CREATED).send('part_already_uploaded');
+                return res.status(HttpStatus.OK).send('part_already_uploaded');
             }
             fs.unlinkSync(chunkPath);
         }
-        return res.status(HttpStatus.NO_CONTENT).send('ok_to_upload');
+        return res.status(HttpStatus.OK).send('ok_to_upload');
     }
 
     @Post('api/fileUpload')
@@ -99,6 +111,16 @@ export class FileController {
 
         if (!req.resumableIdentifier || !req.roomSid) {
             return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: 'missing resumable parameters' });
+        }
+
+        const jwtRoomId = (res.req as any).roomId;
+        const jwtUserId = (res.req as any).requestedUserId;
+
+        if (req.roomId !== jwtRoomId) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token roomId & requested roomId didn't matched" });
+        }
+        if (req.userId !== jwtUserId) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token roomId & requested roomId didn't matched" });
         }
 
         const tempFolder = path.join(this.uploadPath, req.roomSid, 'tmp');
@@ -246,6 +268,25 @@ export class FileController {
         } catch (error) {
             sendCommonProtobufResponse(res, false, error.message);
         }
+    }
+
+    /**
+     * handleGetClientFiles gets the client CSS and JS files
+     */
+    @Post('auth/getClientFiles')
+    @UseGuards(JwtAuthGuard)
+    async getClientFiles(@Res() res: Response) {
+        const result = create(GetClientFilesResSchema, {
+            status: true,
+            msg: 'success',
+            css: [],
+            js: [],
+            jsFiles: [],
+            cssFiles: [],
+            staticAssetsPath: '',
+        });
+
+        return sendProtoJsonResponse(res, GetClientFilesResSchema, result);
     }
 
     /**
