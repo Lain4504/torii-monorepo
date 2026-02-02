@@ -84,7 +84,7 @@ export class RoomInfoService {
         // If status is "ended" or anything else, it will correctly return IsActive: false and "room is not active".
 
         // Return full context
-        // roomDbInfo is null because Go implementation doesn't fetch it
+        // roomDbInfo is null
         return { res, roomDbInfo: null, rInfo, metadata, meta: metadata };
     }
 
@@ -526,7 +526,7 @@ export class RoomInfoService {
             });
 
             this.logger.log(`Inserted/Updated room info: ${info.roomId}`);
-            // Return full object with ID - matches GORM Save() behavior
+            // Return full object with ID
             return result;
         } catch (error) {
             this.logger.error(`Failed to insert/update room info: ${error.message}`);

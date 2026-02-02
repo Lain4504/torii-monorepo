@@ -23,7 +23,6 @@ export class JanitorRoomService {
 
     /**
      * activeRoomChecker will check & do reconciliation between DB & livekit
-     * Matches Go: activeRoomChecker
      */
     async activeRoomChecker(): Promise<void> {
         // Get active rooms lightweight
@@ -88,7 +87,6 @@ export class JanitorRoomService {
 
     /**
      * checkRoomWithDuration checks if any room exceeded its duration limit
-     * Matches Go: checkRoomWithDuration (from janitor_duration.go)
      */
     async checkRoomWithDuration(): Promise<void> {
         try {

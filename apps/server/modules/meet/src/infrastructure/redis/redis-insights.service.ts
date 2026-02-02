@@ -104,7 +104,6 @@ export class RedisInsightsService {
 
     /**
      * UpdateAITextChatUsage records AI chat token usage
-     * Match Go: pkg/services/redis/insights_ai_chat.go -> UpdateAITextChatUsage
      */
     async updateAITextChatUsage(
         roomId: string,
@@ -217,7 +216,6 @@ export class RedisInsightsService {
 
     /**
      * Transcription History Methods
-     * Matches Go: pkg/services/redis/insights_transcription_history.go
      */
 
     private formatTranscriptionHistoryKey(roomId: string): string {

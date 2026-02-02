@@ -2,7 +2,6 @@
  * NATS Service - Base Service
  *
  * Main NATS service with metadata marshaling utilities and connection management.
- * Aligned with Go server's consolidated bucket strategy.
  */
 
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
@@ -19,8 +18,8 @@ import {
     nkeyAuthenticator,
 } from 'nats';
 
-// Constants (Aligned with Go pkg/services/nats/nats_service.go)
-const NATS_PREFIX = 'pnm-';
+// Constants
+const NATS_PREFIX = 'wajlc-';
 const CONSOLIDATED_ROOM_BUCKET_PREFIX = `${NATS_PREFIX}room-`;
 const ROOM_INFO_KEY_PREFIX = 'info_';
 const USER_KEY_PREFIX = 'user_';
@@ -52,7 +51,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     async onModuleInit() {
         this.logger.log('Initializing NATS Service...');
         await this.connectToNats();
-        // Ensure global room stream exists (Match Go: s.createRoomNatsStream())
+        // Ensure global room stream exists
         await this.createRoomNatsStream();
         // Ensure recorder info bucket exists and watch it
         await this.createRecorderKVAndWatch();
@@ -92,8 +91,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     /**
-     * Create global room stream matching Go server logic.
-     * Go: pkg/services/nats/js_stream.go -> createRoomNatsStream
+     * Create global room stream
      */
     private async createRoomNatsStream() {
         const streamName = this.getRoomStreamName();
@@ -122,10 +120,9 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Create recorder KV bucket and start watching.
-     * Match Go: pkg/services/nats/recorder.go -> createRecorderKVAndWatch
      */
     private async createRecorderKVAndWatch() {
-        const bucket = this.configService.get<string>('NATS_RECORDER_INFO_KV_BUCKET') || 'pnm-recorder-info';
+        const bucket = this.configService.get<string>('NATS_RECORDER_INFO_KV_BUCKET') || 'wajlc-recorder-info';
         const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
         try {
@@ -146,7 +143,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     // ============================================================================
-    // Formatting Helpers (Matching Go: pkg/services/nats/nats_service.go)
+    // Formatting Helpers
     // ============================================================================
 
     formatConsolidatedRoomBucket(roomId: string): string {
@@ -300,6 +297,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     getRoomStreamName(): string {
-        return this.configService.get<string>('NATS_ROOM_STREAM_NAME') || 'pnm-room-stream';
+        return this.configService.get<string>('NATS_ROOM_STREAM_NAME') || 'wajlc-room-stream';
     }
 }

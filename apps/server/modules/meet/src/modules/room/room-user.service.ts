@@ -94,7 +94,6 @@ export class RoomUserService {
                 throw new Error(`name: ${RECORDER_USER_AUTH_NAME} is reserved for internal use only`);
             }
             // Logic for internal user ID check (internal users like system bots)
-            // Go: if config.IsUserIdInternal(g.GetUserInfo().GetUserId()) { ... }
             if (userId === 'RECORDER_BOT' || userId === 'RTMP_BOT' || userId === 'system') {
                 throw new Error(`user_id: ${userId} is reserved for internal use only`);
             }
@@ -159,12 +158,10 @@ export class RoomUserService {
                 throw new Error('user_id should only contain ASCII letters (a-z A-Z), digits (0-9) or -_');
             }
             // Add an extra check to ensure our chosen separator pattern is not present.
-            // Go: strings.Contains(g.UserInfo.UserId, natsservice.UserKeyFieldPrefix)
             // Assuming UserKeyFieldPrefix is 'field_' (implied by context of NATS keys)
             if (req.userInfo.userId.includes('field_')) {
                 throw new Error("user_id cannot contain the reserved pattern 'field_'");
             }
-            // Go: strings.HasPrefix(g.UserInfo.UserId, natsservice.UserKeyPrefix)
             // Assuming UserKeyPrefix is 'user_'
             if (req.userInfo.userId.startsWith('user_')) {
                 throw new Error("user_id cannot start with the reserved pattern 'user_'");

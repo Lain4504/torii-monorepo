@@ -280,7 +280,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
             return;
         }
 
-        // Subscribe to cleanup subject (Mirroring Go's nats subscription for Redis key cleanup)
+        // Subscribe to cleanup subject
         nc.subscribe(WEBHOOK_CLEANUP_SUBJECT, {
             callback: (err, msg) => {
                 if (err) {

@@ -21,11 +21,9 @@ export class NatsConsumerService {
 
     /**
      * CreateUserConsumer creates a single consumer per user for public and private system messages.
-     * Matches Go: pkg/services/nats/js_stream.go -> CreateUserConsumer
      */
     async createUserConsumer(roomId: string, userId: string): Promise<string[]> {
         const streamName = this.natsService.getRoomStreamName();
-        // Go: DurableNameTpl = "%s_%s"
         const durableName = `${roomId}_${userId}`;
 
         const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
@@ -42,7 +40,7 @@ export class NatsConsumerService {
                 ],
             });
 
-            // Return permission strings that will be added to user's NATS permissions (from nats_auth_controller.go)
+            // Return permission strings that will be added to user's NATS permissions
             return [
                 `$JS.API.CONSUMER.INFO.${streamName}.${durableName}`,
                 `$JS.API.CONSUMER.MSG.NEXT.${streamName}.${durableName}`,
@@ -62,7 +60,6 @@ export class NatsConsumerService {
 
     /**
      * Delete consumer for a user
-     * Matches Go: pkg/services/nats/js_stream.go -> DeleteConsumer
      */
     async deleteConsumer(roomId: string, userId: string): Promise<void> {
         const streamName = this.natsService.getRoomStreamName();

@@ -13,7 +13,7 @@ import { NatsUserInfoService } from './nats-user-info.service';
 import * as crypto from 'crypto';
 
 // Constants
-const RECORDER_USER_AUTH_NAME = 'PLUGNMEET_RECORDER_AUTH';
+const RECORDER_USER_AUTH_NAME = 'WAJLC_RECORDER_AUTH';
 const TRANSCODER_CONSUMER_DURABLE = 'transcoderWorker';
 
 interface ConnectOptions {
@@ -219,10 +219,8 @@ export class NatsAuthCalloutService {
         const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'recorderChannel';
         const recorderInfoKv = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
         const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'recorderTranscoderJobs';
-        // Go implementation does not append userId to recorderInfoKv
-        // const userId = tokenData.userId || tokenData.user_id; 
+        // const userId = tokenData.userId || tokenData.user_id;
 
-        // Match Go: pkg/controllers/nats_auth_controller.go setPermissionForRecorder
         const pubAllow = [
             '$JS.API.INFO',
             '_INBOX.>', // otherwise won't be able to send respond msg
@@ -258,13 +256,13 @@ export class NatsAuthCalloutService {
         const roomId = tokenData.roomId || tokenData.room_id;
         const userId = tokenData.userId || tokenData.user_id;
 
-        // ✅ CRITICAL: Check user info exists (lines 142-148 in Go)
+        // ✅ CRITICAL: Check user info exists
         const userInfo = await this.userInfoService.getUserInfo(roomId, userId);
         if (!userInfo) {
             throw new Error(`User info not found for userId: ${userId}, roomId: ${roomId}`);
         }
 
-        // Create single user consumer (Matches Go: CreateUserConsumer)
+        // Create single user consumer
         const consumerPermissions = await this.consumerService.createUserConsumer(roomId, userId);
 
         const sysJsWorker = this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker';
@@ -273,7 +271,6 @@ export class NatsAuthCalloutService {
         const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
         const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
 
-        // Match Go: pkg/controllers/nats_auth_controller.go (setPermissionForClient)
         const allowPub = [
             '$JS.API.INFO',
             // permissions for consumer (JetStream)
@@ -286,8 +283,7 @@ export class NatsAuthCalloutService {
             `${dataChannelSubject}.${roomId}`,
         ];
 
-        // Assign Permissions, adhering to JWT Claims structure (permissions field in Go)
-        // Go: claims.Permissions = jwt.Permissions{ Pub: ..., Sub: ... }
+        // Assign Permissions, adhering to JWT Claims structure
         natsClaims.permissions = {
             pub: { allow: allowPub },
             sub: {

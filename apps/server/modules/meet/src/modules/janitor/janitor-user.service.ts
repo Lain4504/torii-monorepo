@@ -5,10 +5,10 @@ import { NatsMsgServerToClientEvents } from '@workspace/protocol';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
 const INGRESS_USER_ID_PREFIX = 'ingres_';
-const AGENT_USER_USER_ID_PREFIX = 'pnm_agent-';
-const TTS_AGENT_USER_ID_PREFIX = 'pnm_tts_agent-';
+const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
+const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 const SIP_USER_ID_PREFIX = 'sip_';
-const USER_ONLINE_MAX_PING_DIFF = 20 * 1000; // 20 seconds, match Go's UserOnlineMaxPingDiff (assuming same value, Go uses defaults usually)
+const USER_ONLINE_MAX_PING_DIFF = 20 * 1000; // 20 seconds
 
 @Injectable()
 export class JanitorUserService {
@@ -33,7 +33,7 @@ export class JanitorUserService {
         try {
             const jsm = this.natsService.getJetStreamManager() as any;
             const kvs = await jsm.kv.list();
-            const prefix = 'pnm-room-';
+            const prefix = 'wajlc-room-';
 
             for await (const status of kvs) {
                 const name = status.bucket;

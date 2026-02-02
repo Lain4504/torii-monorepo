@@ -154,7 +154,7 @@ export class FileService {
         });
         await this.natsRoom.addRoomFile(roomId, meta);
 
-        // Removed publishChatMsgForFile to match Go logic
+        // Removed publishChatMsgForFile
 
         return create(UploadBase64EncodedDataResSchema, {
             status: true,
@@ -233,7 +233,7 @@ export class FileService {
             fileExtension: path.extname(safeFilename).replace('.', ''),
         });
 
-        // Removed publishChatMsgForFile to match Go logic
+        // Removed publishChatMsgForFile
 
         // If it's an office file, we might want to start conversion
         if (req.fileType === RoomUploadedFileType.WHITEBOARD_CONVERTED_FILE) {
@@ -264,14 +264,13 @@ export class FileService {
         const fileName = path.basename(filePath);
         const ext = path.extname(fileName).toLowerCase();
 
-        // Check MimeType again (Go does this)
+        // Check MimeType again
         this.detectMimeTypeForValidation(fileName);
 
         let pdfPath = fullPath;
         if (ext !== '.pdf') {
             // Convert to PDF using soffice (LibreOffice)
             try {
-                // Go uses context with timeout (2 min), NestJS Promise/Exec doesn't have built-in timeout here easily
                 // We'll trust the command for now
                 await execPromise(`soffice --headless --invisible --nologo --nolockcheck --convert-to pdf --outdir "${outputDir}" "${fullPath}"`);
                 const pdfName = path.basename(fileName, ext) + '.pdf';

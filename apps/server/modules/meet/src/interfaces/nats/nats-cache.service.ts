@@ -2,7 +2,7 @@
  * NATS Cache Service
  *
  * In-memory cache for NATS KV data with real-time watchers.
- * Matches Go server consolidated bucket strategy (pnm-room-{roomId}).
+ * (wajlc-room-{roomId}).
  */
 
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
@@ -100,7 +100,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * AddRoomWatcher starts a unified watcher for the consolidated room bucket.
-     * Matches Go server consolidated bucket strategy.
      */
     addRoomWatcher(kv: any, bucket: string, roomId: string): void {
         // Check if already watching
@@ -241,7 +240,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * WatchRecorderKV starts a watcher for the global recorder info bucket.
-     * Match Go: nats_cache.go -> watchRecorderKV
      */
     watchRecorderKV(kv: any): void {
         kv.watch({
@@ -268,11 +266,9 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * Update recorder cache
-     * Match Go: nats_cache_recorder.go -> updateRecorderCache
      */
     private updateRecorderCache(entry: any): void {
         const key = entry.key;
-        // Match Go: pkg/services/nats/utils.go logic roughly (parsing key)
         const parts = key.split('-');
         if (parts.length < 2) return;
 
@@ -299,7 +295,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
         const val = entry.value ? new TextDecoder().decode(entry.value) : '';
 
-        // Match plugnmeet.RecorderInfoKeys enums
         // RECORDER_INFO_MAX_LIMIT = 1
         // RECORDER_INFO_CURRENT_PROGRESS = 2
         // RECORDER_INFO_LAST_PING = 3
@@ -318,7 +313,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * GetAllCachedActiveRecorders retrieves all active recorders from the cache.
-     * Match Go: pkg/services/nats/nats_cache_recorder.go -> getAllCachedActiveRecorders
      */
     getAllCachedActiveRecorders(pingTimeoutMs: number): RecorderInfo[] {
         const recorders: RecorderInfo[] = [];

@@ -30,7 +30,7 @@ const DEFAULT_NUM_WORKERS = 50; //50
 const DEFAULT_JOB_QUEUE_SIZE = 1000; //1000
 const NATS_AUTH_SERVICE_ENDPOINT_SUBJECT = '$SYS.REQ.USER.AUTH';
 const NATS_CONNECTION_EVENT_SUBJECT_FORMAT = '$SYS.ACCOUNT.%s.>';
-const PREFIX = 'pnm-';
+const PREFIX = 'wajlc-';
 const NATS_AUTH_SERVICE_NAME = PREFIX + 'auth';
 const NATS_AUTH_SERVICE_QUEUE_GROUP = PREFIX + 'auth-queue';
 const NATS_CONNECTION_EVENT_QUEUE_GROUP = PREFIX + 'conn-event-queue';
@@ -386,8 +386,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     await this.natsSystemEventsService.handleMediaServerInfo(roomId, userId, undefined, true);
                     break;
 
-                case NatsMsgClientToServerEvents.REQ_RENEW_PNM_TOKEN:
-                    await this.natsSystemEventsService.renewPNMToken(roomId, userId, req.msg);
+                case NatsMsgClientToServerEvents.REQ_RENEW_WAJLC_TOKEN:
+                    await this.natsSystemEventsService.renewWajlcToken(roomId, userId, req.msg);
                     break;
 
                 case NatsMsgClientToServerEvents.PING:
@@ -570,7 +570,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             }
 
             // Skip recorder connections
-            if (claims.name === 'PLUGNMEET_RECORDER_AUTH') {
+            if (claims.name === 'WAJLC_RECORDER_AUTH') {
                 return;
             }
 

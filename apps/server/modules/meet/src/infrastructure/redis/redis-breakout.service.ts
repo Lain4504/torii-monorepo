@@ -2,7 +2,6 @@
  * Redis Breakout Service
  *
  * Handles breakout room data in Redis.
- * Matches Go server: pkg/services/redis/bk_room.go
  */
 
 import { Injectable, Logger, Inject } from '@nestjs/common';
@@ -28,7 +27,6 @@ export class RedisBreakoutService {
 
     /**
      * InsertOrUpdateBreakoutRoom adds or updates a breakout room in the parent room's hash.
-     * Match Go: pkg/services/redis/bk_room.go -> InsertOrUpdateBreakoutRoom
      */
     async insertOrUpdateBreakoutRoom(parentRoomId: string, bkRoomId: string, val: Buffer | string): Promise<void> {
         const key = this.formatBreakoutRoomHashKey(parentRoomId);
@@ -45,7 +43,6 @@ export class RedisBreakoutService {
 
     /**
      * DeleteBreakoutRoom removes a specific breakout room from the parent room's hash.
-     * Match Go: pkg/services/redis/bk_room.go -> DeleteBreakoutRoom
      */
     async deleteBreakoutRoom(parentRoomId: string, bkRoomId: string): Promise<void> {
         const key = this.formatBreakoutRoomHashKey(parentRoomId);
@@ -59,7 +56,6 @@ export class RedisBreakoutService {
 
     /**
      * GetBreakoutRoom retrieves the data for a specific breakout room.
-     * Match Go: pkg/services/redis/bk_room.go -> GetBreakoutRoom
      */
     async getBreakoutRoom(parentRoomId: string, bkRoomId: string): Promise<string | null> {
         const key = this.formatBreakoutRoomHashKey(parentRoomId);
@@ -74,7 +70,6 @@ export class RedisBreakoutService {
 
     /**
      * CountBreakoutRooms returns the number of breakout rooms.
-     * Match Go: pkg/services/redis/bk_room.go -> CountBreakoutRooms
      */
     async countBreakoutRooms(parentRoomId: string): Promise<number> {
         const key = this.formatBreakoutRoomHashKey(parentRoomId);

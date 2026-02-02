@@ -2,7 +2,6 @@
  * Redis Webhook Service
  *
  * Handles webhook data in Redis.
- * Matches Go server: pkg/services/redis/webhook.go
  */
 
 import { Injectable, Logger, Inject } from '@nestjs/common';
@@ -27,7 +26,6 @@ export class RedisWebhookService {
 
     /**
      * AddWebhookData adds or updates webhook data for a room.
-     * Match Go: pkg/services/redis/webhook.go -> AddWebhookData
      */
     async addWebhookData(roomId: string, val: Buffer | string): Promise<void> {
         try {
@@ -36,7 +34,6 @@ export class RedisWebhookService {
 
             // Note: HExpire is a Redis 7.4+ command. 
             // If the server doesn't support it, this might fail.
-            // Go server uses it, so we attempt to follow.
             // Using send_command for compatibility if ioredis doesn't have it explicitly.
             (pipeline as any).hexpire(WEBHOOK_HASH_KEY, DEFAULT_TTL, roomId);
 
@@ -56,7 +53,6 @@ export class RedisWebhookService {
 
     /**
      * GetWebhookData retrieves webhook data for a specific room.
-     * Match Go: pkg/services/redis/webhook.go -> GetWebhookData
      */
     async getWebhookData(roomId: string): Promise<Buffer | null> {
         try {

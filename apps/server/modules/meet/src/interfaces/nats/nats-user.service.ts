@@ -2,7 +2,7 @@
  * NATS User Service
  *
  * Handles NATS KV operations for user information and modification.
- * Matches Go server consolidated bucket strategy (pnm-room-{roomId}).
+ *  (wajlc-room-{roomId}).
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
@@ -29,7 +29,7 @@ import { NatsSystemEventsService } from './nats-system-events.service';
 import { AnalyticsService } from '../../modules/analytics/analytics.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
-// User status constants (aligned with Go)
+// User status constants
 export const USER_STATUS_ADDED = 'added';
 export const USER_STATUS_ONLINE = 'online';
 export const USER_STATUS_DISCONNECTED = 'disconnected';
@@ -51,7 +51,6 @@ export class NatsUserService {
 
     /**
      * GetRoomUserStatus retrieves the status of a user in a specific room.
-     * Match Go: pkg/services/nats/user_info.go -> GetRoomUserStatus
      */
     async getRoomUserStatus(roomId: string, userId: string): Promise<string> {
         const cached = this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
@@ -69,7 +68,6 @@ export class NatsUserService {
 
     /**
      * GetUserInfo retrieves detailed information about a user in a specific room.
-     * Matches Go: pkg/services/nats/user_info.go -> GetUserInfo
      */
     async getUserInfo(roomId: string, userId: string): Promise<NatsKvUserInfo | null> {
         this.logger.debug(`Getting user info: user=${userId}, room=${roomId}`);
@@ -118,7 +116,6 @@ export class NatsUserService {
 
     /**
      * GetOnlineUsersId retrieves the IDs of users who are currently online.
-     * Match Go: pkg/services/nats/user_info.go -> GetOnlineUsersId
      */
     async getOnlineUsersId(roomId: string): Promise<string[]> {
         const cachedIds = this.natsService.getCacheService().getUsersIdFromRoomStatusBucket(roomId, USER_STATUS_ONLINE);
@@ -155,7 +152,6 @@ export class NatsUserService {
 
     /**
      * GetRoomUserIds retrieves all user IDs for a given room.
-     * Match Go: pkg/services/nats/user_info.go -> GetRoomUserIds
      */
     async getRoomUserIds(roomId: string): Promise<string[]> {
         const cachedIds = this.natsService.getCacheService().getUsersIdFromRoomStatusBucket(roomId, '');
@@ -188,7 +184,6 @@ export class NatsUserService {
 
     /**
      * GetOnlineUsersList retrieves detailed information about all online users.
-     * Match Go: pkg/services/nats/user_info.go -> GetOnlineUsersList
      */
     async getOnlineUsersList(roomId: string): Promise<NatsKvUserInfo[]> {
         const userIds = await this.getOnlineUsersId(roomId);

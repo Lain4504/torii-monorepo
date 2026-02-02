@@ -77,7 +77,6 @@ export class NatsSystemEventsService {
 
     /**
      * BroadcastSystemEventToRoom broadcasts a system event to all clients in a room
-     * Match Go: pkg/services/nats/sys_events.go -> BroadcastSystemEventToRoom
      */
     async broadcastSystemEventToRoom(
         event: NatsMsgServerToClientEvents,
@@ -123,7 +122,6 @@ export class NatsSystemEventsService {
     /**
      * BroadcastSystemPubSubEventToRoom sends a public message to everyone in the room
      * using core NATS for high-performance, loss-tolerant events.
-     * Match Go: pkg/services/nats/sys_events.go -> BroadcastSystemPubSubEventToRoom
      */
     async broadcastSystemPubSubEventToRoom(
         event: NatsMsgServerToClientEvents,
@@ -161,7 +159,6 @@ export class NatsSystemEventsService {
 
     /**
      * BroadcastSystemEventToRoomWithBinMsg sends an event with additional binary data
-     * Match Go: pkg/services/nats/sys_events.go -> BroadcastSystemEventToRoomWithBinMsg
      */
     async broadcastSystemEventToRoomWithBinMsg(
         event: NatsMsgServerToClientEvents,
@@ -557,18 +554,18 @@ export class NatsSystemEventsService {
     /**
      * RenewWajlcToken handles token renewal request
      */
-    async renewPNMToken(roomId: string, userId: string, currentToken: string): Promise<void> {
+    async renewWajlcToken(roomId: string, userId: string, currentToken: string): Promise<void> {
         try {
             const newToken = await this.authService.renewWajlcToken(currentToken);
 
             await this.broadcastSystemEventToRoom(
-                NatsMsgServerToClientEvents.RESP_RENEW_PNM_TOKEN,
+                NatsMsgServerToClientEvents.RESP_RENEW_WAJLC_TOKEN,
                 roomId,
                 newToken,
                 userId,
             );
         } catch (error) {
-            this.logger.error(`Error renewing PNM token for ${userId}: ${error.message}`);
+            this.logger.error(`Error renewing WAJLC token for ${userId}: ${error.message}`);
         }
     }
 

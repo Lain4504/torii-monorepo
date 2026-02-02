@@ -41,7 +41,6 @@ export class NatsUserInfoService {
 
     async getRoomAllUsersFromStatusBucket(roomId: string): Promise<Record<string, any> | null> {
         // This was used to list all user statuses.
-        // Match Go: GetRoomUserStatusEntries
         return this.natsUserService.getRoomUserIds(roomId).then(ids => {
             const result: Record<string, any> = {};
             ids.forEach(id => result[id] = { value: id }); // Fake entry for compatibility

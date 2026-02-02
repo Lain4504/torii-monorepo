@@ -128,7 +128,7 @@ export class RecordingService {
         const recordingId = `${sid}-${Date.now()}`;
 
         const toSend = create(WajlcToRecorderSchema, {
-            from: 'plugnmeet',
+            from: 'wajlc',
             roomTableId: roomTableId.toString(),
             roomId: roomId,
             roomSid: sid,

@@ -44,9 +44,9 @@ import { Inject, forwardRef } from '@nestjs/common';
 
 // Constants
 const INGRESS_USER_ID_PREFIX = 'ingres_';
-const TTS_AGENT_USER_ID_PREFIX = 'pnm_tts_agent-';
+const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 const SIP_USER_ID_PREFIX = 'sip_';
-const AGENT_USER_USER_ID_PREFIX = 'pnm_agent-';
+const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
 
 const WAIT_BEFORE_TRIGGER_ON_AFTER_ROOM_ENDED = 2000; // 2 seconds in ms
 

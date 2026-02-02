@@ -89,14 +89,14 @@ export class NatsRoomService {
         const activeRooms: { roomId: string }[] = [];
 
         try {
-            // Consolidated bucket prefix for rooms: KV_pnm-room-
+            // Consolidated bucket prefix for rooms: KV_wajlc-room-
             const streamPrefix = `KV_${NatsService.CONSOLIDATED_ROOM_BUCKET_PREFIX}`;
 
             const streams = await jsm.streams.list();
 
             for await (const stream of streams) {
                 if (stream.config.name.startsWith(streamPrefix)) {
-                    // Extract Room ID: KV_pnm-room-<roomId>
+                    // Extract Room ID: KV_wajlc-room-<roomId>
                     const roomId = stream.config.name.substring(streamPrefix.length);
                     activeRooms.push({ roomId });
                 }

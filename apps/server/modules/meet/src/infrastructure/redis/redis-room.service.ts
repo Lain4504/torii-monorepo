@@ -9,14 +9,13 @@ import Redis from 'ioredis';
 import { REDIS_CLIENT } from '@server/shared';
 import type { NatsKvRoomInfo } from '@workspace/protocol';
 
-const REDIS_PREFIX = 'wajlc:'; // Customized prefix (Go uses "pnm:")
+const REDIS_PREFIX = 'wajlc:'; // Customized prefix
 const TEMPORARY_ROOM_DATA_KEY = `${REDIS_PREFIX}temporaryRoomData:%s`;
 const ROOM_WITH_DURATION_INFO_KEY = `${REDIS_PREFIX}roomWithDurationInfo`;
 const DEFAULT_TTL = 60 * 60 * 24; // 24 hours in seconds
 
 /**
  * RedisRoomService handles room-related Redis operations
- * Matches Go server: pkg/services/redis/room.go and room_duration.go
  */
 @Injectable()
 export class RedisRoomService {

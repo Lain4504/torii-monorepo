@@ -8,8 +8,8 @@ export class JanitorService implements OnApplicationBootstrap, OnApplicationShut
     private readonly logger = new Logger(JanitorService.name);
     private isShutdown = false;
     private leaderLockVal: string = '';
-    private readonly leaderLockTTL = 60; // 1 minute, matching Go
-    private readonly leaderRenewal = 30 * 1000; // 30 seconds, matching Go
+    private readonly leaderLockTTL = 60; // 1 minute
+    private readonly leaderRenewal = 30 * 1000; // 30 seconds
     private taskTicker: NodeJS.Timeout | null = null;
     private renewalTicker: NodeJS.Timeout | null = null;
 
@@ -60,7 +60,6 @@ export class JanitorService implements OnApplicationBootstrap, OnApplicationShut
         // Tasks schedules
         let nextUserCheck = Date.now() + 60 * 1000; // 1 min
         let nextRoomCheck = Date.now() + 5 * 60 * 1000; // 5 min
-        // Go: ticker := time.NewTicker(5 * time.Second)
         const tickInterval = 5000;
 
         return new Promise<void>((resolve) => {

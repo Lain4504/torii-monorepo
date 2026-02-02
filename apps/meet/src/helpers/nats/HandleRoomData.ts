@@ -47,10 +47,12 @@ export default class HandleRoomData {
 
   public updateRoomMetadata = async (data: string) => {
     try {
-      const metadata = fromJsonString(RoomMetadataSchema, data);
+      const metadata = fromJsonString(RoomMetadataSchema, data, {
+        ignoreUnknownFields: true,
+      });
       if (
-        typeof this._room.metadata === 'undefined' ||
-        this._room.metadata.metadataId !== metadata.metadataId
+          typeof this._room.metadata === 'undefined' ||
+          this._room.metadata.metadataId !== metadata.metadataId
       ) {
         this._room.metadata = metadata;
         await this.updateMetadata();
@@ -90,17 +92,17 @@ export default class HandleRoomData {
     const isActiveRecording = store.getState().session.isActiveRecording;
     if (!isActiveRecording && this._room.metadata?.isRecording) {
       store.dispatch(
-        addUserNotification({
-          message: i18n.t('room-metadata.session-recording'),
-          typeOption: 'info',
-        }),
+          addUserNotification({
+            message: i18n.t('room-metadata.session-recording'),
+            typeOption: 'info',
+          }),
       );
     } else if (isActiveRecording && !this._room.metadata?.isRecording) {
       store.dispatch(
-        addUserNotification({
-          message: i18n.t('room-metadata.session-not-recording'),
-          typeOption: 'info',
-        }),
+          addUserNotification({
+            message: i18n.t('room-metadata.session-not-recording'),
+            typeOption: 'info',
+          }),
       );
     }
   }
@@ -112,20 +114,20 @@ export default class HandleRoomData {
     }
 
     const isActiveRtmpBroadcasting =
-      store.getState().session.isActiveRtmpBroadcasting;
+        store.getState().session.isActiveRtmpBroadcasting;
     if (!isActiveRtmpBroadcasting && this._room.metadata?.isActiveRtmp) {
       store.dispatch(
-        addUserNotification({
-          message: i18n.t('room-metadata.rtmp-started'),
-          typeOption: 'info',
-        }),
+          addUserNotification({
+            message: i18n.t('room-metadata.rtmp-started'),
+            typeOption: 'info',
+          }),
       );
     } else if (isActiveRtmpBroadcasting && !this._room.metadata?.isActiveRtmp) {
       store.dispatch(
-        addUserNotification({
-          message: i18n.t('room-metadata.rtmp-stopped'),
-          typeOption: 'info',
-        }),
+          addUserNotification({
+            message: i18n.t('room-metadata.rtmp-stopped'),
+            typeOption: 'info',
+          }),
       );
     }
   }
@@ -136,8 +138,8 @@ export default class HandleRoomData {
     }
 
     if (
-      !this._room.metadata?.welcomeMessage ||
-      this._room.metadata?.welcomeMessage === ''
+        !this._room.metadata?.welcomeMessage ||
+        this._room.metadata?.welcomeMessage === ''
     ) {
       this.welcomeMessage = '';
       return;
@@ -155,7 +157,7 @@ export default class HandleRoomData {
     });
 
     store.dispatch(
-      addChatMessage({ message: body, currentUserId: this.userId }),
+        addChatMessage({ message: body, currentUserId: this.userId }),
     );
   }
 
@@ -189,11 +191,11 @@ export default class HandleRoomData {
       // we'll wait until the new update arrives
       if (!this.toastId) {
         this.toastId = toast.loading(
-          i18n.t('notifications.preloaded-whiteboard-file-processing'),
-          {
-            type: 'info',
-            closeButton: true,
-          },
+            i18n.t('notifications.preloaded-whiteboard-file-processing'),
+            {
+              type: 'info',
+              closeButton: true,
+            },
         );
       }
       return;
@@ -216,9 +218,9 @@ export default class HandleRoomData {
     }
 
     const whiteboardFiles =
-      store.getState().whiteboard.whiteboardUploadedOfficeFiles;
+        store.getState().whiteboard.whiteboardUploadedOfficeFiles;
     const exist = whiteboardFiles.find(
-      (f) => f.fileId === whiteboard.whiteboardFileId,
+        (f) => f.fileId === whiteboard.whiteboardFileId,
     );
     if (!exist) {
       const f: WhiteboardFileConversionRes = {
