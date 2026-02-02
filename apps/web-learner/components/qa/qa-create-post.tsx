@@ -42,7 +42,7 @@ export function QACreatePost({ onSuccess }: { onSuccess?: () => void }) {
                     viewCount: 0,
                     likeCount: 0,
                     commentCount: 0,
-                    status: 'DRAFT',
+                    status: 'PUBLISHED',
                 }
 
                 // Handle different response structures
