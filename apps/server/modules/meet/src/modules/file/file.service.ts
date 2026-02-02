@@ -53,9 +53,6 @@ export class FileService {
     /**
      * ResumableFileUpload handles chunked uploads from resumable.js
      */
-    /**
-     * ResumableFileUpload handles chunked uploads from resumable.js
-     */
     async resumableFileUpload(req: ResumableUploadReq, method: string, file?: Express.Multer.File): Promise<any> {
         this.logger.debug(`ResumableFileUpload: ${method} for room ${req.roomId}, chunk ${req.resumableChunkNumber}`);
 
