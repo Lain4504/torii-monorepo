@@ -2,7 +2,6 @@
  * Recording API Controller (Gateway)
  *
  * Handles recording and RTMP task operations via Gateway -> NATS -> Meet Service
- * Match Go server: pkg/controllers/recording.go
  */
 
 import {
@@ -39,7 +38,6 @@ export class RecordingApiController {
 
     /**
      * HandleRecorderTasks handles start/stop recording & RTMP requests
-     * Match Go: HandleRecorderTasks
      * @route POST /api/recording
      * @route POST /api/rtmp
      */

@@ -76,7 +76,6 @@ export class RoomUserService {
      * Generate Wajlc join token for a user
      *
      * This is the main entry point for users joining a room
-     * Match Go server: returns only { token: string }
      */
     async getWajlcJoinToken(req: any): Promise<{ token: string }> {
         const roomId = req.roomId;
@@ -221,7 +220,6 @@ export class RoomUserService {
 
             this.logger.log('Successfully generated Wajlc join token');
 
-            // Match Go server: return only token string
             return { token };
 
         } catch (error) {
@@ -266,7 +264,6 @@ export class RoomUserService {
      */
     private isUserIdInternal(userId: string): boolean {
         // Internal user IDs are reserved for system bots and agents.
-        // Match Go logic: IngressUserIdPrefix, AgentUserUserIdPrefix, SipUserIdPrefix, TTSAgentUserIdPrefix
         return (
             userId.startsWith('ingres_') ||
             userId.startsWith('wajlc_agent-') ||

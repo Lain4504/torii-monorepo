@@ -2,7 +2,6 @@
  * Recording Controller (Gateway)
  *
  * Handles recording-related API endpoints via Gateway -> NATS -> Meet Service
- * Match Go server: pkg/controllers/recording.go
  */
 
 import {
@@ -55,7 +54,6 @@ export class RecordingController {
 
     /**
      * HandleFetchRecordings fetches a list of recordings
-     * Match Go: HandleFetchRecordings
      * @route POST /auth/recording/fetch
      */
     @Post('fetch')
@@ -100,7 +98,6 @@ export class RecordingController {
 
     /**
      * HandleRecordingInfo gets information about a recording
-     * Match Go: HandleRecordingInfo
      * @route POST /auth/recording/info
      */
     @Post('info')
@@ -133,7 +130,6 @@ export class RecordingController {
 
     /**
      * HandleUpdateRecordingMetadata updates recording metadata
-     * Match Go: HandleUpdateRecordingMetadata
      * @route POST /auth/recording/updateMetadata
      */
     @Post('updateMetadata')
@@ -165,7 +161,6 @@ export class RecordingController {
 
     /**
      * HandleDeleteRecording deletes a recording
-     * Match Go: HandleDeleteRecording
      * @route POST /auth/recording/delete
      */
     @Post('delete')
@@ -197,7 +192,6 @@ export class RecordingController {
 
     /**
      * HandleGetDownloadToken generates a download token
-     * Match Go: HandleGetDownloadToken
      * @route POST /auth/recording/getDownloadToken
      */
     @Post('getDownloadToken')

@@ -330,7 +330,7 @@ export class FileService {
     async downloadAndProcessPreUploadWBfile(roomId: string, roomSid: string, fileUrl: string): Promise<any> {
         this.logger.log(`Downloading and processing pre-upload whiteboard file: ${fileUrl}`);
 
-        // Validate Remote File (Head Check) - Matching Go logic
+        // Validate Remote File (Head Check)
         try {
             const headRes = await axios.head(fileUrl);
             // Content-Length check

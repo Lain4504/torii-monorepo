@@ -213,7 +213,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     // ============================================================================
-    // Marshaling Helpers (Matching Go Logic)
+    // Marshaling Helpers
     // ============================================================================
 
     marshalToProtoJson<T>(message: T, schema: any): string {
@@ -255,10 +255,8 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * GetAllActiveRecorders retrieves all active recorders directly from the local cache.
-     * Match Go: pkg/services/nats/recorder.go -> GetAllActiveRecorders
      */
     getAllActiveRecorders(): any[] {
-        // Go uses s.app.RecorderInfo.PingTimeout (duration)
         // Defaulting to 3000ms if not configured
         const pingTimeout = this.configService.get<number>('RECORDER_PING_TIMEOUT') || 3000;
         return this.cacheService.getAllCachedActiveRecorders(pingTimeout);
@@ -266,7 +264,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * GetRecorderInfo retrieves a specific recorder's info directly from the local cache.
-     * Match Go: pkg/services/nats/recorder.go -> GetRecorderInfo
      */
     getRecorderInfo(recorderId: string): any | null {
         return this.cacheService.getCachedRecorderInfo(recorderId);

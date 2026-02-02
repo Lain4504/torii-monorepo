@@ -9,7 +9,7 @@ const INGRESS_USER_ID_PREFIX = 'ingres_';
 const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
 const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 const SIP_USER_ID_PREFIX = 'sip_';
-const USER_ONLINE_MAX_PING_DIFF = 120 * 1000; // 2 minutes (Matches Go)
+const USER_ONLINE_MAX_PING_DIFF = 120 * 1000; // 2 minutes
 
 @Injectable()
 export class JanitorUserService {

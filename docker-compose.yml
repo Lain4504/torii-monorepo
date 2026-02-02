@@ -59,19 +59,35 @@ services:
       - '7880:7880'
       - '7881:7881'
       - '7882:7882/udp'
-      - '5349:5349'       # TURN TLS
-      - '443:443/udp'     # TURN UDP (Fix for 4G)
-      - '50000-50100:50000-50100/udp' # Media range (100 ports)
+#      - '5349:5349' # TURN TLS
+#      - '443:443/udp' # TURN UDP (Fix for 4G)
+#      - '50000-50100:50000-50100/udp' # Media range (100 ports)
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
-      - ./certs:/certs:ro
+#      - ./certs:/certs:ro
     depends_on:
       - redis
+
+  livekit-ingress:
+    image: livekit/ingress:latest
+    container_name: torii-livekit-ingress
+    restart: always
+    command: --config /ingress.yaml
+    ports:
+      - '1935:1935/tcp'   # RTMP
+      - '8089:8089/tcp'   # WHIP
+    volumes:
+      - ./ingress.yaml:/ingress.yaml
+    depends_on:
+      - redis
+      - livekit
 
   # ========================================
   # Application Services
   # ========================================
+  # NOTE: Using pre-built image from Docker Hub to save VPS disk space
+  # Image name is configured via DOCKER_USERNAME in .env
 
   gateway:
     image: ${DOCKER_USERNAME}/torii-backend:latest

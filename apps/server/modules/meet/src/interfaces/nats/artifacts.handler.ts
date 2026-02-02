@@ -33,7 +33,6 @@ export class ArtifactsHandler {
         try {
             const result = await this.artifactsService.fetchArtifacts(data);
 
-            // Match Go: Check if totalArtifacts is 0
             if (Number(result.totalArtifacts) === 0) {
                 return create(FetchArtifactsResSchema, {
                     status: false,

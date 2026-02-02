@@ -246,7 +246,6 @@ export class NatsUserService {
 
     /**
      * GetUserLastPing retrieves last ping timestamp for a user.
-     * Match Go: pkg/services/nats/user_info.go -> GetUserLastPing
      */
     async getUserLastPing(roomId: string, userId: string): Promise<number> {
         const cached = this.natsService.getCacheService().getUserLastPingAt(roomId, userId);
@@ -265,7 +264,6 @@ export class NatsUserService {
 
     /**
      * IsUserPresenter checks if a user is a presenter.
-     * Match Go: pkg/services/nats/user_info.go -> IsUserPresenter
      */
     async isUserPresenter(roomId: string, userId: string): Promise<boolean> {
         const infoCache = this.natsService.getCacheService().getUserInfo(roomId, userId);
@@ -638,8 +636,26 @@ export class NatsUserService {
 
     async onAfterUserJoined(roomId: string, userId: string): Promise<void> {
         this.logger.log(`Handling user joined event: room=${roomId}, user=${userId}`);
-        const status = await this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
-        if (status?.status === USER_STATUS_ONLINE) return;
+
+        // Try cache first, then fallback to KV if cache not ready
+        // This matches Go server behavior: pkg/services/nats/user_info.go -> GetRoomUserStatus
+        let status = this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
+        if (!status) {
+            // Cache might not be ready yet, read directly from NATS KV as fallback
+            try {
+                const statusStr = await this.getRoomUserStatus(roomId, userId);
+                if (statusStr === USER_STATUS_ONLINE) {
+                    this.logger.debug(`User ${userId} already online (from KV fallback), skipping broadcast`);
+                    return;
+                }
+            } catch (error) {
+                // Continue if we can't read from KV - better to broadcast than miss the event
+                this.logger.warn(`Could not read user status from KV: ${error.message}`);
+            }
+        } else if (status.status === USER_STATUS_ONLINE) {
+            this.logger.debug(`User ${userId} already online (from cache), skipping broadcast`);
+            return;
+        }
 
         await this.updateUserStatus(roomId, userId, USER_STATUS_ONLINE);
         const userInfo = await this.getUserInfo(roomId, userId);

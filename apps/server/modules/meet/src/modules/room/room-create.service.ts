@@ -253,7 +253,7 @@ export class RoomCreateService {
         };
         setDefaultRoomSettings(roomDefaultSettings, req);
 
-        // Step 5: Copyright logic - match Go model
+        // Step 5: Copyright logic
         const copyrightDisplay = this.configService.get<boolean>('COPYRIGHT_DISPLAY') !== false;
         const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Powered by MiraiMagicLab';
         const copyrightAllowOverride = this.configService.get<boolean>('COPYRIGHT_ALLOW_OVERRIDE') || false;
@@ -275,7 +275,7 @@ export class RoomCreateService {
             req.metadata.roomFeatures.enableAnalytics = false;
         }
 
-        // Step 7: Insights features configuration - match Go model
+        // Step 7: Insights features configuration
         if (req.metadata?.roomFeatures?.insightsFeatures) {
             const insightsEnabled = this.configService.get<boolean>('INSIGHTS_ENABLED') || false;
             if (req.metadata.roomFeatures.insightsFeatures.isAllow && !insightsEnabled) {
@@ -296,7 +296,7 @@ export class RoomCreateService {
             }
         }
 
-        // Step 8: Handle if enabled E2EE - match Go model
+        // Step 8: Handle if enabled E2EE
         if (req.metadata?.roomFeatures?.endToEndEncryptionFeatures?.isEnabled) {
             // Disabling features that block E2EE
             // SIP is not supported, so we don't handle its field here

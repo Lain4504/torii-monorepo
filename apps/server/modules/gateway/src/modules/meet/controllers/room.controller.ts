@@ -145,7 +145,6 @@ export class RoomController {
                 this.natsClient.send({ cmd: 'room.isActive' }, request),
             );
 
-            // Match Go server: NATS returns IsRoomActiveRes directly
             res.status(200);
             sendProtoJsonResponse(res, IsRoomActiveResSchema, isRoomActiveRes);
         } catch (error) {

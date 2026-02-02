@@ -2,7 +2,6 @@
  * Artifact Controller (Gateway)
  *
  * Handles artifact-related API endpoints via Gateway -> NATS -> Meet Service
- * Match Go server: pkg/controllers/artifact.go
  */
 
 import {
@@ -53,7 +52,6 @@ export class ArtifactController {
 
     /**
      * HandleFetchArtifacts fetches a paginated list of artifacts
-     * Match Go: HandleFetchArtifacts
      * @route POST /auth/artifact/fetch
      */
     @Post('fetch')
@@ -84,7 +82,6 @@ export class ArtifactController {
                 this.natsClient.send({ cmd: 'artifact.fetch' }, request),
             );
 
-            // Match Go: Check if totalArtifacts is 0
             if (Number(result.result?.totalArtifacts) === 0) {
                 sendCommonProtoJsonResponse(res, false, 'no artifacts found');
                 return;
@@ -109,7 +106,6 @@ export class ArtifactController {
 
     /**
      * HandleGetArtifactInfo gets information about a specific artifact
-     * Match Go: HandleGetArtifactInfo
      * @route POST /auth/artifact/info
      */
     @Post('info')
@@ -140,7 +136,6 @@ export class ArtifactController {
                 this.natsClient.send({ cmd: 'artifact.info' }, request),
             );
 
-            // Match Go: Service returns ArtifactInfoRes directly
             res.status(200);
             sendProtoJsonResponse(res, result.$typeName, result);
         } catch (error) {

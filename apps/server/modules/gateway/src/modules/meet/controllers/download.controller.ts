@@ -2,7 +2,6 @@
  * Download Controller (Gateway)
  *
  * Handles file downloads (Recordings, Artifacts, etc.)
- * Match Go server: routers/app_routers.go
  */
 
 import {
@@ -25,7 +24,6 @@ export class DownloadController {
 
     /**
      * HandleDownloadRecording handles the download of a recording file
-     * Match Go: HandleDownloadRecording
      * @route GET /download/recording/:token
      */
     @Get('recording/:token')
@@ -61,7 +59,6 @@ export class DownloadController {
 
     /**
      * HandleDownloadArtifact handles the download of an artifact file
-     * Match Go: HandleDownloadArtifact
      * @route GET /download/artifact/:token
      */
     @Get('artifact/:token')

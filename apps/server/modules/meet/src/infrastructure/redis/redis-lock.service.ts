@@ -84,7 +84,7 @@ export class RedisLockService {
 
         this.redis = new Redis(redisUrl);
 
-        // Define custom Lua commands (Align with Go: redis.NewScript)
+        // Define custom Lua commands
         this.redis.defineCommand('unlock', {
             numberOfKeys: 1,
             lua: `

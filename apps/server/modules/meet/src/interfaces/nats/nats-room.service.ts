@@ -320,13 +320,13 @@ export class NatsRoomService {
         try {
             // 1. Delete breakout rooms (Handled by BreakoutService via Redis)
 
-            // 2. Delete all user consumers (aligned with Go's DeleteConsumer behavior)
+            // 2. Delete all user consumers
             try { await this.natsUserService.deleteAllRoomUsersWithConsumer(roomId); } catch { }
 
             // 3. Purge global room stream subjects
             try { await this.natsStreamService.deleteRoomNatsStream(roomId); } catch { }
 
-            // 4. Delete the consolidated room bucket (Matches Go behavior)
+            // 4. Delete the consolidated room bucket
             await this.deleteRoom(roomId);
 
             // 5. Final cleanup in cache
