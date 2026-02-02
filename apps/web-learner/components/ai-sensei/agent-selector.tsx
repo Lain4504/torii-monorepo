@@ -48,12 +48,12 @@ const features = [
 export function AgentSelector() {
     const pathname = usePathname()
     return (
-        <Sidebar collapsible="icon" className="border-r bg-muted/10 hidden md:flex h-full w-[250px]">
+        <Sidebar collapsible="icon" className="border-r border-border bg-card md:flex h-full w-[250px] z-20">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <a href="#">
+                        <SidebarMenuButton size="lg" asChild className="hover:bg-transparent cursor-default">
+                            <div className="flex gap-2 items-center">
                                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                                     <Bot className="size-4" />
                                 </div>
@@ -61,14 +61,14 @@ export function AgentSelector() {
                                     <span className="font-semibold">AI Sensei</span>
                                     <span className="">Chat Assistant</span>
                                 </div>
-                            </a>
+                            </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem className="pt-2">
-                        <SidebarMenuButton size="default" tooltip="Back to Dashboard" asChild className="hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors">
+                        <SidebarMenuButton size="default" tooltip="Back to Dashboard" asChild className="hover:bg-accent hover:text-accent-foreground transition-colors">
                             <Link href="/dashboard">
                                 <LayoutDashboard className="size-4" />
-                                <span className="font-medium">Dashboard</span>
+                                <span className="font-medium">Về Dashboard</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -76,7 +76,7 @@ export function AgentSelector() {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Features</SidebarGroupLabel>
+                    <SidebarGroupLabel>Tính năng</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {features.map((item) => (
@@ -85,6 +85,7 @@ export function AgentSelector() {
                                         isActive={pathname?.startsWith(item.href)}
                                         tooltip={item.description}
                                         asChild
+                                        className="transition-colors"
                                     >
                                         <Link href={item.href}>
                                             <item.icon />
@@ -98,13 +99,13 @@ export function AgentSelector() {
                 </SidebarGroup>
 
                 <SidebarGroup className="mt-auto">
-                    <SidebarGroupLabel>History</SidebarGroupLabel>
+                    <SidebarGroupLabel>Lịch sử</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton>
                                     <History className="size-4" />
-                                    <span>Recent Chats</span>
+                                    <span>Cuộc trò chuyện gần đây</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>

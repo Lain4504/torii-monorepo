@@ -11,6 +11,7 @@ import {
     Settings,
     LifeBuoy,
     BrainCircuit,
+    Bot,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -29,6 +30,7 @@ export const learningNav: NavItem[] = [
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
     { name: 'Kiểm tra đầu vào', href: '/dashboard/placement-test', icon: Award },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
+    { name: 'AI Sensei', href: '/ai-sensei', icon: Bot },
 ]
 
 export const progressNav: NavItem[] = [
