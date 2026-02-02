@@ -40,7 +40,7 @@ export class NatsRoomEventsService {
             const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
 
             if (!roomInfo) {
-                throw new Error('Did not found the room');
+                throw new Error('Could not find the room');
             }
 
             metadataStr = roomInfo.metadata;
