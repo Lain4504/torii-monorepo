@@ -34,8 +34,11 @@ const PREFIX = 'wajlc-';
 const NATS_AUTH_SERVICE_NAME = PREFIX + 'auth';
 const NATS_AUTH_SERVICE_QUEUE_GROUP = PREFIX + 'auth-queue';
 const NATS_CONNECTION_EVENT_QUEUE_GROUP = PREFIX + 'conn-event-queue';
+const RECORDER_USER_AUTH_NAME = 'WAJLC_RECORDER_AUTH';
 const WEBSOCKET_CLIENT_TYPE = 'websocket';
 const TRANSCODER_CONSUMER_DURABLE = 'transcoderWorker';
+const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
+const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 
 interface NatsJob {
     handler: () => void | Promise<void>;
@@ -295,23 +298,24 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             const jsm = this.natsService.getJetStreamManager();
             const js = this.natsService.getJetStream();
 
-            // List and clean up conflicting consumers to avoid "filtered consumer not unique" error
-            const consumerList = await jsm.consumers.list(sysJsWorker);
-            for await (const ci of consumerList) {
-                // If it's not our current target consumer, it's a conflict on a WorkQueue stream
-                // We delete our target consumer too to ensure a fresh recreate with correct config
-                this.logger.warn(`Deleting conflicting consumer: ${ci.name}`);
-                await jsm.consumers.delete(sysJsWorker, ci.name).catch(e => {
-                    this.logger.warn(`Failed to delete consumer ${ci.name}: ${e.message}`);
-                });
-            }
-
-            // Create consumer
-            const consumer = await jsm.consumers.add(sysJsWorker, {
+            // Create or update consumer
+            const consumerConfig: any = { // Use 'any' or ConsumerConfig type to avoid strict check issues initially
                 durable_name: `${PREFIX}${sysJsWorker}`,
                 ack_policy: AckPolicy.Explicit,
-                filter_subject: `${sysJsWorker}.*.*`,
-            });
+            };
+
+            try {
+                await jsm.consumers.add(sysJsWorker, consumerConfig);
+            } catch (err) {
+                if (err.message?.includes("consumer already exists") || err.api_error?.err_code === 10148) {
+                    // Consumer exists, try to update it
+                    // Update config excludes durable_name as it is passed as argument
+                    const { durable_name, ...updateConfig } = consumerConfig;
+                    await jsm.consumers.update(sysJsWorker, `${PREFIX}${sysJsWorker}`, updateConfig);
+                } else {
+                    throw err;
+                }
+            }
 
             // Get consumer instance and subscribe to messages
             const c = await js.consumers.get(sysJsWorker, `${PREFIX}${sysJsWorker}`);
@@ -320,11 +324,15 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             // Process messages
             (async () => {
                 for await (const msg of messages) {
+                    msg.ack();
+                    // Copy data to avoid race conditions
+                    const sub = msg.subject;
+                    const data = Buffer.from(msg.data);
+
                     // Enqueue job for worker pool
                     this.enqueueJob({
                         handler: async () => {
-                            await this.handleSystemWorkerMessage(msg);
-                            msg.ack();
+                            await this.handleSystemWorkerMessage(sub, data);
                         },
                     });
                 }
@@ -344,14 +352,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
     /**
      * Handle system worker message
      */
-    /**
-     * Handle system worker message
-     */
-    private async handleSystemWorkerMessage(msg: any) {
+    private async handleSystemWorkerMessage(subject: string, data: Uint8Array) {
         try {
-            const subject = msg.subject;
-            const data = msg.data;
-
             // Parse subject: sysJsWorker.{roomId}.{userId}
             const parts = subject.split('.');
             if (parts.length !== 3) {
@@ -442,10 +444,9 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Create transcoder stream for recorder
-
      */
     private async createTranscoderStream() {
-        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'recorderTranscoderJobs';
+        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'wajlc-RecorderTranscoderJobs';
         const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
         this.logger.log(`Creating transcoder stream: ${transcodingJobs}`);
@@ -486,7 +487,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Subscribe to user connection events
-
      */
     private async subscribeToUsersConnEvents() {
         const account = this.configService.get<string>('NATS_ACCOUNT_NAME') || 'PNM';
@@ -534,7 +534,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Handle user connection event (CONNECT/DISCONNECT)
-
      */
     private handleUserConnectionEvent(data: Buffer, isConnect: boolean) {
         try {
@@ -551,7 +550,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             // Check if websocket client
             const clientType = event.client?.client_type;
             if (clientType && clientType !== WEBSOCKET_CLIENT_TYPE) {
-                this.logger.debug(`Ignoring non-websocket connection: ${clientType}`);
+                this.logger.warn(`Ignoring non-websocket connection: ${clientType}`);
                 return;
             }
 

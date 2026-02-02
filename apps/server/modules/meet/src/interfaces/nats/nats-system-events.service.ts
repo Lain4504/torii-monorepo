@@ -415,28 +415,13 @@ export class NatsSystemEventsService {
             return;
         }
 
-        // 3. Generate Media Server Info (LiveKit Token)
-        let mediaServerInfo: MediaServerConnInfo | undefined;
-        try {
-            mediaServerInfo = await this.handleMediaServerInfo(roomId, userId, userInfo, false);
-        } catch (error) {
-            this.logger.error(`Failed to generate media server info: ${error.message}`);
-            await this.notifyErrorMsg(roomId, error.message, userId);
-            return;
-        }
-
-        if (!mediaServerInfo) {
-            return;
-        }
-
-        // 4. Create Response
+        // 3. Create Response
         const initialData = create(NatsInitialDataSchema, {
             room: rInfo,
             localUser: userInfo,
-            mediaServerInfo: mediaServerInfo,
         });
 
-        // 5. Send Response
+        // 4. Send Response
         // Convert to JSON string because Protobuf schema expects `msg` field to be string in NatsMsgServerToClient
         // but here we are sending a complex object that client expects to parse
         const msg = toJsonString(NatsInitialDataSchema, initialData);

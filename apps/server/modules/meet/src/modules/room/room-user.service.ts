@@ -204,8 +204,8 @@ export class RoomUserService {
                 roomId,
                 req.userInfo.userId,
                 req.userInfo.name,
-                req.userInfo.isAdmin,
-                req.userInfo.userMetadata.isPresenter,
+                req.userInfo.isAdmin || false,
+                req.userInfo.userMetadata.isPresenter || false,
                 req.userInfo.userMetadata,
             );
 

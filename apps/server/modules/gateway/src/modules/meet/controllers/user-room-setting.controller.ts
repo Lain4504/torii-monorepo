@@ -240,7 +240,7 @@ export class UserRoomSettingController {
                 roomId: roomId,
                 userId: requestedUserId,
                 natsSubjects: create(NatsSubjectsSchema, natsSubjects),
-                roomStreamName: this.configService.get<string>('NATS_ROOM_STREAM_NAME') || 'wajlc',
+                roomStreamName: this.configService.get<string>('NATS_ROOM_STREAM_NAME') || 'wajlc-room-stream',
                 enabledSelfInsertEncryptionKey: enabledSelfInsertEncryptionKey,
                 isCloud: this.configService.get<boolean>('IS_CLOUD') || false,
             });

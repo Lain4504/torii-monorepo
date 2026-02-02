@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix bug#2">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-room.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor-user.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor.module.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update NATS logic and improve error handling">
+      <change afterPath="$PROJECT_DIR$/ingress.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ingress_sample.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/livekit.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/livekit.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,47 +130,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#121 on optimize-webrtc-logic&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/projectdev/demo/team-source/torii-monorepo/apps/server/modules/meet&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JavaScript Debug.localhost:3000.executor": "Debug",
+    "JavaScript Debug.localhost:5173.executor": "Debug",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "#121 on optimize-webrtc-logic",
+    "go.import.settings.migrated": "true",
+    "ignore.virus.scanning.warn.message": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/projectdev/demo/team-source/torii-monorepo",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;redis&quot;,
-      &quot;mongo&quot;,
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "redis",
+      "mongo",
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>
@@ -183,11 +183,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo" />
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\infrastructure" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server\libs\shared\src\decorators" />
@@ -363,38 +363,6 @@
       <workItem from="1770010510304" duration="439000" />
       <workItem from="1770016457704" duration="2439000" />
       <workItem from="1770022647481" duration="8671000" />
-    </task>
-    <task id="LOCAL-00755" summary="optimize logic">
-      <option name="closed" value="true" />
-      <created>1769956533040</created>
-      <option name="number" value="00755" />
-      <option name="presentableId" value="LOCAL-00755" />
-      <option name="project" value="LOCAL" />
-      <updated>1769956533040</updated>
-    </task>
-    <task id="LOCAL-00756" summary="optimize logic">
-      <option name="closed" value="true" />
-      <created>1769957160442</created>
-      <option name="number" value="00756" />
-      <option name="presentableId" value="LOCAL-00756" />
-      <option name="project" value="LOCAL" />
-      <updated>1769957160442</updated>
-    </task>
-    <task id="LOCAL-00757" summary="optimize logic">
-      <option name="closed" value="true" />
-      <created>1769961073493</created>
-      <option name="number" value="00757" />
-      <option name="presentableId" value="LOCAL-00757" />
-      <option name="project" value="LOCAL" />
-      <updated>1769961073493</updated>
-    </task>
-    <task id="LOCAL-00758" summary="optimize logic">
-      <option name="closed" value="true" />
-      <created>1769962166102</created>
-      <option name="number" value="00758" />
-      <option name="presentableId" value="LOCAL-00758" />
-      <option name="project" value="LOCAL" />
-      <updated>1769962166102</updated>
     </task>
     <task id="LOCAL-00759" summary="optimize logic">
       <option name="closed" value="true" />
@@ -756,7 +724,39 @@
       <option name="project" value="LOCAL" />
       <updated>1770032880602</updated>
     </task>
-    <option name="localTasksCounter" value="804" />
+    <task id="LOCAL-00804" summary="update NATS logic and improve error handling">
+      <option name="closed" value="true" />
+      <created>1770036968372</created>
+      <option name="number" value="00804" />
+      <option name="presentableId" value="LOCAL-00804" />
+      <option name="project" value="LOCAL" />
+      <updated>1770036968372</updated>
+    </task>
+    <task id="LOCAL-00805" summary="update NATS logic and improve error handling">
+      <option name="closed" value="true" />
+      <created>1770037557852</created>
+      <option name="number" value="00805" />
+      <option name="presentableId" value="LOCAL-00805" />
+      <option name="project" value="LOCAL" />
+      <updated>1770037557853</updated>
+    </task>
+    <task id="LOCAL-00806" summary="update NATS logic and improve error handling">
+      <option name="closed" value="true" />
+      <created>1770038541123</created>
+      <option name="number" value="00806" />
+      <option name="presentableId" value="LOCAL-00806" />
+      <option name="project" value="LOCAL" />
+      <updated>1770038541123</updated>
+    </task>
+    <task id="LOCAL-00807" summary="update NATS logic and improve error handling">
+      <option name="closed" value="true" />
+      <created>1770039964916</created>
+      <option name="number" value="00807" />
+      <option name="presentableId" value="LOCAL-00807" />
+      <option name="project" value="LOCAL" />
+      <updated>1770039964916</updated>
+    </task>
+    <option name="localTasksCounter" value="808" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +791,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(identity): implement identity module with authentication and authorization handlers" />
     <MESSAGE value="refactor(identity): refactor identity service" />
     <MESSAGE value="`refactor(learning): remove unused HTTP controllers for cleaner module structure`" />
     <MESSAGE value="update ux ui pro kit" />
@@ -816,7 +815,8 @@
     <MESSAGE value="update meet client logic" />
     <MESSAGE value="fix bug" />
     <MESSAGE value="fix bug#2" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug#2" />
+    <MESSAGE value="update NATS logic and improve error handling" />
+    <option name="LAST_COMMIT_MESSAGE" value="update NATS logic and improve error handling" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
