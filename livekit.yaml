@@ -4,7 +4,7 @@ rtc:
   port_range_start: 50000
   port_range_end: 50100
   use_external_ip: true
-  node_ip: 34.126.117.69
+  node_ip: 34.143.199.217
   stun_servers:
     - stun.l.google.com:19302
 redis:

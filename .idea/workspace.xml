@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update config#2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/file/file.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/file/file.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -361,30 +360,6 @@
       <workItem from="1770010510304" duration="439000" />
       <workItem from="1770016457704" duration="2439000" />
       <workItem from="1770022647481" duration="8671000" />
-    </task>
-    <task id="LOCAL-00769" summary="optimize logic">
-      <option name="closed" value="true" />
-      <created>1769969618118</created>
-      <option name="number" value="00769" />
-      <option name="presentableId" value="LOCAL-00769" />
-      <option name="project" value="LOCAL" />
-      <updated>1769969618118</updated>
-    </task>
-    <task id="LOCAL-00770" summary="update proto file">
-      <option name="closed" value="true" />
-      <created>1769970254337</created>
-      <option name="number" value="00770" />
-      <option name="presentableId" value="LOCAL-00770" />
-      <option name="project" value="LOCAL" />
-      <updated>1769970254337</updated>
-    </task>
-    <task id="LOCAL-00771" summary="update nats logic">
-      <option name="closed" value="true" />
-      <created>1769994167206</created>
-      <option name="number" value="00771" />
-      <option name="presentableId" value="LOCAL-00771" />
-      <option name="project" value="LOCAL" />
-      <updated>1769994167208</updated>
     </task>
     <task id="LOCAL-00772" summary="update nats logic">
       <option name="closed" value="true" />
@@ -754,7 +729,31 @@
       <option name="project" value="LOCAL" />
       <updated>1770050948445</updated>
     </task>
-    <option name="localTasksCounter" value="818" />
+    <task id="LOCAL-00818" summary="update config#2">
+      <option name="closed" value="true" />
+      <created>1770051733422</created>
+      <option name="number" value="00818" />
+      <option name="presentableId" value="LOCAL-00818" />
+      <option name="project" value="LOCAL" />
+      <updated>1770051733424</updated>
+    </task>
+    <task id="LOCAL-00819" summary="update config#2">
+      <option name="closed" value="true" />
+      <created>1770051857535</created>
+      <option name="number" value="00819" />
+      <option name="presentableId" value="LOCAL-00819" />
+      <option name="project" value="LOCAL" />
+      <updated>1770051857536</updated>
+    </task>
+    <task id="LOCAL-00820" summary="update config#2">
+      <option name="closed" value="true" />
+      <created>1770051913292</created>
+      <option name="number" value="00820" />
+      <option name="presentableId" value="LOCAL-00820" />
+      <option name="project" value="LOCAL" />
+      <updated>1770051913292</updated>
+    </task>
+    <option name="localTasksCounter" value="821" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
