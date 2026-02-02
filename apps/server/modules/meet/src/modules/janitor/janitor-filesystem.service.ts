@@ -11,7 +11,6 @@ export class JanitorFilesystemService {
 
     /**
      * checkDelArtifactsBackupPath will cleanup old artifact backups
-     * Matches Go: checkDelArtifactsBackupPath (from janitor_artifacts.go)
      */
     async checkDelArtifactsBackupPath(): Promise<void> {
         const enable = this.configService.get<boolean>('ARTIFACT_ENABLE_DEL_BACKUP') || false;
@@ -26,7 +25,6 @@ export class JanitorFilesystemService {
 
     /**
      * checkDelRecordingBackupPath will cleanup old recording backups
-     * Matches Go: checkDelRecordingBackupPath (from janitor_recording.go)
      */
     async checkDelRecordingBackupPath(): Promise<void> {
         const enable = this.configService.get<boolean>('RECORDER_ENABLE_DEL_BACKUP') || false;

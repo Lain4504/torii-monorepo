@@ -65,19 +65,6 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
         }
     }
 
-    if (!rf.sharedNotePadFeatures) {
-        rf.sharedNotePadFeatures = create(SharedNotePadFeaturesSchema, {
-            isAllow: false,
-            isActive: false,
-            visible: false,
-        });
-    } else {
-        // backward compatibility
-        if (rf.sharedNotePadFeatures.allowedSharedNotePad !== undefined) {
-            rf.sharedNotePadFeatures.isAllow = rf.sharedNotePadFeatures.allowedSharedNotePad;
-        }
-    }
-
     if (!rf.whiteboardFeatures) {
         rf.whiteboardFeatures = create(WhiteboardFeaturesSchema, {
             isAllow: false,
@@ -246,7 +233,7 @@ export function setCreateRoomDefaultValues(
     // Copyright Config Logic matching Go setRoomDefaults
     const defaultCopyright = create(CopyrightConfSchema, {
         display: true,
-        text: 'Powered by <a href="https://www.plugnmeet.org" target="_blank">plugNmeet</a>',
+        text: 'Powered by MiraiMagicLab',
     });
 
     if (copyrightConf === null) {
@@ -258,26 +245,6 @@ export function setCreateRoomDefaultValues(
             display: copyrightConf.display,
             text: copyrightConf.text,
         });
-
-        // Go Logic:
-        // if r.Metadata.CopyrightConf != nil && !copyrightConf.AllowOverride { r.Metadata.CopyrightConf = d }
-        // else if r.Metadata.CopyrightConf == nil { r.Metadata.CopyrightConf = d }
-        // Note: CopyrightConf in protobuf doesn't have 'allowOverride', it's likely from Server Config struct which is passed here as 'copyrightConf'?
-        // Ah, looking at Go code: m.app.Client.CopyrightConf is the source of truth for config.
-        // Let's assume the passed `copyrightConf` here is the Server Config object mapped to CopyrightConfSchema but we need 'allowOverride' which isn't in Schema.
-        // Wait, 'CopyrightConf' import is from protocol.
-        // We probably need to pass 'allowOverride' as separate arg or assume it's handled by caller.
-        // For now let's implement the override logic if caller passes it. 
-        // Actually, looking at room-create.service.ts, it calculates this.
-        // Let's Move the copyright logic fully to `setCreateRoomDefaultValues` to match Go's `setRoomDefaults` structure better, 
-        // OR keep it in service and just update the util signature to support what's needed.
-
-        // Go's `setRoomDefaults` does A LOT more now. 
-        // Let's update `setCreateRoomDefaultValues` to take the object and handle it.
-
-        // RE-READING GO CODE:
-        // copyrightConf := m.app.Client.CopyrightConf
-        // It uses app config. 
 
         if (!r.metadata!.copyrightConf) {
             r.metadata!.copyrightConf = d;

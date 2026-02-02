@@ -337,7 +337,6 @@ export class FileService {
             const len = headRes.headers['content-length'];
             if (len && Number(len) > 0) {
                 const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 30; // default 30MB for preload?
-                // Go uses config.MaxPreloadedWhiteboardFileSize
                 if (Number(len) > maxSizeMb * 1024 * 1024) {
                     throw new Error('File too large');
                 }
@@ -368,7 +367,7 @@ export class FileService {
                 method: 'GET',
                 url: fileUrl,
                 responseType: 'stream',
-                timeout: 180000, // 3 minutes matching Go
+                timeout: 180000, // 3 minutes
             });
 
             const writer = fs.createWriteStream(downloadPath);
@@ -431,7 +430,7 @@ export class FileService {
             '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             '.ppt': 'application/vnd.ms-powerpoint',
             '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            // Added explicit support for more types matching common Go defaults
+            // Added explicit support for more types matching common defaults
             '.rtf': 'application/rtf',
             '.csv': 'text/csv',
             '.xml': 'application/xml',

@@ -163,12 +163,11 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     // ============================================================================
-    // KV Helpers (Matching Go: pkg/services/nats/utils.go)
+    // KV Helpers
     // ============================================================================
 
     /**
      * ParseUserKey parses a user-specific NATS KV key into its userId and field components.
-     * Match Go: pkg/services/nats/utils.go -> ParseUserKey
      */
     static parseUserKey(key: string): { userId: string; field: string } | null {
         if (!key.startsWith(USER_KEY_PREFIX)) {
@@ -185,7 +184,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * getStringValue retrieves a string value from KV
-     * Match Go: pkg/services/nats/utils.go -> getStringValue
      */
     async getStringValue(kv: any, key: string): Promise<string> {
         try {
@@ -198,7 +196,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * getBoolValue retrieves a boolean value from KV
-     * Match Go: pkg/services/nats/utils.go -> getBoolValue
      */
     async getBoolValue(kv: any, key: string): Promise<boolean> {
         const val = await this.getStringValue(kv, key);
@@ -207,7 +204,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     /**
      * getUint64Value retrieves a uint64 value from KV (as string for JS)
-     * Match Go: pkg/services/nats/utils.go -> getUint64Value
      */
     async getUint64Value(kv: any, key: string): Promise<string> {
         const val = await this.getStringValue(kv, key);

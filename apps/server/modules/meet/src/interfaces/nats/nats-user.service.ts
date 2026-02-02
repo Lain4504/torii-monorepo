@@ -197,7 +197,6 @@ export class NatsUserService {
 
     /**
      * GetOnlineUsersListAsJson retrieves online users as JSON string.
-     * Match Go: pkg/services/nats/user_info.go -> GetOnlineUsersListAsJson
      */
     async getOnlineUsersListAsJson(roomId: string): Promise<string | null> {
         const users = await this.getOnlineUsersList(roomId);
@@ -214,7 +213,6 @@ export class NatsUserService {
 
     /**
      * GetUserMetadataStruct retrieves user metadata as structured object.
-     * Match Go: pkg/services/nats/user_info.go -> GetUserMetadataStruct
      */
     async getUserMetadataStruct(roomId: string, userId: string): Promise<UserMetadata | null> {
         // Try cache first (if you had a direct cache for metadata, but we reuse getUserInfo cache usually)
@@ -238,7 +236,6 @@ export class NatsUserService {
 
     /**
      * GetUserWithMetadata retrieves user info along with parsed metadata.
-     * Match Go: pkg/services/nats/user_info.go -> GetUserWithMetadata
      */
     async getUserWithMetadata(roomId: string, userId: string): Promise<{ info: NatsKvUserInfo | null; metadata: UserMetadata | null }> {
         const info = await this.getUserInfo(roomId, userId);

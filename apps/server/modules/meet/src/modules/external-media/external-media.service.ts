@@ -87,10 +87,8 @@ export class ExternalMediaService {
         });
 
         // Broadcast Event via Data Channel for START
-        // Note: Go code doesn't seem to broadcast separate data channel event in the snippet provided,
         // but does in update handler. NestJS previous code gathered logic.
         // We will keep the data channel broadcast as it was in original NestJS code if needed,
-        // but user asked to match Go. Go uses UpdateAndBroadcastRoomMetadata which notifies clients.
         // It also sends analytics.
     }
 

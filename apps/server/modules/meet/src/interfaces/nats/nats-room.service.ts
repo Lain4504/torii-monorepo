@@ -161,7 +161,7 @@ export class NatsRoomService {
     ): Promise<void> {
         this.logger.log(`Adding room to consolidated NATS KV: ${roomId}, sid: ${roomSid}, tableId: ${tableId}`);
 
-        // Step 1: Create or update the consolidated room bucket (matches Go: formatConsolidatedRoomBucket)
+        // Step 1: Create or update the consolidated room bucket
         const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
         const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
@@ -251,7 +251,6 @@ export class NatsRoomService {
 
     /**
      * BroadcastRoomMetadata broadcasts the room metadata update event.
-     * Matches Go: pkg/services/nats/nats_entity_state_events.go -> BroadcastRoomMetadata
      */
     async broadcastRoomMetadata(roomId: string, metadata?: string, userId?: string): Promise<void> {
         if (!metadata) {
@@ -272,7 +271,6 @@ export class NatsRoomService {
 
     /**
      * UpdateAndBroadcastRoomMetadata updates and broadcasts room metadata.
-     * Matches Go: pkg/services/nats/nats_entity_state_events.go -> UpdateAndBroadcastRoomMetadata
      */
     async updateAndBroadcastRoomMetadata(roomId: string, meta: RoomMetadata | string): Promise<void> {
         if (!meta) {

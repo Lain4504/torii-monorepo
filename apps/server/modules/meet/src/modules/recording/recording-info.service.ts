@@ -107,10 +107,6 @@ export class RecordingInfoService {
         try {
             const recording = await this.fetchRecording(req.recordId);
 
-            // Note: PastRoomInfo population logic omitted to keep this simple since logic mirrors Go's intent
-            // but structure of RoomArtifact doesn't exactly match Go's pkg_recording table.
-            // Go fetches room info via GetRoomInfoBySid.
-
             return create(RecordingInfoResSchema, {
                 status: true,
                 msg: 'success',

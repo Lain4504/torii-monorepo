@@ -331,7 +331,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * GetCachedRecorderInfo retrieves a specific recorder's info from the cache.
-     * Match Go: pkg/services/nats/nats_cache_recorder.go -> getCachedRecorderInfo
      */
     getCachedRecorderInfo(recorderId: string): RecorderInfo | null {
         const recorder = this.recordersStore.get(recorderId);
@@ -509,7 +508,6 @@ export class NatsCacheService implements OnModuleDestroy {
             return { metadata: '', found: false };
         }
 
-        // Go logic: if cachedEntry.RoomInfo.DbTableId == 0 || cachedEntry.RoomInfo.Status == RoomStatusEnded -> return false
         if (cachedEntry.roomInfo.status === 'ended' || cachedEntry.roomInfo.dbTableId === '0') {
             return { metadata: '', found: false };
         }
@@ -603,7 +601,6 @@ export class NatsCacheService implements OnModuleDestroy {
 
     /**
      * GetCachedUserMetadata retrieves only the user's metadata string from the cache.
-     * Match Go: pkg/services/nats/nats_cache_user.go -> getCachedUserMetadata
      */
     getCachedUserMetadata(roomId: string, userId: string): { metadata: string; found: boolean } {
         const roomStore = this.roomUsersInfoStore.get(roomId);

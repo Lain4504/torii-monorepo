@@ -108,9 +108,6 @@ export class ExternalDisplayService {
 
         const feature = metadata.roomFeatures?.displayExternalLinkFeatures;
         if (!feature) {
-            // Note: Go code checks feature.isAllow here implicitly via if check? 
-            // NestJS existing code checked !feature || !feature.isAllow
-            // Go code: invalid nil room metadata information error if roomMeta is nil.
             throw new Error('External display feature not found in metadata');
         }
 

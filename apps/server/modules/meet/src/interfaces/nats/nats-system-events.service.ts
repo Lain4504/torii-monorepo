@@ -203,7 +203,6 @@ export class NatsSystemEventsService {
         const message = toBinary(ChatMessageSchema, chatMsg);
 
         // Determine subject
-        // Match Go: chat.roomId
         const subject = `${this.subjectChat}.${roomId}`;
 
         // Ensure JetStream client is ready
@@ -249,7 +248,6 @@ export class NatsSystemEventsService {
         const binaryMsg = toBinary(DataChannelMessageSchema, payload);
 
         // Subject format: {dataChannel}.{roomId}
-        // Match Go logic for consistency: dataChannel.roomId or dataChannel.roomId.userId
         let subject = `${this.subjectDataChannel}.${roomId}`;
         if (toUserId) {
             subject += `.${toUserId}`;
@@ -574,7 +572,7 @@ export class NatsSystemEventsService {
      */
     async handleToDeliveryPrivateData(roomId: string, userId: string, req: NatsMsgClientToServer): Promise<void> {
         try {
-            // Unmarshal header from JSON msg (Matches Go behavior)
+            // Unmarshal header from JSON msg
             const header = JSON.parse(req.msg);
             const toUserId = header.to_user_id || header.toUserId;
 
@@ -584,7 +582,7 @@ export class NatsSystemEventsService {
             }
 
             // Send to target user
-            // Note: We use req.binMsg directly (Matches Go behavior)
+            // Note: We use req.binMsg directly
             await this.broadcastSystemEventToRoomWithBinMsg(
                 NatsMsgServerToClientEvents.DELIVERY_PRIVATE_DATA,
                 roomId,

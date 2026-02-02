@@ -31,7 +31,6 @@ export class NatsStreamService {
 
     /**
      * CreateRoomNatsStreams ensures subjects are ready for a room.
-     * In Go, this is handled by a single global stream.
      * We purge subjects for this room to ensure a clean start if needed.
      */
     async createRoomNatsStreams(roomId: string): Promise<void> {
@@ -41,7 +40,6 @@ export class NatsStreamService {
             const jsm = this.natsService.getJetStreamManager();
             const streamName = this.natsService.getRoomStreamName();
 
-            // Match Go: DeleteRoomNatsStream behavior which is purging subjects
             const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
             const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
 
@@ -61,7 +59,6 @@ export class NatsStreamService {
 
     /**
      * DeleteRoomNatsStream purges subjects for a room from the global stream.
-     * Go: pkg/services/nats/js_stream.go -> DeleteRoomNatsStream
      */
     async deleteRoomNatsStream(roomId: string): Promise<void> {
         this.logger.log(`Deleting/Purging NATS room subjects: ${roomId}`);

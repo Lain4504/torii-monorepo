@@ -73,8 +73,8 @@ export class RoomCreateService {
         log.log(`Create room request: ${req.roomId}, breakout: ${req.metadata?.isBreakoutRoom}`);
 
         // Validate the roomId to ensure it doesn't contain our internal patterns.
-        const userKeyFieldPrefix = '-FIELD_'; // Matches Go: UserKeyFieldPrefix = "-FIELD_"
-        const userKeyPrefix = 'user_'; // Matches Go: UserKeyPrefix = "user_"
+        const userKeyFieldPrefix = '-FIELD_';
+        const userKeyPrefix = 'user_';
 
         if (req.roomId.includes(userKeyFieldPrefix)) {
             throw new Error(`roomId cannot contain the reserved pattern '${userKeyFieldPrefix}'`);

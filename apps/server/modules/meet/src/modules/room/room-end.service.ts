@@ -208,7 +208,6 @@ export class RoomEndService {
 
         // Step 2: Ensure lock is always released
         try {
-            // Match Go: time.Sleep(config.WaitBeforeTriggerOnAfterRoomEnded)
             // To avoid race condition better wait few seconds so that all the users got disconnect properly
             const waitBeforeTrigger = this.configService.get<number>('WAIT_BEFORE_TRIGGER_ON_AFTER_ROOM_ENDED') || 5000;
             await new Promise(resolve => setTimeout(resolve, waitBeforeTrigger));

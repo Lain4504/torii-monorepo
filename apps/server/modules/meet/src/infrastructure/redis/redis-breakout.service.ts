@@ -83,7 +83,6 @@ export class RedisBreakoutService {
 
     /**
      * GetAllBreakoutRoomsByParentRoomId retrieves all breakout rooms from the parent room's hash.
-     * Match Go: pkg/services/redis/bk_room.go -> GetAllBreakoutRoomsByParentRoomId
      */
     async getAllBreakoutRoomsByParentRoomId(parentRoomId: string): Promise<Record<string, string>> {
         const key = this.formatBreakoutRoomHashKey(parentRoomId);
@@ -97,7 +96,6 @@ export class RedisBreakoutService {
 
     /**
      * DeleteAllBreakoutRoomsByParentRoomId deletes the entire hash for the parent room.
-     * Match Go: pkg/services/redis/bk_room.go -> DeleteAllBreakoutRoomsByParentRoomId
      */
     async deleteAllBreakoutRoomsByParentRoomId(parentRoomId: string): Promise<void> {
         const key = this.formatBreakoutRoomHashKey(parentRoomId);
@@ -111,7 +109,6 @@ export class RedisBreakoutService {
 
     /**
      * GetBreakoutRoomIdsByParentRoomId retrieves only the IDs of all breakout rooms.
-     * Match Go: pkg/services/redis/bk_room.go -> GetBreakoutRoomIdsByParentRoomId
      */
     async getBreakoutRoomIdsByParentRoomId(parentRoomId: string): Promise<string[]> {
         const key = this.formatBreakoutRoomHashKey(parentRoomId);

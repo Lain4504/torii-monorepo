@@ -23,12 +23,10 @@ export class JanitorUserService {
     /**
      * checkOnlineUsersStatus will compare last ping result
      * and take the decision to update user's status
-     * Matches Go: checkOnlineUsersStatus
      */
     async checkOnlineUsersStatus(): Promise<void> {
         // We need to iterate over all room buckets. 
         // In NestJS NatsService/UserService, we might not have a direct method to list all room buckets efficiently without scanning.
-        // Go: m.app.JetStream.KeyValueStoreNames()
 
         try {
             const jsm = this.natsService.getJetStreamManager() as any;
@@ -67,7 +65,6 @@ export class JanitorUserService {
 
                     // Compare
                     const now = Date.now();
-                    // Go: lastPing is UnixMilli (int64)
                     // limit = lastPing + maxDiff. If now > limit, then outdated.
                     if (now > lastPing + USER_ONLINE_MAX_PING_DIFF) {
                         this.logger.warn(`User missed ping deadline, marking as offline: room=${roomId}, user=${u}, lastPing=${lastPing}, now=${now}, diff=${now - lastPing}`);

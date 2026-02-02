@@ -200,13 +200,13 @@ export class AnalyticsService {
                 // Create artifact using standardized service
                 const artifact = await this.createAnalyticsArtifact(Number(room.id), room.roomId, room.sid, jsonData);
 
-                // Notify via webhook (Matches Go)
+                // Notify via webhook
                 await this.sendToWebhookNotifier(room.roomId, room.sid, 'analytics_proceeded', artifact.artifactId);
             } else {
                 this.logger.debug(`Analytics feature not enabled for room ${roomId}, report not saved`);
             }
         } finally {
-            // Cleanup webhook and release lock (Matches Go)
+            // Cleanup webhook and release lock
             await this.webhookNotifier.deleteWebhook(roomId);
             await this.redisLock.unlockRoomCreation(roomId, lock.lockValue);
         }

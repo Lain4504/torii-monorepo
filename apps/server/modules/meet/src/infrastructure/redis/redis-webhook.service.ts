@@ -66,7 +66,6 @@ export class RedisWebhookService {
 
     /**
      * DeleteWebhookData deletes the webhook data for a specific room.
-     * Match Go: pkg/services/redis/webhook.go -> DeleteWebhookData
      */
     async deleteWebhookData(roomId: string): Promise<void> {
         try {

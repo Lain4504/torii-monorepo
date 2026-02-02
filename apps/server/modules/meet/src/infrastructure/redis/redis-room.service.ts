@@ -25,8 +25,7 @@ export class RedisRoomService {
 
     /**
      * HoldTemporaryRoomData stores room data temporarily for 1 minute
-     * Match Go: pkg/services/redis/room.go -> HoldTemporaryRoomData
-     * 
+     *
      * @param info - NatsKvRoomInfo to cache
      */
     async holdTemporaryRoomData(info: NatsKvRoomInfo): Promise<void> {
@@ -54,8 +53,7 @@ export class RedisRoomService {
 
     /**
      * GetTemporaryRoomData retrieves cached room data
-     * Match Go: pkg/services/redis/room.go -> GetTemporaryRoomData
-     * 
+     *
      * @param roomId - Room ID to retrieve
      * @returns NatsKvRoomInfo or null if not found
      */
@@ -67,7 +65,7 @@ export class RedisRoomService {
             if (!val) return null;
 
             const info = JSON.parse(val) as NatsKvRoomInfo;
-            // Set status to 'ended' to prevent looping (matches Go logic)
+            // Set status to 'ended' to prevent looping
             info.status = 'ended';
 
             return info;
@@ -78,7 +76,7 @@ export class RedisRoomService {
     }
 
     // ============================================================================
-    // Room Duration Methods (Match Go: pkg/services/redis/room_duration.go)
+    // Room Duration Methods
     // ============================================================================
 
     /**

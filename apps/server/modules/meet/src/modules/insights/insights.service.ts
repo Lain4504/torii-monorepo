@@ -426,7 +426,7 @@ export class InsightsService {
             throw new Error("you're not allowed to use this service");
         }
 
-        // 1. Build history (matches Go buildHistoryWithUserPrompt)
+        // 1. Build history
         const history = await this.buildHistoryWithUserPrompt(roomId, userId, r.text, metadata);
 
         // 2. Forward request to agent (or handle locally if providers existed)
