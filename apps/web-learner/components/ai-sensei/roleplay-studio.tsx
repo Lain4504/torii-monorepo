@@ -29,30 +29,30 @@ export function RoleplayStudio() {
     }
 
     return (
-        <div className="h-full p-4 md:p-6 space-y-6 max-w-5xl mx-auto flex flex-col">
-            <div className="flex-none space-y-1 text-center pb-2">
-                <h2 className="text-2xl font-serif font-bold italic text-foreground tracking-tight">Roleplay <span className="text-orange-500 not-italic">Studio</span></h2>
-                <p className="text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground/50">Luyện hội thoại theo kịch bản</p>
+        <div className="flex flex-col h-full max-w-5xl mx-auto space-y-6">
+
+            {/* Header */}
+            <div className="flex-none pb-2 border-b border-border/40 space-y-1">
+                <h2 className="text-2xl font-bold tracking-tight">Roleplay Studio</h2>
+                <p className="text-sm text-muted-foreground">Luyện hội thoại theo tình huống thực tế</p>
             </div>
 
             <div className="flex-1 min-h-0 relative">
                 {!roleplayData ? (
-                    <div className="absolute inset-0 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500">
-                        <div className="w-full max-w-md space-y-8 p-10 rounded-[3rem] border border-orange-500/20 bg-background/40 backdrop-blur-3xl shadow-xl text-center relative overflow-hidden">
-                            {/* Decorative Elements */}
-                            <div className="absolute top-0 right-0 p-12 opacity-10">
-                                <div className="w-32 h-32 bg-orange-500 rounded-full blur-[60px]" />
+                    <div className="h-full flex flex-col items-center justify-center animate-in fade-in duration-500">
+                        <div className="w-full max-w-md space-y-8 p-8 rounded-xl border border-border bg-card shadow-sm text-center">
+
+                            <div className="w-16 h-16 mx-auto rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
+                                <Clapperboard className="size-8 text-orange-600 dark:text-orange-400" />
                             </div>
 
-                            <div className="w-20 h-20 mx-auto rounded-full bg-orange-500/10 flex items-center justify-center animate-pulse relative z-10">
-                                <Clapperboard className="size-10 text-orange-500" />
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-bold">Tạo kịch bản</h3>
+                                <p className="text-sm text-muted-foreground">Chọn tình huống hoặc nhập chủ đề hội thoại mới</p>
                             </div>
-                            <div className="space-y-2 relative z-10">
-                                <h3 className="text-2xl font-serif font-bold italic">Tạo kịch bản</h3>
-                                <p className="text-sm text-muted-foreground">Nhập tình huống hội thoại (VD: Đi tàu điện, Mua sắm, Phỏng vấn...)</p>
-                            </div>
-                            <div className="space-y-4 relative z-10">
-                                <div className="flex flex-wrap justify-center gap-2 max-w-sm mx-auto">
+
+                            <div className="space-y-4">
+                                <div className="flex flex-wrap justify-center gap-2">
                                     {[
                                         "Đặt món nhà hàng",
                                         "Hỏi đường",
@@ -64,75 +64,67 @@ export function RoleplayStudio() {
                                         <button
                                             key={s}
                                             onClick={() => setScenario(s)}
-                                            className="px-3 py-1.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 text-xs font-bold transition-colors border border-orange-500/10"
+                                            className="px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-medium transition-colors border border-border"
                                         >
                                             {s}
                                         </button>
                                     ))}
                                 </div>
-                                <Input
-                                    placeholder="Tình huống..."
-                                    className="h-14 rounded-2xl text-center text-lg bg-background/50 border-orange-200/50 focus-visible:ring-orange-500/30"
-                                    value={scenario}
-                                    onChange={(e) => setScenario(e.target.value)}
-                                />
-                                <Button
-                                    size="lg"
-                                    className="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold tracking-widest uppercase text-xs shadow-lg shadow-orange-500/20 transition-all hover:scale-105"
-                                    onClick={handleGenerate}
-                                    disabled={!scenario.trim() || isLoading}
-                                >
-                                    {isLoading ? "Đang viết..." : "Tạo Hội thoại"}
-                                </Button>
+                                <div className="flex gap-2">
+                                    <Input
+                                        placeholder="Nhập tình huống (VD: Đi khám bệnh)..."
+                                        className="h-10"
+                                        value={scenario}
+                                        onChange={(e) => setScenario(e.target.value)}
+                                    />
+                                    <Button
+                                        className="bg-orange-600 hover:bg-orange-700 text-white font-semibold"
+                                        onClick={handleGenerate}
+                                        disabled={!scenario.trim() || isLoading}
+                                    >
+                                        {isLoading ? "Đang viết..." : "Tạo"}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="h-full flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                    <div className="h-full flex flex-col gap-6 animate-in fade-in duration-500">
                         {/* Intro Card */}
-                        <div className="flex-none p-6 rounded-[2.5rem] bg-orange-500/5 border border-orange-500/10">
+                        <div className="flex-none p-6 rounded-xl border border-orange-200 bg-orange-50 dark:bg-orange-900/10 dark:border-orange-900/20">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 rounded-full bg-orange-500/10 text-orange-600">
-                                    <Sparkles className="size-6" />
+                                <div className="p-3 rounded-lg bg-white dark:bg-background text-orange-600 dark:text-orange-400 shadow-sm">
+                                    <Drama className="size-6" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold font-serif italic tracking-tight">{roleplayData.scenario}</h3>
-                                    <p className="text-sm text-muted-foreground italic line-clamp-2">Hội thoại mẫu cho chủ đề: {roleplayData.scenario}</p>
+                                    <h3 className="text-lg font-bold text-foreground">{roleplayData.scenario}</h3>
+                                    <p className="text-sm text-muted-foreground">Kịch bản hội thoại mẫu</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Script Area */}
-                        <ScrollArea className="flex-1 rounded-[2.5rem] bg-background/40 backdrop-blur-3xl border border-border/40 p-6 shadow-sm">
-                            <div className="space-y-8 max-w-3xl mx-auto pb-4">
+                        <ScrollArea className="flex-1 rounded-xl border border-border bg-card shadow-sm">
+                            <div className="p-6 space-y-6 max-w-3xl mx-auto">
                                 {roleplayData.conversation.map((line, i) => (
-                                    <div key={i} className="flex gap-6 group">
-                                        <div className="flex-col items-center gap-2 hidden md:flex w-16 shrink-0">
-                                            <Avatar className="size-12 ring-2 ring-background border shadow-md group-hover:scale-110 transition-transform">
-                                                <AvatarFallback className={line.speaker === 'Sensei' ? 'bg-orange-500 text-white' : 'bg-blue-500 text-white'}>
+                                    <div key={i} className="flex gap-4 group hover:bg-muted/30 p-4 rounded-lg -mx-4 transition-colors">
+                                        <div className="flex-none flex flex-col items-center gap-2 pt-1 w-12">
+                                            <Avatar className="size-10 border border-border">
+                                                <AvatarFallback className={line.speaker === 'Sensei' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'}>
                                                     {line.speaker[0]}
                                                 </AvatarFallback>
                                             </Avatar>
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">{line.speaker}</span>
+                                            <span className="text-[10px] font-bold uppercase text-muted-foreground">{line.speaker}</span>
                                         </div>
 
-                                        <div className="flex-1 space-y-2 pt-1">
-                                            <div className="flex items-center gap-2 md:hidden mb-1">
-                                                <span className="text-xs font-bold uppercase text-orange-500">{line.speaker}</span>
-                                            </div>
+                                        <div className="flex-1 space-y-1.5">
                                             <div className="relative">
-                                                <p className={`text-lg font-medium leading-relaxed text-foreground/90 transition-all duration-300 ${isPracticeMode ? 'blur-md hover:blur-none select-none cursor-pointer' : ''}`}>
+                                                <p className={`text-lg font-medium leading-relaxed text-foreground ${isPracticeMode ? 'blur-md hover:blur-none select-none cursor-pointer duration-200' : ''}`}>
                                                     {line.japanese}
                                                 </p>
-                                                {isPracticeMode && <span className="absolute top-1/2 left-0 -translate-y-1/2 text-xs font-bold text-muted-foreground/30 pointer-events-none uppercase tracking-widest">Chạm để xem</span>}
+                                                {isPracticeMode && <span className="absolute top-1/2 left-0 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none uppercase tracking-widest pl-2">Chạm để xem</span>}
                                             </div>
-                                            <p className="text-sm text-muted-foreground italic font-serif">{line.english}</p>
-                                        </div>
-
-                                        <div className="flex-none self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-orange-500/10 hover:text-orange-500">
-                                                <Mic className="size-4" />
-                                            </Button>
+                                            <p className="text-sm text-muted-foreground">{line.english}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -143,16 +135,16 @@ export function RoleplayStudio() {
                         <div className="flex-none flex justify-center gap-4 pt-2">
                             <Button
                                 variant="outline"
-                                className="h-12 rounded-2xl border-border/50 hover:bg-background/80"
+                                className="h-10"
                                 onClick={() => setRoleplayData(null)}
                             >
-                                <RefreshCw className="size-4 mr-2" /> Thử lại
+                                <RefreshCw className="size-4 mr-2" /> Tạo tình huống mới
                             </Button>
                             <Button
-                                className={`h-12 px-8 rounded-2xl ${isPracticeMode ? 'bg-green-500 hover:bg-green-600 shadow-green-500/20' : 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/20'} text-white shadow-lg font-black uppercase tracking-widest text-xs transition-all duration-300`}
+                                className={`h-10 font-bold ${isPracticeMode ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700'} text-white`}
                                 onClick={() => setIsPracticeMode(!isPracticeMode)}
                             >
-                                <Play className="size-4 mr-2" /> {isPracticeMode ? "Đang Luyện tập" : "Luyện tập"}
+                                {isPracticeMode ? "Kết thúc luyện tập" : "Chế độ luyện tập (Che phụ đề)"}
                             </Button>
                         </div>
                     </div>
