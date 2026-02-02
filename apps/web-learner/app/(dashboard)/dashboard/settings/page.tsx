@@ -7,6 +7,7 @@ import { Switch } from '@workspace/ui/components/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
 import { Bell, Shield, Globe, Lock, Trash2, ChevronRight, User } from 'lucide-react'
 import { SecurityTab } from '@/components/settings/security-tab'
+import { SessionsManagement } from '@/components/settings/sessions-management'
 
 export default function SettingsPage() {
     return (
@@ -79,6 +80,9 @@ export default function SettingsPage() {
 
                 {/* Security - Import SecurityTab component */}
                 <SecurityTab />
+
+                {/* Sessions Management */}
+                <SessionsManagement />
 
                 {/* Danger Zone */}
                 <div className="space-y-4 pt-4">
