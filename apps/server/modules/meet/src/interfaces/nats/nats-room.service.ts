@@ -7,7 +7,7 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { RoomMetadata, NatsKvRoomInfo } from '@workspace/protocol';
-import { NatsKvRoomInfoSchema, RoomMetadataSchema, NatsMsgServerToClientEvents } from '@workspace/protocol';
+import { NatsKvRoomInfoSchema, RoomMetadataSchema, NatsMsgServerToClientEvents, RoomUploadedFileMetadataSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { NatsService } from './nats.service';
 import { NatsStreamService } from './nats-stream.service';
@@ -357,7 +357,8 @@ export class NatsRoomService {
                 replicas: numReplicas,
             });
 
-            const metaBytes = new TextEncoder().encode(JSON.stringify(meta));
+            const metaStr = this.natsService.marshalToProtoJson(meta, RoomUploadedFileMetadataSchema);
+            const metaBytes = new TextEncoder().encode(metaStr);
             const key = this.natsService.formatFileKey(meta.fileId);
             await kv.put(key, metaBytes);
 

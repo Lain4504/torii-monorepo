@@ -518,7 +518,9 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
                     // Enqueue job for worker pool
                     this.enqueueJob({
-                        handler: () => this.handleUserConnectionEvent(dataCopy, isConnect),
+                        handler: async () => {
+                            await this.handleUserConnectionEvent(dataCopy, isConnect);
+                        },
                     });
                 },
             });
@@ -535,7 +537,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
     /**
      * Handle user connection event (CONNECT/DISCONNECT)
      */
-    private handleUserConnectionEvent(data: Buffer, isConnect: boolean) {
+    private async handleUserConnectionEvent(data: Buffer, isConnect: boolean) {
         try {
             // Parse JSON event
             const event: ConnectionEvent = JSON.parse(data.toString());
@@ -569,17 +571,17 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             }
 
             // Skip recorder connections
-            if (claims.name === 'WAJLC_RECORDER_AUTH') {
+            if (claims.name === RECORDER_USER_AUTH_NAME) {
                 return;
             }
 
             // Update user status
             if (isConnect) {
                 this.logger.log(`User connected: ${claims.userId} in room ${claims.roomId}`);
-                this.natsUserService.onAfterUserJoined(claims.roomId, claims.userId);
+                await this.natsUserService.onAfterUserJoined(claims.roomId, claims.userId);
             } else {
                 this.logger.log(`User disconnected: ${claims.userId} from room ${claims.roomId}`);
-                this.natsUserService.onAfterUserDisconnected(claims.roomId, claims.userId);
+                await this.natsUserService.onAfterUserDisconnected(claims.roomId, claims.userId);
             }
         } catch (error) {
             this.logger.error('Error handling connection event:', error);

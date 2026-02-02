@@ -78,7 +78,6 @@ export class RecordingApiController {
                 ),
             );
 
-            // Match Go: check isRunning = 1 and roomId mismatch
             // roomData here is { res: IsRoomActiveRes, rInfo, meta } (after my previous fix)
             const rr = roomData.res;
             const rInfo = roomData.rInfo;

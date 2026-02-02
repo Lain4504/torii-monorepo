@@ -235,13 +235,7 @@ export class FileService {
 
         // Removed publishChatMsgForFile
 
-        // If it's an office file, we might want to start conversion
-        if (req.fileType === RoomUploadedFileType.WHITEBOARD_CONVERTED_FILE) {
-            // Trigger conversion (don't await to avoid blocking response)
-            this.convertAndBroadcastWhiteboardFile(req.roomId, req.roomSid, relativePath).catch(err => {
-                this.logger.error(`Whiteboard conversion failed: ${err.message}`);
-            });
-        }
+
 
         return response;
     }
@@ -311,6 +305,14 @@ export class FileService {
             totalPages: pages,
         });
         await this.natsRoom.addRoomFile(roomId, meta);
+
+        // Update room metadata
+        await this.updateRoomMetadataWithOfficeFile(roomId, {
+            fileId,
+            fileName,
+            filePath: res.filePath,
+            totalPages: pages,
+        });
 
         return res;
     }
@@ -412,6 +414,32 @@ export class FileService {
                 }
             });
             fs.rmdirSync(folderPath);
+        }
+    }
+
+    private async updateRoomMetadataWithOfficeFile(roomId: string, f: { fileId: string, fileName: string, filePath: string, totalPages: number }): Promise<void> {
+        try {
+            const { metadata } = await this.natsRoom.getRoomInfoWithMetadata(roomId);
+            if (!metadata) {
+                throw new Error('Room metadata not found');
+            }
+
+            if (!metadata.roomFeatures) {
+                metadata.roomFeatures = { whiteboardFeatures: {} } as any;
+            }
+            if (!metadata.roomFeatures?.whiteboardFeatures) {
+                metadata.roomFeatures!.whiteboardFeatures = {} as any;
+            }
+
+            const wbf = metadata.roomFeatures!.whiteboardFeatures!;
+            wbf.whiteboardFileId = f.fileId;
+            wbf.fileName = f.fileName;
+            wbf.filePath = f.filePath;
+            wbf.totalPages = f.totalPages;
+
+            await this.natsRoom.updateAndBroadcastRoomMetadata(roomId, metadata);
+        } catch (error) {
+            this.logger.error(`Failed to update room metadata with office file: ${error.message}`);
         }
     }
 

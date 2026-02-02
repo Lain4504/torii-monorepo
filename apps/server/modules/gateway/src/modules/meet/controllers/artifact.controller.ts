@@ -149,7 +149,6 @@ export class ArtifactController {
 
     /**
      * HandleDeleteArtifact deletes an artifact
-     * Match Go: HandleDeleteArtifact
      * @route POST /auth/artifact/delete
      */
     @Post('delete')
@@ -180,7 +179,6 @@ export class ArtifactController {
                 this.natsClient.send({ cmd: 'artifact.delete' }, request),
             );
 
-            // Match Go: Return simple success response
             sendCommonProtoJsonResponse(res, true, 'success');
         } catch (error) {
             sendCommonProtoJsonResponse(
@@ -193,7 +191,6 @@ export class ArtifactController {
 
     /**
      * HandleGetArtifactDownloadToken generates a download token for an artifact
-     * Match Go: HandleGetArtifactDownloadToken
      * @route POST /auth/artifact/getDownloadToken
      */
     @Post('getDownloadToken')

@@ -435,7 +435,6 @@ export class ArtifactsService {
      * fetchArtifacts retrieves a paginated list of artifacts
      */
     async fetchArtifacts(r: FetchArtifactsReq): Promise<FetchArtifactsResult> {
-        // Match Go: Apply limit bounds
         let limit = parseInt(r.limit, 10) || 20;
         if (limit <= 0) {
             limit = 20;
@@ -443,7 +442,7 @@ export class ArtifactsService {
             limit = 100;
         }
 
-        // Match Go: Default orderBy to DESC
+        // Default orderBy to DESC
         const orderBy = r.orderBy || 'DESC';
         const from = parseInt(r.from, 10) || 0;
 
@@ -564,24 +563,23 @@ export class ArtifactsService {
 
     /**
      * verifyAndGetFilePath verifies a download token and returns the absolute file path
-     * Match Go: VerifyArtifactDownloadJWT
      */
     async verifyAndGetFilePath(token: string): Promise<{ absolutePath: string; fileName: string }> {
         try {
-            // Match Go: Verify JWT and extract claims
+            // Verify JWT and extract claims
             const decoded = jwt.verify(token, this.apiSecret) as any;
 
-            // Match Go: Use subject claim for file path
+            // MUse subject claim for file path
             const relativePath = decoded.sub || decoded.filePath;
             if (!relativePath) {
                 throw new Error('invalid token: file path not found');
             }
 
-            // Match Go: Build absolute path
+            //  Build absolute path
             const absolutePath = path.join(this.storagePath, 'artifacts', relativePath);
 
             try {
-                // Match Go: Check file existence using Lstat
+                // Check file existence using Lstat
                 await fs.access(absolutePath);
                 const stats = await fs.stat(absolutePath);
 
@@ -590,12 +588,12 @@ export class ArtifactsService {
                     fileName: path.basename(relativePath),
                 };
             } catch (error) {
-                // Match Go: Extract only filename from error path
+                // Extract only filename from error path
                 const parts = error.message.split('/');
                 throw new Error(parts[parts.length - 1]);
             }
         } catch (error) {
-            // Match Go: Return verification error
+            // Return verification error
             if (error.message.includes('file') || error.message.includes('token')) {
                 throw error;
             }
@@ -615,7 +613,7 @@ export class ArtifactsService {
             throw new Error(`artifact not found with ID: ${artifactId}`);
         }
 
-        // Match Go: Double check to prevent deletion of certain artifact types.
+        // Double check to prevent deletion of certain artifact types.
         const type = RoomArtifactType[artifact.type as keyof typeof RoomArtifactType] || RoomArtifactType.UNKNOWN_ARTIFACT;
         if (!this.isDownloadable(type)) {
             throw new Error(`deleting '${artifact.type}' type of artifact is not allowed`);
@@ -658,7 +656,7 @@ export class ArtifactsService {
     }
 
     private isDownloadable(type: RoomArtifactType): boolean {
-        // Match Go: Only these 3 types are downloadable
+        // Only these 3 types are downloadable
         return [
             RoomArtifactType.MEETING_ANALYTICS,
             RoomArtifactType.MEETING_SUMMARY,

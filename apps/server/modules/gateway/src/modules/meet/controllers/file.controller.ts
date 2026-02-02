@@ -211,11 +211,15 @@ export class FileController {
         const mimeType = this.getMimeType(fileName);
         const isImage = mimeType.startsWith('image/');
 
-        // Always set to attachment
+        // Set Content-Disposition based on file type
+        // 'inline' for images/PDFs allows them to be displayed in browser
+        // 'attachment' forces download for other types
+        const disposition = isImage || mimeType === 'application/pdf' ? 'inline' : 'attachment';
+
         const encodedFileName = encodeURIComponent(fileName);
         res.setHeader(
             'Content-Disposition',
-            `attachment; filename="${encodedFileName}"; filename*=UTF-8''${encodedFileName}`,
+            `${disposition}; filename="${encodedFileName}"; filename*=UTF-8''${encodedFileName}`,
         );
         res.setHeader('Content-Type', mimeType);
 

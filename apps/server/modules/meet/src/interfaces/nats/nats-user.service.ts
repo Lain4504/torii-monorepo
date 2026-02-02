@@ -119,9 +119,12 @@ export class NatsUserService {
      */
     async getOnlineUsersId(roomId: string): Promise<string[]> {
         const cachedIds = this.natsService.getCacheService().getUsersIdFromRoomStatusBucket(roomId, USER_STATUS_ONLINE);
-        if (cachedIds.length > 0) return cachedIds;
 
-        // Fallback to NATS
+        if (this.natsService.getCacheService().isRoomWatched(roomId) || cachedIds.length > 0) {
+            return cachedIds;
+        }
+
+        // Fallback to NATS only during initial room startup or if cache is not active
         try {
             const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
             const js = this.natsService.getJetStream();
@@ -202,12 +205,7 @@ export class NatsUserService {
         const users = await this.getOnlineUsersList(roomId);
         if (users.length === 0) return null;
 
-        const jsonArray = users.map(u =>
-            toJsonString(NatsKvUserInfoSchema, u, {
-                alwaysEmitImplicit: true,
-                useProtoFieldName: true,
-            })
-        );
+        const jsonArray = users.map(u => this.natsService.marshalToProtoJson(u, NatsKvUserInfoSchema));
         return `[${jsonArray.join(',')}]`;
     }
 
@@ -283,7 +281,6 @@ export class NatsUserService {
 
     /**
      * IsUserExistInBlockList checks if a user is in the block list.
-     * Match Go: pkg/services/nats/user_info.go -> IsUserExistInBlockList
      */
     async isUserExistInBlockList(roomId: string, userId: string): Promise<boolean> {
         // Check cache first
@@ -304,7 +301,6 @@ export class NatsUserService {
 
     /**
      * GetUserKeyValue retrieves a specific key-value entry for a user
-     * Match Go: pkg/services/nats/user_info.go -> GetUserKeyValue
      */
     async getUserKeyValue(roomId: string, userId: string, key: string): Promise<any | null> {
         const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
@@ -366,7 +362,6 @@ export class NatsUserService {
 
     /**
      * AddUserManuallyAndBroadcast adds a user manually (e.g. ingress) and broadcasts the event.
-     * Matches Go: pkg/services/nats/user_modify.go -> AddUserManuallyAndBroadcast
      */
     async addUserManuallyAndBroadcast(
         roomId: string,
@@ -476,7 +471,6 @@ export class NatsUserService {
 
     /**
      * BroadcastUserMetadata broadcasts user metadata update.
-     * Match Go: pkg/services/nats/nats_entity_state_events.go -> BroadcastUserMetadata
      */
     async broadcastUserMetadata(roomId: string, userId: string, metadata?: string, toUser?: string): Promise<void> {
         if (!metadata) {
@@ -497,10 +491,9 @@ export class NatsUserService {
         // but for specific proto messages we might want to ensure it matches what client expects.
         // NatsUserMetadataUpdate is a proto message.
         // The broadcastSystemEventToRoom in NatsSystemEventsService serializes data as JSON string if passed as object.
-        // Go prepares a NatsMsgServerToClient with Msg field containing the serialized proto.
 
-        // Let's use toJsonString to ensure proto JSON serialization
-        const msg = toJsonString(NatsUserMetadataUpdateSchema, data);
+        // Use proper Protobuf marshal options
+        const msg = this.natsService.marshalToProtoJson(data, NatsUserMetadataUpdateSchema);
 
         await this.natsSystemEvents.broadcastSystemEventToRoom(
             NatsMsgServerToClientEvents.USER_METADATA_UPDATE,
@@ -512,7 +505,6 @@ export class NatsUserService {
 
     /**
      * UpdateAndBroadcastUserMetadata updates and broadcasts user metadata.
-     * Match Go: pkg/services/nats/nats_entity_state_events.go -> UpdateAndBroadcastUserMetadata
      */
     async updateAndBroadcastUserMetadata(roomId: string, userId: string, meta: UserMetadata | string, toUserId?: string): Promise<void> {
         if (!meta) {
@@ -525,7 +517,6 @@ export class NatsUserService {
 
     /**
      * BroadcastUserInfoToRoom broadcasts user info event.
-     * Match Go: pkg/services/nats/nats_entity_state_events.go -> BroadcastUserInfoToRoom
      */
     async broadcastUserInfoToRoom(event: NatsMsgServerToClientEvents, roomId: string, userId: string, userInfo?: NatsKvUserInfo): Promise<void> {
         if (!userInfo) {
@@ -536,7 +527,7 @@ export class NatsUserService {
             userInfo = info;
         }
 
-        const msg = toJsonString(NatsKvUserInfoSchema, userInfo);
+        const msg = this.natsService.marshalToProtoJson(userInfo, NatsKvUserInfoSchema);
         await this.natsSystemEvents.broadcastSystemEventToRoom(event, roomId, msg);
     }
 
@@ -660,13 +651,17 @@ export class NatsUserService {
         await this.updateUserStatus(roomId, userId, USER_STATUS_ONLINE);
         const userInfo = await this.getUserInfo(roomId, userId);
         if (userInfo) {
-            await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+            const userInfoMsg = this.natsService.marshalToProtoJson(userInfo, NatsKvUserInfoSchema);
+            // Non-blocking broadcast to avoid clogging the worker pool
+            this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
                 NatsMsgServerToClientEvents.USER_JOINED,
                 roomId,
-                userInfo,
+                userInfoMsg,
                 userId
-            );
-            await this.analyticsService.handleEvent({
+            ).catch(() => { });
+
+            // Non-blocking analytics
+            this.analyticsService.handleEvent({
                 eventType: AnalyticsEventType.ROOM,
                 eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_JOINED,
                 roomId,
@@ -674,7 +669,7 @@ export class NatsUserService {
                 userName: userInfo.name,
                 extraData: userInfo.metadata,
                 hsetValue: Date.now().toString(),
-            } as AnalyticsDataMsg);
+            } as AnalyticsDataMsg).catch(err => this.logger.error(`Analytics error: ${err.message}`));
         }
     }
 
@@ -682,23 +677,26 @@ export class NatsUserService {
         this.logger.log(`Handling user disconnected event: room=${roomId}, user=${userId}`);
         await this.updateUserStatus(roomId, userId, USER_STATUS_DISCONNECTED);
 
-        // Immediate analytics for user left (Matches Go)
-        await this.analyticsService.handleEvent({
+        // Immediate analytics for user left
+        // Non-blocking analytics
+        this.analyticsService.handleEvent({
             eventType: AnalyticsEventType.USER,
             eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_LEFT,
             roomId,
             userId,
             hsetValue: Date.now().toString(),
-        } as AnalyticsDataMsg);
+        } as AnalyticsDataMsg).catch(err => this.logger.error(`Analytics error: ${err.message}`));
 
-        const userInfo = await this.getUserInfo(roomId, userId) || { userId, roomId };
+        const userInfo = await this.getUserInfo(roomId, userId) || create(NatsKvUserInfoSchema, { userId, roomId });
+        const userInfoMsg = this.natsService.marshalToProtoJson(userInfo, NatsKvUserInfoSchema);
 
-        await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+        // Non-blocking broadcast
+        this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
             NatsMsgServerToClientEvents.USER_DISCONNECTED,
             roomId,
-            userInfo,
+            userInfoMsg,
             userId
-        );
+        ).catch(() => { });
 
         setImmediate(() => this.handleDelayedOfflineTasks(roomId, userId, userInfo));
     }
@@ -716,15 +714,18 @@ export class NatsUserService {
         await this.updateUserStatus(roomId, userId, USER_STATUS_OFFLINE);
 
         // Broadcast final offline status
-        await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+        const userInfoObj = userInfo || create(NatsKvUserInfoSchema, { userId, roomId });
+        const userInfoMsg = this.natsService.marshalToProtoJson(userInfoObj, NatsKvUserInfoSchema);
+
+        // Non-blocking broadcast
+        this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
             NatsMsgServerToClientEvents.USER_OFFLINE,
             roomId,
-            userInfo || { userId },
+            userInfoMsg,
             userId
         ).catch(() => { });
 
         // Stage 2: Wait a bit longer before final cleanup (30 seconds)
-        // Matches Go: pkg/models/nats_user_connection.go -> handleDelayedOfflineTasks
         await new Promise(resolve => setTimeout(resolve, 30000));
 
         const finalStatus = await this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);

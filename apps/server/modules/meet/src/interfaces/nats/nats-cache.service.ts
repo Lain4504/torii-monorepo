@@ -664,4 +664,11 @@ export class NatsCacheService implements OnModuleDestroy {
             usersInfoCount: this.roomUsersInfoStore.size,
         };
     }
+
+    /**
+     * IsRoomWatched checks if the room is currently being watched by this service.
+     */
+    isRoomWatched(roomId: string): boolean {
+        return this.roomsInfoStore.has(roomId);
+    }
 }
