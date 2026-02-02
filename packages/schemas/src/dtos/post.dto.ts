@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PostStatus, postSchema } from '../models/post.model';
+import { PostStatus, PostType, postSchema } from '../models/post.model';
 import { paginatedResponseSchema } from './common.dto';
 
 export const postCreateDTOSchema = postSchema
@@ -11,6 +11,7 @@ export const postCreateDTOSchema = postSchema
         coverImageUrl: true,
         authorId: true,
         status: true,
+        type: true,
         publishedAt: true,
         tags: true,
     })
@@ -19,6 +20,7 @@ export const postCreateDTOSchema = postSchema
         excerpt: true,
         coverImageUrl: true,
         status: true,
+        type: true,
         publishedAt: true,
         tags: true,
     });
@@ -34,6 +36,7 @@ export const postQueryDTOSchema = z.object({
     limit: z.coerce.number().min(1).max(100).default(10),
     search: z.string().optional(),
     status: z.nativeEnum(PostStatus).optional(),
+    type: z.nativeEnum(PostType).optional(),
     authorId: z.string().uuid().optional(),
     tagId: z.string().optional(),
     sortBy: z.string().optional(),

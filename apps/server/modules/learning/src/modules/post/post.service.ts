@@ -116,6 +116,10 @@ export class PostService implements IPostService {
       where.status = query.status;
     }
 
+    if (query.type) {
+      where.type = query.type;
+    }
+
     if (query.authorId) {
       where.authorId = query.authorId;
     }
