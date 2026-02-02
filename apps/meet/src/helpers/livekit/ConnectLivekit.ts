@@ -48,24 +48,21 @@ import { getNatsConn } from '../nats';
 import { roomConnectionStatus } from '../../components/app/helper';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 import { activeSpeakersSelector } from '../../store/slices/activeSpeakersSlice';
-import {
-  ENABLE_DYNACAST,
-  ENABLE_SIMULCAST,
-  STOP_MIC_TRACK_ON_MUTE,
-  VIDEO_CODEC,
-} from '../../config';
+import {toWajlcUserId} from '../utils';
+import {ENABLE_DYNACAST, ENABLE_SIMULCAST, STOP_MIC_TRACK_ON_MUTE, VIDEO_CODEC} from "../../config";
 
 export default class ConnectLivekit
-  extends EventEmitter
-  implements IConnectLivekit {
+    extends EventEmitter
+    implements IConnectLivekit
+{
   private _audioSubscribersMap = new Map<string, RemoteParticipant>();
   private _videoSubscribersMap = new Map<
-    string,
-    Participant | LocalParticipant | RemoteParticipant
+      string,
+      Participant | LocalParticipant | RemoteParticipant
   >();
   private _screenShareTracksMap = new Map<
-    string,
-    Array<LocalTrackPublication | RemoteTrackPublication>
+      string,
+      Array<LocalTrackPublication | RemoteTrackPublication>
   >();
 
   private readonly _errorState: Dispatch<IErrorPageProps>;
@@ -81,11 +78,11 @@ export default class ConnectLivekit
   private wasNormalDisconnected: boolean = false;
 
   constructor(
-    errorState: Dispatch<IErrorPageProps>,
-    roomConnectionStatusState: Dispatch<roomConnectionStatus>,
-    localUserId: string,
-    enabledE2EE: boolean,
-    encryptionKey?: string,
+      errorState: Dispatch<IErrorPageProps>,
+      roomConnectionStatusState: Dispatch<roomConnectionStatus>,
+      localUserId: string,
+      enabledE2EE: boolean,
+      encryptionKey?: string,
   ) {
     super();
     this.localUserId = localUserId;
@@ -145,8 +142,8 @@ export default class ConnectLivekit
   private configureRoom() {
     let videoCodec = VIDEO_CODEC;
     if (
-      (videoCodec === 'vp9' && !supportsVP9()) ||
-      (videoCodec === 'av1' && !supportsAV1())
+        (videoCodec === 'vp9' && !supportsVP9()) ||
+        (videoCodec === 'av1' && !supportsAV1())
     ) {
       videoCodec = 'vp8';
     }
@@ -166,6 +163,7 @@ export default class ConnectLivekit
           VideoPresets.h360,
         ],
         stopMicTrackOnMute: STOP_MIC_TRACK_ON_MUTE,
+
         videoCodec: videoCodec,
       },
     };
@@ -181,12 +179,12 @@ export default class ConnectLivekit
 
     room.on(RoomEvent.Reconnecting, () => {
       this.toastIdConnecting = toast.loading(
-        i18n.t('notifications.media-server-disconnected-reconnecting'),
-        {
-          type: 'warning',
-          closeButton: false,
-          autoClose: false,
-        },
+          i18n.t('notifications.media-server-disconnected-reconnecting'),
+          {
+            type: 'warning',
+            closeButton: false,
+            autoClose: false,
+          },
       );
     });
     room.on(RoomEvent.Connected, () => {
@@ -205,33 +203,33 @@ export default class ConnectLivekit
     room.on(RoomEvent.MediaDevicesError, this.mediaDevicesError);
 
     room.on(
-      RoomEvent.LocalTrackPublished,
-      this.handleMediaTracks.localTrackPublished,
+        RoomEvent.LocalTrackPublished,
+        this.handleMediaTracks.localTrackPublished,
     );
     room.on(
-      RoomEvent.LocalTrackUnpublished,
-      this.handleMediaTracks.localTrackUnpublished,
+        RoomEvent.LocalTrackUnpublished,
+        this.handleMediaTracks.localTrackUnpublished,
     );
     room.on(RoomEvent.TrackSubscribed, this.handleMediaTracks.trackSubscribed);
     room.on(
-      RoomEvent.TrackUnpublished,
-      this.handleMediaTracks.trackUnsubscribed,
+        RoomEvent.TrackUnpublished,
+        this.handleMediaTracks.trackUnsubscribed,
     );
     room.on(
-      RoomEvent.TrackSubscriptionFailed,
-      this.handleMediaTracks.trackSubscriptionFailed,
+        RoomEvent.TrackSubscriptionFailed,
+        this.handleMediaTracks.trackSubscriptionFailed,
     );
     room.on(RoomEvent.TrackMuted, this.handleMediaTracks.trackMuted);
     room.on(RoomEvent.TrackUnmuted, this.handleMediaTracks.trackUnmuted);
     room.on(
-      RoomEvent.TrackStreamStateChanged,
-      this.handleMediaTracks.trackStreamStateChanged,
+        RoomEvent.TrackStreamStateChanged,
+        this.handleMediaTracks.trackStreamStateChanged,
     );
 
     // for individual local user events
     room.localParticipant.on(
-      'connectionQualityChanged',
-      this.localUserConnectionQualityChanged,
+        'connectionQualityChanged',
+        this.localUserConnectionQualityChanged,
     );
 
     return room;
@@ -243,20 +241,20 @@ export default class ConnectLivekit
       participant.getTrackPublications().forEach((track) => {
         if (track.isSubscribed) {
           if (
-            track.source === Track.Source.ScreenShare ||
-            track.source === Track.Source.ScreenShareAudio
+              track.source === Track.Source.ScreenShare ||
+              track.source === Track.Source.ScreenShareAudio
           ) {
             store.dispatch(
-              updateParticipant({
-                id: participant.identity,
-                changes: {
-                  screenShareTrack: 1,
-                },
-              }),
+                updateParticipant({
+                  id: participant.identity,
+                  changes: {
+                    screenShareTrack: 1,
+                  },
+                }),
             );
             this.addScreenShareTrack(
-              participant.identity,
-              track as RemoteTrackPublication,
+                participant.identity,
+                track as RemoteTrackPublication,
             );
           } else if (track.source === Track.Source.Camera) {
             this.addVideoSubscriber(participant);
@@ -266,9 +264,20 @@ export default class ConnectLivekit
     });
   }
 
+  private closeLocalTracks() {
+    this._room.localParticipant.getTrackPublications().forEach((track) => {
+      if (track.videoTrack) {
+        track.videoTrack.stop();
+      } else if (track.audioTrack) {
+        track.audioTrack.stop();
+      }
+    });
+  }
+
   public async disconnectRoom(normalDisconnect: boolean) {
     if (this._room.state === ConnectionState.Connected) {
       this.wasNormalDisconnected = normalDisconnect;
+      this.closeLocalTracks();
       await this._room.disconnect(true);
     }
   }
@@ -290,6 +299,7 @@ export default class ConnectLivekit
       // no need to show any message
       return;
     }
+    this.closeLocalTracks();
 
     this._errorState({
       title: i18n.t('notifications.room-disconnected-title'),
@@ -332,52 +342,52 @@ export default class ConnectLivekit
   };
 
   private localUserConnectionQualityChanged = async (
-    connectionQuality: ConnectionQuality,
+      connectionQuality: ConnectionQuality,
   ) => {
     store.dispatch(
-      updateParticipant({
-        id: this.localUserId,
-        changes: {
-          connectionQuality: connectionQuality,
-        },
-      }),
+        updateParticipant({
+          id: this.localUserId,
+          changes: {
+            connectionQuality: connectionQuality,
+          },
+        }),
     );
 
     if (
-      connectionQuality === ConnectionQuality.Poor ||
-      connectionQuality === ConnectionQuality.Lost
+        connectionQuality === ConnectionQuality.Poor ||
+        connectionQuality === ConnectionQuality.Lost
     ) {
       let msg = i18n.t('notifications.your-connection-quality-not-good');
       if (connectionQuality === ConnectionQuality.Lost) {
         msg = i18n.t('notifications.your-connection-quality-lost');
       }
       store.dispatch(
-        addUserNotification({
-          message: msg,
-          typeOption: 'error',
-        }),
+          addUserNotification({
+            message: msg,
+            typeOption: 'error',
+          }),
       );
     }
 
     const conn = getNatsConn();
     if (conn) {
       conn.sendAnalyticsData(
-        AnalyticsEvents.ANALYTICS_EVENT_USER_CONNECTION_QUALITY,
-        AnalyticsEventType.USER,
-        connectionQuality.toString(),
+          AnalyticsEvents.ANALYTICS_EVENT_USER_CONNECTION_QUALITY,
+          AnalyticsEventType.USER,
+          connectionQuality.toString(),
       );
       conn
-        .sendDataMessage(
-          DataMsgBodyType.USER_CONNECTION_QUALITY_CHANGE,
-          connectionQuality,
-        )
-        .then();
+          .sendDataMessage(
+              DataMsgBodyType.USER_CONNECTION_QUALITY_CHANGE,
+              connectionQuality,
+          )
+          .then();
     }
   };
 
   public addScreenShareTrack = (
-    userId: string,
-    track: LocalTrackPublication | RemoteTrackPublication,
+      userId: string,
+      track: LocalTrackPublication | RemoteTrackPublication,
   ) => {
     const existUser = participantsSelector.selectById(store.getState(), userId);
     if (!existUser || !existUser.isOnline) {
@@ -425,15 +435,13 @@ export default class ConnectLivekit
   }
 
   public addAudioSubscriber = (
-    participant: Participant | LocalParticipant | RemoteParticipant,
+      participant: Participant | LocalParticipant | RemoteParticipant,
   ) => {
     if (!participant.audioTrackPublications.size) {
       return;
     }
-    const existUser = participantsSelector.selectById(
-      store.getState(),
-      participant.identity,
-    );
+    const userId = toWajlcUserId(participant.identity);
+    const existUser = participantsSelector.selectById(store.getState(), userId);
     if (!existUser || !existUser.isOnline) {
       return;
     }
@@ -443,8 +451,8 @@ export default class ConnectLivekit
     }
 
     this._audioSubscribersMap.set(
-      participant.identity,
-      participant as RemoteParticipant,
+        participant.identity,
+        participant as RemoteParticipant,
     );
     this.syncAudioSubscribers();
   };
@@ -466,14 +474,14 @@ export default class ConnectLivekit
   }
 
   public addVideoSubscriber = (
-    participant: Participant | LocalParticipant | RemoteParticipant,
+      participant: Participant | LocalParticipant | RemoteParticipant,
   ) => {
     if (!participant.videoTrackPublications.size) {
       return;
     }
     const existUser = participantsSelector.selectById(
-      store.getState(),
-      participant.identity,
+        store.getState(),
+        participant.identity,
     );
     if (!existUser || !existUser.isOnline) {
       return;

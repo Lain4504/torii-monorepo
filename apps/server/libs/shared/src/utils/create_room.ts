@@ -24,6 +24,9 @@ import {
     InsightsAIFeaturesSchema,
     InsightsAITextChatFeaturesSchema,
     InsightsAIMeetingSummarizationFeaturesSchema,
+    SharedNotePadFeaturesSchema,
+    CopyrightConf,
+    CopyrightConfSchema,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { generateSecureRandomString, generateRandomString } from './common';
@@ -42,7 +45,6 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
             isAllowCloud: true,
             isAllowLocal: true,
             enableAutoCloudRecording: false,
-            onlyRecordAdminWebcams: false,
         });
     }
 
@@ -50,7 +52,6 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
         rf.chatFeatures = create(ChatFeaturesSchema, {
             isAllow: false,
             isAllowFileUpload: false,
-            allowedFileTypes: [],
         });
     } else {
         // backward compatibility
@@ -62,7 +63,18 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
         }
     }
 
-
+    if (!rf.sharedNotePadFeatures) {
+        rf.sharedNotePadFeatures = create(SharedNotePadFeaturesSchema, {
+            isAllow: false,
+            isActive: false,
+            visible: false,
+        });
+    } else {
+        // backward compatibility
+        if (rf.sharedNotePadFeatures.allowedSharedNotePad !== undefined) {
+            rf.sharedNotePadFeatures.isAllow = rf.sharedNotePadFeatures.allowedSharedNotePad;
+        }
+    }
 
     if (!rf.whiteboardFeatures) {
         rf.whiteboardFeatures = create(WhiteboardFeaturesSchema, {
@@ -70,7 +82,6 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
             visible: false,
             whiteboardFileId: 'default',
             fileName: 'default',
-            filePath: '',
             totalPages: 10,
         });
     } else {
@@ -117,9 +128,6 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
     if (!rf.ingressFeatures) {
         rf.ingressFeatures = create(IngressFeaturesSchema, {
             isAllow: false,
-            inputType: 0, // IngressInput enum default
-            url: '',
-            streamKey: '',
         });
     }
 
@@ -127,28 +135,18 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
         rf.speechToTextTranslationFeatures = create(SpeechToTextTranslationFeaturesSchema, {
             isAllow: false,
             isAllowTranslation: false,
-            isEnabled: false,
-            isEnabledTranslation: false,
-            maxNumTranLangsAllowSelecting: 0,
-            allowedSpeechLangs: [],
-            allowedSpeechUsers: [],
-            allowedTransLangs: [],
         });
     }
 
     if (!rf.endToEndEncryptionFeatures) {
         rf.endToEndEncryptionFeatures = create(EndToEndEncryptionFeaturesSchema, {
             isEnabled: false,
-            includedChatMessages: false,
-            includedWhiteboard: false,
-            enabledSelfInsertEncryptionKey: false,
         });
     }
 
     if (!rf.pollsFeatures) {
         rf.pollsFeatures = create(PollsFeaturesSchema, {
             isAllow: false,
-            isActive: false,
         });
         // backward compatibility
         if (rf.allowPolls !== undefined) {
@@ -162,33 +160,19 @@ export function prepareDefaultRoomFeatures(r: CreateRoomReq): void {
             transcriptionFeatures: create(InsightsTranscriptionFeaturesSchema, {
                 isAllow: false,
                 isAllowTranslation: false,
-                isAllowSpeechSynthesis: false,
-                isEnabled: false,
-                allowedSpokenLangs: [],
-                allowedSpeechUsers: [],
-                isEnabledTranslation: false,
                 maxSelectedTransLangs: 2,
-                allowedTransLangs: [],
-                isEnabledSpeechSynthesis: false,
             }),
             chatTranslationFeatures: create(InsightsChatTranslationFeaturesSchema, {
                 isAllow: false,
-                isEnabled: false,
-                allowedTransLangs: [],
                 maxSelectedTransLangs: 5,
             }),
             aiFeatures: create(InsightsAIFeaturesSchema, {
                 isAllow: false,
                 aiTextChatFeatures: create(InsightsAITextChatFeaturesSchema, {
                     isAllow: false,
-                    isEnabled: false,
-                    isAllowedEveryone: false,
-                    allowedUserIds: [],
                 }),
                 meetingSummarizationFeatures: create(InsightsAIMeetingSummarizationFeaturesSchema, {
                     isAllow: false,
-                    summarizationPrompt: '',
-                    isEnabled: false,
                 }),
             }),
         });
@@ -223,16 +207,19 @@ export function setCreateRoomDefaultValues(
     r: CreateRoomReq,
     maxSize: string, // uint64 with JS_STRING
     maxSizeWhiteboardFile: string, // uint64 with JS_STRING
-    allowedTypes: string[]
+    allowedTypes: string[],
+    allowedNotepad: boolean,
 ): void {
-    const rf = r.metadata!.roomFeatures!;
+    const rf = r.metadata!.roomFeatures!; // r.metadata is ensured by caller or prepareDefaultRoomFeatures
 
     if (rf.autoGenUserId === undefined) {
         // by default, auto user id generation will be disabled
         rf.autoGenUserId = false;
     }
 
-
+    if (rf.sharedNotePadFeatures?.isAllow && !allowedNotepad) {
+        rf.sharedNotePadFeatures.isAllow = false;
+    }
 
     if (rf.chatFeatures?.isAllowFileUpload) {
         if (!rf.chatFeatures.allowedFileTypes || rf.chatFeatures.allowedFileTypes.length === 0) {
@@ -279,6 +266,9 @@ export function setRoomDefaultLockSettings(r: CreateRoomReq): void {
     }
     if (r.metadata!.defaultLockSettings!.lockWhiteboard === undefined) {
         r.metadata!.defaultLockSettings!.lockWhiteboard = lock;
+    }
+    if (r.metadata!.defaultLockSettings!.lockSharedNotepad === undefined) {
+        r.metadata!.defaultLockSettings!.lockSharedNotepad = lock;
     }
 
 }

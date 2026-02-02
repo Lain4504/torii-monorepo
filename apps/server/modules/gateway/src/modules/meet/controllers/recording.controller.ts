@@ -1,62 +1,231 @@
+/**
+ * Recording Controller (Gateway)
+ *
+ * Handles recording-related API endpoints via Gateway -> NATS -> Meet Service
+ */
+
 import {
     Controller,
     Post,
     Body,
     Res,
     UseGuards,
+    HttpCode,
     HttpStatus,
     Inject,
-    Logger,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { create } from '@bufbuild/protobuf';
 import {
-    RecordingReqSchema,
-    CommonResponseSchema,
+    FetchRecordingsReq,
+    FetchRecordingsReqSchema,
+    FetchRecordingsRes,
+    FetchRecordingsResSchema,
+    RecordingInfoReq,
+    RecordingInfoReqSchema,
+    UpdateRecordingMetadataReq,
+    UpdateRecordingMetadataReqSchema,
+    DeleteRecordingReq,
+    DeleteRecordingReqSchema,
+    GetDownloadTokenReq,
+    GetDownloadTokenReqSchema,
+    GetDownloadTokenRes,
+    GetDownloadTokenResSchema,
 } from '@workspace/protocol';
 import {
-    sendProtoJsonResponse,
     sendCommonProtoJsonResponse,
-    JwtAuthGuard,
+    sendProtoJsonResponse,
+    parseAndValidateRequest,
+    ApiKeyGuard,
 } from '@server/shared';
 
-@Controller('recording')
+/**
+ * RecordingController handles recording management operations (ApiKeyGuard routes)
+ * Routes under /auth/recording
+ */
+@Controller('auth/recording')
+@UseGuards(ApiKeyGuard)
 export class RecordingController {
-    private readonly logger = new Logger(RecordingController.name);
-
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
-    @Post()
-    @UseGuards(JwtAuthGuard)
-    async handleRecordingTask(@Body() body: any, @Res() res: Response) {
+    /**
+     * HandleFetchRecordings fetches a list of recordings
+     * @route POST /auth/recording/fetch
+     */
+    @Post('fetch')
+    @HttpCode(HttpStatus.OK)
+    async handleFetchRecordings(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        let request: FetchRecordingsReq;
         try {
-            const req = create(RecordingReqSchema, body);
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'recording' }, req)
+            request = parseAndValidateRequest<FetchRecordingsReq>(
+                body,
+                FetchRecordingsReqSchema,
             );
-            res.status(HttpStatus.OK);
-            sendProtoJsonResponse(res, CommonResponseSchema, result);
         } catch (error) {
-            sendCommonProtoJsonResponse(res, false, error.message);
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            return;
+        }
+
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'recording.fetch' }, request),
+            );
+
+            if (Number(result.totalRecordings) === 0) {
+                sendCommonProtoJsonResponse(res, false, 'no recordings found');
+                return;
+            }
+
+            const response = create(FetchRecordingsResSchema, {
+                status: true,
+                msg: 'success',
+                result: result,
+            });
+
+            res.status(200);
+            sendProtoJsonResponse(res, FetchRecordingsResSchema, response);
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error fetching recordings');
         }
     }
 
-    @Post('fetch')
-    @UseGuards(JwtAuthGuard)
-    async fetchActiveRecordings(@Body() body: any, @Res() res: Response) {
+    /**
+     * HandleRecordingInfo gets information about a recording
+     * @route POST /auth/recording/info
+     */
+    @Post('info')
+    @HttpCode(HttpStatus.OK)
+    async handleRecordingInfo(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        let request: RecordingInfoReq;
         try {
-            // No strict schema for request, maybe empty or specific filter
-            // Sending 'recording.fetch' command to server
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'recording.fetch' }, body || {})
+            request = parseAndValidateRequest<RecordingInfoReq>(
+                body,
+                RecordingInfoReqSchema,
             );
-            return res.status(HttpStatus.OK).json({ status: true, result });
         } catch (error) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: error.message });
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            return;
+        }
+
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'recording.info' }, request),
+            );
+            res.status(200);
+            sendProtoJsonResponse(res, result.$typeName, result);
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error getting recording info');
+        }
+    }
+
+    /**
+     * HandleUpdateRecordingMetadata updates recording metadata
+     * @route POST /auth/recording/updateMetadata
+     */
+    @Post('updateMetadata')
+    @HttpCode(HttpStatus.OK)
+    async handleUpdateRecordingMetadata(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        let request: UpdateRecordingMetadataReq;
+        try {
+            request = parseAndValidateRequest<UpdateRecordingMetadataReq>(
+                body,
+                UpdateRecordingMetadataReqSchema,
+            );
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            return;
+        }
+
+        try {
+            await firstValueFrom(
+                this.natsClient.send({ cmd: 'recording.updateMetadata' }, request),
+            );
+            sendCommonProtoJsonResponse(res, true, 'success');
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error updating recording metadata');
+        }
+    }
+
+    /**
+     * HandleDeleteRecording deletes a recording
+     * @route POST /auth/recording/delete
+     */
+    @Post('delete')
+    @HttpCode(HttpStatus.OK)
+    async handleDeleteRecording(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        let request: DeleteRecordingReq;
+        try {
+            request = parseAndValidateRequest<DeleteRecordingReq>(
+                body,
+                DeleteRecordingReqSchema,
+            );
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            return;
+        }
+
+        try {
+            await firstValueFrom(
+                this.natsClient.send({ cmd: 'recording.delete' }, request),
+            );
+            sendCommonProtoJsonResponse(res, true, 'success');
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error deleting recording');
+        }
+    }
+
+    /**
+     * HandleGetDownloadToken generates a download token
+     * @route POST /auth/recording/getDownloadToken
+     */
+    @Post('getDownloadToken')
+    @HttpCode(HttpStatus.OK)
+    async handleGetDownloadToken(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        let request: GetDownloadTokenReq;
+        try {
+            request = parseAndValidateRequest<GetDownloadTokenReq>(
+                body,
+                GetDownloadTokenReqSchema,
+            );
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Invalid request');
+            return;
+        }
+
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'recording.getDownloadToken' }, request),
+            );
+
+            const response = create(GetDownloadTokenResSchema, {
+                status: true,
+                msg: 'success',
+                token: result.token,
+            });
+
+            res.status(200);
+            sendProtoJsonResponse(res, GetDownloadTokenResSchema, response);
+        } catch (error) {
+            sendCommonProtoJsonResponse(res, false, error instanceof Error ? error.message : 'Error generating download token');
         }
     }
 }

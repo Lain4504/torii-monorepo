@@ -47,10 +47,11 @@ const initialState: IRoomSettings = {
   columnCameraPosition: ColumnCameraPosition.LEFT,
   visibleHeader: true,
   visibleFooter: true,
-  isWajlcWindowTabVisible: true,
+  isWAJLCWindowTabVisible: true,
   focusActiveSpeakerWebcam: true,
   userNotifications: [],
   isSidePanelOpened: false,
+  hasWebcamPages: false,
 };
 
 const roomSettingsSlice = createSlice({
@@ -61,8 +62,8 @@ const roomSettingsSlice = createSlice({
       state.isShowRoomSettingsModal = action.payload;
     },
     updateShowKeyboardShortcutsModal: (
-      state,
-      action: PayloadAction<boolean>,
+        state,
+        action: PayloadAction<boolean>,
     ) => {
       state.isShowKeyboardShortcuts = action.payload;
     },
@@ -91,8 +92,8 @@ const roomSettingsSlice = createSlice({
       state.activeScreenSharingView = action.payload;
     },
     updateAllowPlayAudioNotification: (
-      state,
-      action: PayloadAction<boolean>,
+        state,
+        action: PayloadAction<boolean>,
     ) => {
       state.allowPlayAudioNotification = action.payload;
     },
@@ -100,8 +101,8 @@ const roomSettingsSlice = createSlice({
       state.roomAudioVolume = action.payload;
     },
     updateRoomScreenShareAudioVolume: (
-      state,
-      action: PayloadAction<number>,
+        state,
+        action: PayloadAction<number>,
     ) => {
       state.roomScreenShareAudioVolume = action.payload;
     },
@@ -121,14 +122,14 @@ const roomSettingsSlice = createSlice({
       state.selectedChatOption = action.payload;
     },
     updateInitiatePrivateChat: (
-      state,
-      action: PayloadAction<InitiatePrivateChat>,
+        state,
+        action: PayloadAction<InitiatePrivateChat>,
     ) => {
       state.initiatePrivateChat = action.payload;
     },
     updateUnreadMsgFrom: (
-      state,
-      action: PayloadAction<UnreadMsgFromPayload>,
+        state,
+        action: PayloadAction<UnreadMsgFromPayload>,
     ) => {
       const tmp = [...state.unreadMsgFrom];
       if (action.payload.task === 'ADD') {
@@ -142,14 +143,14 @@ const roomSettingsSlice = createSlice({
       }
     },
     updateColumnCameraWidth: (
-      state,
-      action: PayloadAction<ColumnCameraWidth>,
+        state,
+        action: PayloadAction<ColumnCameraWidth>,
     ) => {
       state.columnCameraWidth = action.payload;
     },
     updateColumnCameraPosition: (
-      state,
-      action: PayloadAction<ColumnCameraPosition>,
+        state,
+        action: PayloadAction<ColumnCameraPosition>,
     ) => {
       state.columnCameraPosition = action.payload;
     },
@@ -167,8 +168,8 @@ const roomSettingsSlice = createSlice({
         state.azureTokenInfo.token = '';
       }
     },
-    updateisWajlcWindowTabVisible: (state, action: PayloadAction<boolean>) => {
-      state.isWajlcWindowTabVisible = action.payload;
+    updateIsWAJLCWindowTabVisible: (state, action: PayloadAction<boolean>) => {
+      state.isWAJLCWindowTabVisible = action.payload;
     },
     updatePinCamUserId: (state, action: PayloadAction<string | undefined>) => {
       state.pinCamUserId = action.payload;
@@ -185,14 +186,14 @@ const roomSettingsSlice = createSlice({
       }
       state.userNotifications.push(action.payload);
       idbStore(
-        DB_STORE_NAMES.USER_NOTIFICATIONS,
-        action.payload.created.toString(),
-        action.payload,
+          DB_STORE_NAMES.USER_NOTIFICATIONS,
+          action.payload.created.toString(),
+          action.payload,
       ).then();
     },
     setAllUserNotifications: (
-      state,
-      action: PayloadAction<UserNotification[]>,
+        state,
+        action: PayloadAction<UserNotification[]>,
     ) => {
       state.userNotifications = action.payload;
     },
@@ -201,6 +202,12 @@ const roomSettingsSlice = createSlice({
     },
     updateSelectedChatTransLang: (state, action: PayloadAction<string>) => {
       state.selectedChatTransLang = action.payload;
+    },
+    updateHasWebcamPages: (state, action: PayloadAction<boolean>) => {
+      state.hasWebcamPages = action.payload;
+    },
+    updateMaxNumDisplayWebcams: (state, action: PayloadAction<number>) => {
+      state.maxNumDisplayWebcams = action.payload;
     },
   },
 });
@@ -232,7 +239,7 @@ export const {
   updateAzureTokenInfo,
   cleanAzureToken,
   updateIsNatsServerConnected,
-  updateisWajlcWindowTabVisible,
+  updateIsWAJLCWindowTabVisible,
   updatePinCamUserId,
   updateFocusActiveSpeakerWebcam,
   addSelfInsertedE2EESecretKey,
@@ -240,6 +247,8 @@ export const {
   setAllUserNotifications,
   updateIsSidePanelOpened,
   updateSelectedChatTransLang,
+  updateHasWebcamPages,
+  updateMaxNumDisplayWebcams,
 } = roomSettingsSlice.actions;
 
 export default roomSettingsSlice.reducer;

@@ -9,36 +9,40 @@ import Tabs from '../../../helpers/ui/tabs';
 import ApplicationSettings from './application';
 import DataSavings from './dataSavings';
 import Ingress from './ingress';
-import Notification from './notification';
 
 declare const WAJLC_VERSION: string;
 
 const RoomSettings = () => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { serverVersion, currentUser, copyright_conf, ingressFeatures } =
-    useMemo(() => {
-      const session = store.getState().session;
-      return {
-        serverVersion: session.serverVersion,
-        currentUser: session.currentUser,
-        copyright_conf: session.currentRoom.metadata?.copyrightConf,
-        ingressFeatures:
-          session.currentRoom.metadata?.roomFeatures?.ingressFeatures,
-      };
-    }, []);
+  const {
+    serverVersion,
+    currentUser,
+    copyright_conf,
+    ingressFeatures,
+  } = useMemo(() => {
+    const session = store.getState().session;
+    return {
+      serverVersion: session.serverVersion,
+      currentUser: session.currentUser,
+      copyright_conf: session.currentRoom.metadata?.copyrightConf,
+      ingressFeatures:
+      session.currentRoom.metadata?.roomFeatures?.ingressFeatures,
+    };
+  }, []);
 
   const isShowRoomSettingsModal = useAppSelector(
-    (state) => state.roomSettings.isShowRoomSettingsModal,
+      (state) => state.roomSettings.isShowRoomSettingsModal,
   );
 
   const baseCategories = {
     'header.room-settings.application': <ApplicationSettings />,
     'header.room-settings.data-savings': <DataSavings />,
-    'header.room-settings.notifications': <Notification />,
   };
-  if (currentUser?.metadata?.isAdmin && ingressFeatures?.isAllow) {
-    baseCategories['header.room-settings.ingress'] = <Ingress />;
+  if (currentUser?.metadata?.isAdmin) {
+    if (ingressFeatures?.isAllow) {
+      baseCategories['header.room-settings.ingress'] = <Ingress />;
+    }
   }
   const tabItems = Object.keys(baseCategories).map((k) => ({
     id: k,
@@ -57,9 +61,9 @@ const RoomSettings = () => {
   const renderModalFooter = () => {
     let text = '';
     if (
-      copyright_conf &&
-      copyright_conf.display &&
-      copyright_conf.text !== ''
+        copyright_conf &&
+        copyright_conf.display &&
+        copyright_conf.text !== ''
     ) {
       text = sanitizeHtml(copyright_conf.text, {
         allowedTags: ['b', 'i', 'em', 'strong', 'a'],
@@ -69,30 +73,30 @@ const RoomSettings = () => {
       }).concat('&nbsp;');
     }
 
-    text += t('walearnconnect-server-client-version', {
+    text += t('wajlc-server-client-version', {
       server: serverVersion,
       client: WAJLC_VERSION,
     });
     return (
-      <div
-        className="absolute inset-x-0 -bottom-4 text-center text-foreground dark:text-white text-xs"
-        dangerouslySetInnerHTML={{ __html: text }}
-      ></div>
+        <div
+            className="absolute inset-x-0 -bottom-4 text-center text-Gray-950 dark:text-white text-xs"
+            dangerouslySetInnerHTML={{ __html: text }}
+        ></div>
     );
   };
 
   return (
-    <Modal
-      show={true}
-      onClose={closeModal}
-      title={t('header.room-settings.title')}
-      maxWidth="max-w-2xl"
-    >
-      <div className="wrap relative">
-        <Tabs items={tabItems} tabPanelsCss="min-h-[316px]" />
-        {renderModalFooter()}
-      </div>
-    </Modal>
+      <Modal
+          show={true}
+          onClose={closeModal}
+          title={t('header.room-settings.title')}
+          maxWidth="max-w-2xl header-room-settings"
+      >
+        <div className="wrap relative">
+          <Tabs items={tabItems} tabPanelsCss="min-h-[316px]" />
+          {renderModalFooter()}
+        </div>
+      </Modal>
   );
 };
 

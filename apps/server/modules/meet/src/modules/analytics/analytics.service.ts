@@ -29,6 +29,7 @@ import {
     RoomMetadata,
     RoomMetadataSchema,
     RoomArtifactType,
+    CommonNotifyEvent,
 } from '@workspace/protocol';
 import { RedisAnalyticsService } from '../../infrastructure/redis/redis-analytics.service';
 import { NatsService } from '../../interfaces/nats/nats.service';
@@ -36,6 +37,7 @@ import { PrismaService } from '@server/shared';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { ArtifactsService } from '../artifacts/artifacts.service';
+import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
 import { RoomArtifactMetadataSchema } from '@workspace/protocol';
 
 @Injectable()
@@ -52,6 +54,8 @@ export class AnalyticsService {
         private readonly natsRoomService: NatsRoomService,
         @Inject(forwardRef(() => ArtifactsService))
         private readonly artifactsService: ArtifactsService,
+        @Inject(forwardRef(() => WebhookNotifierService))
+        private readonly webhookNotifier: WebhookNotifierService,
     ) { }
 
     /**
@@ -194,11 +198,16 @@ export class AnalyticsService {
 
             if (metadata.roomFeatures?.enableAnalytics) {
                 // Create artifact using standardized service
-                await this.createAnalyticsArtifact(Number(room.id), room.roomId, room.sid, jsonData);
+                const artifact = await this.createAnalyticsArtifact(Number(room.id), room.roomId, room.sid, jsonData);
+
+                // Notify via webhook
+                await this.sendToWebhookNotifier(room.roomId, room.sid, 'analytics_proceeded', artifact.artifactId);
             } else {
                 this.logger.debug(`Analytics feature not enabled for room ${roomId}, report not saved`);
             }
         } finally {
+            // Cleanup webhook and release lock
+            await this.webhookNotifier.deleteWebhook(roomId);
             await this.redisLock.unlockRoomCreation(roomId, lock.lockValue);
         }
     }
@@ -357,5 +366,27 @@ export class AnalyticsService {
             RoomArtifactType.MEETING_ANALYTICS,
             metadata
         );
+    }
+
+    /**
+     * sendToWebhookNotifier sends analytics-related webhook notifications
+     */
+    private async sendToWebhookNotifier(roomId: string, roomSid: string, task: string, fileId: string): Promise<void> {
+        const msg = {
+            event: task,
+            room: {
+                sid: roomSid,
+                roomId: roomId,
+            },
+            analytics: {
+                fileId: fileId,
+            },
+        } as CommonNotifyEvent;
+
+        try {
+            await this.webhookNotifier.sendWebhookEvent(msg);
+        } catch (error) {
+            this.logger.error(`Failed to send analytics webhook: ${error.message}`);
+        }
     }
 }

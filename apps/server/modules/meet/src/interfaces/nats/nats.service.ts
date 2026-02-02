@@ -1,15 +1,14 @@
 /**
  * NATS Service - Base Service
  *
- * Main NATS service with metadata marshaling utilities
+ * Main NATS service with metadata marshaling utilities and connection management.
  */
 
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-import { create, toJson, fromJson, toJsonString, fromJsonString } from '@bufbuild/protobuf';
-import type { RoomMetadata, UserMetadata } from '@workspace/protocol';
-import { RoomMetadataSchema, UserMetadataSchema, RecorderInfoKeys } from '@workspace/protocol';
+import { create, toJsonString, fromJsonString } from '@bufbuild/protobuf';
+import { RoomMetadata, RoomMetadataSchema, UserMetadata, UserMetadataSchema } from '@workspace/protocol';
 import { NatsCacheService } from './nats-cache.service';
 import {
     connect,
@@ -17,92 +16,54 @@ import {
     JetStreamClient,
     JetStreamManager,
     nkeyAuthenticator,
-    DeliverPolicy,
-    KV,
-    KvEntry,
 } from 'nats';
-
-export interface RecorderInfo {
-    recorderId: string;
-    maxLimit: bigint;
-    currentProgress: bigint;
-    lastPing: bigint;
-}
 
 // Constants
 const NATS_PREFIX = 'wajlc-';
-const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds (standard for JS/TS)
+const CONSOLIDATED_ROOM_BUCKET_PREFIX = `${NATS_PREFIX}room-`;
+const ROOM_INFO_KEY_PREFIX = 'info_';
+const USER_KEY_PREFIX = 'user_';
+const USER_KEY_FIELD_PREFIX = '-FIELD_';
+const FILE_KEY_PREFIX = 'file_';
+const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-/**
- * Proto JSON options
- */
-const PROTO_JSON_OPTIONS = {
-    alwaysEmitImplicit: true,  // equivalent to EmitUnpopulated
-    useProtoFieldName: true,    // equivalent to UseProtoNames
-};
-
-/**
- * NatsService is the main NATS service
- *
- * type NatsService struct {
- *   ctx    context.Context
- *   app    *config.AppConfig
- *   nc     *nats.Conn           ← NATS connection
- *   js     jetstream.JetStream  ← JetStream
- *   cs     *NatsCacheService    ← Cache service
- *   logger *logrus.Entry
- * }
- */
 @Injectable()
 export class NatsService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger('NatsService');
 
-    // NATS connection variables
-    private nc: NatsConnection;       // NATS connection
-    private js: JetStreamClient;      // JetStream
-    private jsm: JetStreamManager;    // JetStream Manager (for admin operations)
-    private cs: NatsCacheService;     // Cache Service
+    private nc: NatsConnection;
+    private js: JetStreamClient;
+    private jsm: JetStreamManager;
+
+    // Export constants for other services
+    static readonly NATS_PREFIX = NATS_PREFIX;
+    static readonly CONSOLIDATED_ROOM_BUCKET_PREFIX = CONSOLIDATED_ROOM_BUCKET_PREFIX;
+    static readonly USER_KEY_PREFIX = USER_KEY_PREFIX;
+    static readonly USER_KEY_FIELD_PREFIX = USER_KEY_FIELD_PREFIX;
+    static readonly ROOM_INFO_KEY_PREFIX = ROOM_INFO_KEY_PREFIX;
+    static readonly FILE_KEY_PREFIX = FILE_KEY_PREFIX;
 
     constructor(
         private readonly configService: ConfigService,
         private readonly cacheService: NatsCacheService,
-    ) {
-        // Initialize cs field
-        this.cs = cacheService;
-    }
+    ) { }
 
-    /**
-     * Initialize NATS connection for JetStream/KV operations
-     * 
-     * IMPORTANT: This connection is SEPARATE from NestJS microservice transport!
-     * 
-     * Two NATS connections exist in this service:
-     * 1. NestJS Microservice Connection (from createNatsServiceConfig in main.ts)
-     *    - Used for @MessagePattern subscriptions (room.create, room.isActive, etc.)
-     *    - Managed by NestJS framework automatically
-     * 
-     * 2. JetStream Connection (this.nc, created here)
-     *    - Used for JetStream KV operations (webhook data, room info caching)
-     *    - Used for NATS pub/sub (webhook cleanup broadcasts)
-     *    - Managed by this service directly
-     * 
-     * These two connections do NOT conflict - they serve different purposes!
-     */
     async onModuleInit() {
         this.logger.log('Initializing NATS Service...');
-        await this.connectToNats(); // For JetStream/KV operations
-        this.logger.log('NATS Service initialized with JetStream connection');
+        await this.connectToNats();
+        // Ensure global room stream exists
+        await this.createRoomNatsStream();
+        // Ensure recorder info bucket exists and watch it
+        await this.createRecorderKVAndWatch();
     }
 
     async onModuleDestroy() {
-        this.logger.log('Closing NATS JetStream connection...');
-        await this.closeNatsConnection();
-        this.logger.log('NATS Service closed');
+        if (this.nc) {
+            await this.nc.drain();
+            await this.nc.close();
+        }
     }
 
-    /**
-     * Connect to NATS with optional NKEY authentication
-     */
     private async connectToNats(): Promise<void> {
         try {
             const natsUrl = this.configService.get<string>('NATS_URL');
@@ -110,24 +71,16 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
             const options: any = {
                 servers: [natsUrl],
-                name: 'nestjs-room-service',
+                name: 'nestjs-meet-service',
             };
 
-            // Add NKEY authentication if provided
             if (nkeySeed) {
-                options.authenticator = nkeyAuthenticator(
-                    new TextEncoder().encode(nkeySeed)
-                );
+                options.authenticator = nkeyAuthenticator(new TextEncoder().encode(nkeySeed));
                 this.logger.log('NATS NKEY authentication enabled');
             }
 
-            // Connect to NATS
             this.nc = await connect(options);
-
-            // Initialize JetStream
             this.js = this.nc.jetstream();
-
-            // Initialize JetStream Manager for admin operations
             this.jsm = await this.nc.jetstreamManager();
 
             this.logger.log(`Connected to NATS: ${natsUrl}`);
@@ -138,585 +91,205 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     /**
-     * Close NATS connection gracefully
+     * Create global room stream
      */
-    private async closeNatsConnection(): Promise<void> {
-        if (this.nc) {
-            await this.nc.drain();
-            await this.nc.close();
+    private async createRoomNatsStream() {
+        const streamName = this.getRoomStreamName();
+        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+        const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
+        const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
+
+        try {
+            await this.jsm.streams.add({
+                name: streamName,
+                subjects: [`${sysPublic}.>`, `${sysPrivate}.>`],
+                num_replicas: numReplicas,
+            }).catch(async (err) => {
+                if (err.message?.includes('already in use')) {
+                    await this.jsm.streams.update(streamName, {
+                        subjects: [`${sysPublic}.>`, `${sysPrivate}.>`],
+                    });
+                } else {
+                    throw err;
+                }
+            });
+        } catch (error) {
+            this.logger.error(`Error ensuring room stream ${streamName}: ${error.message}`);
         }
     }
 
-    // ============================================================================
-    // Public Subscription Methods
-    // ============================================================================
-
     /**
-     * Subscribe to a NATS subject
-     * Wrapper validation and error handling
+     * Create recorder KV bucket and start watching.
      */
-    subscribe(subject: string, callback: (userId: string, data: Uint8Array) => Promise<any>): void {
-        if (!this.nc) {
-            this.logger.warn(`Cannot subscribe to ${subject}: NATS not connected`);
-            return;
-        }
+    private async createRecorderKVAndWatch() {
+        const bucket = this.configService.get<string>('NATS_RECORDER_INFO_KV_BUCKET') || 'wajlc-recorder-info';
+        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
-        // We assume subject has format that might include user ID or we extract it?
-        // Actually, the controllers expect `(userId: string, data: Uint8Array)`.
-        // The standard NATS msg comes with headers.
-        // We need to extract user ID from headers or subject if possible.
-        // For general subscriptions, maybe userId is not always present?
-        // Let's look at `NatsController` which sets up subscriptions.
-        // It uses `nc.subscribe`. 
-
-        // This helper method is intended for simple request/response or event handling
-        // where we want to extract standard headers like 'userId'.
-
-        this.nc.subscribe(subject, {
-            callback: async (err, msg) => {
-                if (err) {
-                    this.logger.error(`Error in subscription ${subject}: ${err.message}`);
-                    return;
-                }
-
-                try {
-                    // Extract userId from header if available
-                    // The standard authentication flow usually populates `userId` generic header or similar?
-                    // Or maybe it is expected to be part of the message?
-                    // Given the signature `(userId: string, data: Uint8Array)`, let's try to extract it.
-                    // If not found, pass empty string.
-                    const userId = msg.headers?.get('userId') || '';
-
-                    const result = await callback(userId, msg.data);
-
-                    // If result is returned, respond to request (Request-Reply pattern)
-                    if (result && msg.reply) {
-                        msg.respond(result);
-                    }
-                } catch (error) {
-                    this.logger.error(`Error processing message for ${subject}: ${error.message}`);
-                    // Optionally respond with error?
-                }
+        try {
+            // Using jsm.kv if available or falling back to views.kv
+            const jsm = this.jsm as any;
+            if (jsm.kv) {
+                await jsm.kv.create(bucket, { replicas: numReplicas }).catch(() => { });
+            } else if (jsm.views && jsm.views.kv) {
+                await jsm.views.kv.create(bucket, { replicas: numReplicas }).catch(() => { });
             }
-        });
 
-        this.logger.log(`Subscribed to ${subject}`);
+            const kv = await this.js.views.kv(bucket);
+            this.cacheService.watchRecorderKV(kv);
+            this.logger.log(`Successfully watching recorder KV bucket: ${bucket}`);
+        } catch (error) {
+            this.logger.error(`Error ensuring recorder KV bucket ${bucket}: ${error.message}`);
+        }
     }
+
+    // ============================================================================
+    // Formatting Helpers
+    // ============================================================================
+
+    formatConsolidatedRoomBucket(roomId: string): string {
+        return CONSOLIDATED_ROOM_BUCKET_PREFIX + roomId;
+    }
+
+    formatRoomKey(field: string): string {
+        return ROOM_INFO_KEY_PREFIX + field;
+    }
+
+    formatUserKey(userId: string, field: string): string {
+        return USER_KEY_PREFIX + userId + USER_KEY_FIELD_PREFIX + field;
+    }
+
+    formatFileKey(fileId: string): string {
+        return FILE_KEY_PREFIX + fileId;
+    }
+
+    // ============================================================================
+    // KV Helpers
     // ============================================================================
 
     /**
-     * MarshalToProtoJson converts protobuf message to JSON string
-     *
-     * Uses options:
-     * - EmitUnpopulated: true (include default values)
-     * - UseProtoNames: true (use snake_case field names)
+     * ParseUserKey parses a user-specific NATS KV key into its userId and field components.
      */
+    static parseUserKey(key: string): { userId: string; field: string } | null {
+        if (!key.startsWith(USER_KEY_PREFIX)) {
+            return null;
+        }
+        const trimmed = key.substring(USER_KEY_PREFIX.length);
+        const parts = trimmed.split(USER_KEY_FIELD_PREFIX);
+
+        if (parts.length === 2) {
+            return { userId: parts[0], field: parts[1] };
+        }
+        return null;
+    }
+
+    /**
+     * getStringValue retrieves a string value from KV
+     */
+    async getStringValue(kv: any, key: string): Promise<string> {
+        try {
+            const val = await kv.get(key);
+            return val ? new TextDecoder().decode(val.value) : '';
+        } catch (error) {
+            return '';
+        }
+    }
+
+    /**
+     * getBoolValue retrieves a boolean value from KV
+     */
+    async getBoolValue(kv: any, key: string): Promise<boolean> {
+        const val = await this.getStringValue(kv, key);
+        return val === 'true';
+    }
+
+    /**
+     * getUint64Value retrieves a uint64 value from KV (as string for JS)
+     */
+    async getUint64Value(kv: any, key: string): Promise<string> {
+        const val = await this.getStringValue(kv, key);
+        if (!val) return '0';
+        const parsed = parseInt(val, 10);
+        return isNaN(parsed) ? '0' : parsed.toString();
+    }
+
+    // ============================================================================
+    // Marshaling Helpers
+    // ============================================================================
+
     marshalToProtoJson<T>(message: T, schema: any): string {
-        // Using @bufbuild/protobuf's toJsonString with options
-        // Note: @bufbuild/protobuf uses different option names than protobuf-js
         return toJsonString(schema, message as any, {
             alwaysEmitImplicit: true,
             useProtoFieldName: true,
         });
     }
 
-    /**
-     * MarshalRoomMetadata converts RoomMetadata to JSON string
-     *
-     * Adds metadataId before marshaling
-     */
     marshalRoomMetadata(metadata: RoomMetadata): string {
-        // Add metadata ID
-        const metadataWithId = create(RoomMetadataSchema, {
+        const metaWithId = create(RoomMetadataSchema, {
             ...metadata,
             metadataId: uuidv4(),
         });
-
-        return this.marshalToProtoJson(metadataWithId, RoomMetadataSchema);
+        return this.marshalToProtoJson(metaWithId, RoomMetadataSchema);
     }
 
-    /**
-     * UnmarshalRoomMetadata converts JSON string to RoomMetadata
-     */
     unmarshalRoomMetadata(metadataJson: string): RoomMetadata {
-        if (!metadataJson) {
-            return create(RoomMetadataSchema, {});
-        }
-
-        // Using @bufbuild/protobuf's fromJsonString
-        return fromJsonString(RoomMetadataSchema, metadataJson);
+        if (!metadataJson) return create(RoomMetadataSchema, {});
+        return fromJsonString(RoomMetadataSchema, metadataJson, { ignoreUnknownFields: true });
     }
 
-    /**
-     * MarshalUserMetadata converts UserMetadata to JSON string
-     *
-     * Adds metadataId before marshaling
-     */
     marshalUserMetadata(metadata: UserMetadata): string {
-        // Add metadata ID
-        const metadataWithId = create(UserMetadataSchema, {
+        const metaWithId = create(UserMetadataSchema, {
             ...metadata,
             metadataId: uuidv4(),
         });
-
-        return this.marshalToProtoJson(metadataWithId, UserMetadataSchema);
+        return this.marshalToProtoJson(metaWithId, UserMetadataSchema);
     }
 
-    /**
-     * UnmarshalUserMetadata converts JSON string to UserMetadata
-     */
     unmarshalUserMetadata(metadataJson: string): UserMetadata {
-        if (!metadataJson) {
-            return create(UserMetadataSchema, {});
-        }
-
-        // Using @bufbuild/protobuf's fromJsonString
-        return fromJsonString(UserMetadataSchema, metadataJson);
+        if (!metadataJson) return create(UserMetadataSchema, {});
+        return fromJsonString(UserMetadataSchema, metadataJson, { ignoreUnknownFields: true });
     }
 
     // ============================================================================
-    // Getters for internal services
+    // Recorder Methods
     // ============================================================================
 
     /**
-     * Get NATS connection
+     * GetAllActiveRecorders retrieves all active recorders directly from the local cache.
      */
-    getNatsConnection(): any {
+    getAllActiveRecorders(): any[] {
+        // Defaulting to 3000ms if not configured
+        const pingTimeout = this.configService.get<number>('RECORDER_PING_TIMEOUT') || 3000;
+        return this.cacheService.getAllCachedActiveRecorders(pingTimeout);
+    }
+
+    /**
+     * GetRecorderInfo retrieves a specific recorder's info directly from the local cache.
+     */
+    getRecorderInfo(recorderId: string): any | null {
+        return this.cacheService.getCachedRecorderInfo(recorderId);
+    }
+
+    // ============================================================================
+    // Getters
+    // ============================================================================
+
+    getNatsConnection(): NatsConnection {
         return this.nc;
     }
 
-    /**
-   * Get JetStream
-   */
     getJetStream(): JetStreamClient {
         return this.js;
     }
 
-    /**
-     * Get JetStream Manager  
-     */
     getJetStreamManager(): JetStreamManager {
         return this.jsm;
     }
 
-    /**
-     * Get Cache Service
-     */
     getCacheService(): NatsCacheService {
-        return this.cs;
+        return this.cacheService;
     }
 
-    // ============================================================================
-    // Webhook Methods
-    // ============================================================================
-
-    /**
-     * Webhook KV bucket name
-     */
-    private static readonly WEBHOOK_KV_KEY = `${NATS_PREFIX}webhookData`;
-
-    /**
-     * Webhook cleanup NATS subject
-     */
-    static readonly WEBHOOK_CLEANUP_SUBJECT = `${NATS_PREFIX}webhookCleanup`;
-
-    /**
-     * AddWebhookData stores webhook data for a room in NATS KV
-     */
-    async addWebhookData(roomId: string, val: string): Promise<void> {
-        try {
-            // Create or update KV bucket
-            const kv = await this.js.views.kv(NatsService.WEBHOOK_KV_KEY, {
-                history: 1,
-                ttl: DEFAULT_TTL, // Already in nanoseconds
-                replicas: this.configService.get<number>('NATS_NUM_REPLICAS') || 1,
-            });
-
-            // Store webhook data
-            await kv.put(roomId, new TextEncoder().encode(val));
-        } catch (error) {
-            throw new Error(`Failed to add webhook data: ${error.message}`);
-        }
-    }
-
-    /**
-     * GetWebhookData retrieves webhook data for a room from NATS KV
-     *
-     * Returns null if bucket or key not found
-     */
-    async getWebhookData(roomId: string): Promise<string | null> {
-        try {
-            // Get KV bucket
-            const kv = await this.js.views.kv(NatsService.WEBHOOK_KV_KEY);
-
-            // Get entry
-            const entry = await kv.get(roomId);
-
-            if (!entry || !entry.value) {
-                return null;
-            }
-
-            return new TextDecoder().decode(entry.value);
-        } catch (error) {
-            // Handle errors
-            if (error.message && error.message.includes('bucket not found')) {
-                return null;
-            }
-            if (error.message && error.message.includes('key not found')) {
-
-                return null;
-            }
-            throw error;
-        }
-    }
-
-    /**
-     * DeleteWebhookData deletes webhook data for a room from NATS KV
-     *
-     * Silently succeeds if bucket not found
-     */
-    async deleteWebhookData(roomId: string): Promise<void> {
-        try {
-            // Get KV bucket
-            const kv = await this.js.views.kv(NatsService.WEBHOOK_KV_KEY);
-
-            // Purge the key (delete all revisions)
-            await kv.purge(roomId);
-        } catch (error) {
-            // Handle errors matching
-            if (error.message && error.message.includes('bucket not found')) {
-                return;
-            }
-            throw error;
-        }
-    }
-
-    // ============================================================================
-    // JetStream Consumer Management
-    // ============================================================================
-
-    /**
-     * CreateChatConsumer creates or updates a chat consumer for a user
-     *
-     * @param roomId - Room ID
-     * @param userId - User ID
-     * @returns Array of permission strings for JWT
-     */
-    async createChatConsumer(roomId: string, userId: string): Promise<string[]> {
-        const chatSubject = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
-
-        try {
-            // Create or update consumer
-            await this.jsm.consumers.add(roomId, {
-                durable_name: `${chatSubject}:${userId}`,
-                filter_subjects: [`${roomId}:${chatSubject}.>`],
-            });
-
-            // Return permission list for JWT
-            const permissions = [
-                `$JS.API.CONSUMER.INFO.${roomId}.${chatSubject}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${chatSubject}:${userId}`,
-                `${roomId}:${chatSubject}.${userId}`,
-                `$JS.ACK.${roomId}.${chatSubject}:${userId}.>`,
-            ];
-
-            return permissions;
-        } catch (error) {
-            this.logger.error(`Failed to create chat consumer: ${error.message}`);
-            throw error;
-        }
-    }
-
-    /**
-     * CreateSystemPublicConsumer creates or updates a system public consumer for a user
-     */
-    async createSystemPublicConsumer(roomId: string, userId: string): Promise<string[]> {
-        const sysPublicSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
-
-        try {
-            await this.jsm.consumers.add(roomId, {
-                durable_name: `${sysPublicSubject}:${userId}`,
-                deliver_policy: DeliverPolicy.New,
-                filter_subjects: [`${roomId}:${sysPublicSubject}.>`],
-            });
-
-            const permissions = [
-                `$JS.API.CONSUMER.INFO.${roomId}.${sysPublicSubject}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${sysPublicSubject}:${userId}`,
-                `$JS.ACK.${roomId}.${sysPublicSubject}:${userId}.>`,
-            ];
-
-            return permissions;
-        } catch (error) {
-            this.logger.error(`Failed to create system public consumer: ${error.message}`);
-            throw error;
-        }
-    }
-
-    /**
-     * CreateSystemPrivateConsumer creates or updates a system private consumer for a user
-     */
-    async createSystemPrivateConsumer(roomId: string, userId: string): Promise<string[]> {
-        const sysPrivateSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
-
-        try {
-            await this.jsm.consumers.add(roomId, {
-                durable_name: `${sysPrivateSubject}:${userId}`,
-                deliver_policy: DeliverPolicy.New,
-                filter_subjects: [`${roomId}:${sysPrivateSubject}.${userId}.>`],
-            });
-
-            const permissions = [
-                `$JS.API.CONSUMER.INFO.${roomId}.${sysPrivateSubject}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${sysPrivateSubject}:${userId}`,
-                `$JS.ACK.${roomId}.${sysPrivateSubject}:${userId}.>`,
-            ];
-
-            return permissions;
-        } catch (error) {
-            this.logger.error(`Failed to create system private consumer: ${error.message}`);
-            throw error;
-        }
-    }
-
-
-
-    /**
-     * DeleteConsumer deletes all consumers for a user in a room
-     */
-    async deleteConsumer(roomId: string, userId: string): Promise<void> {
-        const chatSubject = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
-        const sysPublicSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
-        const sysPrivateSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
-        const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
-        const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
-
-        // Delete all consumers
-        try {
-            await this.jsm.consumers.delete(roomId, `${chatSubject}:${userId}`);
-        } catch (error) {
-            // Silent fail
-        }
-
-        try {
-            await this.jsm.consumers.delete(roomId, `${sysPublicSubject}:${userId}`);
-        } catch (error) {
-            // Silent fail
-        }
-
-        try {
-            await this.jsm.consumers.delete(roomId, `${sysPrivateSubject}:${userId}`);
-        } catch (error) {
-            // Silent fail
-        }
-        this.logger.log(`Deleted all consumers for user ${userId} in room ${roomId}`);
-    }
-
-    /**
-     * getTranscriptionChunks retrieves all transcription chunks for a given room
-     */
-    async getTranscriptionChunks(roomId: string): Promise<Record<string, Uint8Array>> {
-        try {
-            const bucketName = `${NATS_PREFIX}transcription_chunks-${roomId}`;
-            const kv = await this.js.views.kv(bucketName);
-            const keys = await kv.keys();
-
-            const chunks: Record<string, Uint8Array> = {};
-            for await (const key of keys) {
-                const entry = await kv.get(key);
-                if (entry && entry.value) {
-                    chunks[key] = entry.value;
-                }
-            }
-            return chunks;
-        } catch (error) {
-            if (error.message && (error.message.includes('bucket not found') || error.message.includes('no keys found'))) {
-                return {};
-            }
-            this.logger.error(`Failed to get transcription chunks: ${error.message}`);
-            return {};
-        }
-    }
-
-    /**
-     * addTranscriptionChunk adds a new transcription chunk to the room's KV bucket
-     */
-    async addTranscriptionChunk(roomId: string, userId: string, name: string, lang: string, text: string): Promise<void> {
-        try {
-            const bucketName = `${NATS_PREFIX}transcription_chunks-${roomId}`;
-            const kv = await this.js.views.kv(bucketName, {
-                history: 1,
-                ttl: DEFAULT_TTL,
-                replicas: this.configService.get<number>('NATS_NUM_REPLICAS') || 1,
-            });
-
-            const chunk = {
-                from_user_id: userId,
-                name: name,
-                lang: lang,
-                text: text,
-            };
-
-            const key = Date.now().toString() + Math.floor(Math.random() * 1000).toString();
-            await kv.put(key, new TextEncoder().encode(JSON.stringify(chunk)));
-        } catch (error) {
-            this.logger.error(`Failed to add transcription chunk: ${error.message}`);
-        }
-    }
-
-    /**
-     * deleteTranscriptionBucket deletes the entire KV bucket for a room's transcription
-     */
-    async deleteTranscriptionBucket(roomId: string): Promise<void> {
-        try {
-            const bucketName = `${NATS_PREFIX}transcription_chunks-${roomId}`;
-            await this.jsm.streams.delete(`KV_${bucketName}`);
-        } catch (error) {
-            // Ignore error if bucket doesn't exist
-        }
-    }
-
-    /**
-     * onAfterSessionEndCleanup performs final NATS cleanup
-     */
-    async onAfterSessionEndCleanup(roomId: string): Promise<void> {
-        this.logger.log(`Performing final NATS cleanup for room: ${roomId}`);
-
-        // 1. Delete room info from KV
-        await this.cacheService.deleteRoomInfo(roomId);
-
-        // 2. Delete room user bucket (KV_wajlc-roomUsers-{roomId})
-        try {
-            await this.jsm.streams.delete(`KV_${NATS_PREFIX}roomUsers-${roomId}`);
-            this.logger.debug(`Deleted room user bucket for room: ${roomId}`);
-        } catch (e) { }
-
-        // 3. Delete webhook data
-        await this.deleteWebhookData(roomId);
-
-        // 4. Delete room user block list
-        try {
-            await this.jsm.streams.delete(`KV_${NATS_PREFIX}usersBlockList-${roomId}`);
-            this.logger.debug(`Deleted user block list for room: ${roomId}`);
-        } catch (e) { }
-
-        // 5. Delete transcription bucket
-        await this.deleteTranscriptionBucket(roomId);
-
-        // 6. Delete room files bucket
-        try {
-            await this.jsm.streams.delete(`KV_${NATS_PREFIX}roomFiles-${roomId}`);
-            this.logger.debug(`Deleted room files bucket for room: ${roomId}`);
-        } catch (e) { }
-    }
-
-    /**
-     * DeleteRoomUsersBlockList deletes the user block list for a room
-     */
-    async deleteRoomUsersBlockList(roomId: string): Promise<void> {
-        try {
-            await this.jsm.streams.delete(`KV_${NATS_PREFIX}usersBlockList-${roomId}`);
-        } catch (e) { }
-    }
-
-    /**
-     * BroadcastSystemEventToRoom broadcasts a system event to all clients in a room
-     */
-    async broadcastSystemEventToRoom(event: any, roomId: string, msg: string, userId?: string): Promise<void> {
-        const subject = userId
-            ? `${roomId}.${this.configService.get('NATS_SUBJECT_SYSTEM_PRIVATE', 'sysPrivate')}.${userId}.RESP`
-            : `${roomId}.${this.configService.get('NATS_SUBJECT_SYSTEM_PUBLIC', 'sysPublic')}.RESP`;
-
-        const payload = JSON.stringify({
-            event: event,
-            msg: msg
-        });
-
-        if (this.nc) {
-            await this.nc.publish(subject, new TextEncoder().encode(payload));
-        }
-    }
-
-    /**
-     * getAllActiveRecorders finds all active recorders from NATS KV
-     */
-    async getAllActiveRecorders(): Promise<RecorderInfo[]> {
-        const recorders: RecorderInfo[] = [];
-        const prefix = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
-        const searchPrefix = `KV_${NATS_PREFIX}${prefix}-`;
-
-        try {
-            const streams = await this.jsm.streams.list();
-            const validThreshold = BigInt(Date.now() - 8000); // 8 seconds threshold
-
-            for await (const s of streams) {
-                if (s.config.name.startsWith(searchPrefix)) {
-                    const recorderId = s.config.name.replace(searchPrefix, '');
-                    const info = await this.getRecorderInfo(recorderId);
-                    if (info && info.lastPing >= validThreshold) {
-                        recorders.push(info);
-                    }
-                }
-            }
-        } catch (error) {
-            this.logger.error(`Failed to list recorders: ${error.message}`);
-        }
-
-        return recorders;
-    }
-
-    async getRecorderInfo(recorderId: string): Promise<RecorderInfo | null> {
-        const prefix = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
-        const bucketName = `${NATS_PREFIX}${prefix}-${recorderId}`;
-        const kv = await this.getKV(bucketName);
-        if (!kv) return null;
-
-        try {
-            // Keys from plugnmeet protocol (RecorderInfoKeys)
-            const maxLimit = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_MAX_LIMIT.toString());
-            const lastPing = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_LAST_PING.toString());
-            const currentProgress = await this.getInt64Value(kv, RecorderInfoKeys.RECORDER_INFO_CURRENT_PROGRESS.toString());
-
-            return {
-                recorderId,
-                maxLimit,
-                currentProgress,
-                lastPing,
-            };
-        } catch (error) {
-            this.logger.error(`Failed to get recorder info for ${recorderId}: ${error.message}`);
-            return null;
-        }
-    }
-
-    private async getKV(bucket: string): Promise<KV | null> {
-        try {
-            return await this.js.views.kv(bucket);
-        } catch (error) {
-            return null;
-        }
-    }
-
-    private async getInt64Value(kv: KV, key: string): Promise<bigint> {
-        try {
-            const entry = await kv.get(key);
-            if (entry && entry.value) {
-                return BigInt(new TextDecoder().decode(entry.value));
-            }
-        } catch (e) { }
-        return BigInt(0);
-    }
-
-    /**
-     * BroadcastSystemNotificationToRoom broadcasts a system notification
-     */
-    async broadcastSystemNotificationToRoom(roomId: string, msg: string, type: any, hideAction: boolean, userId?: string): Promise<void> {
-        const event = 7; // RESP_SYSTEM_NOTIFICATION
-        const notification = JSON.stringify({
-            msg,
-            type,
-            hideAction
-        });
-        await this.broadcastSystemEventToRoom(event, roomId, notification, userId);
+    getRoomStreamName(): string {
+        return this.configService.get<string>('NATS_ROOM_STREAM_NAME') || 'wajlc-room-stream';
     }
 }

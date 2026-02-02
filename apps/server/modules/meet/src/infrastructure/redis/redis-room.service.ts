@@ -4,13 +4,15 @@
  * Handles temporary room data caching in Redis
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import Redis from 'ioredis';
+import { REDIS_CLIENT } from '@server/shared';
 import type { NatsKvRoomInfo } from '@workspace/protocol';
 
-const REDIS_PREFIX = 'wajlc:';
+const REDIS_PREFIX = 'wajlc:'; // Customized prefix
 const TEMPORARY_ROOM_DATA_KEY = `${REDIS_PREFIX}temporaryRoomData:%s`;
+const ROOM_WITH_DURATION_INFO_KEY = `${REDIS_PREFIX}roomWithDurationInfo`;
+const DEFAULT_TTL = 60 * 60 * 24; // 24 hours in seconds
 
 /**
  * RedisRoomService handles room-related Redis operations
@@ -18,101 +20,57 @@ const TEMPORARY_ROOM_DATA_KEY = `${REDIS_PREFIX}temporaryRoomData:%s`;
 @Injectable()
 export class RedisRoomService {
     private readonly logger = new Logger(RedisRoomService.name);
-    private redis: Redis;
 
-    constructor(private readonly configService: ConfigService) {
-        let redisUrl = this.configService.get<string>('REDIS_URL');
-
-        if (!redisUrl) {
-            const host = this.configService.get<string>('REDIS_HOST', 'localhost');
-            const port = this.configService.get<string>('REDIS_PORT', '6379');
-            const password = this.configService.get<string>('REDIS_PASSWORD');
-
-            if (password) {
-                redisUrl = `redis://:${password}@${host}:${port}`;
-            } else {
-                redisUrl = `redis://${host}:${port}`;
-            }
-        }
-
-        if (!redisUrl) {
-            throw new Error('REDIS_URL or REDIS_HOST/PORT is not configured');
-        }
-        this.redis = new Redis(redisUrl);
-    }
+    constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) { }
 
     /**
      * HoldTemporaryRoomData stores room data temporarily for 1 minute
      *
-     * This serves as a fallback in case the 'room_finished' webhook from LiveKit is delayed.
-     * 
      * @param info - NatsKvRoomInfo to cache
      */
     async holdTemporaryRoomData(info: NatsKvRoomInfo): Promise<void> {
         this.logger.log(`Holding temporary room data: ${info.roomId}, sid: ${info.roomSid}`);
 
         try {
-            // Marshal to JSON
             const jsonData = JSON.stringify(info);
-
-            // Create Redis key
             const key = TEMPORARY_ROOM_DATA_KEY.replace('%s', info.roomId);
 
-            // Store with 1 minute TTL using SETNX (set if not exists)
+            // Store with 1 minute TTL using SET if not exists (SETNX behavior)
             const result = await this.redis.set(
                 key,
                 jsonData,
-                'EX', 60,  // 60 seconds = 1 minute
-                'NX',      // Only set if key doesn't exist
+                'EX', 60,
+                'NX',
             );
 
             if (!result) {
                 this.logger.debug(`Temporary room data already exists for: ${info.roomId}`);
-            } else {
-                this.logger.debug(`Temporary room data stored for: ${info.roomId}`);
             }
         } catch (error) {
-            this.logger.error(`SetNX failed for room ${info.roomId}: ${error.message}`);
+            this.logger.error(`holdTemporaryRoomData failed for room ${info.roomId}: ${error.message}`);
         }
     }
 
     /**
      * GetTemporaryRoomData retrieves cached room data
      *
-     * Returns room info with status set to 'ended' to prevent loops.
-     * 
      * @param roomId - Room ID to retrieve
      * @returns NatsKvRoomInfo or null if not found
      */
     async getTemporaryRoomData(roomId: string): Promise<NatsKvRoomInfo | null> {
-        this.logger.log(`Getting temporary room data: ${roomId}`);
-
         try {
-            // Create Redis key
             const key = TEMPORARY_ROOM_DATA_KEY.replace('%s', roomId);
-
-            // Get value from Redis
             const val = await this.redis.get(key);
 
-            if (!val || val === '') {
-                this.logger.debug(`No temporary room data found for: ${roomId}`);
-                return null;
-            }
+            if (!val) return null;
 
-            // Parse JSON
             const info = JSON.parse(val) as NatsKvRoomInfo;
-
             // Set status to 'ended' to prevent looping
             info.status = 'ended';
 
-            this.logger.debug(`Temporary room data retrieved for: ${roomId}`);
             return info;
         } catch (error) {
-            // It's normal for the key not to be found
-            // We only log actual Redis communication errors
-            if (error.message !== 'Key not found') {
-                this.logger.error(`Get failed for room ${roomId}: ${error.message}`);
-            }
+            this.logger.error(`getTemporaryRoomData failed for room ${roomId}: ${error.message}`);
             return null;
         }
     }
@@ -123,129 +81,110 @@ export class RedisRoomService {
 
     /**
      * AddRoomWithDurationInfo adds room with duration info to Redis
-     *
      * @param roomId - Room ID
-     * @param info - RoomDurationInfo with duration and startedAt
+     * @param info - RoomDurationInfo object
      */
     async addRoomWithDurationInfo(roomId: string, info: { duration: number; startedAt: number }): Promise<void> {
-        const key = `${REDIS_PREFIX}roomWithDurationInfo:${roomId}`;
-
+        const key = `${ROOM_WITH_DURATION_INFO_KEY}:${roomId}`;
         try {
-            // Pipeline: HSET + EXPIRE
             const pipeline = this.redis.pipeline();
-            pipeline.hset(key, 'duration', info.duration, 'startedAt', info.startedAt);
-            pipeline.expire(key, 60 * 60 * 24); // 24 hours
+            pipeline.hset(key, info);
+            pipeline.expire(key, DEFAULT_TTL);
             await pipeline.exec();
-
-            this.logger.debug(`Added room with duration info: ${roomId}`);
         } catch (error) {
-            this.logger.error(`Failed to add room duration info: ${error.message}`);
+            this.logger.error(`addRoomWithDurationInfo failed for ${roomId}: ${error.message}`);
             throw error;
         }
     }
 
     /**
      * SetRoomDuration sets a specific duration field
-
-     * 
-     * @param roomId - Room ID
-     * @param durationField - Field name (e.g., "duration")
-     * @param value - Duration value
      */
     async setRoomDuration(roomId: string, durationField: string, value: number): Promise<void> {
-        const key = `${REDIS_PREFIX}roomWithDurationInfo:${roomId}`;
-
+        const key = `${ROOM_WITH_DURATION_INFO_KEY}:${roomId}`;
         try {
-            // Pipeline: HSET + EXPIRE
             const pipeline = this.redis.pipeline();
             pipeline.hset(key, durationField, value);
-            pipeline.expire(key, 60 * 60 * 24); // 24 hours
+            pipeline.expire(key, DEFAULT_TTL);
             await pipeline.exec();
-
-            this.logger.debug(`Set room duration field ${durationField}: ${roomId}`);
         } catch (error) {
-            this.logger.error(`Failed to set room duration: ${error.message}`);
+            this.logger.error(`setRoomDuration failed for ${roomId}: ${error.message}`);
             throw error;
         }
     }
 
     /**
      * UpdateRoomDuration increments the duration field
-
-     * 
-     * @param roomId - Room ID
-     * @param durationField - Field name (e.g., "duration")
-     * @param amount - Amount to increment
-     * @returns New value after increment
      */
     async updateRoomDuration(roomId: string, durationField: string, amount: number): Promise<number> {
-        const key = `${REDIS_PREFIX}roomWithDurationInfo:${roomId}`;
-
+        const key = `${ROOM_WITH_DURATION_INFO_KEY}:${roomId}`;
         try {
-            // HINCRBY: Increment hash field by amount
-
-            const result = await this.redis.hincrby(key, durationField, amount);
-
-            this.logger.debug(`Updated room duration: ${roomId}, new value: ${result}`);
-            return result;
+            return await this.redis.hincrby(key, durationField, amount);
         } catch (error) {
-            this.logger.error(`Failed to update room duration: ${error.message}`);
+            this.logger.error(`updateRoomDuration failed for ${roomId}: ${error.message}`);
             throw error;
         }
     }
 
     /**
      * GetRoomWithDurationInfo retrieves room duration info
-
-     * 
-     * @param roomId - Room ID
-     * @returns RoomDurationInfo or null if not found
      */
     async getRoomWithDurationInfo(roomId: string): Promise<{ duration: number; startedAt: number } | null> {
-        const key = `${REDIS_PREFIX}roomWithDurationInfo:${roomId}`;
-
+        const key = `${ROOM_WITH_DURATION_INFO_KEY}:${roomId}`;
         try {
-            // HGETALL: Get all hash fields
             const result = await this.redis.hgetall(key);
+            if (!result || Object.keys(result).length === 0) return null;
 
-            if (!result || Object.keys(result).length === 0) {
-                return null;
-            }
-
-            // Convert string values to numbers
             return {
                 duration: parseInt(result.duration || '0', 10),
                 startedAt: parseInt(result.startedAt || '0', 10),
             };
         } catch (error) {
-            this.logger.error(`Failed to get room duration info: ${error.message}`);
+            this.logger.error(`getRoomWithDurationInfo failed for ${roomId}: ${error.message}`);
             return null;
         }
     }
 
     /**
      * DeleteRoomWithDuration removes room duration info
-
-     * 
-     * @param roomId - Room ID
      */
     async deleteRoomWithDuration(roomId: string): Promise<void> {
-        const key = `${REDIS_PREFIX}roomWithDurationInfo:${roomId}`;
-
+        const key = `${ROOM_WITH_DURATION_INFO_KEY}:${roomId}`;
         try {
-            // DEL: Delete key
             await this.redis.del(key);
-            this.logger.debug(`Deleted room duration info: ${roomId}`);
         } catch (error) {
-            this.logger.error(`Failed to delete room duration: ${error.message}`);
+            this.logger.error(`deleteRoomWithDuration failed for ${roomId}: ${error.message}`);
             throw error;
         }
     }
 
     /**
-     * Close Redis connection
+     * GetRoomsWithDurationKeys retrieves all room duration keys
      */
-    async onModuleDestroy() {
-        await this.redis.quit();
+    async getRoomsWithDurationKeys(): Promise<string[]> {
+        try {
+            return await this.redis.keys(`${ROOM_WITH_DURATION_INFO_KEY}:*`);
+        } catch (error) {
+            this.logger.error(`getRoomsWithDurationKeys failed: ${error.message}`);
+            return [];
+        }
+    }
+
+    /**
+     * GetRoomWithDurationInfoByKey retrieves room duration info by full key
+     */
+    async getRoomWithDurationInfoByKey(key: string): Promise<{ duration: number; startedAt: number } | null> {
+        try {
+            const result = await this.redis.hgetall(key);
+            if (!result || Object.keys(result).length === 0) return null;
+
+            return {
+                duration: parseInt(result.duration || '0', 10),
+                startedAt: parseInt(result.startedAt || '0', 10),
+            };
+        } catch (error) {
+            this.logger.error(`getRoomWithDurationInfoByKey failed: ${error.message}`);
+            return null;
+        }
     }
 }

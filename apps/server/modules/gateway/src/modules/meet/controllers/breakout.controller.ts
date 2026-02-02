@@ -54,7 +54,12 @@ export class BreakoutController {
         const requestedUserId = (req as any).requestedUserId as string;
 
         if (!isAdmin) {
-            sendCommonProtobufResponse(res, false, 'only admin can perform this task');
+            const response = create(BreakoutRoomResSchema, {
+                status: false,
+                msg: 'only admin can perform this task',
+            });
+            res.status(HttpStatus.OK);
+            sendProtobufResponse(res, BreakoutRoomResSchema, response);
             return;
         }
 

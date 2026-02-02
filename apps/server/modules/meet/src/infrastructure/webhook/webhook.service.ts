@@ -43,8 +43,11 @@ import { BreakoutService } from '../../modules/breakout/breakout.service';
 import { Inject, forwardRef } from '@nestjs/common';
 
 // Constants
-const INGRESS_USER_ID_PREFIX = 'ingress_';
-const TTS_AGENT_USER_ID_PREFIX = 'tts_';
+const INGRESS_USER_ID_PREFIX = 'ingres_';
+const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
+const SIP_USER_ID_PREFIX = 'sip_';
+const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
+
 const WAIT_BEFORE_TRIGGER_ON_AFTER_ROOM_ENDED = 2000; // 2 seconds in ms
 
 /**
@@ -213,6 +216,7 @@ export class WebhookService {
                 log.warn('Room not found in NATS or Redis, skipping room_finished tasks');
                 return;
             }
+            rInfo.status = ROOM_STATUS_ENDED;
         }
 
         // Populate event with room info
@@ -265,6 +269,10 @@ export class WebhookService {
     // Participant Events
     // ============================================================================
 
+    // ============================================================================
+    // Participant Events
+    // ============================================================================
+
     /**
      * participantJoined handles participant_joined webhook event
      */
@@ -275,7 +283,9 @@ export class WebhookService {
         }
 
         const roomId = event.room.name;
+
         const participantId = event.participant.identity;
+
         const log = this.logger;
         log.log(`Handling participant_joined webhook: room=${roomId}, participant=${participantId}`);
 
@@ -308,11 +318,21 @@ export class WebhookService {
             log.error(`[PARTICIPANT_COUNT] Error incrementing participant count: ${error.message}`, error.stack);
         }
 
-        // Handle internal agent users (ingress, TTS)
-        if (participantId.startsWith(INGRESS_USER_ID_PREFIX) || participantId.startsWith(TTS_AGENT_USER_ID_PREFIX)) {
-            log.log('Internal agent participant joined, triggering OnAfterUserJoined manually');
+        // Handle internal agent users (ingress, TTS, SIP)
+        if (this.isRequireManualTrigger(participantId)) {
+            let processedParticipantId = participantId;
+            if (participantId.startsWith(SIP_USER_ID_PREFIX)) {
+                // Special case SIP: replace '+' if present
+                processedParticipantId = participantId.replace(/\+/g, '');
+                event.participant.identity = processedParticipantId;
+
+                log.log(`Triggering OnAfterUserJoined manually for SIP user: ${processedParticipantId}`);
+                await this.natsUserService.addUserManuallyAndBroadcast(roomId, processedParticipantId, event.participant.name, false, false);
+            }
+
+            log.log(`Internal agent participant joined, triggering OnAfterUserJoined manually: ${processedParticipantId}`);
             // Trigger NATS OnAfterUserJoined event
-            await this.natsUserService.onAfterUserJoined(roomId, participantId);
+            await this.natsUserService.onAfterUserJoined(roomId, processedParticipantId);
         }
 
         // Send webhook notification
@@ -330,6 +350,7 @@ export class WebhookService {
         }
 
         const roomId = event.room.name;
+
         const participantId = event.participant.identity;
         const log = this.logger;
         log.log(`Handling participant_left webhook: room=${roomId}, participant=${participantId}`);
@@ -363,11 +384,17 @@ export class WebhookService {
             log.error(`[PARTICIPANT_COUNT] Error decrementing participant count: ${error.message}`, error.stack);
         }
 
-        // Handle internal agent users (ingress, TTS)
-        if (participantId.startsWith(INGRESS_USER_ID_PREFIX) || participantId.startsWith(TTS_AGENT_USER_ID_PREFIX)) {
-            log.log('Internal agent participant left, triggering OnAfterUserDisconnected manually');
+        // Handle internal agent users (ingress, TTS, SIP)
+        if (this.isRequireManualTrigger(participantId)) {
+            let processedParticipantId = participantId;
+            if (participantId.startsWith(SIP_USER_ID_PREFIX)) {
+                processedParticipantId = participantId.replace(/\+/g, '');
+                event.participant.identity = processedParticipantId;
+            }
+
+            log.log(`Internal agent participant left, triggering OnAfterUserDisconnected manually: ${processedParticipantId}`);
             // Trigger NATS OnAfterUserDisconnected event
-            await this.natsUserService.onAfterUserDisconnected(roomId, participantId);
+            await this.natsUserService.onAfterUserDisconnected(roomId, processedParticipantId);
         }
 
         // Send webhook notification
@@ -401,8 +428,8 @@ export class WebhookService {
         const participantId = event.participant!.identity;
         const roomId = event.room!.name;
 
-        // Skip for ingress users
-        if (participantId.startsWith(INGRESS_USER_ID_PREFIX)) {
+        // Skip for manual trigger users (Ingress, TTS, SIP)
+        if (this.isRequireManualTrigger(participantId)) {
             return;
         }
 
@@ -434,6 +461,16 @@ export class WebhookService {
         } catch (error) {
             this.logger.error(`Failed to check user status: ${error.message}`);
         }
+    }
+
+    /**
+     * Checks if the user requires manual trigger (Ingress, TTS, SIP)
+     */
+    private isRequireManualTrigger(userId: string): boolean {
+        return userId.startsWith(INGRESS_USER_ID_PREFIX) ||
+            userId.startsWith(TTS_AGENT_USER_ID_PREFIX) ||
+            userId.startsWith(SIP_USER_ID_PREFIX) ||
+            userId.startsWith(AGENT_USER_USER_ID_PREFIX);
     }
 
     // ============================================================================

@@ -18,7 +18,9 @@ import {
     ArtifactInfoSchema,
     FetchArtifactsResultSchema,
     ArtifactInfoResSchema,
+    FetchArtifactsResSchema,
     CommonNotifyEventSchema,
+    PastRoomInfoSchema,
 } from '@workspace/protocol';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
@@ -163,6 +165,20 @@ export class ArtifactsService {
         await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.RTMP_RECORDING, metadata, true);
     }
 
+    async createMeetingSummaryArtifact(roomTableId: number, roomId: string, roomSid: string, summary: string): Promise<void> {
+        const metadata = create(RoomArtifactMetadataSchema, {
+            usageDetails: {
+                case: 'summary',
+                value: {
+                    summaryText: summary,
+                },
+            },
+        });
+
+        await this.createAndSaveArtifact(roomId, roomSid, roomTableId, RoomArtifactType.MEETING_SUMMARY, metadata);
+    }
+
+
     /**
      * createAllRoomUsageArtifacts creates all types of usage artifacts for a room
      */
@@ -210,13 +226,13 @@ export class ArtifactsService {
      * createSpeechTranscriptionFileArtifact creates a VTT file from NATS transcription chunks
      */
     async createSpeechTranscriptionFileArtifact(roomId: string, roomSid: string, roomTableId: number): Promise<string | undefined> {
-        const chunks = await this.natsService.getTranscriptionChunks(roomId);
+        const chunks = await this.redisInsightsService.getTranscriptionHistory(roomId);
         if (!chunks || Object.keys(chunks).length === 0) return undefined;
 
-        // Clean up bucket
-        await this.natsService.deleteTranscriptionBucket(roomId);
+        // Clean up history
+        await this.redisInsightsService.deleteTranscriptionHistory(roomId);
 
-        const keys = Object.keys(chunks).sort();
+        const keys = Object.keys(chunks).sort((a, b) => Number(a) - Number(b));
         let fileContent = 'WEBVTT\n\n';
         fileContent += `NOTE Transcription for meeting: ${roomId}\n\n`;
 
@@ -225,7 +241,7 @@ export class ArtifactsService {
 
         keys.forEach((key, i) => {
             try {
-                const chunk = JSON.parse(new TextDecoder().decode(chunks[key]));
+                const chunk = JSON.parse(chunks[key]);
                 const ts = parseInt(key, 10);
                 if (firstTimestamp === -1) firstTimestamp = ts;
 
@@ -419,8 +435,16 @@ export class ArtifactsService {
      * fetchArtifacts retrieves a paginated list of artifacts
      */
     async fetchArtifacts(r: FetchArtifactsReq): Promise<FetchArtifactsResult> {
+        let limit = parseInt(r.limit, 10) || 20;
+        if (limit <= 0) {
+            limit = 20;
+        } else if (limit > 100) {
+            limit = 100;
+        }
+
+        // Default orderBy to DESC
+        const orderBy = r.orderBy || 'DESC';
         const from = parseInt(r.from, 10) || 0;
-        const limit = parseInt(r.limit, 10) || 20;
 
         const where: any = {};
         if (r.roomIds && r.roomIds.length > 0) {
@@ -437,7 +461,7 @@ export class ArtifactsService {
             where,
             skip: from,
             take: limit,
-            orderBy: { created: r.orderBy === 'ASC' ? 'asc' : 'desc' },
+            orderBy: { created: orderBy === 'ASC' ? 'asc' : 'desc' },
         });
 
         const totalItems = await this.prisma.roomArtifact.count({ where });
@@ -458,7 +482,8 @@ export class ArtifactsService {
             totalArtifacts: totalItems.toString(),
             from: from.toString(),
             limit: limit.toString(),
-            orderBy: r.orderBy,
+            orderBy: orderBy,
+            type: r.type,
         });
     }
 
@@ -485,11 +510,25 @@ export class ArtifactsService {
             created: artifact.created.toISOString(),
         });
 
-        return create(ArtifactInfoResSchema, {
+        const res = create(ArtifactInfoResSchema, {
             status: true,
             msg: 'success',
             artifactInfo: info,
         });
+
+        if (artifact.roomInfo) {
+            res.roomInfo = create(PastRoomInfoSchema, {
+                roomTitle: artifact.roomInfo.roomTitle,
+                roomId: artifact.roomInfo.roomId,
+                roomSid: artifact.roomInfo.sid,
+                joinedParticipants: artifact.roomInfo.joinedParticipants.toString(),
+                webhookUrl: artifact.roomInfo.webhookUrl,
+                created: artifact.roomInfo.created.toISOString(),
+                ended: artifact.roomInfo.ended?.toISOString() || '',
+            });
+        }
+
+        return res;
     }
 
     /**
@@ -506,12 +545,12 @@ export class ArtifactsService {
 
         const artifactType = RoomArtifactType[artifact.type as keyof typeof RoomArtifactType];
         if (!this.isDownloadable(artifactType)) {
-            throw new Error('this artifact type is not downloadable');
+            throw new Error(`'${artifact.type}' artifact type is not downloadable`);
         }
 
         const metadata = fromJson(RoomArtifactMetadataSchema, artifact.metadata as any);
         if (!metadata.fileInfo || !metadata.fileInfo.filePath) {
-            throw new Error('no file associated with this artifact');
+            throw new Error('artifact has no downloadable file');
         }
 
         return generateTokenForDownloadRecording(
@@ -527,19 +566,37 @@ export class ArtifactsService {
      */
     async verifyAndGetFilePath(token: string): Promise<{ absolutePath: string; fileName: string }> {
         try {
+            // Verify JWT and extract claims
             const decoded = jwt.verify(token, this.apiSecret) as any;
-            const absolutePath = path.join(this.storagePath, 'artifacts', decoded.filePath);
+
+            // MUse subject claim for file path
+            const relativePath = decoded.sub || decoded.filePath;
+            if (!relativePath) {
+                throw new Error('invalid token: file path not found');
+            }
+
+            //  Build absolute path
+            const absolutePath = path.join(this.storagePath, 'artifacts', relativePath);
 
             try {
+                // Check file existence using Lstat
                 await fs.access(absolutePath);
+                const stats = await fs.stat(absolutePath);
+
                 return {
                     absolutePath,
-                    fileName: path.basename(decoded.filePath),
+                    fileName: path.basename(relativePath),
                 };
             } catch (error) {
-                throw new Error(`file not found: ${path.basename(absolutePath)}`);
+                // Extract only filename from error path
+                const parts = error.message.split('/');
+                throw new Error(parts[parts.length - 1]);
             }
         } catch (error) {
+            // Return verification error
+            if (error.message.includes('file') || error.message.includes('token')) {
+                throw error;
+            }
             throw new Error(`token verification failed: ${error.message}`);
         }
     }
@@ -554,6 +611,12 @@ export class ArtifactsService {
 
         if (!artifact) {
             throw new Error(`artifact not found with ID: ${artifactId}`);
+        }
+
+        // Double check to prevent deletion of certain artifact types.
+        const type = RoomArtifactType[artifact.type as keyof typeof RoomArtifactType] || RoomArtifactType.UNKNOWN_ARTIFACT;
+        if (!this.isDownloadable(type)) {
+            throw new Error(`deleting '${artifact.type}' type of artifact is not allowed`);
         }
 
         const metadata = fromJson(RoomArtifactMetadataSchema, artifact.metadata as any);
@@ -593,12 +656,11 @@ export class ArtifactsService {
     }
 
     private isDownloadable(type: RoomArtifactType): boolean {
+        // Only these 3 types are downloadable
         return [
             RoomArtifactType.MEETING_ANALYTICS,
             RoomArtifactType.MEETING_SUMMARY,
             RoomArtifactType.SPEECH_TRANSCRIPTION,
-            RoomArtifactType.CLOUD_RECORDING,
-            RoomArtifactType.RTMP_RECORDING,
         ].includes(type);
     }
 

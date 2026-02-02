@@ -8,10 +8,11 @@ import {
 import AudioElm from './audio';
 import { CurrentConnectionEvents } from '../../../helpers/livekit/types';
 import { getMediaServerConn } from '../../../helpers/livekit/utils';
+import {toWajlcUserId} from '../../../helpers/utils';
 
 const AudioElements = () => {
   const [audioSubscribers, setAudioSubscribers] =
-    useState<Map<string, RemoteParticipant | LocalParticipant>>();
+      useState<Map<string, RemoteParticipant | LocalParticipant>>();
   const currentConnection = getMediaServerConn();
 
   useEffect(() => {
@@ -19,13 +20,13 @@ const AudioElements = () => {
       setAudioSubscribers(currentConnection.audioSubscribersMap);
     }
     currentConnection.on(
-      CurrentConnectionEvents.AudioSubscribers,
-      setAudioSubscribers,
+        CurrentConnectionEvents.AudioSubscribers,
+        setAudioSubscribers,
     );
     return () => {
       currentConnection.off(
-        CurrentConnectionEvents.AudioSubscribers,
-        setAudioSubscribers,
+          CurrentConnectionEvents.AudioSubscribers,
+          setAudioSubscribers,
       );
     };
   }, [currentConnection]);
@@ -38,12 +39,13 @@ const AudioElements = () => {
     audioSubscribers.forEach((participant) => {
       participant.audioTrackPublications.forEach((track) => {
         if (track.audioTrack && track.audioTrack instanceof RemoteAudioTrack) {
+          const userId = toWajlcUserId(participant.identity);
           elms.push(
-            <AudioElm
-              userId={participant.identity}
-              audioTrack={track.audioTrack}
-              key={track.trackSid}
-            />,
+              <AudioElm
+                  userId={userId}
+                  audioTrack={track.audioTrack}
+                  key={track.trackSid}
+              />,
           );
         }
       });

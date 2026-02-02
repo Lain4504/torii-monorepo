@@ -8,9 +8,8 @@ import Header from '../header';
 import MainArea from '../main-area';
 import Landing from '../landing';
 import InsertE2EEKey from '../extra-pages/InsertE2EEKey';
-import Login from '../extra-pages/Login';
 import DummyAudio from './dummyAudio';
-
+import Login from '../extra-pages/Login'
 import { store, useAppDispatch } from '../../store';
 import { addServerVersion, addToken } from '../../store/slices/sessionSlice';
 import AudioNotification from './audioNotification';
@@ -29,25 +28,23 @@ import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice'
 const App = () => {
   const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
-  useEffect(() => {
-    // make sure we're using correct body dir
-    document.dir = i18n.dir();
-    // we'll require making ready virtual background
-    // elements as early as possible.
-    loadBodyPix(true).then();
-  }, [i18n]);
+  // make sure we're using correct body dir
+  document.dir = i18n.dir();
+  // we'll require making ready virtual background
+  // elements as early as possible.
+  loadBodyPix(true).then();
 
   const [loading, setLoading] = useState<boolean>(true);
   // it could be recorder or RTMP bot
   const [userTypeClass, setUserTypeClass] = useState('participant');
   const [currentMediaServerConn, setCurrentMediaServerConn] =
-    useState<IConnectLivekit>();
+      useState<IConnectLivekit>();
 
   const [error, setError] = useState<IErrorPageProps | undefined>();
   const [roomConnectionStatus, setRoomConnectionStatus] =
-    useState<roomConnectionStatus>('loading');
+      useState<roomConnectionStatus>('loading');
   const [openConnInfo, setOpenConnInfo] = useState<InfoToOpenConn | undefined>(
-    undefined,
+      undefined,
   );
   const [openConn, setOpenConn] = useState<boolean>(false);
   const [isAppReady, setIsAppReady] = useState<boolean>(false);
@@ -57,17 +54,17 @@ const App = () => {
   useClientCustomization();
   useWatchVisibilityChange();
   const { deviceClass, orientationClass, screenHeight } = useWatchWindowSize(
-    currentMediaServerConn?.room,
+      currentMediaServerConn?.room,
   );
   useThemeSettings();
 
   useEffect(() => {
     verifyToken(
-      setLoading,
-      setError,
-      setOpenConnInfo,
-      setRoomConnectionStatus,
-      setOpenConn,
+        setLoading,
+        setError,
+        setOpenConnInfo,
+        setRoomConnectionStatus,
+        setOpenConn,
     ).then();
   }, []);
 
@@ -79,14 +76,15 @@ const App = () => {
 
       setRoomConnectionStatus('connecting');
       startNatsConn(
-        openConnInfo.natsWsUrls,
-        openConnInfo.accessToken,
-        openConnInfo.roomId,
-        openConnInfo.userId,
-        openConnInfo.natsSubjects,
-        setError,
-        setRoomConnectionStatus,
-        setCurrentMediaServerConn,
+          openConnInfo.natsWsUrls,
+          openConnInfo.accessToken,
+          openConnInfo.roomId,
+          openConnInfo.userId,
+          openConnInfo.roomStreamName,
+          openConnInfo.natsSubjects,
+          setError,
+          setRoomConnectionStatus,
+          setCurrentMediaServerConn,
       ).then();
     }
   }, [dispatch, openConnInfo, openConn]);
@@ -128,32 +126,32 @@ const App = () => {
         return <InsertE2EEKey setOpenConn={setOpenConn} />;
       case isAppReady:
         return (
-          <div className="torii-meet-app overflow-hidden h-screen">
-            <Header />
-            <MainArea />
-            <Footer />
-            <AudioNotification />
-            <DummyAudio />
-          </div>
+            <div className="torii-meet-app overflow-hidden h-screen">
+              <Header />
+              <MainArea />
+              <Footer />
+              <AudioNotification />
+              <DummyAudio />
+            </div>
         );
       default:
         return (
-          <Landing
-            setIsAppReady={setIsAppReady}
-            roomConnectionStatus={roomConnectionStatus}
-          />
+            <Landing
+                setIsAppReady={setIsAppReady}
+                roomConnectionStatus={roomConnectionStatus}
+            />
         );
     }
     //eslint-disable-next-line
   }, [loading, error, roomConnectionStatus, isAppReady]);
 
   return (
-    <div
-      className={`${orientationClass} ${deviceClass} ${userTypeClass} bg-background text-foreground`}
-      style={{ height: screenHeight }}
-    >
-      {renderElms}
-    </div>
+      <div
+          className={`${orientationClass} ${deviceClass} ${userTypeClass} bg-Gray-50 dark:bg-dark-secondary`}
+          style={{ height: screenHeight }}
+      >
+        {renderElms}
+      </div>
   );
 };
 
