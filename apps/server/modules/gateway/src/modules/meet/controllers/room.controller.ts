@@ -141,14 +141,13 @@ export class RoomController {
 
         // Call room service via NATS
         try {
-            const response = await firstValueFrom(
+            const isRoomActiveRes = await firstValueFrom(
                 this.natsClient.send({ cmd: 'room.isActive' }, request),
             );
 
-            const payload = response?.res ? response.res : response;
-
+            // Match Go server: NATS returns IsRoomActiveRes directly
             res.status(200);
-            sendProtoJsonResponse(res, IsRoomActiveResSchema, payload);
+            sendProtoJsonResponse(res, IsRoomActiveResSchema, isRoomActiveRes);
         } catch (error) {
             sendCommonProtoJsonResponse(
                 res,
@@ -314,7 +313,7 @@ export class RoomController {
                 this.natsClient.send({ cmd: 'room.fetchPast' }, request),
             );
 
-            if (result.totalRooms === 0) {
+            if (Number(result.totalRooms) === 0) {
                 sendCommonProtoJsonResponse(res, false, 'no info found');
                 return;
             }

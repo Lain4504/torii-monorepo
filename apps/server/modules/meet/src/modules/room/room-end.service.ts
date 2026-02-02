@@ -7,7 +7,7 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { RoomEndReq } from '@workspace/protocol';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
+import { NatsRoomService, ROOM_STATUS_ENDED, ROOM_STATUS_TRIGGERED_END } from '../../interfaces/nats/nats-room.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { NatsStreamService } from '../../interfaces/nats/nats-stream.service';
 import { NatsUserService } from '../../interfaces/nats/nats-user.service';
@@ -206,6 +206,15 @@ export class RoomEndService {
             return;
         }
 
+        if (roomStatus !== ROOM_STATUS_ENDED) {
+            // Update status immediately to prevent user to join
+            try {
+                await this.natsRoomService.updateRoomStatus(roomId, ROOM_STATUS_TRIGGERED_END);
+            } catch (error) {
+                this.logger.error(`Error updating room status to triggered_end: ${error.message}`);
+            }
+        }
+
         // Step 2: Ensure lock is always released
         try {
             // To avoid race condition better wait few seconds so that all the users got disconnect properly
@@ -236,9 +245,9 @@ export class RoomEndService {
         roomStatus: string,
     ): Promise<void> {
         // Step 3: If the room wasn't ended via the API, update status in NATS and LiveKit
-        if (roomStatus !== 'ended') {
+        if (roomStatus !== ROOM_STATUS_ENDED) {
             try {
-                await this.natsRoomService.updateRoomStatus(roomId, 'ended');
+                await this.natsRoomService.updateRoomStatus(roomId, ROOM_STATUS_ENDED);
             } catch (error) {
                 this.logger.error(`Error updating room status in NATS: ${error.message}`);
             }

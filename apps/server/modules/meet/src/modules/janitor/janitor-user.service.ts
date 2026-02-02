@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NatsService } from '../../interfaces/nats/nats.service';
 import { NatsUserService, USER_STATUS_OFFLINE } from '../../interfaces/nats/nats-user.service';
+import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsMsgServerToClientEvents } from '@workspace/protocol';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 
@@ -8,7 +9,7 @@ const INGRESS_USER_ID_PREFIX = 'ingres_';
 const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
 const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 const SIP_USER_ID_PREFIX = 'sip_';
-const USER_ONLINE_MAX_PING_DIFF = 20 * 1000; // 20 seconds
+const USER_ONLINE_MAX_PING_DIFF = 120 * 1000; // 2 minutes (Matches Go)
 
 @Injectable()
 export class JanitorUserService {
@@ -17,6 +18,7 @@ export class JanitorUserService {
     constructor(
         private readonly natsService: NatsService,
         private readonly natsUserService: NatsUserService,
+        private readonly natsRoomService: NatsRoomService,
         private readonly livekitService: LiveKitService,
     ) { }
 
@@ -29,17 +31,10 @@ export class JanitorUserService {
         // In NestJS NatsService/UserService, we might not have a direct method to list all room buckets efficiently without scanning.
 
         try {
-            const jsm = this.natsService.getJetStreamManager() as any;
-            const kvs = await jsm.kv.list();
-            const prefix = 'wajlc-room-';
+            const rooms = await this.natsRoomService.getActiveRooms();
 
-            for await (const status of kvs) {
-                const name = status.bucket;
-                if (!name.startsWith(prefix)) {
-                    continue;
-                }
-
-                const roomId = name.replace(prefix, '');
+            for (const room of rooms) {
+                const roomId = room.roomId;
 
                 // Get online users
                 const userIds = await this.natsUserService.getOnlineUsersId(roomId);
@@ -73,7 +68,10 @@ export class JanitorUserService {
                 }
             }
         } catch (error) {
-            this.logger.error(`Error checking online users status: ${error.message}`);
+            this.logger.error(`Error checking online users status: ${error.message}`, error.stack);
+            if (!this.natsRoomService) {
+                this.logger.error('CRITICAL: natsRoomService is undefined in JanitorUserService');
+            }
         }
     }
 

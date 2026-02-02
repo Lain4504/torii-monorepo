@@ -12,6 +12,7 @@ import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-event
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { SwitchPresenterTask, NatsMsgServerToClientEvents, TrackSource, ParticipantInfo_State, LockSettingsSchema } from '@workspace/protocol';
+import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
@@ -75,8 +76,9 @@ export class RoomUserService {
      * Generate Wajlc join token for a user
      *
      * This is the main entry point for users joining a room
+     * Match Go server: returns only { token: string }
      */
-    async getWajlcJoinToken(req: any): Promise<{ token: string; livekitHost?: string }> {
+    async getWajlcJoinToken(req: any): Promise<{ token: string }> {
         const roomId = req.roomId;
         const userId = req.userInfo?.userId;
         const userName = req.userInfo?.name;
@@ -89,12 +91,12 @@ export class RoomUserService {
             await waitUntilRoomCreationCompletes(this.redisLock, roomId, this.logger);
 
             // Step 2: Validate the user's name to prevent conflicts with reserved system names
-            const RECORDER_USER_AUTH_NAME = 'RECORDER_BOT';
+            const RECORDER_USER_AUTH_NAME = 'PLUGNMEET_RECORDER_AUTH';
             if (userName === RECORDER_USER_AUTH_NAME) {
                 throw new Error(`name: ${RECORDER_USER_AUTH_NAME} is reserved for internal use only`);
             }
             // Logic for internal user ID check (internal users like system bots)
-            if (userId === 'RECORDER_BOT' || userId === 'RTMP_BOT' || userId === 'system') {
+            if (this.isUserIdInternal(userId)) {
                 throw new Error(`user_id: ${userId} is reserved for internal use only`);
             }
 
@@ -128,8 +130,8 @@ export class RoomUserService {
 
             if (meta.roomFeatures?.autoGenUserId) {
                 // Auto-generate user ID (except for bots)
-                if (req.userInfo.userId !== RECORDER_BOT && req.userInfo.userId !== RTMP_BOT) {
-                    const newUserId = this.generateUUID();
+                if (req.userInfo.userId !== 'RECORDER_BOT' && req.userInfo.userId !== 'RTMP_BOT') {
+                    const newUserId = uuidv4();
                     this.logger.log(`Room has auto-gen userId enabled, assigning: ${newUserId} (ex: ${req.userInfo.userMetadata.exUserId})`);
                     req.userInfo.userId = newUserId;
                 }
@@ -207,6 +209,7 @@ export class RoomUserService {
                 req.userInfo.userMetadata,
             );
 
+
             // Step 10: Generate and return the final JWT token
             const token = this.authService.generateWajlcJoinToken({
                 name: req.userInfo.name,
@@ -218,10 +221,9 @@ export class RoomUserService {
 
             this.logger.log('Successfully generated Wajlc join token');
 
-            return {
-                token: token,
-                livekitHost: process.env.LIVEKIT_WS_URL, // WebSocket URL for client browser connection
-            };
+            // Match Go server: return only token string
+            return { token };
+
         } catch (error) {
             this.logger.error(`Failed to generate join token: ${error.message}`);
             throw error;
@@ -260,14 +262,20 @@ export class RoomUserService {
     }
 
     /**
-     * Generate UUID
+     * Check if user ID is internal
      */
-    private generateUUID(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
+    private isUserIdInternal(userId: string): boolean {
+        // Internal user IDs are reserved for system bots and agents.
+        // Match Go logic: IngressUserIdPrefix, AgentUserUserIdPrefix, SipUserIdPrefix, TTSAgentUserIdPrefix
+        return (
+            userId.startsWith('ingres_') ||
+            userId.startsWith('wajlc_agent-') ||
+            userId.startsWith('wajlc_tts_agent-') ||
+            userId.startsWith('sip_') ||
+            userId === 'RECORDER_BOT' ||
+            userId === 'RTMP_BOT' ||
+            userId === 'system'
+        );
     }
 
     /**

@@ -14,7 +14,9 @@ import { BreakoutController } from './controllers/breakout.controller';
 import { EtherpadController } from './controllers/etherpad.controller';
 import { ExternalMediaController } from './controllers/external-media.controller';
 import { RecordingController } from './controllers/recording.controller';
+import { RecordingApiController } from './controllers/recording-api.controller';
 import { RtmpController } from './controllers/rtmp.controller';
+import { DownloadController } from './controllers/download.controller';
 import { IngressController } from './controllers/ingress.controller';
 import { InsightsController } from './controllers/insights.controller';
 import { SpeechToTextController } from './controllers/speech-to-text.controller';
@@ -39,7 +41,9 @@ import { SpeechToTextController } from './controllers/speech-to-text.controller'
         EtherpadController,
         ExternalMediaController,
         RecordingController,
+        RecordingApiController,
         RtmpController,
+        DownloadController,
         IngressController,
         InsightsController,
         SpeechToTextController,

@@ -17,6 +17,7 @@ import { NatsSystemEventsService } from './nats-system-events.service';
 // Room status constants
 export const ROOM_STATUS_CREATED = 'created';
 export const ROOM_STATUS_ACTIVE = 'active';
+export const ROOM_STATUS_TRIGGERED_END = 'triggered_end';
 export const ROOM_STATUS_ENDED = 'ended';
 
 const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
@@ -88,6 +89,11 @@ export class NatsRoomService {
         const jsm = this.natsService.getJetStreamManager();
         const activeRooms: { roomId: string }[] = [];
 
+        if (!jsm || !jsm.streams) {
+            this.logger.warn('JetStream Manager or streams not ready yet');
+            return activeRooms;
+        }
+
         try {
             // Consolidated bucket prefix for rooms: KV_wajlc-room-
             const streamPrefix = `KV_${NatsService.CONSOLIDATED_ROOM_BUCKET_PREFIX}`;
@@ -158,7 +164,7 @@ export class NatsRoomService {
         emptyTimeout?: number,
         maxParticipants?: number,
         metadata?: RoomMetadata,
-    ): Promise<void> {
+    ): Promise<string> {
         this.logger.log(`Adding room to consolidated NATS KV: ${roomId}, sid: ${roomSid}, tableId: ${tableId}`);
 
         // Step 1: Create or update the consolidated room bucket
@@ -200,6 +206,7 @@ export class NatsRoomService {
         this.natsService.getCacheService().addRoomWatcher(kv, bucket, roomId);
 
         this.logger.log(`Room added to consolidated NATS KV successfully: ${roomId}`);
+        return mt;
     }
 
     /**

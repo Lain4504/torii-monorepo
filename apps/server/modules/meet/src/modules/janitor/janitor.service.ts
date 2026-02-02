@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { JanitorRoomService } from './janitor-room.service';
 import { JanitorUserService } from './janitor-user.service';
+import { JanitorFilesystemService } from './janitor-filesystem.service';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class JanitorService implements OnApplicationBootstrap, OnApplicationShut
     constructor(
         private readonly janitorRoomService: JanitorRoomService,
         private readonly janitorUserService: JanitorUserService,
+        private readonly janitorFilesystemService: JanitorFilesystemService,
         private readonly redisLock: RedisLockService,
     ) { }
 
@@ -60,6 +62,7 @@ export class JanitorService implements OnApplicationBootstrap, OnApplicationShut
         // Tasks schedules
         let nextUserCheck = Date.now() + 60 * 1000; // 1 min
         let nextRoomCheck = Date.now() + 5 * 60 * 1000; // 5 min
+        let nextBackupCheck = Date.now() + 60 * 60 * 1000; // 1 hour
         const tickInterval = 5000;
 
         return new Promise<void>((resolve) => {
@@ -85,6 +88,13 @@ export class JanitorService implements OnApplicationBootstrap, OnApplicationShut
                 if (now > nextRoomCheck) {
                     await this.janitorRoomService.activeRoomChecker();
                     nextRoomCheck = Date.now() + 5 * 60 * 1000;
+                }
+
+                // 4. Check backups (every 1 hour)
+                if (now > nextBackupCheck) {
+                    await this.janitorFilesystemService.checkDelRecordingBackupPath();
+                    await this.janitorFilesystemService.checkDelArtifactsBackupPath();
+                    nextBackupCheck = Date.now() + 60 * 60 * 1000;
                 }
 
             }, tickInterval);

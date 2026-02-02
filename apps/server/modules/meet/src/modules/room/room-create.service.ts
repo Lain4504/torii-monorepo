@@ -69,8 +69,7 @@ export class RoomCreateService {
      * CreateRoom creates a new room
      */
     async createRoom(req: CreateRoomReq): Promise<ActiveRoomInfo> {
-        const log = this.logger;
-        log.log(`Create room request: ${req.roomId}, breakout: ${req.metadata?.isBreakoutRoom}`);
+        this.logger.log(`Create room request: ${req.roomId}, breakout: ${req.metadata?.isBreakoutRoom}`);
 
         // Validate the roomId to ensure it doesn't contain our internal patterns.
         const userKeyFieldPrefix = '-FIELD_';
@@ -94,13 +93,13 @@ export class RoomCreateService {
 
             // Step 3: Handle existing room logic
             if (roomDbInfo && roomDbInfo.sid) {
-                log.log(`Found existing active room in DB: ${req.roomId}`);
+                this.logger.log(`Found existing active room in DB: ${req.roomId}`);
                 const existingRoom = await this.handleExistingRoom(req, roomDbInfo);
                 if (existingRoom) {
-                    log.log(`Successfully handled existing room: ${req.roomId}`);
+                    this.logger.log(`Successfully handled existing room: ${req.roomId}`);
                     return existingRoom;
                 }
-                log.log(`Existing room was stale, proceeding to create new session`);
+                this.logger.log(`Existing room was stale, proceeding to create new session`);
             }
 
             // Step 4: Initialize room defaults
@@ -124,51 +123,37 @@ export class RoomCreateService {
                 creationTime: BigInt(roomInfo.creationTime),
             });
 
-            log.log(`Room info saved to DB: ${req.roomId}, sid: ${sid}, webhook: ${savedRoomInfo.webhookUrl}`);
+            this.logger.log(`Room info saved to DB: ${req.roomId}, sid: ${sid}, webhook: ${savedRoomInfo.webhookUrl}`);
 
             // Step 7: Create room in NATS bucket
             // Use savedRoomInfo.id to ensure we have the DB auto-increment ID
-            await this.natsRoom.addRoom(savedRoomInfo.id, req.roomId, sid, req.emptyTimeout, req.maxParticipants, req.metadata);
-            log.log(`Room added to NATS: ${req.roomId}, tableId: ${savedRoomInfo.id}`);
+            const mt = await this.natsRoom.addRoom(savedRoomInfo.id, req.roomId, sid, req.emptyTimeout, req.maxParticipants, req.metadata);
+            this.logger.log(`Room added to NATS: ${req.roomId}, tableId: ${savedRoomInfo.id}`);
 
-            // Step 8: Create NATS streams
-            await this.natsStream.createRoomNatsStreams(req.roomId);
-            log.log(`NATS streams created: ${req.roomId}`);
-
-            // Step 8.5: Room duration info will be added in WebhookService.roomStarted
-            // This ensures duration starts precisely when the room "starts" for users.
-
-
-            // Step 9: Get room info from NATS
-            const rInfo = await this.natsRoom.getRoomInfo(req.roomId);
-            if (!rInfo) {
-                throw new Error('Room not found in KV');
-            }
-
-            // Step 10: Preload whiteboard file if needed (async)
+            // Step 8: Preload whiteboard file if needed (async)
             if (!req.metadata?.isBreakoutRoom) {
                 this.prepareWhiteboardPreloadFile(req.metadata!, req.roomId, sid).catch((err) => {
-                    log.error(`Failed to prepare whiteboard preload file: ${err.message}`);
+                    this.logger.error(`Failed to prepare whiteboard preload file: ${err.message}`);
                 });
             }
 
-            // Step 11: Build response
+            // Step 9: Build response
             const activeRoomInfo = create(ActiveRoomInfoSchema, {
-                roomId: rInfo.roomId,
-                sid: rInfo.roomSid,
+                roomId: req.roomId,
+                sid: sid,
                 roomTitle: roomInfo.roomTitle,
                 isRunning: 1,
                 creationTime: roomInfo.creationTime.toString(),
                 webhookUrl: roomInfo.webhookUrl,
-                metadata: rInfo.metadata,
+                metadata: mt,
             });
 
             // Step 12: Send room created webhook (async)
             this.sendRoomCreatedWebhook(activeRoomInfo, req.emptyTimeout, req.maxParticipants).catch((err) => {
-                log.error(`Failed to send room created webhook: ${err.message}`);
+                this.logger.error(`Failed to send room created webhook: ${err.message}`);
             });
 
-            log.log(`Successfully created new room: ${req.roomId}`);
+            this.logger.log(`Successfully created new room: ${req.roomId}`);
             return activeRoomInfo;
         } finally {
             // Always release lock
@@ -180,10 +165,10 @@ export class RoomCreateService {
 
             try {
                 await Promise.race([unlockPromise, timeoutPromise]);
-                log.log(`Room creation lock released: ${req.roomId}`);
+                this.logger.log(`Room creation lock released: ${req.roomId}`);
             } catch (unlockErr) {
                 // Swallow unlock errors, only log 
-                log.error(
+                this.logger.error(
                     `Error trying to clean up room creation lock for ${req.roomId}: ${unlockErr instanceof Error ? unlockErr.message : unlockErr}`,
                 );
             }
@@ -220,10 +205,8 @@ export class RoomCreateService {
         }
 
         // Room is active and matches DB record
-        this.logger.log(`Found matching active room in NATS, ensuring streams are active`);
+        this.logger.log(`Found matching active room in NATS, updating status`);
 
-        // Ensure NATS streams are active
-        await this.natsStream.createRoomNatsStreams(req.roomId);
         await this.natsRoom.updateRoomStatus(req.roomId, 'active');
 
         return create(ActiveRoomInfoSchema, {
@@ -239,19 +222,40 @@ export class RoomCreateService {
 
     /**
      * setRoomDefaults sets default values and metadata
-
      */
     private setRoomDefaults(req: CreateRoomReq): void {
-        // Apply default room features
+        // Step 1: Prepare default room features
         prepareDefaultRoomFeatures(req);
 
-        // Get upload settings from config
+        // Get config values
         const maxFileSize = this.configService.get<number>('UPLOAD_MAX_FILE_SIZE') || 50 * 1024 * 1024;
-        const maxWhiteboardFile = this.configService.get<number>('UPLOAD_MAX_WHITEBOARD_FILE') || 10 * 1024 * 1024;
-        const allowedTypes = this.configService.get<string>('UPLOAD_ALLOWED_TYPES')?.split(',') || [];
-        // Copyright configuration
+        const maxWhiteboardFileSize = this.configService.get<number>('UPLOAD_MAX_WHITEBOARD_FILE') || 30; // MB
+        const allowedFileTypes = this.configService.get<string>('UPLOAD_ALLOWED_TYPES')?.split(',') || [];
+        const sharedNotepadEnabled = this.configService.get<boolean>('SHARED_NOTEPAD_ENABLED') || false;
+
+        // Step 2: Set create room default values based on config
+        setCreateRoomDefaultValues(
+            req,
+            maxFileSize.toString(), // uint64 as string
+            maxWhiteboardFileSize.toString(), // uint64 as string
+            allowedFileTypes,
+            sharedNotepadEnabled,
+        );
+
+        // Step 3: Set default lock settings
+        setRoomDefaultLockSettings(req);
+
+        // Step 4: Set default room settings (max participants, duration, etc.)
+        const roomDefaultSettings: RoomDefaultSettings = {
+            maxParticipants: this.configService.get<number>('ROOM_DEFAULT_MAX_PARTICIPANTS'),
+            maxDuration: this.configService.get<string>('ROOM_DEFAULT_MAX_DURATION'),
+            maxNumBreakoutRooms: this.configService.get<number>('ROOM_DEFAULT_MAX_NUM_BREAKOUT_ROOMS'),
+        };
+        setDefaultRoomSettings(roomDefaultSettings, req);
+
+        // Step 5: Copyright logic - match Go model
         const copyrightDisplay = this.configService.get<boolean>('COPYRIGHT_DISPLAY') !== false;
-        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Developed by MiraiMagicLab';
+        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Powered by MiraiMagicLab';
         const copyrightAllowOverride = this.configService.get<boolean>('COPYRIGHT_ALLOW_OVERRIDE') || false;
 
         const defaultCopyright = create(CopyrightConfSchema, {
@@ -259,39 +263,27 @@ export class RoomCreateService {
             text: copyrightText,
         });
 
-        // Convert numbers to strings for uint64 compatibility 
-        setCreateRoomDefaultValues(
-            req,
-            maxFileSize.toString(),  // uint64 with JS_STRING = string
-            maxWhiteboardFile.toString(),  // uint64 with JS_STRING = string
-            allowedTypes,
-            false, // allowedNotepad - we should check config usually but defaulting false here as it wasn't clearly passed before
-            defaultCopyright
-        );
-        setRoomDefaultLockSettings(req);
-
-        // Handle Copyright Override Logic (which was partly moved to util but needs 'allowOverride' context)
-        // Util handles: if copyrightConf param is passed, it sets it as default if req.metadata.copyrightConf is null.
-        // We still need to enforce "no override" if copyrightAllowOverride is false.
-
-        if (req.metadata?.copyrightConf && !copyrightAllowOverride) {
-            req.metadata.copyrightConf = defaultCopyright;
+        if (!req.metadata!.copyrightConf) {
+            req.metadata!.copyrightConf = defaultCopyright;
+        } else if (!copyrightAllowOverride) {
+            // Override user's copyright if not allowed to override
+            req.metadata!.copyrightConf = defaultCopyright;
         }
 
-        // Get room default settings from config
-
-        // Disable analytics for breakout rooms
+        // Step 6: Breakout room analytics
         if (req.metadata?.isBreakoutRoom && req.metadata?.roomFeatures?.enableAnalytics) {
             req.metadata.roomFeatures.enableAnalytics = false;
         }
 
-        // Insights features configuration
+        // Step 7: Insights features configuration - match Go model
         if (req.metadata?.roomFeatures?.insightsFeatures) {
             const insightsEnabled = this.configService.get<boolean>('INSIGHTS_ENABLED') || false;
-            if (!insightsEnabled) {
+            if (req.metadata.roomFeatures.insightsFeatures.isAllow && !insightsEnabled) {
                 req.metadata.roomFeatures.insightsFeatures.isAllow = false;
-            } else {
-                // Set max selected translation languages
+            }
+
+            if (req.metadata.roomFeatures.insightsFeatures.isAllow) {
+                // Set max selected translation languages from config
                 const maxTranscriptionLangs = this.configService.get<number>('INSIGHTS_MAX_TRANSCRIPTION_LANGS') || 2;
                 const maxChatTransLangs = this.configService.get<number>('INSIGHTS_MAX_CHAT_TRANS_LANGS') || 5;
 
@@ -304,16 +296,20 @@ export class RoomCreateService {
             }
         }
 
-        // Azure cognitive services (deprecated)
-        const azureEnabled = this.configService.get<boolean>('AZURE_SPEECH_ENABLED') || false;
-        if (!azureEnabled) {
-            if (req.metadata?.roomFeatures?.speechToTextTranslationFeatures) {
-                req.metadata.roomFeatures.speechToTextTranslationFeatures.isAllow = false;
+        // Step 8: Handle if enabled E2EE - match Go model
+        if (req.metadata?.roomFeatures?.endToEndEncryptionFeatures?.isEnabled) {
+            // Disabling features that block E2EE
+            // SIP is not supported, so we don't handle its field here
+            if (req.metadata.roomFeatures.ingressFeatures) {
+                req.metadata.roomFeatures.ingressFeatures.isAllow = false;
             }
-        } else {
-            const maxTransLangs = this.configService.get<number>('AZURE_SPEECH_MAX_TRANS_LANGS') || 2;
-            if (req.metadata?.roomFeatures?.speechToTextTranslationFeatures) {
-                req.metadata.roomFeatures.speechToTextTranslationFeatures.maxNumTranLangsAllowSelecting = maxTransLangs;
+
+            const insightsFeatures = req.metadata.roomFeatures.insightsFeatures;
+            if (insightsFeatures?.transcriptionFeatures) {
+                insightsFeatures.transcriptionFeatures.isAllow = false;
+            }
+            if (insightsFeatures?.aiFeatures?.meetingSummarizationFeatures) {
+                insightsFeatures.aiFeatures.meetingSummarizationFeatures.isAllow = false;
             }
         }
     }

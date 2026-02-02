@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { JanitorService } from './janitor.service';
 import { JanitorRoomService } from './janitor-room.service';
 import { JanitorUserService } from './janitor-user.service';
+import { JanitorFilesystemService } from './janitor-filesystem.service';
 import { NatsModule } from '../../interfaces/nats/nats.module';
 import { RoomModule } from '../room/room.module';
 import { RedisModule } from '../../infrastructure/redis/redis.module';
@@ -20,6 +21,7 @@ import { PrismaModule } from '@server/shared';
         JanitorService,
         JanitorRoomService,
         JanitorUserService,
+        JanitorFilesystemService,
     ],
     exports: [JanitorService],
 })

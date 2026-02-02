@@ -14,6 +14,7 @@ import {
     UseInterceptors,
     Logger,
     Query,
+    All,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request, Response } from 'express';
@@ -224,7 +225,7 @@ export class FileController {
     /**
      * handleConvertWhiteboardFile triggers conversion for whiteboard
      */
-    @Post('api/whiteboard/convertAndBroadcast')
+    @Post('api/convertWhiteboardFile')
     @UseGuards(JwtAuthGuard)
     async handleConvertWhiteboard(@Body() body: any, @Res() res: Response) {
         try {
@@ -248,7 +249,7 @@ export class FileController {
         }
     }
 
-    @Post('api/getRoomFilesByType')
+    @All('api/getRoomFilesByType')
     @UseGuards(JwtAuthGuard)
     async handleGetFilesByType(@Body() body: any, @Res() res: Response) {
         try {

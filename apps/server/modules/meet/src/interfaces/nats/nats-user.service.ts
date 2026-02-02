@@ -550,7 +550,7 @@ export class NatsUserService {
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
-            const now = Math.floor(Date.now() / 1000).toString();
+            const now = Date.now().toString();
             await kv.put(this.natsService.formatUserKey(userId, 'last_ping_at'), new TextEncoder().encode(now));
         } catch (error) { }
     }

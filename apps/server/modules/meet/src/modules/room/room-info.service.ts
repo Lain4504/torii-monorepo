@@ -27,7 +27,7 @@ import {
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { NatsService } from '../../interfaces/nats/nats.service';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
+import { NatsRoomService, ROOM_STATUS_ACTIVE, ROOM_STATUS_CREATED } from '../../interfaces/nats/nats-room.service';
 import { NatsUserInfoService, USER_METADATA_KEY } from '../../interfaces/nats/nats-user-info.service';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
@@ -77,7 +77,7 @@ export class RoomInfoService {
             return { res, roomDbInfo: null, rInfo: null, metadata: null };
         }
 
-        if (rInfo.status === 'created' || rInfo.status === 'active') {
+        if (rInfo.status === ROOM_STATUS_CREATED || rInfo.status === ROOM_STATUS_ACTIVE) {
             res.isActive = true;
             res.msg = 'room is active';
         }
@@ -95,7 +95,7 @@ export class RoomInfoService {
      */
     async getActiveRoomInfo(
         req: GetActiveRoomInfoReq,
-    ): Promise<{ success: boolean; message: string; data: ActiveRoomWithParticipant | null }> {
+    ): Promise<{ status: boolean; msg: string; room: ActiveRoomWithParticipant | null }> {
         const log = this.logger;
         log.log(`GetActiveRoomInfo: ${req.roomId}`);
 
@@ -105,16 +105,16 @@ export class RoomInfoService {
         // Get room from database
         const roomDbInfo = await this.getRoomInfoByRoomId(req.roomId, true);
         if (!roomDbInfo || !roomDbInfo.id) {
-            return { success: false, message: 'no room found', data: null };
+            return { status: false, msg: 'no room found', room: null };
         }
 
         // Get room info from NATS
         const rrr = await this.natsRoomService.getRoomInfo(req.roomId);
-        if (!rrr || (rrr.status !== 'created' && rrr.status !== 'active')) {
+        if (!rrr || (rrr.status !== ROOM_STATUS_CREATED && rrr.status !== ROOM_STATUS_ACTIVE)) {
             // Room is not in NATS or not active, mark as ended in DB
             log.warn(`Room found in DB but not active in NATS (status: ${rrr?.status}), marking as ended`);
             await this.updateRoomStatus(req.roomId, false);
-            return { success: false, message: 'room is not active', data: null };
+            return { status: false, msg: 'room is not active', room: null };
         }
 
         // Build response
@@ -157,7 +157,7 @@ export class RoomInfoService {
             this.logger.warn(`Failed to load participants: ${error.message}`);
         }
 
-        return { success: true, message: 'success', data: res };
+        return { status: true, msg: 'success', room: res };
     }
 
     /**
@@ -166,14 +166,14 @@ export class RoomInfoService {
      * @returns [success, message, rooms]
      */
     async getActiveRoomsInfo(): Promise<{
-        success: boolean;
-        message: string;
-        data: ActiveRoomWithParticipant[] | null;
+        status: boolean;
+        msg: string;
+        rooms: ActiveRoomWithParticipant[] | null;
     }> {
         // Get all active rooms from database
         const roomsInfo = await this.getActiveRoomsFromDb();
         if (!roomsInfo || roomsInfo.length === 0) {
-            return { success: false, message: 'no active room found', data: null };
+            return { status: false, msg: 'no active room found', rooms: null };
         }
 
         const res: ActiveRoomWithParticipant[] = [];
@@ -227,7 +227,7 @@ export class RoomInfoService {
             res.push(i);
         }
 
-        return { success: true, message: 'success', data: res };
+        return { status: true, msg: 'success', rooms: res };
     }
 
     /**

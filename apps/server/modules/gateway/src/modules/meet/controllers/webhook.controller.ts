@@ -75,7 +75,7 @@ export class WebhookController {
      *
      * @route POST /webhook
      */
-    @Post('livekit')
+    @Post()
     @HttpCode(HttpStatus.OK)
     async handleWebhook(
         @Body() body: any,

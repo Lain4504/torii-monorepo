@@ -346,7 +346,7 @@ export class UserRoomSettingController {
      *
      * @route POST /api/muteUnMuteTrack
      */
-    @Post('muteUnMuteTrack')
+    @Post('muteUnmuteTrack')
     @HttpCode(HttpStatus.OK)
     async handleMuteUnMuteTrack(
         @Req() req: Request,
