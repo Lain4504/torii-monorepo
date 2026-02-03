@@ -7,42 +7,20 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { RoomMetadata, NatsKvRoomInfo } from '@workspace/protocol';
-import { NatsKvRoomInfoSchema, RoomMetadataSchema } from '@workspace/protocol';
+import { NatsKvRoomInfoSchema, RoomMetadataSchema, NatsMsgServerToClientEvents, RoomUploadedFileMetadataSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { NatsService } from './nats.service';
 import { NatsStreamService } from './nats-stream.service';
 import { NatsUserService } from './nats-user.service';
-
-// Constants
-const NATS_PREFIX = 'wajlc-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
-const ROOM_INFO_BUCKET_PREFIX = `${NATS_PREFIX}roomInfo-`;
-const ROOM_INFO_BUCKET = `${ROOM_INFO_BUCKET_PREFIX}%s`;
-const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-
-// Room KV keys
-const ROOM_DB_TABLE_ID_KEY = 'id';
-const ROOM_ID_KEY = 'room_id';
-const ROOM_SID_KEY = 'room_sid';
-const ROOM_EMPTY_TIMEOUT_KEY = 'empty_timeout';
-const ROOM_MAX_PARTICIPANTS = 'max_participants';
-const ROOM_STATUS_KEY = 'status';
-const ROOM_METADATA_KEY = 'metadata';
-const ROOM_CREATED_KEY = 'created_at';
-
-// Room files bucket and keys
-const ROOM_FILES_BUCKET_PREFIX = `${NATS_PREFIX}roomFiles-`;
-const ROOM_FILES_BUCKET = `${ROOM_FILES_BUCKET_PREFIX}%s`;
-
-// Breakout rooms bucket
-const BREAKOUT_ROOMS_BUCKET_PREFIX = `${NATS_PREFIX}breakoutRooms-`;
-const BREAKOUT_ROOMS_BUCKET = `${BREAKOUT_ROOMS_BUCKET_PREFIX}%s`;
-
-
+import { NatsSystemEventsService } from './nats-system-events.service';
 
 // Room status constants
 export const ROOM_STATUS_CREATED = 'created';
 export const ROOM_STATUS_ACTIVE = 'active';
+export const ROOM_STATUS_TRIGGERED_END = 'triggered_end';
 export const ROOM_STATUS_ENDED = 'ended';
+
+const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 /**
  * NatsRoomService handles NATS KV operations for rooms
@@ -56,10 +34,11 @@ export class NatsRoomService {
         private readonly natsService: NatsService,  // Inject base NATS service
         private readonly natsStreamService: NatsStreamService,  // Inject stream service
         @Inject(forwardRef(() => NatsUserService)) private readonly natsUserService: NatsUserService,  // Inject user service
+        @Inject(forwardRef(() => NatsSystemEventsService)) private readonly natsSystemEventsService: NatsSystemEventsService,
     ) { }
 
     /**
-     * GetRoomInfo retrieves room information from NATS KV
+     * GetRoomInfo retrieves room information from NATS KV (Consolidated Bucket)
      */
     async getRoomInfo(roomId: string): Promise<NatsKvRoomInfo | null> {
         this.logger.log(`Getting room info for: ${roomId}`);
@@ -71,23 +50,23 @@ export class NatsRoomService {
             return cached;
         }
 
-        // Step 2: Cache miss - read from NATS KV
-        const bucket = ROOM_INFO_BUCKET.replace('%s', roomId);
+        // Step 2: Cache miss - read from NATS KV (Consolidated Room Bucket)
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
 
-            // Create room info object
+            // Create room info object (using info_ prefix)
             const info = create(NatsKvRoomInfoSchema, {
-                dbTableId: await this.getUint64Value(kv, ROOM_DB_TABLE_ID_KEY),
-                roomId: await this.getStringValue(kv, ROOM_ID_KEY),
-                roomSid: await this.getStringValue(kv, ROOM_SID_KEY),
-                status: await this.getStringValue(kv, ROOM_STATUS_KEY),
-                emptyTimeout: await this.getUint64Value(kv, ROOM_EMPTY_TIMEOUT_KEY),
-                maxParticipants: await this.getUint64Value(kv, ROOM_MAX_PARTICIPANTS),
-                createdAt: await this.getUint64Value(kv, ROOM_CREATED_KEY),
-                metadata: await this.getStringValue(kv, ROOM_METADATA_KEY),
+                dbTableId: await this.getUint64Value(kv, this.natsService.formatRoomKey('id')),
+                roomId: await this.getStringValue(kv, this.natsService.formatRoomKey('room_id')),
+                roomSid: await this.getStringValue(kv, this.natsService.formatRoomKey('room_sid')),
+                status: await this.getStringValue(kv, this.natsService.formatRoomKey('status')),
+                emptyTimeout: await this.getUint64Value(kv, this.natsService.formatRoomKey('empty_timeout')),
+                maxParticipants: await this.getUint64Value(kv, this.natsService.formatRoomKey('max_participants')),
+                createdAt: await this.getUint64Value(kv, this.natsService.formatRoomKey('created_at')),
+                metadata: await this.getStringValue(kv, this.natsService.formatRoomKey('metadata')),
             });
 
             // Step 3: Add watcher if room not ended
@@ -110,19 +89,20 @@ export class NatsRoomService {
         const jsm = this.natsService.getJetStreamManager();
         const activeRooms: { roomId: string }[] = [];
 
-        try {
-            // NATS KV buckets are mirrored as streams with "KV_" prefix
-            // We search for streams starting with KV_<ROOM_INFO_BUCKET_PREFIX>
-            const streamPrefix = `KV_${ROOM_INFO_BUCKET_PREFIX}`;
+        if (!jsm || !jsm.streams) {
+            this.logger.warn('JetStream Manager or streams not ready yet');
+            return activeRooms;
+        }
 
-            // Getting all streams might be heavy if thousands of rooms, 
-            // but necessary if no central index.
-            // Paging might be required for production scaling.
+        try {
+            // Consolidated bucket prefix for rooms: KV_wajlc-room-
+            const streamPrefix = `KV_${NatsService.CONSOLIDATED_ROOM_BUCKET_PREFIX}`;
+
             const streams = await jsm.streams.list();
 
             for await (const stream of streams) {
                 if (stream.config.name.startsWith(streamPrefix)) {
-                    // Extract Room ID: KV_wajlc-roomInfo-<roomId>
+                    // Extract Room ID: KV_wajlc-room-<roomId>
                     const roomId = stream.config.name.substring(streamPrefix.length);
                     activeRooms.push({ roomId });
                 }
@@ -150,25 +130,32 @@ export class NatsRoomService {
     /**
      * GetRoomMetadataStruct retrieves only the metadata structure
      */
+    /**
+     * GetRoomMetadataStruct retrieves only the metadata structure
+     */
     async getRoomMetadataStruct(roomId: string): Promise<RoomMetadata | null> {
-        const info = await this.getRoomInfo(roomId);
-        if (!info || !info.metadata) {
-            return null;
+        // Use the dedicated cache method to get only the metadata.
+        const cached = this.natsService.getCacheService().getCachedRoomMetadata(roomId);
+        if (cached.found && cached.metadata) {
+            return this.natsService.unmarshalRoomMetadata(cached.metadata);
         }
 
-        return this.natsService.unmarshalRoomMetadata(info.metadata);
+        // If not in cache, directly fetch only the metadata key from NATS KV.
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const metadataStr = await this.natsService.getStringValue(kv, this.natsService.formatRoomKey('metadata'));
+
+            if (!metadataStr) return null;
+            return this.natsService.unmarshalRoomMetadata(metadataStr);
+        } catch (error) {
+            return null;
+        }
     }
 
     /**
-     * AddRoom creates a new room entry in NATS KV
-     *
-     * Steps:
-     * 1. Create or update the key-value bucket for the room
-     * 2. Set default values if not provided
-     * 3. Marshal metadata to string
-     * 4. Prepare room data map
-     * 5. Store each key-value pair
-     * 6. Add room to watcher
+     * AddRoom creates a consolidated room entry in NATS KV
      */
     async addRoom(
         tableId: number,
@@ -177,11 +164,11 @@ export class NatsRoomService {
         emptyTimeout?: number,
         maxParticipants?: number,
         metadata?: RoomMetadata,
-    ): Promise<void> {
-        this.logger.log(`Adding room to NATS KV: ${roomId}, sid: ${roomSid}, tableId: ${tableId}`);
+    ): Promise<string> {
+        this.logger.log(`Adding room to consolidated NATS KV: ${roomId}, sid: ${roomSid}, tableId: ${tableId}`);
 
-        // Step 1: Create or update the key-value bucket for the room
-        const bucket = ROOM_INFO_BUCKET.replace('%s', roomId);
+        // Step 1: Create or update the consolidated room bucket
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
         const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
         const js = this.natsService.getJetStream();
@@ -198,16 +185,16 @@ export class NatsRoomService {
         // Step 3: Marshal metadata to string
         const mt = this.natsService.marshalRoomMetadata(metadata || create(RoomMetadataSchema, {}));
 
-        // Step 4: Prepare room data
+        // Step 4: Prepare room data (using info_ prefix)
         const data: Record<string, string> = {
-            [ROOM_DB_TABLE_ID_KEY]: tableId.toString(),
-            [ROOM_ID_KEY]: roomId,
-            [ROOM_SID_KEY]: roomSid,
-            [ROOM_EMPTY_TIMEOUT_KEY]: timeout.toString(),
-            [ROOM_MAX_PARTICIPANTS]: maxPart.toString(),
-            [ROOM_STATUS_KEY]: ROOM_STATUS_CREATED,
-            [ROOM_CREATED_KEY]: Math.floor(Date.now() / 1000).toString(), // Unix timestamp
-            [ROOM_METADATA_KEY]: mt,
+            [this.natsService.formatRoomKey('id')]: tableId.toString(),
+            [this.natsService.formatRoomKey('room_id')]: roomId,
+            [this.natsService.formatRoomKey('room_sid')]: roomSid,
+            [this.natsService.formatRoomKey('empty_timeout')]: timeout.toString(),
+            [this.natsService.formatRoomKey('max_participants')]: maxPart.toString(),
+            [this.natsService.formatRoomKey('status')]: ROOM_STATUS_CREATED,
+            [this.natsService.formatRoomKey('created_at')]: Math.floor(Date.now() / 1000).toString(),
+            [this.natsService.formatRoomKey('metadata')]: mt,
         };
 
         // Step 5: Store each key-value pair
@@ -218,7 +205,8 @@ export class NatsRoomService {
         // Step 6: Add room to watcher
         this.natsService.getCacheService().addRoomWatcher(kv, bucket, roomId);
 
-        this.logger.log(`Room added to NATS KV successfully: ${roomId}`);
+        this.logger.log(`Room added to consolidated NATS KV successfully: ${roomId}`);
+        return mt;
     }
 
     /**
@@ -227,13 +215,13 @@ export class NatsRoomService {
     async updateRoomStatus(roomId: string, status: string): Promise<void> {
         this.logger.log(`Updating room status: ${roomId} -> ${status}`);
 
-        const bucket = ROOM_INFO_BUCKET.replace('%s', roomId);
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
 
-            await kv.put(ROOM_STATUS_KEY, new TextEncoder().encode(status));
+            await kv.put(this.natsService.formatRoomKey('status'), new TextEncoder().encode(status));
 
             this.logger.log(`Room status updated successfully: ${roomId}`);
         } catch (error) {
@@ -243,26 +231,24 @@ export class NatsRoomService {
 
     /**
      * UpdateRoomMetadata updates room metadata
-
      */
     async updateRoomMetadata(roomId: string, metadata: RoomMetadata | string): Promise<string> {
         let mt: RoomMetadata;
 
-        // Handle different input types 
         if (typeof metadata === 'string') {
             mt = this.natsService.unmarshalRoomMetadata(metadata);
         } else {
             mt = metadata;
         }
 
-        const bucket = ROOM_INFO_BUCKET.replace('%s', roomId);
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
 
             const ml = this.natsService.marshalRoomMetadata(mt);
-            await kv.put(ROOM_METADATA_KEY, new TextEncoder().encode(ml));
+            await kv.put(this.natsService.formatRoomKey('metadata'), new TextEncoder().encode(ml));
 
             return ml;
         } catch (error) {
@@ -271,24 +257,54 @@ export class NatsRoomService {
     }
 
     /**
-     * DeleteRoom removes room KV bucket
+     * BroadcastRoomMetadata broadcasts the room metadata update event.
+     */
+    async broadcastRoomMetadata(roomId: string, metadata?: string, userId?: string): Promise<void> {
+        if (!metadata) {
+            const rInfo = await this.getRoomInfo(roomId);
+            if (!rInfo) {
+                throw new Error('did not found the room');
+            }
+            metadata = rInfo.metadata;
+        }
 
+        await this.natsSystemEventsService.broadcastSystemEventToRoom(
+            NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE,
+            roomId,
+            metadata,
+            userId,
+        );
+    }
+
+    /**
+     * UpdateAndBroadcastRoomMetadata updates and broadcasts room metadata.
+     */
+    async updateAndBroadcastRoomMetadata(roomId: string, meta: RoomMetadata | string): Promise<void> {
+        if (!meta) {
+            throw new Error('metadata cannot be nil');
+        }
+
+        const metadataStr = await this.updateRoomMetadata(roomId, meta);
+        await this.broadcastRoomMetadata(roomId, metadataStr);
+    }
+
+    /**
+     * DeleteRoom removes room consolidated bucket
      */
     async deleteRoom(roomId: string): Promise<void> {
-        this.logger.log(`Deleting room from NATS KV: ${roomId}`);
+        this.logger.log(`Deleting room consolidated bucket from NATS KV: ${roomId}`);
 
-        const bucket = ROOM_INFO_BUCKET.replace('%s', roomId);
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
         try {
             const jsm = this.natsService.getJetStreamManager();
             const streamName = `KV_${bucket}`;
             await jsm.streams.delete(streamName);
 
-            this.logger.log(`Room deleted from NATS KV: ${roomId}`);
+            this.logger.log(`Room bucket deleted from NATS KV: ${roomId}`);
         } catch (error) {
-            // Ignore if already deleted 
             if (error.message && error.message.includes('stream not found')) {
-                this.logger.debug(`Room KV already deleted: ${roomId}`);
+                this.logger.debug(`Room KV bucket already deleted: ${roomId}`);
                 return;
             }
             throw error;
@@ -296,36 +312,25 @@ export class NatsRoomService {
     }
 
     /**
-     * OnAfterSessionEndCleanup performs cleanup after session ends
-
+     * OnAfterSessionEndCleanup performs cleanup after session ends (NATS parts)
      */
     async onAfterSessionEndCleanup(roomId: string): Promise<void> {
         this.logger.log(`Performing session end cleanup for room: ${roomId}`);
 
-        // Silently delete everything
         try {
-            // 1. Delete breakout rooms
-            try {
-                await this.deleteAllBreakoutRoomsByParentRoomId(roomId);
-            } catch (e) { }
+            // 1. Delete breakout rooms (Handled by BreakoutService via Redis)
 
-            // 2. Delete all room users and their consumers
-            try {
-                await this.natsUserService.deleteAllRoomUsersWithConsumer(roomId);
-            } catch (e) { }
+            // 2. Delete all user consumers
+            try { await this.natsUserService.deleteAllRoomUsersWithConsumer(roomId); } catch { }
 
-            // 3. Delete room's dedicated NATS stream
-            try {
-                await this.natsStreamService.deleteRoomNatsStream(roomId);
-            } catch (e) { }
+            // 3. Purge global room stream subjects
+            try { await this.natsStreamService.deleteRoomNatsStream(roomId); } catch { }
 
-            // 4. Delete all room files metadata bucket
-            try {
-                await this.deleteAllRoomFiles(roomId);
-            } catch (e) { }
+            // 4. Delete the consolidated room bucket
+            await this.deleteRoom(roomId);
 
-            // 5. Final NATS KV cleanup (room info, user buckets, block list, etc.)
-            await this.natsService.onAfterSessionEndCleanup(roomId);
+            // 5. Final cleanup in cache
+            await this.natsService.getCacheService().deleteRoomInfo(roomId);
 
         } catch (error) {
             this.logger.error(`Error during session end cleanup for room ${roomId}: ${error.message}`);
@@ -335,13 +340,13 @@ export class NatsRoomService {
     }
 
     /**
-     * AddRoomFile adds or updates a file's metadata in the room's file bucket.
-     * The fileId will be used as the key.
+     * AddRoomFile adds or updates a file's metadata in the room's consolidated bucket.
+     * The format will be `file_<fileId>`.
      */
     async addRoomFile(roomId: string, meta: any): Promise<void> {
         this.logger.log(`Adding room file metadata for: ${roomId}, fileId: ${meta.fileId}`);
 
-        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
         const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
         try {
@@ -352,10 +357,12 @@ export class NatsRoomService {
                 replicas: numReplicas,
             });
 
-            const metaBytes = new TextEncoder().encode(JSON.stringify(meta));
-            await kv.put(meta.fileId, metaBytes);
+            const metaStr = this.natsService.marshalToProtoJson(meta, RoomUploadedFileMetadataSchema);
+            const metaBytes = new TextEncoder().encode(metaStr);
+            const key = this.natsService.formatFileKey(meta.fileId);
+            await kv.put(key, metaBytes);
 
-            this.logger.log(`Room file metadata added successfully: ${roomId}, fileId: ${meta.fileId}`);
+            this.logger.log(`Room file metadata added successfully to consolidated bucket: ${roomId}, fileId: ${meta.fileId}`);
         } catch (error) {
             this.logger.error(`Error adding room file metadata for ${roomId}: ${error.message}`);
             throw error;
@@ -363,21 +370,21 @@ export class NatsRoomService {
     }
 
     /**
-     * DeleteRoomFile removes a file's metadata from the room's file bucket.
+     * DeleteRoomFile removes a file's metadata from the room's consolidated bucket.
      */
     async deleteRoomFile(roomId: string, fileId: string): Promise<void> {
         this.logger.log(`Deleting room file metadata for: ${roomId}, fileId: ${fileId}`);
 
-        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
-            await kv.purge(fileId);
+            const key = this.natsService.formatFileKey(fileId);
+            await kv.purge(key);
 
             this.logger.log(`Room file metadata deleted: ${roomId}, fileId: ${fileId}`);
         } catch (error) {
-            // Ignore if bucket doesn't exist
             if (error.message && (error.message.includes('bucket not found') || error.message.includes('stream not found'))) {
                 return;
             }
@@ -387,15 +394,22 @@ export class NatsRoomService {
     }
 
     /**
-     * GetRoomFile retrieves a specific file's metadata.
+     * GetRoomFile retrieves a specific file's metadata from consolidated bucket.
      */
     async getRoomFile(roomId: string, fileId: string): Promise<any | null> {
-        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+        // Try cache first
+        const cached = this.natsService.getCacheService().getCachedRoomFile(roomId, fileId);
+        if (cached) {
+            return cached;
+        }
+
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
-            const entry = await kv.get(fileId);
+            const key = this.natsService.formatFileKey(fileId);
+            const entry = await kv.get(key);
 
             if (!entry || !entry.value) {
                 return null;
@@ -403,7 +417,6 @@ export class NatsRoomService {
 
             return JSON.parse(new TextDecoder().decode(entry.value));
         } catch (error) {
-            // Return null if key or bucket not found
             return null;
         }
     }
@@ -412,172 +425,63 @@ export class NatsRoomService {
      * GetAllRoomFiles retrieves all file metadata for a given room.
      */
     async getAllRoomFiles(roomId: string): Promise<Record<string, any>> {
-        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+        // Try cache first
+        const cached = this.natsService.getCacheService().getAllCachedRoomFiles(roomId);
+        if (cached) {
+            return cached;
+        }
+
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
         const result: Record<string, any> = {};
 
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             const keys = await kv.keys();
+            const prefix = NatsService.FILE_KEY_PREFIX;
 
             for await (const k of keys) {
-                const entry = await kv.get(k);
-                if (entry && entry.value) {
-                    try {
-                        result[k] = JSON.parse(new TextDecoder().decode(entry.value));
-                    } catch (e) {
-                        // Skip invalid JSON
+                if (k.startsWith(prefix)) {
+                    const entry = await kv.get(k);
+                    if (entry && entry.value) {
+                        try {
+                            const fileId = k.substring(prefix.length);
+                            result[fileId] = JSON.parse(new TextDecoder().decode(entry.value));
+                        } catch (e) { }
                     }
                 }
             }
 
             return result;
         } catch (error) {
-            // Return empty if bucket not found
             return result;
         }
     }
 
     /**
-     * DeleteAllRoomFiles purges the entire file bucket for a room.
+     * DeleteAllRoomFiles purges all files from the consolidated bucket.
      */
     async deleteAllRoomFiles(roomId: string): Promise<void> {
         this.logger.log(`Deleting all room files for: ${roomId}`);
-        const bucket = ROOM_FILES_BUCKET.replace('%s', roomId);
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
-        try {
-            const jsm = this.natsService.getJetStreamManager();
-            const streamName = `KV_${bucket}`;
-            await jsm.streams.delete(streamName);
-        } catch (error) {
-            // Ignore if already deleted
-        }
-    }
-
-    // ============================================================================
-    // Breakout Rooms Methods
-    // ============================================================================
-
-    /**
-     * InsertOrUpdateBreakoutRoom adds or updates a breakout room in the parent room's breakout rooms bucket.
-     */
-    async insertOrUpdateBreakoutRoom(parentRoomId: string, breakoutRoomId: string, data: Uint8Array): Promise<void> {
-        this.logger.log(`Inserting/Updating breakout room: parent=${parentRoomId}, breakout=${breakoutRoomId}`);
-        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
-
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket, {
-                history: 1,
-                ttl: DEFAULT_TTL,
-                replicas: numReplicas,
-            });
-            await kv.put(breakoutRoomId, data);
-        } catch (error) {
-            this.logger.error(`Error updating breakout room for ${parentRoomId}: ${error.message}`);
-            throw error;
-        }
-    }
-
-    /**
-     * GetBreakoutRoom retrieves a specific breakout room's info.
-     */
-    async getBreakoutRoom(parentRoomId: string, breakoutRoomId: string): Promise<Uint8Array | null> {
-        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket);
-            const entry = await kv.get(breakoutRoomId);
-            return entry?.value ?? null;
-        } catch (error) {
-            return null;
-        }
-    }
-
-    /**
-     * GetAllBreakoutRoomsByParentRoomId retrieves all breakout rooms for a parent room.
-     */
-    async getAllBreakoutRoomsByParentRoomId(parentRoomId: string): Promise<Record<string, Uint8Array>> {
-        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
-        const result: Record<string, Uint8Array> = {};
         try {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             const keys = await kv.keys();
+            const prefix = NatsService.FILE_KEY_PREFIX;
+
             for await (const k of keys) {
-                const entry = await kv.get(k);
-                if (entry && entry.value) {
-                    result[k] = entry.value;
+                if (k.startsWith(prefix)) {
+                    await kv.purge(k).catch(() => { });
                 }
             }
         } catch (error) { }
-        return result;
     }
 
-    /**
-     * GetBreakoutRoomIdsByParentRoomId retrieves only the IDs of breakout rooms.
-     */
-    async getBreakoutRoomIdsByParentRoomId(parentRoomId: string): Promise<string[]> {
-        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket);
-            const keys = await kv.keys();
-            const ids: string[] = [];
-            for await (const k of keys) {
-                ids.push(k);
-            }
-            return ids;
-        } catch (error) {
-            return [];
-        }
-    }
-
-    /**
-     * DeleteBreakoutRoom removes a specific breakout room from parent's list.
-     */
-    async deleteBreakoutRoom(parentRoomId: string, breakoutRoomId: string): Promise<void> {
-        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket);
-            await kv.purge(breakoutRoomId);
-        } catch (error) { }
-    }
-
-    /**
-     * DeleteAllBreakoutRoomsByParentRoomId deletes the entire breakout rooms bucket.
-     */
-    async deleteAllBreakoutRoomsByParentRoomId(parentRoomId: string): Promise<void> {
-        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
-        try {
-            const jsm = this.natsService.getJetStreamManager();
-            const streamName = `KV_${bucket}`;
-            await jsm.streams.delete(streamName);
-        } catch (error) { }
-    }
-
-    /**
-     * CountBreakoutRooms counts how many breakout rooms a parent room has.
-     */
-    async countBreakoutRooms(parentRoomId: string): Promise<number> {
-        const bucket = BREAKOUT_ROOMS_BUCKET.replace('%s', parentRoomId);
-        try {
-            const js = this.natsService.getJetStream();
-            const kv = await js.views.kv(bucket);
-            const keys = await kv.keys();
-            let count = 0;
-            for await (const _ of keys) {
-                count++;
-            }
-            return count;
-        } catch (error) {
-            return 0;
-        }
-    }
-
-
+    // ============================================================================
+    // Helper methods for KV access
+    // ============================================================================
 
     // ============================================================================
     // Helper methods for KV access

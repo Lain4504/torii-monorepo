@@ -39,12 +39,14 @@ export interface IRoomSettings {
   visibleHeader: boolean;
   visibleFooter: boolean;
   azureTokenInfo?: AzureTokenInfo;
-  isWajlcWindowTabVisible: boolean;
+  isWAJLCWindowTabVisible: boolean;
   pinCamUserId?: string;
   focusActiveSpeakerWebcam: boolean;
   selfInsertedE2EESecretKey?: string;
   userNotifications: UserNotification[];
   isSidePanelOpened: boolean;
+  hasWebcamPages: boolean;
+  maxNumDisplayWebcams?: number;
 }
 
 export interface IMediaDevice {
@@ -86,6 +88,6 @@ export interface UserNotification {
 }
 
 export type NotificationCats =
-  | 'new-poll-created'
-  | 'breakout-room-invitation'
-  | 'default';
+    | 'new-poll-created'
+    | 'breakout-room-invitation'
+    | 'default';

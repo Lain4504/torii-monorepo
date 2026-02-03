@@ -13,12 +13,14 @@ import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.servic
 import { NatsModule } from '../../interfaces/nats/nats.module';
 import { LiveKitModule } from '../../infrastructure/livekit/livekit.module';
 import { WajlcAuthModule } from '../auth/wajlc-auth.module';
+import { WebhookModule } from '../../infrastructure/webhook/webhook.module';
 
 @Module({
     imports: [
         SharedModule,
         forwardRef(() => ArtifactsModule),
         forwardRef(() => NatsModule),
+        forwardRef(() => WebhookModule),
         LiveKitModule,
         WajlcAuthModule,
     ],

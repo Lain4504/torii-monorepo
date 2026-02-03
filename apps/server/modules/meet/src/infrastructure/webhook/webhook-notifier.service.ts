@@ -1,23 +1,10 @@
-/**
- * Webhook Notifier Service
- *
- * Manages webhook notifications for room events with per-room queues
- */
-
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@server/shared';
 import { WebhookNotifier } from '@server/shared';
 import type { CommonNotifyEvent } from '@workspace/protocol';
 import { NatsService } from '../../interfaces/nats/nats.service';
-
-/**
- * Webhook data stored in Redis/NATS
- */
-interface WebhookRedisFields {
-    urls: string[];
-    performDeleting: boolean;
-}
+import { RedisWebhookService, WEBHOOK_CLEANUP_SUBJECT, WebhookData } from '../redis/redis-webhook.service';
 
 /**
  * WebhookNotifierService manages webhook notifications for room events
@@ -47,13 +34,14 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         private readonly configService: ConfigService,
         private readonly prisma: PrismaService,
         private readonly natsService: NatsService,
+        private readonly redisWebhookService: RedisWebhookService,
     ) {
         // Load configuration
         this.isEnabled = this.configService.get<boolean>('WEBHOOK_ENABLED') || false;
         this.enabledForPerMeeting = this.configService.get<boolean>('WEBHOOK_ENABLE_FOR_PER_MEETING') || false;
         this.defaultUrl = this.configService.get<string>('WEBHOOK_URL') || '';
 
-        this.logger.log(`Webhook notifier initialized: enabled=${this.isEnabled}, perMeeting=${this.enabledForPerMeeting}`);
+        this.logger.log(`Webhook notifier initialized: enabled = ${this.isEnabled}, perMeeting = ${this.enabledForPerMeeting} `);
     }
 
     /**
@@ -78,7 +66,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
 
         // Stop all notifiers
         for (const [roomId, notifier] of this.notifiers) {
-            this.logger.log(`Stopping notifier for room: ${roomId}`);
+            this.logger.log(`Stopping notifier for room: ${roomId} `);
             notifier.kill();
         }
 
@@ -95,7 +83,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
      */
     async registerWebhook(roomId: string, sid: string): Promise<void> {
         const log = this.logger;
-        log.log(`Request to register webhook: room=${roomId}, sid=${sid}`);
+        log.log(`Request to register webhook: room = ${roomId}, sid = ${sid} `);
 
         if (!this.isEnabled) {
             log.debug('Webhook is disabled, skipping registration');
@@ -113,7 +101,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         // Add default URL if configured
         if (this.defaultUrl) {
             urls.push(this.defaultUrl);
-            log.debug(`Added default webhook url: ${this.defaultUrl}`);
+            log.debug(`Added default webhook url: ${this.defaultUrl} `);
         }
 
         // Add per-meeting URL if enabled
@@ -121,7 +109,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
             const roomInfo = await this.getRoomInfoBySid(sid);
             if (roomInfo?.webhookUrl) {
                 urls.push(roomInfo.webhookUrl);
-                log.debug(`Added per-meeting webhook url: ${roomInfo.webhookUrl}`);
+                log.debug(`Added per - meeting webhook url: ${roomInfo.webhookUrl} `);
             }
         }
 
@@ -130,18 +118,18 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
             return;
         }
 
-        log.log(`Found webhook urls to register: ${urls.join(', ')}`);
+        log.log(`Found webhook urls to register: ${urls.join(', ')} `);
 
-        const data: WebhookRedisFields = {
+        const data: WebhookData = {
             urls,
-            performDeleting: false,
+            perform_deleting: false,
         };
 
         try {
             await this.saveData(roomId, data);
             log.log('Successfully registered webhook');
         } catch (error) {
-            log.error(`Failed to save webhook data: ${error.message}`);
+            log.error(`Failed to save webhook data: ${error.message} `);
         }
     }
 
@@ -159,7 +147,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
             return;
         }
 
-        if (!data.performDeleting) {
+        if (!data.perform_deleting) {
             // May be new session started for the same room
             return;
         }
@@ -168,22 +156,22 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         try {
             const nc = this.natsService.getNatsConnection();
             if (nc) {
-                // Publish to NATS cleanup subject
-                await nc.publish(NatsService.WEBHOOK_CLEANUP_SUBJECT, new TextEncoder().encode(roomId));
-                this.logger.log(`Published webhook cleanup for room: ${roomId}`);
+                // Publish to Redis/NATS cleanup subject
+                await nc.publish(WEBHOOK_CLEANUP_SUBJECT, Buffer.from(roomId));
+                this.logger.log(`Published webhook cleanup for room: ${roomId} `);
             } else {
                 this.logger.warn('NATS connection not available, skipping cleanup broadcast');
             }
         } catch (error) {
-            this.logger.error(`Failed to publish webhook cleanup: ${error.message}`);
+            this.logger.error(`Failed to publish webhook cleanup: ${error.message} `);
         }
 
-        // Delete webhook data from NATS
+        // Delete webhook data from Redis
         try {
-            await this.natsService.deleteWebhookData(roomId);
-            this.logger.log(`Deleted webhook data for room: ${roomId}`);
+            await this.redisWebhookService.deleteWebhookData(roomId);
+            this.logger.log(`Deleted webhook data for room: ${roomId} `);
         } catch (error) {
-            this.logger.error(`Failed to delete webhook data: ${error.message}`);
+            this.logger.error(`Failed to delete webhook data: ${error.message} `);
         }
     }
 
@@ -203,21 +191,21 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         }
 
         // Handle room lifecycle events
-        if (event.event === 'room_started' && data.performDeleting) {
+        if (event.event === 'room_started' && data.perform_deleting) {
             // Reset deleting status if room restarted
-            data.performDeleting = false;
+            data.perform_deleting = false;
             try {
                 await this.saveData(roomId, data);
             } catch (error) {
-                this.logger.error(`Failed to save webhook data: ${error.message}`);
+                this.logger.error(`Failed to save webhook data: ${error.message} `);
             }
-        } else if (event.event === 'room_finished' && !data.performDeleting) {
+        } else if (event.event === 'room_finished' && !data.perform_deleting) {
             // Mark for deletion when room finished
-            data.performDeleting = true;
+            data.perform_deleting = true;
             try {
                 await this.saveData(roomId, data);
             } catch (error) {
-                this.logger.error(`Failed to save webhook data: ${error.message}`);
+                this.logger.error(`Failed to save webhook data: ${error.message} `);
             }
         }
 
@@ -229,7 +217,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         const apiSecret = this.configService.get<string>('API_SECRET') || '';
 
         notifier.addInNotifyQueue(event, apiKey, apiSecret, data.urls);
-        this.logger.debug(`Added event to webhook queue: room=${roomId}, event=${event.event}`);
+        this.logger.debug(`Added event to webhook queue: room = ${roomId}, event = ${event.event} `);
     }
 
     /**
@@ -243,7 +231,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         }
 
         if (!event.room?.sid || !event.room?.roomId) {
-            this.logger.error(`Empty room info for event: ${event.event}`);
+            this.logger.error(`Empty room info for event: ${event.event} `);
             return;
         }
 
@@ -274,7 +262,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         notifier.addInNotifyQueue(event, apiKey, apiSecret, urls);
         await notifier.stopGracefully();
 
-        this.logger.log(`Force-sent webhook event: ${event.event}`);
+        this.logger.log(`Force - sent webhook event: ${event.event} `);
     }
 
     // ============================================================================
@@ -285,31 +273,27 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
      * Subscribe to cleanup broadcast channel
      */
     private subscribeToCleanup(): void {
-        // Get NATS connection - might be null if NatsService hasn't initialized yet
         const nc = this.natsService.getNatsConnection();
 
         if (!nc) {
             this.logger.warn('NATS connection not ready yet, will skip webhook cleanup subscription');
-            this.logger.warn('This is expected if WebhookNotifierService initializes before NatsService');
-            // In production, webhook cleanup will work via direct deleteWebhookData calls
-            // The subscription is only needed for multi-instance deployments
             return;
         }
 
-        // Subscribe to NATS subject for webhook cleanup
-        nc.subscribe(NatsService.WEBHOOK_CLEANUP_SUBJECT, {
+        // Subscribe to cleanup subject
+        nc.subscribe(WEBHOOK_CLEANUP_SUBJECT, {
             callback: (err, msg) => {
                 if (err) {
-                    this.logger.error(`Error in webhook cleanup subscription: ${err.message}`);
+                    this.logger.error(`Error in webhook cleanup subscription: ${err.message} `);
                     return;
                 }
                 const roomId = new TextDecoder().decode(msg.data);
-                this.logger.log(`Received webhook cleanup signal: ${roomId}`);
+                this.logger.log(`Received webhook cleanup signal: ${roomId} `);
                 this.cleanupNotifier(roomId);
             },
         });
 
-        this.logger.log('Subscribed to webhook cleanup channel');
+        this.logger.log(`Subscribed to webhook cleanup channel: ${WEBHOOK_CLEANUP_SUBJECT} `);
     }
 
     /**
@@ -326,7 +310,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         const notifier = new WebhookNotifier(queueSize, this.logger);
 
         this.notifiers.set(roomId, notifier);
-        this.logger.log(`Created new webhook queue for room: ${roomId}`);
+        this.logger.log(`Created new webhook queue for room: ${roomId} `);
 
         return notifier;
     }
@@ -339,31 +323,37 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         if (notifier) {
             notifier.kill();
             this.notifiers.delete(roomId);
-            this.logger.log(`Cleaned up webhook queue for room: ${roomId}`);
+            this.logger.log(`Cleaned up webhook queue for room: ${roomId} `);
         }
     }
 
     /**
-     * Save webhook data to NATS/Redis
+     * Save webhook data to Redis
      */
-    private async saveData(roomId: string, data: WebhookRedisFields): Promise<void> {
+    private async saveData(roomId: string, data: WebhookData): Promise<void> {
         const marshal = JSON.stringify(data);
-
-        await this.natsService.addWebhookData(roomId, marshal);
-        this.logger.debug(`Saved webhook data for room: ${roomId}`);
+        // [MIGRATED] Use Redis instead of NATS
+        await this.redisWebhookService.addWebhookData(roomId, Buffer.from(marshal));
+        this.logger.debug(`Saved webhook data for room: ${roomId} `);
     }
 
     /**
-     * Get webhook data from NATS/Redis
+     * Get webhook data from Redis
      */
-    private async getData(roomId: string): Promise<WebhookRedisFields | null> {
-        const data = await this.natsService.getWebhookData(roomId);
+    private async getData(roomId: string): Promise<WebhookData | null> {
+        // [MIGRATED] Use Redis instead of NATS
+        const data = await this.redisWebhookService.getWebhookData(roomId);
 
         if (!data) {
             return null;
         }
 
-        return JSON.parse(data) as WebhookRedisFields;
+        try {
+            return JSON.parse(data.toString()) as WebhookData;
+        } catch (error) {
+            this.logger.error(`Failed to parse webhook data for room ${roomId}: ${error.message} `);
+            return null;
+        }
     }
 
     /**
@@ -378,7 +368,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
             });
             return roomInfo;
         } catch (error) {
-            this.logger.error(`Failed to get room info by SID: ${error.message}`);
+            this.logger.error(`Failed to get room info by SID: ${error.message} `);
             return null;
         }
     }

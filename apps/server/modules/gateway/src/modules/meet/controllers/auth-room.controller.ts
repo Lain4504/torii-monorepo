@@ -105,18 +105,19 @@ export class AuthRoomController {
 
         // Check if room is active (via NATS)
         try {
-            const roomInfo = await firstValueFrom(
+            const isRoomActiveRes: any = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'room.getRoomInfoByRoomId' },
-                    { roomId: request.roomId, isRunning: true },
+                    { cmd: 'room.isActive' },
+                    { roomId: request.roomId },
                 ),
             );
 
-            if (!roomInfo || !roomInfo.id) {
+            // The NATS handler returns { res: IsRoomActiveRes, ... }
+            if (!isRoomActiveRes || !isRoomActiveRes.res || !isRoomActiveRes.res.isActive) {
                 sendCommonProtoJsonResponse(
                     res,
                     false,
-                    'room is not active. create room first',
+                    'room is not active',
                 );
                 return;
             }
@@ -124,7 +125,7 @@ export class AuthRoomController {
             sendCommonProtoJsonResponse(
                 res,
                 false,
-                'room is not active. create room first',
+                'room is not active',
             );
             return;
         }

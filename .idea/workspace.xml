@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix dependecy injection">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update config#2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -18,7 +18,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1696" />
+    <option name="cachedIndexableFilesCount" value="1860" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -36,7 +36,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="analysics-meet" />
+        <entry key="$PROJECT_DIR$" value="agent-analysic" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -88,13 +88,20 @@
         &quot;number&quot;: 113
       },
       &quot;lastSeen&quot;: 1769855142628
+    },
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AuiQ2&quot;,
+        &quot;number&quot;: 121
+      },
+      &quot;lastSeen&quot;: 1770017085445
     }
   ]
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   },
   &quot;editorReviewEnabled&quot;: false
 }</component>
@@ -120,47 +127,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "JavaScript Debug.localhost:3000.executor": "Debug",
-    "JavaScript Debug.localhost:5173.executor": "Debug",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#113 on agent-analysic",
-    "go.import.settings.migrated": "true",
-    "ignore.virus.scanning.warn.message": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/outsource/ten-framework",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
+    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#121 on optimize-webrtc-logic&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/projectdev/demo/team-source/torii-monorepo&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "redis",
-      "mongo",
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;redis&quot;,
+      &quot;mongo&quot;,
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>
@@ -173,11 +180,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo" />
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\infrastructure" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server\libs\shared\src\decorators" />
@@ -210,9 +217,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
@@ -221,8 +228,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
       </set>
     </attachedChunks>
   </component>
@@ -348,400 +355,405 @@
       <workItem from="1769848661014" duration="95000" />
       <workItem from="1769849840092" duration="424000" />
       <workItem from="1769932867652" duration="613000" />
+      <workItem from="1769992747880" duration="9203000" />
+      <workItem from="1770003198839" duration="2337000" />
+      <workItem from="1770010510304" duration="439000" />
+      <workItem from="1770016457704" duration="2439000" />
+      <workItem from="1770022647481" duration="8671000" />
     </task>
-    <task id="LOCAL-00704" summary="user-learning-progress">
+    <task id="LOCAL-00772" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768276017097</created>
-      <option name="number" value="00704" />
-      <option name="presentableId" value="LOCAL-00704" />
+      <created>1769994570262</created>
+      <option name="number" value="00772" />
+      <option name="presentableId" value="LOCAL-00772" />
       <option name="project" value="LOCAL" />
-      <updated>1768276017097</updated>
+      <updated>1769994570262</updated>
     </task>
-    <task id="LOCAL-00705" summary="update ui">
+    <task id="LOCAL-00773" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768276034963</created>
-      <option name="number" value="00705" />
-      <option name="presentableId" value="LOCAL-00705" />
+      <created>1769995685320</created>
+      <option name="number" value="00773" />
+      <option name="presentableId" value="LOCAL-00773" />
       <option name="project" value="LOCAL" />
-      <updated>1768276034963</updated>
+      <updated>1769995685320</updated>
     </task>
-    <task id="LOCAL-00706" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
+    <task id="LOCAL-00774" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768277345514</created>
-      <option name="number" value="00706" />
-      <option name="presentableId" value="LOCAL-00706" />
+      <created>1769996409610</created>
+      <option name="number" value="00774" />
+      <option name="presentableId" value="LOCAL-00774" />
       <option name="project" value="LOCAL" />
-      <updated>1768277345514</updated>
+      <updated>1769996409610</updated>
     </task>
-    <task id="LOCAL-00707" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
+    <task id="LOCAL-00775" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768277847239</created>
-      <option name="number" value="00707" />
-      <option name="presentableId" value="LOCAL-00707" />
+      <created>1769996865313</created>
+      <option name="number" value="00775" />
+      <option name="presentableId" value="LOCAL-00775" />
       <option name="project" value="LOCAL" />
-      <updated>1768277847240</updated>
+      <updated>1769996865313</updated>
     </task>
-    <task id="LOCAL-00708" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
+    <task id="LOCAL-00776" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768278378550</created>
-      <option name="number" value="00708" />
-      <option name="presentableId" value="LOCAL-00708" />
+      <created>1769999323961</created>
+      <option name="number" value="00776" />
+      <option name="presentableId" value="LOCAL-00776" />
       <option name="project" value="LOCAL" />
-      <updated>1768278378551</updated>
+      <updated>1769999323962</updated>
     </task>
-    <task id="LOCAL-00709" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
+    <task id="LOCAL-00777" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768278904843</created>
-      <option name="number" value="00709" />
-      <option name="presentableId" value="LOCAL-00709" />
+      <created>1769999743535</created>
+      <option name="number" value="00777" />
+      <option name="presentableId" value="LOCAL-00777" />
       <option name="project" value="LOCAL" />
-      <updated>1768278904843</updated>
+      <updated>1769999743535</updated>
     </task>
-    <task id="LOCAL-00710" summary="feat(learning-progress): implement learning progress tracking and course retrieval">
+    <task id="LOCAL-00778" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768279788874</created>
-      <option name="number" value="00710" />
-      <option name="presentableId" value="LOCAL-00710" />
+      <created>1770001103292</created>
+      <option name="number" value="00778" />
+      <option name="presentableId" value="LOCAL-00778" />
       <option name="project" value="LOCAL" />
-      <updated>1768279788874</updated>
+      <updated>1770001103292</updated>
     </task>
-    <task id="LOCAL-00711" summary="update">
+    <task id="LOCAL-00779" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768388030432</created>
-      <option name="number" value="00711" />
-      <option name="presentableId" value="LOCAL-00711" />
+      <created>1770002116255</created>
+      <option name="number" value="00779" />
+      <option name="presentableId" value="LOCAL-00779" />
       <option name="project" value="LOCAL" />
-      <updated>1768388030433</updated>
+      <updated>1770002116255</updated>
     </task>
-    <task id="LOCAL-00712" summary="refactor: refactor meet service">
+    <task id="LOCAL-00780" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768472322264</created>
-      <option name="number" value="00712" />
-      <option name="presentableId" value="LOCAL-00712" />
+      <created>1770003991073</created>
+      <option name="number" value="00780" />
+      <option name="presentableId" value="LOCAL-00780" />
       <option name="project" value="LOCAL" />
-      <updated>1768472322265</updated>
+      <updated>1770003991074</updated>
     </task>
-    <task id="LOCAL-00713" summary="refactor: refactor meet service">
+    <task id="LOCAL-00781" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768472697536</created>
-      <option name="number" value="00713" />
-      <option name="presentableId" value="LOCAL-00713" />
+      <created>1770003998566</created>
+      <option name="number" value="00781" />
+      <option name="presentableId" value="LOCAL-00781" />
       <option name="project" value="LOCAL" />
-      <updated>1768472697536</updated>
+      <updated>1770003998566</updated>
     </task>
-    <task id="LOCAL-00714" summary="refactor: refactor meet service">
+    <task id="LOCAL-00782" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768474181556</created>
-      <option name="number" value="00714" />
-      <option name="presentableId" value="LOCAL-00714" />
+      <created>1770004575679</created>
+      <option name="number" value="00782" />
+      <option name="presentableId" value="LOCAL-00782" />
       <option name="project" value="LOCAL" />
-      <updated>1768474181556</updated>
+      <updated>1770004575679</updated>
     </task>
-    <task id="LOCAL-00715" summary="refactor: refactor meet service">
+    <task id="LOCAL-00783" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768474233020</created>
-      <option name="number" value="00715" />
-      <option name="presentableId" value="LOCAL-00715" />
+      <created>1770004580313</created>
+      <option name="number" value="00783" />
+      <option name="presentableId" value="LOCAL-00783" />
       <option name="project" value="LOCAL" />
-      <updated>1768474233020</updated>
+      <updated>1770004580313</updated>
     </task>
-    <task id="LOCAL-00716" summary="refactor: refactor meet service">
+    <task id="LOCAL-00784" summary="update nats logic">
       <option name="closed" value="true" />
-      <created>1768475184226</created>
-      <option name="number" value="00716" />
-      <option name="presentableId" value="LOCAL-00716" />
+      <created>1770004604242</created>
+      <option name="number" value="00784" />
+      <option name="presentableId" value="LOCAL-00784" />
       <option name="project" value="LOCAL" />
-      <updated>1768475184228</updated>
+      <updated>1770004604242</updated>
     </task>
-    <task id="LOCAL-00717" summary="feat(identity): implement identity module with authentication and authorization handlers">
+    <task id="LOCAL-00785" summary="update meet client logic">
       <option name="closed" value="true" />
-      <created>1768477087425</created>
-      <option name="number" value="00717" />
-      <option name="presentableId" value="LOCAL-00717" />
+      <created>1770006249551</created>
+      <option name="number" value="00785" />
+      <option name="presentableId" value="LOCAL-00785" />
       <option name="project" value="LOCAL" />
-      <updated>1768477087426</updated>
+      <updated>1770006249551</updated>
     </task>
-    <task id="LOCAL-00718" summary="refactor(identity): refactor identity service">
+    <task id="LOCAL-00786" summary="update meet client logic">
       <option name="closed" value="true" />
-      <created>1768477480432</created>
-      <option name="number" value="00718" />
-      <option name="presentableId" value="LOCAL-00718" />
+      <created>1770007413280</created>
+      <option name="number" value="00786" />
+      <option name="presentableId" value="LOCAL-00786" />
       <option name="project" value="LOCAL" />
-      <updated>1768477480432</updated>
+      <updated>1770007413281</updated>
     </task>
-    <task id="LOCAL-00719" summary="refactor(identity): refactor identity service">
+    <task id="LOCAL-00787" summary="update meet client logic">
       <option name="closed" value="true" />
-      <created>1768478279276</created>
-      <option name="number" value="00719" />
-      <option name="presentableId" value="LOCAL-00719" />
+      <created>1770007507723</created>
+      <option name="number" value="00787" />
+      <option name="presentableId" value="LOCAL-00787" />
       <option name="project" value="LOCAL" />
-      <updated>1768478279277</updated>
+      <updated>1770007507723</updated>
     </task>
-    <task id="LOCAL-00720" summary="refactor(identity): refactor identity service">
+    <task id="LOCAL-00788" summary="update meet client logic">
       <option name="closed" value="true" />
-      <created>1768478430191</created>
-      <option name="number" value="00720" />
-      <option name="presentableId" value="LOCAL-00720" />
+      <created>1770007595289</created>
+      <option name="number" value="00788" />
+      <option name="presentableId" value="LOCAL-00788" />
       <option name="project" value="LOCAL" />
-      <updated>1768478430191</updated>
+      <updated>1770007595289</updated>
     </task>
-    <task id="LOCAL-00721" summary="`refactor(learning): remove unused HTTP controllers for cleaner module structure`">
+    <task id="LOCAL-00789" summary="update meet client logic">
       <option name="closed" value="true" />
-      <created>1768480328642</created>
-      <option name="number" value="00721" />
-      <option name="presentableId" value="LOCAL-00721" />
+      <created>1770007896639</created>
+      <option name="number" value="00789" />
+      <option name="presentableId" value="LOCAL-00789" />
       <option name="project" value="LOCAL" />
-      <updated>1768480328642</updated>
+      <updated>1770007896639</updated>
     </task>
-    <task id="LOCAL-00722" summary="update ux ui pro kit">
+    <task id="LOCAL-00790" summary="update meet client logic">
       <option name="closed" value="true" />
-      <created>1768560939701</created>
-      <option name="number" value="00722" />
-      <option name="presentableId" value="LOCAL-00722" />
+      <created>1770009797743</created>
+      <option name="number" value="00790" />
+      <option name="presentableId" value="LOCAL-00790" />
       <option name="project" value="LOCAL" />
-      <updated>1768560939702</updated>
+      <updated>1770009797743</updated>
     </task>
-    <task id="LOCAL-00723" summary="refactoring: communication services">
+    <task id="LOCAL-00791" summary="fix bug">
       <option name="closed" value="true" />
-      <created>1768562439772</created>
-      <option name="number" value="00723" />
-      <option name="presentableId" value="LOCAL-00723" />
+      <created>1770010066613</created>
+      <option name="number" value="00791" />
+      <option name="presentableId" value="LOCAL-00791" />
       <option name="project" value="LOCAL" />
-      <updated>1768562439772</updated>
+      <updated>1770010066613</updated>
     </task>
-    <task id="LOCAL-00724" summary="refactoring: communication services">
+    <task id="LOCAL-00792" summary="fix bug">
       <option name="closed" value="true" />
-      <created>1768562443412</created>
-      <option name="number" value="00724" />
-      <option name="presentableId" value="LOCAL-00724" />
+      <created>1770016727488</created>
+      <option name="number" value="00792" />
+      <option name="presentableId" value="LOCAL-00792" />
       <option name="project" value="LOCAL" />
-      <updated>1768562443412</updated>
+      <updated>1770016727488</updated>
     </task>
-    <task id="LOCAL-00725" summary="fix format key url r2 storage">
+    <task id="LOCAL-00793" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768577130697</created>
-      <option name="number" value="00725" />
-      <option name="presentableId" value="LOCAL-00725" />
+      <created>1770018645527</created>
+      <option name="number" value="00793" />
+      <option name="presentableId" value="LOCAL-00793" />
       <option name="project" value="LOCAL" />
-      <updated>1768577130697</updated>
+      <updated>1770018645527</updated>
     </task>
-    <task id="LOCAL-00726" summary="fix format key url r2 storage">
+    <task id="LOCAL-00794" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768577779808</created>
-      <option name="number" value="00726" />
-      <option name="presentableId" value="LOCAL-00726" />
+      <created>1770018734505</created>
+      <option name="number" value="00794" />
+      <option name="presentableId" value="LOCAL-00794" />
       <option name="project" value="LOCAL" />
-      <updated>1768577779808</updated>
+      <updated>1770018734505</updated>
     </task>
-    <task id="LOCAL-00727" summary="fix format key url r2 storage">
+    <task id="LOCAL-00795" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768577790113</created>
-      <option name="number" value="00727" />
-      <option name="presentableId" value="LOCAL-00727" />
+      <created>1770024176070</created>
+      <option name="number" value="00795" />
+      <option name="presentableId" value="LOCAL-00795" />
       <option name="project" value="LOCAL" />
-      <updated>1768577790113</updated>
+      <updated>1770024176071</updated>
     </task>
-    <task id="LOCAL-00728" summary="public api">
+    <task id="LOCAL-00796" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768584333268</created>
-      <option name="number" value="00728" />
-      <option name="presentableId" value="LOCAL-00728" />
+      <created>1770025475109</created>
+      <option name="number" value="00796" />
+      <option name="presentableId" value="LOCAL-00796" />
       <option name="project" value="LOCAL" />
-      <updated>1768584333298</updated>
+      <updated>1770025475109</updated>
     </task>
-    <task id="LOCAL-00729" summary="public api">
+    <task id="LOCAL-00797" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768585489968</created>
-      <option name="number" value="00729" />
-      <option name="presentableId" value="LOCAL-00729" />
+      <created>1770025873317</created>
+      <option name="number" value="00797" />
+      <option name="presentableId" value="LOCAL-00797" />
       <option name="project" value="LOCAL" />
-      <updated>1768585489968</updated>
+      <updated>1770025873317</updated>
     </task>
-    <task id="LOCAL-00730" summary="public api">
+    <task id="LOCAL-00798" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768585622841</created>
-      <option name="number" value="00730" />
-      <option name="presentableId" value="LOCAL-00730" />
+      <created>1770026258039</created>
+      <option name="number" value="00798" />
+      <option name="presentableId" value="LOCAL-00798" />
       <option name="project" value="LOCAL" />
-      <updated>1768585622842</updated>
+      <updated>1770026258039</updated>
     </task>
-    <task id="LOCAL-00731" summary="public api">
+    <task id="LOCAL-00799" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768585959659</created>
-      <option name="number" value="00731" />
-      <option name="presentableId" value="LOCAL-00731" />
+      <created>1770026807672</created>
+      <option name="number" value="00799" />
+      <option name="presentableId" value="LOCAL-00799" />
       <option name="project" value="LOCAL" />
-      <updated>1768585959661</updated>
+      <updated>1770026807672</updated>
     </task>
-    <task id="LOCAL-00732" summary="implement meet UI and logic#0">
+    <task id="LOCAL-00800" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768622146632</created>
-      <option name="number" value="00732" />
-      <option name="presentableId" value="LOCAL-00732" />
+      <created>1770027944883</created>
+      <option name="number" value="00800" />
+      <option name="presentableId" value="LOCAL-00800" />
       <option name="project" value="LOCAL" />
-      <updated>1768622146632</updated>
+      <updated>1770027944883</updated>
     </task>
-    <task id="LOCAL-00733" summary="implement meet UI and logic#0">
+    <task id="LOCAL-00801" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768622175831</created>
-      <option name="number" value="00733" />
-      <option name="presentableId" value="LOCAL-00733" />
+      <created>1770028340509</created>
+      <option name="number" value="00801" />
+      <option name="presentableId" value="LOCAL-00801" />
       <option name="project" value="LOCAL" />
-      <updated>1768622175831</updated>
+      <updated>1770028340509</updated>
     </task>
-    <task id="LOCAL-00734" summary="implement meet UI and logic">
+    <task id="LOCAL-00802" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768622223402</created>
-      <option name="number" value="00734" />
-      <option name="presentableId" value="LOCAL-00734" />
+      <created>1770029412966</created>
+      <option name="number" value="00802" />
+      <option name="presentableId" value="LOCAL-00802" />
       <option name="project" value="LOCAL" />
-      <updated>1768622223402</updated>
+      <updated>1770029412966</updated>
     </task>
-    <task id="LOCAL-00735" summary="implement meet UI and logic">
+    <task id="LOCAL-00803" summary="fix bug#2">
       <option name="closed" value="true" />
-      <created>1768627111097</created>
-      <option name="number" value="00735" />
-      <option name="presentableId" value="LOCAL-00735" />
+      <created>1770032880601</created>
+      <option name="number" value="00803" />
+      <option name="presentableId" value="LOCAL-00803" />
       <option name="project" value="LOCAL" />
-      <updated>1768627111097</updated>
+      <updated>1770032880602</updated>
     </task>
-    <task id="LOCAL-00736" summary="remove unused files">
+    <task id="LOCAL-00804" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
-      <created>1768644648916</created>
-      <option name="number" value="00736" />
-      <option name="presentableId" value="LOCAL-00736" />
+      <created>1770036968372</created>
+      <option name="number" value="00804" />
+      <option name="presentableId" value="LOCAL-00804" />
       <option name="project" value="LOCAL" />
-      <updated>1768644648916</updated>
+      <updated>1770036968372</updated>
     </task>
-    <task id="LOCAL-00737" summary="merge">
+    <task id="LOCAL-00805" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
-      <created>1768881857434</created>
-      <option name="number" value="00737" />
-      <option name="presentableId" value="LOCAL-00737" />
+      <created>1770037557852</created>
+      <option name="number" value="00805" />
+      <option name="presentableId" value="LOCAL-00805" />
       <option name="project" value="LOCAL" />
-      <updated>1768881857434</updated>
+      <updated>1770037557853</updated>
     </task>
-    <task id="LOCAL-00738" summary="feat: add file management functionality to meet module">
+    <task id="LOCAL-00806" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
-      <created>1768958790980</created>
-      <option name="number" value="00738" />
-      <option name="presentableId" value="LOCAL-00738" />
+      <created>1770038541123</created>
+      <option name="number" value="00806" />
+      <option name="presentableId" value="LOCAL-00806" />
       <option name="project" value="LOCAL" />
-      <updated>1768958790980</updated>
+      <updated>1770038541123</updated>
     </task>
-    <task id="LOCAL-00739" summary="feat: add file management functionality to meet module">
+    <task id="LOCAL-00807" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
-      <created>1768960019649</created>
-      <option name="number" value="00739" />
-      <option name="presentableId" value="LOCAL-00739" />
+      <created>1770039964916</created>
+      <option name="number" value="00807" />
+      <option name="presentableId" value="LOCAL-00807" />
       <option name="project" value="LOCAL" />
-      <updated>1768960019649</updated>
+      <updated>1770039964916</updated>
     </task>
-    <task id="LOCAL-00740" summary="feat: add artifacts module and analytics service for handling telemetry data">
+    <task id="LOCAL-00808" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
-      <created>1768961593018</created>
-      <option name="number" value="00740" />
-      <option name="presentableId" value="LOCAL-00740" />
+      <created>1770040215423</created>
+      <option name="number" value="00808" />
+      <option name="presentableId" value="LOCAL-00808" />
       <option name="project" value="LOCAL" />
-      <updated>1768961593018</updated>
+      <updated>1770040215425</updated>
     </task>
-    <task id="LOCAL-00741" summary="feat: add artifacts module and analytics service for handling telemetry data">
+    <task id="LOCAL-00809" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
-      <created>1768961925158</created>
-      <option name="number" value="00741" />
-      <option name="presentableId" value="LOCAL-00741" />
+      <created>1770040505373</created>
+      <option name="number" value="00809" />
+      <option name="presentableId" value="LOCAL-00809" />
       <option name="project" value="LOCAL" />
-      <updated>1768961925159</updated>
+      <updated>1770040505373</updated>
     </task>
-    <task id="LOCAL-00742" summary="feat: integrate etherpad module">
+    <task id="LOCAL-00810" summary="update config">
       <option name="closed" value="true" />
-      <created>1768964907611</created>
-      <option name="number" value="00742" />
-      <option name="presentableId" value="LOCAL-00742" />
+      <created>1770040885079</created>
+      <option name="number" value="00810" />
+      <option name="presentableId" value="LOCAL-00810" />
       <option name="project" value="LOCAL" />
-      <updated>1768964907611</updated>
+      <updated>1770040885079</updated>
     </task>
-    <task id="LOCAL-00743" summary="fix bug">
+    <task id="LOCAL-00811" summary="update config">
       <option name="closed" value="true" />
-      <created>1768967084192</created>
-      <option name="number" value="00743" />
-      <option name="presentableId" value="LOCAL-00743" />
+      <created>1770043214611</created>
+      <option name="number" value="00811" />
+      <option name="presentableId" value="LOCAL-00811" />
       <option name="project" value="LOCAL" />
-      <updated>1768967084192</updated>
+      <updated>1770043214611</updated>
     </task>
-    <task id="LOCAL-00744" summary="fix bug">
+    <task id="LOCAL-00812" summary="update config">
       <option name="closed" value="true" />
-      <created>1768968156316</created>
-      <option name="number" value="00744" />
-      <option name="presentableId" value="LOCAL-00744" />
+      <created>1770043310737</created>
+      <option name="number" value="00812" />
+      <option name="presentableId" value="LOCAL-00812" />
       <option name="project" value="LOCAL" />
-      <updated>1768968156316</updated>
+      <updated>1770043310737</updated>
     </task>
-    <task id="LOCAL-00745" summary="fix meet config">
+    <task id="LOCAL-00813" summary="update config#2">
       <option name="closed" value="true" />
-      <created>1768986632275</created>
-      <option name="number" value="00745" />
-      <option name="presentableId" value="LOCAL-00745" />
+      <created>1770046631816</created>
+      <option name="number" value="00813" />
+      <option name="presentableId" value="LOCAL-00813" />
       <option name="project" value="LOCAL" />
-      <updated>1768986632275</updated>
+      <updated>1770046631818</updated>
     </task>
-    <task id="LOCAL-00746" summary="fix meet config">
+    <task id="LOCAL-00814" summary="update config#2">
       <option name="closed" value="true" />
-      <created>1768987585986</created>
-      <option name="number" value="00746" />
-      <option name="presentableId" value="LOCAL-00746" />
+      <created>1770047349657</created>
+      <option name="number" value="00814" />
+      <option name="presentableId" value="LOCAL-00814" />
       <option name="project" value="LOCAL" />
-      <updated>1768987585986</updated>
+      <updated>1770047349657</updated>
     </task>
-    <task id="LOCAL-00747" summary="update">
+    <task id="LOCAL-00815" summary="update config#2">
       <option name="closed" value="true" />
-      <created>1769862260218</created>
-      <option name="number" value="00747" />
-      <option name="presentableId" value="LOCAL-00747" />
+      <created>1770048045384</created>
+      <option name="number" value="00815" />
+      <option name="presentableId" value="LOCAL-00815" />
       <option name="project" value="LOCAL" />
-      <updated>1769862260218</updated>
+      <updated>1770048045384</updated>
     </task>
-    <task id="LOCAL-00748" summary="update">
+    <task id="LOCAL-00816" summary="update config#2">
       <option name="closed" value="true" />
-      <created>1769864248089</created>
-      <option name="number" value="00748" />
-      <option name="presentableId" value="LOCAL-00748" />
+      <created>1770048749622</created>
+      <option name="number" value="00816" />
+      <option name="presentableId" value="LOCAL-00816" />
       <option name="project" value="LOCAL" />
-      <updated>1769864248089</updated>
+      <updated>1770048749624</updated>
     </task>
-    <task id="LOCAL-00749" summary="update">
+    <task id="LOCAL-00817" summary="update config#2">
       <option name="closed" value="true" />
-      <created>1769867756116</created>
-      <option name="number" value="00749" />
-      <option name="presentableId" value="LOCAL-00749" />
+      <created>1770050948445</created>
+      <option name="number" value="00817" />
+      <option name="presentableId" value="LOCAL-00817" />
       <option name="project" value="LOCAL" />
-      <updated>1769867756116</updated>
+      <updated>1770050948445</updated>
     </task>
-    <task id="LOCAL-00750" summary="update">
+    <task id="LOCAL-00818" summary="update config#2">
       <option name="closed" value="true" />
-      <created>1769867951378</created>
-      <option name="number" value="00750" />
-      <option name="presentableId" value="LOCAL-00750" />
+      <created>1770051733422</created>
+      <option name="number" value="00818" />
+      <option name="presentableId" value="LOCAL-00818" />
       <option name="project" value="LOCAL" />
-      <updated>1769867951379</updated>
+      <updated>1770051733424</updated>
     </task>
-    <task id="LOCAL-00751" summary="update">
+    <task id="LOCAL-00819" summary="update config#2">
       <option name="closed" value="true" />
-      <created>1769868471608</created>
-      <option name="number" value="00751" />
-      <option name="presentableId" value="LOCAL-00751" />
+      <created>1770051857535</created>
+      <option name="number" value="00819" />
+      <option name="presentableId" value="LOCAL-00819" />
       <option name="project" value="LOCAL" />
-      <updated>1769868471608</updated>
+      <updated>1770051857536</updated>
     </task>
-    <task id="LOCAL-00752" summary="fix dependecy injection">
+    <task id="LOCAL-00820" summary="update config#2">
       <option name="closed" value="true" />
-      <created>1769936923239</created>
-      <option name="number" value="00752" />
-      <option name="presentableId" value="LOCAL-00752" />
+      <created>1770051913292</created>
+      <option name="number" value="00820" />
+      <option name="presentableId" value="LOCAL-00820" />
       <option name="project" value="LOCAL" />
-      <updated>1769936923240</updated>
+      <updated>1770051913292</updated>
     </task>
-    <option name="localTasksCounter" value="753" />
+    <option name="localTasksCounter" value="821" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -758,7 +770,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="agent-analysic" />
+                        <option value="optimize-webrtc-logic" />
                       </list>
                     </value>
                   </entry>
@@ -776,15 +788,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="rebuild UI" />
-    <MESSAGE value="build aadmin" />
-    <MESSAGE value="user-learning-progress" />
-    <MESSAGE value="update ui" />
-    <MESSAGE value="feat(learning-progress): implement learning progress tracking and course retrieval" />
-    <MESSAGE value="refactor: refactor meet service" />
-    <MESSAGE value="feat(identity): implement identity module with authentication and authorization handlers" />
-    <MESSAGE value="refactor(identity): refactor identity service" />
-    <MESSAGE value="`refactor(learning): remove unused HTTP controllers for cleaner module structure`" />
     <MESSAGE value="update ux ui pro kit" />
     <MESSAGE value="refactoring: communication services" />
     <MESSAGE value="fix format key url r2 storage" />
@@ -797,11 +800,20 @@
     <MESSAGE value="feat: add file management functionality to meet module" />
     <MESSAGE value="feat: add artifacts module and analytics service for handling telemetry data" />
     <MESSAGE value="feat: integrate etherpad module" />
-    <MESSAGE value="fix bug" />
     <MESSAGE value="update" />
     <MESSAGE value="fix meet config" />
     <MESSAGE value="fix dependecy injection" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix dependecy injection" />
+    <MESSAGE value="feat: implement agent analysic for meet webrtc (#113)&#10;&#10;* add ai agent&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;&#10;* add missing logic&#10;&#10;* feat: enhance recording functionality with cloud and RTMP recording support&#10;&#10;* remove shared note&#10;&#10;* update&#10;&#10;* fix dependecy injection" />
+    <MESSAGE value="optimize logic" />
+    <MESSAGE value="update proto file" />
+    <MESSAGE value="update nats logic" />
+    <MESSAGE value="update meet client logic" />
+    <MESSAGE value="fix bug" />
+    <MESSAGE value="fix bug#2" />
+    <MESSAGE value="update NATS logic and improve error handling" />
+    <MESSAGE value="update config" />
+    <MESSAGE value="update config#2" />
+    <option name="LAST_COMMIT_MESSAGE" value="update config#2" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
@@ -821,12 +833,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
-          <line>75</line>
+          <line>80</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts</url>
-          <line>89</line>
+          <line>78</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

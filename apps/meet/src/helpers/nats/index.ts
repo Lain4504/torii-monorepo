@@ -10,28 +10,30 @@ import { roomConnectionStatus } from '../../components/app/helper';
 let conn: ConnectNats | undefined = undefined;
 
 export const startNatsConn = once(
-  async (
-    natsWSUrl: string[],
-    token: string,
-    roomId: string,
-    userId: string,
-    subjects: NatsSubjects,
-    errorState: Dispatch<IErrorPageProps>,
-    roomConnectionStatusState: Dispatch<roomConnectionStatus>,
-    setCurrentMediaServerConn: Dispatch<IConnectLivekit>,
-  ) => {
-    conn = new ConnectNats(
-      natsWSUrl,
-      token,
-      roomId,
-      userId,
-      subjects,
-      errorState,
-      roomConnectionStatusState,
-      setCurrentMediaServerConn,
-    );
-    await conn.openConn();
-  },
+    async (
+        natsWSUrl: string[],
+        token: string,
+        roomId: string,
+        userId: string,
+        roomStreamName: string,
+        subjects: NatsSubjects,
+        errorState: Dispatch<IErrorPageProps>,
+        roomConnectionStatusState: Dispatch<roomConnectionStatus>,
+        setCurrentMediaServerConn: Dispatch<IConnectLivekit>,
+    ) => {
+      conn = new ConnectNats(
+          natsWSUrl,
+          token,
+          roomId,
+          userId,
+          roomStreamName,
+          subjects,
+          errorState,
+          roomConnectionStatusState,
+          setCurrentMediaServerConn,
+      );
+      await conn.openConn();
+    },
 );
 
 export const getNatsConn = () => {

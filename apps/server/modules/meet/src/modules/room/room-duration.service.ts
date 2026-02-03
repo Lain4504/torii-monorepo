@@ -39,11 +39,11 @@ export class RoomDurationService {
      * @param roomId - Room ID
      * @param info - Duration information
      */
-    async addRoomWithDurationInfo(roomId: string, info: RoomDurationInfo): Promise<void> {
+    async addRoomWithDurationInfo(roomId: string, r: RoomDurationInfo): Promise<void> {
         this.logger.log(`Adding room with duration info: ${roomId}`);
 
         // Use Redis service to store duration info
-        await this.redisRoom.addRoomWithDurationInfo(roomId, info);
+        await this.redisRoom.addRoomWithDurationInfo(roomId, r);
 
         this.logger.log(`Successfully added room with duration info: ${roomId}`);
     }
@@ -61,6 +61,32 @@ export class RoomDurationService {
         await this.redisRoom.deleteRoomWithDuration(roomId);
 
         this.logger.log(`Successfully deleted room with duration: ${roomId}`);
+    }
+
+    /**
+     * GetRoomsWithDurationMap retrieves all rooms with duration info
+     * @returns Map of roomId to RoomDurationInfo
+     */
+    async getRoomsWithDurationMap(): Promise<Record<string, RoomDurationInfo>> {
+        const keys = await this.redisRoom.getRoomsWithDurationKeys();
+        const out: Record<string, RoomDurationInfo> = {};
+
+        // This prefix matches REDIS_PREFIX + 'roomWithDurationInfo:' in redis-room.service.ts
+        // wajlc:roomWithDurationInfo:
+        const keyPrefix = 'wajlc:roomWithDurationInfo:';
+
+        for (const key of keys) {
+            const val = await this.redisRoom.getRoomWithDurationInfoByKey(key);
+            if (!val) {
+                continue;
+            }
+
+            // Extract roomId from key
+            const roomId = key.replace(keyPrefix, '');
+            out[roomId] = val;
+        }
+
+        return out;
     }
 
     /**
@@ -112,10 +138,14 @@ export class RoomDurationService {
             // Step 3: Check if this is a breakout room
             if (meta.isBreakoutRoom && info) {
                 if (info.startedAt === 0) {
-                    throw new Error("can't increase duration as breakout room is not running");
+                    const err = new Error("can't increase duration as breakout room is not running");
+                    this.logger.warn(err.message);
+                    throw err;
                 }
                 if (info.duration === 0) {
-                    throw new Error("can't increase duration as breakout room has unlimited duration");
+                    const err = new Error("can't increase duration as breakout room has unlimited duration");
+                    this.logger.warn(err.message);
+                    throw err;
                 } else {
                     this.logger.log('Breakout room has duration, will compare with parent room');
 

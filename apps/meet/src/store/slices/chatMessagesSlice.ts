@@ -41,11 +41,11 @@ const chatMessagesSlice = createSlice({
   initialState,
   reducers: {
     addChatMessage: (
-      state,
-      action: PayloadAction<{
-        message: ChatMessage;
-        currentUserId: string;
-      }>,
+        state,
+        action: PayloadAction<{
+          message: ChatMessage;
+          currentUserId: string;
+        }>,
     ) => {
       const { message, currentUserId } = action.payload;
 
@@ -63,11 +63,11 @@ const chatMessagesSlice = createSlice({
       state.messages[key].sort(sortMessages);
     },
     addAllChatMessages: (
-      state,
-      action: PayloadAction<{
-        messages: ChatMessage[];
-        currentUserId: string;
-      }>,
+        state,
+        action: PayloadAction<{
+          messages: ChatMessage[];
+          currentUserId: string;
+        }>,
     ) => {
       const { messages, currentUserId } = action.payload;
       const newMessagesByKey: { [key: string]: ChatMessage[] } = {};
@@ -109,8 +109,8 @@ const chatMessagesStateSelector = (state: RootState) => state.chatMessages;
  * This can be used to dynamically create chat tabs.
  */
 export const selectChatKeys = createSelector(
-  [chatMessagesStateSelector],
-  (chatMessages) => Object.keys(chatMessages.messages),
+    [chatMessagesStateSelector],
+    (chatMessages) => Object.keys(chatMessages.messages),
 );
 
 /**
@@ -120,8 +120,16 @@ export const selectChatKeys = createSelector(
  * @returns An array of chat messages, or an empty array if no messages exist for the key.
  */
 export const selectMessagesByKeyValue = createSelector(
-  [chatMessagesStateSelector, (state: RootState, key: string) => key],
-  (chatMessages, key) => chatMessages.messages[key] ?? [],
+    [chatMessagesStateSelector, (state: RootState, key: string) => key],
+    (chatMessages, key) => chatMessages.messages[key] ?? [],
+);
+
+/**
+ * Selects only the public chat messages.
+ */
+export const selectPublicChatMessages = createSelector(
+    [chatMessagesStateSelector],
+    (chatMessages) => chatMessages.messages['public'] ?? [],
 );
 
 export default chatMessagesSlice.reducer;

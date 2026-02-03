@@ -32,6 +32,14 @@ export class ArtifactsHandler {
     async handleFetchArtifacts(@Payload() data: FetchArtifactsReq): Promise<any> {
         try {
             const result = await this.artifactsService.fetchArtifacts(data);
+
+            if (Number(result.totalArtifacts) === 0) {
+                return create(FetchArtifactsResSchema, {
+                    status: false,
+                    msg: 'no artifacts found',
+                });
+            }
+
             return create(FetchArtifactsResSchema, {
                 status: true,
                 msg: 'success',

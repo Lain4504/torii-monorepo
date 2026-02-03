@@ -42,7 +42,7 @@ export class JwtAuthGuard implements CanActivate {
         // Check if Authorization header exists
         if (!authToken) {
             response.status(errStatus);
-            sendCommonProtoJsonResponse(response, false, 'Authorization header is missing');
+            sendCommonProtoJsonResponse(response, false, 'notifications.auth-header-missing');
             return false;
         }
 
@@ -73,11 +73,11 @@ export class JwtAuthGuard implements CanActivate {
             return true;
         } catch (error) {
             response.status(errStatus);
-            sendCommonProtoJsonResponse(
-                response,
-                false,
-                error instanceof Error ? error.message : 'Invalid token'
-            );
+            let errMsg = 'notifications.invalid-token';
+            if (error instanceof Error && error.message.includes('expired')) {
+                errMsg = 'notifications.token-expired';
+            }
+            sendCommonProtoJsonResponse(response, false, errMsg);
             return false;
         }
     }

@@ -7,7 +7,7 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import type { JetStreamClient } from 'nats';
 import { v4 as uuidv4 } from 'uuid';
-import { create, toBinary, toJsonString } from '@bufbuild/protobuf';
+import { create, toBinary, toJsonString, fromJsonString } from '@bufbuild/protobuf';
 import {
     NatsMsgServerToClient,
     NatsMsgServerToClientSchema,
@@ -24,13 +24,16 @@ import {
     DataMsgBodyType,
     ChatMessage,
     ChatMessageSchema,
+    NatsMsgClientToServer,
+    PrivateDataDeliverySchema,
 } from '@workspace/protocol';
+import { fromBinary } from '@bufbuild/protobuf';
 import { ConfigService } from '@nestjs/config';
 import { NatsUserInfoService } from './nats-user-info.service';
 import { NatsRoomService } from './nats-room.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
 import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
-import { NatsUserService } from './nats-user.service';
+import { NatsUserService, USER_STATUS_ONLINE } from './nats-user.service';
 
 import { NatsService } from './nats.service';
 
@@ -74,11 +77,6 @@ export class NatsSystemEventsService {
 
     /**
      * BroadcastSystemEventToRoom broadcasts a system event to all clients in a room
-     *
-     * @param event - Event type (from NatsMsgServerToClientEvents enum)
-     * @param roomId - Room ID
-     * @param data - Event data (string, number, object, or protobuf message)
-     * @param toUserId - Optional user ID to send to specific user only
      */
     async broadcastSystemEventToRoom(
         event: NatsMsgServerToClientEvents,
@@ -86,65 +84,115 @@ export class NatsSystemEventsService {
         data: any,
         toUserId?: string,
     ): Promise<void> {
-        // Convert data to string message
+        // Convert data to string message (prepareNatsServerToClientMsg logic)
         let msg: string;
-
         if (typeof data === 'string') {
             msg = data;
         } else if (typeof data === 'number') {
             msg = String(data);
         } else if (data instanceof Uint8Array) {
             msg = new TextDecoder().decode(data);
-        } else if (typeof data === 'object' && data.$typeName) {
-            // Protobuf message - convert to JSON
-            if (data.$type) {
-                msg = toJsonString(data.$type, data);
-            } else {
-                msg = JSON.stringify(data);
-            }
-        } else if (typeof data === 'object') {
-            // Plain object - stringify
-            msg = JSON.stringify(data);
+        } else if (typeof data === 'object' && data !== null) {
+            // Treat objects as JSON, but explicitly remove $typeName if present
+            // (common in Protobuf messages which should have been serialized by caller)
+            const { $typeName, ...cleanData } = data as any;
+            msg = JSON.stringify(cleanData);
         } else {
-            throw new Error('invalid data type');
+            msg = JSON.stringify(data);
         }
 
-        // Create NATS message payload
         const payload = create(NatsMsgServerToClientSchema, {
             id: uuidv4(),
             event: event,
             msg: msg,
         });
 
-        // Marshal to binary protobuf
         const message = toBinary(NatsMsgServerToClientSchema, payload);
+        const subject = toUserId
+            ? `${this.subjectSystemPrivate}.${roomId}.${toUserId}.system`
+            : `${this.subjectSystemPublic}.${roomId}.system`;
 
-        // Determine subject (public or private)
-        let subject: string;
-        if (toUserId) {
-            // Private message to specific user
-            subject = `${roomId}:${this.subjectSystemPrivate}.${toUserId}.system`;
-        } else {
-            // Public message to all users in room
-            subject = `${roomId}:${this.subjectSystemPublic}.system`;
-        }
-
-        // Ensure JetStream client is ready
-        if (!this.js) {
-            this.js = this.natsService.getJetStream();
-            if (!this.js) {
-                this.logger.warn('JetStream client not ready, cannot broadcast event');
-                return;
-            }
-        }
-
-        // Publish to NATS
         try {
-            await this.js.publish(subject, message);
-            this.logger.debug(`Broadcast event ${NatsMsgServerToClientEvents[event]} to ${subject}`);
+            const js = this.natsService.getJetStream();
+            await js.publish(subject, message, {
+                expect: { streamName: this.natsService.getRoomStreamName() }
+            });
+            this.logger.debug(`Relible broadcast ${NatsMsgServerToClientEvents[event]} to ${subject}`);
         } catch (error) {
             this.logger.error(`Failed to broadcast event: ${error.message}`);
-            throw error;
+        }
+    }
+
+    /**
+     * BroadcastSystemPubSubEventToRoom sends a public message to everyone in the room
+     * using core NATS for high-performance, loss-tolerant events.
+     */
+    async broadcastSystemPubSubEventToRoom(
+        event: NatsMsgServerToClientEvents,
+        roomId: string,
+        data: any,
+    ): Promise<void> {
+        let msg: string;
+        if (typeof data === 'string') {
+            msg = data;
+        } else if (typeof data === 'number') {
+            msg = String(data);
+        } else if (data instanceof Uint8Array) {
+            msg = new TextDecoder().decode(data);
+        } else if (typeof data === 'object' && data !== null) {
+            const { $typeName, ...cleanData } = data as any;
+            msg = JSON.stringify(cleanData);
+        } else {
+            msg = JSON.stringify(data);
+        }
+
+        const payload = create(NatsMsgServerToClientSchema, {
+            id: uuidv4(),
+            event: event,
+            msg: msg,
+        });
+
+        const message = toBinary(NatsMsgServerToClientSchema, payload);
+        const subject = `${this.subjectSystemPublic}.${roomId}`;
+
+        try {
+            const nc = this.natsService.getNatsConnection();
+            nc.publish(subject, message);
+            this.logger.debug(`PubSub broadcast ${NatsMsgServerToClientEvents[event]} to ${subject}`);
+        } catch (error) {
+            this.logger.error(`Failed to pubsub broadcast: ${error.message}`);
+        }
+    }
+
+    /**
+     * BroadcastSystemEventToRoomWithBinMsg sends an event with additional binary data
+     */
+    async broadcastSystemEventToRoomWithBinMsg(
+        event: NatsMsgServerToClientEvents,
+        roomId: string,
+        msg: string,
+        binMsg: Uint8Array,
+        toUserId?: string,
+    ): Promise<void> {
+        const payload = create(NatsMsgServerToClientSchema, {
+            id: uuidv4(),
+            event: event,
+            msg: msg,
+            binMsg: binMsg,
+        });
+
+        const message = toBinary(NatsMsgServerToClientSchema, payload);
+        const subject = toUserId
+            ? `${this.subjectSystemPrivate}.${roomId}.${toUserId}.system`
+            : `${this.subjectSystemPublic}.${roomId}.system`;
+
+        try {
+            const js = this.natsService.getJetStream();
+            await js.publish(subject, message, {
+                expect: { streamName: this.natsService.getRoomStreamName() }
+            });
+        } catch (error) {
+            this.logger.error(`Failed to broadcast bin event: ${error.message}`);
         }
     }
 
@@ -162,7 +210,7 @@ export class NatsSystemEventsService {
         const message = toBinary(ChatMessageSchema, chatMsg);
 
         // Determine subject
-        const subject = `${roomId}:${this.subjectChat}.server`;
+        const subject = `${this.subjectChat}.${roomId}`;
 
         // Ensure JetStream client is ready
         if (!this.js) {
@@ -174,9 +222,10 @@ export class NatsSystemEventsService {
             return;
         }
 
-        // Publish to NATS
+        // Publish to NATS (Core NATS for Chat)
         try {
-            await this.js.publish(subject, message);
+            const nc = this.natsService.getNatsConnection();
+            nc.publish(subject, message);
             this.logger.debug(`Broadcast chat message ${chatMsg.id} to ${subject}`);
         } catch (error) {
             this.logger.error(`Failed to broadcast chat: ${error.message}`);
@@ -201,20 +250,13 @@ export class NatsSystemEventsService {
             message: msg,
             fromUserId: fromUserId,
             // toUserId is optional in proto but good to have if directed.
-            // The proto definition has `toUserId` as optional string.
             toUserId: toUserId,
         });
 
         const binaryMsg = toBinary(DataChannelMessageSchema, payload);
 
-        // Subject format: roomId:dataChannelSubject
-        // Or if private: roomId:dataChannelSubject.userId?
-        // Usually data channel messages are broadcasted to the room subject and filtered by client,
-        // OR sent to specific sub-subject.
-        // regular: `roomId:datachannel`
-        // private: `roomId:datachannel.userId`
-
-        let subject = `${roomId}:${this.subjectDataChannel}`;
+        // Subject format: {dataChannel}.{roomId}
+        let subject = `${this.subjectDataChannel}.${roomId}`;
         if (toUserId) {
             subject += `.${toUserId}`;
         }
@@ -228,7 +270,8 @@ export class NatsSystemEventsService {
         }
 
         try {
-            await this.js.publish(subject, binaryMsg);
+            const nc = this.natsService.getNatsConnection();
+            nc.publish(subject, binaryMsg);
             this.logger.debug(`Broadcast DataChannel msg type ${DataMsgBodyType[type]} to ${subject}`);
         } catch (error) {
             this.logger.error(`Failed to broadcast DataChannel msg: ${error.message}`);
@@ -249,26 +292,27 @@ export class NatsSystemEventsService {
         data: any,
         exceptUserId: string,
     ): Promise<void> {
-        // Get online users from NATS
-        const userIds = await this.natsUserInfo.getOnlineUsersId(roomId);
+        // Get online users from cache first (much faster)
+        let userIds = this.natsService.getCacheService().getUsersIdFromRoomStatusBucket(roomId, USER_STATUS_ONLINE);
+
+        if (userIds.length === 0) {
+            // Fallback to KV only if cache is empty - might be a new room or slow watcher
+            userIds = await this.natsUserInfo.getOnlineUsersId(roomId);
+        }
 
         if (!userIds || userIds.length === 0) {
-            this.logger.warn(`No online users found in room ${roomId}`);
             return;
         }
 
         // Send to each user except the excluded one
-        const sendPromises = userIds
+        // We do this non-blocking
+        userIds
             .filter(id => id !== exceptUserId)
-            .map(async (id) => {
-                try {
-                    await this.broadcastSystemEventToRoom(event, roomId, data, id);
-                } catch (error) {
+            .forEach((id) => {
+                this.broadcastSystemEventToRoom(event, roomId, data, id).catch(error => {
                     this.logger.error(`Failed to broadcast to user ${id}: ${error.message}`);
-                }
+                });
             });
-
-        await Promise.all(sendPromises);
     }
 
     /**
@@ -296,7 +340,7 @@ export class NatsSystemEventsService {
         });
 
         // Convert to JSON string
-        const jsonStr = toJsonString(NatsSystemNotificationSchema, notification);
+        const jsonStr = this.natsService.marshalToProtoJson(notification, NatsSystemNotificationSchema);
 
         await this.broadcastSystemEventToRoom(
             NatsMsgServerToClientEvents.SYSTEM_NOTIFICATION,
@@ -381,36 +425,18 @@ export class NatsSystemEventsService {
             return;
         }
 
-        // 3. Generate Media Server Info (LiveKit Token)
-        let mediaServerInfo: MediaServerConnInfo | undefined;
-        try {
-            mediaServerInfo = await this.handleMediaServerInfo(roomId, userId, userInfo, false);
-        } catch (error) {
-            this.logger.error(`Failed to generate media server info: ${error.message}`);
-            await this.notifyErrorMsg(roomId, error.message, userId);
-            return;
-        }
-
-        if (!mediaServerInfo) {
-            return;
-        }
-
-        // 4. Create Response
+        // 3. Create Response
         const initialData = create(NatsInitialDataSchema, {
             room: rInfo,
             localUser: userInfo,
-            mediaServerInfo: mediaServerInfo,
         });
 
-        // 5. Send Response
-        // Convert to JSON string because Protobuf schema expects `msg` field to be string in NatsMsgServerToClient
-        // but here we are sending a complex object that client expects to parse
-        const msg = toJsonString(NatsInitialDataSchema, initialData);
-
+        // 4. Send Response
+        // Use marshalToProtoJson for consistent Protobuf JSON serialization
         await this.broadcastSystemEventToRoom(
             NatsMsgServerToClientEvents.RES_INITIAL_DATA,
             roomId,
-            msg,
+            this.natsService.marshalToProtoJson(initialData, NatsInitialDataSchema),
             userId,
         );
     }
@@ -418,14 +444,14 @@ export class NatsSystemEventsService {
     /**
      * HandleSendUsersList handles Request for users list
      */
-    async handleSendUsersList(roomId: string, userId: string): Promise<void> {
-        this.logger.debug(`Handling users list request for room ${roomId}, user ${userId}`);
+    async handleSendUsersList(roomId: string, userId: string, event: NatsMsgServerToClientEvents = NatsMsgServerToClientEvents.RES_JOINED_USERS_LIST): Promise<void> {
+        this.logger.debug(`Handling users list request for room ${roomId}, user ${userId}, event ${NatsMsgServerToClientEvents[event]}`);
 
         try {
             const usersJson = await this.natsUserInfo.getOnlineUsersListAsJson(roomId);
             if (usersJson) {
                 await this.broadcastSystemEventToRoom(
-                    NatsMsgServerToClientEvents.RES_JOINED_USERS_LIST,
+                    event,
                     roomId,
                     usersJson,
                     userId,
@@ -483,8 +509,8 @@ export class NatsSystemEventsService {
         this.logger.log(`[MediaServerInfo] Sending to user ${userId}: url=${lkHost}, token_length=${token.length}`);
 
         if (broadcast) {
-            // Convert to JSON string for broadcasting
-            const msg = toJsonString(MediaServerConnInfoSchema, data);
+            // Convert to JSON string using proper Protobuf marshal options
+            const msg = this.natsService.marshalToProtoJson(data, MediaServerConnInfoSchema);
             await this.broadcastSystemEventToRoom(
                 NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA,
                 roomId,
@@ -520,10 +546,6 @@ export class NatsSystemEventsService {
      */
     async renewWajlcToken(roomId: string, userId: string, currentToken: string): Promise<void> {
         try {
-            // Graceful period of 3 hours 
-            // But renewToken usually takes just the old token
-            // We need to check if renewToken supports graceful period or custom expiry
-            // Assuming standard renewal for now
             const newToken = await this.authService.renewWajlcToken(currentToken);
 
             await this.broadcastSystemEventToRoom(
@@ -533,7 +555,46 @@ export class NatsSystemEventsService {
                 userId,
             );
         } catch (error) {
-            this.logger.error(`Error renewing Wajlc token for ${userId}: ${error.message}`);
+            this.logger.error(`Error renewing WAJLC token for ${userId}: ${error.message}`);
+        }
+    }
+
+    /**
+     * HandleToDeliveryPrivateData handles delivery of private data between users
+     */
+    async handleToDeliveryPrivateData(roomId: string, userId: string, req: NatsMsgClientToServer): Promise<void> {
+        try {
+            // Unmarshal header from JSON msg using schema
+            const header = fromJsonString(PrivateDataDeliverySchema, req.msg);
+            const toUserId = header.toUserId;
+
+            if (!toUserId) {
+                this.logger.warn('Private data delivery: toUserId is missing');
+                return;
+            }
+
+            // Send to target user
+            // Note: We use req.binMsg directly
+            await this.broadcastSystemEventToRoomWithBinMsg(
+                NatsMsgServerToClientEvents.DELIVERY_PRIVATE_DATA,
+                roomId,
+                req.msg,
+                req.binMsg,
+                toUserId,
+            );
+
+            // Echo back to sender if requested
+            if (header.echoToSender) {
+                await this.broadcastSystemEventToRoomWithBinMsg(
+                    NatsMsgServerToClientEvents.DELIVERY_PRIVATE_DATA,
+                    roomId,
+                    req.msg,
+                    req.binMsg,
+                    userId,
+                );
+            }
+        } catch (error) {
+            this.logger.error(`Failed to deliver private data: ${error.message}`);
         }
     }
 }

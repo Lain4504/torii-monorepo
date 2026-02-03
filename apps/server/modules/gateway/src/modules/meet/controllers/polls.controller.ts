@@ -33,7 +33,11 @@ import {
     ClosePollReqSchema,
     PollResponseSchema,
 } from '@workspace/protocol';
-import { sendProtobufResponse, JwtAuthGuard } from '@server/shared';
+import {
+    sendProtobufResponse,
+    JwtAuthGuard,
+    sendCommonProtobufResponse,
+} from '@server/shared';
 
 @Controller('api/polls')
 @UseGuards(JwtAuthGuard)
@@ -53,22 +57,12 @@ export class PollsController {
         const roomId = (req as any).roomId as string;
 
         if (!isAdmin) {
-            const response = create(PollResponseSchema, {
-                status: false,
-                msg: 'only admin can perform this task',
-            });
-            res.status(200);
-            sendProtobufResponse(res, PollResponseSchema, response);
+            sendCommonProtobufResponse(res, false, 'only admin can perform this task');
             return;
         }
 
         if (!roomId) {
-            const response = create(PollResponseSchema, {
-                status: false,
-                msg: 'roomId required',
-            });
-            res.status(200);
-            sendProtobufResponse(res, PollResponseSchema, response);
+            sendCommonProtobufResponse(res, false, 'roomId required');
             return;
         }
 
@@ -77,12 +71,11 @@ export class PollsController {
             request = fromBinary(ActivatePollsReqSchema, bodyBuffer);
             (request as any).roomId = roomId;
         } catch (error) {
-            const response = create(PollResponseSchema, {
-                status: false,
-                msg: error instanceof Error ? error.message : 'Invalid request',
-            });
-            res.status(200);
-            sendProtobufResponse(res, PollResponseSchema, response);
+            sendCommonProtobufResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Invalid request',
+            );
             return;
         }
 
@@ -91,20 +84,13 @@ export class PollsController {
                 this.natsClient.send({ cmd: 'polls.activate' }, request),
             );
 
-            const response = create(PollResponseSchema, {
-                status: result.status,
-                msg: result.msg,
-            });
-
-            res.status(200);
-            sendProtobufResponse(res, PollResponseSchema, response);
+            sendCommonProtobufResponse(res, result.status, result.msg);
         } catch (error) {
-            const response = create(PollResponseSchema, {
-                status: false,
-                msg: error instanceof Error ? error.message : 'Error activating polls',
-            });
-            res.status(200);
-            sendProtobufResponse(res, PollResponseSchema, response);
+            sendCommonProtobufResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Error activating polls',
+            );
         }
     }
 

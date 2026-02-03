@@ -128,7 +128,7 @@ export class RecordingService {
         const recordingId = `${sid}-${Date.now()}`;
 
         const toSend = create(WajlcToRecorderSchema, {
-            from: 'plugnmeet',
+            from: 'wajlc',
             roomTableId: roomTableId.toString(),
             roomId: roomId,
             roomSid: sid,
@@ -159,6 +159,12 @@ export class RecordingService {
 
             if (task === RecordingTasks.START_RTMP) {
                 toSend.rtmpUrl = req.rtmpUrl;
+            }
+
+            // if we have custom design, then we'll set custom design with token
+            if (req.customDesign && req.customDesign !== '') {
+                log.log('Appending custom design to access token');
+                toSend.accessToken += '&custom_design=' + encodeURIComponent(req.customDesign);
             }
         }
 

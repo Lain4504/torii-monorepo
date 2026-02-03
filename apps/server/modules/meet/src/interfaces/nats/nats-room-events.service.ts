@@ -40,7 +40,7 @@ export class NatsRoomEventsService {
             const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
 
             if (!roomInfo) {
-                throw new Error('did not found the room');
+                throw new Error('Could not find the room');
             }
 
             metadataStr = roomInfo.metadata;
@@ -67,7 +67,7 @@ export class NatsRoomEventsService {
         meta: any,
     ): Promise<string> {
         if (!meta) {
-            throw new Error('metadata cannot be nil');
+            throw new Error('Metadata cannot be null or empty');
         }
 
         // Update metadata in NATS KV

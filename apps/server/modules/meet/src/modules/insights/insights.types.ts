@@ -18,7 +18,11 @@ export enum InsightsTaskType {
     GetUserStatus = "getUserStatus",
     EndRoomAgentByServiceName = "endRoomAgentByServiceName",
     EndRoomAllAgents = "endRoomAllAgents",
+    CheckBatchJobStatus = "checkBatchJobStatus",
+    DeleteUploadedFile = "deleteUploadedFile",
 }
+
+
 
 export interface InsightsTaskPayload {
     task: string;

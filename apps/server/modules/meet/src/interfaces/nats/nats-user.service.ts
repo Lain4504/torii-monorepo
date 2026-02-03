@@ -1,13 +1,13 @@
 /**
  * NATS User Service
  *
- * Handles NATS KV operations for user information and modification
+ * Handles NATS KV operations for user information and modification.
+ *  (wajlc-room-{roomId}).
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { create } from '@bufbuild/protobuf';
-import { NatsService } from './nats.service';
 import { v4 as uuidv4 } from 'uuid';
 import {
     UserMetadata,
@@ -16,37 +16,18 @@ import {
     AnalyticsEventType,
     AnalyticsEvents,
     AnalyticsDataMsg,
+    NatsKvUserInfo,
+    NatsKvUserInfoSchema,
+    NatsUserMetadataUpdateSchema,
+    NatsUserMetadataUpdate,
 } from '@workspace/protocol';
-import { NatsUserInfoService } from './nats-user-info.service';
-import { AnalyticsService } from '../../modules/analytics/analytics.service';
+import { toJsonString } from '@bufbuild/protobuf';
+import { NatsService } from './nats.service';
+import { NatsConsumerService } from './nats-consumer.service';
+import { NatsRoomService, ROOM_STATUS_ENDED } from './nats-room.service';
 import { NatsSystemEventsService } from './nats-system-events.service';
+import { AnalyticsService } from '../../modules/analytics/analytics.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
-
-// Constants
-const NATS_PREFIX = 'wajlc-';  // Must use dash, not colon! NATS bucket names cannot contain ':'
-const ROOM_USERS_BUCKET_PREFIX = `${NATS_PREFIX}roomUsers-`;
-const ROOM_USERS_BUCKET = `${ROOM_USERS_BUCKET_PREFIX}%s`;
-
-const USER_INFO_BUCKET_PREFIX = `${NATS_PREFIX}userInfo-`;
-const USER_INFO_BUCKET = `${USER_INFO_BUCKET_PREFIX}r_%s-u_%s`;
-
-const ROOM_USERS_BLOCK_LIST = `${NATS_PREFIX}usersBlockList-%s`;
-
-const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-const USER_ONLINE_MAX_PING_DIFF = 2 * 60 * 1000; // 2 minutes in ms
-
-// User KV keys
-const USER_ID_KEY = 'id';
-const USER_SID_KEY = 'sid';
-const USER_NAME_KEY = 'name';
-const USER_ROOM_ID_KEY = 'room_id';
-const USER_IS_ADMIN_KEY = 'is_admin';
-const USER_IS_PRESENTER_KEY = 'is_presenter';
-const USER_METADATA_KEY = 'metadata';
-const USER_JOINED_AT = 'joined_at';
-const USER_RECONNECTED_AT = 'reconnected_at';
-const USER_DISCONNECTED_AT = 'disconnected_at';
-const USER_LAST_PING_AT = 'last_ping_at';
 
 // User status constants
 export const USER_STATUS_ADDED = 'added';
@@ -54,9 +35,6 @@ export const USER_STATUS_ONLINE = 'online';
 export const USER_STATUS_DISCONNECTED = 'disconnected';
 export const USER_STATUS_OFFLINE = 'offline';
 
-/**
- * NatsUserService handles NATS KV operations for users
- */
 @Injectable()
 export class NatsUserService {
     private readonly logger = new Logger(NatsUserService.name);
@@ -64,39 +42,279 @@ export class NatsUserService {
     constructor(
         private readonly configService: ConfigService,
         private readonly natsService: NatsService,
-        private readonly natsUserInfo: NatsUserInfoService,
+        private readonly natsConsumerService: NatsConsumerService,
+        @Inject(forwardRef(() => NatsRoomService)) private readonly natsRoomService: NatsRoomService,
         @Inject(forwardRef(() => NatsSystemEventsService)) private readonly natsSystemEvents: NatsSystemEventsService,
-        private readonly livekitService: LiveKitService,
         @Inject(forwardRef(() => AnalyticsService)) private readonly analyticsService: AnalyticsService,
+        private readonly livekitService: LiveKitService,
     ) { }
 
     /**
-     * GetRoomUserStatus gets user status from NatsUserInfoService
+     * GetRoomUserStatus retrieves the status of a user in a specific room.
      */
     async getRoomUserStatus(roomId: string, userId: string): Promise<string> {
-        return this.natsUserInfo.getRoomUserStatus(roomId, userId);
-    }
+        const cached = this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
+        if (cached) return cached.status;
 
-    /**
-     * GetUser gets user info from NatsUserInfoService
-     */
-    async getUser(roomId: string, userId: string): Promise<any> {
-        return this.natsUserInfo.getUserInfo(roomId, userId);
-    }
-
-    /**
-     * GetUserMetadataStruct gets user metadata struct
-     */
-    async getUserMetadataStruct(roomId: string, userId: string): Promise<UserMetadata | undefined> {
-        const userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
-        if (userInfo && userInfo.metadata) {
-            return this.natsService.unmarshalUserMetadata(userInfo.metadata);
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            return await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'status'));
+        } catch (error) {
+            return '';
         }
-        return undefined;
     }
 
     /**
-     * AddUser adds a new user to a room and stores their metadata
+     * GetUserInfo retrieves detailed information about a user in a specific room.
+     */
+    async getUserInfo(roomId: string, userId: string): Promise<NatsKvUserInfo | null> {
+        this.logger.debug(`Getting user info: user=${userId}, room=${roomId}`);
+
+        // Step 1: Try cache first
+        const cache = this.natsService.getCacheService();
+        const cached = cache.getUserInfo(roomId, userId);
+        if (cached) return create(NatsKvUserInfoSchema, cached);
+
+        // Step 2: Cache miss - read from consolidated bucket
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+
+            // Fetch room status to see if we should start a watcher
+            const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
+            if (roomInfo && roomInfo.status !== ROOM_STATUS_ENDED) {
+                // Ensure room watcher is running (which handles all users too)
+                cache.addRoomWatcher(kv, bucket, roomId);
+            }
+
+            // Reconstruct user info from multiple keys in consolidated bucket
+            const info = create(NatsKvUserInfoSchema, {
+                userId: await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'id')),
+                userSid: await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'sid')),
+                name: await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'name')),
+                roomId: await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'room_id')),
+                metadata: await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'metadata')),
+                isAdmin: await this.natsService.getBoolValue(kv, this.natsService.formatUserKey(userId, 'is_admin')),
+                isPresenter: await this.natsService.getBoolValue(kv, this.natsService.formatUserKey(userId, 'is_presenter')),
+                joinedAt: await this.natsService.getUint64Value(kv, this.natsService.formatUserKey(userId, 'joined_at')),
+                reconnectedAt: await this.natsService.getUint64Value(kv, this.natsService.formatUserKey(userId, 'reconnected_at')),
+                disconnectedAt: await this.natsService.getUint64Value(kv, this.natsService.formatUserKey(userId, 'disconnected_at')),
+            });
+
+            // If userId is empty, user doesn't exist in this bucket
+            if (!info.userId) return null;
+
+            return info;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    /**
+     * GetOnlineUsersId retrieves the IDs of users who are currently online.
+     */
+    async getOnlineUsersId(roomId: string): Promise<string[]> {
+        const cachedIds = this.natsService.getCacheService().getUsersIdFromRoomStatusBucket(roomId, USER_STATUS_ONLINE);
+
+        if (this.natsService.getCacheService().isRoomWatched(roomId) || cachedIds.length > 0) {
+            return cachedIds;
+        }
+
+        // Fallback to NATS only during initial room startup or if cache is not active
+        try {
+            const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const keys = await kv.keys();
+            const userIds: string[] = [];
+
+            const userPrefix = NatsService.USER_KEY_PREFIX;
+            const fieldPrefix = NatsService.USER_KEY_FIELD_PREFIX;
+
+            for await (const k of keys) {
+                if (k.startsWith(userPrefix)) {
+                    const trimmed = k.substring(userPrefix.length);
+                    const parts = trimmed.split(fieldPrefix);
+                    if (parts.length === 2 && parts[1] === 'status') {
+                        const entry = await kv.get(k);
+                        if (entry && new TextDecoder().decode(entry.value) === USER_STATUS_ONLINE) {
+                            userIds.push(parts[0]);
+                        }
+                    }
+                }
+            }
+            return userIds;
+        } catch (error) {
+            return [];
+        }
+    }
+
+    /**
+     * GetRoomUserIds retrieves all user IDs for a given room.
+     */
+    async getRoomUserIds(roomId: string): Promise<string[]> {
+        const cachedIds = this.natsService.getCacheService().getUsersIdFromRoomStatusBucket(roomId, '');
+        if (cachedIds.length > 0) return cachedIds;
+
+        try {
+            const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const keys = await kv.keys();
+            const userIds = new Set<string>();
+
+            const userPrefix = NatsService.USER_KEY_PREFIX;
+            const fieldPrefix = NatsService.USER_KEY_FIELD_PREFIX;
+
+            for await (const k of keys) {
+                if (k.startsWith(userPrefix)) {
+                    const trimmed = k.substring(userPrefix.length);
+                    const parts = trimmed.split(fieldPrefix);
+                    if (parts.length === 2) {
+                        userIds.add(parts[0]);
+                    }
+                }
+            }
+            return Array.from(userIds);
+        } catch (error) {
+            return [];
+        }
+    }
+
+    /**
+     * GetOnlineUsersList retrieves detailed information about all online users.
+     */
+    async getOnlineUsersList(roomId: string): Promise<NatsKvUserInfo[]> {
+        const userIds = await this.getOnlineUsersId(roomId);
+        const users: NatsKvUserInfo[] = [];
+        for (const id of userIds) {
+            const info = await this.getUserInfo(roomId, id);
+            if (info) users.push(info);
+        }
+        return users;
+    }
+
+    /**
+     * GetOnlineUsersListAsJson retrieves online users as JSON string.
+     */
+    async getOnlineUsersListAsJson(roomId: string): Promise<string | null> {
+        const users = await this.getOnlineUsersList(roomId);
+        if (users.length === 0) return null;
+
+        const jsonArray = users.map(u => this.natsService.marshalToProtoJson(u, NatsKvUserInfoSchema));
+        return `[${jsonArray.join(',')}]`;
+    }
+
+    /**
+     * GetUserMetadataStruct retrieves user metadata as structured object.
+     */
+    async getUserMetadataStruct(roomId: string, userId: string): Promise<UserMetadata | null> {
+        // Try cache first (if you had a direct cache for metadata, but we reuse getUserInfo cache usually)
+        const infoCache = this.natsService.getCacheService().getUserInfo(roomId, userId);
+        if (infoCache && infoCache.metadata) {
+            return this.natsService.unmarshalUserMetadata(infoCache.metadata);
+        }
+
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const metadataStr = await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'metadata'));
+
+            if (!metadataStr) return null;
+            return this.natsService.unmarshalUserMetadata(metadataStr);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    /**
+     * GetUserWithMetadata retrieves user info along with parsed metadata.
+     */
+    async getUserWithMetadata(roomId: string, userId: string): Promise<{ info: NatsKvUserInfo | null; metadata: UserMetadata | null }> {
+        const info = await this.getUserInfo(roomId, userId);
+        if (!info) return { info: null, metadata: null };
+        const metadata = this.natsService.unmarshalUserMetadata(info.metadata);
+        return { info, metadata };
+    }
+
+    /**
+     * GetUserLastPing retrieves last ping timestamp for a user.
+     */
+    async getUserLastPing(roomId: string, userId: string): Promise<number> {
+        const cached = this.natsService.getCacheService().getUserLastPingAt(roomId, userId);
+        if (cached > 0) return cached;
+
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const val = await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'last_ping_at'));
+            return parseInt(val, 10) || 0;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    /**
+     * IsUserPresenter checks if a user is a presenter.
+     */
+    async isUserPresenter(roomId: string, userId: string): Promise<boolean> {
+        const infoCache = this.natsService.getCacheService().getUserInfo(roomId, userId);
+        if (infoCache) {
+            return infoCache.isPresenter;
+        }
+
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            return await this.natsService.getBoolValue(kv, this.natsService.formatUserKey(userId, 'is_presenter'));
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
+     * IsUserExistInBlockList checks if a user is in the block list.
+     */
+    async isUserExistInBlockList(roomId: string, userId: string): Promise<boolean> {
+        // Check cache first
+        const cacheResult = this.natsService.getCacheService().isUserBlacklistedFromCache(roomId, userId);
+        if (cacheResult.found) {
+            return cacheResult.isBlacklisted;
+        }
+
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            return await this.natsService.getBoolValue(kv, this.natsService.formatUserKey(userId, 'is_blacklisted'));
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
+     * GetUserKeyValue retrieves a specific key-value entry for a user
+     */
+    async getUserKeyValue(roomId: string, userId: string, key: string): Promise<any | null> {
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            return await kv.get(this.natsService.formatUserKey(userId, key));
+        } catch (error) {
+            return null;
+        }
+    }
+
+    /**
+     * AddUser creates a new user entry in the consolidated room bucket
      */
     async addUser(
         roomId: string,
@@ -106,196 +324,274 @@ export class NatsUserService {
         isPresenter: boolean,
         metadata?: UserMetadata,
     ): Promise<void> {
-        this.logger.log(`Adding user ${userId} to room ${roomId}`);
+        this.logger.log(`Adding user to consolidated NATS KV: ${userId}, room: ${roomId}`);
 
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
-        const js = this.natsService.getJetStream();
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
-        // Step 1: Create or update the room users bucket
-        const roomBucket = ROOM_USERS_BUCKET.replace('%s', roomId);
-        const roomKV = await js.views.kv(roomBucket, {
-            history: 1,
-            ttl: DEFAULT_TTL,
-            replicas: numReplicas,
-        });
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
 
-        // Step 2: Add user status to the room bucket
-        await roomKV.put(userId, new TextEncoder().encode(USER_STATUS_ADDED));
+            const mt = this.natsService.marshalUserMetadata(metadata || create(UserMetadataSchema, {}));
 
-        // Step 3: Add watcher for user status bucket
-        this.natsService.getCacheService().addRoomUserStatusWatcher(roomKV, roomBucket, roomId);
+            // Prepare user data map
+            const data: Record<string, string> = {
+                [this.natsService.formatUserKey(userId, 'id')]: userId,
+                [this.natsService.formatUserKey(userId, 'sid')]: uuidv4(),
+                [this.natsService.formatUserKey(userId, 'name')]: name,
+                [this.natsService.formatUserKey(userId, 'room_id')]: roomId,
+                [this.natsService.formatUserKey(userId, 'is_admin')]: isAdmin.toString(),
+                [this.natsService.formatUserKey(userId, 'is_presenter')]: isPresenter.toString(),
+                [this.natsService.formatUserKey(userId, 'metadata')]: mt,
+                [this.natsService.formatUserKey(userId, 'last_ping_at')]: '0',
+                [this.natsService.formatUserKey(userId, 'status')]: USER_STATUS_ADDED,
+                [this.natsService.formatUserKey(userId, 'is_blacklisted')]: 'false',
+            };
 
-        // Step 4: Create or update the user info bucket
-        const userBucket = USER_INFO_BUCKET.replace('%s', roomId).replace('%s', userId);
-        const userKV = await js.views.kv(userBucket, {
-            history: 1,
-            ttl: 24 * 60 * 60 * 1000, // 24 hours in ms
-            replicas: numReplicas,
-        });
+            // Store each key
+            for (const [key, value] of Object.entries(data)) {
+                await kv.put(key, new TextEncoder().encode(value));
+            }
 
-        // Step 5: Marshal metadata
-        const mt = this.natsService.marshalUserMetadata(metadata || create(UserMetadataSchema, {}));
-
-        // Step 6: Prepare user data
-        // Ensure isAdmin and isPresenter default to false if undefined x
-        const data: Record<string, string> = {
-            [USER_ID_KEY]: userId,
-            [USER_SID_KEY]: uuidv4(),
-            [USER_NAME_KEY]: name,
-            [USER_ROOM_ID_KEY]: roomId,
-            [USER_IS_ADMIN_KEY]: (isAdmin || false).toString(),
-            [USER_IS_PRESENTER_KEY]: (isPresenter || false).toString(),
-            [USER_METADATA_KEY]: mt,
-            [USER_LAST_PING_AT]: '0',
-        };
-
-        // Step 7: Store user data in the key-value store
-        for (const [key, value] of Object.entries(data)) {
-            await userKV.put(key, new TextEncoder().encode(value));
+            this.logger.log(`User added successfully to consolidated bucket: ${userId}`);
+        } catch (error) {
+            this.logger.error(`Error adding user ${userId}: ${error.message}`);
+            throw error;
         }
-
-        // Step 8: Add to user info watcher
-        this.natsService.getCacheService().addUserInfoWatcher(userKV, userBucket, roomId, userId);
-
-        this.logger.log(`User ${userId} added to room ${roomId} successfully`);
     }
 
     /**
-     * UpdateUserStatus updates the status of a user in a room
+     * AddUserManuallyAndBroadcast adds a user manually (e.g. ingress) and broadcasts the event.
+     */
+    async addUserManuallyAndBroadcast(
+        roomId: string,
+        userId: string,
+        name: string,
+        isAdmin: boolean,
+        broadcast: boolean,
+    ): Promise<NatsKvUserInfo | null> {
+        // Create default metadata for manual user (e.g. ingress)
+        const mt = create(UserMetadataSchema, {
+            isAdmin: isAdmin,
+            recordWebcam: false,
+            waitForApproval: false,
+            lockSettings: {
+                lockWebcam: false,
+                lockMicrophone: false,
+            },
+        });
+
+        try {
+            // 1. Add User
+            await this.addUser(roomId, userId, name, isAdmin, false, mt);
+
+            if (!broadcast) {
+                return null;
+            }
+
+            // 2. Update status to Online
+            await this.updateUserStatus(roomId, userId, USER_STATUS_ONLINE);
+
+            // 3. Get User Info
+            const userInfo = await this.getUserInfo(roomId, userId);
+            if (!userInfo) {
+                return null;
+            }
+
+            // 4. Broadcast Event
+            await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+                NatsMsgServerToClientEvents.USER_JOINED,
+                roomId,
+                userInfo,
+                userId
+            );
+
+            return userInfo;
+        } catch (error) {
+            this.logger.error(`Failed to add user manually and broadcast: ${error.message}`);
+            return null;
+        }
+    }
+
+    /**
+     * UpdateUserStatus updates user status and maintains timestamps
      */
     async updateUserStatus(roomId: string, userId: string, status: string): Promise<void> {
-        this.logger.log(`Updating user ${userId} status in room ${roomId} to ${status}`);
+        this.logger.debug(`Updating user status: user=${userId}, status=${status}`);
 
-        const js = this.natsService.getJetStream();
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
 
-        // Step 1: Retrieve the room users bucket
-        const roomBucket = ROOM_USERS_BUCKET.replace('%s', roomId);
-        const roomKV = await js.views.kv(roomBucket);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
 
-        // Step 2: Update user status in the room bucket
-        await roomKV.put(userId, new TextEncoder().encode(status));
+            await kv.put(this.natsService.formatUserKey(userId, 'status'), new TextEncoder().encode(status));
 
-        // Step 3: Retrieve the user info bucket
-        const userBucket = USER_INFO_BUCKET.replace('%s', roomId).replace('%s', userId);
-        const userKV = await js.views.kv(userBucket);
-
-        // Step 4: Update user info based on status
-        const now = Date.now();
-
-        switch (status) {
-            case USER_STATUS_ONLINE:
-                // Check if user has joined before
-                const joined = await userKV.get(USER_JOINED_AT).catch(() => null);
-                if (joined && joined.value && joined.value.length > 0) {
-                    // Reconnected
-                    await userKV.put(USER_RECONNECTED_AT, new TextEncoder().encode(now.toString()));
+            const now = Date.now().toString();
+            if (status === USER_STATUS_ONLINE) {
+                // Check if already joined
+                const joinedAt = await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'joined_at'));
+                if (joinedAt && joinedAt !== '0') {
+                    await kv.put(this.natsService.formatUserKey(userId, 'reconnected_at'), new TextEncoder().encode(now));
                 } else {
-                    // First time joining
-                    await userKV.put(USER_JOINED_AT, new TextEncoder().encode(now.toString()));
+                    await kv.put(this.natsService.formatUserKey(userId, 'joined_at'), new TextEncoder().encode(now));
                 }
-                break;
+            } else if (status === USER_STATUS_DISCONNECTED || status === USER_STATUS_OFFLINE) {
+                await kv.put(this.natsService.formatUserKey(userId, 'disconnected_at'), new TextEncoder().encode(now));
+            }
 
-            case USER_STATUS_DISCONNECTED:
-            case USER_STATUS_OFFLINE:
-                await userKV.put(USER_DISCONNECTED_AT, new TextEncoder().encode(now.toString()));
-                break;
+        } catch (error) {
+            this.logger.error(`Error updating user status for ${userId}: ${error.message}`);
         }
-
-        this.logger.log(`User ${userId} status updated to ${status}`);
     }
 
     /**
-     * UpdateUserMetadata updates the metadata of a user
+     * UpdateUserMetadata updates user metadata string
      */
     async updateUserMetadata(roomId: string, userId: string, metadata: UserMetadata | string): Promise<string> {
-        let mt: UserMetadata;
-
-        // Determine the type of metadata and unmarshal accordingly
-        if (typeof metadata === 'string') {
-            mt = this.natsService.unmarshalUserMetadata(metadata);
-        } else {
-            mt = metadata;
-        }
-
-        // Marshal the updated metadata
-        const marshal = this.natsService.marshalUserMetadata(mt);
-
-        // Update the user metadata in the key-value store
-        await this.updateUserKeyValue(roomId, userId, USER_METADATA_KEY, marshal);
-
-        return marshal;
-    }
-
-    /**
-     * DeleteUser removes a user from a room and deletes their metadata
-     */
-    async deleteUser(roomId: string, userId: string): Promise<void> {
-        this.logger.log(`Deleting user ${userId} from room ${roomId}`);
-
-        const js = this.natsService.getJetStream();
-        const jsm = this.natsService.getJetStreamManager();
-
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
         try {
-            // Step 1: Purge user from room users bucket
-            const roomBucket = ROOM_USERS_BUCKET.replace('%s', roomId);
-            const roomKV = await js.views.kv(roomBucket);
-            await roomKV.purge(userId);
-        } catch (error) {
-            // Silently ignore if bucket not found
-        }
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
 
-        try {
-            // Step 2: Delete the user info bucket
-            const userBucket = USER_INFO_BUCKET.replace('%s', roomId).replace('%s', userId);
-            await jsm.streams.delete(`KV_${userBucket}`);
-        } catch (error) {
-            // Silently ignore if bucket not found
-        }
-
-        this.logger.log(`User ${userId} deleted from room ${roomId}`);
-    }
-
-    /**
-     * DeleteAllRoomUsersWithConsumer deletes all users from a room and their consumers
-     */
-    async deleteAllRoomUsersWithConsumer(roomId: string): Promise<void> {
-        this.logger.log(`Deleting all users from room ${roomId}`);
-
-        const js = this.natsService.getJetStream();
-        const jsm = this.natsService.getJetStreamManager();
-        const roomBucket = ROOM_USERS_BUCKET.replace('%s', roomId);
-
-        try {
-            // Step 1: Retrieve the room users bucket
-            const roomKV = await js.views.kv(roomBucket);
-
-            // Step 2: List all user keys in the room users bucket
-            const keys = await roomKV.keys();
-
-            // Step 3: Delete each user's info bucket and associated consumer
-            for await (const userId of keys) {
-                // Delete user info bucket
-                try {
-                    const userBucket = USER_INFO_BUCKET.replace('%s', roomId).replace('%s', userId);
-                    await jsm.streams.delete(`KV_${userBucket}`);
-                } catch { }
-
-                // Delete consumer
-                await this.natsService.deleteConsumer(roomId, userId);
+            let mt: string;
+            if (typeof metadata === 'string') {
+                mt = metadata;
+            } else {
+                mt = this.natsService.marshalUserMetadata(metadata);
             }
 
-            // Step 4: Delete the room users bucket
-            try {
-                await jsm.streams.delete(`KV_${roomBucket}`);
-            } catch { }
+            await kv.put(this.natsService.formatUserKey(userId, 'metadata'), new TextEncoder().encode(mt));
 
-            this.logger.log(`All users deleted from room ${roomId}`);
+            return mt;
         } catch (error) {
-            if (error.message && error.message.includes('stream not found')) {
+            throw new Error(`Failed to update user metadata: ${error.message}`);
+        }
+    }
+
+    /**
+     * BroadcastUserMetadata broadcasts user metadata update.
+     */
+    async broadcastUserMetadata(roomId: string, userId: string, metadata?: string, toUser?: string): Promise<void> {
+        if (!metadata) {
+            const result = await this.getUserInfo(roomId, userId);
+            if (!result) {
+                throw new Error('user not found');
+            }
+            metadata = result.metadata;
+        }
+
+        const data = create(NatsUserMetadataUpdateSchema, {
+            metadata: metadata,
+            userId: userId,
+        });
+
+        // Convert to generic object/JSON for the broadcast method which handles serialization
+        // Note: broadcastSystemEventToRoom handles generic objects by JSON stringifying them,
+        // but for specific proto messages we might want to ensure it matches what client expects.
+        // NatsUserMetadataUpdate is a proto message.
+        // The broadcastSystemEventToRoom in NatsSystemEventsService serializes data as JSON string if passed as object.
+
+        // Use proper Protobuf marshal options
+        const msg = this.natsService.marshalToProtoJson(data, NatsUserMetadataUpdateSchema);
+
+        await this.natsSystemEvents.broadcastSystemEventToRoom(
+            NatsMsgServerToClientEvents.USER_METADATA_UPDATE,
+            roomId,
+            msg,
+            toUser,
+        );
+    }
+
+    /**
+     * UpdateAndBroadcastUserMetadata updates and broadcasts user metadata.
+     */
+    async updateAndBroadcastUserMetadata(roomId: string, userId: string, meta: UserMetadata | string, toUserId?: string): Promise<void> {
+        if (!meta) {
+            throw new Error('metadata cannot be nil');
+        }
+
+        const mt = await this.updateUserMetadata(roomId, userId, meta);
+        await this.broadcastUserMetadata(roomId, userId, mt, toUserId);
+    }
+
+    /**
+     * BroadcastUserInfoToRoom broadcasts user info event.
+     */
+    async broadcastUserInfoToRoom(event: NatsMsgServerToClientEvents, roomId: string, userId: string, userInfo?: NatsKvUserInfo): Promise<void> {
+        if (!userInfo) {
+            const info = await this.getUserInfo(roomId, userId);
+            if (!info) {
                 return;
             }
-            // returns error if list keys fails
-            throw error;
+            userInfo = info;
+        }
+
+        const msg = this.natsService.marshalToProtoJson(userInfo, NatsKvUserInfoSchema);
+        await this.natsSystemEvents.broadcastSystemEventToRoom(event, roomId, msg);
+    }
+
+    /**
+     * UpdateUserLastPing updating the last ping timestamp
+     */
+    async updateUserLastPing(roomId: string, userId: string): Promise<void> {
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            const now = Date.now().toString();
+            await kv.put(this.natsService.formatUserKey(userId, 'last_ping_at'), new TextEncoder().encode(now));
+        } catch (error) { }
+    }
+
+    /**
+     * DeleteUser marks user as offline (Logical delete)
+     */
+    async deleteUser(roomId: string, userId: string): Promise<void> {
+        await this.updateUserStatus(roomId, userId, USER_STATUS_OFFLINE);
+    }
+
+    /**
+     * DeleteAllRoomUsersWithConsumer cleans up consumers and user info
+     */
+    async deleteAllRoomUsersWithConsumer(roomId: string): Promise<void> {
+        this.logger.log(`Deleting all users and consumers for room: ${roomId}`);
+
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+
+            const keys = await kv.keys();
+            const deletedUsers = new Set<string>();
+
+            const userPrefix = NatsService.USER_KEY_PREFIX;
+            const fieldPrefix = NatsService.USER_KEY_FIELD_PREFIX;
+
+            for await (const k of keys) {
+                if (k.startsWith(userPrefix)) {
+                    // user_<userId>-FIELD_<field>
+                    const trimmed = k.substring(userPrefix.length);
+                    const parts = trimmed.split(fieldPrefix);
+
+                    if (parts.length === 2) {
+                        const userId = parts[0];
+                        if (!deletedUsers.has(userId)) {
+                            // Delete the single consumer per user
+                            await this.natsConsumerService.deleteConsumer(roomId, userId);
+                            deletedUsers.add(userId);
+                        }
+                    }
+                }
+            }
+
+            this.logger.log(`Cleanup complete for ${deletedUsers.size} users in room ${roomId}`);
+        } catch (error) {
+            if (error.message && (error.message.includes('bucket not found') || error.message.includes('stream not found'))) {
+                return;
+            }
+            this.logger.error(`Error deleting room users for ${roomId}: ${error.message}`);
         }
     }
 
@@ -303,324 +599,150 @@ export class NatsUserService {
      * UpdateUserKeyValue updates a specific key-value pair for a user
      */
     async updateUserKeyValue(roomId: string, userId: string, key: string, value: string): Promise<void> {
-        const js = this.natsService.getJetStream();
-
-        // Retrieve the user info bucket
-        const userBucket = USER_INFO_BUCKET.replace('%s', roomId).replace('%s', userId);
-        const userKV = await js.views.kv(userBucket);
-
-        // Update the key-value pair
-        await userKV.put(key, new TextEncoder().encode(value));
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
+        try {
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            await kv.put(this.natsService.formatUserKey(userId, key), new TextEncoder().encode(value));
+        } catch (error) { }
     }
 
     /**
-     * AddUserToBlockList adds a user to the block list for a room
+     * AddUserToBlockList sets the is_blacklisted flag for a user to true.
      */
-    async addUserToBlockList(roomId: string, userId: string): Promise<number> {
+    async addUserToBlockList(roomId: string, userId: string): Promise<void> {
         this.logger.log(`Adding user ${userId} to block list for room ${roomId}`);
-
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
-        const js = this.natsService.getJetStream();
-
-        // Create or update the room users block list bucket
-        const blockListBucket = ROOM_USERS_BLOCK_LIST.replace('%s', roomId);
-        const blockListKV = await js.views.kv(blockListBucket, {
-            replicas: numReplicas,
-        });
-
-        // Add the user to the block list with the current timestamp
-        const seq = await blockListKV.put(userId, new TextEncoder().encode(Date.now().toString()));
-
-        return seq;
-    }
-
-    /**
-     * DeleteRoomUsersBlockList deletes the block list for a room
-     */
-    async deleteRoomUsersBlockList(roomId: string): Promise<void> {
-        const jsm = this.natsService.getJetStreamManager();
-
+        const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
         try {
-            const blockListBucket = ROOM_USERS_BLOCK_LIST.replace('%s', roomId);
-            await jsm.streams.delete(`KV_${blockListBucket}`);
-        } catch (error) {
-            // Silently ignore if not found
-        }
+            const js = this.natsService.getJetStream();
+            const kv = await js.views.kv(bucket);
+            await kv.put(this.natsService.formatUserKey(userId, 'is_blacklisted'), new TextEncoder().encode('true'));
+        } catch (error) { }
     }
 
-    /**
-     * BroadcastUserMetadata will broadcast user metadata update event to room
-     */
-    async broadcastUserMetadata(roomId: string, userId: string, metadata?: string, toUser?: string): Promise<void> {
-        let metadataStr = metadata;
-
-        // If metadata not provided, get it from NATS
-        if (!metadataStr) {
-            const userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
-            if (!userInfo) {
-                throw new Error('User not found');
-            }
-            metadataStr = userInfo.metadata;
-        }
-
-        const data = {
-            metadata: metadataStr,
-            userId: userId,
-        };
-
-        // Broadcast to room using system events
-        await this.natsSystemEvents.broadcastSystemEventToRoom(
-            NatsMsgServerToClientEvents.USER_METADATA_UPDATE,
-            roomId,
-            data,
-            toUser,
-        );
-    }
-
-    /**
-     * UpdateAndBroadcastUserMetadata will update metadata & broadcast to everyone
-     */
-    async updateAndBroadcastUserMetadata(
-        roomId: string,
-        userId: string,
-        meta: UserMetadata | null,
-        toUserId?: string | null,
-    ): Promise<void> {
-        if (!meta) {
-            throw new Error('Metadata cannot be nil');
-        }
-
-        // Update the metadata
-        const mt = await this.updateUserMetadata(roomId, userId, meta);
-
-        // Broadcast the update
-        await this.broadcastUserMetadata(roomId, userId, mt, toUserId || undefined);
-    }
-
-    /**
-     * BroadcastUserInfoToRoom broadcasts user info to all participants in room
-     */
-    async broadcastUserInfoToRoom(
-        event: NatsMsgServerToClientEvents,
-        roomId: string,
-        userId: string,
-        userInfo?: any,  // NatsKvUserInfo
-    ): Promise<void> {
-        let info = userInfo;
-
-        // If userInfo not provided, get it from NATS
-        if (!info) {
-            info = await this.natsUserInfo.getUserInfo(roomId, userId);
-            if (!info) {
-                this.logger.warn(`User info not found for ${userId} in room ${roomId}`);
-                return;
-            }
-        }
-
-        try {
-            await this.natsSystemEvents.broadcastSystemEventToRoom(
-                event,
-                roomId,
-                info,
-                undefined,
-            );
-        } catch (error) {
-            this.logger.warn(`Failed to broadcast user info: ${error.message}`);
-        }
-    }
 
     // ============================================================================
-    // User Lifecycle Event Handlers
+    // User Lifecycle Event Handlers (High-level wrappers)
     // ============================================================================
 
-    /**
-     * OnAfterUserJoined handles user joined event
-     */
     async onAfterUserJoined(roomId: string, userId: string): Promise<void> {
-        const log = this.logger;
-        log.log(`Handling user joined event: room=${roomId}, user=${userId}`);
+        this.logger.log(`Handling user joined event: room=${roomId}, user=${userId}`);
 
-        try {
-            const status = await this.natsUserInfo.getRoomUserStatus(roomId, userId);
-
-            // If user is already online, don't proceed (frequent case due to pings)
-            if (status === USER_STATUS_ONLINE) {
-                return;
-            }
-
-            // Update user status to online
-            await this.updateUserStatus(roomId, userId, USER_STATUS_ONLINE);
-
-            // Get user info
-            const userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
-            if (userInfo) {
-                // Broadcast USER_JOINED to everyone except this user
-                try {
-                    await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
-                        NatsMsgServerToClientEvents.USER_JOINED,
-                        roomId,
-                        userInfo,
-                        userId
-                    );
-                } catch (error) {
-                    log.error(`Failed to broadcast USER_JOINED event: ${error.message}`);
+        // Try cache first, then fallback to KV if cache not ready
+        // This matches Go server behavior: pkg/services/nats/user_info.go -> GetRoomUserStatus
+        let status = this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
+        if (!status) {
+            // Cache might not be ready yet, read directly from NATS KV as fallback
+            try {
+                const statusStr = await this.getRoomUserStatus(roomId, userId);
+                if (statusStr === USER_STATUS_ONLINE) {
+                    this.logger.debug(`User ${userId} already online (from KV fallback), skipping broadcast`);
+                    return;
                 }
-
-                // Send analytics
-                const now = Date.now();
-                await this.analyticsService.handleEvent({
-                    eventType: AnalyticsEventType.ROOM,
-                    eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_JOINED,
-                    roomId,
-                    userId,
-                    userName: userInfo.name,
-                    extraData: userInfo.metadata,
-                    hsetValue: now.toString(),
-                } as AnalyticsDataMsg);
+            } catch (error) {
+                // Continue if we can't read from KV - better to broadcast than miss the event
+                this.logger.warn(`Could not read user status from KV: ${error.message}`);
             }
-        } catch (error) {
-            log.error(`Failed to handle onAfterUserJoined: ${error.message}`);
+        } else if (status.status === USER_STATUS_ONLINE) {
+            this.logger.debug(`User ${userId} already online (from cache), skipping broadcast`);
+            return;
+        }
+
+        await this.updateUserStatus(roomId, userId, USER_STATUS_ONLINE);
+        const userInfo = await this.getUserInfo(roomId, userId);
+        if (userInfo) {
+            const userInfoMsg = this.natsService.marshalToProtoJson(userInfo, NatsKvUserInfoSchema);
+            // Non-blocking broadcast to avoid clogging the worker pool
+            this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+                NatsMsgServerToClientEvents.USER_JOINED,
+                roomId,
+                userInfoMsg,
+                userId
+            ).catch(() => { });
+
+            // Non-blocking analytics
+            this.analyticsService.handleEvent({
+                eventType: AnalyticsEventType.ROOM,
+                eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_JOINED,
+                roomId,
+                userId,
+                userName: userInfo.name,
+                extraData: userInfo.metadata,
+                hsetValue: Date.now().toString(),
+            } as AnalyticsDataMsg).catch(err => this.logger.error(`Analytics error: ${err.message}`));
         }
     }
 
-    /**
-     * OnAfterUserDisconnected handles user disconnected event
-     *
-     * This runs in background. We wait 5s before declaring user offline
-     * but broadcast disconnected status immediately
-     */
     async onAfterUserDisconnected(roomId: string, userId: string): Promise<void> {
-        const log = this.logger;
-        log.log(`Handling user disconnected event: room=${roomId}, user=${userId}`);
+        this.logger.log(`Handling user disconnected event: room=${roomId}, user=${userId}`);
+        await this.updateUserStatus(roomId, userId, USER_STATUS_DISCONNECTED);
 
-        // Immediately set status to disconnected and notify clients
-        try {
-            await this.updateUserStatus(roomId, userId, USER_STATUS_DISCONNECTED);
-        } catch (error) {
-            log.warn(`Failed to update user status to disconnected: ${error.message}`);
-        }
+        // Immediate analytics for user left
+        // Non-blocking analytics
+        this.analyticsService.handleEvent({
+            eventType: AnalyticsEventType.USER,
+            eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_LEFT,
+            roomId,
+            userId,
+            hsetValue: Date.now().toString(),
+        } as AnalyticsDataMsg).catch(err => this.logger.error(`Analytics error: ${err.message}`));
 
-        // Try to get user info for a richer disconnect message
-        let userInfo: any = null;
-        try {
-            userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
-        } catch (error) {
-            log.warn(`Could not get user info: ${error.message}`);
-        }
+        const userInfo = await this.getUserInfo(roomId, userId) || create(NatsKvUserInfoSchema, { userId, roomId });
+        const userInfoMsg = this.natsService.marshalToProtoJson(userInfo, NatsKvUserInfoSchema);
 
-        // Broadcast USER_DISCONNECTED event
-        const basicUserInfo = userInfo || { userId, roomId };
-        try {
-            await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
-                NatsMsgServerToClientEvents.USER_DISCONNECTED,
-                roomId,
-                basicUserInfo,
-                userId
-            );
-        } catch (error) {
-            log.error(`Failed to broadcast USER_DISCONNECTED event: ${error.message}`);
-        }
+        // Non-blocking broadcast
+        this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+            NatsMsgServerToClientEvents.USER_DISCONNECTED,
+            roomId,
+            userInfoMsg,
+            userId
+        ).catch(() => { });
 
-        // Start background task to handle delayed offline tasks
-        // Use setImmediate to run in background
         setImmediate(() => this.handleDelayedOfflineTasks(roomId, userId, userInfo));
     }
 
-    /**
-     * handleDelayedOfflineTasks manages grace period for user reconnection and cleanup
-     */
     private async handleDelayedOfflineTasks(roomId: string, userId: string, userInfo: any): Promise<void> {
-        const log = this.logger;
-        log.log(`Starting delayed offline tasks: room=${roomId}, user=${userId}`);
-
-        // Stage 1: Wait for reconnection grace period (5 seconds)
+        // Stage 1: Wait for the reconnection grace period (5 seconds)
         await new Promise(resolve => setTimeout(resolve, 5000));
-
-        try {
-            const status = await this.natsUserInfo.getRoomUserStatus(roomId, userId);
-            if (status === USER_STATUS_ONLINE) {
-                // User reconnected, abort offline tasks
-                log.log('User reconnected within grace period, aborting offline tasks');
-                return;
-            }
-        } catch (error) {
-            log.warn(`Failed to check user status: ${error.message}`);
+        const status = await this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
+        if (status?.status === USER_STATUS_ONLINE) {
+            this.logger.debug(`User ${userId} reconnected within grace period, aborting offline tasks`);
+            return;
         }
 
-        // User is still disconnected, mark as offline
-        try {
-            await this.updateUserStatus(roomId, userId, USER_STATUS_OFFLINE);
-        } catch (error) {
-            log.warn(`Failed to update user status to offline: ${error.message}`);
-        }
+        // Mark as offline
+        await this.updateUserStatus(roomId, userId, USER_STATUS_OFFLINE);
 
-        // Send analytics for user leaving
-        this.updateUserLeftAnalytics(roomId, userId);
+        // Broadcast final offline status
+        const userInfoObj = userInfo || create(NatsKvUserInfoSchema, { userId, roomId });
+        const userInfoMsg = this.natsService.marshalToProtoJson(userInfoObj, NatsKvUserInfoSchema);
 
-        // Broadcast final USER_OFFLINE status
-        const finalUserInfo = userInfo || { userId };
-        try {
-            await this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
-                NatsMsgServerToClientEvents.USER_OFFLINE,
-                roomId,
-                finalUserInfo,
-                userId
-            );
-        } catch (error) {
-            // Ignore NoOnlineUserFound error
-            if (!error.message.includes('no online user found')) {
-                log.warn(`Failed to broadcast USER_OFFLINE event: ${error.message}`);
-            }
-        }
+        // Non-blocking broadcast
+        this.natsSystemEvents.broadcastSystemEventToEveryoneExceptUserId(
+            NatsMsgServerToClientEvents.USER_OFFLINE,
+            roomId,
+            userInfoMsg,
+            userId
+        ).catch(() => { });
 
-        // Stage 2: Wait longer before final cleanup (30 seconds)
+        // Stage 2: Wait a bit longer before final cleanup (30 seconds)
         await new Promise(resolve => setTimeout(resolve, 30000));
 
-        try {
-            const status = await this.natsUserInfo.getRoomUserStatus(roomId, userId);
-            if (status === USER_STATUS_ONLINE) {
-                // User reconnected, do not delete consumer
-                log.log('User reconnected before final cleanup, consumer will not be deleted');
-                return;
-            }
-        } catch (error) {
-            log.warn(`Failed to check final user status: ${error.message}`);
+        const finalStatus = await this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
+        if (finalStatus?.status === USER_STATUS_ONLINE) {
+            this.logger.debug(`User ${userId} reconnected before final cleanup, cleanup aborted`);
+            return;
         }
 
-        // Also try to silently remove this user from LiveKit as well
+        // Silently remove from LiveKit (Matches Go)
         try {
             await this.livekitService.removeParticipant(roomId, userId);
         } catch (error) {
-            // Silent fail - user may have already been removed
-            log.debug(`Could not remove participant from LiveKit: ${error.message}`);
+            // Ignore errors if participant already removed
         }
 
-        // Final cleanup: Delete user's NATS consumer
-        try {
-            await this.natsService.deleteConsumer(roomId, userId);
-        } catch (error) {
-            log.error(`Failed to delete consumer: ${error.message}`);
-        }
-
-        log.log('User offline tasks completed');
-    }
-
-    /**
-     * updateUserLeftAnalytics sends analytics for user leaving
-     */
-    private async updateUserLeftAnalytics(roomId: string, userId: string): Promise<void> {
-        const now = Date.now();
-
-        try {
-            await this.analyticsService.handleEvent({
-                eventType: AnalyticsEventType.USER,
-                eventName: AnalyticsEvents.ANALYTICS_EVENT_USER_LEFT,
-                roomId,
-                userId,
-                hsetValue: now.toString(),
-            } as AnalyticsDataMsg);
-        } catch (error) {
-            this.logger.error(`Failed to send user left analytics: ${error.message}`);
-        }
+        // Final cleanup: Delete NATS consumer
+        await this.natsConsumerService.deleteConsumer(roomId, userId).catch(() => { });
+        this.logger.log(`User ${userId} offline tasks completed for room ${roomId}`);
     }
 }

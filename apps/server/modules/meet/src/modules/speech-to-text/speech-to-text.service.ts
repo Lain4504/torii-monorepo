@@ -255,7 +255,7 @@ export class SpeechToTextService {
     private async broadcastAzureToken(roomId: string, userId: string, data: GenerateAzureTokenRes): Promise<void> {
         const jsonStr = toJsonString(GenerateAzureTokenResSchema, data);
         await this.natsSystemEvents.broadcastSystemEventToRoom(
-            NatsMsgServerToClientEvents.AZURE_COGNITIVE_SERVICE_SPEECH_TOKEN,
+            (NatsMsgServerToClientEvents as any).AZURE_COGNITIVE_SERVICE_SPEECH_TOKEN,
             roomId,
             jsonStr,
             userId,
