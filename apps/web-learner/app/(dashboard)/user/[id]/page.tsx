@@ -9,6 +9,7 @@ import { QAItem, Post } from '@/components/qa/qa-item'
 import { Loader2, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
+import { useAvatarUrl } from '@/hooks/useAvatarUrl'
 
 export default function UserProfilePage() {
     const params = useParams()
@@ -27,6 +28,7 @@ export default function UserProfilePage() {
     })
 
     const posts: Post[] = Array.isArray(postsData?.data) ? postsData?.data : (postsData?.data?.data || [])
+    const avatarSrc = useAvatarUrl(user?.avatarUrl)
 
     if (userLoading) {
         return <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
@@ -43,7 +45,11 @@ export default function UserProfilePage() {
                 <div className="h-32 bg-gradient-to-r from-primary/20 via-primary/5 to-background"></div>
                 <div className="px-8 pb-8 flex flex-col sm:flex-row items-end sm:items-end -mt-12 gap-6">
                     <Avatar className="w-32 h-32 border-4 border-background shadow-xl">
-                        <AvatarImage src={user.avatarUrl || undefined} alt={user.displayName} />
+                        <AvatarImage
+                            src={avatarSrc || undefined}
+                            alt={user.displayName}
+                            referrerPolicy="no-referrer"
+                        />
                         <AvatarFallback className="text-4xl">{user.displayName?.[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 space-y-2 pb-2 text-center sm:text-left">

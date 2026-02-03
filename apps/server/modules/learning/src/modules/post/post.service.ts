@@ -137,6 +137,10 @@ export class PostService implements IPostService {
       where.tags = {
         has: query.tagId,
       };
+    } else if (query.tags && query.tags.length > 0) {
+      where.tags = {
+        hasSome: query.tags,
+      };
     }
 
     const orderBy: Prisma.PostOrderByWithRelationInput = {};

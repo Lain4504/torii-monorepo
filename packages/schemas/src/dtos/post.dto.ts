@@ -39,6 +39,7 @@ export const postQueryDTOSchema = z.object({
     type: z.nativeEnum(PostType).optional(),
     authorId: z.string().uuid().optional(),
     tagId: z.string().optional(),
+    tags: z.union([z.string(), z.array(z.string())]).transform(v => Array.isArray(v) ? v : [v]).optional(),
     sortBy: z.string().optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
 });

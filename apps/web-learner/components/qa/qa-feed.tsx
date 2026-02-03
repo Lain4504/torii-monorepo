@@ -10,33 +10,30 @@ import { useSearchParams } from 'next/navigation'
 interface QAFeedProps {
     category?: string
     sortBy?: string
+    followedTags?: string[]
 }
 
-export function QAFeed({ category = 'ALL', sortBy = 'newest' }: QAFeedProps) {
-    // Basic mapping of category names to potential API values
-    // In a real app, these would probably be tag IDs or precise enum values.
-    // For now, we pass them as a 'type' or 'tag' search param if the API supported it fully.
-    // Since our backend service 'findAllPosts' supports 'type', 'tagId', 'search', etc.
-    // We will assume 'category' maps to a tagId or similar.
-    // Since we don't have real IDs, we'll just pass 'ALL' => empty filter.
-
-    // Note: The backend 'type' is strictly 'QA' or 'BLOG'. Tabs are likely tags.
-    // We'd need to fetch tags to map "Học Tiếng Nhật" to an ID. 
-    // For this demonstration, we'll keep it simple and just fetch 'QA'.
+export function QAFeed({ category = 'ALL', sortBy = 'newest', followedTags }: QAFeedProps) {
 
     const { data, isLoading, isError, refetch } = useQuery({
-        queryKey: ['qa-feed', category, sortBy],
+        queryKey: ['qa-feed', category, sortBy, followedTags],
         queryFn: async () => {
-            // Simulating category filter if we had tag IDs
-            // const params: any = { page: 1, limit: 20, type: 'QA' }
-            // if (category !== 'ALL') params.search = category // fallback to search by keyword?
-
-            // For now, let's just use text search for the category name if it's not ALL/FOLLOWING
             const params: any = { page: 1, limit: 20, type: 'QA' }
-            if (category !== 'ALL' && category !== 'FOLLOWING') {
-                params.search = category
+
+            if (category === 'FOLLOWING') {
+                if (!followedTags || followedTags.length === 0) {
+                    // If following but no tags selected, maybe return empty or handle differently
+                    // For now, let's return nothing or all? Screenshot implies empty state if not customized.
+                    // But if passed empty array to backend with tags filter, it might return all. 
+                    // Let's rely on backend: if tags is empty list, backend 'hasSome' might fail or return nothing.
+                    // Let's pass empty array.
+                    params.tags = []
+                } else {
+                    params.tags = followedTags
+                }
+            } else if (category !== 'ALL') {
+                params.tagId = category
             }
-            // If FOLLOWING, we'd need a specific endpoint or param like 'followed: true'
 
             return qaApi.getFeed(params)
         }
