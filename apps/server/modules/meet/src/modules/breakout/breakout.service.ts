@@ -492,12 +492,16 @@ export class BreakoutService {
       metadata.parentRoomId,
       roomId,
     );
-    if (!roomStr) return;
+    if (!roomStr) {
+      this.logger.warn(`Breakout room ${roomId} not found in Redis for parent ${metadata.parentRoomId}, skipping postPR-start tasks`);
+      return;
+    }
 
     const room = fromJsonString(
       BreakoutRoomSchema,
       roomStr,
     );
+    this.logger.log(`Updating breakout room ${roomId} status to started: true`);
     room.created = metadata.startedAt.toString();
     room.started = true;
 

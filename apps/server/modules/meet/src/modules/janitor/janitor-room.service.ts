@@ -93,11 +93,6 @@ export class JanitorRoomService {
             const rooms = await this.roomDurationService.getRoomsWithDurationMap();
 
             for (const [roomId, r] of Object.entries(rooms)) {
-                // Skip if room hasn't officially started yet
-                if (r.startedAt === 0) {
-                    continue;
-                }
-
                 const now = Math.floor(Date.now() / 1000);
                 // valid = r.StartedAt + (r.Duration * 60)
                 const valid = r.startedAt + (r.duration * 60);

@@ -163,7 +163,7 @@ export class RoomDurationService {
                 }
             }
 
-            // Step 4: Update duration in Redis
+            // Step 4: Update duration in Redis if it exists
             let newTotalDuration: number;
             if (info) {
                 // Info exists in Redis, perform atomic increment
@@ -172,10 +172,12 @@ export class RoomDurationService {
                 // Info doesn't exist in Redis (room hasn't started yet), use metadata as base
                 newTotalDuration = metaDuration + duration;
 
-                // Initialize/update the Redis entry to keep it in sync
-                await this.redisRoom.setRoomDuration(roomId, 'duration', newTotalDuration);
+                // We do NOT add it to Redis yet. If we add it with startedAt=0, 
+                // the Janitor service will think it's expired and kill it.
+                // It will be added to Redis with the correct startedAt when the room officially starts.
+                this.logger.log(`Room not started yet, updated duration in metadata only: ${newTotalDuration} minutes`);
             }
-            this.logger.log(`Updated room duration: ${newTotalDuration} minutes`);
+            this.logger.log(`New total duration: ${newTotalDuration} minutes`);
 
             // Step 5: Update and broadcast room metadata
             // Update the roomDuration field
