@@ -5,6 +5,7 @@ import { postApi } from '@/apis/services/post-api'
 import { PostSidebar } from '@/components/post/post-sidebar'
 import { CommentSection } from '@/components/post/comment-section'
 import type { PostResponseDTO } from '@workspace/schemas'
+import { PostType } from '@workspace/schemas'
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor'
 import {
     Breadcrumb,
@@ -37,8 +38,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 setLoading(true)
                 const [postData, latestData, topData] = await Promise.all([
                     postApi.findById(id),
-                    postApi.findAll({ page: 1, limit: 5 }),
-                    postApi.findAll({ page: 1, limit: 5, sortBy: 'viewCount', sortOrder: 'desc' })
+                    postApi.findAll({ page: 1, limit: 5, type: PostType.BLOG }),
+                    postApi.findAll({ page: 1, limit: 5, sortBy: 'viewCount', sortOrder: 'desc', type: PostType.BLOG })
                 ])
                 setPost(postData)
                 setRecentPosts(latestData?.data?.filter(p => p.id !== postData?.id) || [])

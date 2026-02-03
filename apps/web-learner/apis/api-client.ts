@@ -82,8 +82,8 @@ const isPublicEndpoint = (url?: string): boolean => {
         '/auth/verify-invite-token',
         '/auth/set-password',
         '/auth/logout',
-        '/posts',
-        '/comments',
+        '/api/posts',
+        '/api/comments',
     ];
 
     // Normalize URL by removing query params and hash for matching

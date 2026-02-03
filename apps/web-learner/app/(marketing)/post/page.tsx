@@ -5,7 +5,7 @@ import { PostCard } from '@/components/post/post-card'
 import { PostSidebar } from '@/components/post/post-sidebar'
 import { useEffect, useState } from 'react'
 import type { PostResponseDTO } from '@workspace/schemas'
-import { PostStatus } from '@workspace/schemas'
+import { PostStatus, PostType } from '@workspace/schemas'
 import { Newspaper, Sparkles } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { ComponentLoading } from '@workspace/ui/components/component-loading'
@@ -29,6 +29,7 @@ export default function PostListingPage() {
                         page,
                         limit: 10,
                         status: PostStatus.PUBLISHED,
+                        type: PostType.BLOG,
                         sortBy: 'publishedAt',
                         sortOrder: 'desc'
                     }),
@@ -37,6 +38,7 @@ export default function PostListingPage() {
                         page: 1,
                         limit: 5,
                         status: PostStatus.PUBLISHED,
+                        type: PostType.BLOG,
                         sortBy: 'viewCount',
                         sortOrder: 'desc'
                     }),
@@ -45,6 +47,7 @@ export default function PostListingPage() {
                         page: 1,
                         limit: 5,
                         status: PostStatus.PUBLISHED,
+                        type: PostType.BLOG,
                         sortBy: 'publishedAt',
                         sortOrder: 'desc'
                     })

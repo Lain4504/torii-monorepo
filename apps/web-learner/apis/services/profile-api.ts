@@ -20,6 +20,17 @@ export const profileApi = {
     },
 
     /**
+     * Get public profile by ID
+     */
+    async getPublicProfile(id: string): Promise<UserResponseDTO> {
+        const response = await apiClient.get<StandardApiResponse<{ user: UserResponseDTO }>>(`/api/profiles/${id}`);
+        if (response.data.success && response.data.data) {
+            return response.data.data.user;
+        }
+        throw new Error(response.data.message || 'Failed to fetch public profile');
+    },
+
+    /**
      * Update user profile
      */
     async updateProfile(data: UpdateProfileDTO): Promise<UserResponseDTO> {
