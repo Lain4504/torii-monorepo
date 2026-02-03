@@ -188,7 +188,10 @@ export function CommentSection({ postId, qaId }: CommentSectionProps) {
                             onLikeComment={handleLikeComment}
                             user={user}
                             onUpdateComment={handleUpdateComment}
+                            user={user}
+                            onUpdateComment={handleUpdateComment}
                             onDeleteComment={handleDeleteComment}
+                            canLike={!!qaId}
                         />
                     ))
                 ) : (
@@ -220,7 +223,8 @@ function CommentItem({
     onLikeComment,
     user,
     onUpdateComment,
-    onDeleteComment
+    onDeleteComment,
+    canLike = true
 }: {
     comment: CommentResponseDTO,
     allComments: CommentResponseDTO[],
@@ -231,7 +235,8 @@ function CommentItem({
     onLikeComment: (commentId: string) => void,
     user: any,
     onUpdateComment: (id: string, content: string) => Promise<void>,
-    onDeleteComment: (id: string) => Promise<void>
+    onDeleteComment: (id: string) => Promise<void>,
+    canLike?: boolean
 }) {
     const isReplying = replyingToId === comment.id
     const myReplies = allComments.filter(c => c.parentId === comment.id)
@@ -301,13 +306,15 @@ function CommentItem({
 
                     {/* Actions */}
                     <div className="flex items-center gap-4 pt-1">
-                        <button
-                            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => onLikeComment(comment.id)}
-                        >
-                            <Heart className={`w-4 h-4 ${comment.isLiked ? 'fill-primary text-primary' : ''}`} />
-                            <span>{comment.likeCount || 0}</span>
-                        </button>
+                        {canLike && (
+                            <button
+                                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={() => onLikeComment(comment.id)}
+                            >
+                                <Heart className={`w-4 h-4 ${comment.isLiked ? 'fill-primary text-primary' : ''}`} />
+                                <span>{comment.likeCount || 0}</span>
+                            </button>
+                        )}
                         <button
                             className={`flex items-center gap-1.5 text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isReplying ? 'text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}
                             onClick={() => onReplyClick(comment.id)}
@@ -346,6 +353,7 @@ function CommentItem({
                                     user={user}
                                     onUpdateComment={onUpdateComment}
                                     onDeleteComment={onDeleteComment}
+                                    canLike={canLike}
                                 />
                             ))}
                         </div>
