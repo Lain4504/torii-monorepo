@@ -42,11 +42,11 @@ export class UserProfile extends AutomapperProfile {
         ),
         forMember(
           (dest: UserResponseDTO) => dest.xp,
-          mapFrom((src: User) => src.xp),
+          mapFrom((src: User) => (src as any).xp),
         ),
         forMember(
           (dest: UserResponseDTO) => dest.level,
-          mapFrom((src: User) => src.level),
+          mapFrom((src: User) => (src as any).level),
         ),
         forMember(
           (dest: UserResponseDTO) => dest.avatarUrl,

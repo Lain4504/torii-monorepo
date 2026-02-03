@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import {
     type ExamCreateDTO,
     type ExamUpdateDTO,
@@ -18,6 +19,7 @@ import {
     type PaginatedResponseDTO,
     UserRole,
     type Requester,
+    UserActivityEvent,
 } from '@workspace/schemas';
 import type { IExamRepository } from '../../interfaces/repositories/i-exam.repository';
 import { EXAM_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-exam.repository';
@@ -32,6 +34,7 @@ export class ExamService implements IExamService {
         @Inject(EXAM_REPOSITORY_TOKEN)
         private readonly examRepository: IExamRepository,
         private readonly prisma: PrismaService, // Keep for complex queries
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     /**
@@ -462,6 +465,27 @@ export class ExamService implements IExamService {
             this.logger.log(
                 `Attempt ${sessionId} graded: ${gradingResult.score}/${gradingResult.maxScore} (${percentage.toFixed(2)}%)`
             );
+
+            // Emit activity event for XP gain
+            try {
+                const activityEvent: UserActivityEvent = {
+                    userId,
+                    activityType: 'EXAM_COMPLETE',
+                    meta: {
+                        examId: attempt.quizId,
+                        sessionId: sessionId,
+                        score: gradingResult.score,
+                        maxScore: gradingResult.maxScore,
+                        percentage: percentage,
+                        isPassed: isPassed,
+                    },
+                    timestamp: new Date().toISOString(),
+                };
+                this.natsClient.emit('user.activity', activityEvent);
+                this.logger.log(`Emitted EXAM_COMPLETE event for user ${userId}`);
+            } catch (e) {
+                this.logger.error('Failed to emit exam activity event', e);
+            }
 
             return this.toExamSessionDto(updated);
         } catch (error: any) {

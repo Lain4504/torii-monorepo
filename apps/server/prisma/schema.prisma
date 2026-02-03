@@ -347,10 +347,6 @@ model User {
   // Role
   role String @default("learner") @db.VarChar(50)
 
-  // Gamification fields
-  xp    Int @default(0)
-  level Int @default(1)
-
   // Timestamps (replace status field - Supabase pattern)
   verifiedAt   DateTime? @map("verified_at") @db.Timestamp() // null = not verified (pending)
   bannedUntil  DateTime? @map("banned_until") @db.Timestamp() // null = not banned, value = banned until this time
@@ -377,6 +373,7 @@ model User {
   giftEnrollments         Enrollment[]             @relation("GiftEnrollments")
 
   // Gamification Relations
+  stats           UserStats?
   streak          UserStreak?
   dailyActivities DailyActivity[]
   achievements    UserAchievement[]
@@ -390,7 +387,6 @@ model User {
 
   @@index([email])
   @@index([role])
-  @@index([xp])
   @@map("users")
 }
 
@@ -1202,6 +1198,27 @@ enum AchievementCategory {
   RECOVERY
   SOCIAL
   MASTERY
+}
+
+// User Statistics (Gamification)
+model UserStats {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+
+  // Statistics
+  xp    Int @default(0)
+  level Int @default(1)
+
+  // Meta
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([xp])
+  @@map("user_stats")
 }
 
 // User Streak Tracking

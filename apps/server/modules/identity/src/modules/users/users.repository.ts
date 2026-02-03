@@ -17,19 +17,39 @@ export class UsersRepository implements IUsersRepository {
      * Find user by ID
      */
     async findById(userId: string): Promise<User | null> {
-        return this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            include: { identities: true },
+            include: {
+                identities: true,
+                stats: true
+            },
         });
+
+        if (!user) return null;
+
+        return {
+            ...user,
+            xp: (user as any).stats?.xp ?? 0,
+            level: (user as any).stats?.level ?? 1,
+        } as any;
     }
 
     /**
      * Find user by email
      */
     async findByEmail(email: string): Promise<User | null> {
-        return this.prisma.user.findFirst({
+        const user = await this.prisma.user.findFirst({
             where: { email },
+            include: { stats: true }
         });
+
+        if (!user) return null;
+
+        return {
+            ...user,
+            xp: (user as any).stats?.xp ?? 0,
+            level: (user as any).stats?.level ?? 1,
+        } as any;
     }
 
     /**
@@ -41,13 +61,22 @@ export class UsersRepository implements IUsersRepository {
         where?: Prisma.UserWhereInput;
         orderBy?: Prisma.UserOrderByWithRelationInput;
     }): Promise<User[]> {
-        return this.prisma.user.findMany({
+        const users = await this.prisma.user.findMany({
             where: options.where,
             skip: options.skip,
             take: options.take,
             orderBy: options.orderBy || { createdAt: 'desc' },
-            include: { identities: true },
+            include: {
+                identities: true,
+                stats: true
+            },
         });
+
+        return users.map(user => ({
+            ...user,
+            xp: (user as any).stats?.xp ?? 0,
+            level: (user as any).stats?.level ?? 1,
+        })) as any;
     }
 
     /**
@@ -61,35 +90,64 @@ export class UsersRepository implements IUsersRepository {
      * Create new user
      */
     async create(data: Prisma.UserCreateInput): Promise<User> {
-        return this.prisma.user.create({
-            data,
+        const user = await this.prisma.user.create({
+            data: {
+                ...data,
+                stats: {
+                    create: { xp: 0, level: 1 }
+                },
+                streak: {
+                    create: {}
+                }
+            },
+            include: { stats: true, streak: true }
         });
+
+        return {
+            ...user,
+            xp: (user as any).stats?.xp ?? 0,
+            level: (user as any).stats?.level ?? 1,
+        } as any;
     }
 
     /**
      * Update user by ID
      */
     async update(userId: string, data: Prisma.UserUpdateInput): Promise<User> {
-        return this.prisma.user.update({
+        const user = await this.prisma.user.update({
             where: { id: userId },
             data: {
                 ...data,
                 updatedAt: new Date(),
             },
+            include: { stats: true }
         });
+
+        return {
+            ...user,
+            xp: (user as any).stats?.xp ?? 0,
+            level: (user as any).stats?.level ?? 1,
+        } as any;
     }
 
     /**
      * Update user by email
      */
     async updateByEmail(email: string, data: Prisma.UserUpdateInput): Promise<User> {
-        return this.prisma.user.update({
+        const user = await this.prisma.user.update({
             where: { email },
             data: {
                 ...data,
                 updatedAt: new Date(),
             },
+            include: { stats: true }
         });
+
+        return {
+            ...user,
+            xp: (user as any).stats?.xp ?? 0,
+            level: (user as any).stats?.level ?? 1,
+        } as any;
     }
 
     /**
@@ -105,20 +163,32 @@ export class UsersRepository implements IUsersRepository {
      * Soft delete user
      */
     async softDelete(userId: string): Promise<User> {
-        return this.prisma.user.update({
+        const user = await this.prisma.user.update({
             where: { id: userId },
             data: {
                 deletedAt: new Date(),
                 updatedAt: new Date(),
             },
+            include: { stats: true }
         });
+
+        return {
+            ...user,
+            xp: (user as any).stats?.xp ?? 0,
+            level: (user as any).stats?.level ?? 1,
+        } as any;
     }
 
     /**
      * Check if email exists
      */
-    async emailExists(email: string): Promise<boolean> {
-        const user = await this.findByEmail(email);
+    async emailExists(email: string, excludeUserId?: string): Promise<boolean> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                email,
+                id: excludeUserId ? { not: excludeUserId } : undefined,
+            },
+        });
         return !!user;
     }
 
@@ -145,13 +215,17 @@ export class UsersRepository implements IUsersRepository {
                 email: true,
                 displayName: true,
                 role: true,
-                xp: true,
-                level: true,
                 avatarUrl: true,
                 userMetadata: true,
                 verifiedAt: true,
                 createdAt: true,
                 updatedAt: true,
+                stats: {
+                    select: {
+                        xp: true,
+                        level: true,
+                    },
+                },
             },
         });
 
@@ -168,8 +242,10 @@ export class UsersRepository implements IUsersRepository {
 
         return {
             ...user,
+            xp: user.stats?.xp ?? 0,
+            level: user.stats?.level ?? 1,
             userMetadata,
-        };
+        } as any;
     }
 
     /**

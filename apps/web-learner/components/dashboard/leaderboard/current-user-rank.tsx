@@ -47,7 +47,7 @@ export function CurrentUserRank({ user, type }: CurrentUserRankProps) {
                                 <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
                             )}
                             <p className="text-lg font-extrabold text-foreground">
-                                {type === 'global' ? user.xp : user.currentStreak}
+                                {type === 'global' ? user.xp.toLocaleString() : user.currentStreak.toLocaleString()}
                             </p>
                         </div>
                     </div>
