@@ -57,7 +57,19 @@ export class FileController {
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         private readonly configService: ConfigService,
     ) {
-        this.uploadPath = this.configService.get<string>('UPLOAD_FILE_PATH') || './uploads';
+        const rawPath = this.configService.get<string>('UPLOAD_FILE_PATH');
+        const defaultPath = './uploads';
+        this.uploadPath = rawPath
+            ? (path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath))
+            : path.resolve(process.cwd(), defaultPath);
+
+        this.logger.log(`UPLOAD_FILE_PATH from env: ${rawPath}`);
+        this.logger.log(`Resolved uploadPath: ${this.uploadPath}`);
+        this.logger.log(`Current process.cwd(): ${process.cwd()}`);
+
+        if (!fs.existsSync(this.uploadPath)) {
+            fs.mkdirSync(this.uploadPath, { recursive: true });
+        }
     }
 
     /**
@@ -76,21 +88,29 @@ export class FileController {
             return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token roomId & requested roomId didn't matched" });
         }
         if (req.userId !== jwtUserId) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token roomId & requested roomId didn't matched" });
+            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token userId & requested userId didn't matched" });
         }
 
         const tempFolder = path.join(this.uploadPath, req.roomSid, 'tmp');
         const chunkDir = path.join(tempFolder, req.resumableIdentifier);
         const chunkPath = path.join(chunkDir, `part${req.resumableChunkNumber}`);
 
+        this.logger.debug(`Chunk check: sid=${req.roomSid}, ident=${req.resumableIdentifier}, path=${chunkPath}`);
+
         if (fs.existsSync(chunkPath)) {
             const stats = fs.statSync(chunkPath);
             if (stats.size === Number(req.resumableCurrentChunkSize)) {
+                this.logger.debug(`Chunk found and size matches, skipping upload: ${chunkPath}`);
+                // Return 200 to indicate chunk already exists (standard resumable.js success)
                 return res.status(HttpStatus.OK).send('part_already_uploaded');
             }
+            this.logger.warn(`Chunk size mismatch, deleting: ${chunkPath}`);
             fs.unlinkSync(chunkPath);
         }
-        return res.status(HttpStatus.OK).send('ok_to_upload');
+
+        // Return 404 to indicate chunk does not exist (standard resumable.js trigger for upload)
+        this.logger.debug(`Chunk not found, requesting upload: ${chunkPath}`);
+        return res.status(HttpStatus.NOT_FOUND).send('ok_to_upload');
     }
 
     @Post('api/fileUpload')
@@ -121,12 +141,30 @@ export class FileController {
             return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token roomId & requested roomId didn't matched" });
         }
         if (req.userId !== jwtUserId) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token roomId & requested roomId didn't matched" });
+            return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token userId & requested userId didn't matched" });
+        }
+
+        // Chunk 1 validation (matches Go logic)
+        if (req.resumableChunkNumber === 1) {
+            const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 100;
+            if (req.resumableTotalSize > maxSizeMb * 1024 * 1024) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: `file too large: max allowed is ${maxSizeMb}MB` });
+            }
+            // Basic extension validation
+            const ext = path.extname(req.resumableFilename).toLowerCase().replace('.', '');
+            const allowedTypesStr = this.configService.get<string>('UPLOAD_ALLOWED_TYPES') ||
+                'jpg,jpeg,png,gif,txt,pdf,doc,docx,xls,xlsx,ppt,pptx,mp3,mp4,wav,ogg,webm,svg,rtf,csv,xml';
+            const allowedTypes = allowedTypesStr.split(',').map(t => t.trim());
+            if (!ext || !allowedTypes.includes(ext)) {
+                return res.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).json({ status: false, msg: 'file type not allowed' });
+            }
         }
 
         const tempFolder = path.join(this.uploadPath, req.roomSid, 'tmp');
         const chunkDir = path.join(tempFolder, req.resumableIdentifier);
         const chunkPath = path.join(chunkDir, `part${req.resumableChunkNumber}`);
+
+        this.logger.debug(`Chunk upload: sid=${req.roomSid}, ident=${req.resumableIdentifier}, chunk=${req.resumableChunkNumber}, path=${chunkPath}`);
 
         if (!fs.existsSync(chunkDir)) {
             fs.mkdirSync(chunkDir, { recursive: true });
@@ -150,6 +188,7 @@ export class FileController {
                 req = create(UploadedFileMergeReqSchema, body);
             }
 
+            this.logger.debug(`Merge request received: sid=${req.roomSid}, roomId=${req.roomId}, ident=${req.resumableIdentifier}`);
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'file.merge' }, {
                     ...req,
@@ -158,6 +197,7 @@ export class FileController {
                 })
             );
 
+            this.logger.debug(`Merge result: ${JSON.stringify(result)}`);
             res.status(HttpStatus.OK);
             sendProtobufResponse(res, UploadedFileResSchema, result);
         } catch (error) {
@@ -209,17 +249,10 @@ export class FileController {
 
         const fileName = path.basename(fullPath);
         const mimeType = this.getMimeType(fileName);
-        const isImage = mimeType.startsWith('image/');
-
-        // Set Content-Disposition based on file type
-        // 'inline' for images/PDFs allows them to be displayed in browser
-        // 'attachment' forces download for other types
-        const disposition = isImage || mimeType === 'application/pdf' ? 'inline' : 'attachment';
-
         const encodedFileName = encodeURIComponent(fileName);
         res.setHeader(
             'Content-Disposition',
-            `${disposition}; filename="${encodedFileName}"; filename*=UTF-8''${encodedFileName}`,
+            `attachment; filename="${encodedFileName}"; filename*=UTF-8''${encodedFileName}`,
         );
         res.setHeader('Content-Type', mimeType);
 
