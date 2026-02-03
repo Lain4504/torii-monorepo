@@ -380,6 +380,11 @@ model User {
   // Coupon Relations
   createdCoupons  Coupon[]         @relation("CouponCreator")
 
+  // QA Relations
+  qas             QA[]
+  qaLikes         QAUserLike[]
+  commentLikes    CommentLike[]
+
   // Ticket Relations
   tickets         Ticket[]         @relation("UserTickets")
   handledTickets  Ticket[]         @relation("HandlerTickets")
@@ -388,6 +393,8 @@ model User {
   @@index([role])
   @@map("users")
 }
+
+
 
 // User Identity Model - For OAuth providers (email, google, etc.)
 model UserIdentity {
@@ -806,7 +813,8 @@ model Post {
 // Comments - Comments on posts with nested replies support
 model Comment {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  postId          String   @map("post_id") @db.Uuid
+  postId          String?  @map("post_id") @db.Uuid
+  qaId            String?  @map("qa_id") @db.Uuid
   userId          String   @map("user_id") @db.Uuid
   parentCommentId String?  @map("parent_comment_id") @db.Uuid // For nested replies
   content         String   @db.Text
@@ -814,16 +822,72 @@ model Comment {
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
 
-  post    Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post    Post?      @relation(fields: [postId], references: [id], onDelete: Cascade)
   user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   parent  Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
   replies Comment[] @relation("CommentReplies")
+  qa      QA?       @relation(fields: [qaId], references: [id], onDelete: Cascade)
+  likes   CommentLike[]
+
+  @@index([qaId])
 
   @@index([postId])
   @@index([userId])
   @@index([parentCommentId])
   @@index([createdAt(sort: Desc)])
   @@map("comments")
+}
+
+// QA - Community Questions/Posts (separate from Blog Posts)
+model QA {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String?  @db.VarChar(255) // Optional, as some posts might just be content
+  content     String   @db.Text
+  authorId    String   @map("author_id") @db.Uuid
+  tags        String[] @default([]) @db.VarChar(50)
+  viewCount   Int      @default(0) @map("view_count")
+  commentCount Int     @default(0) @map("comment_count")
+  likeCount   Int      @default(0) @map("like_count")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  likes       QAUserLike[]
+
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+  @@map("qas")
+}
+
+model QAUserLike {
+  qaId      String   @map("qa_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  qa   QA   @relation(fields: [qaId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([qaId, userId])
+  @@index([qaId])
+  @@index([userId])
+  @@map("qa_user_likes")
+}
+
+model CommentLike {
+  commentId String   @map("comment_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
+  @@map("comment_likes")
 }
 
 // Question Pools - Nhóm câu hỏi theo course/lesson

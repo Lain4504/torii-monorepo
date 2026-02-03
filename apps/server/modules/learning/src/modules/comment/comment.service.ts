@@ -36,21 +36,52 @@ export class CommentService implements ICommentService {
   /**
    * Map Comment entity to CommentResponseDTO using AutoMapper
    */
-  private toCommentResponseDTO(comment: Comment | (Comment & { _count?: { replies?: number } })): CommentResponseDTO {
-    return this.mapper.map<any, CommentResponseDTO>(comment, 'Comment', 'CommentResponseDTO');
+  private toCommentResponseDTO(comment: any, currentUserId?: string): CommentResponseDTO {
+    const dto = this.mapper.map<any, CommentResponseDTO>(comment, 'Comment', 'CommentResponseDTO');
+
+    // Manually map author if user relation is loaded and author not already mapped by automapper
+    if (comment.user && !dto.author) {
+      dto.author = {
+        id: comment.user.id,
+        displayName: comment.user.displayName,
+        avatarUrl: comment.user.avatarUrl,
+      };
+    }
+
+    // Map replyCount, likeCount, isLiked
+    dto.replyCount = comment._count?.replies || 0;
+    dto.likeCount = comment._count?.likes || 0;
+
+    if (currentUserId && comment.likes) {
+      dto.isLiked = Array.isArray(comment.likes) && comment.likes.length > 0;
+    }
+
+    return dto;
   }
 
   /**
    * Create new comment
    */
   async createComment(dto: CommentCreateDTO): Promise<CommentResponseDTO> {
-    // Verify post exists
-    const post = await this.prisma.post.findUnique({
-      where: { id: dto.postId },
-    });
+    // Verify post or qa exists
+    if (dto.postId) {
+      const post = await this.prisma.post.findUnique({
+        where: { id: dto.postId },
+      });
 
-    if (!post) {
-      throw new NotFoundException(`Post with id "${dto.postId}" not found`);
+      if (!post) {
+        throw new NotFoundException(`Post with id "${dto.postId}" not found`);
+      }
+    } else if (dto.qaId) {
+      const qa = await this.prisma.qA.findUnique({
+        where: { id: dto.qaId },
+      });
+
+      if (!qa) {
+        throw new NotFoundException(`QA with id "${dto.qaId}" not found`);
+      }
+    } else {
+      throw new BadRequestException('Either postId or qaId must be provided');
     }
 
     // Check if author exists in User table
@@ -71,17 +102,22 @@ export class CommentService implements ICommentService {
         throw new NotFoundException(`Parent comment with id "${dto.parentId}" not found`);
       }
 
-      // Ensure parent comment belongs to the same post
-      if (parentComment.postId !== dto.postId) {
+      // Ensure parent comment belongs to the same post/qa
+      if (dto.postId && parentComment.postId !== dto.postId) {
         throw new BadRequestException('Parent comment does not belong to this post');
+      }
+      if (dto.qaId && parentComment.qaId !== dto.qaId) {
+        throw new BadRequestException('Parent comment does not belong to this QA');
       }
     }
 
-    // Create comment (DB will validate postId and authorId via foreign key constraints)
     const comment = await this.commentRepository.create({
-      post: {
+      post: dto.postId ? {
         connect: { id: dto.postId },
-      },
+      } : undefined,
+      qa: dto.qaId ? {
+        connect: { id: dto.qaId },
+      } : undefined,
       user: {
         connect: { id: dto.authorId },
       },
@@ -92,19 +128,27 @@ export class CommentService implements ICommentService {
       status: 'approved',
     });
 
-    // Increment comment count on the post using PostRepository
-    // Increment comment count on the post using PostRepository
-    await this.postRepository.update(dto.postId, {
-      commentCount: { increment: 1 },
-    });
+    // Increment comment count
+    if (dto.postId) {
+      await this.postRepository.update(dto.postId, {
+        commentCount: { increment: 1 },
+      });
+    } else if (dto.qaId) {
+      try {
+        await this.prisma.qA.update({
+          where: { id: dto.qaId },
+          data: { commentCount: { increment: 1 } }
+        });
+      } catch (e) {
+        // Ignore
+      }
+    }
 
     // If this is a reply (parentId exists), emit event to notify the person being replied to
     if (dto.parentId && parentComment) {
       try {
         const parentCommentAuthorId = parentComment.userId;
         const replyAuthorId = dto.authorId;
-
-        // Business Rules: Send notification if not replying to self
         const isReplyingSelf = parentCommentAuthorId === replyAuthorId;
 
         if (!isReplyingSelf) {
@@ -126,22 +170,19 @@ export class CommentService implements ICommentService {
               },
             },
           );
-        } else {
-          this.logger.log(`Skipping notification: User ${replyAuthorId} is replying to their own comment`);
         }
       } catch (error: any) {
         this.logger.error(`Failed to emit comment.reply event: ${error?.message}`, error);
-        // Don't throw - event emission failure should not break comment creation
       }
     }
 
-    return this.toCommentResponseDTO(comment);
+    return this.toCommentResponseDTO(comment, dto.authorId);
   }
 
   /**
    * Find all comments with pagination and filters
    */
-  async findAllComments(query: CommentQueryDTO): Promise<CommentPaginatedResponse> {
+  async findAllComments(query: CommentQueryDTO, currentUserId?: string): Promise<CommentPaginatedResponse> {
     try {
       const page = typeof query.page === 'string' ? parseInt(query.page, 10) : (query.page || 1);
       const limit = typeof query.limit === 'string' ? parseInt(query.limit, 10) : (query.limit || 20);
@@ -153,6 +194,9 @@ export class CommentService implements ICommentService {
 
       if (query.postId) {
         where.postId = query.postId;
+      }
+      if (query.qaId) {
+        where.qaId = query.qaId;
       }
 
       if (query.parentId !== undefined) {
@@ -173,6 +217,7 @@ export class CommentService implements ICommentService {
           take: limit,
           orderBy,
           includeReplyCount: true,
+          currentUserId,
         }),
         this.commentRepository.count(where),
       ]);
@@ -181,50 +226,26 @@ export class CommentService implements ICommentService {
         comments.map(async (comment: any) => {
           try {
             if (!comment || !comment.id) {
-              this.logger.warn('Invalid comment data:', comment);
               return null;
             }
-
-            const formatted = await this.toCommentResponseDTO(comment);
-            return {
-              ...formatted,
-              replyCount: comment._count?.replies || 0,
-            };
+            return this.toCommentResponseDTO(comment, currentUserId);
           } catch (error: any) {
-            this.logger.error(`Error formatting comment ${comment?.id}: ${error.message}`, error.stack);
-            // Return a basic formatted comment without author info if formatting fails
-            // This ensures partial data is still returned even if one comment fails
+            this.logger.error(`Error formatting comment ${comment?.id}: ${error.message}`);
+            // Fallback
             try {
-              const basicDto = this.toCommentResponseDTO(comment);
+              const basicDto = this.toCommentResponseDTO(comment, currentUserId);
               return {
                 ...basicDto,
                 replyCount: comment._count?.replies || 0,
                 author: undefined,
               };
-            } catch (fallbackError: any) {
-              this.logger.error(`Fallback mapping also failed for comment ${comment?.id}: ${fallbackError.message}`);
-              // Return minimal data to prevent complete failure
-              return {
-                id: comment?.id || 'unknown',
-                postId: comment?.postId || '',
-                userId: comment?.userId || '',
-                authorId: comment?.userId || '',
-                content: comment?.content || '',
-                parentCommentId: comment?.parentCommentId || undefined,
-                parentId: comment?.parentCommentId || undefined,
-                status: comment?.status || 'approved',
-                isDeleted: comment?.status === 'deleted',
-                isEdited: false,
-                createdAt: comment?.createdAt || new Date(),
-                updatedAt: comment?.updatedAt || new Date(),
-                replyCount: comment._count?.replies || 0,
-              } as CommentResponseDTO;
+            } catch (fallbackError) {
+              return null;
             }
           }
         }),
       );
 
-      // Filter out null comments
       const validComments = formattedComments.filter((c): c is CommentResponseDTO => c !== null);
 
       return {
@@ -236,7 +257,6 @@ export class CommentService implements ICommentService {
       };
     } catch (error: any) {
       this.logger.error(`Error in findAllComments: ${error.message}`, error.stack);
-      // Re-throw to let NestJS Exception Filter handle it
       throw error;
     }
   }
@@ -251,11 +271,7 @@ export class CommentService implements ICommentService {
       throw new NotFoundException(`Comment with id "${id}" not found`);
     }
 
-    const formatted = await this.toCommentResponseDTO(comment);
-    return {
-      ...formatted,
-      replyCount: comment._count.replies,
-    };
+    return this.toCommentResponseDTO(comment);
   }
 
   /**
@@ -272,7 +288,6 @@ export class CommentService implements ICommentService {
       throw new BadRequestException(`Cannot update a deleted comment`);
     }
 
-    // Verify the user is the author
     if (comment.userId !== authorId) {
       throw new BadRequestException('You can only edit your own comments');
     }
@@ -281,7 +296,7 @@ export class CommentService implements ICommentService {
       content: dto.content,
     });
 
-    return this.toCommentResponseDTO(updatedComment);
+    return this.toCommentResponseDTO(updatedComment, authorId);
   }
 
   /**
@@ -294,24 +309,29 @@ export class CommentService implements ICommentService {
       throw new NotFoundException(`Comment with id "${id}" not found`);
     }
 
-    // Verify the user is the author
     if (comment.userId !== authorId) {
       throw new BadRequestException('You can only delete your own comments');
     }
 
-    // Soft delete
     await this.commentRepository.softDelete(id);
 
-    // Decrement comment count on the post using PostRepository
-    // Decrement comment count on the post using PostRepository
-    await this.postRepository.update(comment.postId, {
-      commentCount: { decrement: 1 },
-    });
+    if (comment.postId) {
+      await this.postRepository.update(comment.postId, {
+        commentCount: { decrement: 1 },
+      });
+    } else if (comment.qaId) {
+      try {
+        await this.prisma.qA.update({
+          where: { id: comment.qaId },
+          data: { commentCount: { decrement: 1 } }
+        });
+      } catch (e) {
+        // Ignore
+      }
+    }
 
     return { success: true, message: 'Comment deleted successfully' };
   }
-
-
 
   /**
    * Get comment with nested replies
@@ -327,25 +347,62 @@ export class CommentService implements ICommentService {
       return null;
     }
 
-    const formatted = await this.toCommentResponseDTO(comment);
+    const formatted = this.toCommentResponseDTO(comment);
 
     // Recursively load replies
     const repliesWithNested = await Promise.all(
-      comment.replies.map(async (reply) => {
+      comment.replies.map(async (reply: any) => {
         if (depth > 1) {
           return this.getCommentWithReplies(reply.id, depth - 1);
         }
-        return this.toCommentResponseDTO(reply as Comment & { _count?: { replies?: number } });
+        return this.toCommentResponseDTO({
+          ...reply,
+          _count: reply._count || { replies: 0, likes: 0 }
+        } as any);
       }),
     );
 
     return {
       ...formatted,
-      replyCount: comment._count?.replies || 0,
       replies: repliesWithNested.filter((r) => r !== null) as CommentResponseDTO[],
     };
   }
+
+  /**
+   * Toggle Like Comment
+   */
+  async toggleLike(commentId: string, userId: string): Promise<{ isLiked: boolean; likeCount: number }> {
+    const existingLike = await this.prisma.commentLike.findUnique({
+      where: {
+        commentId_userId: {
+          commentId,
+          userId,
+        },
+      },
+    });
+
+    if (existingLike) {
+      await this.prisma.commentLike.delete({
+        where: {
+          commentId_userId: {
+            commentId,
+            userId,
+          },
+        },
+      });
+    } else {
+      await this.prisma.commentLike.create({
+        data: {
+          commentId,
+          userId,
+        },
+      });
+    }
+
+    const likeCount = await this.prisma.commentLike.count({
+      where: { commentId },
+    });
+
+    return { isLiked: !existingLike, likeCount };
+  }
 }
-
-
-

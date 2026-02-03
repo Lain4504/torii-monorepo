@@ -19,6 +19,7 @@ export class CommentRepository implements ICommentRepository {
     async findById(id: string): Promise<Comment | null> {
         return this.prisma.comment.findUnique({
             where: { id },
+            include: { user: true },
         });
     }
 
@@ -29,8 +30,9 @@ export class CommentRepository implements ICommentRepository {
         return this.prisma.comment.findUnique({
             where: { id },
             include: {
+                user: true,
                 _count: {
-                    select: { replies: true },
+                    select: { replies: true, likes: true },
                 },
             },
         });
@@ -45,18 +47,27 @@ export class CommentRepository implements ICommentRepository {
         where?: Prisma.CommentWhereInput;
         orderBy?: Prisma.CommentOrderByWithRelationInput;
         includeReplyCount?: boolean;
+        currentUserId?: string;
     }): Promise<(Comment & { _count?: { replies?: number } })[]> {
         return this.prisma.comment.findMany({
             where: options.where,
             skip: options.skip,
             take: options.take,
             orderBy: options.orderBy || { createdAt: 'desc' },
-            include: options.includeReplyCount ? {
-                _count: {
-                    select: { replies: true },
-                },
-            } : undefined,
-        }) as Promise<(Comment & { _count?: { replies?: number } })[]>;
+            include: {
+                user: true, // Always include author
+                ...(options.includeReplyCount ? {
+                    _count: {
+                        select: { replies: true, likes: true },
+                    },
+                } : {}),
+                ...(options.currentUserId ? {
+                    likes: {
+                        where: { userId: options.currentUserId },
+                    },
+                } : {}),
+            },
+        }) as Promise<(Comment & { _count?: { replies: number; likes: number }; likes?: any[] })[]>;
     }
 
     /**
@@ -72,6 +83,7 @@ export class CommentRepository implements ICommentRepository {
     async create(data: Prisma.CommentCreateInput): Promise<Comment> {
         return this.prisma.comment.create({
             data,
+            include: { user: true },
         });
     }
 
@@ -85,6 +97,7 @@ export class CommentRepository implements ICommentRepository {
                 ...data,
                 updatedAt: new Date(),
             },
+            include: { user: true },
         });
     }
 
@@ -109,12 +122,14 @@ export class CommentRepository implements ICommentRepository {
         return this.prisma.comment.findUnique({
             where: { id },
             include: {
+                user: true,
                 replies: {
                     where: { status: { not: 'deleted' } },
                     orderBy: { createdAt: 'asc' },
+                    include: { user: true, _count: { select: { likes: true } } },
                 },
                 _count: {
-                    select: { replies: true },
+                    select: { replies: true, likes: true },
                 },
             },
         });

@@ -8,8 +8,8 @@ export class CommentHandler {
     constructor(private readonly commentService: CommentService) { }
 
     @MessagePattern({ cmd: 'learning.comment.findAll' })
-    async findAll(@Payload() query: CommentQueryDTO) {
-        return this.commentService.findAllComments(query);
+    async findAll(@Payload() data: CommentQueryDTO & { userId?: string }) {
+        return this.commentService.findAllComments(data, data.userId);
     }
 
     @MessagePattern({ cmd: 'learning.comment.findById' })
@@ -41,6 +41,11 @@ export class CommentHandler {
     @MessagePattern({ cmd: 'learning.comment.delete' })
     async delete(@Payload() data: { id: string, userId: string }) {
         return this.commentService.deleteComment(data.id, data.userId);
+    }
+
+    @MessagePattern({ cmd: 'learning.comment.toggleLike' })
+    async toggleLike(@Payload() data: { id: string, userId: string }) {
+        return this.commentService.toggleLike(data.id, data.userId);
     }
 
 
