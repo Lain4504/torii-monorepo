@@ -8,6 +8,19 @@ import {
 import { StreakService } from './streak.service';
 import { AchievementService } from './achievement.service';
 
+const XP_REWARDS: Record<ActivityType, number> = {
+    LESSON_COMPLETE: 50,
+    QUIZ_ANSWER: 10,
+    VIDEO_WATCH: 20,
+    REVIEW: 15,
+    PRACTICE: 15,
+    FLASHCARD_REVIEW: 5,
+    EXAM_COMPLETE: 100,
+    POST_CREATE: 20,
+    COMMENT_CREATE: 10,
+    LOGIN: 10,
+};
+
 @Injectable()
 export class ActivityService {
     private readonly logger = new Logger(ActivityService.name);
@@ -66,6 +79,46 @@ export class ActivityService {
         });
 
         this.logger.log(`Recorded ${activityType} for user ${userId}`);
+
+        // Calculate XP gain
+        let xpGain = XP_REWARDS[activityType] || 0;
+
+        // Multiplier or conditional XP
+        if (activityType === 'QUIZ_ANSWER' && meta?.isCorrect === false) {
+            xpGain = 2; // Small XP for effort even if wrong
+        }
+
+        // Update User XP and Level
+        if (xpGain > 0) {
+            const user = await this.prisma.user.findUnique({
+                where: { id: userId },
+                select: { xp: true, level: true }
+            });
+
+            if (user) {
+                const newXp = user.xp + xpGain;
+                // Simple level logic: Level = floor(sqrt(XP/100)) + 1 or similar
+                // Let's use: Level = floor(XP / 1000) + 1 for simplicity for now
+                const newLevel = Math.floor(newXp / 1000) + 1;
+
+                await this.prisma.user.update({
+                    where: { id: userId },
+                    data: {
+                        xp: newXp,
+                        level: newLevel
+                    }
+                });
+
+                if (newLevel > user.level) {
+                    this.logger.log(`User ${userId} leveled up to ${newLevel}!`);
+                    // Emit level up event
+                    this.natsClient.emit('user.level_up', { userId, newLevel, xp: newXp });
+                }
+
+                // Emit XP Gained event
+                this.natsClient.emit('user.xp_gained', { userId, xpGain, totalXp: newXp, activityType });
+            }
+        }
 
         // Update streak
         const streakResult = await this.streakService.recordActivity(userId);

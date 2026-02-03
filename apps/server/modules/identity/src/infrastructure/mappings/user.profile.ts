@@ -41,6 +41,14 @@ export class UserProfile extends AutomapperProfile {
           mapFrom((src: User) => src.role as UserRole),
         ),
         forMember(
+          (dest: UserResponseDTO) => dest.xp,
+          mapFrom((src: User) => src.xp),
+        ),
+        forMember(
+          (dest: UserResponseDTO) => dest.level,
+          mapFrom((src: User) => src.level),
+        ),
+        forMember(
           (dest: UserResponseDTO) => dest.avatarUrl,
           mapFrom((src: User) => src.avatarUrl || undefined),
         ),

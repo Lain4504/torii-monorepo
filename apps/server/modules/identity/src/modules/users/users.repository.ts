@@ -130,6 +130,8 @@ export class UsersRepository implements IUsersRepository {
         email: string;
         displayName: string;
         role: string;
+        xp: number;
+        level: number;
         avatarUrl: string | null;
         userMetadata: Record<string, unknown> | null;
         verifiedAt: Date | null;
@@ -143,6 +145,8 @@ export class UsersRepository implements IUsersRepository {
                 email: true,
                 displayName: true,
                 role: true,
+                xp: true,
+                level: true,
                 avatarUrl: true,
                 userMetadata: true,
                 verifiedAt: true,

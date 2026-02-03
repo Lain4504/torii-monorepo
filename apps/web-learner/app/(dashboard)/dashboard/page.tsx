@@ -21,6 +21,10 @@ import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { learningProgressApi, useMyCourses } from '@/apis/services/learning-progress-api'
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
+import { useLeaderboard } from '@/apis/services/gamification-api'
+import { LeaderboardPreview } from '@/components/dashboard/leaderboard'
+import { Trophy, Star, Flame, Award as AwardIcon } from 'lucide-react'
+import { cn } from '@workspace/ui/lib/utils'
 
 import { PageLoading } from '@workspace/ui/components/page-loading'
 
@@ -31,6 +35,7 @@ export default function DashboardPage() {
         queryKey: ['learning-stats'],
         queryFn: learningProgressApi.getStats
     })
+    const { data: leaderboardData, isLoading: isLeaderboardLoading } = useLeaderboard('global')
 
     if (authStatus === 'loading' || coursesLoading || statsLoading) {
         return <PageLoading text="Đang tải dữ liệu..." />
@@ -64,14 +69,37 @@ export default function DashboardPage() {
         <>
             <StreakWelcomeModal />
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-6xl animate-in fade-in duration-500">
-                {/* Minimal Welcome Header */}
-                <div className="pb-2">
-                    <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-                        Chào mừng trở lại, <span className="text-primary">{user?.displayName?.split(' ')[0] || 'Học viên'}</span>.
-                    </h1>
-                    <p className="text-sm font-medium text-muted-foreground mt-2">
-                        Chào mừng bạn đến với Học viện Torii. Chúc bạn một ngày học tập hiệu quả!
-                    </p>
+                {/* Enhanced Welcome Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+                    <div>
+                        <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+                            Chào mừng trở lại, <span className="text-primary">{user?.displayName?.split(' ')[0] || 'Học viên'}</span>.
+                        </h1>
+                        <p className="text-sm font-medium text-muted-foreground mt-2">
+                            Chào mừng bạn đến với Học viện Torii. Chúc bạn một ngày học tập hiệu quả!
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <div className="px-5 py-3 rounded-2xl bg-amber-50 border border-amber-100 flex flex-col gap-2 min-w-[180px] shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-lg bg-amber-200 flex items-center justify-center">
+                                        <Star className="w-3.5 h-3.5 text-amber-700 fill-amber-700" />
+                                    </div>
+                                    <p className="text-[10px] font-black text-amber-700 uppercase tracking-wider">Cấp độ {user?.level || 1}</p>
+                                </div>
+                                <p className="text-xs font-black text-amber-900">{user?.xp || 0} XP</p>
+                            </div>
+                            <div className="w-full h-1.5 bg-amber-200/50 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-amber-500 rounded-full transition-all duration-1000"
+                                    style={{ width: `${((user?.xp || 0) % 1000) / 10}%` }}
+                                />
+                            </div>
+                            <p className="text-[9px] font-bold text-amber-600 text-right">Còn {1000 - ((user?.xp || 0) % 1000)} XP đến cấp tiếp theo</p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Stats Grid - Minimal Style */}
@@ -269,6 +297,12 @@ export default function DashboardPage() {
                             </div>
                             <Button className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm">Tối ưu hóa tập trung</Button>
                         </div>
+
+                        {/* Leaderboard Preview */}
+                        <LeaderboardPreview
+                            data={leaderboardData}
+                            isLoading={isLeaderboardLoading}
+                        />
                     </div>
                 </div>
             </div>

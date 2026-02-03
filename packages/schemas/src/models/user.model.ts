@@ -37,6 +37,8 @@ export const userSchema = z.object({
     password: z.string().min(8, ErrPasswordAtLeast8Chars.message).optional().nullable(),
     role: z.nativeEnum(UserRole),
     avatarUrl: z.string().url().optional().nullable(),
+    xp: z.number().int().default(0),
+    level: z.number().int().default(1),
     appMetadata: z.record(z.unknown()).optional().nullable(),
     userMetadata: z.record(z.unknown()).optional().nullable(),
     verifiedAt: z.date().optional().nullable(),

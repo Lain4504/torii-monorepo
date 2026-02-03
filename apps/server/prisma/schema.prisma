@@ -347,6 +347,10 @@ model User {
   // Role
   role String @default("learner") @db.VarChar(50)
 
+  // Gamification fields
+  xp    Int @default(0)
+  level Int @default(1)
+
   // Timestamps (replace status field - Supabase pattern)
   verifiedAt   DateTime? @map("verified_at") @db.Timestamp() // null = not verified (pending)
   bannedUntil  DateTime? @map("banned_until") @db.Timestamp() // null = not banned, value = banned until this time
@@ -386,6 +390,7 @@ model User {
 
   @@index([email])
   @@index([role])
+  @@index([xp])
   @@map("users")
 }
 

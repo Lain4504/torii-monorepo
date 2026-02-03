@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
-import type { StandardApiResponse, UserAchievementDto, StreakStatusDto } from '@workspace/schemas';
+import type { StandardApiResponse, UserAchievementDto, StreakStatusDto, LeaderboardDto, LeaderboardUserDto } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useEffect, useRef } from 'react';
 
@@ -45,7 +45,29 @@ export const gamificationApi = {
         const response = await apiClient.post<StandardApiResponse<any>>('/api/gamification/mark-toast-shown');
         return response.data;
     },
+
+    /**
+     * Get leaderboard
+     */
+    async getLeaderboard(type: 'global' | 'streak' = 'global'): Promise<LeaderboardDto> {
+        const response = await apiClient.get<StandardApiResponse<LeaderboardDto>>(`/api/gamification/leaderboard?type=${type}`);
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to fetch leaderboard');
+    },
 };
+
+/**
+ * Hook: Get leaderboard
+ */
+export function useLeaderboard(type: 'global' | 'streak' = 'global') {
+    return useQuery({
+        queryKey: ['leaderboard', type],
+        queryFn: () => gamificationApi.getLeaderboard(type),
+        staleTime: 60000, // 1 minute
+    });
+}
 
 /**
  * Hook: Get user achievements
@@ -66,7 +88,7 @@ export function useAchievements() {
  */
 export function useStreak(options?: { refetchInterval?: number; enableCelebrations?: boolean }) {
     const celebratedRef = useRef<Set<number>>(new Set());
-    
+
     const query = useQuery({
         queryKey: ['streak'],
         queryFn: gamificationApi.getStreak,
@@ -79,7 +101,7 @@ export function useStreak(options?: { refetchInterval?: number; enableCelebratio
         if (!options?.enableCelebrations || !query.data) return;
 
         const { currentStreak, isActiveToday } = query.data;
-        
+
         // Only celebrate if active today and haven't celebrated this streak yet
         if (isActiveToday && currentStreak > 0 && !celebratedRef.current.has(currentStreak)) {
             const milestones = [3, 7, 14, 30, 50, 100, 365];
@@ -91,7 +113,7 @@ export function useStreak(options?: { refetchInterval?: number; enableCelebratio
                     description: 'Amazing achievement! Keep up the great work! 🎉',
                     duration: 5000,
                 });
-                
+
                 // Trigger confetti animation (if available)
                 if (typeof window !== 'undefined' && (window as any).confetti) {
                     (window as any).confetti({
@@ -116,7 +138,7 @@ export function useStreak(options?: { refetchInterval?: number; enableCelebratio
 export function useRecordActivity() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ type, meta }: { type: string; meta?: any }) => 
+        mutationFn: ({ type, meta }: { type: string; meta?: any }) =>
             gamificationApi.recordActivity(type, meta),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['streak'] });
@@ -153,7 +175,7 @@ export function useCheckIn() {
             // Simulate a check-in action by refetching streak
             // In reality, users need to complete a learning activity to update streak
             await queryClient.invalidateQueries({ queryKey: ['streak'] });
-            
+
             // Return mock success
             return {
                 streakUpdated: false,

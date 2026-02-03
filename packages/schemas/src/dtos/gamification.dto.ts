@@ -92,6 +92,27 @@ export const UserAchievementDtoSchema = z.object({
 
 export type UserAchievementDto = z.infer<typeof UserAchievementDtoSchema>;
 
+export const LeaderboardUserDtoSchema = z.object({
+    id: z.string().uuid(),
+    displayName: z.string(),
+    avatarUrl: z.string().nullable(),
+    xp: z.number().int(),
+    level: z.number().int(),
+    rank: z.number().int(),
+    currentStreak: z.number().int().optional(),
+});
+
+export type LeaderboardUserDto = z.infer<typeof LeaderboardUserDtoSchema>;
+
+export const LeaderboardDtoSchema = z.object({
+    users: z.array(LeaderboardUserDtoSchema),
+    currentUser: LeaderboardUserDtoSchema.optional(),
+    totalUsers: z.number().int(),
+    type: z.enum(['global', 'streak']),
+});
+
+export type LeaderboardDto = z.infer<typeof LeaderboardDtoSchema>;
+
 // ========================================
 // Event Payloads (for NATS)
 // ========================================
