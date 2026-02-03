@@ -196,10 +196,17 @@ function UserProfileCard() {
 }
 
 function FeaturedPosts() {
+    const [filter, setFilter] = useState<'likes' | 'comments'>('likes')
+
     // Fetch popular posts (e.g., sorted by likes or views)
     const { data } = useQuery({
-        queryKey: ['qa-featured'],
-        queryFn: () => qaApi.getFeed({ page: 1, limit: 5 }) // Ideally sort by likes/views
+        queryKey: ['qa-featured', filter],
+        queryFn: () => qaApi.getFeed({
+            page: 1,
+            limit: 5,
+            sortBy: filter,
+            sortOrder: 'desc'
+        })
     })
 
     const posts = Array.isArray(data?.data) ? data?.data : (data?.data?.data || [])
@@ -217,7 +224,7 @@ function FeaturedPosts() {
                                 </span>
                                 <div>
                                     <Link href={`/qa/${post.id}`} className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                                        {post.content}
+                                        {post.title || post.content}
                                     </Link>
                                     <div className="flex items-center gap-3 mt-1.5 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
                                         <span className="flex items-center gap-1">
@@ -238,10 +245,16 @@ function FeaturedPosts() {
             </div>
             {/* Quick Stats / Mock items from screenshot */}
             <div className="mt-6 pt-4 border-t border-border/40 space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary cursor-pointer transition-colors">
+                <div
+                    className={`flex items-center gap-2 text-sm cursor-pointer transition-colors ${filter === 'likes' ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'}`}
+                    onClick={() => setFilter('likes')}
+                >
                     <Heart className="w-4 h-4" /> Được yêu thích
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary cursor-pointer transition-colors">
+                <div
+                    className={`flex items-center gap-2 text-sm cursor-pointer transition-colors ${filter === 'comments' ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'}`}
+                    onClick={() => setFilter('comments')}
+                >
                     <MessageCircle className="w-4 h-4" /> Được quan tâm
                 </div>
             </div>

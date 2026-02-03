@@ -85,10 +85,13 @@ export class PostProfile extends AutomapperProfile {
           (dest: PostResponseDTO) => dest.updatedAt,
           mapFrom((src: Post) => src.updatedAt),
         ),
-        // Note: author field is populated separately in service
         forMember(
           (dest: PostResponseDTO) => dest.author,
-          mapFrom(() => undefined),
+          mapFrom((src: any) => src.author ? {
+            id: src.author.id,
+            displayName: src.author.displayName,
+            avatarUrl: src.author.avatarUrl
+          } : undefined),
         ),
       );
     };

@@ -144,9 +144,23 @@ export class PostService implements IPostService {
     }
 
     const orderBy: Prisma.PostOrderByWithRelationInput = {};
-    if (query.sortBy) {
-      orderBy[query.sortBy] = query.sortOrder || 'desc';
+
+    // 1. Special sorting for related counts (used in QA)
+    if (query.sortBy === 'likes') {
+      orderBy.likes = {
+        _count: query.sortOrder || 'desc',
+      };
+    } else if (query.sortBy === 'comments') {
+      orderBy.comments = {
+        _count: query.sortOrder || 'desc',
+      };
+    }
+    // 2. Standard field sorting (viewCount, publishedAt) - Used by BLOG
+    // This preserves the original behavior for all other fields
+    else if (query.sortBy) {
+      (orderBy as any)[query.sortBy] = query.sortOrder || 'desc';
     } else {
+      // Default sort
       orderBy.publishedAt = 'desc';
     }
 

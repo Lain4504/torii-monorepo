@@ -11,14 +11,19 @@ interface QAFeedProps {
     category?: string
     sortBy?: string
     followedTags?: string[]
+    authorId?: string
 }
 
-export function QAFeed({ category = 'ALL', sortBy = 'newest', followedTags }: QAFeedProps) {
+export function QAFeed({ category = 'ALL', sortBy = 'newest', followedTags, authorId }: QAFeedProps) {
 
     const { data, isLoading, isError, refetch } = useQuery({
-        queryKey: ['qa-feed', category, sortBy, followedTags],
+        queryKey: ['qa-feed', category, sortBy, followedTags, authorId],
         queryFn: async () => {
             const params: any = { page: 1, limit: 20, type: 'QA' }
+
+            if (authorId) {
+                params.authorId = authorId
+            }
 
             if (category === 'FOLLOWING') {
                 if (!followedTags || followedTags.length === 0) {

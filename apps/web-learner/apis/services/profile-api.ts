@@ -23,7 +23,7 @@ export const profileApi = {
      * Get public profile by ID
      */
     async getPublicProfile(id: string): Promise<UserResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ user: UserResponseDTO }>>(`/api/users/${id}`);
+        const response = await apiClient.get<StandardApiResponse<{ user: UserResponseDTO }>>(`/api/profiles/${id}`);
         if (response.data.success && response.data.data) {
             return response.data.data.user;
         }

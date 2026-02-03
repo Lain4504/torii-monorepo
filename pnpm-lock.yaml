@@ -645,6 +645,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      next-view-transitions:
+        specifier: ^0.3.5
+        version: 0.3.5(next@16.1.0-canary.19(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.51.0))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: ^19.2.1
         version: 19.2.1
@@ -8532,6 +8535,13 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
       react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+
+  next-view-transitions@0.3.5:
+    resolution: {integrity: sha512-yP8OPNydLmKpmE94hLurLGEzPsUy1uyl9iSv8oxaC2JwhSXTD86SVwk1NMMQT7Ado4kMENDJ7fNBIXHy3GU/Lg==}
+    peerDependencies:
+      next: '>=14.0.0'
+      react: '>=18.2.0 || ^19.0.0'
+      react-dom: '>=18.2.0 || ^19.0.0'
 
   next@16.1.0-canary.19:
     resolution: {integrity: sha512-C7dyvJpIiZg+gJc8wnL+ZL0rtLlUemuN0WRD0h+/tnQB2oZUrXM4Ysgrv9Osx+mflXxXZaEOV+ZiM0+vy1AtGg==}
@@ -17570,7 +17580,7 @@ snapshots:
       strict-event-emitter-types: 2.0.0
       undici: 7.19.2
       uri-templates: 0.2.0
-      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.6))(zod@4.3.6)
+      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.6)
       yargs: 18.0.0
       zod: 4.3.6
       zod-to-json-schema: 3.25.1(zod@4.3.6)
@@ -19574,6 +19584,12 @@ snapshots:
 
   next-themes@0.4.6(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
     dependencies:
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
+
+  next-view-transitions@0.3.5(next@16.1.0-canary.19(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.51.0))(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
+    dependencies:
+      next: 16.1.0-canary.19(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.51.0)
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
 
@@ -22088,7 +22104,7 @@ snapshots:
 
   ws@8.19.0: {}
 
-  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.6))(zod@4.3.6):
+  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.6):
     optionalDependencies:
       effect: 3.18.4
       zod: 4.3.6

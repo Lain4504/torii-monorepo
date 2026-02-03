@@ -9,7 +9,7 @@ export interface CreatePostDto {
 }
 
 export const qaApi = {
-    getFeed: (params: { page: number, limit: number }) => {
+    getFeed: (params: { page: number; limit: number; sortBy?: string; sortOrder?: string; tags?: string[]; tagId?: string; authorId?: string }) => {
         return apiClient.get('/api/posts', { params: { ...params, type: 'QA' } })
     },
     create: (data: CreatePostDto) => {
@@ -26,5 +26,8 @@ export const qaApi = {
     },
     unlike: (id: string) => {
         return apiClient.delete(`/api/posts/${id}/like`)
+    },
+    delete: (id: string) => {
+        return apiClient.delete(`/api/posts/${id}`)
     }
 }

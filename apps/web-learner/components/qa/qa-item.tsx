@@ -1,14 +1,20 @@
-'use client'
 import { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Button } from '@workspace/ui/components/button'
-import { Heart, MessageSquare, Share2, Flag } from 'lucide-react'
+import { Heart, MessageSquare, Share2, Flag, MoreHorizontal, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { useAppSelector } from '@/hooks/hooks'
 import { qaApi } from '@/apis/services/qa-api'
 import { toast } from '@workspace/ui/components/sonner'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@workspace/ui/components/dropdown-menu'
+import { useQueryClient } from '@tanstack/react-query'
 
 // Minimal interface based on typical Schema
 interface PostUser {
@@ -41,6 +47,9 @@ export function QAItem({ post: initialPost }: { post: Post }) {
     })
     const [likeCount, setLikeCount] = useState(initialPost._count?.likes || 0)
     const [isLiking, setIsLiking] = useState(false)
+    const queryClient = useQueryClient()
+
+    const isAuthor = user?.id === post.author?.id
 
     const handleLike = async () => {
         if (!isAuthenticated) {
@@ -74,6 +83,24 @@ export function QAItem({ post: initialPost }: { post: Post }) {
         }
     }
 
+    const handleDelete = async () => {
+        if (!confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) return
+
+        try {
+            await qaApi.delete(post.id)
+            toast.success('Đã xóa bài viết')
+            queryClient.invalidateQueries({ queryKey: ['qa-feed'] })
+            // Also invalidate user posts count if needed
+            queryClient.invalidateQueries({ queryKey: ['user-posts-count'] })
+        } catch (error) {
+            toast.error('Xóa bài viết thất bại')
+        }
+    }
+
+    const handleReport = () => {
+        toast.success('Đã gửi báo cáo vi phạm')
+    }
+
     return (
         <div className="p-6 rounded-[2rem] border border-border/40 bg-background/40 backdrop-blur-xl hover:border-primary/20 transition-all duration-300 shadow-sm group/card">
             <div className="flex gap-4">
@@ -84,11 +111,34 @@ export function QAItem({ post: initialPost }: { post: Post }) {
                     </Avatar>
                 </Link>
                 <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Link href={post.author ? `/user/${post.author.id}` : '#'}>
-                            <span className="font-serif font-bold text-lg hover:underline decoration-primary/50 underline-offset-4">{post.author?.displayName || 'Unknown User'}</span>
-                        </Link>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">• {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi })}</span>
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                            <Link href={post.author ? `/user/${post.author.id}` : '#'}>
+                                <span className="font-serif font-bold text-lg hover:underline decoration-primary/50 underline-offset-4">{post.author?.displayName || 'Unknown User'}</span>
+                            </Link>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">• {formatDistanceToNow(post.createdAt ? new Date(post.createdAt) : new Date(), { addSuffix: true, locale: vi })}</span>
+                        </div>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40 bg-background/95 backdrop-blur-xl border-border/40 rounded-xl">
+                                {isAuthor ? (
+                                    <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive cursor-pointer gap-2">
+                                        <Trash className="w-4 h-4" />
+                                        Xóa bài viết
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <DropdownMenuItem onClick={handleReport} className="cursor-pointer gap-2">
+                                        <Flag className="w-4 h-4" />
+                                        Báo cáo
+                                    </DropdownMenuItem>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
 
                     {/* Tags if any */}
@@ -132,10 +182,6 @@ export function QAItem({ post: initialPost }: { post: Post }) {
                                 <Share2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
                             </Button>
                         </div>
-
-                        <Button variant="ghost" size="icon" className="text-muted-foreground/40 hover:text-destructive">
-                            <Flag className="w-4 h-4" />
-                        </Button>
                     </div>
                 </div>
             </div>
