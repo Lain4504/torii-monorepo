@@ -6,6 +6,11 @@ export enum PostStatus {
     ARCHIVED = 'archived',
 }
 
+export enum PostType {
+    BLOG = 'BLOG',
+    QA = 'QA',
+}
+
 export const postSchema = z.object({
     id: z.string().uuid(),
     title: z.string().min(1),
@@ -15,6 +20,7 @@ export const postSchema = z.object({
     coverImageUrl: z.string().optional(),
     authorId: z.string().uuid(),
     status: z.nativeEnum(PostStatus).default(PostStatus.DRAFT),
+    type: z.nativeEnum(PostType).default(PostType.BLOG),
     publishedAt: z.coerce.date().optional(),
     viewCount: z.number().default(0),
     commentCount: z.number().default(0),
