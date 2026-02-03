@@ -9,9 +9,14 @@ import { Loader2, Calendar, BookOpen, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 
+import { useState } from 'react'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+
 export default function UserProfilePage() {
     const params = useParams()
     const userId = params.id as string
+    const [totalPosts, setTotalPosts] = useState(0)
 
     const { data: user, isLoading, isError } = useQuery({
         queryKey: ['user-profile', userId],
@@ -32,7 +37,7 @@ export default function UserProfilePage() {
     }
 
     // Safely handle stats if they exist, otherwise default to 0
-    const stats = (user as any).stats || {}
+    // const stats = (user as any).stats || {}
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl space-y-8 animate-in fade-in duration-500">
@@ -43,7 +48,7 @@ export default function UserProfilePage() {
 
                 <div className="px-8 pb-8 flex flex-col md:flex-row gap-6 items-start -mt-12">
                     <Avatar className="h-32 w-32 border-4 border-background shadow-xl">
-                        <AvatarImage src={user.avatarUrl} alt={user.displayName} className="object-cover" />
+                        <AvatarImage src={user.avatarUrl || undefined} alt={user.displayName} className="object-cover" />
                         <AvatarFallback className="text-4xl font-bold bg-primary/10 text-primary">
                             {user.displayName?.[0]?.toUpperCase()}
                         </AvatarFallback>
@@ -66,12 +71,8 @@ export default function UserProfilePage() {
                     {/* Stats Card */}
                     <div className="flex gap-8 pt-12 text-center">
                         <div>
-                            <div className="text-xl font-bold text-foreground">{stats.totalCourses || 0}</div>
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">Khóa học</div>
-                        </div>
-                        <div>
-                            <div className="text-xl font-bold text-foreground">{stats.totalLearningHours || 0}h</div>
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">Giờ học</div>
+                            <div className="text-xl font-bold text-foreground">{totalPosts}</div>
+                            <div className="text-xs text-muted-foreground uppercase tracking-wider">Bài Đăng</div>
                         </div>
                     </div>
                 </div>
@@ -86,15 +87,16 @@ export default function UserProfilePage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
-                        <QAFeed authorId={userId} />
+                        <QAFeed authorId={userId} onTotalPostsChange={setTotalPosts} />
                     </div>
                     <div className="hidden lg:block space-y-6">
                         {/* Sidebar info (optional) */}
                         <div className="p-6 rounded-[2rem] border border-border/40 bg-background/40 backdrop-blur-xl">
-                            <h3 className="font-bold mb-4">Giới thiệu</h3>
-                            <p className="text-sm text-muted-foreground">
-                                {(user as any).userMetadata?.bio || 'Chưa có thông tin giới thiệu.'}
-                            </p>
+                            <h3 className="font-bold mb-4">Danh sách câu hỏi</h3>
+                            <Link href="/qa" className="flex items-center text-sm text-muted-foreground hover:text-primary transition-colors gap-2 group">
+                                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                                Quay lại trang QA
+                            </Link>
                         </div>
                     </div>
                 </div>

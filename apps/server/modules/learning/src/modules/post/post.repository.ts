@@ -27,6 +27,11 @@ export class PostRepository implements IPostRepository {
                         likes: true,
                     },
                 },
+                likes: {
+                    select: {
+                        userId: true,
+                    },
+                },
             },
         });
     }
@@ -43,6 +48,11 @@ export class PostRepository implements IPostRepository {
                     select: {
                         comments: true,
                         likes: true,
+                    },
+                },
+                likes: {
+                    select: {
+                        userId: true,
                     },
                 },
             },
@@ -69,6 +79,11 @@ export class PostRepository implements IPostRepository {
                     select: {
                         comments: true,
                         likes: true,
+                    },
+                },
+                likes: {
+                    select: {
+                        userId: true,
                     },
                 },
             },

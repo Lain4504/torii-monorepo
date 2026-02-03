@@ -12,9 +12,10 @@ interface QAFeedProps {
     sortBy?: string
     followedTags?: string[]
     authorId?: string
+    onTotalPostsChange?: (total: number) => void
 }
 
-export function QAFeed({ category = 'ALL', sortBy = 'newest', followedTags, authorId }: QAFeedProps) {
+export function QAFeed({ category = 'ALL', sortBy = 'newest', followedTags, authorId, onTotalPostsChange }: QAFeedProps) {
 
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['qa-feed', category, sortBy, followedTags, authorId],
@@ -27,11 +28,6 @@ export function QAFeed({ category = 'ALL', sortBy = 'newest', followedTags, auth
 
             if (category === 'FOLLOWING') {
                 if (!followedTags || followedTags.length === 0) {
-                    // If following but no tags selected, maybe return empty or handle differently
-                    // For now, let's return nothing or all? Screenshot implies empty state if not customized.
-                    // But if passed empty array to backend with tags filter, it might return all. 
-                    // Let's rely on backend: if tags is empty list, backend 'hasSome' might fail or return nothing.
-                    // Let's pass empty array.
                     params.tags = []
                 } else {
                     params.tags = followedTags
@@ -44,10 +40,19 @@ export function QAFeed({ category = 'ALL', sortBy = 'newest', followedTags, auth
         }
     })
 
+    const totalPosts = data?.data?.total || 0
+
+    useEffect(() => {
+        if (typeof totalPosts === 'number') {
+            onTotalPostsChange?.(totalPosts)
+        }
+    }, [totalPosts, onTotalPostsChange])
+
     // Adjust dependent on actual API response structure
     // If backend returns Array directly: data?.data
     // If backend returns PageDto: data?.data?.data
     const posts: Post[] = Array.isArray(data?.data) ? data?.data : (data?.data?.data || [])
+
 
     if (isLoading) {
         return <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>

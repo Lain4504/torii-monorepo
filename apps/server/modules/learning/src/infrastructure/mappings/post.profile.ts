@@ -93,6 +93,14 @@ export class PostProfile extends AutomapperProfile {
             avatarUrl: src.author.avatarUrl
           } : undefined),
         ),
+        forMember(
+          (dest: PostResponseDTO) => dest._count,
+          mapFrom((src: any) => src._count),
+        ),
+        forMember(
+          (dest: PostResponseDTO) => dest.likes,
+          mapFrom((src: any) => src.likes),
+        ),
       );
     };
   }

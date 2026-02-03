@@ -52,6 +52,13 @@ export const postResponseDTOSchema = postSchema.extend({
         displayName: z.string(),
         avatarUrl: z.string().optional(),
     }).optional(),
+    _count: z.object({
+        comments: z.number().optional(),
+        likes: z.number().optional(),
+    }).optional(),
+    likes: z.array(z.object({
+        userId: z.string().uuid(),
+    })).optional(),
 });
 
 export type PostResponseDTO = z.infer<typeof postResponseDTOSchema>;

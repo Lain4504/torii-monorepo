@@ -38,9 +38,14 @@ export interface Post {
     isLiked?: boolean
 }
 
+import { QAComments } from './qa-comments'
+
+// ... (existing imports)
+
 export function QAItem({ post: initialPost }: { post: Post }) {
     const { user, isAuthenticated } = useAppSelector(state => state.auth)
     const [post, setPost] = useState(initialPost)
+    const [showComments, setShowComments] = useState(false)
     const [isLiked, setIsLiked] = useState(() => {
         // specific check if current user is in the likes list
         return initialPost.likes?.some(l => l.userId === user?.id) || false
@@ -99,6 +104,28 @@ export function QAItem({ post: initialPost }: { post: Post }) {
 
     const handleReport = () => {
         toast.success('Đã gửi báo cáo vi phạm')
+    }
+
+    const handleCommentAdded = () => {
+        setPost(prev => ({
+            ...prev,
+            _count: {
+                ...prev._count,
+                comments: (prev._count?.comments || 0) + 1,
+                likes: prev._count?.likes || 0
+            }
+        }))
+    }
+
+    const handleCommentDeleted = () => {
+        setPost(prev => ({
+            ...prev,
+            _count: {
+                ...prev._count,
+                comments: Math.max((prev._count?.comments || 0) - 1, 0),
+                likes: prev._count?.likes || 0
+            }
+        }))
     }
 
     return (
@@ -171,18 +198,26 @@ export function QAItem({ post: initialPost }: { post: Post }) {
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">{likeCount}</span>
                             </Button>
 
-                            <Link href={`/qa/${post.id}`}>
-                                <Button variant="ghost" size="sm" className="space-x-2 px-0 hover:bg-transparent hover:text-primary group">
-                                    <MessageSquare className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">{post._count?.comments || 0}</span>
-                                </Button>
-                            </Link>
-
-                            <Button variant="ghost" size="sm" className="space-x-2 px-0 hover:bg-transparent hover:text-blue-500 group">
-                                <Share2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowComments(!showComments)}
+                                className={`space-x-2 px-0 hover:bg-transparent ${showComments ? 'text-primary' : 'hover:text-primary'} group`}
+                            >
+                                <MessageSquare className={`w-5 h-5 transition-transform ${showComments ? 'fill-current' : 'group-hover:scale-110'}`} />
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">{post._count?.comments || 0}</span>
                             </Button>
+
+
                         </div>
                     </div>
+
+                    <QAComments
+                        postId={post.id}
+                        isOpen={showComments}
+                        onCommentAdded={handleCommentAdded}
+                        onCommentDeleted={handleCommentDeleted}
+                    />
                 </div>
             </div>
         </div>
