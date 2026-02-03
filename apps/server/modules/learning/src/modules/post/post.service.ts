@@ -91,9 +91,10 @@ export class PostService implements IPostService {
       excerpt: finalDto.excerpt,
       content: finalDto.content,
       coverImageUrl: finalDto.coverImageUrl,
-      authorId: finalDto.authorId,
-      status: finalDto.status || PostStatus.DRAFT,
-      publishedAt: finalDto.publishedAt || null,
+      author: { connect: { id: finalDto.authorId } },
+      status: finalDto.type === 'QA' ? PostStatus.PUBLISHED : (finalDto.status || PostStatus.DRAFT),
+      publishedAt: (finalDto.type === 'QA' || finalDto.status === PostStatus.PUBLISHED) ? (finalDto.publishedAt || new Date()) : null,
+      type: finalDto.type,
       seoTitle: (finalDto as any).seoTitle,
       seoDescription: (finalDto as any).seoDescription,
       tags: finalDto.tags || [],
@@ -116,6 +117,10 @@ export class PostService implements IPostService {
       where.status = query.status;
     }
 
+    if (query.type) {
+      where.type = query.type;
+    }
+
     if (query.authorId) {
       where.authorId = query.authorId;
     }
@@ -132,12 +137,30 @@ export class PostService implements IPostService {
       where.tags = {
         has: query.tagId,
       };
+    } else if (query.tags && query.tags.length > 0) {
+      where.tags = {
+        hasSome: query.tags,
+      };
     }
 
     const orderBy: Prisma.PostOrderByWithRelationInput = {};
-    if (query.sortBy) {
-      orderBy[query.sortBy] = query.sortOrder || 'desc';
+
+    // 1. Special sorting for related counts (used in QA)
+    if (query.sortBy === 'likes') {
+      orderBy.likes = {
+        _count: query.sortOrder || 'desc',
+      };
+    } else if (query.sortBy === 'comments') {
+      orderBy.comments = {
+        _count: query.sortOrder || 'desc',
+      };
+    }
+    // 2. Standard field sorting (viewCount, publishedAt) - Used by BLOG
+    // This preserves the original behavior for all other fields
+    else if (query.sortBy) {
+      (orderBy as any)[query.sortBy] = query.sortOrder || 'desc';
     } else {
+      // Default sort
       orderBy.publishedAt = 'desc';
     }
 

@@ -5,6 +5,8 @@ import { CommentRepository } from './comment.repository';
 import { CommentProfile } from '../../infrastructure/mappings/comment.profile';
 import { PostRepository } from '../post/post.repository';
 import { PostProfile } from '../../infrastructure/mappings/post.profile';
+import { CommentLikeService } from './comment-like.service';
+import { CommentLikeHandler } from '../../interfaces/nats/comment-like.handler';
 
 /**
  * Comment Feature Module
@@ -12,8 +14,8 @@ import { PostProfile } from '../../infrastructure/mappings/post.profile';
  */
 @Module({
     imports: [PrismaModule, NatsClientModule],
-    controllers: [],
-    providers: [CommentRepository, CommentService, CommentProfile, PostRepository, PostProfile],
-    exports: [CommentService],
+    controllers: [CommentLikeHandler],
+    providers: [CommentRepository, CommentService, CommentProfile, PostRepository, PostProfile, CommentLikeService],
+    exports: [CommentService, CommentLikeService],
 })
 export class CommentModule { }

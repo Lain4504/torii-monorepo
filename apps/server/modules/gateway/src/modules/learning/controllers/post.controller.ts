@@ -95,10 +95,11 @@ export class PostController {
     @Post()
     async createPost(@Body() dto: any, @Req() req: Request) {
         try {
+            const user = req.user as any;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.post.create' },
-                    dto
+                    { ...dto, authorId: user?.sub || user?.uid }
                 )
             );
             return successResponse({ post: result }, 'Post created successfully');
@@ -149,6 +150,78 @@ export class PostController {
             return successResponse({ post: result }, 'Post published successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to publish post');
+        }
+    }
+
+    @Post(':id/like')
+    async likePost(@Param('id') postId: string, @Req() req: Request) {
+        try {
+            const userId = (req as any).user?.id;
+            if (!userId) {
+                return errorResponse('User not authenticated');
+            }
+
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.post.like' },
+                    { postId, userId }
+                )
+            );
+            return successResponse({ like: result }, 'Post liked successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to like post');
+        }
+    }
+
+    @Delete(':id/like')
+    async unlikePost(@Param('id') postId: string, @Req() req: Request) {
+        try {
+            const userId = (req as any).user?.id;
+            if (!userId) {
+                return errorResponse('User not authenticated');
+            }
+
+            await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.post.unlike' },
+                    { postId, userId }
+                )
+            );
+            return successResponse(null, 'Post unliked successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to unlike post');
+        }
+    }
+
+    @Public()
+    @Get(':id/likes')
+    async getPostLikes(@Param('id') postId: string, @Query() query: any) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.post.getLikes' },
+                    { postId, page: query.page, limit: query.limit }
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch post likes');
+        }
+    }
+
+    @Public()
+    @Get(':id/like-count')
+    async getPostLikeCount(@Param('id') postId: string) {
+        try {
+            const count = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.post.getLikeCount' },
+                    { postId }
+                )
+            );
+            return successResponse({ count }, 'Like count fetched successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch like count');
         }
     }
 

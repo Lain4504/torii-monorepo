@@ -19,6 +19,20 @@ export class PostRepository implements IPostRepository {
     async findById(id: string): Promise<Post | null> {
         return this.prisma.post.findUnique({
             where: { id },
+            include: {
+                author: true,
+                _count: {
+                    select: {
+                        comments: true,
+                        likes: true,
+                    },
+                },
+                likes: {
+                    select: {
+                        userId: true,
+                    },
+                },
+            },
         });
     }
 
@@ -28,6 +42,20 @@ export class PostRepository implements IPostRepository {
     async findBySlug(slug: string): Promise<Post | null> {
         return this.prisma.post.findUnique({
             where: { slug },
+            include: {
+                author: true,
+                _count: {
+                    select: {
+                        comments: true,
+                        likes: true,
+                    },
+                },
+                likes: {
+                    select: {
+                        userId: true,
+                    },
+                },
+            },
         });
     }
 
@@ -45,6 +73,20 @@ export class PostRepository implements IPostRepository {
             skip: options.skip,
             take: options.take,
             orderBy: options.orderBy || { publishedAt: 'desc' },
+            include: {
+                author: true,
+                _count: {
+                    select: {
+                        comments: true,
+                        likes: true,
+                    },
+                },
+                likes: {
+                    select: {
+                        userId: true,
+                    },
+                },
+            },
         });
     }
 
@@ -61,6 +103,9 @@ export class PostRepository implements IPostRepository {
     async create(data: Prisma.PostCreateInput): Promise<Post> {
         return this.prisma.post.create({
             data,
+            include: {
+                author: true,
+            },
         });
     }
 
@@ -73,6 +118,9 @@ export class PostRepository implements IPostRepository {
             data: {
                 ...data,
                 updatedAt: new Date(),
+            },
+            include: {
+                author: true,
             },
         });
     }

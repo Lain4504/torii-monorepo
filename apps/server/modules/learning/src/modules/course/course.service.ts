@@ -199,8 +199,11 @@ export class CourseService implements ICourseService {
       };
 
       // Filter by JLPT levels
-      if (levels && levels.length > 0) {
-        where.jlptLevel = { in: levels };
+      if (levels) {
+        const levelsArray = Array.isArray(levels) ? levels : [levels];
+        if (levelsArray.length > 0) {
+          where.jlptLevel = { in: levelsArray };
+        }
       }
 
       // Filter by Price Range
