@@ -14,7 +14,7 @@ import {
     SidebarMenuItem,
     SidebarMenuButton,
 } from "@workspace/ui/components/sidebar"
-import { learningNav, progressNav, accountNav } from "@/config/navigation"
+import { learningNav, progressNav, accountNav, communityNav } from "@/config/navigation"
 import { cn } from "@workspace/ui/lib/utils"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -50,6 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent className="scrollbar-none py-4">
                 <NavMain label="Học tập" items={learningNav as any} />
                 <NavLearning />
+                <NavMain label="Cộng đồng" items={communityNav as any} />
                 <NavMain label="Tiến độ" items={progressNav as any} />
                 <NavMain label="Tài khoản" items={accountNav as any} />
             </SidebarContent>
