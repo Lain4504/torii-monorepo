@@ -42,33 +42,39 @@ export class ProfilesController {
                 createdAt: user.createdAt,
             };
 
-            // Fetch learner stats from Learning service
+            // Fetch learner stats and achievements
             let stats = {
                 totalCourses: 0,
                 completedCourses: 0,
                 averageProgress: 0,
                 totalLearningHours: 0
             };
+            let achievements: any[] = [];
 
             try {
-                // Add timeout to prevent hanging request if learning service is busy
-                const learnerStats = await firstValueFrom(
-                    this.natsClient.send({ cmd: 'learning.learner.getStats' }, { userId: user.id })
-                        .pipe(timeout(3000))
-                );
-                if (learnerStats) {
-                    stats = learnerStats as any;
-                }
+                // Fetch stats and achievements in parallel if possible, or sequentially for simplicity
+                const [learnerStats, userAchievements] = await Promise.all([
+                    firstValueFrom(
+                        this.natsClient.send({ cmd: 'learning.learner.getStats' }, { userId: user.id })
+                            .pipe(timeout(3000))
+                    ).catch(() => null),
+                    firstValueFrom(
+                        this.natsClient.send('gamification.getAchievements', { userId: user.id })
+                            .pipe(timeout(3000))
+                    ).catch(() => null)
+                ]);
+
+                if (learnerStats) stats = learnerStats as any;
+                if (userAchievements) achievements = userAchievements as any[];
             } catch (error) {
-                // Fail silently if learning service is down or no data, just return 0 stats
-                // Logs for internal debugging but don't crash the request
-                console.warn(`Failed to fetch learner stats for ${user.id}. Error: ${error instanceof Error ? error.message : String(error)}`);
+                console.warn(`Failed to fetch supplementary data for ${user.id}. Error: ${error instanceof Error ? error.message : String(error)}`);
             }
 
             return successResponse({
                 user: {
                     ...publicProfile,
-                    stats
+                    stats,
+                    achievements
                 }
             });
         } catch (error: unknown) {
