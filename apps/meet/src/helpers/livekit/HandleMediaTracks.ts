@@ -29,6 +29,7 @@ import {
   addAudioStream,
   removeAudioStream,
 } from '../libs/AudioActivityManager';
+import {toWajlcUserId} from '../utils';
 
 export default class HandleMediaTracks {
   private connectLivekit: IConnectLivekit;
@@ -43,42 +44,42 @@ export default class HandleMediaTracks {
   }
 
   public localTrackPublished = (
-    track: LocalTrackPublication,
-    participant: LocalParticipant,
+      track: LocalTrackPublication,
+      participant: LocalParticipant,
   ) => {
     this.addSubscriber(track, participant);
     this.addSpeaker(track, participant);
   };
 
   public localTrackUnpublished = (
-    track: LocalTrackPublication,
-    participant: LocalParticipant,
+      track: LocalTrackPublication,
+      participant: LocalParticipant,
   ) => {
     this.removeSubscriber(track, participant);
     this.removeSpeaker(track, participant);
   };
 
   public trackSubscribed = (
-    _: RemoteTrack,
-    track: RemoteTrackPublication,
-    participant: RemoteParticipant,
+      _: RemoteTrack,
+      track: RemoteTrackPublication,
+      participant: RemoteParticipant,
   ) => {
     this.addSubscriber(track, participant);
     this.addSpeaker(track, participant);
     // we can also update connectLivekit quality
     store.dispatch(
-      updateParticipant({
-        id: participant.identity,
-        changes: {
-          connectionQuality: participant.connectionQuality,
-        },
-      }),
+        updateParticipant({
+          id: participant.identity,
+          changes: {
+            connectionQuality: participant.connectionQuality,
+          },
+        }),
     );
   };
 
   public trackUnsubscribed = (
-    track: RemoteTrackPublication,
-    participant: RemoteParticipant,
+      track: RemoteTrackPublication,
+      participant: RemoteParticipant,
   ) => {
     this.removeSubscriber(track, participant);
     this.removeSpeaker(track, participant);
@@ -86,12 +87,12 @@ export default class HandleMediaTracks {
 
   public trackMuted = (track: TrackPublication, participant: Participant) => {
     store.dispatch(
-      updateParticipant({
-        id: participant.identity,
-        changes: {
-          isMuted: true,
-        },
-      }),
+        updateParticipant({
+          id: participant.identity,
+          changes: {
+            isMuted: true,
+          },
+        }),
     );
 
     if (participant.identity === this.currentUser?.userId) {
@@ -102,12 +103,12 @@ export default class HandleMediaTracks {
 
   public trackUnmuted = (track: TrackPublication, participant: Participant) => {
     store.dispatch(
-      updateParticipant({
-        id: participant.identity,
-        changes: {
-          isMuted: false,
-        },
-      }),
+        updateParticipant({
+          id: participant.identity,
+          changes: {
+            isMuted: false,
+          },
+        }),
     );
 
     if (participant.identity === this.currentUser?.userId) {
@@ -117,8 +118,8 @@ export default class HandleMediaTracks {
   };
 
   public trackSubscriptionFailed = (
-    track_sid: string,
-    participant: RemoteParticipant,
+      track_sid: string,
+      participant: RemoteParticipant,
   ) => {
     // To do
     console.log('==== trackSubscriptionFailed ====');
@@ -126,9 +127,9 @@ export default class HandleMediaTracks {
   };
 
   public trackStreamStateChanged = (
-    _: RemoteTrackPublication,
-    streamState: Track.StreamState,
-    participant: RemoteParticipant,
+      _: RemoteTrackPublication,
+      streamState: Track.StreamState,
+      participant: RemoteParticipant,
   ) => {
     // to do
     console.log('==== trackStreamStateChanged ====');
@@ -142,8 +143,8 @@ export default class HandleMediaTracks {
     }
 
     const user = participantsSelector.selectById(
-      store.getState(),
-      participant.identity,
+        store.getState(),
+        participant.identity,
     );
 
     // If we don't have the participant's metadata, deny subscription as a precaution.
@@ -154,7 +155,7 @@ export default class HandleMediaTracks {
     // Handle recorder-specific logic.
     if (this.currentUser?.isRecorder) {
       const recordingFeatures =
-        this.roomMetadata?.roomFeatures?.recordingFeatures;
+          this.roomMetadata?.roomFeatures?.recordingFeatures;
 
       // Deny if the user has disabled webcam recording for themselves.
       if (user.metadata.recordWebcam === false) {
@@ -170,12 +171,12 @@ export default class HandleMediaTracks {
 
     // Handle regular user webcam view permissions.
     const { adminOnlyWebcams, allowViewOtherWebcams } =
-      this.roomMetadata?.roomFeatures || {};
+    this.roomMetadata?.roomFeatures || {};
 
     // If webcam viewing is restricted and the current user is not an admin...
     if (
-      (adminOnlyWebcams || !allowViewOtherWebcams) &&
-      !this.currentUser?.metadata?.isAdmin
+        (adminOnlyWebcams || !allowViewOtherWebcams) &&
+        !this.currentUser?.metadata?.isAdmin
     ) {
       // ...then they can only see webcams of other admin users.
       return user.metadata.isAdmin;
@@ -186,8 +187,8 @@ export default class HandleMediaTracks {
   }
 
   private addSubscriber(
-    track: LocalTrackPublication | RemoteTrackPublication,
-    participant: LocalParticipant | RemoteParticipant,
+      track: LocalTrackPublication | RemoteTrackPublication,
+      participant: LocalParticipant | RemoteParticipant,
   ) {
     if (!this.roomMetadata) {
       this.roomMetadata = store.getState().session.currentRoom.metadata;
@@ -200,27 +201,29 @@ export default class HandleMediaTracks {
       case Track.Source.ScreenShare:
       case Track.Source.ScreenShareAudio: {
         store.dispatch(
-          updateParticipant({
-            id: participant.identity,
-            changes: { screenShareTrack: 1 },
-          }),
+            updateParticipant({
+              id: participant.identity,
+              changes: { screenShareTrack: 1 },
+            }),
         );
         this.connectLivekit.addScreenShareTrack(participant.identity, track);
         break;
       }
       case Track.Source.Microphone: {
         const count = participant
-          .getTrackPublications()
-          .filter((t) => t.source === Track.Source.Microphone).length;
+            .getTrackPublications()
+            .filter((t) => t.source === Track.Source.Microphone).length;
+
+        const userId = toWajlcUserId(participant.identity);
         store.dispatch(
-          updateParticipant({
-            id: participant.identity,
-            changes: {
-              audioTracks: count,
-              isMuted: track.audioTrack?.isMuted ?? false,
-              audioVolume: store.getState().roomSettings.roomAudioVolume,
-            },
-          }),
+            updateParticipant({
+              id: userId,
+              changes: {
+                audioTracks: count,
+                isMuted: track.audioTrack?.isMuted ?? false,
+                audioVolume: store.getState().roomSettings.roomAudioVolume,
+              },
+            }),
         );
         this.connectLivekit.addAudioSubscriber(participant);
         break;
@@ -231,13 +234,13 @@ export default class HandleMediaTracks {
           return;
         }
         const count = participant
-          .getTrackPublications()
-          .filter((t) => t.source === Track.Source.Camera).length;
+            .getTrackPublications()
+            .filter((t) => t.source === Track.Source.Camera).length;
         store.dispatch(
-          updateParticipant({
-            id: participant.identity,
-            changes: { videoTracks: count },
-          }),
+            updateParticipant({
+              id: participant.identity,
+              changes: { videoTracks: count },
+            }),
         );
         this.connectLivekit.addVideoSubscriber(participant);
         break;
@@ -246,54 +249,55 @@ export default class HandleMediaTracks {
   }
 
   private removeSubscriber(
-    track: LocalTrackPublication | RemoteTrackPublication,
-    participant: LocalParticipant | RemoteParticipant,
+      track: LocalTrackPublication | RemoteTrackPublication,
+      participant: LocalParticipant | RemoteParticipant,
   ) {
     switch (track.source) {
       case Track.Source.ScreenShare:
       case Track.Source.ScreenShareAudio: {
         store.dispatch(
-          updateParticipant({
-            id: participant.identity,
-            changes: { screenShareTrack: 0 },
-          }),
+            updateParticipant({
+              id: participant.identity,
+              changes: { screenShareTrack: 0 },
+            }),
         );
         this.connectLivekit.removeScreenShareTrack(participant.identity);
         break;
       }
       case Track.Source.Microphone: {
+        const userId = toWajlcUserId(participant.identity);
         this.connectLivekit.removeAudioSubscriber(participant.identity);
         store.dispatch(
-          updateParticipant({
-            id: participant.identity,
-            changes: {
-              audioTracks:
-                participant
-                  .getTrackPublications()
-                  .filter((t) => t.source === Track.Source.Microphone).length ??
-                0,
-              isMuted: track.audioTrack?.isMuted ?? false,
-            },
-          }),
+            updateParticipant({
+              id: userId,
+              changes: {
+                audioTracks:
+                    participant
+                        .getTrackPublications()
+                        .filter((t) => t.source === Track.Source.Microphone).length ??
+                    0,
+                isMuted: track.audioTrack?.isMuted ?? false,
+              },
+            }),
         );
         break;
       }
       case Track.Source.Camera: {
         this.connectLivekit.removeVideoSubscriber(participant.identity);
         store.dispatch(
-          updateParticipant({
-            id: participant.identity,
-            changes: {
-              videoTracks:
-                participant
-                  .getTrackPublications()
-                  .filter((t) => t.source === Track.Source.Camera).length ?? 0,
-            },
-          }),
+            updateParticipant({
+              id: participant.identity,
+              changes: {
+                videoTracks:
+                    participant
+                        .getTrackPublications()
+                        .filter((t) => t.source === Track.Source.Camera).length ?? 0,
+              },
+            }),
         );
 
         if (
-          store.getState().roomSettings.pinCamUserId === participant.identity
+            store.getState().roomSettings.pinCamUserId === participant.identity
         ) {
           // so, need to unset
           store.dispatch(updatePinCamUserId(undefined));
@@ -312,23 +316,25 @@ export default class HandleMediaTracks {
    */
   private addSpeaker(track: TrackPublication, participant: Participant) {
     if (
-      track.source !== Track.Source.Microphone ||
-      !track.audioTrack ||
-      !track.audioTrack.mediaStream ||
-      track.audioTrack.isMuted
+        track.source !== Track.Source.Microphone ||
+        !track.audioTrack ||
+        !track.audioTrack.mediaStream ||
+        track.audioTrack.isMuted
     ) {
       return;
     }
+    const userId = toWajlcUserId(participant.identity);
+    const userInfo = participantsSelector.selectById(store.getState(), userId);
 
     addAudioStream(track.audioTrack.mediaStream, (activity) => {
       store.dispatch(
-        addOrUpdateSpeaker({
-          userId: participant.identity,
-          name: participant.name ?? '',
-          isSpeaking: activity.isSpeaking,
-          audioLevel: activity.audioLevel,
-          lastSpokeAt: activity.lastSpokeAt,
-        }),
+          addOrUpdateSpeaker({
+            userId: userId,
+            name: userInfo.name,
+            isSpeaking: activity.isSpeaking,
+            audioLevel: activity.audioLevel,
+            lastSpokeAt: activity.lastSpokeAt,
+          }),
       );
     }).then();
   }
@@ -341,13 +347,14 @@ export default class HandleMediaTracks {
    */
   private removeSpeaker(track: TrackPublication, participant: Participant) {
     if (
-      track.source !== Track.Source.Microphone ||
-      !track.audioTrack ||
-      !track.audioTrack.mediaStream
+        track.source !== Track.Source.Microphone ||
+        !track.audioTrack ||
+        !track.audioTrack.mediaStream
     ) {
       return;
     }
     removeAudioStream(track.audioTrack.mediaStream.id);
-    store.dispatch(removeOneSpeaker(participant.identity));
+    const userId = toWajlcUserId(participant.identity);
+    store.dispatch(removeOneSpeaker(userId));
   }
 }

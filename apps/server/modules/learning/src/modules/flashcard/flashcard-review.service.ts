@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
 import { SrsAlgorithmService, type SrsCalculationResult } from './srs-algorithm.service';
 import {
@@ -11,6 +11,7 @@ import {
   UserProgressResponseDTO,
   ReviewQuality,
   FlashcardState,
+  UserActivityEvent,
 } from '@workspace/schemas';
 import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-review.repository';
 import { IFlashcardRepository, FLASHCARD_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard.repository';
@@ -30,6 +31,7 @@ export class FlashcardReviewService implements IFlashcardReviewService {
     private readonly deckRepository: IFlashcardDeckRepository,
     private readonly prisma: PrismaService,
     private readonly srsAlgorithm: SrsAlgorithmService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   /**
@@ -159,6 +161,24 @@ export class FlashcardReviewService implements IFlashcardReviewService {
         timesStudied: { increment: 1 },
       });
 
+      // Emit activity event for XP gain
+      try {
+        const activityEvent: UserActivityEvent = {
+          userId,
+          activityType: 'FLASHCARD_REVIEW',
+          meta: {
+            flashcardId,
+            deckId: flashcard.deckId,
+            quality,
+          },
+          timestamp: new Date().toISOString(),
+        };
+        this.natsClient.emit('user.activity', activityEvent);
+        this.logger.log(`Emitted FLASHCARD_REVIEW event for user ${userId}`);
+      } catch (e) {
+        this.logger.error('Failed to emit flashcard activity event', e);
+      }
+
       return {
         id: review.id,
         flashcardId,
@@ -266,10 +286,6 @@ export class FlashcardReviewService implements IFlashcardReviewService {
           },
         },
       });
-
-      // Note: nextReviewDate sort is not handled by findManyProgress helper automatically yet
-      // but the prisma implementation I wrote for findManyProgress does pass include and take.
-      // I'll leave as is for now or maybe I should improve the repo helper.
 
       return userProgressList.map((up: any) => ({
         flashcard: {

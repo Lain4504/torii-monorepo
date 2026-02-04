@@ -39,11 +39,11 @@ export class RoomDurationService {
      * @param roomId - Room ID
      * @param info - Duration information
      */
-    async addRoomWithDurationInfo(roomId: string, info: RoomDurationInfo): Promise<void> {
+    async addRoomWithDurationInfo(roomId: string, r: RoomDurationInfo): Promise<void> {
         this.logger.log(`Adding room with duration info: ${roomId}`);
 
         // Use Redis service to store duration info
-        await this.redisRoom.addRoomWithDurationInfo(roomId, info);
+        await this.redisRoom.addRoomWithDurationInfo(roomId, r);
 
         this.logger.log(`Successfully added room with duration info: ${roomId}`);
     }
@@ -61,6 +61,32 @@ export class RoomDurationService {
         await this.redisRoom.deleteRoomWithDuration(roomId);
 
         this.logger.log(`Successfully deleted room with duration: ${roomId}`);
+    }
+
+    /**
+     * GetRoomsWithDurationMap retrieves all rooms with duration info
+     * @returns Map of roomId to RoomDurationInfo
+     */
+    async getRoomsWithDurationMap(): Promise<Record<string, RoomDurationInfo>> {
+        const keys = await this.redisRoom.getRoomsWithDurationKeys();
+        const out: Record<string, RoomDurationInfo> = {};
+
+        // This prefix matches REDIS_PREFIX + 'roomWithDurationInfo:' in redis-room.service.ts
+        // wajlc:roomWithDurationInfo:
+        const keyPrefix = 'wajlc:roomWithDurationInfo:';
+
+        for (const key of keys) {
+            const val = await this.redisRoom.getRoomWithDurationInfoByKey(key);
+            if (!val) {
+                continue;
+            }
+
+            // Extract roomId from key
+            const roomId = key.replace(keyPrefix, '');
+            out[roomId] = val;
+        }
+
+        return out;
     }
 
     /**
@@ -97,42 +123,61 @@ export class RoomDurationService {
         this.logger.log(`Request to increase room duration: ${roomId}, duration: ${duration}`);
 
         try {
-            // Step 1: Get current room duration info
-            const info = await this.getRoomDurationInfo(roomId);
-            if (!info) {
-                throw new Error('Room duration info not found');
-            }
-
-            // Step 2: Get room metadata
+            // Step 1: Get room metadata first
             const meta = await this.natsRoomService.getRoomMetadataStruct(roomId);
             if (!meta) {
                 throw new Error('Invalid nil room metadata information');
             }
 
-            // Step 3: Check if this is a breakout room
-            if (meta.isBreakoutRoom && info) {
-                if (info.startedAt === 0) {
-                    throw new Error("can't increase duration as breakout room is not running");
-                }
-                if (info.duration === 0) {
-                    throw new Error("can't increase duration as breakout room has unlimited duration");
-                } else {
-                    this.logger.log('Breakout room has duration, will compare with parent room');
+            // Step 2: Get current room duration info from Redis
+            const info = await this.getRoomDurationInfo(roomId);
 
-                    // Calculate time left for breakout room
+            // Get current duration from metadata as a fallback
+            const metaDuration = meta.roomFeatures?.roomDuration ? parseInt(String(meta.roomFeatures.roomDuration), 10) : 0;
+
+            // Step 3: Check if this is a breakout room
+            if (meta.isBreakoutRoom) {
+                // If info exists and has startedAt, the room is running
+                if (info && info.startedAt > 0) {
+                    if (info.duration === 0) {
+                        const err = new Error("can't increase duration as breakout room has unlimited duration");
+                        this.logger.warn(err.message);
+                        throw err;
+                    }
+                    this.logger.log('Breakout room has started, will compare with parent room');
+
                     const now = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
                     const valid = info.startedAt + (info.duration * 60);
                     const timeLeft = Math.floor((valid - now) / 60);
-                    const newDuration = timeLeft + duration;
+                    const newDurationFromNow = timeLeft + duration;
 
                     // Compare with parent room duration
-                    await this.compareDurationWithParentRoom(meta.parentRoomId, newDuration);
+                    await this.compareDurationWithParentRoom(meta.parentRoomId, newDurationFromNow);
+                } else {
+                    // Room not started yet or missing from Redis
+                    this.logger.log('Breakout room not started yet, comparing total duration with parent');
+
+                    // We use metaDuration as the base since info might be missing or not yet in sync
+                    const currentDuration = info ? info.duration : metaDuration;
+                    await this.compareDurationWithParentRoom(meta.parentRoomId, currentDuration + duration);
                 }
             }
 
-            // Step 4: Update duration in Redis
-            const newTotalDuration = await this.redisRoom.updateRoomDuration(roomId, 'duration', duration);
-            this.logger.log(`Updated room duration in Redis: ${newTotalDuration}`);
+            // Step 4: Update duration in Redis if it exists
+            let newTotalDuration: number;
+            if (info) {
+                // Info exists in Redis, perform atomic increment
+                newTotalDuration = await this.redisRoom.updateRoomDuration(roomId, 'duration', duration);
+            } else {
+                // Info doesn't exist in Redis (room hasn't started yet), use metadata as base
+                newTotalDuration = metaDuration + duration;
+
+                // We do NOT add it to Redis yet. If we add it with startedAt=0, 
+                // the Janitor service will think it's expired and kill it.
+                // It will be added to Redis with the correct startedAt when the room officially starts.
+                this.logger.log(`Room not started yet, updated duration in metadata only: ${newTotalDuration} minutes`);
+            }
+            this.logger.log(`New total duration: ${newTotalDuration} minutes`);
 
             // Step 5: Update and broadcast room metadata
             // Update the roomDuration field

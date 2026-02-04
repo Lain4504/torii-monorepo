@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { RecordingService } from './recording.service';
+import { RecordingInfoService } from './recording-info.service';
 import { RecordingNatsController } from './recording.nats.controller';
 import { SharedModule } from '@server/shared';
 import { RoomModule } from '../room/room.module';
@@ -18,8 +19,9 @@ import { WebhookModule } from '../../infrastructure/webhook/webhook.module';
     providers: [
         RecordingService,
         RecordingNatsController,
+        RecordingInfoService,
     ],
     controllers: [RecordingNatsController],
-    exports: [RecordingService],
+    exports: [RecordingService, RecordingInfoService],
 })
 export class RecordingModule { }

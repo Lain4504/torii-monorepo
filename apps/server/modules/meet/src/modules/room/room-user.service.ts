@@ -12,6 +12,7 @@ import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-event
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { SwitchPresenterTask, NatsMsgServerToClientEvents, TrackSource, ParticipantInfo_State, LockSettingsSchema } from '@workspace/protocol';
+import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
@@ -64,11 +65,19 @@ export class RoomUserService {
     }
 
     /**
+     * Get online users count
+     */
+    async getOnlineUsersCount(roomId: string): Promise<number> {
+        const userIds = await this.natsUserInfo.getOnlineUsersId(roomId);
+        return userIds.length;
+    }
+
+    /**
      * Generate Wajlc join token for a user
      *
      * This is the main entry point for users joining a room
      */
-    async getWajlcJoinToken(req: any): Promise<{ token: string; livekitHost?: string }> {
+    async getWajlcJoinToken(req: any): Promise<{ token: string }> {
         const roomId = req.roomId;
         const userId = req.userInfo?.userId;
         const userName = req.userInfo?.name;
@@ -81,15 +90,19 @@ export class RoomUserService {
             await waitUntilRoomCreationCompletes(this.redisLock, roomId, this.logger);
 
             // Step 2: Validate the user's name to prevent conflicts with reserved system names
-            const RECORDER_USER_AUTH_NAME = 'RECORDER_BOT';
+            const RECORDER_USER_AUTH_NAME = 'PLUGNMEET_RECORDER_AUTH';
             if (userName === RECORDER_USER_AUTH_NAME) {
-                throw new Error(`Name: ${RECORDER_USER_AUTH_NAME} is reserved for internal use only`);
+                throw new Error(`name: ${RECORDER_USER_AUTH_NAME} is reserved for internal use only`);
+            }
+            // Logic for internal user ID check (internal users like system bots)
+            if (this.isUserIdInternal(userId)) {
+                throw new Error(`user_id: ${userId} is reserved for internal use only`);
             }
 
             // Step 3: Fetch the current room information and metadata from NATS
             const roomInfo = await this.natsRoom.getRoomInfoWithMetadata(roomId);
             if (!roomInfo || !roomInfo.metadata) {
-                throw new Error('Did not find correct room info');
+                throw new Error('did not find correct room info');
             }
 
             const rInfo = roomInfo.info;
@@ -97,7 +110,7 @@ export class RoomUserService {
 
             // Step 4: Ensure the room is not in an ended state
             if (rInfo?.status === 'ended') {
-                throw new Error('Room found in delete status, need to recreate it');
+                throw new Error('room found in delete status, need to recreate it');
             }
 
             // Step 5: Initialize user metadata if not provided
@@ -116,8 +129,8 @@ export class RoomUserService {
 
             if (meta.roomFeatures?.autoGenUserId) {
                 // Auto-generate user ID (except for bots)
-                if (req.userInfo.userId !== RECORDER_BOT && req.userInfo.userId !== RTMP_BOT) {
-                    const newUserId = this.generateUUID();
+                if (req.userInfo.userId !== 'RECORDER_BOT' && req.userInfo.userId !== 'RTMP_BOT') {
+                    const newUserId = uuidv4();
                     this.logger.log(`Room has auto-gen userId enabled, assigning: ${newUserId} (ex: ${req.userInfo.userMetadata.exUserId})`);
                     req.userInfo.userId = newUserId;
                 }
@@ -144,6 +157,15 @@ export class RoomUserService {
             const validUserIdRegex = /^[a-zA-Z0-9-_]+$/;
             if (!validUserIdRegex.test(req.userInfo.userId)) {
                 throw new Error('user_id should only contain ASCII letters (a-z A-Z), digits (0-9) or -_');
+            }
+            // Add an extra check to ensure our chosen separator pattern is not present.
+            // Assuming UserKeyFieldPrefix is 'field_' (implied by context of NATS keys)
+            if (req.userInfo.userId.includes('field_')) {
+                throw new Error("user_id cannot contain the reserved pattern 'field_'");
+            }
+            // Assuming UserKeyPrefix is 'user_'
+            if (req.userInfo.userId.startsWith('user_')) {
+                throw new Error("user_id cannot start with the reserved pattern 'user_'");
             }
 
             // Step 8: Assign permissions and lock settings based on whether the user is an admin
@@ -181,10 +203,11 @@ export class RoomUserService {
                 roomId,
                 req.userInfo.userId,
                 req.userInfo.name,
-                req.userInfo.isAdmin,
-                req.userInfo.userMetadata.isPresenter,
+                req.userInfo.isAdmin || false,
+                req.userInfo.userMetadata.isPresenter || false,
                 req.userInfo.userMetadata,
             );
+
 
             // Step 10: Generate and return the final JWT token
             const token = this.authService.generateWajlcJoinToken({
@@ -197,10 +220,8 @@ export class RoomUserService {
 
             this.logger.log('Successfully generated Wajlc join token');
 
-            return {
-                token: token,
-                livekitHost: process.env.LIVEKIT_WS_URL, // WebSocket URL for client browser connection
-            };
+            return { token };
+
         } catch (error) {
             this.logger.error(`Failed to generate join token: ${error.message}`);
             throw error;
@@ -239,14 +260,19 @@ export class RoomUserService {
     }
 
     /**
-     * Generate UUID
+     * Check if user ID is internal
      */
-    private generateUUID(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
+    private isUserIdInternal(userId: string): boolean {
+        // Internal user IDs are reserved for system bots and agents.
+        return (
+            userId.startsWith('ingres_') ||
+            userId.startsWith('wajlc_agent-') ||
+            userId.startsWith('wajlc_tts_agent-') ||
+            userId.startsWith('sip_') ||
+            userId === 'RECORDER_BOT' ||
+            userId === 'RTMP_BOT' ||
+            userId === 'system'
+        );
     }
 
     /**
@@ -369,7 +395,7 @@ export class RoomUserService {
         this.assignNewLockSetting(service, direction, metadata.lockSettings);
 
         // Persist the change and notify the clients
-        await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+        await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, undefined);
     }
 
     /**
@@ -757,7 +783,7 @@ export class RoomUserService {
 
         // Broadcast the change
         try {
-            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, undefined);
         } catch (error) {
             throw new Error(`Failed to update and broadcast metadata for ${userId}: ${error.message}`);
         }
@@ -784,7 +810,7 @@ export class RoomUserService {
             metadata.raisedHand = true;
 
             // Update and broadcast
-            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, undefined);
 
             // Notify all admins (except the user who raised hand)
             const participants = await this.natsUserInfo.getOnlineUsersList(roomId);
@@ -828,7 +854,7 @@ export class RoomUserService {
             metadata.raisedHand = false;
 
             // Update and broadcast
-            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, null);
+            await this.natsUser.updateAndBroadcastUserMetadata(roomId, userId, metadata, undefined);
 
             this.logger.log(`Hand lowered successfully for ${userId}`);
         } catch (error) {

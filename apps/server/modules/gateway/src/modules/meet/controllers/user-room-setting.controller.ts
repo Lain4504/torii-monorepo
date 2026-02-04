@@ -76,7 +76,7 @@ export class UserRoomSettingController {
         try {
             request = fromBinary(VerifyTokenReqSchema, bodyBuffer);
         } catch (error) {
-            sendCommonProtoJsonResponse(
+            sendCommonProtobufResponse(
                 res,
                 false,
                 error instanceof Error ? error.message : 'Invalid request',
@@ -96,8 +96,15 @@ export class UserRoomSettingController {
                 ),
             );
 
-            if (userStatus === 'online') {
-                sendCommonProtoJsonResponse(
+            if (!userStatus || userStatus === '') {
+                sendCommonProtobufResponse(
+                    res,
+                    false,
+                    'notifications.user-info-not-found',
+                );
+                return;
+            } else if (userStatus === 'online') {
+                sendCommonProtobufResponse(
                     res,
                     false,
                     'notifications.room-disconnected-duplicate-entry',
@@ -105,7 +112,7 @@ export class UserRoomSettingController {
                 return;
             }
         } catch (error) {
-            sendCommonProtoJsonResponse(
+            sendCommonProtobufResponse(
                 res,
                 false,
                 error instanceof Error ? error.message : 'Error checking user status',
@@ -123,7 +130,7 @@ export class UserRoomSettingController {
             );
 
             if (isBlocked) {
-                sendCommonProtoJsonResponse(
+                sendCommonProtobufResponse(
                     res,
                     false,
                     'notifications.you-are-blocked',
@@ -131,7 +138,7 @@ export class UserRoomSettingController {
                 return;
             }
         } catch (error) {
-            sendCommonProtoJsonResponse(
+            sendCommonProtobufResponse(
                 res,
                 false,
                 error instanceof Error ? error.message : 'Error checking block list',
@@ -148,7 +155,7 @@ export class UserRoomSettingController {
             );
 
             if (!roomActiveResponse) {
-                sendCommonProtoJsonResponse(res, false, 'room status unavailable');
+                sendCommonProtobufResponse(res, false, 'room status unavailable');
                 return;
             }
 
@@ -162,26 +169,27 @@ export class UserRoomSettingController {
             const meta = roomData.meta ?? roomData.metadata;
 
             if (!rr?.isActive) {
-                sendCommonProtoJsonResponse(
+                sendCommonProtobufResponse(
                     res,
                     false,
-                    rr?.msg || 'room is not active',
+                    'notifications.room-not-active',
                 );
                 return;
             }
 
             // Check max participants
-            if (
-                (rInfo?.maxParticipants || 0) > 0 &&
-                (roomDbInfo?.joinedParticipants || 0) >=
-                (rInfo?.maxParticipants || 0)
-            ) {
-                sendCommonProtoJsonResponse(
-                    res,
-                    false,
-                    'notifications.max-num-participates-exceeded',
+            if ((rInfo?.maxParticipants || 0) > 0) {
+                const onlineUsersCount = await firstValueFrom(
+                    this.natsClient.send({ cmd: 'user.getOnlineUsersCount' }, { roomId }),
                 );
-                return;
+                if (onlineUsersCount >= (rInfo?.maxParticipants || 0)) {
+                    sendCommonProtobufResponse(
+                        res,
+                        false,
+                        'notifications.max-num-participates-exceeded',
+                    );
+                    return;
+                }
             }
 
             // Build successful response
@@ -218,6 +226,12 @@ export class UserRoomSettingController {
                     'dataChannel',
             };
 
+            let enabledSelfInsertEncryptionKey = false;
+            if (meta?.roomFeatures?.endToEndEncryptionFeatures?.isEnabled) {
+                enabledSelfInsertEncryptionKey =
+                    meta.roomFeatures.endToEndEncryptionFeatures.enabledSelfInsertEncryptionKey || false;
+            }
+
             const response = create(VerifyTokenResSchema, {
                 status: true,
                 msg: 'token is valid',
@@ -226,15 +240,15 @@ export class UserRoomSettingController {
                 roomId: roomId,
                 userId: requestedUserId,
                 natsSubjects: create(NatsSubjectsSchema, natsSubjects),
-                enabledSelfInsertEncryptionKey:
-                    meta?.roomFeatures?.endToEndEncryptionFeatures
-                        ?.enabledSelfInsertEncryptionKey || false,
+                roomStreamName: this.configService.get<string>('NATS_ROOM_STREAM_NAME') || 'wajlc-room-stream',
+                enabledSelfInsertEncryptionKey: enabledSelfInsertEncryptionKey,
+                isCloud: this.configService.get<boolean>('IS_CLOUD') || false,
             });
 
             // Keep parameter order consistent with sendProtobufResponse(res, schema, message)
             sendProtobufResponse(res, VerifyTokenResSchema, response);
         } catch (error) {
-            sendCommonProtoJsonResponse(
+            sendCommonProtobufResponse(
                 res,
                 false,
                 error instanceof Error ? error.message : 'Error verifying token',
@@ -332,7 +346,7 @@ export class UserRoomSettingController {
      *
      * @route POST /api/muteUnMuteTrack
      */
-    @Post('muteUnMuteTrack')
+    @Post('muteUnmuteTrack')
     @HttpCode(HttpStatus.OK)
     async handleMuteUnMuteTrack(
         @Req() req: Request,

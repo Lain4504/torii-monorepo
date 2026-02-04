@@ -1,9 +1,4 @@
 import { AudioPresets, ScreenSharePresets, VideoPresets } from 'livekit-client';
-import {
-  DEFAULT_AUDIO_PRESET,
-  DEFAULT_SCREEN_SHARE_RESOLUTION,
-  DEFAULT_WEBCAM_RESOLUTION,
-} from '../config';
 import { errors } from '@nats-io/nats-core';
 
 import i18n from './i18n';
@@ -11,6 +6,7 @@ import { store } from '../store';
 import { participantsSelector } from '../store/slices/participantSlice';
 import { IParticipant } from '../store/slices/interfaces/participant';
 import { IMediaDevice } from '../store/slices/interfaces/roomSettings';
+import {DEFAULT_AUDIO_PRESET, DEFAULT_SCREEN_SHARE_RESOLUTION, DEFAULT_WEBCAM_RESOLUTION} from "../config";
 
 export type inputMediaDeviceKind = 'audio' | 'video' | 'both';
 
@@ -191,27 +187,6 @@ export const getAccessToken = () => {
   return getCookie(tokenCookieName);
 };
 
-export const updateAccessToken = (token: string) => {
-  // 1. Update URL Query Param if it exists or if we want to ensure it's there
-  // Actually, if the user entered via URL with a token, we MUST update it.
-  // If they entered via cookie, we might not want to add a URL param if it wasn't there.
-  // But getAccessToken prefers URL, so if we don't update URL, an old URL token will override a new cookie token.
-
-  const url = new URL(window.location.href);
-  if (url.searchParams.has('access_token')) {
-    url.searchParams.set('access_token', token);
-    window.history.pushState({}, '', url.toString());
-  }
-
-  // 2. Update Cookie always, just in case they rely on it.
-  // We use a safe default expiration (e.g., 24h) or we could fetch the exp from token but that requires decoding.
-  const tokenCookieName = 'wajlc_access_token';
-  // We'll set it for the root path.
-  // Use Secure if on HTTPS or localhost (usually ignored on localhost http unless secure specific)
-  // We cannot easily know 'HttpOnly' status but if we can read it, we can write it (unless it was HttpOnly and we couldn't read it, but getCookie implies we can).
-  document.cookie = `${tokenCookieName}=${token}; path=/; max-age=604800; SameSite=Strict; Secure`;
-};
-
 export const formatNatsError = (err: any) => {
   let msg = i18n.t('notifications.nats-error-request-failed').toString();
 
@@ -233,15 +208,32 @@ export const formatNatsError = (err: any) => {
   return msg;
 };
 
+/**
+ * getWhiteboardDonors returns the presenter.
+ */
 export const getWhiteboardDonors = (): IParticipant[] => {
   const s = store.getState();
   return participantsSelector
-    .selectAll(s)
-    .filter(
-      (participant) =>
-        participant.userId !== s.session.currentUser?.userId &&
-        participant.metadata.isPresenter,
-    );
+      .selectAll(s)
+      .filter(
+          (participant) =>
+              participant.userId !== s.session.currentUser?.userId &&
+              participant.metadata.isPresenter,
+      );
+};
+
+/**
+ * getChatDonors returns the two participants who joined the session earliest.
+ */
+export const getChatDonors = (): IParticipant[] => {
+  const s = store.getState();
+  const allParticipants = participantsSelector.selectAll(s);
+
+  // Sort participants by their joinedAt timestamp in ascending order (earliest first).
+  allParticipants.sort((a, b) => a.joinedAt - b.joinedAt);
+
+  // Return the first two participants.
+  return allParticipants.slice(0, 2);
 };
 
 let emptyStreamTrack: MediaStreamTrack | undefined = undefined;
@@ -281,15 +273,28 @@ export function createEmptyVideoStreamTrack(name: string) {
 }
 
 export const generateAvatarInitial = (name: string) => {
-  const nameParts = name.trim().split(/\s+/);
+  const trimmedName = name.trim();
+
+  // Check if the name contains any digits, which may indicate a phone number.
+  if (/\d/.test(trimmedName)) {
+    const firstChar = trimmedName[0] || '';
+    const lastChar =
+        trimmedName.length > 1 ? trimmedName[trimmedName.length - 1] : '';
+    return `${firstChar}${lastChar}`.toLocaleUpperCase();
+  }
+
+  // Fallback to the original logic for regular names.
+  const nameParts = trimmedName.split(/\s+/);
   const firstNameInitial = nameParts[0]?.[0] || '';
   let lastNameInitial = '';
 
   if (nameParts.length > 1) {
     lastNameInitial = nameParts[nameParts.length - 1]?.[0] || '';
   } else if (nameParts[0]?.length > 1) {
+    // If it's a single word, use the first and last characters.
     lastNameInitial = nameParts[0].slice(-1);
   }
+
   return `${firstNameInitial}${lastNameInitial}`.toLocaleUpperCase();
 };
 
@@ -306,4 +311,18 @@ export const isValidHttpUrl = (url: string) => {
   }
 
   return false;
+};
+
+// for special case SIP
+// our: sip_phoneNumber
+// LK: sip_+phoneNumber
+export const toWajlcUserId = (userId: string) => {
+  if (userId.startsWith('sip_')) {
+    return userId.replace('+', '');
+  }
+  return userId;
+};
+
+export const toLiveKitUserId = (userId: string) => {
+  return userId;
 };

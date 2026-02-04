@@ -8,6 +8,19 @@ import {
 import { StreakService } from './streak.service';
 import { AchievementService } from './achievement.service';
 
+const XP_REWARDS: Record<ActivityType, number> = {
+    LESSON_COMPLETE: 50,
+    QUIZ_ANSWER: 10,
+    VIDEO_WATCH: 20,
+    REVIEW: 15,
+    PRACTICE: 15,
+    FLASHCARD_REVIEW: 5,
+    EXAM_COMPLETE: 100,
+    POST_CREATE: 20,
+    COMMENT_CREATE: 10,
+    LOGIN: 10,
+};
+
 @Injectable()
 export class ActivityService {
     private readonly logger = new Logger(ActivityService.name);
@@ -45,27 +58,33 @@ export class ActivityService {
             },
         });
 
-        if (existing) {
-            // Already logged - just return current streak
-            const streakStatus = await this.streakService.getStreakStatus(userId);
-            return {
-                streakUpdated: false,
-                currentStreak: streakStatus.currentStreak,
-                achievementsUnlocked: [],
-            };
+        // Log the activity if not already logged today for this specific type
+        if (!existing) {
+            await this.prisma.dailyActivity.create({
+                data: {
+                    userId,
+                    date: today,
+                    activityType,
+                    meta: meta || {},
+                },
+            });
+            this.logger.log(`Recorded ${activityType} for user ${userId}`);
+        } else {
+            this.logger.log(`Activity ${activityType} already logged today for ${userId}, skipping log but updating XP`);
         }
 
-        // Log the activity
-        await this.prisma.dailyActivity.create({
-            data: {
-                userId,
-                date: today,
-                activityType,
-                meta: meta || {},
-            },
-        });
+        // Calculate XP gain
+        let xpGain = XP_REWARDS[activityType] || 0;
 
-        this.logger.log(`Recorded ${activityType} for user ${userId}`);
+        // Multiplier or conditional XP
+        if (activityType === 'QUIZ_ANSWER' && meta?.isCorrect === false) {
+            xpGain = 2; // Small XP for effort even if wrong
+        }
+
+        // Update User XP and Level
+        if (xpGain > 0) {
+            await this.updateXP(userId, xpGain);
+        }
 
         // Update streak
         const streakResult = await this.streakService.recordActivity(userId);
@@ -154,5 +173,56 @@ export class ActivityService {
         const date = new Date();
         date.setUTCDate(date.getUTCDate() - days);
         return date.toISOString().split('T')[0];
+    }
+
+    /**
+     * Update user XP and level in UserGamification
+     */
+    private async updateXP(userId: string, xpGain: number) {
+        try {
+            // Use an upsert for UserGamification to be safe
+            const gamification = await this.prisma.userGamification.upsert({
+                where: { userId },
+                create: {
+                    userId,
+                    totalXp: xpGain,
+                    level: 1,
+                    currentXp: xpGain, // Initial XP
+                },
+                update: {
+                    totalXp: { increment: xpGain },
+                    currentXp: { increment: xpGain },
+                }
+            });
+
+            this.logger.log(`Updated XP for user ${userId}: +${xpGain} XP (New total: ${gamification.totalXp})`);
+
+            const totalXp = gamification.totalXp;
+            const newLevel = Math.floor(Math.sqrt(totalXp / 100)) + 1;
+
+            if (newLevel > gamification.level) {
+                // Level up logic
+                // Calculate currentXp (progressive XP in the new level)
+                const xpForCurrentLevel = Math.pow(newLevel - 1, 2) * 100;
+                const currentXp = totalXp - xpForCurrentLevel;
+
+                await this.prisma.userGamification.update({
+                    where: { userId },
+                    data: {
+                        level: newLevel,
+                        currentXp: currentXp
+                    }
+                });
+
+                // Emit level up event
+                this.natsClient.emit('user.level_up', { userId, level: newLevel, xp: totalXp });
+                this.logger.log(`User ${userId} leveled up to ${newLevel}`);
+            }
+
+            // Emit XP gained event for UI updates
+            this.natsClient.emit('user.xp_gained', { userId, xpGained: xpGain, totalXp: totalXp });
+        } catch (error) {
+            this.logger.error(`Failed to update XP for user ${userId}`, error.stack);
+        }
     }
 }

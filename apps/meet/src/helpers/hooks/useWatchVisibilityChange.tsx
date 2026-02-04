@@ -6,7 +6,7 @@ import {
 } from '@workspace/protocol';
 
 import { getNatsConn } from '../nats';
-import { updateisWajlcWindowTabVisible } from '../../store/slices/roomSettingsSlice';
+import { updateIsWAJLCWindowTabVisible } from '../../store/slices/roomSettingsSlice';
 import { useAppDispatch } from '../../store';
 
 const useWatchVisibilityChange = () => {
@@ -85,7 +85,7 @@ const useWatchVisibilityChange = () => {
       AnalyticsEventType.USER,
       data,
     );
-    dispatch(updateisWajlcWindowTabVisible(!hidden));
+    dispatch(updateIsWAJLCWindowTabVisible(!hidden));
     //eslint-disable-next-line
   }, [hidden]);
 };

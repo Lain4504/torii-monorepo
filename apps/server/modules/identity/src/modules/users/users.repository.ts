@@ -17,19 +17,39 @@ export class UsersRepository implements IUsersRepository {
      * Find user by ID
      */
     async findById(userId: string): Promise<User | null> {
-        return this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            include: { identities: true },
+            include: {
+                identities: true,
+                gamification: true
+            },
         });
+
+        if (!user) return null;
+
+        return {
+            ...user,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
+        } as any;
     }
 
     /**
      * Find user by email
      */
     async findByEmail(email: string): Promise<User | null> {
-        return this.prisma.user.findFirst({
+        const user = await this.prisma.user.findFirst({
             where: { email },
+            include: { gamification: true }
         });
+
+        if (!user) return null;
+
+        return {
+            ...user,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
+        } as any;
     }
 
     /**
@@ -41,13 +61,22 @@ export class UsersRepository implements IUsersRepository {
         where?: Prisma.UserWhereInput;
         orderBy?: Prisma.UserOrderByWithRelationInput;
     }): Promise<User[]> {
-        return this.prisma.user.findMany({
+        const users = await this.prisma.user.findMany({
             where: options.where,
             skip: options.skip,
             take: options.take,
             orderBy: options.orderBy || { createdAt: 'desc' },
-            include: { identities: true },
+            include: {
+                identities: true,
+                gamification: true
+            },
         });
+
+        return users.map(user => ({
+            ...user,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
+        })) as any;
     }
 
     /**
@@ -61,35 +90,67 @@ export class UsersRepository implements IUsersRepository {
      * Create new user
      */
     async create(data: Prisma.UserCreateInput): Promise<User> {
-        return this.prisma.user.create({
-            data,
+        const user = await this.prisma.user.create({
+            data: {
+                ...data,
+                gamification: {
+                    create: {
+                        level: 1,
+                        currentXp: 0,
+                        totalXp: 0,
+                        currentStreak: 0,
+                        longestStreak: 0
+                    }
+                }
+            },
+            include: { gamification: true }
         });
+
+        return {
+            ...user,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
+        } as any;
     }
 
     /**
      * Update user by ID
      */
     async update(userId: string, data: Prisma.UserUpdateInput): Promise<User> {
-        return this.prisma.user.update({
+        const user = await this.prisma.user.update({
             where: { id: userId },
             data: {
                 ...data,
                 updatedAt: new Date(),
             },
+            include: { gamification: true }
         });
+
+        return {
+            ...user,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
+        } as any;
     }
 
     /**
      * Update user by email
      */
     async updateByEmail(email: string, data: Prisma.UserUpdateInput): Promise<User> {
-        return this.prisma.user.update({
+        const user = await this.prisma.user.update({
             where: { email },
             data: {
                 ...data,
                 updatedAt: new Date(),
             },
+            include: { gamification: true }
         });
+
+        return {
+            ...user,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
+        } as any;
     }
 
     /**
@@ -105,20 +166,32 @@ export class UsersRepository implements IUsersRepository {
      * Soft delete user
      */
     async softDelete(userId: string): Promise<User> {
-        return this.prisma.user.update({
+        const user = await this.prisma.user.update({
             where: { id: userId },
             data: {
                 deletedAt: new Date(),
                 updatedAt: new Date(),
             },
+            include: { gamification: true }
         });
+
+        return {
+            ...user,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
+        } as any;
     }
 
     /**
      * Check if email exists
      */
-    async emailExists(email: string): Promise<boolean> {
-        const user = await this.findByEmail(email);
+    async emailExists(email: string, excludeUserId?: string): Promise<boolean> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                email,
+                id: excludeUserId ? { not: excludeUserId } : undefined,
+            },
+        });
         return !!user;
     }
 
@@ -130,6 +203,8 @@ export class UsersRepository implements IUsersRepository {
         email: string;
         displayName: string;
         role: string;
+        xp: number;
+        level: number;
         avatarUrl: string | null;
         userMetadata: Record<string, unknown> | null;
         verifiedAt: Date | null;
@@ -148,6 +223,12 @@ export class UsersRepository implements IUsersRepository {
                 verifiedAt: true,
                 createdAt: true,
                 updatedAt: true,
+                gamification: {
+                    select: {
+                        totalXp: true,
+                        level: true,
+                    },
+                },
             },
         });
 
@@ -164,8 +245,10 @@ export class UsersRepository implements IUsersRepository {
 
         return {
             ...user,
+            xp: user.gamification?.totalXp ?? 0,
+            level: user.gamification?.level ?? 1,
             userMetadata,
-        };
+        } as any;
     }
 
     /**

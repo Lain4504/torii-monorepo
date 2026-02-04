@@ -23,6 +23,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { IngressModule } from './modules/ingress/ingress.module';
 import { InsightsModule } from './modules/insights/insights.module';
 import { SpeechToTextModule } from './modules/speech-to-text/speech-to-text.module';
+import { JanitorModule } from './modules/janitor/janitor.module';
 
 // NATS Handlers
 import { IngressHandler } from './interfaces/nats/ingress.handler';
@@ -50,6 +51,7 @@ import { SpeechToTextHandler } from './interfaces/nats/speech-to-text.handler';
     IngressModule,
     InsightsModule,
     SpeechToTextModule,
+    JanitorModule,
   ],
   controllers: [
     // NATS Handlers (not HTTP controllers)

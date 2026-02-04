@@ -32,52 +32,42 @@ export class ExternalMediaController {
 
     @Post('externalMediaPlayer')
     @UseGuards(JwtAuthGuard)
-    async updateMediaPlayer(
+    async handleExternalMediaPlayer(
         @Req() req: Request,
         @Body() body: any,
         @Res() res: Response
     ) {
-        const isAdmin = (req as any).isAdmin as boolean;
-        const roomId = (req as any).roomId as string;
-        const requestedUserId = (req as any).requestedUserId as string;
-
-        if (!isAdmin) {
-            sendCommonProtobufResponse(res, false, 'only admin can perform this task');
-            return;
-        }
-
-        if (!roomId) {
-            sendCommonProtobufResponse(res, false, 'roomId required');
-            return;
-        }
-
-        try {
-            let request: any;
-            if (Buffer.isBuffer(body)) {
-                request = fromBinary(ExternalMediaPlayerReqSchema, body);
-            } else {
-                request = create(ExternalMediaPlayerReqSchema, body);
-            }
-
-            request.roomId = roomId;
-            request.userId = requestedUserId;
-
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'externalMedia.player' }, request)
-            );
-            res.status(HttpStatus.OK);
-            sendCommonProtobufResponse(res, result.status, result.msg);
-        } catch (error) {
-            sendCommonProtobufResponse(res, false, error.message);
-        }
+        await this.handleRequest(
+            req,
+            body,
+            res,
+            ExternalMediaPlayerReqSchema,
+            'externalMedia.player'
+        );
     }
 
     @Post('externalDisplayLink')
     @UseGuards(JwtAuthGuard)
-    async updateDisplayLink(
+    async handleExternalDisplayLink(
         @Req() req: Request,
         @Body() body: any,
         @Res() res: Response
+    ) {
+        await this.handleRequest(
+            req,
+            body,
+            res,
+            ExternalDisplayLinkReqSchema,
+            'externalMedia.display'
+        );
+    }
+
+    private async handleRequest(
+        req: Request,
+        body: any,
+        res: Response,
+        schema: any,
+        cmd: string
     ) {
         const isAdmin = (req as any).isAdmin as boolean;
         const roomId = (req as any).roomId as string;
@@ -96,16 +86,16 @@ export class ExternalMediaController {
         try {
             let request: any;
             if (Buffer.isBuffer(body)) {
-                request = fromBinary(ExternalDisplayLinkReqSchema, body);
+                request = fromBinary(schema, body);
             } else {
-                request = create(ExternalDisplayLinkReqSchema, body);
+                request = create(schema, body);
             }
 
             request.roomId = roomId;
             request.userId = requestedUserId;
 
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'externalMedia.display' }, request)
+                this.natsClient.send({ cmd }, request)
             );
             res.status(HttpStatus.OK);
             sendCommonProtobufResponse(res, result.status, result.msg);

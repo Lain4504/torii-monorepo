@@ -27,7 +27,7 @@ import { RoomModule } from '../../modules/room/room.module';
         forwardRef(() => AnalyticsModule),
         forwardRef(() => RoomModule),
         LiveKitModule,
-        WajlcAuthModule,
+        forwardRef(() => WajlcAuthModule),
     ],
     providers: [
         NatsService,

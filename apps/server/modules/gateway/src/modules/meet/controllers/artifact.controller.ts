@@ -1,90 +1,242 @@
 /**
  * Artifact Controller (Gateway)
  *
- * Handles HTTP requests for artifact operations and routes to Meet service via NATS
+ * Handles artifact-related API endpoints via Gateway -> NATS -> Meet Service
  */
 
-import { Controller, Get, Post, Body, Param, Res, Query, Delete, HttpStatus } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    Res,
+    UseGuards,
+    HttpCode,
+    HttpStatus,
+    Inject,
+} from '@nestjs/common';
+import type { Response } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
-import { Inject } from '@nestjs/common';
-import { Response } from 'express';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { create } from '@bufbuild/protobuf';
 import {
     FetchArtifactsReq,
+    FetchArtifactsReqSchema,
+    FetchArtifactsRes,
+    FetchArtifactsResSchema,
     ArtifactInfoReq,
+    ArtifactInfoReqSchema,
     DeleteArtifactReq,
+    DeleteArtifactReqSchema,
     GetArtifactDownloadTokenReq,
-    ArtifactInfoRes,
+    GetArtifactDownloadTokenReqSchema,
+    GetArtifactDownloadTokenRes,
+    GetArtifactDownloadTokenResSchema,
 } from '@workspace/protocol';
+import {
+    sendCommonProtoJsonResponse,
+    sendProtoJsonResponse,
+    parseAndValidateRequest,
+    ApiKeyGuard,
+} from '@server/shared';
 
-@Controller('meet/artifact')
+/**
+ * ArtifactController handles artifact operations (ApiKeyGuard routes)
+ * Routes under /auth/artifact
+ */
+@Controller('auth/artifact')
+@UseGuards(ApiKeyGuard)
 export class ArtifactController {
     constructor(
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
+    /**
+     * HandleFetchArtifacts fetches a paginated list of artifacts
+     * @route POST /auth/artifact/fetch
+     */
     @Post('fetch')
-    async fetchArtifacts(@Body() req: FetchArtifactsReq) {
-        return await lastValueFrom(
-            this.natsClient.send({ cmd: 'artifact.fetch' }, req)
-        );
-    }
+    @HttpCode(HttpStatus.OK)
+    async handleFetchArtifacts(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        // Parse and validate request
+        let request: FetchArtifactsReq;
+        try {
+            request = parseAndValidateRequest<FetchArtifactsReq>(
+                body,
+                FetchArtifactsReqSchema,
+            );
+        } catch (error) {
+            sendCommonProtoJsonResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Invalid request',
+            );
+            return;
+        }
 
-    @Get('info/:artifactId')
-    async getArtifactInfo(@Param('artifactId') artifactId: string) {
-        const req: ArtifactInfoReq = { artifactId } as any;
-        return await lastValueFrom(
-            this.natsClient.send({ cmd: 'artifact.info' }, req)
-        );
-    }
+        // Call artifact service via NATS
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'artifact.fetch' }, request),
+            );
 
-    @Delete('delete/:artifactId')
-    async deleteArtifact(@Param('artifactId') artifactId: string) {
-        const req: DeleteArtifactReq = { artifactId } as any;
-        return await lastValueFrom(
-            this.natsClient.send({ cmd: 'artifact.delete' }, req)
-        );
-    }
+            if (Number(result.result?.totalArtifacts) === 0) {
+                sendCommonProtoJsonResponse(res, false, 'no artifacts found');
+                return;
+            }
 
-    @Get('get-download-token/:artifactId')
-    async getDownloadToken(@Param('artifactId') artifactId: string) {
-        const req: GetArtifactDownloadTokenReq = { artifactId } as any;
-        return await lastValueFrom(
-            this.natsClient.send({ cmd: 'artifact.getDownloadToken' }, req)
-        );
+            const response = create(FetchArtifactsResSchema, {
+                status: true,
+                msg: 'success',
+                result: result.result,
+            });
+
+            res.status(200);
+            sendProtoJsonResponse(res, FetchArtifactsResSchema, response);
+        } catch (error) {
+            sendCommonProtoJsonResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Error fetching artifacts',
+            );
+        }
     }
 
     /**
-     * Download artifact file
-     * This is handled locally in the Gateway because it serves files from the shared storage
+     * HandleGetArtifactInfo gets information about a specific artifact
+     * @route POST /auth/artifact/info
      */
-    @Get('download/:token')
-    async downloadArtifact(@Param('token') token: string, @Res() res: Response) {
-        // We need to verify the token first.
-        // Since the verification logic depends on ArtifactsService in Meet, 
-        // we'll ask Meet service to verify it and return the paths.
-
+    @Post('info')
+    @HttpCode(HttpStatus.OK)
+    async handleGetArtifactInfo(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        // Parse and validate request
+        let request: ArtifactInfoReq;
         try {
-            // Note: We'll add a new NATS pattern for verification or just use a shared helper if available.
-            // For now, let's assume we send a verify request to Meet.
-            const verifyRes = await lastValueFrom(
-                this.natsClient.send({ cmd: 'artifact.verifyDownloadToken' }, { token })
+            request = parseAndValidateRequest<ArtifactInfoReq>(
+                body,
+                ArtifactInfoReqSchema,
+            );
+        } catch (error) {
+            sendCommonProtoJsonResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Invalid request',
+            );
+            return;
+        }
+
+        // Call artifact service via NATS
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'artifact.info' }, request),
             );
 
-            if (!verifyRes.status) {
-                return res.status(HttpStatus.FORBIDDEN).json(verifyRes);
-            }
-
-            // In a real monorepo with shared storage, Gateway can serve the file
-            // Otherwise, we might need a separate storage service or proxy.
-
-            const { absolutePath, fileName } = verifyRes;
-            res.download(absolutePath, fileName);
+            res.status(200);
+            sendProtoJsonResponse(res, result.$typeName, result);
         } catch (error) {
-            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                status: false,
-                msg: error.message
-            });
+            sendCommonProtoJsonResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Error getting artifact info',
+            );
         }
     }
+
+    /**
+     * HandleDeleteArtifact deletes an artifact
+     * @route POST /auth/artifact/delete
+     */
+    @Post('delete')
+    @HttpCode(HttpStatus.OK)
+    async handleDeleteArtifact(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        // Parse and validate request
+        let request: DeleteArtifactReq;
+        try {
+            request = parseAndValidateRequest<DeleteArtifactReq>(
+                body,
+                DeleteArtifactReqSchema,
+            );
+        } catch (error) {
+            sendCommonProtoJsonResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Invalid request',
+            );
+            return;
+        }
+
+        // Call artifact service via NATS
+        try {
+            await firstValueFrom(
+                this.natsClient.send({ cmd: 'artifact.delete' }, request),
+            );
+
+            sendCommonProtoJsonResponse(res, true, 'success');
+        } catch (error) {
+            sendCommonProtoJsonResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Error deleting artifact',
+            );
+        }
+    }
+
+    /**
+     * HandleGetArtifactDownloadToken generates a download token for an artifact
+     * @route POST /auth/artifact/getDownloadToken
+     */
+    @Post('getDownloadToken')
+    @HttpCode(HttpStatus.OK)
+    async handleGetArtifactDownloadToken(
+        @Body() body: any,
+        @Res() res: Response,
+    ): Promise<void> {
+        // Parse and validate request
+        let request: GetArtifactDownloadTokenReq;
+        try {
+            request = parseAndValidateRequest<GetArtifactDownloadTokenReq>(
+                body,
+                GetArtifactDownloadTokenReqSchema,
+            );
+        } catch (error) {
+            sendCommonProtoJsonResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Invalid request',
+            );
+            return;
+        }
+
+        // Call artifact service via NATS
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'artifact.getDownloadToken' }, request),
+            );
+
+            const response = create(GetArtifactDownloadTokenResSchema, {
+                status: true,
+                msg: 'success',
+                token: result.token,
+            });
+
+            res.status(200);
+            sendProtoJsonResponse(res, GetArtifactDownloadTokenResSchema, response);
+        } catch (error) {
+            sendCommonProtoJsonResponse(
+                res,
+                false,
+                error instanceof Error ? error.message : 'Error generating download token',
+            );
+        }
+    }
+
 }
+

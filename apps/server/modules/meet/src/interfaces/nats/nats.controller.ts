@@ -18,7 +18,10 @@ import { NatsAuthCalloutService } from './nats-auth-callout.service';
 import { RetentionPolicy, AckPolicy } from 'nats';
 import { NatsSystemEventsService } from './nats-system-events.service';
 import { fromBinary, fromJsonString } from '@bufbuild/protobuf';
-import { NatsMsgClientToServerSchema, NatsMsgClientToServerEvents, AnalyticsDataMsgSchema } from '@workspace/protocol';
+import {
+    NatsMsgClientToServerSchema, NatsMsgClientToServerEvents,
+    NatsMsgServerToClientEvents, AnalyticsDataMsgSchema
+} from '@workspace/protocol';
 import { RoomUserService } from '../../modules/room/room-user.service';
 import { AnalyticsService } from '../../modules/analytics/analytics.service';
 
@@ -31,8 +34,11 @@ const PREFIX = 'wajlc-';
 const NATS_AUTH_SERVICE_NAME = PREFIX + 'auth';
 const NATS_AUTH_SERVICE_QUEUE_GROUP = PREFIX + 'auth-queue';
 const NATS_CONNECTION_EVENT_QUEUE_GROUP = PREFIX + 'conn-event-queue';
+const RECORDER_USER_AUTH_NAME = 'WAJLC_RECORDER_AUTH';
 const WEBSOCKET_CLIENT_TYPE = 'websocket';
 const TRANSCODER_CONSUMER_DURABLE = 'transcoderWorker';
+const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
+const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 
 interface NatsJob {
     handler: () => void | Promise<void>;
@@ -292,11 +298,24 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             const jsm = this.natsService.getJetStreamManager();
             const js = this.natsService.getJetStream();
 
-            // Create consumer
-            const consumer = await jsm.consumers.add(sysJsWorker, {
+            // Create or update consumer
+            const consumerConfig: any = { // Use 'any' or ConsumerConfig type to avoid strict check issues initially
                 durable_name: `${PREFIX}${sysJsWorker}`,
                 ack_policy: AckPolicy.Explicit,
-            });
+            };
+
+            try {
+                await jsm.consumers.add(sysJsWorker, consumerConfig);
+            } catch (err) {
+                if (err.message?.includes("consumer already exists") || err.api_error?.err_code === 10148) {
+                    // Consumer exists, try to update it
+                    // Update config excludes durable_name as it is passed as argument
+                    const { durable_name, ...updateConfig } = consumerConfig;
+                    await jsm.consumers.update(sysJsWorker, `${PREFIX}${sysJsWorker}`, updateConfig);
+                } else {
+                    throw err;
+                }
+            }
 
             // Get consumer instance and subscribe to messages
             const c = await js.consumers.get(sysJsWorker, `${PREFIX}${sysJsWorker}`);
@@ -305,11 +324,15 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             // Process messages
             (async () => {
                 for await (const msg of messages) {
+                    msg.ack();
+                    // Copy data to avoid race conditions
+                    const sub = msg.subject;
+                    const data = Buffer.from(msg.data);
+
                     // Enqueue job for worker pool
                     this.enqueueJob({
                         handler: async () => {
-                            await this.handleSystemWorkerMessage(msg);
-                            msg.ack();
+                            await this.handleSystemWorkerMessage(sub, data);
                         },
                     });
                 }
@@ -329,14 +352,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
     /**
      * Handle system worker message
      */
-    /**
-     * Handle system worker message
-     */
-    private async handleSystemWorkerMessage(msg: any) {
+    private async handleSystemWorkerMessage(subject: string, data: Uint8Array) {
         try {
-            const subject = msg.subject;
-            const data = msg.data;
-
             // Parse subject: sysJsWorker.{roomId}.{userId}
             const parts = subject.split('.');
             if (parts.length !== 3) {
@@ -372,8 +389,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     break;
 
                 case NatsMsgClientToServerEvents.REQ_RENEW_WAJLC_TOKEN:
-                    // Message format is roomI:userId but usually token is sent
-
                     await this.natsSystemEventsService.renewWajlcToken(roomId, userId, req.msg);
                     break;
 
@@ -409,6 +424,14 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     }
                     break;
 
+                case NatsMsgClientToServerEvents.REQ_ONLINE_USERS_LIST:
+                    await this.natsSystemEventsService.handleSendUsersList(roomId, userId, NatsMsgServerToClientEvents.RESP_ONLINE_USERS_LIST);
+                    break;
+
+                case NatsMsgClientToServerEvents.REQ_PRIVATE_DATA_DELIVERY:
+                    await this.natsSystemEventsService.handleToDeliveryPrivateData(roomId, userId, req);
+                    break;
+
                 default:
                     this.logger.debug(`Unhandled system event: ${NatsMsgClientToServerEvents[req.event]}`);
                     break;
@@ -421,10 +444,9 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Create transcoder stream for recorder
-
      */
     private async createTranscoderStream() {
-        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'recorderTranscoderJobs';
+        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'wajlc-RecorderTranscoderJobs';
         const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
 
         this.logger.log(`Creating transcoder stream: ${transcodingJobs}`);
@@ -465,7 +487,6 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Subscribe to user connection events
-
      */
     private async subscribeToUsersConnEvents() {
         const account = this.configService.get<string>('NATS_ACCOUNT_NAME') || 'PNM';
@@ -497,7 +518,9 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
                     // Enqueue job for worker pool
                     this.enqueueJob({
-                        handler: () => this.handleUserConnectionEvent(dataCopy, isConnect),
+                        handler: async () => {
+                            await this.handleUserConnectionEvent(dataCopy, isConnect);
+                        },
                     });
                 },
             });
@@ -513,9 +536,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
 
     /**
      * Handle user connection event (CONNECT/DISCONNECT)
-
      */
-    private handleUserConnectionEvent(data: Buffer, isConnect: boolean) {
+    private async handleUserConnectionEvent(data: Buffer, isConnect: boolean) {
         try {
             // Parse JSON event
             const event: ConnectionEvent = JSON.parse(data.toString());
@@ -530,7 +552,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             // Check if websocket client
             const clientType = event.client?.client_type;
             if (clientType && clientType !== WEBSOCKET_CLIENT_TYPE) {
-                this.logger.debug(`Ignoring non-websocket connection: ${clientType}`);
+                this.logger.warn(`Ignoring non-websocket connection: ${clientType}`);
                 return;
             }
 
@@ -549,17 +571,17 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
             }
 
             // Skip recorder connections
-            if (claims.name === 'RECORDER') {
+            if (claims.name === RECORDER_USER_AUTH_NAME) {
                 return;
             }
 
             // Update user status
             if (isConnect) {
                 this.logger.log(`User connected: ${claims.userId} in room ${claims.roomId}`);
-                this.natsUserService.onAfterUserJoined(claims.roomId, claims.userId);
+                await this.natsUserService.onAfterUserJoined(claims.roomId, claims.userId);
             } else {
                 this.logger.log(`User disconnected: ${claims.userId} from room ${claims.roomId}`);
-                this.natsUserService.onAfterUserDisconnected(claims.roomId, claims.userId);
+                await this.natsUserService.onAfterUserDisconnected(claims.roomId, claims.userId);
             }
         } catch (error) {
             this.logger.error('Error handling connection event:', error);

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SharedModule } from '@server/shared';
+import { SharedModule, NatsClientModule } from '@server/shared';
 import { FlashcardService } from './flashcard.service';
 import { SrsAlgorithmService } from './srs-algorithm.service';
 import { FlashcardReviewService } from './flashcard-review.service';
@@ -14,7 +14,7 @@ import { FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '../../interfaces/service
 import { FlashcardDeckModule } from '../flashcard-deck/flashcard-deck.module';
 
 @Module({
-    imports: [SharedModule, FlashcardDeckModule],
+    imports: [SharedModule, FlashcardDeckModule, NatsClientModule],
     controllers: [],
     providers: [
         {

@@ -13,7 +13,7 @@ import {
     CreateIngressRes,
     CommonResponseSchema,
     CreateIngressResSchema,
-    IngressInput as PnmIngressInput,
+    IngressInput as WajlcIngressInput,
     UserMetadata,
     UserMetadataSchema,
     AnalyticsDataMsgSchema,
@@ -48,7 +48,7 @@ export class IngressService {
      * CreateIngress creates a new LiveKit ingress session
      */
     async createIngress(req: CreateIngressReq): Promise<CreateIngressRes> {
-        this.logger.log(`Request to create ingress: roomId=${req.roomId}, inputType=${PnmIngressInput[req.inputType]}`);
+        this.logger.log(`Request to create ingress: roomId=${req.roomId}, inputType=${WajlcIngressInput[req.inputType]}`);
 
         // 1. Get room metadata
         const metadata = await this.natsRoomService.getRoomMetadataStruct(req.roomId);
@@ -66,7 +66,7 @@ export class IngressService {
 
         // 2. Map input type
         let inputType = IngressInput.RTMP_INPUT;
-        if (req.inputType === PnmIngressInput.WHIP_INPUT) {
+        if (req.inputType === WajlcIngressInput.WHIP_INPUT) {
             inputType = IngressInput.WHIP_INPUT;
         }
 

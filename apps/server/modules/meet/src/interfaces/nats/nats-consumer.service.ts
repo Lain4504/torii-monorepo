@@ -7,6 +7,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NatsStreamService } from './nats-stream.service';
+import { NatsService } from './nats.service';
 
 @Injectable()
 export class NatsConsumerService {
@@ -15,94 +16,42 @@ export class NatsConsumerService {
     constructor(
         private readonly configService: ConfigService,
         private readonly streamService: NatsStreamService,
+        private readonly natsService: NatsService,
     ) { }
 
     /**
-     * Create chat consumer for a user in a room
+     * CreateUserConsumer creates a single consumer per user for public and private system messages.
      */
-    async createChatConsumer(roomId: string, userId: string): Promise<string[]> {
-        const chat = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
+    async createUserConsumer(roomId: string, userId: string): Promise<string[]> {
+        const streamName = this.natsService.getRoomStreamName();
+        const durableName = `${roomId}_${userId}`;
+
+        const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
+        const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
 
         try {
-            // Create or update consumer using your existing stream service
-            await this.streamService.createConsumer(roomId, {
-                durable_name: `${chat}:${userId}`,
-                filter_subjects: [`${roomId}:${chat}.>`],
+            // Create or update consumer
+            await this.streamService.createConsumer(streamName, {
+                durable_name: durableName,
+                deliver_policy: 'new', // DeliverNew
+                filter_subjects: [
+                    `${sysPublic}.${roomId}.>`,
+                    `${sysPrivate}.${roomId}.${userId}.>`,
+                ],
             });
 
             // Return permission strings that will be added to user's NATS permissions
             return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${chat}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${chat}:${userId}`,
-                `${roomId}:${chat}.${userId}`,
-                `$JS.ACK.${roomId}.${chat}:${userId}.>`,
+                `$JS.API.CONSUMER.INFO.${streamName}.${durableName}`,
+                `$JS.API.CONSUMER.MSG.NEXT.${streamName}.${durableName}`,
+                `$JS.ACK.${streamName}.${durableName}.>`,
             ];
         } catch (error) {
-            this.logger.error(`Error creating chat consumer for ${userId} in ${roomId}:`, error);
-            // Return basic permissions even if consumer creation fails
+            this.logger.error(`Error creating user consumer for ${userId} in ${roomId}:`, error);
             return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${chat}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${chat}:${userId}`,
-                `${roomId}:${chat}.${userId}`,
-                `$JS.ACK.${roomId}.${chat}:${userId}.>`,
-            ];
-        }
-    }
-
-    /**
-     * Create system public consumer
-
-     */
-    async createSystemPublicConsumer(roomId: string, userId: string): Promise<string[]> {
-        const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
-
-        try {
-            await this.streamService.createConsumer(roomId, {
-                durable_name: `${sysPublic}:${userId}`,
-                deliver_policy: 'new',
-                filter_subjects: [`${roomId}:${sysPublic}.>`],
-            });
-
-            return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${sysPublic}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${sysPublic}:${userId}`,
-                `$JS.ACK.${roomId}.${sysPublic}:${userId}.>`,
-            ];
-        } catch (error) {
-            this.logger.error(`Error creating system public consumer for ${userId} in ${roomId}:`, error);
-            return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${sysPublic}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${sysPublic}:${userId}`,
-                `$JS.ACK.${roomId}.${sysPublic}:${userId}.>`,
-            ];
-        }
-    }
-
-    /**
-     * Create system private consumer
-
-     */
-    async createSystemPrivateConsumer(roomId: string, userId: string): Promise<string[]> {
-        const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
-
-        try {
-            await this.streamService.createConsumer(roomId, {
-                durable_name: `${sysPrivate}:${userId}`,
-                deliver_policy: 'new',
-                filter_subjects: [`${roomId}:${sysPrivate}.${userId}.>`],
-            });
-
-            return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${sysPrivate}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${sysPrivate}:${userId}`,
-                `$JS.ACK.${roomId}.${sysPrivate}:${userId}.>`,
-            ];
-        } catch (error) {
-            this.logger.error(`Error creating system private consumer for ${userId} in ${roomId}:`, error);
-            return [
-                `$JS.API.CONSUMER.INFO.${roomId}.${sysPrivate}:${userId}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${roomId}.${sysPrivate}:${userId}`,
-                `$JS.ACK.${roomId}.${sysPrivate}:${userId}.>`,
+                `$JS.API.CONSUMER.INFO.${streamName}.${durableName}`,
+                `$JS.API.CONSUMER.MSG.NEXT.${streamName}.${durableName}`,
+                `$JS.ACK.${streamName}.${durableName}.>`,
             ];
         }
     }
@@ -110,23 +59,17 @@ export class NatsConsumerService {
 
 
     /**
-     * Delete all consumers for a user in a room
-
+     * Delete consumer for a user
      */
     async deleteConsumer(roomId: string, userId: string): Promise<void> {
-        const subjects = [
-            this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat',
-            this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic',
-            this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate',
-        ];
+        const streamName = this.natsService.getRoomStreamName();
+        const durableName = `${roomId}_${userId}`;
 
-        for (const subject of subjects) {
-            try {
-                await this.streamService.deleteConsumer(roomId, `${subject}:${userId}`);
-            } catch (error) {
-                // Ignore errors during deletion
-                this.logger.warn(`Failed to delete consumer ${subject}:${userId} in ${roomId}`);
-            }
+        try {
+            await this.streamService.deleteConsumer(streamName, durableName);
+            this.logger.log(`Deleted consumer ${durableName} from stream ${streamName}`);
+        } catch (error) {
+            // Ignore errors during deletion
         }
     }
 }

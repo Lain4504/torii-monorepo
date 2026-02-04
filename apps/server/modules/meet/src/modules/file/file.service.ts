@@ -46,7 +46,16 @@ export class FileService {
         private readonly natsRoomEvents: NatsRoomEventsService,
         private readonly natsSystemEvents: NatsSystemEventsService,
     ) {
-        this.uploadPath = this.configService.get<string>('UPLOAD_FILE_PATH') || './uploads';
+        const rawPath = this.configService.get<string>('UPLOAD_FILE_PATH');
+        const defaultPath = './uploads';
+        this.uploadPath = rawPath
+            ? (path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath))
+            : path.resolve(process.cwd(), defaultPath);
+
+        this.logger.log(`UPLOAD_FILE_PATH from env: ${rawPath}`);
+        this.logger.log(`Resolved uploadPath: ${this.uploadPath}`);
+        this.logger.log(`Current process.cwd(): ${process.cwd()}`);
+
         if (!fs.existsSync(this.uploadPath)) {
             fs.mkdirSync(this.uploadPath, { recursive: true });
         }
@@ -89,6 +98,11 @@ export class FileService {
                 if (req.resumableTotalSize > maxSizeMb * 1024 * 1024) {
                     throw new Error(`File too large: max allowed is ${maxSizeMb}MB`);
                 }
+
+                // Validate Mime Type (Chunk 1)
+                // Note: Node.js standard lib doesn't support magic byte detection easily without external libs like 'file-type'
+                // We will trust the original filename extension and Content-Type for now, but not deep inspection capability
+                this.detectMimeTypeForValidation(req.resumableFilename);
             }
 
             if (!fs.existsSync(chunkDir)) {
@@ -114,6 +128,17 @@ export class FileService {
         const roomSid = roomInfo.roomSid;
         const roomId = roomInfo.roomId;
 
+        const buffer = Buffer.from(req.data, 'base64');
+
+        // Check max size
+        const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 100;
+        if (buffer.length > maxSizeMb * 1024 * 1024) {
+            throw new Error(`File too large: max allowed is ${maxSizeMb}MB`);
+        }
+
+        // Validate Mime Type
+        this.detectMimeTypeForValidation(req.fileName);
+
         const uploadDir = path.join(this.uploadPath, roomSid);
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
@@ -121,11 +146,11 @@ export class FileService {
 
         const safeFilename = path.basename(req.fileName);
         const finalPath = path.join(uploadDir, safeFilename);
-        const buffer = Buffer.from(req.data, 'base64');
 
         fs.writeFileSync(finalPath, buffer);
 
-        const fileId = uuidv4();
+        // at present format ${file.id}.png
+        const fileId = safeFilename.replace(/\.[^/.]+$/, "");
         const relativePath = path.join(roomSid, safeFilename);
         const mimeType = this.getMimeType(safeFilename);
 
@@ -139,14 +164,13 @@ export class FileService {
         await this.natsRoom.addRoomFile(roomId, meta);
 
         if (req.fileType === RoomUploadedFileType.CHAT_FILE) {
-            this.publishChatMsgForFile(
+            await this.publishChatMsgForFile(
                 roomId,
-                req.requestedUserId || '',
-                req.requestedUserName || '',
+                req.requestedUserId || 'system',
+                req.requestedUserName || 'System',
                 relativePath,
                 safeFilename,
-                mimeType
-            ).catch(err => this.logger.error(`Failed to publish chat msg for file: ${err.message}`));
+            );
         }
 
         return create(UploadBase64EncodedDataResSchema, {
@@ -167,8 +191,11 @@ export class FileService {
         const tempFolder = path.join(this.uploadPath, req.roomSid, 'tmp');
         const chunkDir = path.join(tempFolder, req.resumableIdentifier);
 
+        this.logger.debug(`Merging files: sid=${req.roomSid}, ident=${req.resumableIdentifier}, chunkDir=${chunkDir}`);
+
         if (!fs.existsSync(chunkDir)) {
-            throw new Error(`Chunks not found for identifier ${req.resumableIdentifier}`);
+            this.logger.error(`Chunks not found in path: ${chunkDir}`);
+            throw new Error(`Chunks not found for identifier ${req.resumableIdentifier} at path ${chunkDir}`);
         }
 
         const uploadDir = path.join(this.uploadPath, req.roomSid);
@@ -177,23 +204,28 @@ export class FileService {
         }
 
         const finalPath = path.join(uploadDir, safeFilename);
-        const writeStream = fs.createWriteStream(finalPath);
 
-        for (let i = 1; i <= req.resumableTotalChunks; i++) {
-            const chunkPath = path.join(chunkDir, `part${i}`);
-            if (!fs.existsSync(chunkPath)) {
-                throw new Error(`Chunk ${i} missing`);
+        // Combining chunks into one file
+        const destFile = fs.openSync(finalPath, 'w');
+
+        try {
+            for (let i = 1; i <= req.resumableTotalChunks; i++) {
+                const chunkPath = path.join(chunkDir, `part${i}`);
+                if (!fs.existsSync(chunkPath)) {
+                    throw new Error(`Chunk ${i} missing`);
+                }
+                const chunkData = fs.readFileSync(chunkPath);
+                fs.writeSync(destFile, chunkData);
             }
-            const data = fs.readFileSync(chunkPath);
-            writeStream.write(data);
+        } finally {
+            fs.closeSync(destFile);
         }
-        writeStream.end();
-
-        // Wait for write stream to finish
-        await new Promise((resolve) => writeStream.on('finish', () => resolve(true)));
 
         // Delete chunks
         this.deleteFolderRecursive(chunkDir);
+
+        // Validate Mime Type of merged file
+        this.detectMimeTypeForValidation(safeFilename);
 
         const fileId = uuidv4();
         const relativePath = path.join(req.roomSid, safeFilename);
@@ -224,22 +256,13 @@ export class FileService {
         });
 
         if (req.fileType === RoomUploadedFileType.CHAT_FILE) {
-            this.publishChatMsgForFile(
+            await this.publishChatMsgForFile(
                 req.roomId,
-                req.requestedUserId || '',
-                req.requestedUserName || '',
+                req.requestedUserId || 'system',
+                req.requestedUserName || 'System',
                 relativePath,
                 safeFilename,
-                mimeType
-            ).catch(err => this.logger.error(`Failed to publish chat msg for file: ${err.message}`));
-        }
-
-        // If it's an office file, we might want to start conversion
-        if (req.fileType === RoomUploadedFileType.WHITEBOARD_CONVERTED_FILE) {
-            // Trigger conversion (don't await to avoid blocking response)
-            this.convertAndBroadcastWhiteboardFile(req.roomId, req.roomSid, relativePath).catch(err => {
-                this.logger.error(`Whiteboard conversion failed: ${err.message}`);
-            });
+            );
         }
 
         return response;
@@ -263,10 +286,14 @@ export class FileService {
         const fileName = path.basename(filePath);
         const ext = path.extname(fileName).toLowerCase();
 
+        // Check MimeType again
+        this.detectMimeTypeForValidation(fileName);
+
         let pdfPath = fullPath;
         if (ext !== '.pdf') {
             // Convert to PDF using soffice (LibreOffice)
             try {
+                // We'll trust the command for now
                 await execPromise(`soffice --headless --invisible --nologo --nolockcheck --convert-to pdf --outdir "${outputDir}" "${fullPath}"`);
                 const pdfName = path.basename(fileName, ext) + '.pdf';
                 pdfPath = path.join(outputDir, pdfName);
@@ -307,6 +334,14 @@ export class FileService {
         });
         await this.natsRoom.addRoomFile(roomId, meta);
 
+        // Update room metadata
+        await this.updateRoomMetadataWithOfficeFile(roomId, {
+            fileId,
+            fileName,
+            filePath: res.filePath,
+            totalPages: pages,
+        });
+
         return res;
     }
 
@@ -325,6 +360,29 @@ export class FileService {
     async downloadAndProcessPreUploadWBfile(roomId: string, roomSid: string, fileUrl: string): Promise<any> {
         this.logger.log(`Downloading and processing pre-upload whiteboard file: ${fileUrl}`);
 
+        // Validate Remote File (Head Check)
+        try {
+            const headRes = await axios.head(fileUrl);
+            // Content-Length check
+            const len = headRes.headers['content-length'];
+            if (len && Number(len) > 0) {
+                const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 30; // default 30MB for preload?
+                if (Number(len) > maxSizeMb * 1024 * 1024) {
+                    throw new Error('File too large');
+                }
+            }
+            // Content-Type check
+            const cType = headRes.headers['content-type'];
+            // We can't strictly validate cType against our allow list because header might be generic
+            // But we should check if it's there
+            if (!cType) {
+                throw new Error('Missing Content-Type header');
+            }
+        } catch (err) {
+            this.logger.error(`Failed to validate remote file: ${err.message}`);
+            throw err;
+        }
+
         const downloadDir = path.join(this.uploadPath, roomSid);
         if (!fs.existsSync(downloadDir)) {
             fs.mkdirSync(downloadDir, { recursive: true });
@@ -339,7 +397,7 @@ export class FileService {
                 method: 'GET',
                 url: fileUrl,
                 responseType: 'stream',
-                timeout: 30000,
+                timeout: 180000, // 3 minutes
             });
 
             const writer = fs.createWriteStream(downloadPath);
@@ -354,8 +412,11 @@ export class FileService {
             throw new Error(`Failed to download whiteboard file: ${error.message}`);
         }
 
+        const safeFilename = path.basename(fileName);
+        this.detectMimeTypeForValidation(safeFilename);
+
         // Process file (convert and broadcast)
-        const filePath = path.join(roomSid, fileName);
+        const filePath = path.join(roomSid, safeFilename);
         return this.convertAndBroadcastWhiteboardFile(roomId, roomSid, filePath);
     }
 
@@ -384,6 +445,58 @@ export class FileService {
         }
     }
 
+    private async updateRoomMetadataWithOfficeFile(roomId: string, f: { fileId: string, fileName: string, filePath: string, totalPages: number }): Promise<void> {
+        try {
+            const { metadata } = await this.natsRoom.getRoomInfoWithMetadata(roomId);
+            if (!metadata) {
+                throw new Error('Room metadata not found');
+            }
+
+            if (!metadata.roomFeatures) {
+                metadata.roomFeatures = { whiteboardFeatures: {} } as any;
+            }
+            if (!metadata.roomFeatures?.whiteboardFeatures) {
+                metadata.roomFeatures!.whiteboardFeatures = {} as any;
+            }
+
+            const wbf = metadata.roomFeatures!.whiteboardFeatures!;
+            wbf.whiteboardFileId = f.fileId;
+            wbf.fileName = f.fileName;
+            wbf.filePath = f.filePath;
+            wbf.totalPages = f.totalPages;
+
+            await this.natsRoom.updateAndBroadcastRoomMetadata(roomId, metadata);
+        } catch (error) {
+            this.logger.error(`Failed to update room metadata with office file: ${error.message}`);
+        }
+    }
+
+    private async publishChatMsgForFile(roomId: string, userId: string, userName: string, filePath: string, fileName: string): Promise<void> {
+        const apiUrl = this.configService.get<string>('API_URL') || '';
+
+        const message = `<a class="attachment-message flex items-center gap-3 break-all" href="${apiUrl}/download/uploadedFile/${filePath}" target="_blank" rel="noreferrer">
+    <span class="h-10 w-10 rounded-xl bg-muted flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <path d="M3 12.1817C2.09551 11.5762 1.5 10.5452 1.5 9.375C1.5 7.61732 2.84363 6.17347 4.55981 6.01453C4.91086 3.8791 6.76518 2.25 9 2.25C11.2348 2.25 13.0891 3.8791 13.4402 6.01453C15.1564 6.17347 16.5 7.61732 16.5 9.375C16.5 10.5452 15.9045 11.5762 15 12.1817M6 12.75L9 15.75M9 15.75L12 12.75M9 15.75V9" stroke="#0C131A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg></span><span class="flex-1">${fileName}</span></a>`;
+
+        const chatMsg = create(ChatMessageSchema, {
+            id: uuidv4(),
+            fromName: userName,
+            fromUserId: userId,
+            sentAt: Date.now().toString(),
+            isPrivate: false,
+            message: message,
+            fromAdmin: false,
+        });
+
+        try {
+            await this.natsSystemEvents.broadcastChatEntry(roomId, chatMsg);
+            this.logger.debug(`Broadcasted chat message for file: ${fileName} in room: ${roomId}`);
+        } catch (error) {
+            this.logger.error(`Failed to broadcast chat message for file: ${error.message}`);
+        }
+    }
+
     private getMimeType(filename: string): string {
         const ext = path.extname(filename).toLowerCase();
         const mimes: Record<string, string> = {
@@ -399,47 +512,29 @@ export class FileService {
             '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             '.ppt': 'application/vnd.ms-powerpoint',
             '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            // Added explicit support for more types matching common defaults
+            '.rtf': 'application/rtf',
+            '.csv': 'text/csv',
+            '.xml': 'application/xml',
+            '.mp3': 'audio/mpeg',
+            '.mp4': 'video/mp4',
+            '.wav': 'audio/wav',
+            '.ogg': 'audio/ogg',
+            '.webm': 'video/webm',
+            '.svg': 'image/svg+xml'
         };
         return mimes[ext] || 'application/octet-stream';
     }
 
-    private async publishChatMsgForFile(
-        roomId: string,
-        userId: string,
-        userName: string,
-        filePath: string,
-        fileName: string,
-        mimeType: string
-    ) {
-        if (!userId || !userName) {
-            return;
+    private detectMimeTypeForValidation(filename: string): void {
+        const ext = path.extname(filename).toLowerCase().replace('.', '');
+        const allowedTypesStr = this.configService.get<string>('UPLOAD_ALLOWED_TYPES') ||
+            'jpg,jpeg,png,gif,txt,pdf,doc,docx,xls,xlsx,ppt,pptx,mp3,mp4,wav,ogg,webm,svg,rtf,csv,xml';
+
+        const allowedTypes = allowedTypesStr.split(',').map(t => t.trim());
+
+        if (!ext || !allowedTypes.includes(ext)) {
+            throw new Error('File type not allowed');
         }
-
-        const serverUrl = this.configService.get<string>('SERVER_URL') || 'http://localhost:8080';
-        const isImage = mimeType.startsWith('image/');
-
-        const downloadUrl = `${serverUrl}/download/uploadedFile/${filePath}`;
-        let html = `<a class="attachment-message flex items-center gap-3 break-all" href="${downloadUrl}" target="_blank" rel="noreferrer">
-    <span class="h-10 w-10 rounded-xl bg-muted flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-  <path d="M3 12.1817C2.09551 11.5762 1.5 10.5452 1.5 9.375C1.5 7.61732 2.84363 6.17347 4.55981 6.01453C4.91086 3.8791 6.76518 2.25 9 2.25C11.2348 2.25 13.0891 3.8791 13.4402 6.01453C15.1564 6.17347 16.5 7.61732 16.5 9.375C16.5 10.5452 15.9045 11.5762 15 12.1817M6 12.75L9 15.75M9 15.75L12 12.75M9 15.75V9" stroke="#0C131A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg></span><span class="flex-1">${fileName}</span></a>`;
-
-        if (isImage) {
-            html += `<img class="chat-image max-w-full rounded-lg cursor-pointer mt-2" src="${downloadUrl}" alt="${fileName}" />`;
-        }
-
-        const chatMsg = create(ChatMessageSchema, {
-            id: uuidv4(),
-            fromName: userName,
-            fromUserId: userId,
-            sentAt: Date.now().toString(),
-            message: html,
-            isPrivate: false,
-        });
-
-        await this.natsSystemEvents.broadcastChatEntry(
-            roomId,
-            chatMsg
-        );
     }
 }

@@ -50,6 +50,21 @@ export class UserHandler {
         }
     }
 
+    @MessagePattern({ cmd: 'user.getOnlineUsersCount' })
+    async getOnlineUsersCount(
+        @Payload() data: { roomId: string },
+    ): Promise<number> {
+        try {
+            return await this.roomUserService.getOnlineUsersCount(data.roomId);
+        } catch (error) {
+            this.logger.error(
+                `Error getting online users count: ${error.message}`,
+                error.stack,
+            );
+            return 0;
+        }
+    }
+
     @MessagePattern({ cmd: 'user.generateJoinToken' })
     async generateJoinToken(@Payload() data: any): Promise<any> {
         try {

@@ -13,8 +13,10 @@ import { NatsUserInfoService } from './nats-user-info.service';
 import * as crypto from 'crypto';
 
 // Constants
-const RECORDER_USER_AUTH_NAME = 'RECORDER';
+const RECORDER_USER_AUTH_NAME = 'WAJLC_RECORDER_AUTH';
 const TRANSCODER_CONSUMER_DURABLE = 'transcoderWorker';
+const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
+const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 
 interface ConnectOptions {
     token?: string;
@@ -92,17 +94,20 @@ export class NatsAuthCalloutService {
             }
 
             try {
+                this.logger.debug(`[Auth-Step 1] Decrypting request using curveKeyPair and xKey: ${xKey}`);
                 const inputData = Buffer.isBuffer(rawData) ? rawData : Buffer.from(rawData);
                 const decrypted = this.curveKeyPair.open(inputData, xKey);
                 if (!decrypted) {
-                    throw new Error('Decryption returned null');
+                    throw new Error('Decryption failed');
                 }
                 data = Buffer.from(decrypted);
-            } catch (error) {
-                this.logger.error('Error decrypting message from nats server:', error);
-                throw error;
+                this.logger.debug('[Auth-Step 1] Decryption SUCCESS');
+            } catch (err) {
+                this.logger.error(`[Auth-Step 1] Decryption FAILED: ${err.message}`);
+                throw new Error('xKey decryption failed');
             }
         } else {
+            this.logger.debug('[Auth-Step 1] Plain data received (No encryption)');
             data = Buffer.isBuffer(rawData) ? rawData : Buffer.from(rawData);
         }
 
@@ -126,6 +131,7 @@ export class NatsAuthCalloutService {
 
             // Check if wrapped in 'nats' object (standard NATS Auth Callout format)
             authRequest = parsed.nats || parsed;
+            this.logger.debug(`[Auth-Step 2] Request decoded. UserNkey: ${authRequest.user_nkey || authRequest.nkey}`);
         } catch (error) {
             this.logger.error('Error decoding authorization request:', error);
             throw new Error('Invalid authorization request');
@@ -140,9 +146,13 @@ export class NatsAuthCalloutService {
 
         try {
             const claims = await this.handleClaims(authRequest);
+            this.logger.debug('[Auth-Step 5] Claims handled and permissions set SUCCESS');
+
+            // Step 4: Validate and Sign (lines 77-78)
             userJWT = await this.validateAndSign(claims);
+            this.logger.debug('[Auth-Step 6] Response JWT signed SUCCESS. Sending respond...');
         } catch (error) {
-            this.logger.error('Error handling claims:', error);
+            this.logger.error(`[Auth-Step 3/4] Auth FAILED: ${error.message}`);
             authError = error as Error;
         }
 
@@ -160,50 +170,50 @@ export class NatsAuthCalloutService {
         // Debug: Log the entire request to see what we have
         this.logger.debug('Auth callout request:', JSON.stringify(req, null, 2));
 
-        // Create base user claims
-        const claims: any = {
-            jti: crypto.randomUUID(),
-            iat: Math.floor(Date.now() / 1000),
-            iss: accountPublicKey,
-            sub: req.user_nkey || req.nkey,
-            aud: account,
-            name: '', // Will be set below
-            nats: {
-                permissions: {},
-                type: 'user',
-                version: 2
-            }
-        };
-
         // Extract token from connect options (line 87)
         const connectOpts = req.connect_opts || req.connectOptions;
         const token = connectOpts?.token || connectOpts?.auth_token;
 
         if (!token) {
-            this.logger.error('No token in connect options. ConnectOpts:', JSON.stringify(connectOpts, null, 2));
+            this.logger.error('[Auth-Step 3] No token in connect options');
             throw new Error('No token in connect options');
         }
 
-        // IMPORTANT: Store token in claims.Name (lines 84-87)
-        // This is necessary for CONNECT/DISCONNECT event tracking
-        claims.name = token;
+        // Create base user claims
+        const claims: any = {
+            jti: crypto.randomUUID(),
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + 24 * 3600, // 24 hours
+            iss: accountPublicKey,
+            sub: req.user_nkey || req.nkey,
+            aud: account,
+            name: token, // IMPORTANT: Connect token for tracking (lines 84-88)
+            nats: {
+                type: 'user',
+                version: 2,
+                permissions: {}
+            }
+        };
 
         // Verify token (line 90)
         let tokenData;
         try {
             tokenData = await this.authService.verifyToken(token);
+            this.logger.debug(`[Auth-Step 3] Token verified for User: ${tokenData.userId}`);
         } catch (error) {
-            this.logger.error(`Token verification failed: ${error.message}`);
+            this.logger.error(`[Auth-Step 3] Token verification FAILED: ${error.message}`);
             throw error;
         }
 
         // Check if recorder (lines 95-98)
         if (tokenData.name === RECORDER_USER_AUTH_NAME) {
+            this.logger.debug('[Auth-Step 4] Handling RECORDER permissions');
             this.setPermissionForRecorder(tokenData, claims.nats);
             return claims;
         }
 
         // Set permissions for regular client (lines 100-103)
+        this.logger.debug('[Auth-Step 4] Checking User Info in NATS KV...');
         await this.setPermissionForClient(tokenData, claims.nats);
 
         return claims;
@@ -212,20 +222,21 @@ export class NatsAuthCalloutService {
     /**
      * Set permissions for recorder
      */
+    /**
+     * Set permissions for recorder
+     */
     private setPermissionForRecorder(tokenData: any, natsClaims: any): void {
         const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'recorderChannel';
         const recorderInfoKv = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
         const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'recorderTranscoderJobs';
-        const userId = tokenData.userId || tokenData.user_id;
+        // const userId = tokenData.userId || tokenData.user_id;
 
         const pubAllow = [
             '$JS.API.INFO',
             '_INBOX.>', // otherwise won't be able to send respond msg
-            `$JS.API.STREAM.INFO.KV_${recorderInfoKv}-${userId}`,
-            `$JS.API.STREAM.UPDATE.KV_${recorderInfoKv}-${userId}`,
-            `$JS.API.STREAM.CREATE.KV_${recorderInfoKv}-${userId}`,
-            `$KV.${recorderInfoKv}-${userId}.>`,
-            `$JS.API.DIRECT.GET.KV_${recorderInfoKv}-${userId}.>`,
+            `$JS.API.STREAM.INFO.KV_${recorderInfoKv}`,
+            `$KV.${recorderInfoKv}.>`,
+            `$JS.API.DIRECT.GET.KV_${recorderInfoKv}.>`,
             // Allow publishing the job to the stream
             transcodingJobs,
             // Allow fetching the next message from the consumer & send ack
@@ -234,13 +245,18 @@ export class NatsAuthCalloutService {
             `$JS.ACK.${transcodingJobs}.${TRANSCODER_CONSUMER_DURABLE}.>`,
         ];
 
-        natsClaims.pub = { allow: pubAllow };
-        natsClaims.sub = {
-            allow: [
-                recorderChannel,
-                '_INBOX.>',
-            ],
+        natsClaims.permissions = {
+            pub: { allow: pubAllow },
+            sub: {
+                allow: [
+                    recorderChannel,
+                    '_INBOX.>',
+                ],
+            },
         };
+        // Clean up old structure if exists
+        delete natsClaims.pub;
+        delete natsClaims.sub;
     }
 
     /**
@@ -250,49 +266,52 @@ export class NatsAuthCalloutService {
         const roomId = tokenData.roomId || tokenData.room_id;
         const userId = tokenData.userId || tokenData.user_id;
 
-        // ✅ CRITICAL: Check user info exists (lines 142-148)
+        // ✅ CRITICAL: Check user info exists
         const userInfo = await this.userInfoService.getUserInfo(roomId, userId);
         if (!userInfo) {
             throw new Error(`User info not found for userId: ${userId}, roomId: ${roomId}`);
         }
 
+        // Create single user consumer
+        const consumerPermissions = await this.consumerService.createUserConsumer(roomId, userId);
+
         const sysJsWorker = this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker';
-
-        // Initialize allowPub (lines 150-155)
-        const allowPub = [
-            '$JS.API.INFO',
-            `$JS.API.STREAM.INFO.${roomId}`,
-            // allow sending messages to the system
-            `${sysJsWorker}.${roomId}.${userId}`,
-        ];
-
-        // Create consumers and add permissions (lines 157-185)
-        const chatPermission = await this.consumerService.createChatConsumer(roomId, userId);
-        allowPub.push(...chatPermission);
-
-        const sysPublicPermission = await this.consumerService.createSystemPublicConsumer(roomId, userId);
-        allowPub.push(...sysPublicPermission);
-
-        const sysPrivatePermission = await this.consumerService.createSystemPrivateConsumer(roomId, userId);
-        allowPub.push(...sysPrivatePermission);
-
+        const sysPublicSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
+        const chatSubject = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
         const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
         const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
 
-        // to allow to publish in whiteboard channel in core pub/sub
-        allowPub.push(`${whiteboardSubject}.${roomId}`);
-        // to allow to publish in DataChannel channel in core pub/sub
-        allowPub.push(`${dataChannelSubject}.${roomId}`);
+        const allowPub = [
+            '$JS.API.INFO',
+            // permissions for consumer (JetStream)
+            ...consumerPermissions,
+            // permission to publish messages to the system (JetStream)
+            `${sysJsWorker}.${roomId}.${userId}`,
+            // permission to publish in core pub/sub
+            `${chatSubject}.${roomId}`,
+            `${whiteboardSubject}.${roomId}`,
+            `${dataChannelSubject}.${roomId}`,
+        ];
 
-        // Assign Permissions (lines 187-197)
-        natsClaims.pub = { allow: allowPub };
-        natsClaims.sub = {
-            allow: [
-                '_INBOX.>', // otherwise break request-reply patterns
-                `${whiteboardSubject}.${roomId}`,
-                `${dataChannelSubject}.${roomId}`,
-            ],
+        // Assign Permissions, adhering to JWT Claims structure
+        natsClaims.permissions = {
+            pub: { allow: allowPub },
+            sub: {
+                allow: [
+                    '_INBOX.>', // otherwise break request-reply patterns
+                    // allow to subscribe in pub/sub channel system public which is different from JetStream
+                    `${sysPublicSubject}.${roomId}`,
+                    // other core pub/sub channels
+                    `${chatSubject}.${roomId}`,
+                    `${whiteboardSubject}.${roomId}`,
+                    `${dataChannelSubject}.${roomId}`,
+                ],
+            },
         };
+
+        // Clean up old structure if exists in object
+        delete natsClaims.pub;
+        delete natsClaims.sub;
     }
 
     /**
@@ -313,7 +332,7 @@ export class NatsAuthCalloutService {
         const responseObject: any = {
             jti: crypto.randomUUID(),
             iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 60, // 60 seconds expiry
+            exp: Math.floor(Date.now() / 1000) + 60,
             iss: accountPublicKey,
             sub: userNKey,
             aud: serverId,

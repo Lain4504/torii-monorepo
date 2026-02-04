@@ -58,10 +58,6 @@ input.polls-checkbox:checked:before {
   @apply !opacity-100;
 }
 
-input.scroll-bar::-webkit-scrollbar-thumb:hover {
-  @apply !opacity-100;
-}
-
 .scrollBar {
   overflow-x: hidden;
 
@@ -74,7 +70,7 @@ input.scroll-bar::-webkit-scrollbar-thumb:hover {
   }
 
   &::-webkit-scrollbar {
-    @apply w-1.5;
+    @apply w-0.5;
   }
 }
 
@@ -109,7 +105,7 @@ input.scroll-bar::-webkit-scrollbar-thumb:hover {
   @apply h-[5px];
 }
 .private-m-tab .inner2::-webkit-scrollbar-thumb {
-  @apply bg-secondary border-none rounded-[5px];
+  @apply bg-secondary-color border-none rounded-[5px];
 } */
 
 .all-webcam-wrapper.total-cam-2 .total-items-2 .video-camera-item.its-me {
@@ -421,10 +417,20 @@ input.scroll-bar::-webkit-scrollbar-thumb:hover {
   @apply absolute h-[12px] w-[12px] bg-primary dark:bg-card bottom-[-6px] left-0 right-0 m-auto rotate-45 border border-transparent;
 }
 
+body.dark .tooltip::before,
+body.dark .micro-muted-tooltip::before {
+  @apply bg-card;
+}
+
 .tooltip::after,
 .micro-muted-tooltip::after {
   content: '';
   @apply absolute h-2 w-full bg-primary dark:bg-card left-0 bottom-0 rounded-lg;
+}
+
+body.dark .tooltip::after,
+body.dark .micro-muted-tooltip::after {
+  @apply bg-card;
 }
 
 .tooltip-left::before {
@@ -524,6 +530,10 @@ html[dir='rtl'] span.tooltip.tooltip-left::before {
 }
 
 .range::-webkit-slider-runnable-track {
+  background-color: rgba(128, 128, 128, 0.5);
+  height: 10px;
+  border-radius: 5px;
+  border: 1px solid transparent;
   @apply bg-muted dark:bg-secondary/90 h-[10px] rounded-sm border border-solid border-transparent;
 }
 
@@ -556,7 +566,10 @@ html[dir='rtl'] span.tooltip.tooltip-left::before {
 }
 
 .breakout-room-list-item .timer {
-  @apply border-white text-white rounded-lg ml-[5px];
+  border-color: #fff;
+  color: #fff;
+  border-radius: 8px;
+  margin-left: 5px;
 }
 
 .react-js-player-wrap .video-js {
@@ -1088,5 +1101,34 @@ html[dir='rtl'] .rtl\:microphone-rtl-left::before {
     height: 260px;
     overflow: hidden;
     overflow-y: auto;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .header-room-settings .tablist::before {
+    content: '';
+    @apply absolute bg-primary/20 w-full h-1 bottom-0;
+  }
+
+  .header-room-settings .tablist button {
+    @apply w-auto;
+  }
+
+  .header-room-settings .tablist {
+    @apply justify-between;
+  }
+
+  .header-room-settings .tablist button.border-Blue\/20 {
+    @apply border-transparent;
+  }
+}
+
+@media screen and (max-width: 639px) {
+  .header-room-settings .tablist {
+    @apply justify-center flex-wrap;
+  }
+
+  .header-room-settings .tablist button {
+    @apply w-auto flex-1 min-w-28;
   }
 }
