@@ -69,14 +69,7 @@ export class PostProfile extends AutomapperProfile {
           (dest: PostResponseDTO) => dest.tags,
           mapFrom((src: Post) => src.tags || []),
         ),
-        forMember(
-          (dest: PostResponseDTO) => dest.seoTitle,
-          mapFrom((src: Post) => src.seoTitle || undefined),
-        ),
-        forMember(
-          (dest: PostResponseDTO) => dest.seoDescription,
-          mapFrom((src: Post) => src.seoDescription || undefined),
-        ),
+
         forMember(
           (dest: PostResponseDTO) => dest.createdAt,
           mapFrom((src: Post) => src.createdAt),
