@@ -11,6 +11,7 @@ import {
     Settings,
     LifeBuoy,
     BrainCircuit,
+    MessageSquare,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -41,6 +42,7 @@ export const progressNav: NavItem[] = [
 
 export const accountNav: NavItem[] = [
     { name: 'Hồ sơ', href: '/dashboard/profile', icon: User },
+    { name: 'Đánh giá & Phản hồi', href: '/dashboard/reviews', icon: MessageSquare },
     { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: CreditCard },
     { name: 'Hỗ trợ', href: '/dashboard/support', icon: LifeBuoy },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
