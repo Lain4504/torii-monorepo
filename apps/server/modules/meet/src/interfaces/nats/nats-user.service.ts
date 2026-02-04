@@ -629,7 +629,6 @@ export class NatsUserService {
         this.logger.log(`Handling user joined event: room=${roomId}, user=${userId}`);
 
         // Try cache first, then fallback to KV if cache not ready
-        // This matches Go server behavior: pkg/services/nats/user_info.go -> GetRoomUserStatus
         let status = this.natsService.getCacheService().getCachedRoomUserStatus(roomId, userId);
         if (!status) {
             // Cache might not be ready yet, read directly from NATS KV as fallback
@@ -734,7 +733,7 @@ export class NatsUserService {
             return;
         }
 
-        // Silently remove from LiveKit (Matches Go)
+        // Silently remove from LiveKit
         try {
             await this.livekitService.removeParticipant(roomId, userId);
         } catch (error) {

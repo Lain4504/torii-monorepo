@@ -149,7 +149,7 @@ export class FileService {
 
         fs.writeFileSync(finalPath, buffer);
 
-        // at present format ${file.id}.png (matches Go logic)
+        // at present format ${file.id}.png
         const fileId = safeFilename.replace(/\.[^/.]+$/, "");
         const relativePath = path.join(roomSid, safeFilename);
         const mimeType = this.getMimeType(safeFilename);
@@ -205,7 +205,7 @@ export class FileService {
 
         const finalPath = path.join(uploadDir, safeFilename);
 
-        // Combining chunks into one file (matches Go combineResumableFiles)
+        // Combining chunks into one file
         const destFile = fs.openSync(finalPath, 'w');
 
         try {

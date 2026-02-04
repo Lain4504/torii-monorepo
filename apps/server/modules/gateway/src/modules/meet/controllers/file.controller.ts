@@ -144,7 +144,7 @@ export class FileController {
             return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: "token userId & requested userId didn't matched" });
         }
 
-        // Chunk 1 validation (matches Go logic)
+        // Chunk 1 validation
         if (req.resumableChunkNumber === 1) {
             const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 100;
             if (req.resumableTotalSize > maxSizeMb * 1024 * 1024) {
