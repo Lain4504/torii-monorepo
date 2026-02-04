@@ -4,10 +4,10 @@
  * Provides distributed locking using Redis for room creation and other operations
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
+import { REDIS_CLIENT } from '@server/shared';
 
 const REDIS_PREFIX = 'wajlc:';
 const ROOM_CREATION_LOCK_KEY = `${REDIS_PREFIX}roomCreationLock-%s`;
@@ -64,27 +64,15 @@ export class Lock {
 @Injectable()
 export class RedisLockService {
     private readonly logger = new Logger(RedisLockService.name);
-    private redis: Redis;
-
-    constructor(private readonly configService: ConfigService) {
-        // Initialize Redis client
-        let redisUrl = this.configService.get<string>('REDIS_URL');
-
-        if (!redisUrl) {
-            const host = this.configService.get<string>('REDIS_HOST', 'localhost');
-            const port = this.configService.get<string>('REDIS_PORT', '6379');
-            const password = this.configService.get<string>('REDIS_PASSWORD');
-
-            if (password) {
-                redisUrl = `redis://:${password}@${host}:${port}`;
-            } else {
-                redisUrl = `redis://${host}:${port}`;
-            }
-        }
-
-        this.redis = new Redis(redisUrl);
-
+    constructor(
+        @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    ) {
         // Define custom Lua commands
+        // We define them on the shared instance. Redis handles re-definition gracefully.
+        // Check if command exists to avoid unnecessary re-definition if possible, 
+        // but ioredis doesn't expose an easy 'hasCommand'. 
+        // Redefining is generally safe and cheap.
+
         this.redis.defineCommand('unlock', {
             numberOfKeys: 1,
             lua: `
@@ -105,14 +93,6 @@ export class RedisLockService {
                     return 0
                 end
             `,
-        });
-
-        this.redis.on('error', (error) => {
-            this.logger.error(`Redis connection error: ${error.message}`);
-        });
-
-        this.redis.on('connect', () => {
-            this.logger.log('Redis connected successfully');
         });
     }
 
@@ -249,10 +229,5 @@ export class RedisLockService {
         }
     }
 
-    /**
-     * Cleanup Redis connection
-     */
-    async onModuleDestroy() {
-        await this.redis.quit();
-    }
+
 }

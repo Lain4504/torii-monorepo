@@ -11,7 +11,7 @@ import * as QRCode from 'qrcode';
 import * as argon2 from 'argon2';
 import { randomBytes } from 'crypto';
 import Redis from 'ioredis';
-import { PrismaService, REDIS_CLIENT, EncryptionService } from '@server/shared';
+import { PrismaService, REDIS_CLIENT, EncryptionService, AppConfigService } from '@server/shared';
 import type { ITwoFactorAuthRepository } from '../../interfaces/repositories';
 import { TWO_FACTOR_AUTH_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import type {
@@ -29,14 +29,17 @@ import type { ITwoFactorAuthService } from '../../interfaces/services';
 @Injectable()
 export class TwoFactorAuthService implements ITwoFactorAuthService {
     private readonly logger = new Logger(TwoFactorAuthService.name);
-    private readonly issuer = process.env.TWO_FACTOR_ISSUER || 'Torii Nihongo';
+    private readonly issuer: string;
 
     constructor(
+        private readonly appConfig: AppConfigService,
         private readonly prisma: PrismaService, // Keep for user queries
         @Inject(TWO_FACTOR_AUTH_REPOSITORY_TOKEN) private readonly twoFactorAuthRepository: ITwoFactorAuthRepository,
         private readonly encryptionService: EncryptionService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ) {
+        this.issuer = this.appConfig.identity.twoFactorIssuer;
+
         // Configure TOTP settings
         authenticator.options = {
             window: 1, // Allow 1 step before/after current time (30 seconds)

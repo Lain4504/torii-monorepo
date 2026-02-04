@@ -5,16 +5,16 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NatsStreamService } from './nats-stream.service';
 import { NatsService } from './nats.service';
+import { AppConfigService } from '@server/shared';
 
 @Injectable()
 export class NatsConsumerService {
     private readonly logger = new Logger(NatsConsumerService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly streamService: NatsStreamService,
         private readonly natsService: NatsService,
     ) { }
@@ -26,8 +26,8 @@ export class NatsConsumerService {
         const streamName = this.natsService.getRoomStreamName();
         const durableName = `${roomId}_${userId}`;
 
-        const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
-        const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
+        const sysPublic = this.appConfig.nats.subjects.systemPublic;
+        const sysPrivate = this.appConfig.nats.subjects.systemPrivate;
 
         try {
             // Create or update consumer

@@ -28,7 +28,6 @@ import {
     PrivateDataDeliverySchema,
 } from '@workspace/protocol';
 import { fromBinary } from '@bufbuild/protobuf';
-import { ConfigService } from '@nestjs/config';
 import { NatsUserInfoService } from './nats-user-info.service';
 import { NatsRoomService } from './nats-room.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
@@ -36,6 +35,7 @@ import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
 import { NatsUserService, USER_STATUS_ONLINE } from './nats-user.service';
 
 import { NatsService } from './nats.service';
+import { AppConfigService } from '@server/shared';
 
 /**
  * NatsSystemEventsService handles system-wide event broadcasting
@@ -51,18 +51,19 @@ export class NatsSystemEventsService {
 
     constructor(
         private readonly natsService: NatsService,
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly natsUserInfo: NatsUserInfoService,
         @Inject(forwardRef(() => NatsRoomService)) private readonly natsRoomService: NatsRoomService,
         private readonly livekitService: LiveKitService,
         private readonly authService: WajlcAuthService,
         @Inject(forwardRef(() => NatsUserService)) private readonly natsUserService: NatsUserService,
     ) {
-        // Initialize subjects from config
-        this.subjectSystemPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC', 'sysPublic');
-        this.subjectSystemPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE', 'sysPrivate');
-        this.subjectDataChannel = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL', 'dataChannel');
-        this.subjectChat = this.configService.get<string>('NATS_SUBJECT_CHAT', 'chat');
+        // Initialize subjects from typed config
+        const { subjects } = this.appConfig.nats;
+        this.subjectSystemPublic = subjects.systemPublic;
+        this.subjectSystemPrivate = subjects.systemPrivate;
+        this.subjectDataChannel = subjects.dataChannel;
+        this.subjectChat = subjects.chat;
     }
 
     onModuleInit() {
@@ -493,9 +494,7 @@ export class NatsSystemEventsService {
         }
 
         // Get LiveKit WebSocket URL for client browser connection
-        // LIVEKIT_WS_URL (wss://) is for client browsers to connect to LiveKit media server
-        // LIVEKIT_API_URL (https://) is for server SDK to call LiveKit REST API
-        let lkHost = this.configService.get<string>('LIVEKIT_WS_URL', 'ws://localhost:7880');
+        let lkHost = this.appConfig.livekit.wsUrl;
         if (lkHost.includes('host.docker.internal')) {
             lkHost = lkHost.replace('host.docker.internal', 'localhost');
         }

@@ -5,7 +5,6 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type { RoomEndReq } from '@workspace/protocol';
 import { NatsRoomService, ROOM_STATUS_ENDED, ROOM_STATUS_TRIGGERED_END } from '../../interfaces/nats/nats-room.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
@@ -27,6 +26,7 @@ import { InsightsService } from '../insights/insights.service';
 import { RecordingService } from '../recording/recording.service';
 import { SpeechToTextService } from '../speech-to-text/speech-to-text.service';
 import { RecordingTasks } from '@workspace/protocol';
+import { AppConfigService } from '@server/shared';
 
 /**
  * RoomEndService handles room termination and cleanup
@@ -36,7 +36,7 @@ export class RoomEndService {
     private readonly logger = new Logger(RoomEndService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
         @Inject(forwardRef(() => NatsSystemEventsService))
@@ -68,7 +68,6 @@ export class RoomEndService {
 
     /**
      * EndRoom terminates a room session
-
      * 
      * Steps:
      * 1. Wait for room creation lock
@@ -165,7 +164,6 @@ export class RoomEndService {
 
     /**
      * OnAfterRoomEnded performs comprehensive cleanup after room ends
-
      * 
      * This is called asynchronously and performs extensive cleanup:
      * - Database updates
@@ -218,7 +216,7 @@ export class RoomEndService {
         // Step 2: Ensure lock is always released
         try {
             // To avoid race condition better wait few seconds so that all the users got disconnect properly
-            const waitBeforeTrigger = this.configService.get<number>('WAIT_BEFORE_TRIGGER_ON_AFTER_ROOM_ENDED') || 5000;
+            const waitBeforeTrigger = this.appConfig.timeouts.waitAfterRoomEnded;
             await new Promise(resolve => setTimeout(resolve, waitBeforeTrigger));
 
             await this.performCleanup(dbTableId, roomId, roomSID, metadata, roomStatus);
@@ -287,7 +285,7 @@ export class RoomEndService {
         }
 
         // Step 7: Delete all uploaded files for this session (if not configured to keep)
-        const keepFilesForever = this.configService.get<boolean>('UPLOAD_KEEP_FOREVER', false);
+        const keepFilesForever = this.appConfig.upload.keepForever;
         if (!keepFilesForever) {
             try {
                 await this.fileService.deleteRoomUploadedDir(roomSID);
@@ -343,7 +341,7 @@ export class RoomEndService {
         this.logger.log(`Room has been cleaned properly: ${roomId}`);
 
         // Step 15: Schedule the analytics export to run after a delay
-        const analyticsDelay = this.configService.get<number>('WAIT_BEFORE_ANALYTICS_START_PROCESSING', 10000);
+        const analyticsDelay = this.appConfig.timeouts.waitBeforeAnalyticsStart;
         setTimeout(() => {
             this.analyticsService.prepareToExportAnalytics(roomId, roomSID, metadata);
         }, analyticsDelay);

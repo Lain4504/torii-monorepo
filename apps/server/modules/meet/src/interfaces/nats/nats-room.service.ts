@@ -5,7 +5,6 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type { RoomMetadata, NatsKvRoomInfo } from '@workspace/protocol';
 import { NatsKvRoomInfoSchema, RoomMetadataSchema, NatsMsgServerToClientEvents, RoomUploadedFileMetadataSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
@@ -22,6 +21,8 @@ export const ROOM_STATUS_ENDED = 'ended';
 
 const DEFAULT_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
+import { AppConfigService } from '@server/shared';
+
 /**
  * NatsRoomService handles NATS KV operations for rooms
  */
@@ -30,7 +31,7 @@ export class NatsRoomService {
     private readonly logger = new Logger(NatsRoomService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly natsService: NatsService,  // Inject base NATS service
         private readonly natsStreamService: NatsStreamService,  // Inject stream service
         @Inject(forwardRef(() => NatsUserService)) private readonly natsUserService: NatsUserService,  // Inject user service
@@ -169,7 +170,7 @@ export class NatsRoomService {
 
         // Step 1: Create or update the consolidated room bucket
         const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+        const numReplicas = this.appConfig.nats.numReplicas;
 
         const js = this.natsService.getJetStream();
         const kv = await js.views.kv(bucket, {
@@ -347,7 +348,7 @@ export class NatsRoomService {
         this.logger.log(`Adding room file metadata for: ${roomId}, fileId: ${meta.fileId}`);
 
         const bucket = this.natsService.formatConsolidatedRoomBucket(roomId);
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+        const numReplicas = this.appConfig.nats.numReplicas;
 
         try {
             const js = this.natsService.getJetStream();

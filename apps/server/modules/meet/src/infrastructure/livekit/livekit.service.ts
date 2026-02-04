@@ -1,15 +1,11 @@
-/**
- * LiveKit Service
- *
- * Handles LiveKit participant operations
- */
-
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { RoomServiceClient, AccessToken, IngressClient, IngressInput } from 'livekit-server-sdk';
-import { NatsKvUserInfo, WajlcTokenClaims, WajlcTokenClaimsSchema } from '@workspace/protocol';
+import { Injectable, Logger, Inject } from '@nestjs/common';
+import { RoomServiceClient, IngressClient, IngressInput } from 'livekit-server-sdk';
+import { NatsKvUserInfo, WajlcTokenClaimsSchema } from '@workspace/protocol';
 import { generateLivekitAccessToken } from '@server/shared';
 import { create } from '@bufbuild/protobuf';
+import { LIVEKIT_ROOM_SERVICE, LIVEKIT_INGRESS_CLIENT } from './livekit.constants';
+
+import { AppConfigService } from '@server/shared';
 
 /**
  * LiveKitService handles participant operations with LiveKit server
@@ -17,23 +13,13 @@ import { create } from '@bufbuild/protobuf';
 @Injectable()
 export class LiveKitService {
     private readonly logger = new Logger(LiveKitService.name);
-    private readonly client: RoomServiceClient;
-    private readonly ingressClient: IngressClient;
 
-    constructor(private readonly configService: ConfigService) {
-        // LIVEKIT_API_URL is the HTTP REST API URL (https://) for server-side RoomServiceClient
-        // This is different from LIVEKIT_WS_URL (wss://) which is used by client browsers
-        const livekitHost = this.configService.get<string>('LIVEKIT_API_URL');
-        const apiKey = this.configService.get<string>('LIVEKIT_API_KEY');
-        const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET');
-
-        if (!livekitHost || !apiKey || !apiSecret) {
-            throw new Error('LiveKit configuration is missing. Please check LIVEKIT_API_URL (https://...), LIVEKIT_API_KEY, and LIVEKIT_API_SECRET');
-        }
-
-        this.client = new RoomServiceClient(livekitHost, apiKey, apiSecret);
-        this.ingressClient = new IngressClient(livekitHost, apiKey, apiSecret);
-        this.logger.log(`LiveKit client initialized: ${livekitHost}`);
+    constructor(
+        private readonly appConfig: AppConfigService,
+        @Inject(LIVEKIT_ROOM_SERVICE) private readonly client: RoomServiceClient,
+        @Inject(LIVEKIT_INGRESS_CLIENT) private readonly ingressClient: IngressClient,
+    ) {
+        this.logger.log('LiveKit service initialized with injected clients');
     }
 
     /**
@@ -169,10 +155,9 @@ export class LiveKitService {
      * @returns JWT token string
      */
     async generateLivekitToken(roomId: string, userInfo: NatsKvUserInfo): Promise<string> {
-        // Get config values
-        const apiKey = this.configService.get<string>('LIVEKIT_API_KEY')!;
-        const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET')!;
-        const tokenValidity = this.configService.get<number>('TOKEN_VALIDITY', 7200);
+        // Get config values from typed config
+        const { apiKey, apiSecret } = this.appConfig.livekit;
+        const tokenValidity = 7200; // Default 2 hours
 
         // Create claims
         const c = create(WajlcTokenClaimsSchema, {

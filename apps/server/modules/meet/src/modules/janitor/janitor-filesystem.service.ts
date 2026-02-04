@@ -1,24 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+
+import { AppConfigService } from '@server/shared';
 
 @Injectable()
 export class JanitorFilesystemService {
     private readonly logger = new Logger(JanitorFilesystemService.name);
 
-    constructor(private readonly configService: ConfigService) { }
+    constructor(private readonly appConfig: AppConfigService) { }
 
     /**
      * checkDelArtifactsBackupPath will cleanup old artifact backups
      */
     async checkDelArtifactsBackupPath(): Promise<void> {
-        const enable = this.configService.get<boolean>('ARTIFACT_ENABLE_DEL_BACKUP') || false;
-        if (!enable) return;
+        if (!this.appConfig.janitor.enableArtifactsBackup) return;
 
-        const backupPath = this.configService.get<string>('ARTIFACT_DEL_BACKUP_PATH') || './storage/trash';
-        const durationStr = this.configService.get<string>('ARTIFACT_DEL_BACKUP_DURATION') || '72h';
+        const durationStr = this.appConfig.janitor.recordingBackupDuration;
         const durationMs = this.parseDurationToMs(durationStr);
+
+        const backupPath = this.appConfig.janitor.artifactsBackupPath;
 
         await this.cleanupDirectory(backupPath, durationMs, 'artifact');
     }
@@ -27,12 +28,12 @@ export class JanitorFilesystemService {
      * checkDelRecordingBackupPath will cleanup old recording backups
      */
     async checkDelRecordingBackupPath(): Promise<void> {
-        const enable = this.configService.get<boolean>('RECORDER_ENABLE_DEL_BACKUP') || false;
-        if (!enable) return;
+        if (!this.appConfig.janitor.enableRecordingBackup) return;
 
-        const backupPath = this.configService.get<string>('RECORDER_DEL_BACKUP_PATH') || './recording_files/del_backup';
-        const durationStr = this.configService.get<string>('RECORDER_DEL_BACKUP_DURATION') || '72h';
+        const durationStr = this.appConfig.janitor.recordingBackupDuration;
         const durationMs = this.parseDurationToMs(durationStr);
+
+        const backupPath = this.appConfig.janitor.recordingBackupPath;
 
         await this.cleanupDirectory(backupPath, durationMs, 'recording', true);
     }

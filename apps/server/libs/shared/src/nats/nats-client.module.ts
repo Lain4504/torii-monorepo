@@ -1,15 +1,8 @@
-/**
- * NATS Client Module
- * Provides NATS client for gateway and services to communicate with microservices
- * 
- * Exports a ClientProxy with name 'NATS_SERVICE' that can be injected
- * Example: @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy
- */
-
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { nkeyAuthenticator } from 'nats';
+import { AppConfigService } from '../config/app-config.service';
 
 @Module({
     imports: [
@@ -17,16 +10,14 @@ import { nkeyAuthenticator } from 'nats';
             {
                 name: 'NATS_SERVICE',
                 imports: [ConfigModule],
-                useFactory: (configService: ConfigService) => {
-                    const natsUrl = configService.get<string>('NATS_URL') || 'nats://localhost:4222';
-                    const nkeySeed = configService.get<string>('NATS_NKEY_SEED');
+                useFactory: (appConfig: AppConfigService) => {
+                    const { url, nkeySeed } = appConfig.nats;
 
                     const options: any = {
-                        servers: [natsUrl],
-                        queue: 'torii_queue', // IMPORTANT: Must match service config queue
+                        servers: [url],
+                        queue: 'torii_queue',
                     };
 
-                    // Add NKEY authentication if provided
                     if (nkeySeed) {
                         options.authenticator = nkeyAuthenticator(
                             new TextEncoder().encode(nkeySeed)
@@ -38,7 +29,7 @@ import { nkeyAuthenticator } from 'nats';
                         options,
                     };
                 },
-                inject: [ConfigService],
+                inject: [AppConfigService],
             },
         ]),
     ],

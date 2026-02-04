@@ -7,6 +7,7 @@ import type { CourseEnrollmentSuccessEvent, CourseGiftReceivedEvent } from '../.
 
 import { NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
 import type { INotificationService } from '../../interfaces/services';
+import { AppConfigService } from '@server/shared';
 
 /**
  * Notification Controller
@@ -17,6 +18,7 @@ export class NotificationHandler {
     private readonly logger = new Logger(NotificationHandler.name);
 
     constructor(
+        private readonly appConfig: AppConfigService,
         @Inject(NOTIFICATION_SERVICE_TOKEN) private readonly notificationService: INotificationService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
@@ -94,7 +96,7 @@ export class NotificationHandler {
                 data: {
                     displayName: event.userName,
                     courseName: event.courseName,
-                    courseUrl: `${process.env.WEB_URL || 'https://app.torii.sbs'}/courses/${event.courseId}`,
+                    courseUrl: `${this.appConfig.server.webUrl}/courses/${event.courseId}`,
                     amount: event.amount,
                     currency: event.currency,
                     orderId: event.orderId,
@@ -141,7 +143,7 @@ export class NotificationHandler {
                 data: {
                     displayName: 'Học viên', // Or get full name if available
                     courseName: event.courseName,
-                    courseUrl: `${process.env.WEB_URL || 'https://app.torii.sbs'}/courses/${event.courseId}`,
+                    courseUrl: `${this.appConfig.server.webUrl}/courses/${event.courseId}`,
                     senderName: event.senderName,
                     isGift: true,
                     giftMessage: event.giftMessage,
@@ -213,7 +215,7 @@ export class NotificationHandler {
                     data: {
                         displayName: event.userName,
                         courseName: event.courseName,
-                        courseUrl: `${process.env.WEB_URL || 'https://app.torii.sbs'}/courses/${event.courseId}`,
+                        courseUrl: `${this.appConfig.server.webUrl}/courses/${event.courseId}`,
                     },
                 });
 

@@ -5,7 +5,6 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
 import type {
@@ -13,8 +12,6 @@ import type {
     ActiveRoomInfo,
     RoomMetadata,
     CopyrightConf,
-    CommonNotifyEvent,
-    NotifyEventRoom,
 } from '@workspace/protocol';
 import {
     ActiveRoomInfoSchema,
@@ -28,6 +25,7 @@ import {
     setRoomDefaultLockSettings,
     setDefaultRoomSettings,
     type RoomDefaultSettings,
+    AppConfigService,
 } from '@server/shared';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { NatsStreamService } from '../../interfaces/nats/nats-stream.service';
@@ -49,7 +47,7 @@ export class RoomCreateService {
 
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly redisLock: RedisLockService,
         @Inject(forwardRef(() => NatsStreamService))
         private readonly natsStream: NatsStreamService,
@@ -177,7 +175,6 @@ export class RoomCreateService {
 
     /**
      * handleExistingRoom handles logic if room already exists
-
      */
     private async handleExistingRoom(
         req: CreateRoomReq,
@@ -228,10 +225,10 @@ export class RoomCreateService {
         prepareDefaultRoomFeatures(req);
 
         // Get config values
-        const maxFileSize = this.configService.get<number>('UPLOAD_MAX_FILE_SIZE') || 50 * 1024 * 1024;
-        const maxWhiteboardFileSize = this.configService.get<number>('UPLOAD_MAX_WHITEBOARD_FILE') || 30; // MB
-        const allowedFileTypes = this.configService.get<string>('UPLOAD_ALLOWED_TYPES')?.split(',') || [];
-        const sharedNotepadEnabled = this.configService.get<boolean>('SHARED_NOTEPAD_ENABLED') || false;
+        const maxFileSize = this.appConfig.upload.maxFileSizeBytes;
+        const maxWhiteboardFileSize = this.appConfig.upload.maxWhiteboardFileSizeMb;
+        const allowedFileTypes = this.appConfig.upload.allowedTypes;
+        const sharedNotepadEnabled = this.appConfig.room.sharedNotepadEnabled;
 
         // Step 2: Set create room default values based on config
         setCreateRoomDefaultValues(
@@ -247,25 +244,23 @@ export class RoomCreateService {
 
         // Step 4: Set default room settings (max participants, duration, etc.)
         const roomDefaultSettings: RoomDefaultSettings = {
-            maxParticipants: this.configService.get<number>('ROOM_DEFAULT_MAX_PARTICIPANTS'),
-            maxDuration: this.configService.get<string>('ROOM_DEFAULT_MAX_DURATION'),
-            maxNumBreakoutRooms: this.configService.get<number>('ROOM_DEFAULT_MAX_NUM_BREAKOUT_ROOMS'),
+            maxParticipants: this.appConfig.room.defaultMaxParticipants,
+            maxDuration: this.appConfig.room.defaultMaxDuration,
+            maxNumBreakoutRooms: this.appConfig.room.defaultMaxNumBreakoutRooms,
         };
         setDefaultRoomSettings(roomDefaultSettings, req);
 
         // Step 5: Copyright logic
-        const copyrightDisplay = this.configService.get<boolean>('COPYRIGHT_DISPLAY') !== false;
-        const copyrightText = this.configService.get<string>('COPYRIGHT_TEXT') || 'Powered by MiraiMagicLab';
-        const copyrightAllowOverride = this.configService.get<boolean>('COPYRIGHT_ALLOW_OVERRIDE') || false;
+        const copyright = this.appConfig.room.copyright;
 
         const defaultCopyright = create(CopyrightConfSchema, {
-            display: copyrightDisplay,
-            text: copyrightText,
+            display: copyright.display,
+            text: copyright.text,
         });
 
         if (!req.metadata!.copyrightConf) {
             req.metadata!.copyrightConf = defaultCopyright;
-        } else if (!copyrightAllowOverride) {
+        } else if (!copyright.allowOverride) {
             // Override user's copyright if not allowed to override
             req.metadata!.copyrightConf = defaultCopyright;
         }
@@ -277,15 +272,15 @@ export class RoomCreateService {
 
         // Step 7: Insights features configuration
         if (req.metadata?.roomFeatures?.insightsFeatures) {
-            const insightsEnabled = this.configService.get<boolean>('INSIGHTS_ENABLED') || false;
+            const insightsEnabled = this.appConfig.insights.enabled;
             if (req.metadata.roomFeatures.insightsFeatures.isAllow && !insightsEnabled) {
                 req.metadata.roomFeatures.insightsFeatures.isAllow = false;
             }
 
             if (req.metadata.roomFeatures.insightsFeatures.isAllow) {
                 // Set max selected translation languages from config
-                const maxTranscriptionLangs = this.configService.get<number>('INSIGHTS_MAX_TRANSCRIPTION_LANGS') || 2;
-                const maxChatTransLangs = this.configService.get<number>('INSIGHTS_MAX_CHAT_TRANS_LANGS') || 5;
+                const maxTranscriptionLangs = this.appConfig.insights.maxTranscriptionLangs;
+                const maxChatTransLangs = this.appConfig.insights.maxChatTransLangs;
 
                 if (req.metadata.roomFeatures.insightsFeatures.transcriptionFeatures) {
                     req.metadata.roomFeatures.insightsFeatures.transcriptionFeatures.maxSelectedTransLangs = maxTranscriptionLangs;
@@ -316,7 +311,6 @@ export class RoomCreateService {
 
     /**
      * prepareRoomDbInfo prepares DB model for room
-
      */
     private prepareRoomDbInfo(req: CreateRoomReq, existing: any | null): { roomInfo: any; sid: string } {
         const sid = uuidv4();
@@ -349,7 +343,6 @@ export class RoomCreateService {
 
     /**
      * prepareWhiteboardPreloadFile preloads whiteboard file
-
      */
     private async prepareWhiteboardPreloadFile(
         metadata: RoomMetadata,
@@ -379,15 +372,12 @@ export class RoomCreateService {
 
             this.logger.log(`Preloaded whiteboard file processed successfully`);
         } catch (error) {
-            // Note: Error notification would be sent here via NATS in production
-            // Not implemented yet as it requires additional NATS notification service
             this.logger.warn(`Preloaded whiteboard file failed, notification skipped`);
         }
     }
 
     /**
      * sendRoomCreatedWebhook sends room created webhook
-
      */
     private async sendRoomCreatedWebhook(
         info: ActiveRoomInfo,
@@ -420,10 +410,4 @@ export class RoomCreateService {
             this.logger.error(`Error sending room created webhook: ${error instanceof Error ? error.message : error}`);
         }
     }
-
-    // ============================================================================
-    // Database methods have been moved to RoomInfoService
-    // - getRoomInfoByRoomId: Use roomInfoService.getRoomInfoByRoomId()
-    // - insertOrUpdateRoomInfo: Use roomInfoService.insertOrUpdateRoomInfo()
-    // ============================================================================
 }

@@ -1,11 +1,11 @@
-import 'dotenv/config';
-import { GlobalExceptionsFilter } from '@server/shared';
+import { GlobalExceptionsFilter, loadConfig } from '@server/shared';
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { GatewayModule } from './gateway.module';
 import * as bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
+  const config = loadConfig();
   // Create app with custom body parser
   const app = await NestFactory.create(GatewayModule);
 
@@ -49,7 +49,7 @@ async function bootstrap() {
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new GlobalExceptionsFilter());
 
-  await app.listen(process.env.port ?? 8080);
+  await app.listen(config.server.port);
+  console.log(`🚀 Gateway listening on port ${config.server.port}`);
 }
 bootstrap();
-

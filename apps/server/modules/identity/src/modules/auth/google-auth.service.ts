@@ -2,6 +2,7 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import type { GoogleUserInfo } from '@workspace/schemas';
 import type { IGoogleAuthService } from '../../interfaces/services';
+import { AppConfigService } from '@server/shared';
 
 /**
  * Google OAuth Service
@@ -12,11 +13,11 @@ export class GoogleAuthService implements IGoogleAuthService {
     private readonly logger = new Logger(GoogleAuthService.name);
     private readonly client: OAuth2Client;
 
-    constructor() {
-        const clientId = process.env.GOOGLE_CLIENT_ID;
+    constructor(private readonly appConfig: AppConfigService) {
+        const clientId = this.appConfig.thirdParty.google.clientId;
 
         if (!clientId) {
-            this.logger.warn('GOOGLE_CLIENT_ID not configured. Google OAuth will not work.');
+            this.logger.warn('Google Client ID not configured. Google OAuth will not work.');
         }
 
         this.client = new OAuth2Client(clientId);
@@ -29,7 +30,7 @@ export class GoogleAuthService implements IGoogleAuthService {
         try {
             const ticket = await this.client.verifyIdToken({
                 idToken,
-                audience: process.env.GOOGLE_CLIENT_ID,
+                audience: this.appConfig.thirdParty.google.clientId,
             });
 
             const payload = ticket.getPayload();
@@ -64,6 +65,6 @@ export class GoogleAuthService implements IGoogleAuthService {
      * Check if Google OAuth is configured
      */
     isConfigured(): boolean {
-        return !!process.env.GOOGLE_CLIENT_ID;
+        return !!this.appConfig.thirdParty.google.clientId;
     }
 }

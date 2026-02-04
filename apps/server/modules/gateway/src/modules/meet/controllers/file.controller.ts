@@ -30,7 +30,6 @@ import {
     GetRoomUploadedFilesResSchema,
     UploadBase64EncodedDataReqSchema,
     UploadBase64EncodedDataResSchema,
-    GetClientFilesRes,
     GetClientFilesResSchema,
 } from '@workspace/protocol';
 import {
@@ -39,8 +38,8 @@ import {
     sendCommonProtoJsonResponse,
     sendCommonProtobufResponse,
     JwtAuthGuard,
+    AppConfigService,
 } from '@server/shared';
-import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -55,17 +54,12 @@ export class FileController {
 
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
     ) {
-        const rawPath = this.configService.get<string>('UPLOAD_FILE_PATH');
-        const defaultPath = './uploads';
-        this.uploadPath = rawPath
-            ? (path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath))
-            : path.resolve(process.cwd(), defaultPath);
+        const rawPath = this.appConfig.server.uploadPath;
+        this.uploadPath = path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath);
 
-        this.logger.log(`UPLOAD_FILE_PATH from env: ${rawPath}`);
         this.logger.log(`Resolved uploadPath: ${this.uploadPath}`);
-        this.logger.log(`Current process.cwd(): ${process.cwd()}`);
 
         if (!fs.existsSync(this.uploadPath)) {
             fs.mkdirSync(this.uploadPath, { recursive: true });
@@ -146,15 +140,13 @@ export class FileController {
 
         // Chunk 1 validation
         if (req.resumableChunkNumber === 1) {
-            const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 100;
+            const maxSizeMb = this.appConfig.upload.maxSizeMb;
             if (req.resumableTotalSize > maxSizeMb * 1024 * 1024) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ status: false, msg: `file too large: max allowed is ${maxSizeMb}MB` });
             }
             // Basic extension validation
             const ext = path.extname(req.resumableFilename).toLowerCase().replace('.', '');
-            const allowedTypesStr = this.configService.get<string>('UPLOAD_ALLOWED_TYPES') ||
-                'jpg,jpeg,png,gif,txt,pdf,doc,docx,xls,xlsx,ppt,pptx,mp3,mp4,wav,ogg,webm,svg,rtf,csv,xml';
-            const allowedTypes = allowedTypesStr.split(',').map(t => t.trim());
+            const allowedTypes = this.appConfig.upload.allowedTypes;
             if (!ext || !allowedTypes.includes(ext)) {
                 return res.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).json({ status: false, msg: 'file type not allowed' });
             }
@@ -290,7 +282,7 @@ export class FileController {
     @UseGuards(JwtAuthGuard)
     async handleGetFilesByType(@Body() body: any, @Res() res: Response) {
         try {
-            let req: GetRoomUploadedFilesReq;
+            let req: any;
             if (Buffer.isBuffer(body)) {
                 req = fromBinary(GetRoomUploadedFilesReqSchema, body);
             } else {

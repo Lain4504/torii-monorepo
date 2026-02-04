@@ -1,6 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '@server/shared';
+import { PrismaService, AppConfigService } from '@server/shared';
 import { WebhookNotifier } from '@server/shared';
 import type { CommonNotifyEvent } from '@workspace/protocol';
 import { NatsService } from '../../interfaces/nats/nats.service';
@@ -31,15 +30,16 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
     private readonly abortController = new AbortController();
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly prisma: PrismaService,
         private readonly natsService: NatsService,
         private readonly redisWebhookService: RedisWebhookService,
     ) {
         // Load configuration
-        this.isEnabled = this.configService.get<boolean>('WEBHOOK_ENABLED') || false;
-        this.enabledForPerMeeting = this.configService.get<boolean>('WEBHOOK_ENABLE_FOR_PER_MEETING') || false;
-        this.defaultUrl = this.configService.get<string>('WEBHOOK_URL') || '';
+        const { webhook } = this.appConfig;
+        this.isEnabled = webhook.enabled;
+        this.enabledForPerMeeting = webhook.perMeeting;
+        this.defaultUrl = webhook.url || '';
 
         this.logger.log(`Webhook notifier initialized: enabled = ${this.isEnabled}, perMeeting = ${this.enabledForPerMeeting} `);
     }
@@ -138,7 +138,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
      */
     async deleteWebhook(roomId: string): Promise<void> {
         // Wait before cleanup to ensure all events are processed
-        const maxWaitMs = this.configService.get<number>('MAX_DURATION_WAIT_BEFORE_CLEAN_ROOM_WEBHOOK') || 5000;
+        const maxWaitMs = this.appConfig.timeouts.waitAfterRoomEnded;
         await new Promise((resolve) => setTimeout(resolve, maxWaitMs));
 
         const data = await this.getData(roomId);
@@ -213,8 +213,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         const notifier = this.getOrCreateNotifier(roomId);
 
         // Add event to queue
-        const apiKey = this.configService.get<string>('API_KEY') || '';
-        const apiSecret = this.configService.get<string>('API_SECRET') || '';
+        const { apiKey, apiSecret } = this.appConfig.security.wajlc;
 
         notifier.addInNotifyQueue(event, apiKey, apiSecret, data.urls);
         this.logger.debug(`Added event to webhook queue: room = ${roomId}, event = ${event.event} `);
@@ -254,9 +253,8 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         }
 
         // Create temporary notifier for this one-shot event
-        const apiKey = this.configService.get<string>('API_KEY') || '';
-        const apiSecret = this.configService.get<string>('API_SECRET') || '';
-        const queueSize = this.configService.get<number>('DEFAULT_WEBHOOK_QUEUE_SIZE') || 100;
+        const { apiKey, apiSecret } = this.appConfig.security.wajlc;
+        const queueSize = this.appConfig.webhook.defaultQueueSize;
 
         const notifier = new WebhookNotifier(queueSize, this.logger);
         notifier.addInNotifyQueue(event, apiKey, apiSecret, urls);
@@ -305,7 +303,7 @@ export class WebhookNotifierService implements OnModuleInit, OnModuleDestroy {
         }
 
         // Create new notifier for this room
-        const queueSize = this.configService.get<number>('DEFAULT_WEBHOOK_QUEUE_SIZE') || 100;
+        const queueSize = this.appConfig.webhook.defaultQueueSize;
 
         const notifier = new WebhookNotifier(queueSize, this.logger);
 

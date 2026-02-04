@@ -9,18 +9,23 @@ import { RedisModule } from './redis/redis.module';
 import { EncryptionModule } from './encryption/encryption.module';
 import { SharedStorageModule } from './storage/shared-storage.module';
 import { SharedEmailModule } from './email/shared-email.module';
+import { loadConfig } from './config/app.config';
+import { AppConfigService } from './config/app-config.service';
 
 @Global()
 @Module({
     imports: [
-        ConfigModule,
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [loadConfig],
+        }),
         PrismaModule,
         RedisModule,
         EncryptionModule,
         SharedStorageModule,
         SharedEmailModule
     ],
-    providers: [PrismaService, JwtTokenProvider, BlacklistService],
+    providers: [PrismaService, JwtTokenProvider, BlacklistService, AppConfigService],
     exports: [
         PrismaService,
         PrismaModule,
@@ -30,7 +35,8 @@ import { SharedEmailModule } from './email/shared-email.module';
         RedisModule,
         EncryptionModule,
         SharedStorageModule,
-        SharedEmailModule
+        SharedEmailModule,
+        AppConfigService
     ],
 })
 export class SharedModule { }

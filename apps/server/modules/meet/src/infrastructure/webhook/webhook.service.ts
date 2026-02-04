@@ -8,7 +8,6 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
 import { NatsUserService } from '../../interfaces/nats/nats-user.service';
@@ -58,7 +57,6 @@ export class WebhookService {
     private readonly logger = new Logger(WebhookService.name);
 
     constructor(
-        private readonly configService: ConfigService,
         @Inject(forwardRef(() => NatsRoomService))
         private readonly natsRoomService: NatsRoomService,
         @Inject(forwardRef(() => NatsUserInfoService))

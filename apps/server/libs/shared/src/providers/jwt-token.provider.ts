@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import jwt from 'jsonwebtoken';
 import { TokenPayload } from '@workspace/schemas';
+import { AppConfigService } from '../config/app-config.service';
 
 export interface RefreshTokenPayload {
     sub: string;      // userId
@@ -27,10 +27,10 @@ export class JwtTokenProvider {
     private readonly accessTokenExpiry: string;
     private readonly refreshTokenExpiry: string;
 
-    constructor(private config: ConfigService) {
-        this.secretKey = config.get<string>('JWT_SECRET')!;
-        this.accessTokenExpiry = config.get<string>('JWT_ACCESS_EXPIRES_IN', '15m')!;
-        this.refreshTokenExpiry = config.get<string>('JWT_REFRESH_EXPIRES_IN', '7d')!;
+    constructor(private appConfig: AppConfigService) {
+        this.secretKey = this.appConfig.security.jwt.secret;
+        this.accessTokenExpiry = this.appConfig.security.jwt.accessExpires;
+        this.refreshTokenExpiry = this.appConfig.security.jwt.refreshExpires;
     }
 
     /**
@@ -41,8 +41,8 @@ export class JwtTokenProvider {
 
         return jwt.sign(payload, this.secretKey, {
             expiresIn: expiresIn || this.accessTokenExpiry,
-            issuer: this.config.get<string>('JWT_ISSUER', 'auth.torii.edu'),
-            audience: this.config.get<string>('JWT_AUDIENCE', 'torii-client'),
+            issuer: this.appConfig.security.jwt.issuer || 'auth.torii.edu',
+            audience: this.appConfig.security.jwt.audience || 'torii-client',
             jwtid: uuidv4(), // Unique ID for this token
         });
     }
@@ -55,8 +55,8 @@ export class JwtTokenProvider {
 
         return jwt.sign(payload, this.secretKey, {
             expiresIn: this.refreshTokenExpiry,
-            issuer: this.config.get<string>('JWT_ISSUER', 'auth.torii.edu'),
-            audience: this.config.get<string>('JWT_AUDIENCE', 'torii-client'),
+            issuer: this.appConfig.security.jwt.issuer || 'auth.torii.edu',
+            audience: this.appConfig.security.jwt.audience || 'torii-client',
             jwtid: uuidv4(),
         });
     }
@@ -67,8 +67,8 @@ export class JwtTokenProvider {
     async verifyToken(token: string): Promise<TokenPayload | null> {
         try {
             const decoded = jwt.verify(token, this.secretKey, {
-                issuer: this.config.get<string>('JWT_ISSUER', 'auth.torii.edu'),
-                audience: this.config.get<string>('JWT_AUDIENCE', 'torii-client'),
+                issuer: this.appConfig.security.jwt.issuer || 'auth.torii.edu',
+                audience: this.appConfig.security.jwt.audience || 'torii-client',
             }) as TokenPayload;
             return decoded;
         } catch (error) {
@@ -83,8 +83,8 @@ export class JwtTokenProvider {
     async verifyRefreshToken(token: string): Promise<RefreshTokenPayload | null> {
         try {
             const decoded = jwt.verify(token, this.secretKey, {
-                issuer: this.config.get<string>('JWT_ISSUER', 'auth.torii.edu'),
-                audience: this.config.get<string>('JWT_AUDIENCE', 'torii-client'),
+                issuer: this.appConfig.security.jwt.issuer || 'auth.torii.edu',
+                audience: this.appConfig.security.jwt.audience || 'torii-client',
             }) as RefreshTokenPayload;
             return decoded;
         } catch (error) {

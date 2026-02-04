@@ -4,19 +4,17 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NatsContext } from '@nestjs/microservices';
 import * as nkeys from 'nkeys.js';
 import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
 import { NatsConsumerService } from './nats-consumer.service';
 import { NatsUserInfoService } from './nats-user-info.service';
 import * as crypto from 'crypto';
+import { AppConfigService } from '@server/shared';
 
 // Constants
 const RECORDER_USER_AUTH_NAME = 'WAJLC_RECORDER_AUTH';
 const TRANSCODER_CONSUMER_DURABLE = 'transcoderWorker';
-const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
-const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 
 interface ConnectOptions {
     token?: string;
@@ -44,7 +42,7 @@ export class NatsAuthCalloutService {
     private curveKeyPair: nkeys.KeyPair | null = null;
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly authService: WajlcAuthService,
         private readonly consumerService: NatsConsumerService,
         private readonly userInfoService: NatsUserInfoService,
@@ -57,14 +55,14 @@ export class NatsAuthCalloutService {
      */
     private initializeKeyPairs() {
         try {
-            const accountSeed = this.configService.get<string>('NATS_ACCOUNT_SEED');
+            const accountSeed = this.appConfig.nats.accountSeed;
             if (!accountSeed) {
-                this.logger.fatal('NATS_ACCOUNT_SEED is required for auth callout');
-                throw new Error('NATS_ACCOUNT_SEED is required');
+                this.logger.fatal('NATS accountSeed is required for auth callout');
+                throw new Error('NATS accountSeed is required');
             }
             this.issuerKeyPair = nkeys.fromSeed(Buffer.from(accountSeed));
 
-            const xkeySeed = this.configService.get<string>('NATS_XKEY_SEED');
+            const xkeySeed = this.appConfig.nats.xkeySeed;
             if (xkeySeed) {
                 this.curveKeyPair = nkeys.fromSeed(Buffer.from(xkeySeed));
             }
@@ -164,7 +162,7 @@ export class NatsAuthCalloutService {
      * Handle claims from authorization request
      */
     private async handleClaims(req: AuthorizationRequest): Promise<any> {
-        const account = this.configService.get<string>('NATS_ACCOUNT_NAME') || 'PNM';
+        const account = this.appConfig.nats.accountName;
         const accountPublicKey = this.issuerKeyPair.getPublicKey();
 
         // Debug: Log the entire request to see what we have
@@ -222,14 +220,10 @@ export class NatsAuthCalloutService {
     /**
      * Set permissions for recorder
      */
-    /**
-     * Set permissions for recorder
-     */
     private setPermissionForRecorder(tokenData: any, natsClaims: any): void {
-        const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'recorderChannel';
-        const recorderInfoKv = this.configService.get<string>('NATS_RECORDER_INFO_KV') || 'recorderInfo';
-        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'recorderTranscoderJobs';
-        // const userId = tokenData.userId || tokenData.user_id;
+        const recorder = this.appConfig.nats.recorder;
+        const recorderInfoKv = recorder.infoKv;
+        const transcodingJobs = recorder.transcodingJobs;
 
         const pubAllow = [
             '$JS.API.INFO',
@@ -249,7 +243,7 @@ export class NatsAuthCalloutService {
             pub: { allow: pubAllow },
             sub: {
                 allow: [
-                    recorderChannel,
+                    recorder.channel,
                     '_INBOX.>',
                 ],
             },
@@ -275,11 +269,12 @@ export class NatsAuthCalloutService {
         // Create single user consumer
         const consumerPermissions = await this.consumerService.createUserConsumer(roomId, userId);
 
-        const sysJsWorker = this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker';
-        const sysPublicSubject = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
-        const chatSubject = this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat';
-        const whiteboardSubject = this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') || 'whiteboard';
-        const dataChannelSubject = this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') || 'dataChannel';
+        const subjects = this.appConfig.nats.subjects;
+        const sysJsWorker = subjects.systemJsWorker;
+        const sysPublicSubject = subjects.systemPublic;
+        const chatSubject = subjects.chat;
+        const whiteboardSubject = subjects.whiteboard;
+        const dataChannelSubject = subjects.dataChannel;
 
         const allowPub = [
             '$JS.API.INFO',
@@ -314,9 +309,6 @@ export class NatsAuthCalloutService {
         delete natsClaims.sub;
     }
 
-    /**
-     * Create authorization response
-     */
     /**
      * Create authorization response
      */

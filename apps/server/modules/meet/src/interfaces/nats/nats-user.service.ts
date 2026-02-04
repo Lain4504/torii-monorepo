@@ -6,7 +6,6 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { create } from '@bufbuild/protobuf';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -40,7 +39,6 @@ export class NatsUserService {
     private readonly logger = new Logger(NatsUserService.name);
 
     constructor(
-        private readonly configService: ConfigService,
         private readonly natsService: NatsService,
         private readonly natsConsumerService: NatsConsumerService,
         @Inject(forwardRef(() => NatsRoomService)) private readonly natsRoomService: NatsRoomService,
