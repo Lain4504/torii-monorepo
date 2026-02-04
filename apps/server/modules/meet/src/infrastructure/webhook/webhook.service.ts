@@ -158,12 +158,15 @@ export class WebhookService {
 
         // Handle breakout room post-start tasks
         if (meta.isBreakoutRoom) {
-            log.log('Room is breakout room, running post-start tasks');
+            log.log(`Room ${roomId} is a breakout room (parent: ${meta.parentRoomId}), running post-start tasks`);
             try {
                 await this.breakoutService.postTaskAfterRoomStartWebhook(roomId, meta);
+                log.log(`Post-start tasks completed for breakout room: ${roomId}`);
             } catch (error) {
-                log.error(`Failed to run breakout room post-start tasks: ${error.message}`);
+                log.error(`Failed to run breakout room post-start tasks for ${roomId}: ${error.message}`);
             }
+        } else {
+            log.debug(`Room ${roomId} is not a breakout room, skipping post-start tasks`);
         }
 
 
