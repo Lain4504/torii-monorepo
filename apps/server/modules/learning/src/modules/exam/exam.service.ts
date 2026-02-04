@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import {
     type ExamCreateDTO,
     type ExamUpdateDTO,
@@ -32,6 +33,7 @@ export class ExamService implements IExamService {
         @Inject(EXAM_REPOSITORY_TOKEN)
         private readonly examRepository: IExamRepository,
         private readonly prisma: PrismaService, // Keep for complex queries
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     /**
@@ -462,6 +464,24 @@ export class ExamService implements IExamService {
             this.logger.log(
                 `Attempt ${sessionId} graded: ${gradingResult.score}/${gradingResult.maxScore} (${percentage.toFixed(2)}%)`
             );
+
+            // Emit activity event for gamification achievements
+            try {
+                this.natsClient.emit('user.activity', {
+                    userId,
+                    activityType: 'QUIZ_ANSWER',
+                    meta: {
+                        sessionId,
+                        quizId: attempt.quizId,
+                        score: percentage,
+                        jlptLevel: quiz?.jlptLevel,
+                        quizType: quiz?.quizType, // e.g., 'jlpt_mock', 'practice'
+                    },
+                    timestamp: new Date().toISOString(),
+                });
+            } catch (error) {
+                this.logger.error(`Failed to emit QUIZ_ANSWER event: ${error.message}`);
+            }
 
             return this.toExamSessionDto(updated);
         } catch (error: any) {

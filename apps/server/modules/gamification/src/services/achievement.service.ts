@@ -14,22 +14,30 @@ const ACHIEVEMENT_DEFINITIONS = [
     { code: 'STREAK_14', category: 'STREAK', title: 'Hai tuần quyết tâm', description: 'Học liên tục 14 ngày', icon: 'TrendingUp', requirements: { streakDays: 14 }, rewards: { freezeCount: 3 }, orderIndex: 3 },
     { code: 'STREAK_30', category: 'STREAK', title: 'Tháng thành công', description: 'Học liên tục 30 ngày', icon: 'Trophy', requirements: { streakDays: 30 }, rewards: { freezeCount: 5 }, orderIndex: 4 },
     { code: 'STREAK_100', category: 'STREAK', title: 'Bậc thầy kiên trì', description: 'Học liên tục 100 ngày', icon: 'Star', requirements: { streakDays: 100 }, rewards: { freezeCount: 10 }, orderIndex: 5 },
-    
+
     // LEARNING_PROGRESS
     { code: 'FIRST_LESSON', category: 'LEARNING_PROGRESS', title: 'Bài học đầu tiên', description: 'Hoàn thành bài học đầu tiên', icon: 'BookOpen', requirements: { lessonsCompleted: 1 }, rewards: {}, orderIndex: 6 },
     { code: 'LESSON_50', category: 'LEARNING_PROGRESS', title: 'Người học tích cực', description: 'Hoàn thành 50 bài học', icon: 'Target', requirements: { lessonsCompleted: 50 }, rewards: { freezeCount: 1 }, orderIndex: 7 },
     { code: 'FIRST_COURSE', category: 'LEARNING_PROGRESS', title: 'Bước đầu tiên', description: 'Hoàn thành khóa học đầu tiên', icon: 'GraduationCap', requirements: { coursesCompleted: 1 }, rewards: {}, orderIndex: 8 },
     { code: 'COURSE_5', category: 'LEARNING_PROGRESS', title: 'Người học chăm chỉ', description: 'Hoàn thành 5 khóa học', icon: 'Award', requirements: { coursesCompleted: 5 }, rewards: { freezeCount: 2 }, orderIndex: 9 },
-    
+
     // MASTERY
     { code: 'QUIZ_PERFECT_N5', category: 'MASTERY', title: 'Thành thạo N5', description: 'Đạt 100% trong bài kiểm tra N5', icon: 'Zap', requirements: { quizScore: 100, jlptLevel: 'N5' }, rewards: {}, orderIndex: 10 },
     { code: 'QUIZ_PERFECT_N4', category: 'MASTERY', title: 'Thành thạo N4', description: 'Đạt 100% trong bài kiểm tra N4', icon: 'Zap', requirements: { quizScore: 100, jlptLevel: 'N4' }, rewards: { freezeCount: 1 }, orderIndex: 11 },
     { code: 'QUIZ_PERFECT_N3', category: 'MASTERY', title: 'Thành thạo N3', description: 'Đạt 100% trong bài kiểm tra N3', icon: 'Zap', requirements: { quizScore: 100, jlptLevel: 'N3' }, rewards: { freezeCount: 2 }, orderIndex: 12 },
-    { code: 'FLASHCARD_100', category: 'MASTERY', title: 'Người ghi nhớ', description: 'Ôn tập 100 flashcard', icon: 'Heart', requirements: { flashcardsReviewed: 100 }, rewards: {}, orderIndex: 13 },
-    { code: 'FLASHCARD_1000', category: 'MASTERY', title: 'Bậc thầy ghi nhớ', description: 'Ôn tập 1000 flashcard', icon: 'Star', requirements: { flashcardsReviewed: 1000 }, rewards: { freezeCount: 5 }, orderIndex: 14 },
-    
+    { code: 'QUIZ_PERFECT_N2', category: 'MASTERY', title: 'Thành thạo N2', description: 'Đạt 100% trong bài kiểm tra N2', icon: 'Zap', requirements: { quizScore: 100, jlptLevel: 'N2' }, rewards: { freezeCount: 3 }, orderIndex: 13 },
+    { code: 'QUIZ_PERFECT_N1', category: 'MASTERY', title: 'Thành thạo N1', description: 'Đạt 100% trong bài kiểm tra N1', icon: 'Zap', requirements: { quizScore: 100, jlptLevel: 'N1' }, rewards: { freezeCount: 5 }, orderIndex: 14 },
+    { code: 'FLASHCARD_100', category: 'MASTERY', title: 'Người ghi nhớ', description: 'Ôn tập 100 flashcard', icon: 'Heart', requirements: { flashcardsReviewed: 100 }, rewards: {}, orderIndex: 15 },
+    { code: 'FLASHCARD_1000', category: 'MASTERY', title: 'Bậc thầy ghi nhớ', description: 'Ôn tập 1000 flashcard', icon: 'Star', requirements: { flashcardsReviewed: 1000 }, rewards: { freezeCount: 5 }, orderIndex: 16 },
+
+    // QUIZ & EXAM
+    { code: 'FIRST_EXAM', category: 'LEARNING_PROGRESS', title: 'Thử thách đầu tiên', description: 'Hoàn thành bài kiểm tra đầu tiên', icon: 'FileText', requirements: { examsCompleted: 1 }, rewards: {}, orderIndex: 17 },
+    { code: 'EXAM_MASTER', category: 'LEARNING_PROGRESS', title: 'Bậc thầy phòng thi', description: 'Hoàn thành 10 bài kiểm tra', icon: 'Award', requirements: { examsCompleted: 10 }, rewards: { freezeCount: 2 }, orderIndex: 18 },
+    { code: 'QUIZ_WARRIOR', category: 'LEARNING_PROGRESS', title: 'Chiến binh Quiz', description: 'Hoàn thành 50 bài trắc nghiệm nhanh', icon: 'Zap', requirements: { quizzesCompleted: 50 }, rewards: { freezeCount: 3 }, orderIndex: 19 },
+    { code: 'PERFECT_SCORE', category: 'MASTERY', title: 'Điểm tuyệt đối', description: 'Đạt điểm tối đa trong một bài kiểm tra bất kỳ', icon: 'Target', requirements: { quizScore: 100 }, rewards: { freezeCount: 1 }, orderIndex: 20 },
+
     // CONSISTENCY
-    { code: 'WEEKLY_WARRIOR', category: 'CONSISTENCY', title: 'Chiến binh tuần lễ', description: 'Học ít nhất 5 ngày/tuần trong 4 tuần', icon: 'Calendar', requirements: { weeksWithFiveDays: 4 }, rewards: { freezeCount: 3 }, orderIndex: 15 },
+    { code: 'WEEKLY_WARRIOR', category: 'CONSISTENCY', title: 'Chiến binh tuần lễ', description: 'Học ít nhất 5 ngày/tuần trong 4 tuần', icon: 'Calendar', requirements: { weeksWithFiveDays: 4 }, rewards: { freezeCount: 3 }, orderIndex: 21 },
 ];
 
 @Injectable()
@@ -191,12 +199,101 @@ export class AchievementService {
     async checkQuizAchievements(
         userId: string,
         score: number,
-        jlptLevel: string,
+        jlptLevel?: string,
+        quizType: string = 'practice',
     ): Promise<void> {
+        // 1. Check Perfect score (100%)
         if (score >= 100) {
-            const achievementCode = `QUIZ_PERFECT_${jlptLevel}`;
-            await this.unlockAchievement(userId, achievementCode);
+            // General perfect score achievement
+            await this.unlockAchievement(userId, 'PERFECT_SCORE');
+
+            // Specific JLPT level perfect score
+            if (jlptLevel) {
+                const achievementCode = `QUIZ_PERFECT_${jlptLevel}`;
+                await this.unlockAchievement(userId, achievementCode);
+            }
         }
+
+        // 2. Check counts for Quiz (practice/lesson) vs Exam (jlpt_mock)
+        const isExam = quizType === 'jlpt_mock';
+
+        if (isExam) {
+            const examsCompleted = await this.prisma.quizAttempt.count({
+                where: {
+                    userId,
+                    quiz: { quizType: 'jlpt_mock' },
+                    status: { in: ['submitted', 'completed'] },
+                },
+            });
+
+            const milestones = [
+                { count: 1, code: 'FIRST_EXAM' },
+                { count: 10, code: 'EXAM_MASTER' },
+            ];
+
+            for (const milestone of milestones) {
+                if (examsCompleted >= milestone.count) {
+                    await this.unlockAchievement(userId, milestone.code);
+                }
+            }
+        } else {
+            // Regular Quiz counts
+            const quizzesCompleted = await this.prisma.quizAttempt.count({
+                where: {
+                    userId,
+                    quiz: { quizType: { not: 'jlpt_mock' } },
+                    status: { in: ['submitted', 'completed'] },
+                },
+            });
+
+            if (quizzesCompleted >= 50) {
+                await this.unlockAchievement(userId, 'QUIZ_WARRIOR');
+            }
+        }
+    }
+
+    /**
+     * Check consistency achievements
+     */
+    async checkConsistencyAchievements(userId: string): Promise<void> {
+        const activities = await this.prisma.dailyActivity.findMany({
+            where: { userId },
+            select: { date: true },
+            distinct: ['date'],
+        });
+
+        if (activities.length === 0) return;
+
+        // Group by weeks
+        const weeksMap = new Map<string, Set<string>>();
+        activities.forEach((a) => {
+            const date = new Date(a.date);
+            const weekKey = this.getWeekNumber(date);
+            if (!weeksMap.has(weekKey)) {
+                weeksMap.set(weekKey, new Set());
+            }
+            weeksMap.get(weekKey)!.add(a.date);
+        });
+
+        let weeksWithFiveDays = 0;
+        weeksMap.forEach((days) => {
+            if (days.size >= 5) {
+                weeksWithFiveDays++;
+            }
+        });
+
+        if (weeksWithFiveDays >= 4) {
+            await this.unlockAchievement(userId, 'WEEKLY_WARRIOR');
+        }
+    }
+
+    private getWeekNumber(date: Date): string {
+        const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        const dayNum = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+        return `${d.getUTCFullYear()}-W${weekNo}`;
     }
 
     /**

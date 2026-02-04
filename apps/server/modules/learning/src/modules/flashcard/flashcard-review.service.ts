@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
 import { SrsAlgorithmService, type SrsCalculationResult } from './srs-algorithm.service';
 import {
@@ -30,6 +30,7 @@ export class FlashcardReviewService implements IFlashcardReviewService {
     private readonly deckRepository: IFlashcardDeckRepository,
     private readonly prisma: PrismaService,
     private readonly srsAlgorithm: SrsAlgorithmService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   /**
@@ -158,6 +159,21 @@ export class FlashcardReviewService implements IFlashcardReviewService {
         lastReviewDate: new Date(),
         timesStudied: { increment: 1 },
       });
+
+      // Emit activity event for gamification
+      try {
+        this.natsClient.emit('user.activity', {
+          userId,
+          activityType: 'FLASHCARD_REVIEW',
+          meta: {
+            flashcardId,
+            quality,
+          },
+          timestamp: new Date().toISOString(),
+        });
+      } catch (error) {
+        this.logger.error(`Failed to emit FLASHCARD_REVIEW event: ${error.message}`);
+      }
 
       return {
         id: review.id,

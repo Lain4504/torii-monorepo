@@ -94,6 +94,9 @@ export class ActivityService {
             );
         }
 
+        // Always check consistency achievements when a new activity is logged
+        await this.achievementService.checkConsistencyAchievements(userId);
+
         // Check activity-specific achievements
         switch (activityType) {
             case 'LESSON_COMPLETE':
@@ -105,11 +108,12 @@ export class ActivityService {
                 break;
 
             case 'QUIZ_ANSWER':
-                if (meta?.score && meta?.jlptLevel) {
+                if (meta?.score) {
                     await this.achievementService.checkQuizAchievements(
                         userId,
                         meta.score,
                         meta.jlptLevel,
+                        meta.quizType,
                     );
                 }
                 break;
