@@ -18,6 +18,7 @@ import { PayOSService } from './payos.service';
 import { CouponService } from '../coupon/coupon.service';
 import type { Prisma } from '@prisma/generated';
 import { lastValueFrom } from 'rxjs';
+import { AppConfigService } from '@server/shared';
 
 /**
  * Order Service
@@ -28,6 +29,7 @@ export class OrderService implements IOrderService {
     private readonly logger = new Logger(OrderService.name);
 
     constructor(
+        private readonly appConfig: AppConfigService,
         private readonly orderRepository: OrderRepository,
         private readonly payOSService: PayOSService,
         private readonly couponService: CouponService,
@@ -347,7 +349,7 @@ export class OrderService implements IOrderService {
                     try {
                         const orderCode = Number(Date.now().toString().slice(-10));
                         const description = `Torii ${orderCode}`;
-                        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+                        const frontendUrl = this.appConfig.identity.frontendUrl;
                         const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
                         const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
 

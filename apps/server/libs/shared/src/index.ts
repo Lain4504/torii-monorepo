@@ -41,6 +41,10 @@ export {
     generateRandomString,
 } from './utils/common';
 
+export { AppConfigService } from './config/app-config.service';
+export { loadConfig } from './config/app.config';
+export type { AppConfig } from './config/app.config';
+
 // Proto parser
 export {
     parseProtoRequest,           // Flexible parser (JSON or binary)

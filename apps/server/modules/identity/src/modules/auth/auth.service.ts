@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import Redis from 'ioredis';
 import * as argon2 from 'argon2';
-import { JwtTokenProvider, REDIS_CLIENT, BlacklistService } from '@server/shared';
+import { JwtTokenProvider, REDIS_CLIENT, BlacklistService, AppConfigService } from '@server/shared';
 import type { IUsersRepository, IUserIdentityRepository } from '../../interfaces/repositories';
 import type { IAuthService, ISessionService, IGoogleAuthService, IAuthorizationService, ITwoFactorAuthService, IEmailService } from '../../interfaces/services';
 import { USERS_REPOSITORY_TOKEN, USER_IDENTITY_REPOSITORY_TOKEN } from '../../interfaces/repositories';
@@ -34,6 +34,7 @@ import type { TwoFactorTempTokenPayload } from '@server/shared';
 @Injectable()
 export class AuthService implements IAuthService {
     constructor(
+        private readonly appConfig: AppConfigService,
         @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
 
         private readonly jwtTokenProvider: JwtTokenProvider,
@@ -130,7 +131,7 @@ export class AuthService implements IAuthService {
             );
         } else {
             const verificationToken = await this.generateVerificationToken(user.email);
-            const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+            const verificationUrl = `${this.appConfig.identity.frontendUrl}/verify?token=${verificationToken}`;
             await this.emailService.sendVerificationEmail(
                 user.email,
                 user.displayName,
@@ -249,7 +250,7 @@ export class AuthService implements IAuthService {
      * Valid for 5 minutes (configurable via TWO_FACTOR_TEMP_TOKEN_EXPIRY)
      */
     private async generate2FATempToken(userId: string, email: string, method: string, userRole: UserRole): Promise<string> {
-        const tempTokenExpiry = parseInt(process.env.TWO_FACTOR_TEMP_TOKEN_EXPIRY || '300'); // 5 minutes
+        const tempTokenExpiry = this.appConfig.identity.twoFactorTempTokenExpiry; // in seconds
 
         const payload: TwoFactorTempTokenPayload = {
             sub: userId,        // Standard JWT claim (subject)
@@ -438,7 +439,7 @@ export class AuthService implements IAuthService {
         const verificationToken = await this.generateVerificationToken(email);
 
         // Send verification email
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+        const verificationUrl = `${this.appConfig.identity.frontendUrl}/verify?token=${verificationToken}`;
         await this.emailService.sendVerificationEmail(
             email,
             user.displayName,
@@ -506,7 +507,7 @@ export class AuthService implements IAuthService {
             await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
 
             // Send password reset email
-            const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+            const resetUrl = `${this.appConfig.identity.frontendUrl}/reset-password?token=${resetToken}`;
             await this.emailService.sendPasswordResetEmail(
                 email,
                 user.displayName,

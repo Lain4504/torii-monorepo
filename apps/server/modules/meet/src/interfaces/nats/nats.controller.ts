@@ -10,7 +10,6 @@
  */
 
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NatsService } from './nats.service';
 import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
 import { NatsUserService } from './nats-user.service';
@@ -24,6 +23,7 @@ import {
 } from '@workspace/protocol';
 import { RoomUserService } from '../../modules/room/room-user.service';
 import { AnalyticsService } from '../../modules/analytics/analytics.service';
+import { AppConfigService } from '@server/shared';
 
 // Constants
 const DEFAULT_NUM_WORKERS = 50; //50
@@ -31,14 +31,11 @@ const DEFAULT_JOB_QUEUE_SIZE = 1000; //1000
 const NATS_AUTH_SERVICE_ENDPOINT_SUBJECT = '$SYS.REQ.USER.AUTH';
 const NATS_CONNECTION_EVENT_SUBJECT_FORMAT = '$SYS.ACCOUNT.%s.>';
 const PREFIX = 'wajlc-';
-const NATS_AUTH_SERVICE_NAME = PREFIX + 'auth';
 const NATS_AUTH_SERVICE_QUEUE_GROUP = PREFIX + 'auth-queue';
 const NATS_CONNECTION_EVENT_QUEUE_GROUP = PREFIX + 'conn-event-queue';
 const RECORDER_USER_AUTH_NAME = 'WAJLC_RECORDER_AUTH';
 const WEBSOCKET_CLIENT_TYPE = 'websocket';
 const TRANSCODER_CONSUMER_DURABLE = 'transcoderWorker';
-const AGENT_USER_USER_ID_PREFIX = 'wajlc_agent-';
-const TTS_AGENT_USER_ID_PREFIX = 'wajlc_tts_agent-';
 
 interface NatsJob {
     handler: () => void | Promise<void>;
@@ -64,7 +61,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
     private authCalloutSubscription: any;
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly natsService: NatsService,
         private readonly authService: WajlcAuthService,
         private readonly natsUserService: NatsUserService,
@@ -254,8 +251,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
      * Create system worker stream
      */
     private async createSystemWorkerStream() {
-        const sysJsWorker = this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker';
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+        const sysJsWorker = this.appConfig.nats.subjects.systemJsWorker;
+        const numReplicas = this.appConfig.nats.numReplicas;
 
         this.logger.log(`Creating system worker stream: ${sysJsWorker}`);
 
@@ -290,7 +287,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
      * Subscribe to system worker stream
      */
     private async subscribeToSystemWorker() {
-        const sysJsWorker = this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') || 'sysJsWorker';
+        const sysJsWorker = this.appConfig.nats.subjects.systemJsWorker;
 
         this.logger.log(`Subscribing to system worker: ${sysJsWorker}`);
 
@@ -446,8 +443,8 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
      * Create transcoder stream for recorder
      */
     private async createTranscoderStream() {
-        const transcodingJobs = this.configService.get<string>('NATS_TRANSCODING_JOBS') || 'wajlc-RecorderTranscoderJobs';
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+        const transcodingJobs = this.appConfig.nats.recorder.transcodingJobs;
+        const numReplicas = this.appConfig.nats.numReplicas;
 
         this.logger.log(`Creating transcoder stream: ${transcodingJobs}`);
 
@@ -489,7 +486,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
      * Subscribe to user connection events
      */
     private async subscribeToUsersConnEvents() {
-        const account = this.configService.get<string>('NATS_ACCOUNT_NAME') || 'PNM';
+        const account = this.appConfig.nats.accountName;
         const subject = NATS_CONNECTION_EVENT_SUBJECT_FORMAT.replace('%s', account);
 
         this.logger.log(`Subscribing to connection events: ${subject}`);

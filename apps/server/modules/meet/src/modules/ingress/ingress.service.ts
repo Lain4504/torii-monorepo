@@ -5,16 +5,12 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { create } from '@bufbuild/protobuf';
 import {
     CreateIngressReq,
-    CommonResponse,
     CreateIngressRes,
-    CommonResponseSchema,
     CreateIngressResSchema,
     IngressInput as WajlcIngressInput,
-    UserMetadata,
     UserMetadataSchema,
     AnalyticsDataMsgSchema,
     AnalyticsEventType,
@@ -27,6 +23,7 @@ import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsUserService } from '../../interfaces/nats/nats-user.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { AppConfigService } from '@server/shared';
 
 import { IngressInput } from 'livekit-server-sdk';
 
@@ -35,7 +32,7 @@ export class IngressService {
     private readonly logger = new Logger(IngressService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly livekitService: LiveKitService,
         private readonly natsRoomService: NatsRoomService,
         private readonly natsUserService: NatsUserService,
@@ -71,7 +68,7 @@ export class IngressService {
         }
 
         // 3. Prepare Livekit Ingress options
-        const ingressUserIdPrefix = this.configService.get<string>('INGRESS_USER_ID_PREFIX', 'ingress_');
+        const ingressUserIdPrefix = this.appConfig.ingress.userIdPrefix;
         const participantIdentity = `${ingressUserIdPrefix}${Date.now()}`;
 
         const options = {

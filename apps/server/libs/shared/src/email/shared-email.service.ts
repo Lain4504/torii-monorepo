@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
+import { AppConfigService } from '../config/app-config.service';
 
 export interface EmailOptions {
     /**
@@ -78,7 +78,7 @@ export class SharedEmailService implements OnModuleInit {
     private readonly logger = new Logger(SharedEmailService.name);
     private transporter: Transporter | null = null;
 
-    constructor(private readonly configService: ConfigService) { }
+    constructor(private readonly appConfig: AppConfigService) { }
 
     async onModuleInit() {
         await this.initializeTransporter();
@@ -88,39 +88,33 @@ export class SharedEmailService implements OnModuleInit {
      * Initialize SMTP transporter
      */
     private async initializeTransporter() {
-        const smtpEnabled = this.configService.get<string>('SMTP_ENABLED') === 'true';
+        const { enabled, host, port, user, pass, from } = this.appConfig.smtp;
 
-        if (!smtpEnabled) {
+        if (!enabled) {
             this.logger.warn('📧 SMTP is DISABLED - Using mock email logging for development');
             return;
         }
 
-        const smtpHost = this.configService.get<string>('SMTP_HOST');
-        const smtpPort = this.configService.get<number>('SMTP_PORT');
-        const smtpUser = this.configService.get<string>('SMTP_USER');
-        const smtpPass = this.configService.get<string>('SMTP_PASS');
-        const smtpFrom = this.configService.get<string>('SMTP_FROM');
-
-        if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
+        if (!host || !port || !user || !pass) {
             this.logger.warn('📧 SMTP credentials missing - Using mock email logging');
             return;
         }
 
         try {
             this.transporter = nodemailer.createTransport({
-                host: smtpHost,
-                port: smtpPort,
-                secure: smtpPort === 465, // true for 465, false for other ports
+                host: host,
+                port: port,
+                secure: port === 465, // true for 465, false for other ports
                 auth: {
-                    user: smtpUser,
-                    pass: smtpPass,
+                    user: user,
+                    pass: pass,
                 },
             });
 
             // Verify connection
             await this.transporter.verify();
-            this.logger.log(`✅ SMTP connection verified: ${smtpHost}:${smtpPort}`);
-            this.logger.log(`📧 Email service ready to send from: ${smtpFrom}`);
+            this.logger.log(`✅ SMTP connection verified: ${host}:${port}`);
+            this.logger.log(`📧 Email service ready to send from: ${from || 'not set'}`);
         } catch (error) {
             this.logger.error(`❌ Failed to initialize SMTP: ${error.message}`);
             this.logger.warn('📧 Falling back to mock email logging');
@@ -135,7 +129,7 @@ export class SharedEmailService implements OnModuleInit {
         // If SMTP is configured, send real email
         if (this.transporter) {
             try {
-                const smtpFrom = this.configService.get<string>('SMTP_FROM') || '"Torii Nihongo" <noreply@torii.app>';
+                const smtpFrom = this.appConfig.smtp.from || '"Torii Nihongo" <noreply@torii.app>';
 
                 const mailOptions = {
                     from: options.from || smtpFrom,

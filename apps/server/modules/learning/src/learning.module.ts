@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
@@ -62,7 +61,6 @@ import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     AutomapperModule.forRoot({ strategyInitializer: pojos() }),
     PrismaModule,

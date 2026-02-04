@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
-import { PrismaService } from '@server/shared';
+import { PrismaService, AppConfigService } from '@server/shared';
 import * as argon2 from 'argon2';
 
 /**
@@ -11,6 +11,7 @@ export class DefaultAdminService implements OnModuleInit {
     private readonly logger = new Logger(DefaultAdminService.name);
 
     constructor(
+        private readonly appConfig: AppConfigService,
         private readonly prisma: PrismaService,
     ) { }
 
@@ -36,10 +37,8 @@ export class DefaultAdminService implements OnModuleInit {
                 return;
             }
 
-            // Get default admin credentials from environment variables
-            const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@torii.com';
-            const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
-            const adminDisplayName = process.env.DEFAULT_ADMIN_DISPLAY_NAME || 'System Administrator';
+            // Get default admin credentials from configuration
+            const { email: adminEmail, password: adminPassword, displayName: adminDisplayName } = this.appConfig.identity.defaultAdmin;
 
             // Hash the password
             const hashedPassword = await argon2.hash(adminPassword);

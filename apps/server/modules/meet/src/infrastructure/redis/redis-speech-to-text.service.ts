@@ -5,7 +5,6 @@
  */
 
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { SpeechServiceUserStatusTasks } from '@workspace/protocol';
 import { REDIS_CLIENT } from '@server/shared';
@@ -17,7 +16,6 @@ const SPEECH_SERVICE_REDIS_KEY = `${REDIS_PREFIX}speechService`;
 export class RedisSpeechToTextService {
     private readonly logger = new Logger(RedisSpeechToTextService.name);
     constructor(
-        private readonly configService: ConfigService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ) { }
 

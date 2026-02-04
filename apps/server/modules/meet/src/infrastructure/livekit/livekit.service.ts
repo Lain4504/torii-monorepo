@@ -1,16 +1,11 @@
-/**
- * LiveKit Service
- *
- * Handles LiveKit participant operations
- */
-
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { RoomServiceClient, IngressClient, IngressInput } from 'livekit-server-sdk';
 import { NatsKvUserInfo, WajlcTokenClaimsSchema } from '@workspace/protocol';
 import { generateLivekitAccessToken } from '@server/shared';
 import { create } from '@bufbuild/protobuf';
 import { LIVEKIT_ROOM_SERVICE, LIVEKIT_INGRESS_CLIENT } from './livekit.constants';
+
+import { AppConfigService } from '@server/shared';
 
 /**
  * LiveKitService handles participant operations with LiveKit server
@@ -20,7 +15,7 @@ export class LiveKitService {
     private readonly logger = new Logger(LiveKitService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         @Inject(LIVEKIT_ROOM_SERVICE) private readonly client: RoomServiceClient,
         @Inject(LIVEKIT_INGRESS_CLIENT) private readonly ingressClient: IngressClient,
     ) {
@@ -160,10 +155,9 @@ export class LiveKitService {
      * @returns JWT token string
      */
     async generateLivekitToken(roomId: string, userInfo: NatsKvUserInfo): Promise<string> {
-        // Get config values
-        const apiKey = this.configService.get<string>('LIVEKIT_API_KEY')!;
-        const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET')!;
-        const tokenValidity = this.configService.get<number>('TOKEN_VALIDITY', 7200);
+        // Get config values from typed config
+        const { apiKey, apiSecret } = this.appConfig.livekit;
+        const tokenValidity = 7200; // Default 2 hours
 
         // Create claims
         const c = create(WajlcTokenClaimsSchema, {

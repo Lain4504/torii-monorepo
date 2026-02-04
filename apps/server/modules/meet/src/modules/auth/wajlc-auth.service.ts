@@ -4,7 +4,6 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
     generateWajlcJWTAccessToken
 } from '@server/shared/utils/access_token';
@@ -16,6 +15,7 @@ import {
 } from '@server/shared/utils/webhook_verify';
 import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
 import * as jwt from 'jsonwebtoken';
+import { AppConfigService } from '@server/shared';
 
 /**
  * Plain Wajlc token claims (not protobuf)
@@ -41,17 +41,20 @@ export class WajlcAuthService {
     private readonly livekitSecret: string;
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         @Inject(forwardRef(() => NatsUserInfoService)) private readonly natsUserInfoService: NatsUserInfoService,
     ) {
-        this.apiKey = this.configService.get<string>('WAJLC_API_KEY') || '';
-        this.secret = this.configService.get<string>('WAJLC_API_SECRET') || '';
-        this.tokenValidity = this.configService.get<number>('WAJLC_TOKEN_VALIDITY') || 3600; // 1 hour default
-        this.livekitApiKey = this.configService.get<string>('LIVEKIT_API_KEY') || '';
-        this.livekitSecret = this.configService.get<string>('LIVEKIT_API_SECRET') || '';
+        const { wajlc } = this.appConfig.security;
+        this.apiKey = wajlc.apiKey;
+        this.secret = wajlc.apiSecret;
+        this.tokenValidity = 3600; // 1 hour default (hardcoded for now as it's not in schema)
+
+        const { apiKey: lkKey, apiSecret: lkSecret } = this.appConfig.livekit;
+        this.livekitApiKey = lkKey;
+        this.livekitSecret = lkSecret;
 
         if (!this.apiKey || !this.secret) {
-            this.logger.error('API Key or Secret is missing. Please check configuration WAJLC_ keys).');
+            this.logger.error('API Key or Secret is missing. Please check configuration wajlc: section.');
         }
     }
 

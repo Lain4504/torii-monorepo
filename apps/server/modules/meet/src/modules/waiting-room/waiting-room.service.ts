@@ -7,7 +7,6 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NatsService } from '../../interfaces/nats/nats.service';
 import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
 import { NatsUserService } from '../../interfaces/nats/nats-user.service';
@@ -23,7 +22,6 @@ export class WaitingRoomService {
     private readonly logger = new Logger(WaitingRoomService.name);
 
     constructor(
-        private readonly configService: ConfigService,
         private readonly natsService: NatsService,
         private readonly natsUserInfoService: NatsUserInfoService,
         private readonly natsUserService: NatsUserService,

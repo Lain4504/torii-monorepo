@@ -25,6 +25,7 @@ import {
     VerifiedOnly,
     successResponse,
     errorResponse,
+    AppConfigService,
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
 import {
@@ -40,7 +41,10 @@ import {
 
 @Controller('api/auth')
 export class AuthController {
-    constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
+    constructor(
+        private readonly appConfig: AppConfigService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    ) { }
 
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
@@ -574,12 +578,12 @@ export class AuthController {
 
         res.clearCookie('access_token', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: this.appConfig.server.nodeEnv === 'production',
             sameSite: 'lax',
         });
         res.clearCookie('refresh_token', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: this.appConfig.server.nodeEnv === 'production',
             sameSite: 'lax',
         });
 
@@ -817,14 +821,14 @@ export class AuthController {
     private setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
         res.cookie('access_token', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: this.appConfig.server.nodeEnv === 'production',
             sameSite: 'lax',
             maxAge: 15 * 60 * 1000,
         });
 
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: this.appConfig.server.nodeEnv === 'production',
             sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });

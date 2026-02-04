@@ -33,12 +33,13 @@ import type { IUsersRepository } from '../../interfaces/repositories';
 import type { IUsersService, IAuthorizationService, IEmailService, UserWithPermissions } from '../../interfaces/services';
 import { USERS_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { AUTHORIZATION_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
-import { REDIS_CLIENT, generateSecureRandomString } from '@server/shared';
+import { REDIS_CLIENT, generateSecureRandomString, AppConfigService } from '@server/shared';
 import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService implements IUsersService {
     constructor(
+        private readonly appConfig: AppConfigService,
         @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
         @Inject(AUTHORIZATION_SERVICE_TOKEN) private readonly authorizationService: IAuthorizationService,
         @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
@@ -202,8 +203,8 @@ export class UsersService implements IUsersService {
         await this.redis.set(`invite-token:${inviteToken}`, user.id, 'EX', 604800); // 7 days
 
         // Send invite email with password - link to login page
-        // Internal users (staff/lecturer) use web-admin, so use WEB_ADMIN_URL or default to port 5173
-        const loginUrl = `${(process.env.WEB_ADMIN_URL || 'https://app.torii.sbs').replace(/\/+$/, '')}/login`;
+        // Internal users (staff/lecturer) use web-admin, so use webAdminUrl from config
+        const loginUrl = `${this.appConfig.identity.webAdminUrl.replace(/\/+$/, '')}/login`;
         await this.emailService.sendInviteEmail(
             user.email,
             user.displayName,

@@ -1,7 +1,7 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger } from '@nestjs/common';
 import { S3Client, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { AppConfigService } from '../config/app-config.service';
 
 export interface UploadOptions {
     /**
@@ -57,26 +57,29 @@ export class SharedStorageService {
     private readonly accountId: string;
     private readonly publicUrl: string;
 
-    constructor(private readonly configService: ConfigService) {
-        this.bucketName = this.configService.get<string>('R2_BUCKET_NAME') || 'torii-uploads';
-        this.accountId = this.configService.get<string>('R2_ACCOUNT_ID') || '';
-        this.publicUrl = this.configService.get<string>('R2_PUBLIC_URL') ||
+    constructor(private readonly appConfig: AppConfigService) {
+        const r2Config = this.appConfig.thirdParty.r2;
+
+        this.bucketName = r2Config.bucketName || 'torii-uploads';
+        this.accountId = r2Config.accountId || '';
+        this.publicUrl = r2Config.publicUrl ||
             `https://${this.bucketName}.${this.accountId}.r2.cloudflarestorage.com`;
 
-        const endpoint = this.configService.get<string>('R2_ENDPOINT');
-        const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
-        const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
+        const endpoint = r2Config.endpoint;
+        const accessKeyId = r2Config.accessKeyId;
+        const secretAccessKey = r2Config.secretAccessKey;
 
         if (!endpoint || !accessKeyId || !secretAccessKey) {
-            throw new Error('R2 configuration is incomplete. Please set R2_ENDPOINT, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY');
+            this.logger.warn('R2 configuration is incomplete. Storage service may not function correctly.');
+            // We still initialize to avoid crash, but methods will likely fail
         }
 
         this.r2Client = new S3Client({
             region: 'auto',
-            endpoint,
+            endpoint: endpoint || '',
             credentials: {
-                accessKeyId,
-                secretAccessKey,
+                accessKeyId: accessKeyId || '',
+                secretAccessKey: secretAccessKey || '',
             },
         });
 

@@ -63,6 +63,12 @@ export class RedisInsightsService {
         return finalDuration;
     }
 
+    async isTranscriptionSessionActive(roomId: string, userId: string): Promise<boolean> {
+        const sessionsKey = TRANSCRIPTION_SESSIONS_KEY.replace('%s', roomId);
+        const startTimeStr = await this.redis.hget(sessionsKey, userId);
+        return !!startTimeStr;
+    }
+
     async getTranscriptionRoomUsage(roomId: string, cleanup = false): Promise<Record<string, number>> {
         const key = TRANSCRIPTION_USAGE_KEY.replace('%s', roomId);
         const rawMap = await this.redis.hgetall(key);

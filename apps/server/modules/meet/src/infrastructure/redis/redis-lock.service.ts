@@ -5,7 +5,6 @@
  */
 
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import { REDIS_CLIENT } from '@server/shared';
@@ -66,7 +65,6 @@ export class Lock {
 export class RedisLockService {
     private readonly logger = new Logger(RedisLockService.name);
     constructor(
-        private readonly configService: ConfigService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ) {
         // Define custom Lua commands

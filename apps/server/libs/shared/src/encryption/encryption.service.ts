@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
+import { AppConfigService } from '../config/app-config.service';
 
 /**
  * Encryption Service
@@ -12,12 +13,12 @@ export class EncryptionService {
     private readonly algorithm = 'aes-256-gcm';
     private readonly key: Buffer;
 
-    constructor() {
-        const encryptionKey = process.env.ENCRYPTION_KEY;
+    constructor(private readonly appConfig: AppConfigService) {
+        const encryptionKey = this.appConfig.security.encryptionKey;
 
         if (!encryptionKey) {
             throw new Error(
-                'ENCRYPTION_KEY environment variable is required. ' +
+                'ENCRYPTION_KEY configuration is required. ' +
                 'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"'
             );
         }

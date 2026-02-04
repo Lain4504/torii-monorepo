@@ -5,7 +5,6 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import {
     GenerateAzureTokenReq,
@@ -18,7 +17,6 @@ import {
     SpeechServiceUserStatusTasks,
     CommonResponseSchema,
     NatsMsgServerToClientEvents,
-    SpeechServiceUserStatusReqSchema,
     AnalyticsEventType,
     AnalyticsEvents,
     AnalyticsDataMsgSchema,
@@ -30,13 +28,14 @@ import { RedisSpeechToTextService } from '../../infrastructure/redis/redis-speec
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { AppConfigService } from '@server/shared';
 
 @Injectable()
 export class SpeechToTextService {
     private readonly logger = new Logger(SpeechToTextService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly natsRoomService: NatsRoomService,
         private readonly redisSpeechService: RedisSpeechToTextService,
         private readonly natsSystemEvents: NatsSystemEventsService,
@@ -50,7 +49,7 @@ export class SpeechToTextService {
      * SpeechToTextTranslationServiceStart enables/disables the service for a room
      */
     async speechToTextTranslationServiceStart(roomId: string, r: SpeechToTextTranslationReq): Promise<CommonResponse> {
-        const azureEnabled = this.configService.get<boolean>('AZURE_SPEECH_ENABLED', false);
+        const azureEnabled = this.appConfig.azureSpeech.enabled;
         if (!azureEnabled) {
             throw new Error('speech service disabled');
         }
@@ -109,7 +108,7 @@ export class SpeechToTextService {
         }
 
         const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-        const azureEnabled = this.configService.get<boolean>('AZURE_SPEECH_ENABLED', false);
+        const azureEnabled = this.appConfig.azureSpeech.enabled;
         if (!metadata || !azureEnabled || !metadata.roomFeatures?.speechToTextTranslationFeatures?.isEnabled) {
             throw new Error('speech-services.service-disabled');
         }
@@ -131,7 +130,7 @@ export class SpeechToTextService {
             throw new Error('speech-services.renew-need-already-using-service');
         }
 
-        const azureKeys = this.getAzureSubscriptionKeys();
+        const azureKeys = this.appConfig.azureSpeech.subscriptionKeys;
         const key = azureKeys.find(k => k.id === r.keyId);
         if (!key) {
             throw new Error('speech-services.renew-subscription-key-not-found');
@@ -198,7 +197,7 @@ export class SpeechToTextService {
     }
 
     private async selectAzureKey(): Promise<any> {
-        const keys = this.getAzureSubscriptionKeys();
+        const keys = this.appConfig.azureSpeech.subscriptionKeys;
         if (keys.length === 0) throw new Error('no azure keys found');
         if (keys.length === 1) return keys[0];
 
@@ -242,16 +241,6 @@ export class SpeechToTextService {
         }
     }
 
-    private getAzureSubscriptionKeys(): any[] {
-        const keysStr = this.configService.get<string>('AZURE_SPEECH_SUBSCRIPTION_KEYS', '[]');
-        try {
-            return JSON.parse(keysStr);
-        } catch (e) {
-            this.logger.error('Failed to parse AZURE_SPEECH_SUBSCRIPTION_KEYS');
-            return [];
-        }
-    }
-
     private async broadcastAzureToken(roomId: string, userId: string, data: GenerateAzureTokenRes): Promise<void> {
         const jsonStr = toJsonString(GenerateAzureTokenResSchema, data);
         await this.natsSystemEvents.broadcastSystemEventToRoom(
@@ -269,7 +258,7 @@ export class SpeechToTextService {
         if (!sId) return;
 
         // Give some time for final requests to arrive
-        const waitTime = this.configService.get<number>('WAIT_BEFORE_SPEECH_SERVICES_CLEANUP', 5000);
+        const waitTime = this.appConfig.timeouts.waitBeforeSpeechCleanup;
         await new Promise(resolve => setTimeout(resolve, waitTime));
 
         try {

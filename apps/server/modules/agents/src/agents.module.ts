@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { SharedModule } from '@server/shared';
 import { FastMcpModule } from './fastmcp/fastmcp.module';
 import { SenseiHandler } from './interfaces/nats/sensei.handler';
 import { AssessmentHandler } from './interfaces/nats/assessment.handler';
@@ -21,9 +21,7 @@ import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
  */
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    SharedModule,
     FastMcpModule,
   ],
   controllers: [

@@ -5,8 +5,7 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '@server/shared';
+import { PrismaService, AppConfigService } from '@server/shared';
 import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
 import {
     RoomArtifactMetadata,
@@ -18,14 +17,13 @@ import {
     ArtifactInfoSchema,
     FetchArtifactsResultSchema,
     ArtifactInfoResSchema,
-    FetchArtifactsResSchema,
     CommonNotifyEventSchema,
     PastRoomInfoSchema,
 } from '@workspace/protocol';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { create, toJson, fromJson, toJsonString } from '@bufbuild/protobuf';
+import { create, toJson, fromJson } from '@bufbuild/protobuf';
 import { generateTokenForDownloadRecording } from '@server/shared';
 import * as jwt from 'jsonwebtoken';
 import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
@@ -46,17 +44,17 @@ export class ArtifactsService {
     private readonly tokenValidity: number;
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly prisma: PrismaService,
         private readonly webhookNotifier: WebhookNotifierService,
         private readonly redisInsightsService: RedisInsightsService,
         private readonly natsService: NatsService,
         @Inject(forwardRef(() => NatsRoomService)) private readonly natsRoomService: NatsRoomService,
     ) {
-        this.storagePath = this.configService.get<string>('STORAGE_PATH') || './storage';
-        this.apiKey = this.configService.get<string>('API_KEY') || '';
-        this.apiSecret = this.configService.get<string>('API_SECRET') || '';
-        this.tokenValidity = this.configService.get<number>('ARTIFACT_TOKEN_VALIDITY') || 3600; // default 1 hour
+        this.storagePath = this.appConfig.server.storagePath;
+        this.apiKey = this.appConfig.security.wajlc.apiKey;
+        this.apiSecret = this.appConfig.security.wajlc.apiSecret;
+        this.tokenValidity = this.appConfig.security.wajlc.tokenValidity;
     }
 
     /**
@@ -428,7 +426,7 @@ export class ArtifactsService {
             roomId: roomId,
             eventValueInteger: eventValueInteger.toString(),
         });
-        // We'll assume AnalyticsService will handle this. For now, we can omit or emit if needed.
+        // We'll assume AnalyticsService will handle this.
     }
 
     /**
@@ -569,31 +567,24 @@ export class ArtifactsService {
             // Verify JWT and extract claims
             const decoded = jwt.verify(token, this.apiSecret) as any;
 
-            // MUse subject claim for file path
             const relativePath = decoded.sub || decoded.filePath;
             if (!relativePath) {
                 throw new Error('invalid token: file path not found');
             }
 
-            //  Build absolute path
             const absolutePath = path.join(this.storagePath, 'artifacts', relativePath);
 
             try {
-                // Check file existence using Lstat
                 await fs.access(absolutePath);
-                const stats = await fs.stat(absolutePath);
-
                 return {
                     absolutePath,
                     fileName: path.basename(relativePath),
                 };
             } catch (error) {
-                // Extract only filename from error path
                 const parts = error.message.split('/');
                 throw new Error(parts[parts.length - 1]);
             }
         } catch (error) {
-            // Return verification error
             if (error.message.includes('file') || error.message.includes('token')) {
                 throw error;
             }
@@ -633,8 +624,8 @@ export class ArtifactsService {
     }
 
     private async moveToTrash(filePath: string): Promise<void> {
-        const enableBackup = this.configService.get<boolean>('ARTIFACT_ENABLE_DEL_BACKUP') || false;
-        const backupPath = this.configService.get<string>('ARTIFACT_DEL_BACKUP_PATH') || './storage/trash';
+        const enableBackup = this.appConfig.janitor.enableArtifactsBackup;
+        const backupPath = this.appConfig.janitor.artifactsBackupPath;
 
         try {
             if (enableBackup) {
@@ -642,7 +633,6 @@ export class ArtifactsService {
                 const fileName = path.basename(filePath);
                 const destPath = path.join(backupPath, fileName);
                 await fs.rename(filePath, destPath);
-                // Update mtime to now
                 const now = new Date();
                 await fs.utimes(destPath, now, now);
                 this.logger.log(`Moved artifact to trash: ${destPath}`);

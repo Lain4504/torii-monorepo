@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '@server/shared';
+import { PrismaService, AppConfigService } from '@server/shared';
 import axios, { AxiosInstance } from 'axios';
 
 interface ToolContext {
@@ -26,10 +25,10 @@ export class FastMcpService implements OnModuleInit {
   private fastmcpUrl: string;
 
   constructor(
-    private readonly configService: ConfigService,
+    private readonly appConfig: AppConfigService,
     private readonly prisma: PrismaService,
   ) {
-    this.fastmcpUrl = this.configService.get<string>('FASTMCP_URL') || 'http://localhost:3333';
+    this.fastmcpUrl = this.appConfig.fastmcp.url;
     this.httpClient = axios.create({
       baseURL: this.fastmcpUrl,
       timeout: 60000, // 60 seconds for AI responses

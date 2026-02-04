@@ -36,12 +36,11 @@ import {
     NatsSubjectsSchema,
 } from '@workspace/protocol';
 import {
-    sendCommonProtoJsonResponse,
     sendCommonProtobufResponse,
     JwtAuthGuard,
     sendProtobufResponse,
+    AppConfigService,
 } from '@server/shared';
-import { ConfigService } from '@nestjs/config';
 
 /**
  * UserRoomSettingController handles user operations within rooms (JwtAuthGuard routes)
@@ -52,7 +51,7 @@ import { ConfigService } from '@nestjs/config';
 export class UserRoomSettingController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
     ) { }
 
     /**
@@ -165,7 +164,7 @@ export class UserRoomSettingController {
                 : { res: roomActiveResponse };
             const rr = roomData.res;
             const rInfo = roomData.rInfo;
-            const roomDbInfo = roomData.roomDbInfo;
+            // const roomDbInfo = roomData.roomDbInfo;
             const meta = roomData.meta ?? roomData.metadata;
 
             if (!rr?.isActive) {
@@ -193,37 +192,19 @@ export class UserRoomSettingController {
             }
 
             // Build successful response
-            // Accept env as comma-separated string or array
-            const rawWsUrls = this.configService.get<string>('NATS_WS_URLS');
-            const natsWsUrls = rawWsUrls
-                ? rawWsUrls
-                    .split(',')
-                    .map((u) => u.trim())
-                    .filter((u) => !!u)
-                : this.configService.get<string[]>('NATS_WS_URLS') || [];
+            const natsWsUrls = this.appConfig.nats.wsUrls || [];
             const version = '1.0.0';
 
             // Read NATS subjects from config
+            const subjects = this.appConfig.nats.subjects;
             const natsSubjects = {
-                systemApiWorker:
-                    this.configService.get<string>('NATS_SUBJECT_SYSTEM_API_WORKER') ||
-                    'sysApiWorker',
-                systemJsWorker:
-                    this.configService.get<string>('NATS_SUBJECT_SYSTEM_JS_WORKER') ||
-                    'sysJsWorker',
-                systemPublic:
-                    this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') ||
-                    'sysPublic',
-                systemPrivate:
-                    this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') ||
-                    'sysPrivate',
-                chat: this.configService.get<string>('NATS_SUBJECT_CHAT') || 'chat',
-                whiteboard:
-                    this.configService.get<string>('NATS_SUBJECT_WHITEBOARD') ||
-                    'whiteboard',
-                dataChannel:
-                    this.configService.get<string>('NATS_SUBJECT_DATA_CHANNEL') ||
-                    'dataChannel',
+                systemApiWorker: subjects.systemApiWorker,
+                systemJsWorker: subjects.systemJsWorker,
+                systemPublic: subjects.systemPublic,
+                systemPrivate: subjects.systemPrivate,
+                chat: subjects.chat,
+                whiteboard: subjects.whiteboard,
+                dataChannel: subjects.dataChannel,
             };
 
             let enabledSelfInsertEncryptionKey = false;
@@ -240,9 +221,9 @@ export class UserRoomSettingController {
                 roomId: roomId,
                 userId: requestedUserId,
                 natsSubjects: create(NatsSubjectsSchema, natsSubjects),
-                roomStreamName: this.configService.get<string>('NATS_ROOM_STREAM_NAME') || 'wajlc-room-stream',
+                roomStreamName: this.appConfig.nats.streamName,
                 enabledSelfInsertEncryptionKey: enabledSelfInsertEncryptionKey,
-                isCloud: this.configService.get<boolean>('IS_CLOUD') || false,
+                isCloud: this.appConfig.server.isCloud,
             });
 
             // Keep parameter order consistent with sendProtobufResponse(res, schema, message)

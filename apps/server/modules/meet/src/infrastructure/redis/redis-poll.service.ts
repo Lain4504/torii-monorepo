@@ -1,5 +1,4 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { SubmitPollResponseReq, ClosePollReq, PollInfo } from '@workspace/protocol';
 import { REDIS_CLIENT } from '@server/shared';
@@ -16,7 +15,6 @@ export const POLL_COUNT_SUFFIX = '_count';
 export class RedisPollService {
     private readonly logger = new Logger(RedisPollService.name);
     constructor(
-        private readonly configService: ConfigService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ) { }
 

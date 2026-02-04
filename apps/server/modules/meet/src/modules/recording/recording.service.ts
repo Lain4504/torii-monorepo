@@ -1,5 +1,4 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsService } from '../../interfaces/nats/nats.service';
 import { RoomInfoService } from '../room/room-info.service';
@@ -24,12 +23,14 @@ import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.se
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { RoomUserService } from '../room/room-user.service';
 
+import { AppConfigService } from '@server/shared';
+
 @Injectable()
 export class RecordingService {
     private readonly logger = new Logger(RecordingService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly natsRoomService: NatsRoomService,
         private readonly natsService: NatsService,
         private readonly roomInfoService: RoomInfoService,
@@ -170,7 +171,7 @@ export class RecordingService {
 
         const payload = toBinary(WajlcToRecorderSchema, toSend);
         const nc = this.natsService.getNatsConnection();
-        const recorderChannel = this.configService.get<string>('NATS_RECORDER_CHANNEL') || 'wjlc.recorder';
+        const recorderChannel = this.appConfig.nats.recorder.channel;
 
         log.log(`Sending request to NATS recorder channel: ${recorderChannel}`);
         try {
