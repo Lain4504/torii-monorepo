@@ -71,15 +71,7 @@ export class TicketService implements ITicketService {
 
         const ticket = await this.ticketRepository.create({ ...dto, userId });
 
-        await this.createAuditLog({
-            userId,
-            action: 'ticket.create',
-            entity: 'ticket',
-            entityId: ticket.id,
-            description: `Created ticket: ${ticket.subject}`,
-            newValues: ticket,
-            metadata: { type: dto.type },
-        });
+
 
         return ticket;
     }
