@@ -154,8 +154,6 @@ export const postCommentApi = {
         const response = await apiClient.delete<{ success: boolean; message: string }>(`/api/comments/${id}`);
         return response.data;
     },
-<<<<<<< Updated upstream
-=======
 
     toggleLike: async (id: string): Promise<{ isLiked: boolean; likeCount: number }> => {
         const response = await apiClient.post<StandardApiResponse<{ isLiked: boolean; likeCount: number }>>(`/api/comments/${id}/like`);
@@ -164,5 +162,4 @@ export const postCommentApi = {
         }
         return response.data.data;
     },
->>>>>>> Stashed changes
 };
