@@ -18,6 +18,7 @@ import { LiveSessionController } from './controllers/live-session.controller';
 import { WishlistController } from './controllers/wishlist.controller';
 import { PostController } from './controllers/post.controller';
 import { CommentController } from './controllers/comment.controller';
+import { QAController } from './controllers/qa.controller';
 import { FlashcardDeckController } from './controllers/flashcard-deck.controller';
 import { FlashcardController } from './controllers/flashcard.controller';
 import { FlashcardReviewController } from './controllers/flashcard-review.controller';
@@ -47,6 +48,7 @@ import { CouponController } from './controllers/coupon.controller';
         WishlistController,
         PostController,
         CommentController,
+        QAController,
         FlashcardDeckController,
         FlashcardController,
         FlashcardReviewController,
@@ -54,7 +56,6 @@ import { CouponController } from './controllers/coupon.controller';
         LiveSessionController,
 
         CouponController,
-
     ],
 })
 export class LearningModule { }

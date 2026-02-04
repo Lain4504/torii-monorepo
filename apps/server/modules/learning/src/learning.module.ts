@@ -22,6 +22,7 @@ import { CouponModule } from './modules/coupon/coupon.module';
 // Community Modules
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { QAModule } from './modules/qa/qa.module';
 
 // Assessment Modules
 import { QuestionModule } from './modules/question/question.module';
@@ -50,6 +51,7 @@ import { ReviewHandler } from './interfaces/nats/review.handler';
 import { WishlistHandler } from './interfaces/nats/wishlist.handler';
 import { PostHandler } from './interfaces/nats/post.handler';
 import { CommentHandler } from './interfaces/nats/comment.handler';
+import { QAHandler } from './interfaces/nats/qa.handler';
 import { FlashcardDeckHandler } from './interfaces/nats/flashcard-deck.handler';
 import { FlashcardHandler } from './interfaces/nats/flashcard.handler';
 import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handler';
@@ -82,6 +84,7 @@ import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
     // Community Modules
     PostModule,
     CommentModule,
+    QAModule,
 
     // Assessment Modules
     QuestionModule,
@@ -111,6 +114,7 @@ import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
     WishlistHandler,
     PostHandler,
     CommentHandler,
+    QAHandler,
     FlashcardDeckHandler,
     FlashcardHandler,
     FlashcardReviewHandler,

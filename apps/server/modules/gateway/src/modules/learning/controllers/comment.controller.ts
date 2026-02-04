@@ -29,12 +29,15 @@ export class CommentController {
 
     @Public()
     @Get()
-    async findAllComments(@Query() query: any) {
+    async findAllComments(@Query() query: any, @Req() req: Request) {
         try {
+            const user = req.user as any;
+            const userId = user?.sub || user?.uid;
+
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.comment.findAll' },
-                    query
+                    { ...query, userId }
                 )
             );
             return successPaginatedResponse(result);
@@ -120,6 +123,22 @@ export class CommentController {
             return successResponse(null, 'Comment deleted successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to delete comment');
+        }
+    }
+
+    @Post(':id/like')
+    async toggleLike(@Param('id') id: string, @Req() req: Request) {
+        try {
+            const user = req.user as any;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.comment.toggleLike' },
+                    { id, userId: user?.sub || user?.uid }
+                )
+            );
+            return successResponse(result, 'Like toggled successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to toggle like');
         }
     }
 

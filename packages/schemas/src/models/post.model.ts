@@ -18,8 +18,6 @@ export const postSchema = z.object({
     publishedAt: z.coerce.date().optional(),
     viewCount: z.number().default(0),
     commentCount: z.number().default(0),
-    seoTitle: z.string().optional(),
-    seoDescription: z.string().optional(),
     tags: z.array(z.string()).default([]),
     createdAt: z.date(),
     updatedAt: z.date(),
