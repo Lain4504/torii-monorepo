@@ -9,7 +9,9 @@ import {
     UploadedFileMergeReq,
     UploadedFileResSchema,
     UploadBase64EncodedDataReq,
-    UploadBase64EncodedDataResSchema
+    UploadBase64EncodedDataResSchema,
+    ChatMessageSchema,
+    NatsMsgServerToClientEvents
 } from '@workspace/protocol';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import * as fs from 'fs';
@@ -44,7 +46,16 @@ export class FileService {
         private readonly natsRoomEvents: NatsRoomEventsService,
         private readonly natsSystemEvents: NatsSystemEventsService,
     ) {
-        this.uploadPath = this.configService.get<string>('UPLOAD_FILE_PATH') || './uploads';
+        const rawPath = this.configService.get<string>('UPLOAD_FILE_PATH');
+        const defaultPath = './uploads';
+        this.uploadPath = rawPath
+            ? (path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath))
+            : path.resolve(process.cwd(), defaultPath);
+
+        this.logger.log(`UPLOAD_FILE_PATH from env: ${rawPath}`);
+        this.logger.log(`Resolved uploadPath: ${this.uploadPath}`);
+        this.logger.log(`Current process.cwd(): ${process.cwd()}`);
+
         if (!fs.existsSync(this.uploadPath)) {
             fs.mkdirSync(this.uploadPath, { recursive: true });
         }
@@ -138,7 +149,8 @@ export class FileService {
 
         fs.writeFileSync(finalPath, buffer);
 
-        const fileId = uuidv4();
+        // at present format ${file.id}.png
+        const fileId = safeFilename.replace(/\.[^/.]+$/, "");
         const relativePath = path.join(roomSid, safeFilename);
         const mimeType = this.getMimeType(safeFilename);
 
@@ -151,7 +163,15 @@ export class FileService {
         });
         await this.natsRoom.addRoomFile(roomId, meta);
 
-        // Removed publishChatMsgForFile
+        if (req.fileType === RoomUploadedFileType.CHAT_FILE) {
+            await this.publishChatMsgForFile(
+                roomId,
+                req.requestedUserId || 'system',
+                req.requestedUserName || 'System',
+                relativePath,
+                safeFilename,
+            );
+        }
 
         return create(UploadBase64EncodedDataResSchema, {
             status: true,
@@ -171,8 +191,11 @@ export class FileService {
         const tempFolder = path.join(this.uploadPath, req.roomSid, 'tmp');
         const chunkDir = path.join(tempFolder, req.resumableIdentifier);
 
+        this.logger.debug(`Merging files: sid=${req.roomSid}, ident=${req.resumableIdentifier}, chunkDir=${chunkDir}`);
+
         if (!fs.existsSync(chunkDir)) {
-            throw new Error(`Chunks not found for identifier ${req.resumableIdentifier}`);
+            this.logger.error(`Chunks not found in path: ${chunkDir}`);
+            throw new Error(`Chunks not found for identifier ${req.resumableIdentifier} at path ${chunkDir}`);
         }
 
         const uploadDir = path.join(this.uploadPath, req.roomSid);
@@ -181,20 +204,22 @@ export class FileService {
         }
 
         const finalPath = path.join(uploadDir, safeFilename);
-        const writeStream = fs.createWriteStream(finalPath);
 
-        for (let i = 1; i <= req.resumableTotalChunks; i++) {
-            const chunkPath = path.join(chunkDir, `part${i}`);
-            if (!fs.existsSync(chunkPath)) {
-                throw new Error(`Chunk ${i} missing`);
+        // Combining chunks into one file
+        const destFile = fs.openSync(finalPath, 'w');
+
+        try {
+            for (let i = 1; i <= req.resumableTotalChunks; i++) {
+                const chunkPath = path.join(chunkDir, `part${i}`);
+                if (!fs.existsSync(chunkPath)) {
+                    throw new Error(`Chunk ${i} missing`);
+                }
+                const chunkData = fs.readFileSync(chunkPath);
+                fs.writeSync(destFile, chunkData);
             }
-            const data = fs.readFileSync(chunkPath);
-            writeStream.write(data);
+        } finally {
+            fs.closeSync(destFile);
         }
-        writeStream.end();
-
-        // Wait for write stream to finish
-        await new Promise((resolve) => writeStream.on('finish', () => resolve(true)));
 
         // Delete chunks
         this.deleteFolderRecursive(chunkDir);
@@ -230,9 +255,15 @@ export class FileService {
             fileExtension: path.extname(safeFilename).replace('.', ''),
         });
 
-        // Removed publishChatMsgForFile
-
-
+        if (req.fileType === RoomUploadedFileType.CHAT_FILE) {
+            await this.publishChatMsgForFile(
+                req.roomId,
+                req.requestedUserId || 'system',
+                req.requestedUserName || 'System',
+                relativePath,
+                safeFilename,
+            );
+        }
 
         return response;
     }
@@ -437,6 +468,32 @@ export class FileService {
             await this.natsRoom.updateAndBroadcastRoomMetadata(roomId, metadata);
         } catch (error) {
             this.logger.error(`Failed to update room metadata with office file: ${error.message}`);
+        }
+    }
+
+    private async publishChatMsgForFile(roomId: string, userId: string, userName: string, filePath: string, fileName: string): Promise<void> {
+        const apiUrl = this.configService.get<string>('API_URL') || '';
+
+        const message = `<a class="attachment-message flex items-center gap-3 break-all" href="${apiUrl}/download/uploadedFile/${filePath}" target="_blank" rel="noreferrer">
+    <span class="h-10 w-10 rounded-xl bg-muted flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <path d="M3 12.1817C2.09551 11.5762 1.5 10.5452 1.5 9.375C1.5 7.61732 2.84363 6.17347 4.55981 6.01453C4.91086 3.8791 6.76518 2.25 9 2.25C11.2348 2.25 13.0891 3.8791 13.4402 6.01453C15.1564 6.17347 16.5 7.61732 16.5 9.375C16.5 10.5452 15.9045 11.5762 15 12.1817M6 12.75L9 15.75M9 15.75L12 12.75M9 15.75V9" stroke="#0C131A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg></span><span class="flex-1">${fileName}</span></a>`;
+
+        const chatMsg = create(ChatMessageSchema, {
+            id: uuidv4(),
+            fromName: userName,
+            fromUserId: userId,
+            sentAt: Date.now().toString(),
+            isPrivate: false,
+            message: message,
+            fromAdmin: false,
+        });
+
+        try {
+            await this.natsSystemEvents.broadcastChatEntry(roomId, chatMsg);
+            this.logger.debug(`Broadcasted chat message for file: ${fileName} in room: ${roomId}`);
+        } catch (error) {
+            this.logger.error(`Failed to broadcast chat message for file: ${error.message}`);
         }
     }
 
