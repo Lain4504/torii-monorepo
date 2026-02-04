@@ -373,7 +373,7 @@ model User {
   giftEnrollments         Enrollment[]             @relation("GiftEnrollments")
 
   // Gamification Relations
-  streak          UserStreak?
+  gamification    UserGamification?
   dailyActivities DailyActivity[]
   achievements    UserAchievement[]
 
@@ -1199,25 +1199,30 @@ enum AchievementCategory {
   MASTERY
 }
 
-// User Streak Tracking
-model UserStreak {
+// Thay thế cho UserStreak cũ - Quản lý toàn bộ hồ sơ Gamification của User
+model UserGamification {
   id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId String @unique @map("user_id") @db.Uuid
 
-  // Streak data
-  currentStreak Int @default(0) @map("current_streak")
-  longestStreak Int @default(0) @map("longest_streak")
+  // --- XP & Level System ---
+  level     Int @default(1)
+  currentXp Int @default(0) @map("current_xp") // XP hiện tại ở level này
+  totalXp   Int @default(0) @map("total_xp") // Tổng XP tích lũy (dùng để đua Top)
 
-  // Date tracking (YYYY-MM-DD format for timezone safety)
-  lastActiveDate String? @map("last_active_date") @db.VarChar(10)
+  // --- Currency (Economy - Chuẩn bị sẵn cho tương lai) ---
+  coins Int @default(0) // Đơn vị tiền tệ chính (kiếm được qua học tập)
+  gems  Int @default(0) // Đơn vị cao cấp (nếu có)
 
-  // Streak protection
-  freezeCount Int @default(0) @map("freeze_count")
+  // --- Streak System (Gộp từ UserStreak cũ vào đây) ---
+  currentStreak  Int     @default(0) @map("current_streak")
+  longestStreak  Int     @default(0) @map("longest_streak")
+  lastActiveDate String? @map("last_active_date") @db.VarChar(10) // YYYY-MM-DD
+  freezeCount    Int     @default(0) @map("freeze_count") // Số 'bùa' bảo vệ streak
 
-  // Metadata
+  // --- Stats Aggregate (Lưu sẵn để đỡ phải count từ bảng khác) ---
   totalActiveDays    Int @default(0) @map("total_active_days")
-  weeklyActiveCount  Int @default(0) @map("weekly_active_count") // Active days this week
-  monthlyActiveCount Int @default(0) @map("monthly_active_count") // Active days this month
+  weeklyActiveCount  Int @default(0) @map("weekly_active_count")
+  monthlyActiveCount Int @default(0) @map("monthly_active_count")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
@@ -1225,9 +1230,10 @@ model UserStreak {
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Index tối ưu
+  @@index([totalXp(sort: Desc)]) // Index quan trọng nhất để lấy Leaderboard (Bảng xếp hạng)
   @@index([userId])
-  @@index([lastActiveDate])
-  @@map("user_streaks")
+  @@map("user_gamification")
 }
 
 // Daily Activity Log (for audit + analytics)

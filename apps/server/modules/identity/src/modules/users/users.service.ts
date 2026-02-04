@@ -216,6 +216,8 @@ export class UsersService implements IUsersService {
             email: user.email,
             displayName: user.displayName,
             role: user.role as UserRole,
+            xp: user.xp,
+            level: user.level,
             verifiedAt: user.verifiedAt,
             bannedUntil: null,
             lastSignInAt: null,

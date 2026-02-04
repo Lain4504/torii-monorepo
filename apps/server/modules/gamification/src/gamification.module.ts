@@ -11,6 +11,7 @@ import { ActivityHandler } from './interfaces/nats/activity.handler';
 import { StreakService } from './services/streak.service';
 import { AchievementService } from './services/achievement.service';
 import { ActivityService } from './services/activity.service';
+import { LeaderboardService } from './services/leaderboard.service';
 
 // Jobs
 import { StreakCheckJob } from './jobs/streak-check.job';
@@ -33,6 +34,7 @@ import { StreakCheckJob } from './jobs/streak-check.job';
         StreakService,
         AchievementService,
         ActivityService,
+        LeaderboardService,
         StreakCheckJob,
     ],
 })

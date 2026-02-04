@@ -1,7 +1,11 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService, REDIS_CLIENT } from '@server/shared';
 import Redis from 'ioredis';
-import { StreakStatusDto } from '@workspace/schemas';
+import {
+    StreakStatusDto,
+    RecordActivityDto,
+    UserGamificationDto,
+} from '@workspace/schemas';
 import { ActivityService } from './activity.service';
 
 @Injectable()
@@ -19,22 +23,55 @@ export class StreakService {
     /**
      * Get user's current streak status
      */
+    /**
+     * Get user's full gamification profile
+     */
+    async getGamificationProfile(userId: string): Promise<UserGamificationDto> {
+        let gamification = await this.prisma.userGamification.findUnique({
+            where: { userId },
+        });
+
+        if (!gamification) {
+            gamification = await this.prisma.userGamification.create({
+                data: { userId },
+            });
+        }
+
+        return {
+            id: gamification.id,
+            userId: gamification.userId,
+            level: gamification.level,
+            currentXp: gamification.currentXp,
+            totalXp: gamification.totalXp,
+            coins: gamification.coins,
+            gems: gamification.gems,
+            currentStreak: gamification.currentStreak,
+            longestStreak: gamification.longestStreak,
+            lastActiveDate: gamification.lastActiveDate,
+            freezeCount: gamification.freezeCount,
+            totalActiveDays: gamification.totalActiveDays,
+            weeklyActiveCount: gamification.weeklyActiveCount,
+            monthlyActiveCount: gamification.monthlyActiveCount,
+            updatedAt: gamification.updatedAt.toISOString(),
+        };
+    }
+
     async getStreakStatus(userId: string): Promise<StreakStatusDto> {
-        let streak = await this.prisma.userStreak.findUnique({
+        let gamification = await this.prisma.userGamification.findUnique({
             where: { userId },
         });
 
         // Initialize if not exists
-        if (!streak) {
-            streak = await this.prisma.userStreak.create({
+        if (!gamification) {
+            gamification = await this.prisma.userGamification.create({
                 data: { userId },
             });
         }
 
         const today = this.getToday();
-        const isActiveToday = streak.lastActiveDate === today;
+        const isActiveToday = gamification.lastActiveDate === today;
         const yesterday = this.getYesterday();
-        const willBreakTomorrow = !isActiveToday && streak.lastActiveDate !== yesterday;
+        const willBreakTomorrow = !isActiveToday && gamification.lastActiveDate !== yesterday;
 
         // Logic: Show toast if active today BUT haven't shown toast today yet
         // Check Redis for the toast flag
@@ -46,15 +83,15 @@ export class StreakService {
         const recentActiveDates = await this.activityService.getWeeklyActiveDates(userId, 7);
 
         return {
-            currentStreak: streak.currentStreak,
-            longestStreak: streak.longestStreak,
-            freezeCount: streak.freezeCount,
+            currentStreak: gamification.currentStreak,
+            longestStreak: gamification.longestStreak,
+            freezeCount: gamification.freezeCount,
             isActiveToday,
             willBreakTomorrow,
-            lastActiveDate: streak.lastActiveDate,
-            totalActiveDays: streak.totalActiveDays,
-            weeklyActiveCount: streak.weeklyActiveCount,
-            monthlyActiveCount: streak.monthlyActiveCount,
+            lastActiveDate: gamification.lastActiveDate,
+            totalActiveDays: gamification.totalActiveDays,
+            weeklyActiveCount: gamification.weeklyActiveCount,
+            monthlyActiveCount: gamification.monthlyActiveCount,
             recentActiveDates,
             shouldShowToast,
         };
@@ -66,17 +103,17 @@ export class StreakService {
     async markStreakToastShown(userId: string): Promise<void> {
         const today = this.getToday();
         const redisKey = `streak_toast:${userId}:${today}`;
-        
+
         // Calculate seconds until end of day (UTC midnight)
         const now = new Date();
         const endOfDay = new Date(now);
         endOfDay.setUTCHours(23, 59, 59, 999);
-        
+
         const secondsUntilEndDay = Math.max(1, Math.floor((endOfDay.getTime() - now.getTime()) / 1000));
-        
+
         // Set flag in Redis with TTL until end of day (UTC)
         await this.redis.set(redisKey, '1', 'EX', secondsUntilEndDay);
-        
+
         this.logger.log(`Marked streak toast as shown for user ${userId} on ${today} (UTC TTL: ${secondsUntilEndDay}s)`);
     }
 
@@ -93,47 +130,47 @@ export class StreakService {
         const today = this.getToday();
         const yesterday = this.getYesterday();
 
-        let streak = await this.prisma.userStreak.findUnique({
+        let gamification = await this.prisma.userGamification.findUnique({
             where: { userId },
         });
 
         // Initialize if not exists
-        if (!streak) {
-            streak = await this.prisma.userStreak.create({
+        if (!gamification) {
+            gamification = await this.prisma.userGamification.create({
                 data: { userId },
             });
         }
 
         // Already active today - no streak change
-        if (streak.lastActiveDate === today) {
+        if (gamification.lastActiveDate === today) {
             return {
                 streakUpdated: false,
-                oldStreak: streak.currentStreak,
-                newStreak: streak.currentStreak,
+                oldStreak: gamification.currentStreak,
+                newStreak: gamification.currentStreak,
                 isMilestone: false,
             };
         }
 
-        const oldStreak = streak.currentStreak;
-        let newStreak = streak.currentStreak;
-        let freezeCount = streak.freezeCount;
+        const oldStreak = gamification.currentStreak;
+        let newStreak = gamification.currentStreak;
+        let freezeCount = gamification.freezeCount;
 
         // Calculate streak
-        if (!streak.lastActiveDate) {
+        if (!gamification.lastActiveDate) {
             // First-time activity (no previous lastActiveDate) - start streak at 1
             newStreak = 1;
-        } else if (streak.lastActiveDate === yesterday) {
+        } else if (gamification.lastActiveDate === yesterday) {
             // Continue streak from yesterday
-            newStreak = streak.currentStreak + 1;
+            newStreak = gamification.currentStreak + 1;
         } else {
             // Missed day(s) - check freeze
-            const daysMissed = this.getDaysDifference(streak.lastActiveDate, today);
+            const daysMissed = this.getDaysDifference(gamification.lastActiveDate, today);
 
             if (daysMissed === 2 && freezeCount > 0) {
                 // Use freeze for 2-day gap (missed yesterday)
                 freezeCount -= 1;
                 // Streak continues: increment to account for today's activity
-                newStreak = streak.currentStreak + 1;
+                newStreak = gamification.currentStreak + 1;
                 this.logger.log(`User ${userId} used a freeze. Remaining: ${freezeCount}`);
             } else {
                 // Reset streak
@@ -143,14 +180,14 @@ export class StreakService {
         }
 
         // Update longest streak
-        const longestStreak = Math.max(streak.longestStreak, newStreak);
+        const longestStreak = Math.max(gamification.longestStreak, newStreak);
 
         // Check if milestone (3, 7, 14, 30, 100, etc.)
         const milestones = [3, 7, 14, 30, 50, 100, 365];
         const isMilestone = milestones.includes(newStreak);
 
         // Update database
-        await this.prisma.userStreak.update({
+        await this.prisma.userGamification.update({
             where: { userId },
             data: {
                 currentStreak: newStreak,
@@ -158,10 +195,10 @@ export class StreakService {
                 lastActiveDate: today,
                 freezeCount,
                 totalActiveDays: { increment: 1 },
-                weeklyActiveCount: streak.lastActiveDate && this.isThisWeek(streak.lastActiveDate)
+                weeklyActiveCount: gamification.lastActiveDate && this.isThisWeek(gamification.lastActiveDate)
                     ? { increment: 1 }
                     : 1,
-                monthlyActiveCount: streak.lastActiveDate && this.isThisMonth(streak.lastActiveDate)
+                monthlyActiveCount: gamification.lastActiveDate && this.isThisMonth(gamification.lastActiveDate)
                     ? { increment: 1 }
                     : 1,
             },
@@ -179,7 +216,7 @@ export class StreakService {
      * Grant freeze count to user (from achievement reward or purchase)
      */
     async grantFreeze(userId: string, amount: number): Promise<void> {
-        await this.prisma.userStreak.upsert({
+        await this.prisma.userGamification.upsert({
             where: { userId },
             update: {
                 freezeCount: { increment: amount },
@@ -201,7 +238,7 @@ export class StreakService {
         const twoDaysAgo = this.getDaysAgo(2);
 
         // Find users who missed yesterday (and didn't miss day before that)
-        const usersAtRisk = await this.prisma.userStreak.findMany({
+        const usersAtRisk = await this.prisma.userGamification.findMany({
             where: {
                 lastActiveDate: {
                     lt: yesterday,
@@ -213,25 +250,25 @@ export class StreakService {
             },
         });
 
-        for (const streak of usersAtRisk) {
-            if (streak.freezeCount > 0) {
+        for (const gamification of usersAtRisk) {
+            if (gamification.freezeCount > 0) {
                 // Use freeze
-                await this.prisma.userStreak.update({
-                    where: { id: streak.id },
+                await this.prisma.userGamification.update({
+                    where: { id: gamification.id },
                     data: {
                         freezeCount: { decrement: 1 },
                     },
                 });
-                this.logger.log(`Auto-used freeze for user ${streak.userId}`);
+                this.logger.log(`Auto-used freeze for user ${gamification.userId}`);
             } else {
                 // Reset streak
-                await this.prisma.userStreak.update({
-                    where: { id: streak.id },
+                await this.prisma.userGamification.update({
+                    where: { id: gamification.id },
                     data: {
                         currentStreak: 0,
                     },
                 });
-                this.logger.log(`Reset streak for user ${streak.userId}`);
+                this.logger.log(`Reset streak for user ${gamification.userId}`);
             }
         }
     }

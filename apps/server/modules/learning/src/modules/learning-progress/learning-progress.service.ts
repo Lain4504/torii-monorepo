@@ -210,6 +210,7 @@ export class LearningProgressService implements ILearningProgressService {
                         lessonId,
                         courseId,
                         completionPercentage: percentage,
+                        courseCompleted: percentage >= 100,
                     },
                     timestamp: new Date().toISOString(),
                 };
