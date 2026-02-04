@@ -5,10 +5,13 @@ import {
     GrantFreezeDto,
     StreakStatusDto,
     UserAchievementDto,
+    LeaderboardDto,
+    UserGamificationDto,
 } from '@workspace/schemas';
 import { StreakService } from '../../services/streak.service';
 import { AchievementService } from '../../services/achievement.service';
 import { ActivityService } from '../../services/activity.service';
+import { LeaderboardService } from '../../services/leaderboard.service';
 
 @Controller()
 export class GamificationHandler {
@@ -18,7 +21,29 @@ export class GamificationHandler {
         private readonly streakService: StreakService,
         private readonly achievementService: AchievementService,
         private readonly activityService: ActivityService,
+        private readonly leaderboardService: LeaderboardService,
     ) { }
+
+    /**
+     * Get leaderboard
+     */
+    @MessagePattern('gamification.getLeaderboard')
+    async getLeaderboard(@Payload() data: { userId: string, type: 'global' | 'streak' }): Promise<LeaderboardDto> {
+        this.logger.log(`Getting ${data.type} leaderboard for user: ${data.userId}`);
+        if (data.type === 'streak') {
+            return this.leaderboardService.getStreakLeaderboard(data.userId);
+        }
+        return this.leaderboardService.getGlobalLeaderboard(data.userId);
+    }
+
+    /**
+     * Get user's full gamification profile
+     */
+    @MessagePattern('gamification.getProfile')
+    async getProfile(@Payload() data: { userId: string }): Promise<UserGamificationDto> {
+        this.logger.log(`Getting gamification profile for user: ${data.userId}`);
+        return this.streakService.getGamificationProfile(data.userId);
+    }
 
     /**
      * Get user's streak status

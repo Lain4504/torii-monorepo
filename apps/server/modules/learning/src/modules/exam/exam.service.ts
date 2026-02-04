@@ -19,6 +19,7 @@ import {
     type PaginatedResponseDTO,
     UserRole,
     type Requester,
+    UserActivityEvent,
 } from '@workspace/schemas';
 import type { IExamRepository } from '../../interfaces/repositories/i-exam.repository';
 import { EXAM_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-exam.repository';
@@ -465,22 +466,25 @@ export class ExamService implements IExamService {
                 `Attempt ${sessionId} graded: ${gradingResult.score}/${gradingResult.maxScore} (${percentage.toFixed(2)}%)`
             );
 
-            // Emit activity event for gamification achievements
+            // Emit activity event for XP gain
             try {
-                this.natsClient.emit('user.activity', {
+                const activityEvent: UserActivityEvent = {
                     userId,
-                    activityType: 'QUIZ_ANSWER',
+                    activityType: 'EXAM_COMPLETE',
                     meta: {
-                        sessionId,
-                        quizId: attempt.quizId,
-                        score: percentage,
-                        jlptLevel: quiz?.jlptLevel,
-                        quizType: quiz?.quizType, // e.g., 'jlpt_mock', 'practice'
+                        examId: attempt.quizId,
+                        sessionId: sessionId,
+                        score: gradingResult.score,
+                        maxScore: gradingResult.maxScore,
+                        percentage: percentage,
+                        isPassed: isPassed,
                     },
                     timestamp: new Date().toISOString(),
-                });
-            } catch (error) {
-                this.logger.error(`Failed to emit QUIZ_ANSWER event: ${error.message}`);
+                };
+                this.natsClient.emit('user.activity', activityEvent);
+                this.logger.log(`Emitted EXAM_COMPLETE event for user ${userId}`);
+            } catch (e) {
+                this.logger.error('Failed to emit exam activity event', e);
             }
 
             return this.toExamSessionDto(updated);

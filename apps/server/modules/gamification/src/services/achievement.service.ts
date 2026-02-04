@@ -396,7 +396,7 @@ export class AchievementService {
     ): Promise<void> {
         // Grant freeze count
         if (rewards.freezeCount && typeof rewards.freezeCount === 'number') {
-            await this.prisma.userStreak.upsert({
+            await this.prisma.userGamification.upsert({
                 where: { userId },
                 update: {
                     freezeCount: { increment: rewards.freezeCount },
@@ -404,6 +404,8 @@ export class AchievementService {
                 create: {
                     userId,
                     freezeCount: rewards.freezeCount,
+                    totalXp: 0,
+                    level: 1,
                 },
             });
         }

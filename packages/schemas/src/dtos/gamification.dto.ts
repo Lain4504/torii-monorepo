@@ -66,6 +66,26 @@ export const StreakStatusDtoSchema = z.object({
 
 export type StreakStatusDto = z.infer<typeof StreakStatusDtoSchema>;
 
+export const UserGamificationDtoSchema = z.object({
+    id: z.string().uuid(),
+    userId: z.string().uuid(),
+    level: z.number().int(),
+    currentXp: z.number().int(),
+    totalXp: z.number().int(),
+    coins: z.number().int(),
+    gems: z.number().int(),
+    currentStreak: z.number().int(),
+    longestStreak: z.number().int(),
+    lastActiveDate: z.string().nullable(),
+    freezeCount: z.number().int(),
+    totalActiveDays: z.number().int(),
+    weeklyActiveCount: z.number().int(),
+    monthlyActiveCount: z.number().int(),
+    updatedAt: z.string().datetime(),
+});
+
+export type UserGamificationDto = z.infer<typeof UserGamificationDtoSchema>;
+
 export const AchievementDtoSchema = z.object({
     id: z.string().uuid(),
     code: z.string(),
@@ -91,6 +111,27 @@ export const UserAchievementDtoSchema = z.object({
 });
 
 export type UserAchievementDto = z.infer<typeof UserAchievementDtoSchema>;
+
+export const LeaderboardUserDtoSchema = z.object({
+    id: z.string().uuid(),
+    displayName: z.string(),
+    avatarUrl: z.string().nullable(),
+    xp: z.number().int(), // Map to totalXp
+    level: z.number().int(),
+    rank: z.number().int(),
+    currentStreak: z.number().int().optional(),
+});
+
+export type LeaderboardUserDto = z.infer<typeof LeaderboardUserDtoSchema>;
+
+export const LeaderboardDtoSchema = z.object({
+    users: z.array(LeaderboardUserDtoSchema),
+    currentUser: LeaderboardUserDtoSchema.optional(),
+    totalUsers: z.number().int(),
+    type: z.enum(['global', 'streak']),
+});
+
+export type LeaderboardDto = z.infer<typeof LeaderboardDtoSchema>;
 
 // ========================================
 // Event Payloads (for NATS)

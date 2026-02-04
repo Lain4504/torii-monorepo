@@ -14,7 +14,7 @@ import { FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '../../interfaces/service
 import { FlashcardDeckModule } from '../flashcard-deck/flashcard-deck.module';
 
 @Module({
-    imports: [SharedModule, NatsClientModule, FlashcardDeckModule],
+    imports: [SharedModule, FlashcardDeckModule, NatsClientModule],
     controllers: [],
     providers: [
         {

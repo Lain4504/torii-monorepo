@@ -11,6 +11,7 @@ import {
   UserProgressResponseDTO,
   ReviewQuality,
   FlashcardState,
+  UserActivityEvent,
 } from '@workspace/schemas';
 import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-review.repository';
 import { IFlashcardRepository, FLASHCARD_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard.repository';
@@ -160,19 +161,22 @@ export class FlashcardReviewService implements IFlashcardReviewService {
         timesStudied: { increment: 1 },
       });
 
-      // Emit activity event for gamification
+      // Emit activity event for XP gain
       try {
-        this.natsClient.emit('user.activity', {
+        const activityEvent: UserActivityEvent = {
           userId,
           activityType: 'FLASHCARD_REVIEW',
           meta: {
             flashcardId,
+            deckId: flashcard.deckId,
             quality,
           },
           timestamp: new Date().toISOString(),
-        });
-      } catch (error) {
-        this.logger.error(`Failed to emit FLASHCARD_REVIEW event: ${error.message}`);
+        };
+        this.natsClient.emit('user.activity', activityEvent);
+        this.logger.log(`Emitted FLASHCARD_REVIEW event for user ${userId}`);
+      } catch (e) {
+        this.logger.error('Failed to emit flashcard activity event', e);
       }
 
       return {
@@ -282,10 +286,6 @@ export class FlashcardReviewService implements IFlashcardReviewService {
           },
         },
       });
-
-      // Note: nextReviewDate sort is not handled by findManyProgress helper automatically yet
-      // but the prisma implementation I wrote for findManyProgress does pass include and take.
-      // I'll leave as is for now or maybe I should improve the repo helper.
 
       return userProgressList.map((up: any) => ({
         flashcard: {
