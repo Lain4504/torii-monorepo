@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update config#2" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: streamline workspace.xml configuration" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -146,7 +146,7 @@
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/projectdev/demo/team-source/torii-monorepo",
+    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -361,14 +361,6 @@
       <workItem from="1770094105872" duration="1065000" />
       <workItem from="1770110196183" duration="544000" />
       <workItem from="1770111303810" duration="1716000" />
-    </task>
-    <task id="LOCAL-00772" summary="update nats logic">
-      <option name="closed" value="true" />
-      <created>1769994570262</created>
-      <option name="number" value="00772" />
-      <option name="presentableId" value="LOCAL-00772" />
-      <option name="project" value="LOCAL" />
-      <updated>1769994570262</updated>
     </task>
     <task id="LOCAL-00773" summary="update nats logic">
       <option name="closed" value="true" />
@@ -754,7 +746,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770051913292</updated>
     </task>
-    <option name="localTasksCounter" value="821" />
+    <task id="LOCAL-00821" summary="refactor: streamline workspace.xml configuration">
+      <option name="closed" value="true" />
+      <created>1770170557205</created>
+      <option name="number" value="00821" />
+      <option name="presentableId" value="LOCAL-00821" />
+      <option name="project" value="LOCAL" />
+      <updated>1770170557205</updated>
+    </task>
+    <option name="localTasksCounter" value="822" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -789,7 +789,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactoring: communication services" />
     <MESSAGE value="fix format key url r2 storage" />
     <MESSAGE value="feat: create gamification service (#78)" />
     <MESSAGE value="public api" />
@@ -814,7 +813,8 @@
     <MESSAGE value="update config" />
     <MESSAGE value="update config#2" />
     <MESSAGE value="refactor: simplify comments in file handling logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: simplify comments in file handling logic" />
+    <MESSAGE value="refactor: streamline workspace.xml configuration" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: streamline workspace.xml configuration" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
