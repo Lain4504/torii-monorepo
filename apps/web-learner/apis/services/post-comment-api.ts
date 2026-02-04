@@ -38,8 +38,22 @@ export const postCommentApi = {
      */
     findAll: async (params: CommentQueryDTO): Promise<CommentPaginatedResponse> => {
         try {
+            // Transform frontend params (postId/qaId) to backend format (entityId/targetType)
+            const backendParams: any = { ...params };
+
+            // Remove postId/qaId and replace with entityId/targetType
+            if ((params as any).postId) {
+                backendParams.entityId = (params as any).postId;
+                backendParams.targetType = 'BLOG';
+                delete backendParams.postId;
+            } else if ((params as any).qaId) {
+                backendParams.entityId = (params as any).qaId;
+                backendParams.targetType = 'QA';
+                delete backendParams.qaId;
+            }
+
             const response = await apiClient.get<PaginatedApiResponse<CommentResponseDTO>>('/api/comments', {
-                params,
+                params: backendParams,
             });
 
             // Backend returns: { success: true, data: [...], total, page, limit, totalPages }
@@ -94,7 +108,20 @@ export const postCommentApi = {
      * Create a new comment
      */
     create: async (dto: CommentCreateDTO): Promise<CommentResponseDTO> => {
-        const response = await apiClient.post<StandardApiResponse<CommentResponseDTO>>('/api/comments', dto);
+        // Transform frontend DTO (postId/qaId) to backend format (entityId/targetType)
+        const backendDto: any = { ...dto };
+
+        if ((dto as any).postId) {
+            backendDto.entityId = (dto as any).postId;
+            backendDto.targetType = 'BLOG';
+            delete backendDto.postId;
+        } else if ((dto as any).qaId) {
+            backendDto.entityId = (dto as any).qaId;
+            backendDto.targetType = 'QA';
+            delete backendDto.qaId;
+        }
+
+        const response = await apiClient.post<StandardApiResponse<CommentResponseDTO>>('/api/comments', backendDto);
 
         // Backend returns: { success: true, data: {...}, message?: string }
         const responseData = response.data;
@@ -127,9 +154,15 @@ export const postCommentApi = {
         const response = await apiClient.delete<{ success: boolean; message: string }>(`/api/comments/${id}`);
         return response.data;
     },
+<<<<<<< Updated upstream
+=======
 
     toggleLike: async (id: string): Promise<{ isLiked: boolean; likeCount: number }> => {
         const response = await apiClient.post<StandardApiResponse<{ isLiked: boolean; likeCount: number }>>(`/api/comments/${id}/like`);
+        if (!response.data.data) {
+            throw new Error('Invalid response format from server');
+        }
         return response.data.data;
     },
+>>>>>>> Stashed changes
 };

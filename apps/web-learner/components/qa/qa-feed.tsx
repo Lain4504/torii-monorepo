@@ -182,11 +182,24 @@ export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'AL
                                 onComment={handleCommentClick}
                                 onDelete={() => handlePostDelete(post.id)}
                                 onTagClick={handleTagClick}
+                                onPostUpdated={(updatedPost) => {
+                                    setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p))
+                                }}
                             />
                             {expandedPostId === post.id && (
                                 <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-300">
                                     <div className="border border-border/40 border-t-0 rounded-b-xl bg-background/50 p-4 -mt-2 pt-6 relative z-0 shadow-inner">
-                                        <CommentSection qaId={post.id} />
+                                        <CommentSection
+                                            qaId={post.id}
+                                            onCommentCountChange={(delta) => {
+                                                // Update comment count in real-time
+                                                setPosts(prev => prev.map(p =>
+                                                    p.id === post.id
+                                                        ? { ...p, comments: (p.comments || 0) + delta }
+                                                        : p
+                                                ))
+                                            }}
+                                        />
                                     </div>
                                 </div>
                             )}

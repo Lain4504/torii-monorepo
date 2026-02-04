@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
-import { Heart, MessageCircle, Share2, MoreVertical, Trash2, Flag, UserPlus, UserCheck } from 'lucide-react'
+import { Heart, MessageCircle, Share2, MoreVertical, Trash2, Flag, UserPlus, UserCheck, Edit2 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@workspace/ui/components/avatar'
 import { Badge } from '@workspace/ui/components/badge'
@@ -28,6 +28,7 @@ import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { qaApi } from '@/apis/services/qa-api'
 import { toast } from '@workspace/ui/components/sonner'
+import { QAEditPostDialog } from './qa-edit-post-dialog'
 
 interface QAPostCardProps {
     post: QAResponseDTO
@@ -36,12 +37,13 @@ interface QAPostCardProps {
     onDelete?: () => void
     onTagClick?: (tag: string) => void
     onFollow?: (authorId: string) => void
-
+    onPostUpdated?: (updatedPost: QAResponseDTO) => void
 }
 
-export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow }: QAPostCardProps) {
+export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onPostUpdated }: QAPostCardProps) {
     const { user } = useAppSelector(state => state.auth)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+    const [showEditDialog, setShowEditDialog] = useState(false)
     const [deleting, setDeleting] = useState(false)
 
     // Convert both IDs to strings for reliable comparison
@@ -99,13 +101,22 @@ export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFo
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             {isOwnPost ? (
-                                <DropdownMenuItem
-                                    className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
-                                    onClick={() => setShowDeleteDialog(true)}
-                                >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Xóa bài viết
-                                </DropdownMenuItem>
+                                <>
+                                    <DropdownMenuItem
+                                        className="cursor-pointer"
+                                        onClick={() => setShowEditDialog(true)}
+                                    >
+                                        <Edit2 className="w-4 h-4 mr-2" />
+                                        Chỉnh sửa
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                                        onClick={() => setShowDeleteDialog(true)}
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Xóa bài viết
+                                    </DropdownMenuItem>
+                                </>
                             ) : (
                                 <DropdownMenuItem
                                     className="cursor-pointer"
@@ -206,6 +217,14 @@ export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFo
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Edit Dialog */}
+            <QAEditPostDialog
+                open={showEditDialog}
+                onOpenChange={setShowEditDialog}
+                post={post}
+                onPostUpdated={onPostUpdated}
+            />
         </>
     )
 }
