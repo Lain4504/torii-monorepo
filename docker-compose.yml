@@ -59,13 +59,13 @@ services:
       - '7880:7880'
       - '7881:7881'
       - '7882:7882/udp'
-#      - '5349:5349' # TURN TLS
-#      - '443:443/udp' # TURN UDP (Fix for 4G)
-#      - '50000-50100:50000-50100/udp' # Media range (100 ports)
+      - '5349:5349' # TURN TLS
+      - '443:443/udp' # TURN UDP (Fix for 4G)
+      - '50000-50100:50000-50100/udp' # Media range (100 ports)
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
-#      - ./certs:/certs:ro
+      - ./certs:/certs:ro
     depends_on:
       - redis
 
@@ -96,18 +96,16 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - IDENTITY_SERVICE_URL=http://identity:8081
-      - LEARNING_SERVICE_URL=http://learning:8082
-      - AGENTS_SERVICE_URL=http://agents:8090
-      - MEET_SERVICE_URL=http://meet:8091
-      - BILLING_SERVICE_URL=http://billing:8084
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     ports:
-      - "${GATEWAY_PORT:-8080}:8080"
+      - "8080:8080"
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -125,11 +123,14 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -142,11 +143,14 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -159,11 +163,16 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
+      - ./storage/trash:/app/trash # Mount trash for janitor
+      - ./recording_files/del_backup:/app/recording_backup
     depends_on:
       - nats
       - postgres
@@ -176,12 +185,13 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - FASTMCP_URL=http://mcp-server:3333
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -210,11 +220,13 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -227,11 +239,13 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -244,11 +258,13 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -261,12 +277,13 @@ services:
     env_file:
       - .env
     environment:
-      - NATS_URL=nats://nats:4222
-      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/wajlc
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - BILLING_HTTP_PORT=8084
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres

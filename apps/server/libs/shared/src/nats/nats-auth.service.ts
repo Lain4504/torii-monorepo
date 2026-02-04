@@ -7,14 +7,14 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { verifyWajlcAccessToken } from '../utils/verify_token';
+import { AppConfigService } from '../config/app-config.service';
 
 @Injectable()
 export class NatsAuthService {
     private readonly logger = new Logger(NatsAuthService.name);
 
-    constructor(private readonly configService: ConfigService) { }
+    constructor(private readonly appConfig: AppConfigService) { }
 
     /**
      * Verify token for LiveKit auth callout
@@ -32,15 +32,14 @@ export class NatsAuthService {
         error?: string;
     }> {
         try {
-            const apiKey = this.configService.get<string>('LIVEKIT_APIKEY');
-            const secret = this.configService.get<string>('LIVEKIT_API_SECRET');
+            const { apiKey, apiSecret } = this.appConfig.livekit;
 
-            if (!apiKey || !secret) {
-                throw new Error('Missing LIVEKIT_APIKEY or LIVEKIT_API_SECRET configuration');
+            if (!apiKey || !apiSecret) {
+                throw new Error('Missing LiveKit API Key or Secret configuration');
             }
 
             // Verify JWT token using shared utility
-            const claims = verifyWajlcAccessToken(apiKey, secret, token);
+            const claims = verifyWajlcAccessToken(apiKey, apiSecret, token);
 
             // Check if room ID matches
             if (claims.roomId !== roomId) {

@@ -5,8 +5,8 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NatsService } from './nats.service';
+import { AppConfigService } from '@server/shared';
 
 /**
  * NatsStreamService handles JetStream stream operations
@@ -15,17 +15,8 @@ import { NatsService } from './nats.service';
 export class NatsStreamService {
     private readonly logger = new Logger(NatsStreamService.name);
 
-    // Subject names
-    private readonly subjects = {
-        chat: 'chat',
-        systemPublic: 'sysPublic',
-        systemPrivate: 'sysPrivate',
-        whiteboard: 'whiteboard',
-        dataChannel: 'dataChannel',
-    };
-
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly natsService: NatsService,
     ) { }
 
@@ -40,8 +31,8 @@ export class NatsStreamService {
             const jsm = this.natsService.getJetStreamManager();
             const streamName = this.natsService.getRoomStreamName();
 
-            const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
-            const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
+            const sysPublic = this.appConfig.nats.subjects.systemPublic;
+            const sysPrivate = this.appConfig.nats.subjects.systemPrivate;
 
             await jsm.streams.purge(streamName, {
                 filter: `${sysPublic}.${roomId}.>`,
@@ -67,8 +58,8 @@ export class NatsStreamService {
             const jsm = this.natsService.getJetStreamManager();
             const streamName = this.natsService.getRoomStreamName();
 
-            const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
-            const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
+            const sysPublic = this.appConfig.nats.subjects.systemPublic;
+            const sysPrivate = this.appConfig.nats.subjects.systemPrivate;
 
             await jsm.streams.purge(streamName, {
                 filter: `${sysPublic}.${roomId}.>`,

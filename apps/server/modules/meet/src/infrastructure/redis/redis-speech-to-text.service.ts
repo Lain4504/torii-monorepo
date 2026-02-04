@@ -4,10 +4,10 @@
  * Handles Redis operations for Azure Speech Services
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import Redis from 'ioredis';
 import { SpeechServiceUserStatusTasks } from '@workspace/protocol';
+import { REDIS_CLIENT } from '@server/shared';
 
 const REDIS_PREFIX = 'wajlc:';
 const SPEECH_SERVICE_REDIS_KEY = `${REDIS_PREFIX}speechService`;
@@ -15,18 +15,9 @@ const SPEECH_SERVICE_REDIS_KEY = `${REDIS_PREFIX}speechService`;
 @Injectable()
 export class RedisSpeechToTextService {
     private readonly logger = new Logger(RedisSpeechToTextService.name);
-    private redis: Redis;
-
-    constructor(private readonly configService: ConfigService) {
-        let redisUrl = this.configService.get<string>('REDIS_URL');
-        if (!redisUrl) {
-            const host = this.configService.get<string>('REDIS_HOST', 'localhost');
-            const port = this.configService.get<string>('REDIS_PORT', '6379');
-            const password = this.configService.get<string>('REDIS_PASSWORD');
-            redisUrl = password ? `redis://:${password}@${host}:${port}` : `redis://${host}:${port}`;
-        }
-        this.redis = new Redis(redisUrl);
-    }
+    constructor(
+        @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    ) { }
 
     async getConnectionsByKeyId(keyId: string): Promise<string> {
         const key = `${SPEECH_SERVICE_REDIS_KEY}:${keyId}:connections`;

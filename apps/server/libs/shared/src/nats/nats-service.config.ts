@@ -7,20 +7,23 @@
 
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { nkeyAuthenticator } from 'nats';
+import { loadConfig } from '../config/app.config';
 
 /**
  * Creates NATS microservice configuration
  * Used in microservice main.ts files with NestFactory.createMicroservice()
  * 
+ * @param queue - Optional queue group name, defaults to 'torii_queue'
  * @returns MicroserviceOptions for Transport.NATS
  */
-export function createNatsServiceConfig(): MicroserviceOptions {
-    const natsUrl = process.env.NATS_URL || 'nats://localhost:4222';
-    const nkeySeed = process.env.NATS_NKEY_SEED;
+export function createNatsServiceConfig(queue: string = 'torii_queue'): MicroserviceOptions {
+    const config = loadConfig();
+    const natsUrl = config.nats.url;
+    const nkeySeed = config.nats.nkeySeed;
 
     const options: any = {
         servers: [natsUrl],
-        queue: 'torii_queue', // IMPORTANT: Queue group for load balancing across instances
+        queue: queue, // IMPORTANT: Queue group for load balancing across instances
     };
 
     // Add NKEY authentication if provided

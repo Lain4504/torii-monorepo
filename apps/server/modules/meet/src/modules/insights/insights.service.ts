@@ -5,10 +5,9 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom, lastValueFrom, defaultIfEmpty } from 'rxjs';
-import { toBinary, create } from '@bufbuild/protobuf';
+import { firstValueFrom } from 'rxjs';
+import { create } from '@bufbuild/protobuf';
 import {
     InsightsTranscriptionConfigReq,
     InsightsTranscriptionUserSessionReq,
@@ -21,19 +20,13 @@ import {
     InsightsSupportedLangInfo,
     InsightsSupportedLangInfoSchema,
     CommonResponseSchema,
-    InsightsTranscriptionConfigReqSchema,
-    InsightsTranscriptionUserSessionReqSchema,
-    InsightsChatTranslationConfigReqSchema,
-    InsightsTranslateTextReqSchema,
-    InsightsAITextChatConfigReqSchema,
-    InsightsAITextChatContentSchema,
-    InsightsAIMeetingSummarizationConfigReqSchema,
     InsightsUserSessionAction,
     AnalyticsEventType,
     AnalyticsEvents,
     AnalyticsDataMsgSchema,
     NatsSystemNotificationTypes,
     NatsMsgServerToClientEvents,
+    InsightsAITextChatContentSchema,
 } from '@workspace/protocol';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
 import { NatsUserService } from '../../interfaces/nats/nats-user.service';
@@ -43,13 +36,14 @@ import { ArtifactsService } from '../artifacts/artifacts.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { v4 as uuidv4 } from 'uuid';
 import { InsightsTaskPayload, InsightsServiceType, InsightsTaskType, AgentTaskResponse } from './insights.types';
+import { AppConfigService } from '@server/shared';
 
 @Injectable()
 export class InsightsService {
     private readonly logger = new Logger(InsightsService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         @Inject('NATS_CLIENT') private readonly natsClient: ClientProxy,
         private readonly natsRoomService: NatsRoomService,
         private readonly natsUserService: NatsUserService,
@@ -125,10 +119,6 @@ export class InsightsService {
 
         // Third: Configure agent
         await this.configureAgent(payload);
-
-
-
-
 
         const updateMt = await this.natsRoomService.updateRoomMetadata(roomId, metadata);
         await this.natsSystemEvents.broadcastSystemEventToRoom(
@@ -267,7 +257,7 @@ export class InsightsService {
 
         chatTransFeatures.isEnabled = true;
         chatTransFeatures.allowedTransLangs = r.allowedTransLangs;
-        chatTransFeatures.maxSelectedTransLangs = this.configService.get<number>('INSIGHTS_MAX_CHAT_TRANS_LANGS', 5);
+        chatTransFeatures.maxSelectedTransLangs = this.appConfig.insights.maxChatTransLangs;
 
         const updateMt = await this.natsRoomService.updateRoomMetadata(roomId, metadata!);
         await this.natsSystemEvents.broadcastSystemEventToRoom(
@@ -400,9 +390,6 @@ export class InsightsService {
         return create(CommonResponseSchema, { status: true, msg: 'success' });
     }
 
-    /**
-     * ExecuteAITextChat sends a message to AI
-     */
     /**
      * ExecuteAITextChat sends a message to AI and manages conversation history
      */
@@ -660,7 +647,7 @@ export class InsightsService {
         const payload: InsightsTaskPayload = {
             task: InsightsTaskType.CheckBatchJobStatus,
             service_type: InsightsServiceType.MeetingSummarizing,
-            room_id: '', // Not used for this task usually, but part of payload
+            room_id: '',
             room_table_id: 0,
             options: new TextEncoder().encode(jobId),
         };
@@ -684,9 +671,6 @@ export class InsightsService {
         );
     }
 
-
-
-
     /**
      * configureAgent sends a NATS request to the agent coordinator channel
      */
@@ -701,6 +685,38 @@ export class InsightsService {
         } catch (error) {
             this.logger.error(`Configure agent failed: ${error.message}`);
             throw error;
+        }
+    }
+
+    /**
+     * GetUserTaskStatus returns the status of a specific task for a user
+     */
+    async getUserTaskStatus(serviceType: string, roomId: string, userId: string): Promise<CommonResponse> {
+        let isRunning = false;
+        if (serviceType === 'transcription') {
+            isRunning = await this.redisInsightsService.isTranscriptionSessionActive(roomId, userId);
+        }
+        // Add other service checks if needed
+
+        return create(CommonResponseSchema, {
+            status: true,
+            msg: isRunning ? 'running' : 'stopped',
+        });
+    }
+
+    /**
+     * OnAfterRoomEnded cleans up insight services when a room ends
+     */
+    async onAfterRoomEnded(dbTableId: number | bigint, roomId: string, roomSid: string): Promise<void> {
+        try {
+            await Promise.allSettled([
+                this.endTranscription(roomId),
+                this.chatEndTranslation(roomId),
+                this.endAITextChat(roomId),
+                this.endAIMeetingSummarization(roomId),
+            ]);
+        } catch (error) {
+            this.logger.error(`Error cleaning up insights for room ${roomId}: ${error.message}`);
         }
     }
 
@@ -798,99 +814,10 @@ export class InsightsService {
                 { code: 'nl', name: 'Dutch' },
                 { code: 'en', name: 'English' },
                 { code: 'et', name: 'Estonian' },
-                { code: 'fil', name: 'Filipino' },
-                { code: 'fi', name: 'Finnish' },
-                { code: 'fr', name: 'French' },
-                { code: 'de', name: 'German' },
-                { code: 'el', name: 'Greek' },
-                { code: 'gu', name: 'Gujarati' },
-                { code: 'he', name: 'Hebrew' },
-                { code: 'hi', name: 'Hindi' },
-                { code: 'hu', name: 'Hungarian' },
-                { code: 'id', name: 'Indonesian' },
-                { code: 'it', name: 'Italian' },
-                { code: 'ja', name: 'Japanese' },
-                { code: 'kn', name: 'Kannada' },
-                { code: 'ko', name: 'Korean' },
-                { code: 'lv', name: 'Latvian' },
-                { code: 'lt', name: 'Lithuanian' },
-                { code: 'ms', name: 'Malay' },
-                { code: 'ml', name: 'Malayalam' },
-                { code: 'mt', name: 'Maltese' },
-                { code: 'mr', name: 'Marathi' },
-                { code: 'nb', name: 'Norwegian' },
-                { code: 'fa', name: 'Persian' },
-                { code: 'pl', name: 'Polish' },
-                { code: 'pt', name: 'Portuguese' },
-                { code: 'ro', name: 'Romanian' },
-                { code: 'ru', name: 'Russian' },
-                { code: 'sk', name: 'Slovak' },
-                { code: 'sl', name: 'Slovenian' },
-                { code: 'es', name: 'Spanish' },
-                { code: 'sv', name: 'Swedish' },
-                { code: 'ta', name: 'Tamil' },
-                { code: 'te', name: 'Telugu' },
-                { code: 'th', name: 'Thai' },
-                { code: 'tr', name: 'Turkish' },
-                { code: 'uk', name: 'Ukrainian' },
-                { code: 'ur', name: 'Urdu' },
-                { code: 'vi', name: 'Vietnamese' },
-                { code: 'cy', name: 'Welsh' },
             ];
         }
-        return langs.map(l => create(InsightsSupportedLangInfoSchema, l));
-    }
 
-    /**
-     * GetUserTaskStatus sends a request to the leader agent and waits for the user's task status.
-     */
-    async getUserTaskStatus(serviceType: InsightsServiceType, roomId: string, userId: string): Promise<Uint8Array> {
-        const payload: InsightsTaskPayload = {
-            task: InsightsTaskType.GetUserStatus,
-            service_type: serviceType,
-            room_id: roomId,
-            room_table_id: 0,
-            user_id: userId,
-        };
-
-        return await firstValueFrom(
-            this.natsClient.send<Uint8Array>('plug-n-meet-insights', payload)
-        );
-    }
-
-    /**
-     * EndRoomAllAgentTasks sends a NATS request to stop all agents for a room
-     */
-    async endRoomAllAgentTasks(roomId: string): Promise<void> {
-        const payload: InsightsTaskPayload = {
-            task: InsightsTaskType.EndRoomAllAgents,
-            service_type: InsightsServiceType.Unknown,
-            room_id: roomId,
-            room_table_id: 0,
-        };
-
-        try {
-            await lastValueFrom(this.natsClient.emit('plug-n-meet-insights', payload).pipe(defaultIfEmpty(null)));
-        } catch (error) {
-            this.logger.error(`End all agent tasks failed: ${error.message}`);
-        }
-    }
-
-
-    /**
-     * OnAfterRoomEnded performs cleanup tasks after a room has ended
-     */
-    async onAfterRoomEnded(dbTableId: bigint | number, roomId: string, roomSid: string): Promise<void> {
-        this.logger.log(`Cleanup insights for room: ${roomId}, sid: ${roomSid}`);
-
-        // 1. End all agent tasks
-        await this.endRoomAllAgentTasks(roomId);
-
-        // 2. Create usage artifacts
-        await this.artifactsService.createAllRoomUsageArtifacts(
-            roomId,
-            roomSid,
-            typeof dbTableId === 'bigint' ? Number(dbTableId) : dbTableId,
-        );
+        const result: InsightsSupportedLangInfo[] = langs.map(l => create(InsightsSupportedLangInfoSchema, l));
+        return result;
     }
 }

@@ -5,47 +5,40 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
-import * as path from 'path';
 import { create, toJsonString, fromJsonString } from '@bufbuild/protobuf';
 import {
     AnalyticsDataMsg,
     AnalyticsEventType,
     AnalyticsEvents,
-    AnalyticsRedisUserInfo,
     AnalyticsRedisUserInfoSchema,
-    AnalyticsResult,
     AnalyticsResultSchema,
-    AnalyticsRoomInfo,
     AnalyticsRoomInfoSchema,
     AnalyticsUserInfo,
     AnalyticsUserInfoSchema,
     AnalyticsEventData,
     AnalyticsEventDataSchema,
-    AnalyticsEventValue,
     AnalyticsEventValueSchema,
     RoomMetadata,
-    RoomMetadataSchema,
     RoomArtifactType,
     CommonNotifyEvent,
+    RoomArtifactMetadataSchema,
 } from '@workspace/protocol';
 import { RedisAnalyticsService } from '../../infrastructure/redis/redis-analytics.service';
 import { NatsService } from '../../interfaces/nats/nats.service';
-import { PrismaService } from '@server/shared';
+import { PrismaService, AppConfigService } from '@server/shared';
 import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { ArtifactsService } from '../artifacts/artifacts.service';
 import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
-import { RoomArtifactMetadataSchema } from '@workspace/protocol';
 
 @Injectable()
 export class AnalyticsService {
     private readonly logger = new Logger(AnalyticsService.name);
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly redisAnalytics: RedisAnalyticsService,
         private readonly natsService: NatsService,
         private readonly prisma: PrismaService,
@@ -62,7 +55,7 @@ export class AnalyticsService {
      * HandleEvent processes an incoming analytics event
      */
     async handleEvent(d: AnalyticsDataMsg): Promise<void> {
-        const enabled = this.configService.get<boolean>('ANALYTICS_ENABLED', true);
+        const enabled = this.appConfig.analytics.enabled;
         if (!enabled) return;
 
         // Always set time to now in milliseconds
@@ -161,7 +154,7 @@ export class AnalyticsService {
      * PrepareToExportAnalytics builds the analytics report and saves it
      */
     async prepareToExportAnalytics(roomId: string, sid: string, metaJson: string): Promise<void> {
-        const enabled = this.configService.get<boolean>('ANALYTICS_ENABLED', true);
+        const enabled = this.appConfig.analytics.enabled;
         if (!enabled) return;
 
         if (!metaJson || !sid) {

@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import Redis from 'ioredis';
 import { SubmitPollResponseReq, ClosePollReq, PollInfo } from '@workspace/protocol';
+import { REDIS_CLIENT } from '@server/shared';
 
 const REDIS_PREFIX = 'wajlc:';
 const POLLS_KEY = `${REDIS_PREFIX}polls:`;
@@ -14,28 +14,9 @@ export const POLL_COUNT_SUFFIX = '_count';
 @Injectable()
 export class RedisPollService {
     private readonly logger = new Logger(RedisPollService.name);
-    private redis: Redis;
-
-    constructor(private readonly configService: ConfigService) {
-        this.redis = new Redis({
-            host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-            port: this.configService.get<number>('REDIS_PORT', 6379),
-            password: this.configService.get<string>('REDIS_PASSWORD'),
-            db: this.configService.get<number>('REDIS_DB', 0),
-            retryStrategy: (times: number) => {
-                const delay = Math.min(times * 50, 2000);
-                return delay;
-            },
-        });
-
-        this.redis.on('error', (err) => {
-            this.logger.error(`Redis connection error: ${err.message}`);
-        });
-
-        this.redis.on('connect', () => {
-            this.logger.log('Connected to Redis for polls');
-        });
-    }
+    constructor(
+        @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    ) { }
 
     async createRoomPoll(roomId: string, val: Record<string, string>): Promise<void> {
         const key = POLLS_KEY + roomId;
@@ -207,7 +188,5 @@ export class RedisPollService {
         }
     }
 
-    onModuleDestroy() {
-        this.redis.disconnect();
-    }
+
 }

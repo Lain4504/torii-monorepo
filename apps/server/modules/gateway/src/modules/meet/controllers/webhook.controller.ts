@@ -16,8 +16,7 @@ import {
     Logger,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
-import { verifyWebhookRequest } from '@server/shared/utils/webhook_verify';
+import { verifyWebhookRequest, AppConfigService } from '@server/shared';
 
 /**
  * WebhookAuthService validates LiveKit webhook tokens
@@ -27,11 +26,9 @@ class WebhookAuthService {
     private readonly livekitApiKey: string;
     private readonly livekitApiSecret: string;
 
-    constructor(private readonly configService: ConfigService) {
-        this.livekitApiKey =
-            this.configService.get<string>('LIVEKIT_API_KEY') || '';
-        this.livekitApiSecret =
-            this.configService.get<string>('LIVEKIT_API_SECRET') || '';
+    constructor(private readonly appConfig: AppConfigService) {
+        this.livekitApiKey = this.appConfig.livekit.apiKey;
+        this.livekitApiSecret = this.appConfig.livekit.apiSecret;
     }
 
     /**
@@ -64,10 +61,10 @@ export class WebhookController {
 
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
     ) {
         // Initialize AuthService
-        this.authService = new WebhookAuthService(configService);
+        this.authService = new WebhookAuthService(this.appConfig);
     }
 
     /**

@@ -5,11 +5,11 @@
  */
 
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { create, toJsonString, fromJsonString } from '@bufbuild/protobuf';
 import { RoomMetadata, RoomMetadataSchema, UserMetadata, UserMetadataSchema } from '@workspace/protocol';
 import { NatsCacheService } from './nats-cache.service';
+import { AppConfigService } from '@server/shared';
 import {
     connect,
     NatsConnection,
@@ -44,7 +44,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     static readonly FILE_KEY_PREFIX = FILE_KEY_PREFIX;
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly cacheService: NatsCacheService,
     ) { }
 
@@ -66,11 +66,10 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
 
     private async connectToNats(): Promise<void> {
         try {
-            const natsUrl = this.configService.get<string>('NATS_URL');
-            const nkeySeed = this.configService.get<string>('NATS_NKEY_SEED');
+            const { url, nkeySeed } = this.appConfig.nats;
 
             const options: any = {
-                servers: [natsUrl],
+                servers: [url],
                 name: 'nestjs-meet-service',
             };
 
@@ -83,7 +82,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
             this.js = this.nc.jetstream();
             this.jsm = await this.nc.jetstreamManager();
 
-            this.logger.log(`Connected to NATS: ${natsUrl}`);
+            this.logger.log(`Connected to NATS: ${url}`);
         } catch (error) {
             this.logger.error(`Failed to connect to NATS: ${error.message}`);
             throw error;
@@ -95,19 +94,18 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      */
     private async createRoomNatsStream() {
         const streamName = this.getRoomStreamName();
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
-        const sysPublic = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PUBLIC') || 'sysPublic';
-        const sysPrivate = this.configService.get<string>('NATS_SUBJECT_SYSTEM_PRIVATE') || 'sysPrivate';
+        const { numReplicas, subjects } = this.appConfig.nats;
+        const { systemPublic, systemPrivate } = subjects;
 
         try {
             await this.jsm.streams.add({
                 name: streamName,
-                subjects: [`${sysPublic}.>`, `${sysPrivate}.>`],
+                subjects: [`${systemPublic}.>`, `${systemPrivate}.>`],
                 num_replicas: numReplicas,
             }).catch(async (err) => {
                 if (err.message?.includes('already in use')) {
                     await this.jsm.streams.update(streamName, {
-                        subjects: [`${sysPublic}.>`, `${sysPrivate}.>`],
+                        subjects: [`${systemPublic}.>`, `${systemPrivate}.>`],
                     });
                 } else {
                     throw err;
@@ -122,8 +120,8 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      * Create recorder KV bucket and start watching.
      */
     private async createRecorderKVAndWatch() {
-        const bucket = this.configService.get<string>('NATS_RECORDER_INFO_KV_BUCKET') || 'wajlc-recorder-info';
-        const numReplicas = this.configService.get<number>('NATS_NUM_REPLICAS') || 1;
+        const { recorder, numReplicas } = this.appConfig.nats;
+        const bucket = recorder.infoKv;
 
         try {
             // Using jsm.kv if available or falling back to views.kv
@@ -257,8 +255,8 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
      * GetAllActiveRecorders retrieves all active recorders directly from the local cache.
      */
     getAllActiveRecorders(): any[] {
-        // Defaulting to 3000ms if not configured
-        const pingTimeout = this.configService.get<number>('RECORDER_PING_TIMEOUT') || 3000;
+        // Defaulting to 8000ms from YAML config if not provided
+        const pingTimeout = this.appConfig.nats.pingTimeout;
         return this.cacheService.getAllCachedActiveRecorders(pingTimeout);
     }
 
@@ -290,6 +288,6 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
     }
 
     getRoomStreamName(): string {
-        return this.configService.get<string>('NATS_ROOM_STREAM_NAME') || 'wajlc-room-stream';
+        return this.appConfig.nats.streamName;
     }
 }

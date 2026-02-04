@@ -98,14 +98,14 @@ export function wipeSlice(buf: Buffer): void {
  *       options: {
  *         servers: ['nats://localhost:4222'],
  *         // Option 1: NKey authentication (recommended)
- *         nkey: process.env.NATS_NKEY_SEED,
+ *         nkey: appConfig.nats.nkeySeed,
  *         
  *         // Option 2: User/Password
- *         // user: process.env.NATS_USER,
- *         // pass: process.env.NATS_PASS,
+ *         // user: appConfig.nats.user,
+ *         // pass: appConfig.nats.pass,
  *         
  *         // Option 3: JWT
- *         // jwt: process.env.NATS_JWT,
+ *         // jwt: appConfig.nats.jwt,
  *       },
  *     }]),
  *   ],

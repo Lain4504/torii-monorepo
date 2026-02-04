@@ -13,7 +13,7 @@ import {
 import type { Request, Response } from 'express';
 import * as crypto from 'crypto';
 import { sendCommonProtoJsonResponse } from '../utils/common';
-import { ConfigService } from '@nestjs/config';
+import { AppConfigService } from '../config/app-config.service';
 
 /**
  * ApiKeyGuard verifies API-KEY and HASH-SIGNATURE
@@ -24,7 +24,7 @@ import { ConfigService } from '@nestjs/config';
  */
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly appConfig: AppConfigService) { }
 
   canActivate(context: ExecutionContext): boolean {
     const ctx = context.switchToHttp();
@@ -34,8 +34,7 @@ export class ApiKeyGuard implements CanActivate {
     const signature = request.headers['hash-signature'] as string;
 
     // Get configured API key and secret
-    const configApiKey = this.configService.get<string>('WAJLC_API_KEY');
-    const configSecret = this.configService.get<string>('WAJLC_API_SECRET');
+    const { apiKey: configApiKey, apiSecret: configSecret } = this.appConfig.security.wajlc;
 
     if (!configApiKey || !configSecret) {
       response.status(HttpStatus.INTERNAL_SERVER_ERROR);

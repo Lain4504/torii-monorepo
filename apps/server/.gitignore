@@ -5,3 +5,7 @@ node_modules
 # Proto generation dependencies
 proto-deps
 /firebase-admin-config.json
+
+# Configuration
+/config/config.yaml
+!/config/config.sample.yaml

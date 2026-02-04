@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
@@ -13,13 +12,14 @@ import {
     ChatMessageSchema,
     NatsMsgServerToClientEvents
 } from '@workspace/protocol';
-import { create, toJsonString } from '@bufbuild/protobuf';
+import { create } from '@bufbuild/protobuf';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import axios from 'axios';
+import { AppConfigService } from '@server/shared';
 
 const execPromise = promisify(exec);
 
@@ -41,20 +41,15 @@ export class FileService {
     private readonly uploadPath: string;
 
     constructor(
-        private readonly configService: ConfigService,
+        private readonly appConfig: AppConfigService,
         private readonly natsRoom: NatsRoomService,
         private readonly natsRoomEvents: NatsRoomEventsService,
         private readonly natsSystemEvents: NatsSystemEventsService,
     ) {
-        const rawPath = this.configService.get<string>('UPLOAD_FILE_PATH');
-        const defaultPath = './uploads';
-        this.uploadPath = rawPath
-            ? (path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath))
-            : path.resolve(process.cwd(), defaultPath);
+        const rawPath = this.appConfig.server.uploadPath;
+        this.uploadPath = path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath);
 
-        this.logger.log(`UPLOAD_FILE_PATH from env: ${rawPath}`);
         this.logger.log(`Resolved uploadPath: ${this.uploadPath}`);
-        this.logger.log(`Current process.cwd(): ${process.cwd()}`);
 
         if (!fs.existsSync(this.uploadPath)) {
             fs.mkdirSync(this.uploadPath, { recursive: true });
@@ -94,14 +89,12 @@ export class FileService {
                     throw new Error('Room is not active');
                 }
                 // Check max size
-                const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 100;
+                const maxSizeMb = this.appConfig.upload.maxSizeMb;
                 if (req.resumableTotalSize > maxSizeMb * 1024 * 1024) {
                     throw new Error(`File too large: max allowed is ${maxSizeMb}MB`);
                 }
 
                 // Validate Mime Type (Chunk 1)
-                // Note: Node.js standard lib doesn't support magic byte detection easily without external libs like 'file-type'
-                // We will trust the original filename extension and Content-Type for now, but not deep inspection capability
                 this.detectMimeTypeForValidation(req.resumableFilename);
             }
 
@@ -131,7 +124,7 @@ export class FileService {
         const buffer = Buffer.from(req.data, 'base64');
 
         // Check max size
-        const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 100;
+        const maxSizeMb = this.appConfig.upload.maxSizeMb;
         if (buffer.length > maxSizeMb * 1024 * 1024) {
             throw new Error(`File too large: max allowed is ${maxSizeMb}MB`);
         }
@@ -360,21 +353,16 @@ export class FileService {
     async downloadAndProcessPreUploadWBfile(roomId: string, roomSid: string, fileUrl: string): Promise<any> {
         this.logger.log(`Downloading and processing pre-upload whiteboard file: ${fileUrl}`);
 
-        // Validate Remote File (Head Check)
         try {
             const headRes = await axios.head(fileUrl);
-            // Content-Length check
             const len = headRes.headers['content-length'];
             if (len && Number(len) > 0) {
-                const maxSizeMb = this.configService.get<number>('UPLOAD_MAX_SIZE') || 30; // default 30MB for preload?
+                const maxSizeMb = this.appConfig.upload.maxWhiteboardFileSizeMb;
                 if (Number(len) > maxSizeMb * 1024 * 1024) {
                     throw new Error('File too large');
                 }
             }
-            // Content-Type check
             const cType = headRes.headers['content-type'];
-            // We can't strictly validate cType against our allow list because header might be generic
-            // But we should check if it's there
             if (!cType) {
                 throw new Error('Missing Content-Type header');
             }
@@ -472,7 +460,7 @@ export class FileService {
     }
 
     private async publishChatMsgForFile(roomId: string, userId: string, userName: string, filePath: string, fileName: string): Promise<void> {
-        const apiUrl = this.configService.get<string>('API_URL') || '';
+        const apiUrl = this.appConfig.server.apiUrl;
 
         const message = `<a class="attachment-message flex items-center gap-3 break-all" href="${apiUrl}/download/uploadedFile/${filePath}" target="_blank" rel="noreferrer">
     <span class="h-10 w-10 rounded-xl bg-muted flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -512,7 +500,6 @@ export class FileService {
             '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             '.ppt': 'application/vnd.ms-powerpoint',
             '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            // Added explicit support for more types matching common defaults
             '.rtf': 'application/rtf',
             '.csv': 'text/csv',
             '.xml': 'application/xml',
@@ -528,10 +515,7 @@ export class FileService {
 
     private detectMimeTypeForValidation(filename: string): void {
         const ext = path.extname(filename).toLowerCase().replace('.', '');
-        const allowedTypesStr = this.configService.get<string>('UPLOAD_ALLOWED_TYPES') ||
-            'jpg,jpeg,png,gif,txt,pdf,doc,docx,xls,xlsx,ppt,pptx,mp3,mp4,wav,ogg,webm,svg,rtf,csv,xml';
-
-        const allowedTypes = allowedTypesStr.split(',').map(t => t.trim());
+        const allowedTypes = this.appConfig.upload.allowedTypes;
 
         if (!ext || !allowedTypes.includes(ext)) {
             throw new Error('File type not allowed');

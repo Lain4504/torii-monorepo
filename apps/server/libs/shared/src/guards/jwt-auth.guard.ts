@@ -13,7 +13,7 @@ import {
 import type { Request, Response } from 'express';
 import { verifyWajlcAccessToken } from '../utils/verify_token';
 import { sendCommonProtoJsonResponse } from '../utils/common';
-import { ConfigService } from '@nestjs/config';
+import { AppConfigService } from '../config/app-config.service';
 
 /**
  * JwtAuthGuard verifies the Authorization header token
@@ -25,7 +25,7 @@ import { ConfigService } from '@nestjs/config';
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-    constructor(private readonly configService: ConfigService) { }
+    constructor(private readonly appConfig: AppConfigService) { }
 
     canActivate(context: ExecutionContext): boolean {
         const ctx = context.switchToHttp();
@@ -48,10 +48,9 @@ export class JwtAuthGuard implements CanActivate {
 
         // Verify token
         try {
-            const apiKey = this.configService.get<string>('WAJLC_API_KEY');
-            const secret = this.configService.get<string>('WAJLC_API_SECRET');
+            const { apiKey, apiSecret } = this.appConfig.security.wajlc;
 
-            if (!apiKey || !secret) {
+            if (!apiKey || !apiSecret) {
                 response.status(HttpStatus.INTERNAL_SERVER_ERROR);
                 sendCommonProtoJsonResponse(response, false, 'Server configuration error');
                 return false;
@@ -59,7 +58,7 @@ export class JwtAuthGuard implements CanActivate {
 
             const claims = verifyWajlcAccessToken(
                 apiKey,
-                secret,
+                apiSecret,
                 authToken,
                 0, // No graceful period
             );

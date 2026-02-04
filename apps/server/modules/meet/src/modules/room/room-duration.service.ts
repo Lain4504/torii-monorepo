@@ -5,7 +5,6 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type { RoomMetadata } from '@workspace/protocol';
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
@@ -27,7 +26,6 @@ export class RoomDurationService {
     private readonly logger = new Logger(RoomDurationService.name);
 
     constructor(
-        private readonly configService: ConfigService,
         private readonly natsRoomService: NatsRoomService,
         private readonly natsRoomEvents: NatsRoomEventsService,
         private readonly redisRoom: RedisRoomService,

@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
 import { RoomModule } from './modules/room/room.module';
 import { FileModule } from './modules/file/file.module';
 import { ArtifactsModule } from './modules/artifacts/artifacts.module';
 import { WebhookModule } from './infrastructure/webhook/webhook.module';
-import { SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 
 // NATS Handlers (replacing HTTP controllers)
 import { PollsHandler } from './interfaces/nats/polls.handler';
@@ -30,12 +28,10 @@ import { IngressHandler } from './interfaces/nats/ingress.handler';
 import { InsightsHandler } from './interfaces/nats/insights.handler';
 import { SpeechToTextHandler } from './interfaces/nats/speech-to-text.handler';
 
+import { SharedModule, GlobalRpcExceptionFilter, loadConfig } from '@server/shared';
+
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '../../../.env', // Load from monorepo root
-    }),
     SharedModule,
     RoomModule,
     FileModule,

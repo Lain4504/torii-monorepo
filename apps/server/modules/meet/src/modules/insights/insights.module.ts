@@ -4,30 +4,29 @@
 
 import { Module, forwardRef } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { InsightsService } from './insights.service';
 import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
 import { NatsModule } from '../../interfaces/nats/nats.module';
 import { ArtifactsModule } from '../artifacts/artifacts.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
+import { AppConfigService } from '@server/shared';
 
 @Module({
     imports: [
-        ConfigModule,
         NatsModule,
         forwardRef(() => ArtifactsModule),
         forwardRef(() => AnalyticsModule),
         ClientsModule.registerAsync([
             {
                 name: 'NATS_CLIENT',
-                imports: [ConfigModule],
-                useFactory: (configService: ConfigService) => ({
+                imports: [],
+                useFactory: (appConfig: AppConfigService) => ({
                     transport: Transport.NATS,
                     options: {
-                        servers: [configService.get<string>('NATS_URL') || 'nats://localhost:4222'],
+                        servers: [appConfig.nats.url],
                     },
                 }),
-                inject: [ConfigService],
+                inject: [AppConfigService],
             },
         ]),
     ],
