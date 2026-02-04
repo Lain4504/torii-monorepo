@@ -307,10 +307,6 @@ model AuditLog {
   oldValues Json? @map("old_values") // Previous state
   newValues Json? @map("new_values") // New state
 
-  // Request context
-  ipAddress String? @map("ip_address") @db.VarChar(45) // IPv4/IPv6
-  userAgent String? @map("user_agent") @db.Text
-
   // Timestamp
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
 
@@ -422,8 +418,6 @@ model Session {
   tokenHash String @unique @map("token_hash") @db.VarChar(64) // SHA-256 hash
 
   // Device & Metadata
-  ipAddress  String? @map("ip_address") @db.VarChar(45)
-  userAgent  String? @map("user_agent") @db.Text
   deviceInfo String? @map("device_info") @db.VarChar(100) // e.g., "iPhone 13, iOS 15" or "Chrome on Windows"
 
   expiresAt DateTime  @map("expires_at") @db.Timestamp()

@@ -1,4 +1,5 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import type { Module as CourseModule } from '@prisma/generated';
 
 import { UserRole } from '@workspace/schemas';
@@ -29,7 +30,29 @@ export class ModuleService implements IModuleService {
     private readonly moduleRepository: IModuleRepository,
     @Inject(forwardRef(() => COURSE_SERVICE_TOKEN))
     private readonly courseService: ICourseService,
+    @Inject('NATS_SERVICE')
+    private readonly natsClient: ClientProxy,
   ) { }
+
+  /**
+   * Helper to emit audit log event
+   */
+  private async createAuditLog(entry: {
+    userId: string;
+    action: string;
+    entity: string;
+    entityId?: string;
+    description: string;
+    metadata?: any;
+    oldValues?: any;
+    newValues?: any;
+  }) {
+    try {
+      this.natsClient.emit({ cmd: 'identity.audit.log' }, entry);
+    } catch (error) {
+      this.logger.error(`Failed to emit audit log: ${error.message}`);
+    }
+  }
 
   /**
    * Helper to check if requester has a specific permission
@@ -161,6 +184,15 @@ export class ModuleService implements IModuleService {
 
       const module = await this.moduleRepository.create(data);
 
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: 'course_module.create',
+        entity: 'course_module',
+        entityId: module.id,
+        description: `Created module: ${module.title}`,
+        newValues: module,
+      });
+
       // Update course stats
       await this.courseService.recalculateStats(dto.courseId);
 
@@ -210,6 +242,16 @@ export class ModuleService implements IModuleService {
 
       const module = await this.moduleRepository.update(moduleId, updateData);
 
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: 'course_module.update',
+        entity: 'course_module',
+        entityId: moduleId,
+        description: `Updated module: ${module.title}`,
+        oldValues: existing,
+        newValues: module,
+      });
+
       // Update course stats if status changed
       if ((dto as any).status !== undefined && (dto as any).status !== (existing as any).status) {
         await this.courseService.recalculateStats(existing.courseId);
@@ -245,6 +287,15 @@ export class ModuleService implements IModuleService {
         await this.moduleRepository.softDelete(moduleId);
       }
 
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: hardDelete ? 'course_module.hard_delete' : 'course_module.delete',
+        entity: 'course_module',
+        entityId: moduleId,
+        description: `${hardDelete ? 'Hard deleted' : 'Soft deleted'} module: ${existing.title}`,
+        oldValues: existing,
+      });
+
       // Update course stats
       await this.courseService.recalculateStats(existing.courseId);
 
@@ -270,6 +321,16 @@ export class ModuleService implements IModuleService {
 
     try {
       await this.moduleRepository.reorder(courseId, moduleOrders);
+
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: 'course_module.reorder',
+        entity: 'course_module',
+        entityId: courseId,
+        description: `Reordered modules in course ${courseId}`,
+        metadata: { moduleOrders },
+      });
+
       return { message: 'Modules reordered successfully' };
     }
     catch (error: any) {

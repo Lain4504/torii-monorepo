@@ -91,8 +91,6 @@ export class AuditLogService implements IAuditLogService {
                 metadata: entry.metadata || {},
                 oldValues: old || Prisma.DbNull,
                 newValues: newValue || Prisma.DbNull,
-                ipAddress: entry.ipAddress,
-                userAgent: entry.userAgent,
             });
 
             this.logger.log(`Audit: ${entry.action} by user ${entry.userId} on ${entry.entity}`);
@@ -166,8 +164,6 @@ export class AuditLogService implements IAuditLogService {
             metadata: log.metadata as Record<string, unknown> | null,
             oldValues: log.oldValues as Record<string, unknown> | null,
             newValues: log.newValues as Record<string, unknown> | null,
-            ipAddress: log.ipAddress,
-            userAgent: log.userAgent,
             createdAt: log.createdAt,
             user: log.user ? {
                 id: log.user.id,

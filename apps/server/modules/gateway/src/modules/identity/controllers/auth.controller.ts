@@ -287,8 +287,6 @@ export class AuthController {
                 { cmd: 'identity.session.create' },
                 {
                     userId: user.id,
-                    ipAddress: req.ip,
-                    userAgent: req.headers['user-agent'],
                 },
             ),
         );
@@ -342,8 +340,6 @@ export class AuthController {
                     { cmd: 'identity.session.create' },
                     {
                         userId: user.id,
-                        ipAddress: req.ip,
-                        userAgent: req.headers['user-agent'],
                     },
                 ),
             );
@@ -405,8 +401,6 @@ export class AuthController {
                     { cmd: 'identity.session.create' },
                     {
                         userId: user.id,
-                        ipAddress: req.ip,
-                        userAgent: req.headers['user-agent'],
                     },
                 ),
             );
@@ -537,8 +531,6 @@ export class AuthController {
                     { cmd: 'identity.auth.refreshToken' },
                     {
                         refreshToken: oldRefreshToken,
-                        ipAddress: req.ip,
-                        userAgent: req.headers['user-agent']
                     },
                 ),
             );

@@ -20,7 +20,7 @@ import {
     DialogTrigger,
 } from '@workspace/ui/components/dialog';
 import { Card } from '@workspace/ui/components/card';
-import { Eye, ShieldCheck, Activity, Terminal, Calendar, Search, Fingerprint, Zap, ShieldAlert, Clock } from 'lucide-react';
+import { Eye, ShieldCheck, Activity, Terminal, Calendar, Search, Fingerprint, Zap, ShieldAlert, Clock, Copy, Check, ChevronDown, ChevronUp, User, Globe } from 'lucide-react';
 import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
@@ -33,6 +33,143 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select";
+import { toast } from 'sonner';
+
+function CopyButton({ text, label }: { text: string; label?: string }) {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        toast.success(label ? `Đã copy ${label}` : 'Đã copy');
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopy}
+            className="h-7 px-2 text-xs hover:bg-primary/10 shrink-0"
+        >
+            {copied ? (
+                <>
+                    <Check className="size-3 mr-1" />
+                    Đã copy
+                </>
+            ) : (
+                <>
+                    <Copy className="size-3 mr-1" />
+                    Copy
+                </>
+            )}
+        </Button>
+    );
+}
+
+function CollapsibleSection({ title, icon: Icon, children, defaultOpen = true }: { title: string; icon: any; children: React.ReactNode; defaultOpen?: boolean }) {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+
+    return (
+        <div className="space-y-3">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between w-full group hover:opacity-80 transition-opacity"
+            >
+                <div className="flex items-center gap-2">
+                    <Icon className="size-3.5 text-primary opacity-50" />
+                    <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{title}</h4>
+                </div>
+                {isOpen ? (
+                    <ChevronUp className="size-4 text-muted-foreground/50" />
+                ) : (
+                    <ChevronDown className="size-4 text-muted-foreground/50" />
+                )}
+            </button>
+            {isOpen && children}
+        </div>
+    );
+}
+
+function DiffViewer({ oldValues, newValues }: { oldValues: any; newValues: any }) {
+    if (!oldValues && !newValues) return null;
+
+    const oldKeys = oldValues ? Object.keys(oldValues) : [];
+    const newKeys = newValues ? Object.keys(newValues) : [];
+    const allKeys = Array.from(new Set([...oldKeys, ...newKeys]));
+
+    return (
+        <div className="space-y-2">
+            {allKeys.map((key) => {
+                const oldVal = oldValues?.[key];
+                const newVal = newValues?.[key];
+                const isChanged = JSON.stringify(oldVal) !== JSON.stringify(newVal);
+                const isAdded = oldVal === undefined && newVal !== undefined;
+                const isRemoved = oldVal !== undefined && newVal === undefined;
+
+                return (
+                    <div
+                        key={key}
+                        className={`p-3 rounded-lg border ${
+                            isAdded
+                                ? 'bg-emerald-500/5 border-emerald-500/20'
+                                : isRemoved
+                                ? 'bg-rose-500/5 border-rose-500/20'
+                                : isChanged
+                                ? 'bg-amber-500/5 border-amber-500/20'
+                                : 'bg-muted/5 border-border/10'
+                        }`}
+                    >
+                        <div className="flex items-start gap-4">
+                            <div className="flex-1 min-w-0 overflow-hidden">
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                    <span className="text-xs font-mono font-semibold text-foreground break-all">{key}</span>
+                                    {isAdded && (
+                                        <Badge variant="outline" className="text-[9px] bg-emerald-500/10 border-emerald-500/30 text-emerald-600 px-1.5 py-0 shrink-0">
+                                            Thêm mới
+                                        </Badge>
+                                    )}
+                                    {isRemoved && (
+                                        <Badge variant="outline" className="text-[9px] bg-rose-500/10 border-rose-500/30 text-rose-600 px-1.5 py-0 shrink-0">
+                                            Đã xóa
+                                        </Badge>
+                                    )}
+                                    {isChanged && !isAdded && !isRemoved && (
+                                        <Badge variant="outline" className="text-[9px] bg-amber-500/10 border-amber-500/30 text-amber-600 px-1.5 py-0 shrink-0">
+                                            Đã sửa
+                                        </Badge>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {oldVal !== undefined && (
+                                        <div className="space-y-1 min-w-0">
+                                            <span className="text-[9px] font-medium uppercase tracking-wider text-rose-500/60">Cũ</span>
+                                            <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                                                <pre className="text-xs font-mono text-rose-600/80 break-all whitespace-pre-wrap">
+                                                    {typeof oldVal === 'object' ? JSON.stringify(oldVal, null, 2) : String(oldVal)}
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {newVal !== undefined && (
+                                        <div className="space-y-1 min-w-0">
+                                            <span className="text-[9px] font-medium uppercase tracking-wider text-emerald-500/60">Mới</span>
+                                            <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                                                <pre className="text-xs font-mono text-emerald-600/80 break-all whitespace-pre-wrap">
+                                                    {typeof newVal === 'object' ? JSON.stringify(newVal, null, 2) : String(newVal)}
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
 
 function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
     return (
@@ -42,112 +179,139 @@ function AuditLogDetailsDialog({ log }: { log: AuditLog }) {
                     <Eye className="size-4 opacity-40 group-hover:opacity-100" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-border/20 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-xl p-0 overflow-hidden">
-                <div className="absolute inset-0 bg-primary/[0.01] pointer-events-none" />
-                <DialogHeader className="p-8 pb-6 border-b border-border/10">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 rounded-xl bg-primary/10 text-primary">
-                            <ShieldCheck className="size-5" />
+            <DialogContent className="max-w-5xl max-h-[90vh] border-border/20 shadow-2xl bg-background/95 backdrop-blur-3xl rounded-xl p-0 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent pointer-events-none" />
+                <div className="max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <DialogHeader className="p-6 pb-4 border-b border-border/10 sticky top-0 bg-background/95 backdrop-blur-xl z-10">
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary">
+                                <ShieldCheck className="size-5" />
+                            </div>
+                            <div className="space-y-1">
+                                <DialogTitle className="text-xl font-bold tracking-tight">
+                                    Chi tiết Nhật ký Hệ thống
+                                </DialogTitle>
+                                <DialogDescription className="flex items-center gap-2 text-xs font-medium text-muted-foreground/60">
+                                    <Clock className="size-3" />
+                                    {format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss')}
+                                </DialogDescription>
+                            </div>
                         </div>
-                        <div className="space-y-1">
-                            <DialogTitle className="text-xl font-bold tracking-tight">
-                                Chi tiết Nhật ký
-                            </DialogTitle>
-                            <DialogDescription className="text-xs font-medium text-muted-foreground/60">
-                                Thời gian: {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss.SSS')}
-                            </DialogDescription>
-                        </div>
+                        <CopyButton
+                            text={JSON.stringify(log, null, 2)}
+                            label="toàn bộ"
+                        />
                     </div>
                 </DialogHeader>
 
-                <div className="p-8 space-y-8">
-                    {/* Summary */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Người dùng</p>
-                            <p className="text-sm font-medium text-foreground truncate">{log.user?.email || log.userId}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Vai trò</p>
-                            <div className="pt-1">
-                                <Badge variant="outline" className="text-[10px] font-medium bg-primary/5 border-primary/20 text-primary rounded-full px-2.5">
-                                    {log.user?.role || 'User'}
-                                </Badge>
+                <div className="p-6 space-y-6">
+                    {/* User & Action Summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/5 to-transparent border border-blue-500/10">
+                            <div className="flex items-center gap-2 mb-2">
+                                <User className="size-3.5 text-blue-500" />
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-blue-500/70">Người dùng</p>
                             </div>
+                            <p className="text-sm font-semibold text-foreground truncate">{log.user?.displayName || 'Unknown'}</p>
+                            <p className="text-xs text-muted-foreground/60 truncate mt-0.5">{log.user?.email}</p>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Hành động</p>
-                            <div className="pt-1">
-                                <Badge variant="secondary" className="text-[10px] font-medium bg-muted/30 border-none rounded-md px-2.5">{log.action}</Badge>
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/5 to-transparent border border-purple-500/10">
+                            <div className="flex items-center gap-2 mb-2">
+                                <ShieldCheck className="size-3.5 text-purple-500" />
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-purple-500/70">Vai trò</p>
                             </div>
+                            <Badge variant="outline" className="text-xs font-medium bg-purple-500/10 border-purple-500/20 text-purple-600 rounded-lg px-2.5">
+                                {log.user?.role || 'User'}
+                            </Badge>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Đối tượng</p>
-                            <p className="text-sm font-medium text-foreground truncate font-mono">{log.entity}</p>
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/5 to-transparent border border-emerald-500/10">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Zap className="size-3.5 text-emerald-500" />
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-emerald-500/70">Hành động</p>
+                            </div>
+                            <Badge variant="secondary" className="text-xs font-medium bg-emerald-500/10 border-emerald-500/20 text-emerald-600 rounded-lg px-2.5">
+                                {log.action}
+                            </Badge>
+                        </div>
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/10">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Fingerprint className="size-3.5 text-amber-500" />
+                                <p className="text-[10px] font-medium uppercase tracking-wider text-amber-500/70">Đối tượng</p>
+                            </div>
+                            <p className="text-sm font-semibold text-foreground font-mono">{log.entity}</p>
+                            {log.entityId && (
+                                <div className="flex items-center gap-2 mt-1">
+                                    <p className="text-[10px] text-muted-foreground/60 font-mono truncate flex-1" title={log.entityId}>{log.entityId}</p>
+                                    <CopyButton text={log.entityId} />
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Action Description */}
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                            <Activity className="size-3.5 text-primary opacity-50" />
-                            <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Chi tiết Hành động</h4>
-                        </div>
-                        <div className="p-5 rounded-xl bg-muted/10 border border-border/10 leading-relaxed text-sm font-medium text-foreground/80">
-                            {log.description}
-                        </div>
-                    </div>
-
-                    {/* Technical Data */}
-                    {Object.keys(log.metadata || {}).length > 0 && (
-                        <div className="space-y-3">
+                    {/* Description */}
+                    <div className="p-5 rounded-xl bg-gradient-to-br from-muted/30 to-muted/10 border border-border/10">
+                        <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
-                                <Terminal className="size-3.5 text-primary opacity-50" />
-                                <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Siêu dữ liệu</h4>
+                                <Activity className="size-4 text-primary" />
+                                <h4 className="text-sm font-semibold text-foreground">Mô tả</h4>
                             </div>
-                            <pre className="text-xs bg-muted/20 p-6 rounded-xl overflow-x-auto border border-border/10 font-mono text-muted-foreground/80 leading-relaxed custom-scrollbar">
-                                {JSON.stringify(log.metadata, null, 2)}
-                            </pre>
+                            <CopyButton text={log.description} label="mô tả" />
                         </div>
-                    )}
-
-                    {/* Delta Analysis */}
-                    {(log.oldValues || log.newValues) && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {log.oldValues && (
-                                <div className="space-y-3">
-                                    <h4 className="text-[10px] font-medium uppercase tracking-wider text-rose-500/70 ml-1">Trạng thái trước</h4>
-                                    <pre className="text-xs bg-rose-500/[0.02] p-5 rounded-xl overflow-x-auto max-h-80 border border-rose-500/10 font-mono text-rose-500/70 leading-relaxed custom-scrollbar">
-                                        {JSON.stringify(log.oldValues, null, 2)}
-                                    </pre>
-                                </div>
-                            )}
-                            {log.newValues && (
-                                <div className="space-y-3">
-                                    <h4 className="text-[10px] font-medium uppercase tracking-wider text-emerald-500/70 ml-1">Trạng thái mới</h4>
-                                    <pre className="text-xs bg-emerald-500/[0.02] p-5 rounded-xl overflow-x-auto max-h-80 border border-emerald-500/10 font-mono text-emerald-500/70 leading-relaxed custom-scrollbar">
-                                        {JSON.stringify(log.newValues, null, 2)}
-                                    </pre>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Infrastructure Metadata */}
-                    <div className="pt-8 border-t border-border/10 grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {log.ipAddress && (
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">Địa chỉ IP</p>
-                                <p className="text-xs font-medium text-foreground/70 font-mono">{log.ipAddress}</p>
-                            </div>
-                        )}
-                        {log.userAgent && (
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/40">User Agent</p>
-                                <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed break-all font-mono">{log.userAgent}</p>
-                            </div>
-                        )}
+                        <p className="text-sm leading-relaxed text-foreground/80">{log.description}</p>
                     </div>
+
+                    {/* Changes Diff */}
+                    {(log.oldValues || log.newValues) && (
+                        <CollapsibleSection title="Thay đổi Chi tiết" icon={Terminal} defaultOpen={true}>
+                            <DiffViewer oldValues={log.oldValues} newValues={log.newValues} />
+                        </CollapsibleSection>
+                    )}
+
+                    {/* Metadata */}
+                    {Object.keys(log.metadata || {}).length > 0 && (
+                        <CollapsibleSection title="Siêu dữ liệu" icon={Terminal} defaultOpen={false}>
+                            <div className="relative">
+                                <div className="absolute top-2 right-2 z-10">
+                                    <CopyButton text={JSON.stringify(log.metadata, null, 2)} label="metadata" />
+                                </div>
+                                <pre className="text-xs bg-muted/20 p-4 pr-20 rounded-xl overflow-x-auto border border-border/10 font-mono text-muted-foreground/80 leading-relaxed">
+                                    {JSON.stringify(log.metadata, null, 2)}
+                                </pre>
+                            </div>
+                        </CollapsibleSection>
+                    )}
+
+                    {/* Technical Info */}
+                    {(log.ipAddress || log.userAgent) && (
+                        <div className="pt-4 border-t border-border/10 space-y-3">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Globe className="size-3.5 text-muted-foreground/50" />
+                                <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Thông tin Kỹ thuật</h4>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {log.ipAddress && (
+                                    <div className="p-3 rounded-lg bg-muted/10 border border-border/10">
+                                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50 mb-1">Địa chỉ IP</p>
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs font-mono text-foreground/70">{log.ipAddress}</p>
+                                            <CopyButton text={log.ipAddress} />
+                                        </div>
+                                    </div>
+                                )}
+                                {log.userAgent && (
+                                    <div className="p-3 rounded-lg bg-muted/10 border border-border/10">
+                                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50 mb-1">User Agent</p>
+                                        <div className="flex items-start justify-between gap-2">
+                                            <p className="text-[10px] font-mono text-muted-foreground/60 leading-relaxed break-all flex-1">{log.userAgent}</p>
+                                            <CopyButton text={log.userAgent} />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
                 </div>
             </DialogContent>
         </Dialog>
@@ -223,16 +387,17 @@ export function AuditLogsPage() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">Tất cả</SelectItem>
-                                    <SelectItem value="User">Người dùng</SelectItem>
-                                    <SelectItem value="Auth">Xác thực</SelectItem>
-                                    <SelectItem value="Course">Khóa học</SelectItem>
-                                    <SelectItem value="Lesson">Bài học</SelectItem>
-                                    <SelectItem value="Order">Đơn hàng</SelectItem>
-                                    <SelectItem value="Payment">Giao dịch</SelectItem>
-                                    <SelectItem value="Review">Đánh giá</SelectItem>
-                                    <SelectItem value="Coupon">Mã giảm giá</SelectItem>
-                                    <SelectItem value="Ticket">Hỗ trợ</SelectItem>
-                                    <SelectItem value="System">Hệ thống</SelectItem>
+                                    <SelectItem value="user">Người dùng</SelectItem>
+                                    <SelectItem value="permission">Phân quyền</SelectItem>
+                                    <SelectItem value="course">Khóa học</SelectItem>
+                                    <SelectItem value="module">Module</SelectItem>
+                                    <SelectItem value="lesson">Bài học</SelectItem>
+                                    <SelectItem value="ticket">Hỗ trợ</SelectItem>
+                                    <SelectItem value="meet_room">Phòng họp</SelectItem>
+                                    <SelectItem value="order">Đơn hàng</SelectItem>
+                                    <SelectItem value="payment">Giao dịch</SelectItem>
+                                    <SelectItem value="review">Đánh giá</SelectItem>
+                                    <SelectItem value="coupon">Mã giảm giá</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -308,7 +473,7 @@ export function AuditLogsPage() {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                (data?.data || []).map((log) => (
+                                (data?.data || []).map((log: AuditLog) => (
                                     <TableRow key={log.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
                                         <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-mono">
                                             {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}

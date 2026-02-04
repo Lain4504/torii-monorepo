@@ -78,8 +78,6 @@ export class AuditLogRepository implements IAuditLogRepository {
             metadata: log.metadata as Record<string, unknown> | null,
             oldValues: log.oldValues as Record<string, unknown> | null,
             newValues: log.newValues as Record<string, unknown> | null,
-            ipAddress: log.ipAddress,
-            userAgent: log.userAgent,
             createdAt: log.createdAt,
             user: log.user ? {
                 id: log.user.id,
@@ -121,8 +119,6 @@ export class AuditLogRepository implements IAuditLogRepository {
             metadata: log.metadata as Record<string, unknown> | null,
             oldValues: log.oldValues as Record<string, unknown> | null,
             newValues: log.newValues as Record<string, unknown> | null,
-            ipAddress: log.ipAddress,
-            userAgent: log.userAgent,
             createdAt: log.createdAt,
             user: log.user ? {
                 id: log.user.id,

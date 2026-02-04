@@ -13,8 +13,6 @@ export const auditLogEntryDTOSchema = z.object({
     metadata: z.record(z.any()).optional(),
     oldValues: z.record(z.any()).optional(),
     newValues: z.record(z.any()).optional(),
-    ipAddress: z.string().optional(),
-    userAgent: z.string().optional(),
 });
 
 export type AuditLogEntryDTO = z.infer<typeof auditLogEntryDTOSchema>;
@@ -44,8 +42,6 @@ export const auditContextDTOSchema = z.object({
     actorId: z.string().uuid(),
     actorEmail: z.string().email(),
     actorRole: z.string(),
-    ipAddress: z.string().optional(),
-    userAgent: z.string().optional(),
 });
 
 export type AuditContextDTO = z.infer<typeof auditContextDTOSchema>;
@@ -64,8 +60,6 @@ export const auditLogResponseDTOSchema = z.object({
     metadata: z.record(z.any()).nullable(),
     oldValues: z.record(z.any()).nullable(),
     newValues: z.record(z.any()).nullable(),
-    ipAddress: z.string().nullable(),
-    userAgent: z.string().nullable(),
     createdAt: z.date(),
     user: z.object({
         id: z.string().uuid(),

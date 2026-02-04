@@ -6,7 +6,9 @@ import {
     ForbiddenException,
     Inject,
     ConflictException,
+    Logger,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { v4 as uuidv4 } from 'uuid';
@@ -42,7 +44,30 @@ export class UsersService implements IUsersService {
         @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
         @InjectMapper() private readonly mapper: Mapper,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
+
+    private readonly logger = new Logger(UsersService.name);
+
+    /**
+     * Helper to emit audit log event
+     */
+    private async createAuditLog(entry: {
+        userId: string;
+        action: string;
+        entity: string;
+        entityId?: string;
+        description: string;
+        metadata?: any;
+        oldValues?: any;
+        newValues?: any;
+    }) {
+        try {
+            this.natsClient.emit({ cmd: 'identity.audit.log' }, entry);
+        } catch (error) {
+            this.logger.error(`Failed to emit audit log: ${error.message}`);
+        }
+    }
 
     /**
      * Helper to check if requester has a specific permission
@@ -186,6 +211,15 @@ export class UsersService implements IUsersService {
             randomPassword // Send plain password in email (only time it's exposed)
         );
 
+        await this.createAuditLog({
+            userId: adminId,
+            action: 'user.create_internal',
+            entity: 'user',
+            entityId: user.id,
+            description: `Admin created internal user: ${user.email} with role ${user.role}`,
+            newValues: { id: user.id, email: user.email, role: user.role, displayName: user.displayName },
+        });
+
         // Map Prisma User to UserResponseDTO using AutoMapper
         return this.mapper.map<User, UserResponseDTO>(user, 'User', 'UserResponseDTO');
     }
@@ -254,6 +288,16 @@ export class UsersService implements IUsersService {
 
         const updatedUser = await this.usersRepository.update(userId, updateData);
 
+        await this.createAuditLog({
+            userId: requester.sub,
+            action: requester.sub === userId ? 'user.update_self' : 'user.update_admin',
+            entity: 'user',
+            entityId: userId,
+            description: requester.sub === userId ? 'User updated their profile' : `Admin updated user: ${user.email}`,
+            oldValues: user,
+            newValues: updatedUser,
+        });
+
         // Map Prisma User to UserResponseDTO using AutoMapper
         return this.mapper.map<User, UserResponseDTO>(updatedUser, 'User', 'UserResponseDTO');
     }
@@ -279,7 +323,17 @@ export class UsersService implements IUsersService {
         } else {
             // Soft delete - mark as deleted
             await this.usersRepository.softDelete(userId);
-            return { message: 'User soft deleted' };
         }
+
+        await this.createAuditLog({
+            userId: requester.sub,
+            action: hardDelete ? 'user.hard_delete' : 'user.delete',
+            entity: 'user',
+            entityId: userId,
+            description: `${hardDelete ? 'Hard deleted' : 'Soft deleted'} user: ${user.email}`,
+            oldValues: user,
+        });
+
+        return { message: hardDelete ? 'User permanently deleted' : 'User soft deleted' };
     }
 }

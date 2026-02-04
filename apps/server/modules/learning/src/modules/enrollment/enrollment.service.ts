@@ -310,10 +310,48 @@ export class EnrollmentService implements IEnrollmentService {
             }
             await this.enrollmentRepository.delete(enrollment.id);
             this.logger.log(`Deleted enrollment ${enrollment.id} for user ${userId} and course ${courseId}`);
+
+            // Log Audit
+            await this.logAudit({
+                action: 'enrollment.delete',
+                entity: 'enrollment',
+                entityId: enrollment.id,
+                description: `Deleted enrollment for user ${userId} and course ${courseId}`,
+                oldValues: enrollment,
+            });
+
             return true;
         } catch (error: any) {
             this.logger.error(`Error deleting enrollment: ${error.message}`, error.stack);
             throw error;
+        }
+    }
+
+    /**
+     * Helper to log audit entries to Identity Service
+     */
+    private async logAudit(data: {
+        userId?: string;
+        action: string;
+        entity: string;
+        entityId: string;
+        description: string;
+        oldValues?: any;
+        newValues?: any;
+    }) {
+        try {
+            this.natsClient.emit({ cmd: 'identity.audit.log' }, {
+                userId: data.userId,
+                action: data.action,
+                entity: data.entity,
+                entityId: data.entityId,
+                description: data.description,
+                oldValues: data.oldValues,
+                newValues: data.newValues,
+                timestamp: new Date(),
+            });
+        } catch (error) {
+            this.logger.error(`Failed to log audit for ${data.action}`, error);
         }
     }
 }

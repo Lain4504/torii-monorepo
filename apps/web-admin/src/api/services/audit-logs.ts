@@ -46,8 +46,17 @@ export interface PaginatedAuditLogs {
 // API calls
 const auditLogsApi = {
     async query(params: AuditLogFilters) {
-        const res = await apiClient.get<StandardApiResponse<PaginatedAuditLogs>>('/api/admin/audit-logs', { params });
-        return res.data.data!;
+        const res = await apiClient.get<any>('/api/admin/audit-logs', { params });
+        // Backend uses successPaginatedResponse which spreads pagination to top level
+        // Response: { success: true, data: [...], total, page, limit, totalPages }
+        // We need to return it as-is since it already matches PaginatedAuditLogs structure
+        return {
+            data: res.data.data,
+            total: res.data.total,
+            page: res.data.page,
+            limit: res.data.limit,
+            totalPages: res.data.totalPages,
+        };
     },
     async getEntityActivity(entity: string, entityId: string, limit: number = 20) {
         const res = await apiClient.get<StandardApiResponse<AuditLog[]>>(`/api/admin/audit-logs/entity/${entity}/${entityId}`, {
@@ -72,4 +81,3 @@ export function useEntityActivity(entity: string, entityId: string, limit: numbe
         enabled: !!entityId,
     });
 }
-
