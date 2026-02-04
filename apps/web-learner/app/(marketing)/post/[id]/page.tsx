@@ -15,7 +15,7 @@ import {
     BreadcrumbSeparator,
 } from '@workspace/ui/components/breadcrumb'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { Loader2, Calendar, User, Eye, Share2, Heart, Bookmark, Clock, List, ChevronRight } from 'lucide-react'
+import { Loader2, Calendar, User, Eye, Share2, Heart, Bookmark, Clock, List, ChevronRight, MessageCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import Link from 'next/link'
@@ -149,6 +149,10 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                             <Eye className="w-4 h-4 text-primary" />
                             <span>{post.viewCount || 0} lượt xem</span>
                         </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+                            <MessageCircle className="w-4 h-4 text-primary" />
+                            <span>{post.commentCount || 0} bình luận</span>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -224,7 +228,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
                         {/* Comments System */}
                         <div className="pt-16 border-t">
-                            <CommentSection postId={post.id} />
+                            <CommentSection
+                                postId={post.id}
+                                onCommentCountChange={(delta) => {
+                                    setPost(prev => prev ? { ...prev, commentCount: (prev.commentCount || 0) + delta } : null)
+                                }}
+                            />
                         </div>
                     </div>
 

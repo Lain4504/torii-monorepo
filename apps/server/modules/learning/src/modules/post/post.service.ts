@@ -94,8 +94,7 @@ export class PostService implements IPostService {
       authorId: finalDto.authorId,
       status: finalDto.status || PostStatus.DRAFT,
       publishedAt: finalDto.publishedAt || null,
-      seoTitle: (finalDto as any).seoTitle,
-      seoDescription: (finalDto as any).seoDescription,
+
       tags: finalDto.tags || [],
     });
 
