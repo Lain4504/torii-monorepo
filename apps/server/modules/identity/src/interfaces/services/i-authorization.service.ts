@@ -68,19 +68,15 @@ export interface IAuthorizationService {
         context?: AuditContextDTO,
     ): Promise<void>;
 
-    /**
-     * Add single permission to a role - ADMIN only
-     * @param roleCode - The role code
-     * @param permissionCode - The permission code to add
-     */
-    addPermissionToRole(roleCode: string, permissionCode: string): Promise<void>;
+    addPermissionToRole(roleCode: string, permissionCode: string, context?: AuditContextDTO): Promise<void>;
 
     /**
      * Remove permission from a role - ADMIN only
      * @param roleCode - The role code
      * @param permissionCode - The permission code to remove
+     * @param context - Optional audit context
      */
-    removePermissionFromRole(roleCode: string, permissionCode: string): Promise<void>;
+    removePermissionFromRole(roleCode: string, permissionCode: string, context?: AuditContextDTO): Promise<void>;
 
 
 

@@ -1,4 +1,5 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
 import { AuthorizationConfigService } from './authorization-config.service';
 import type { IAuditLogService, IAuthorizationService, RoleMetadata, PermissionMetadata } from '../../interfaces/services';
@@ -18,7 +19,30 @@ export class AuthorizationService implements IAuthorizationService {
         private readonly prisma: PrismaService,
         private readonly authorizationConfig: AuthorizationConfigService,
         @Inject(AUDIT_LOG_SERVICE_TOKEN) private readonly auditLog: IAuditLogService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
+
+    private readonly logger = new Logger(AuthorizationService.name);
+
+    /**
+     * Helper to emit audit log event
+     */
+    private async createAuditLog(entry: {
+        userId: string;
+        action: string;
+        entity: string;
+        entityId?: string;
+        description: string;
+        metadata?: any;
+        oldValues?: any;
+        newValues?: any;
+    }) {
+        try {
+            this.natsClient.emit({ cmd: 'identity.audit.log' }, entry);
+        } catch (error) {
+            this.logger.error(`Failed to emit audit log: ${error.message}`);
+        }
+    }
 
     /**
      * Get all permissions for a user based on their role and custom permissions
@@ -111,7 +135,7 @@ export class AuthorizationService implements IAuthorizationService {
 
         // Audit log
         if (context) {
-            await this.auditLog.log({
+            await this.createAuditLog({
                 userId: context.actorId,
                 action: 'permission.update_role',
                 entity: 'role_permission',
@@ -124,8 +148,6 @@ export class AuthorizationService implements IAuthorizationService {
                 },
                 oldValues: { permissions: oldPermissions },
                 newValues: { permissions: permissionCodes },
-                ipAddress: context.ipAddress,
-                userAgent: context.userAgent,
             });
         }
     }
@@ -133,7 +155,7 @@ export class AuthorizationService implements IAuthorizationService {
     /**
      * ADMIN: Add single permission to a role
      */
-    async addPermissionToRole(roleCode: string, permissionCode: string): Promise<void> {
+    async addPermissionToRole(roleCode: string, permissionCode: string, context?: AuditContextDTO): Promise<void> {
         // Validate
         if (!this.authorizationConfig.getRoleByCode(roleCode)) {
             throw new Error(`Role ${roleCode} not found`);
@@ -149,15 +171,37 @@ export class AuthorizationService implements IAuthorizationService {
             create: { roleCode, permissionCode },
             update: {},
         });
+
+        if (context) {
+            await this.createAuditLog({
+                userId: context.actorId,
+                action: 'permission.add_to_role',
+                entity: 'role_permission',
+                entityId: roleCode,
+                description: `Added permission "${permissionCode}" to role "${roleCode}"`,
+                newValues: { roleCode, permissionCode },
+            });
+        }
     }
 
     /**
      * ADMIN: Remove permission from a role
      */
-    async removePermissionFromRole(roleCode: string, permissionCode: string): Promise<void> {
+    async removePermissionFromRole(roleCode: string, permissionCode: string, context?: AuditContextDTO): Promise<void> {
         await this.prisma.rolePermission.deleteMany({
             where: { roleCode, permissionCode },
         });
+
+        if (context) {
+            await this.createAuditLog({
+                userId: context.actorId,
+                action: 'permission.remove_from_role',
+                entity: 'role_permission',
+                entityId: roleCode,
+                description: `Removed permission "${permissionCode}" from role "${roleCode}"`,
+                oldValues: { roleCode, permissionCode },
+            });
+        }
     }
 
 

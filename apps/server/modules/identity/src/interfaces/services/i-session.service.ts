@@ -13,7 +13,6 @@ export interface ISessionService {
      */
     createSession(
         userId: string,
-        metadata?: { ipAddress?: string; userAgent?: string }
     ): Promise<string>;
 
     /**

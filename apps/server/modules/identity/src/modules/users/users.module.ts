@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { PrismaModule, NatsClientModule } from '@server/shared';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { UserProfile } from '../../infrastructure/mappings/user.profile';
@@ -12,7 +13,7 @@ import { USERS_SERVICE_TOKEN } from '../../interfaces/services';
  * Handles user management and profile operations
  */
 @Module({
-    imports: [AuthorizationModule, EmailModule],
+    imports: [PrismaModule, NatsClientModule, AuthorizationModule, EmailModule],
     providers: [
         {
             provide: USERS_REPOSITORY_TOKEN,

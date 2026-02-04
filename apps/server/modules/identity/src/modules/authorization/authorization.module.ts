@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { PrismaModule, NatsClientModule } from '@server/shared';
 import { AuthorizationService } from './authorization.service';
 import { AuthorizationConfigService } from './authorization-config.service';
 import { AuthorizationSeederService } from './authorization-seeder.service';
@@ -11,7 +12,7 @@ import { AUTHORIZATION_SERVICE_TOKEN } from '../../interfaces/services';
  * Handles permissions, roles, and access control
  */
 @Module({
-    imports: [AuditModule],
+    imports: [PrismaModule, NatsClientModule, AuditModule],
     controllers: [AuthorizationMessagingController],
     providers: [
         {

@@ -1,4 +1,5 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import type { Lesson } from '@prisma/generated';
 
 import { UserRole } from '@workspace/schemas';
@@ -33,7 +34,29 @@ export class LessonService implements ILessonService {
     private readonly courseService: ICourseService,
     @Inject(forwardRef(() => ENROLLMENT_SERVICE_TOKEN))
     private readonly enrollmentService: IEnrollmentService,
+    @Inject('NATS_SERVICE')
+    private readonly natsClient: ClientProxy,
   ) { }
+
+  /**
+   * Helper to emit audit log event
+   */
+  private async createAuditLog(entry: {
+    userId: string;
+    action: string;
+    entity: string;
+    entityId?: string;
+    description: string;
+    metadata?: any;
+    oldValues?: any;
+    newValues?: any;
+  }) {
+    try {
+      this.natsClient.emit({ cmd: 'identity.audit.log' }, entry);
+    } catch (error) {
+      this.logger.error(`Failed to emit audit log: ${error.message}`);
+    }
+  }
 
   /**
    * Helper to check if requester has a specific permission
@@ -241,6 +264,15 @@ export class LessonService implements ILessonService {
 
       const lesson = await this.lessonRepository.create(data);
 
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: 'course_lesson.create',
+        entity: 'course_lesson',
+        entityId: lesson.id,
+        description: `Created lesson: ${lesson.title}`,
+        newValues: lesson,
+      });
+
       // Update course stats
       await this.triggerStatsUpdate(dto.moduleId);
 
@@ -300,6 +332,16 @@ export class LessonService implements ILessonService {
 
       const lesson = await this.lessonRepository.update(lessonId, updateData);
 
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: 'course_lesson.update',
+        entity: 'course_lesson',
+        entityId: lessonId,
+        description: `Updated lesson: ${lesson.title}`,
+        oldValues: existing,
+        newValues: lesson,
+      });
+
       // Update course stats if status changed
       if ((dto as any).status !== undefined && (dto as any).status !== (existing as any).status) {
         await this.triggerStatsUpdate(existing.moduleId);
@@ -335,6 +377,15 @@ export class LessonService implements ILessonService {
         await this.lessonRepository.softDelete(lessonId);
       }
 
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: hardDelete ? 'course_lesson.hard_delete' : 'course_lesson.delete',
+        entity: 'course_lesson',
+        entityId: lessonId,
+        description: `${hardDelete ? 'Hard deleted' : 'Soft deleted'} lesson: ${existing.title}`,
+        oldValues: existing,
+      });
+
       // Update course stats
       await this.triggerStatsUpdate(existing.moduleId);
 
@@ -360,6 +411,16 @@ export class LessonService implements ILessonService {
 
     try {
       await this.lessonRepository.reorder(moduleId, lessonOrders);
+
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: 'course_lesson.reorder',
+        entity: 'course_lesson',
+        entityId: moduleId,
+        description: `Reordered lessons in module ${moduleId}`,
+        metadata: { lessonOrders },
+      });
+
       return { message: 'Lessons reordered successfully' };
     }
     catch (error: any) {

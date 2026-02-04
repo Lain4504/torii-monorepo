@@ -46,11 +46,8 @@ export class AuthHandler {
     }
 
     @MessagePattern({ cmd: 'identity.session.create' })
-    async createSession(@Payload() data: { userId: string; ipAddress?: string; userAgent?: string }) {
-        return this.sessionService.createSession(data.userId, {
-            ipAddress: data.ipAddress,
-            userAgent: data.userAgent,
-        });
+    async createSession(@Payload() data: { userId: string }) {
+        return this.sessionService.createSession(data.userId);
     }
 
     @MessagePattern({ cmd: 'identity.session.list' })
@@ -77,7 +74,7 @@ export class AuthHandler {
     }
 
     @MessagePattern({ cmd: 'identity.auth.refreshToken' })
-    async refreshToken(@Payload() data: { refreshToken: string; ipAddress?: string; userAgent?: string }) {
+    async refreshToken(@Payload() data: { refreshToken: string }) {
         // Verify refresh token
         const payload = await this.sessionService.verifySession(data.refreshToken);
         if (!payload) {

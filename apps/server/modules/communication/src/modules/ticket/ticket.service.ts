@@ -27,6 +27,26 @@ export class TicketService implements ITicketService {
         private readonly natsClient: ClientProxy,
     ) { }
 
+    /**
+     * Helper to emit audit log event
+     */
+    private async createAuditLog(entry: {
+        userId: string;
+        action: string;
+        entity: string;
+        entityId?: string;
+        description: string;
+        metadata?: any;
+        oldValues?: any;
+        newValues?: any;
+    }) {
+        try {
+            this.natsClient.emit({ cmd: 'identity.audit.log' }, entry);
+        } catch (error) {
+            this.logger.error(`Failed to emit audit log: ${error.message}`);
+        }
+    }
+
     async createTicket(userId: string, dto: CreateTicketDTO): Promise<Ticket> {
         // Validate refund ticket
         if (dto.type === TicketType.REFUND) {
@@ -49,7 +69,11 @@ export class TicketService implements ITicketService {
             }
         }
 
-        return this.ticketRepository.create({ ...dto, userId });
+        const ticket = await this.ticketRepository.create({ ...dto, userId });
+
+
+
+        return ticket;
     }
 
     async getTicketById(id: string): Promise<Ticket> {
@@ -112,6 +136,17 @@ export class TicketService implements ITicketService {
         }
 
         const updatedTicket = await this.ticketRepository.updateStatus(id, dto.status, dto.response, handlerId);
+
+        await this.createAuditLog({
+            userId: handlerId,
+            action: 'ticket.update_status',
+            entity: 'ticket',
+            entityId: id,
+            description: `Updated ticket status to ${dto.status}`,
+            oldValues: { status: ticket.status, response: (ticket as any).response },
+            newValues: { status: updatedTicket.status, response: (updatedTicket as any).response },
+            metadata: { handlerId },
+        });
 
         // Send Notification to User
         try {
