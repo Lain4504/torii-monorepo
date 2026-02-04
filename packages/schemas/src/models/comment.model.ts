@@ -1,9 +1,13 @@
 import { z } from 'zod';
 
+export enum CommentTargetType {
+    BLOG = 'BLOG',
+    QA = 'QA',
+    LESSON = 'LESSON',
+}
+
 export const commentSchema = z.object({
     id: z.string().uuid(),
-    postId: z.string().uuid().optional().nullable(),
-    qaId: z.string().uuid().optional().nullable(),
     userId: z.string().uuid(),
     parentCommentId: z.string().uuid().optional().nullable(),
     content: z.string().min(1),

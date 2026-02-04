@@ -48,7 +48,8 @@ export class CommentRepository implements ICommentRepository {
         orderBy?: Prisma.CommentOrderByWithRelationInput;
         includeReplyCount?: boolean;
         currentUserId?: string;
-    }): Promise<(Comment & { _count?: { replies?: number } })[]> {
+        includeReplies?: boolean; // New option
+    }): Promise<(Comment & { _count?: { replies?: number }; replies?: any[] })[]> {
         return this.prisma.comment.findMany({
             where: options.where,
             skip: options.skip,
@@ -61,13 +62,28 @@ export class CommentRepository implements ICommentRepository {
                         select: { replies: true, likes: true },
                     },
                 } : {}),
+                ...(options.includeReplies ? {
+                    replies: {
+                        where: { status: { not: 'deleted' } },
+                        orderBy: { createdAt: 'asc' },
+                        include: {
+                            user: true,
+                            _count: { select: { likes: true } },
+                            ...(options.currentUserId ? {
+                                likes: {
+                                    where: { userId: options.currentUserId },
+                                },
+                            } : {})
+                        },
+                    },
+                } : {}),
                 ...(options.currentUserId ? {
                     likes: {
                         where: { userId: options.currentUserId },
                     },
                 } : {}),
             },
-        }) as Promise<(Comment & { _count?: { replies: number; likes: number }; likes?: any[] })[]>;
+        }) as Promise<(Comment & { _count?: { replies: number; likes: number }; likes?: any[]; replies?: any[] })[]>;
     }
 
     /**
@@ -84,6 +100,31 @@ export class CommentRepository implements ICommentRepository {
         return this.prisma.comment.create({
             data,
             include: { user: true },
+        });
+    }
+
+    /**
+     * Create comment with target (Transaction)
+     */
+    async createWithTarget(
+        data: Prisma.CommentCreateInput,
+        target: { targetType: any; targetId: string } // Type 'any' for enum avoiding circular deps if needed
+    ): Promise<Comment> {
+        return this.prisma.$transaction(async (tx) => {
+            const comment = await tx.comment.create({
+                data,
+                include: { user: true },
+            });
+
+            await tx.commentTarget.create({
+                data: {
+                    commentId: comment.id,
+                    targetType: target.targetType,
+                    targetId: target.targetId,
+                },
+            });
+
+            return comment;
         });
     }
 

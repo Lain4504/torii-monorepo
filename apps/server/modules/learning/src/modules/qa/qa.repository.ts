@@ -16,14 +16,14 @@ export class QARepository {
         cursor?: Prisma.QAWhereUniqueInput;
         where?: Prisma.QAWhereInput;
         orderBy?: Prisma.QAOrderByWithRelationInput;
-    }): Promise<(QA & { author: any, _count: { likes: number, comments: number } })[]> {
+    }): Promise<(QA & { author: any, _count: { likes: number } })[]> {
         // @ts-ignore - Prisma types might not perfectly match with include
         return this.prisma.qA.findMany({
             ...params,
             include: {
                 author: true,
                 _count: {
-                    select: { likes: true, comments: true },
+                    select: { likes: true },
                 },
             },
         });
@@ -33,14 +33,14 @@ export class QARepository {
         return this.prisma.qA.count({ where });
     }
 
-    async findById(id: string): Promise<(QA & { author: any, _count: { likes: number, comments: number } }) | null> {
+    async findById(id: string): Promise<(QA & { author: any, _count: { likes: number } }) | null> {
         // @ts-ignore
         return this.prisma.qA.findUnique({
             where: { id },
             include: {
                 author: true,
                 _count: {
-                    select: { likes: true, comments: true },
+                    select: { likes: true },
                 },
             },
         });

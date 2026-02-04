@@ -1,19 +1,15 @@
 import { z } from 'zod';
-import { commentSchema } from '../models/comment.model';
+import { commentSchema, CommentTargetType } from '../models/comment.model';
 import { paginatedResponseSchema } from './common.dto';
 
-export const commentCreateDTOSchema = commentSchema.pick({
-    postId: true,
-    qaId: true,
-    userId: true,
-    content: true,
-    parentCommentId: true,
-}).extend({
-    authorId: z.string().uuid().optional(), // Alias for userId for backward compatibility
-    parentId: z.string().uuid().optional(), // Alias for parentCommentId
-}).refine((data) => data.postId || data.qaId, {
-    message: "Either postId or qaId must be provided",
-    path: ["postId", "qaId"],
+// Use extend to add non-model fields or pick to select model fields
+export const commentCreateDTOSchema = z.object({
+    targetType: z.nativeEnum(CommentTargetType),
+    entityId: z.string().uuid(),
+    userId: z.string().uuid(),
+    content: z.string().min(1),
+    parentId: z.string().uuid().optional(),
+    authorId: z.string().uuid().optional(), // Alias
 });
 
 export type CommentCreateDTO = z.infer<typeof commentCreateDTOSchema>;
@@ -27,8 +23,8 @@ export type CommentUpdateDTO = z.infer<typeof commentUpdateDTOSchema>;
 export const commentQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(100).default(20),
-    postId: z.string().uuid().optional(),
-    qaId: z.string().uuid().optional(),
+    entityId: z.string().uuid().optional(),
+    targetType: z.nativeEnum(CommentTargetType).optional(),
     parentId: z.string().uuid().optional(),
     sortBy: z.string().optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),

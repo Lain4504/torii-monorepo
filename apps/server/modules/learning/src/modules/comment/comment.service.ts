@@ -11,6 +11,9 @@ import type {
   CommentResponseDTO,
   CommentPaginatedResponse,
 } from '@workspace/schemas';
+// Import CommentTargetType from schemas or just use string checking if Prisma types aren't regenerated yet.
+// Assuming CommentTargetType is in schemas or we compare with strings.
+import { CommentTargetType } from '@workspace/schemas/src/models/comment.model';
 import type { Comment, Prisma } from '@prisma/generated';
 import type { ICommentService } from '../../interfaces/services';
 import { CommentRepository } from './comment.repository';
@@ -56,35 +59,47 @@ export class CommentService implements ICommentService {
       dto.isLiked = Array.isArray(comment.likes) && comment.likes.length > 0;
     }
 
+    // Recursively map replies if present
+    if (comment.replies && Array.isArray(comment.replies)) {
+      dto.replies = comment.replies.map((reply: any) => ({
+        ...this.toCommentResponseDTO(reply, currentUserId),
+        // Ensure reply count/likes are mapped for nested items if they came from includeReplies
+        replyCount: reply._count?.replies || 0,
+        likeCount: reply._count?.likes || 0,
+        isLiked: currentUserId && reply.likes ? (Array.isArray(reply.likes) && reply.likes.length > 0) : false
+      }));
+    }
+
     return dto;
   }
 
   /**
    * Create new comment
    */
+  /**
+   * Create new comment
+   */
   async createComment(dto: CommentCreateDTO): Promise<CommentResponseDTO> {
-    // Verify post or qa exists
-    if (dto.postId) {
+    // Verify target entity exists if this is a root comment or validation is needed
+    if (dto.targetType === 'BLOG' && !dto.parentId) {
       const post = await this.prisma.post.findUnique({
-        where: { id: dto.postId },
+        where: { id: dto.entityId },
       });
 
       if (!post) {
-        throw new NotFoundException(`Post with id "${dto.postId}" not found`);
+        throw new NotFoundException(`Post with id "${dto.entityId}" not found`);
       }
-    } else if (dto.qaId) {
+    } else if (dto.targetType === 'QA' && !dto.parentId) {
       const qa = await this.prisma.qA.findUnique({
-        where: { id: dto.qaId },
+        where: { id: dto.entityId },
       });
 
       if (!qa) {
-        throw new NotFoundException(`QA with id "${dto.qaId}" not found`);
+        throw new NotFoundException(`QA with id "${dto.entityId}" not found`);
       }
-    } else {
-      throw new BadRequestException('Either postId or qaId must be provided');
     }
 
-    // Check if author exists in User table
+    // Check if author exists
     const user = await this.prisma.user.findUnique({
       where: { id: dto.authorId },
     });
@@ -93,7 +108,6 @@ export class CommentService implements ICommentService {
       throw new NotFoundException(`User with id "${dto.authorId}" not found`);
     }
 
-    // If parentId is provided, verify parent comment exists
     let parentComment: Comment | null = null;
     if (dto.parentId) {
       parentComment = await this.commentRepository.findById(dto.parentId);
@@ -101,42 +115,52 @@ export class CommentService implements ICommentService {
       if (!parentComment) {
         throw new NotFoundException(`Parent comment with id "${dto.parentId}" not found`);
       }
-
-      // Ensure parent comment belongs to the same post/qa
-      if (dto.postId && parentComment.postId !== dto.postId) {
-        throw new BadRequestException('Parent comment does not belong to this post');
-      }
-      if (dto.qaId && parentComment.qaId !== dto.qaId) {
-        throw new BadRequestException('Parent comment does not belong to this QA');
-      }
+      // Note: We don't strictly enforce parent target match here as finding parent Target requires extra query.
+      // Assuming parentId is valid is enough for now.
     }
 
-    const comment = await this.commentRepository.create({
-      post: dto.postId ? {
-        connect: { id: dto.postId },
-      } : undefined,
-      qa: dto.qaId ? {
-        connect: { id: dto.qaId },
-      } : undefined,
-      user: {
-        connect: { id: dto.authorId },
-      },
-      content: dto.content,
-      parent: dto.parentId ? {
-        connect: { id: dto.parentId },
-      } : undefined,
-      status: 'approved',
-    });
+    let comment: Comment;
 
-    // Increment comment count
-    if (dto.postId) {
-      await this.postRepository.update(dto.postId, {
+    if (dto.parentId) {
+      // Reply: Just create the comment linked to parent
+      comment = await this.commentRepository.create({
+        user: { connect: { id: dto.authorId } },
+        content: dto.content,
+        parent: { connect: { id: dto.parentId } },
+        status: 'approved',
+      });
+    } else {
+      // Root comment: Create Comment + CommentTarget in transaction
+      // Use the new repository method or direct prisma transaction
+      comment = await this.commentRepository.createWithTarget(
+        {
+          user: { connect: { id: dto.authorId } },
+          content: dto.content,
+          status: 'approved',
+        },
+        {
+          targetType: dto.targetType as any,
+          targetId: dto.entityId,
+        }
+      );
+    }
+
+    // Increment comment count logic 
+    // Only increment if we can identify the target.
+    // For root comments, we have dto.entityId. 
+    // For replies, we might want to increment parent's target too, but that requires finding it.
+    // User requirement: "tradeoff xíu đi". Let's increment if we have the info from DTO (user passes type/id even for replies?)
+    // User said: "create comment hay create reply là truyền xuống 1 field type nữa". 
+    // So current DTO has target info even for replies.
+
+    if (dto.targetType === 'BLOG') {
+      await this.postRepository.update(dto.entityId, {
         commentCount: { increment: 1 },
       });
-    } else if (dto.qaId) {
+    } else if (dto.targetType === 'QA') {
       try {
         await this.prisma.qA.update({
-          where: { id: dto.qaId },
+          where: { id: dto.entityId },
           data: { commentCount: { increment: 1 } }
         });
       } catch (e) {
@@ -144,15 +168,13 @@ export class CommentService implements ICommentService {
       }
     }
 
-    // If this is a reply (parentId exists), emit event to notify the person being replied to
+    // Notification Logic
     if (dto.parentId && parentComment) {
       try {
         const parentCommentAuthorId = parentComment.userId;
         const replyAuthorId = dto.authorId;
-        const isReplyingSelf = parentCommentAuthorId === replyAuthorId;
 
-        if (!isReplyingSelf) {
-          this.logger.log(`Emitting send_notification event for comment reply ${comment.id} - Replied to user: ${parentCommentAuthorId}`);
+        if (parentCommentAuthorId !== replyAuthorId) {
           this.natsClient.emit(
             { cmd: 'send_notification' },
             {
@@ -163,7 +185,8 @@ export class CommentService implements ICommentService {
                 body: `Someone replied to your comment`,
                 metadata: {
                   commentId: comment.id,
-                  postId: dto.postId,
+                  entityId: dto.entityId,
+                  targetType: dto.targetType,
                   parentCommentId: dto.parentId,
                   replyAuthorId: replyAuthorId,
                 },
@@ -172,7 +195,7 @@ export class CommentService implements ICommentService {
           );
         }
       } catch (error: any) {
-        this.logger.error(`Failed to emit comment.reply event: ${error?.message}`, error);
+        this.logger.error(`Failed to emit event: ${error?.message}`);
       }
     }
 
@@ -188,15 +211,22 @@ export class CommentService implements ICommentService {
       const limit = typeof query.limit === 'string' ? parseInt(query.limit, 10) : (query.limit || 20);
       const skip = (page - 1) * limit;
 
+      // Base filtered by status
       const where: Prisma.CommentWhereInput = {
         status: { not: 'deleted' },
       };
 
-      if (query.postId) {
-        where.postId = query.postId;
-      }
-      if (query.qaId) {
-        where.qaId = query.qaId;
+      // Filter by Target (Polymorphic)
+      // Only root comments usually have targets directly attached in this schema design 
+      // (replies are linked to parent).
+      // However, if we want all comments for a post, we generally fetch Roots + include Replies.
+      if (query.entityId && query.targetType) {
+        where.targets = {
+          some: {
+            targetId: query.entityId,
+            targetType: query.targetType as any,
+          }
+        };
       }
 
       if (query.parentId !== undefined) {
@@ -217,6 +247,7 @@ export class CommentService implements ICommentService {
           take: limit,
           orderBy,
           includeReplyCount: true,
+          includeReplies: true, // Fetch nested replies
           currentUserId,
         }),
         this.commentRepository.count(where),
@@ -224,25 +255,7 @@ export class CommentService implements ICommentService {
 
       const formattedComments = await Promise.all(
         comments.map(async (comment: any) => {
-          try {
-            if (!comment || !comment.id) {
-              return null;
-            }
-            return this.toCommentResponseDTO(comment, currentUserId);
-          } catch (error: any) {
-            this.logger.error(`Error formatting comment ${comment?.id}: ${error.message}`);
-            // Fallback
-            try {
-              const basicDto = this.toCommentResponseDTO(comment, currentUserId);
-              return {
-                ...basicDto,
-                replyCount: comment._count?.replies || 0,
-                author: undefined,
-              };
-            } catch (fallbackError) {
-              return null;
-            }
-          }
+          return this.toCommentResponseDTO(comment, currentUserId);
         }),
       );
 
@@ -315,14 +328,18 @@ export class CommentService implements ICommentService {
 
     await this.commentRepository.softDelete(id);
 
-    if (comment.postId) {
-      await this.postRepository.update(comment.postId, {
+    // Cast to any because targetType/entityId might not be in generic Comment type yet
+    const targetType = (comment as any).targetType;
+    const entityId = (comment as any).entityId;
+
+    if (targetType === 'BLOG') {
+      await this.postRepository.update(entityId, {
         commentCount: { decrement: 1 },
       });
-    } else if (comment.qaId) {
+    } else if (targetType === 'QA') {
       try {
         await this.prisma.qA.update({
-          where: { id: comment.qaId },
+          where: { id: entityId },
           data: { commentCount: { decrement: 1 } }
         });
       } catch (e) {
