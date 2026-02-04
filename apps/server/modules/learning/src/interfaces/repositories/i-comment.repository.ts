@@ -24,6 +24,7 @@ export interface ICommentRepository {
         where?: Prisma.CommentWhereInput;
         orderBy?: Prisma.CommentOrderByWithRelationInput;
         includeReplyCount?: boolean;
+        currentUserId?: string;
     }): Promise<Comment[]>;
 
     /**

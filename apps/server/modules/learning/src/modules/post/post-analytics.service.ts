@@ -126,7 +126,12 @@ export class PostAnalyticsService {
           // Count comments created in the time range
           const commentsInRange = await this.prisma.comment.count({
             where: {
-              postId: post.id,
+              targets: {
+                some: {
+                  targetId: post.id,
+                  targetType: 'BLOG',
+                },
+              },
               status: {
                 not: 'deleted',
               },

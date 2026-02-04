@@ -21,6 +21,7 @@ export * from './models/enrollment.model';
 export * from './models/order.model';
 export * from './models/coupon.model';
 export * from './models/ticket.model';
+export * from './models/qa.model';
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
@@ -54,6 +55,7 @@ export * from './dtos/coupon.dto';
 export * from './dtos/gamification.dto';
 export * from './dtos/live-session.dto';
 export * from './dtos/ticket.dto';
+export * from './dtos/qa.dto';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';
