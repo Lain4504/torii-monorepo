@@ -82,7 +82,8 @@ export class ReviewService implements IReviewService {
       return {
         data: reviews.map((review) => ({
           ...this.toReviewResponseDto(review),
-          courseTitle: review.course?.title
+          courseTitle: review.course?.title,
+          courseSlug: (review.course as any)?.slug
         })),
         total,
         page: pageNum,
