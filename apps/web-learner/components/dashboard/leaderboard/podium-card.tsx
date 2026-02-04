@@ -80,7 +80,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                         <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
                     )}
                     <span className="font-extrabold text-lg tabular-nums">
-                        {type === 'global' ? user.xp.toLocaleString() : user.currentStreak}
+                        {type === 'global' ? user.xp.toLocaleString() : (user.currentStreak ?? 0).toLocaleString()}
                     </span>
                     <span className="text-[10px] font-black uppercase text-muted-foreground">{type === 'global' ? 'XP' : 'Ngày'}</span>
                 </div>

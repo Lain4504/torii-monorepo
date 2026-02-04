@@ -69,7 +69,7 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                     <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
                                 )}
                                 <span className="font-bold text-lg tabular-nums">
-                                    {type === 'global' ? item.xp.toLocaleString() : item.currentStreak}
+                                    {type === 'global' ? item.xp.toLocaleString() : (item.currentStreak ?? 0).toLocaleString()}
                                 </span>
                             </div>
                         </div>

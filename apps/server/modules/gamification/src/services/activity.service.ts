@@ -176,41 +176,51 @@ export class ActivityService {
     }
 
     /**
-     * Update user XP and level in UserStats
+     * Update user XP and level in UserGamification
      */
     private async updateXP(userId: string, xpGain: number) {
         try {
-            // Use an upsert for UserStats to be safe, though it should exist from user creation
-            const stats = await this.prisma.userStats.upsert({
+            // Use an upsert for UserGamification to be safe
+            const gamification = await this.prisma.userGamification.upsert({
                 where: { userId },
                 create: {
                     userId,
-                    xp: xpGain,
-                    level: Math.floor(Math.sqrt(xpGain / 100)) + 1
+                    totalXp: xpGain,
+                    level: 1,
+                    currentXp: xpGain, // Initial XP
                 },
                 update: {
-                    xp: { increment: xpGain }
+                    totalXp: { increment: xpGain },
+                    currentXp: { increment: xpGain },
                 }
             });
 
-            this.logger.log(`Updated XP for user ${userId}: +${xpGain} XP (New total: ${stats.xp})`);
+            this.logger.log(`Updated XP for user ${userId}: +${xpGain} XP (New total: ${gamification.totalXp})`);
 
-            const newXp = stats.xp;
-            const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+            const totalXp = gamification.totalXp;
+            const newLevel = Math.floor(Math.sqrt(totalXp / 100)) + 1;
 
-            if (newLevel > stats.level) {
-                await this.prisma.userStats.update({
+            if (newLevel > gamification.level) {
+                // Level up logic
+                // Calculate currentXp (progressive XP in the new level)
+                const xpForCurrentLevel = Math.pow(newLevel - 1, 2) * 100;
+                const currentXp = totalXp - xpForCurrentLevel;
+
+                await this.prisma.userGamification.update({
                     where: { userId },
-                    data: { level: newLevel }
+                    data: {
+                        level: newLevel,
+                        currentXp: currentXp
+                    }
                 });
 
                 // Emit level up event
-                this.natsClient.emit('user.level_up', { userId, level: newLevel, xp: newXp });
+                this.natsClient.emit('user.level_up', { userId, level: newLevel, xp: totalXp });
                 this.logger.log(`User ${userId} leveled up to ${newLevel}`);
             }
 
             // Emit XP gained event for UI updates
-            this.natsClient.emit('user.xp_gained', { userId, xpGained: xpGain, totalXp: newXp });
+            this.natsClient.emit('user.xp_gained', { userId, xpGained: xpGain, totalXp: totalXp });
         } catch (error) {
             this.logger.error(`Failed to update XP for user ${userId}`, error.stack);
         }

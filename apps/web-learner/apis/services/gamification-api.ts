@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
-import type { StandardApiResponse, UserAchievementDto, StreakStatusDto, LeaderboardDto, LeaderboardUserDto } from '@workspace/schemas';
+import type { StandardApiResponse, UserAchievementDto, StreakStatusDto, LeaderboardDto, LeaderboardUserDto, UserGamificationDto } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useEffect, useRef } from 'react';
 
@@ -44,6 +44,17 @@ export const gamificationApi = {
     async markToastShown(): Promise<any> {
         const response = await apiClient.post<StandardApiResponse<any>>('/api/gamification/mark-toast-shown');
         return response.data;
+    },
+
+    /**
+     * Get user's full gamification profile
+     */
+    async getGamificationProfile(): Promise<UserGamificationDto> {
+        const response = await apiClient.get<StandardApiResponse<UserGamificationDto>>('/api/gamification/profile');
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to fetch gamification profile');
     },
 
     /**
@@ -193,5 +204,16 @@ export function useCheckIn() {
             // Refetch to get latest streak
             queryClient.invalidateQueries({ queryKey: ['streak'] });
         },
+    });
+}
+
+/**
+ * Hook: Get user's full gamification profile
+ */
+export function useGamificationProfile() {
+    return useQuery({
+        queryKey: ['gamification-profile'],
+        queryFn: gamificationApi.getGamificationProfile,
+        staleTime: 30000,
     });
 }

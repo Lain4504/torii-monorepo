@@ -25,6 +25,20 @@ export class GamificationController {
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
+    @Get('profile')
+    async getProfile(@Req() req: Request) {
+        const user = req.user as any;
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.getProfile', { userId: user.sub })
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to get gamification profile for user ${user.sub}`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch gamification profile');
+        }
+    }
+
     @Get('leaderboard')
     async getLeaderboard(@Req() req: Request) {
         const user = req.user as any;

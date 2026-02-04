@@ -6,6 +6,7 @@ import {
     StreakStatusDto,
     UserAchievementDto,
     LeaderboardDto,
+    UserGamificationDto,
 } from '@workspace/schemas';
 import { StreakService } from '../../services/streak.service';
 import { AchievementService } from '../../services/achievement.service';
@@ -33,6 +34,15 @@ export class GamificationHandler {
             return this.leaderboardService.getStreakLeaderboard(data.userId);
         }
         return this.leaderboardService.getGlobalLeaderboard(data.userId);
+    }
+
+    /**
+     * Get user's full gamification profile
+     */
+    @MessagePattern('gamification.getProfile')
+    async getProfile(@Payload() data: { userId: string }): Promise<UserGamificationDto> {
+        this.logger.log(`Getting gamification profile for user: ${data.userId}`);
+        return this.streakService.getGamificationProfile(data.userId);
     }
 
     /**

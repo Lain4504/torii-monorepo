@@ -21,7 +21,7 @@ export class UsersRepository implements IUsersRepository {
             where: { id: userId },
             include: {
                 identities: true,
-                stats: true
+                gamification: true
             },
         });
 
@@ -29,8 +29,8 @@ export class UsersRepository implements IUsersRepository {
 
         return {
             ...user,
-            xp: (user as any).stats?.xp ?? 0,
-            level: (user as any).stats?.level ?? 1,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
         } as any;
     }
 
@@ -40,15 +40,15 @@ export class UsersRepository implements IUsersRepository {
     async findByEmail(email: string): Promise<User | null> {
         const user = await this.prisma.user.findFirst({
             where: { email },
-            include: { stats: true }
+            include: { gamification: true }
         });
 
         if (!user) return null;
 
         return {
             ...user,
-            xp: (user as any).stats?.xp ?? 0,
-            level: (user as any).stats?.level ?? 1,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
         } as any;
     }
 
@@ -68,14 +68,14 @@ export class UsersRepository implements IUsersRepository {
             orderBy: options.orderBy || { createdAt: 'desc' },
             include: {
                 identities: true,
-                stats: true
+                gamification: true
             },
         });
 
         return users.map(user => ({
             ...user,
-            xp: (user as any).stats?.xp ?? 0,
-            level: (user as any).stats?.level ?? 1,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
         })) as any;
     }
 
@@ -93,20 +93,23 @@ export class UsersRepository implements IUsersRepository {
         const user = await this.prisma.user.create({
             data: {
                 ...data,
-                stats: {
-                    create: { xp: 0, level: 1 }
-                },
-                streak: {
-                    create: {}
+                gamification: {
+                    create: {
+                        level: 1,
+                        currentXp: 0,
+                        totalXp: 0,
+                        currentStreak: 0,
+                        longestStreak: 0
+                    }
                 }
             },
-            include: { stats: true, streak: true }
+            include: { gamification: true }
         });
 
         return {
             ...user,
-            xp: (user as any).stats?.xp ?? 0,
-            level: (user as any).stats?.level ?? 1,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
         } as any;
     }
 
@@ -120,13 +123,13 @@ export class UsersRepository implements IUsersRepository {
                 ...data,
                 updatedAt: new Date(),
             },
-            include: { stats: true }
+            include: { gamification: true }
         });
 
         return {
             ...user,
-            xp: (user as any).stats?.xp ?? 0,
-            level: (user as any).stats?.level ?? 1,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
         } as any;
     }
 
@@ -140,13 +143,13 @@ export class UsersRepository implements IUsersRepository {
                 ...data,
                 updatedAt: new Date(),
             },
-            include: { stats: true }
+            include: { gamification: true }
         });
 
         return {
             ...user,
-            xp: (user as any).stats?.xp ?? 0,
-            level: (user as any).stats?.level ?? 1,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
         } as any;
     }
 
@@ -169,13 +172,13 @@ export class UsersRepository implements IUsersRepository {
                 deletedAt: new Date(),
                 updatedAt: new Date(),
             },
-            include: { stats: true }
+            include: { gamification: true }
         });
 
         return {
             ...user,
-            xp: (user as any).stats?.xp ?? 0,
-            level: (user as any).stats?.level ?? 1,
+            xp: (user as any).gamification?.totalXp ?? 0,
+            level: (user as any).gamification?.level ?? 1,
         } as any;
     }
 
@@ -220,9 +223,9 @@ export class UsersRepository implements IUsersRepository {
                 verifiedAt: true,
                 createdAt: true,
                 updatedAt: true,
-                stats: {
+                gamification: {
                     select: {
-                        xp: true,
+                        totalXp: true,
                         level: true,
                     },
                 },
@@ -242,8 +245,8 @@ export class UsersRepository implements IUsersRepository {
 
         return {
             ...user,
-            xp: user.stats?.xp ?? 0,
-            level: user.stats?.level ?? 1,
+            xp: user.gamification?.totalXp ?? 0,
+            level: user.gamification?.level ?? 1,
             userMetadata,
         } as any;
     }

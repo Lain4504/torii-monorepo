@@ -9,34 +9,34 @@ export class LeaderboardService {
     constructor(private readonly prisma: PrismaService) { }
 
     /**
-     * Ensure user has a stats record
+     * Ensure user has a gamification record
      */
-    private async ensureUserStats(userId: string) {
+    private async ensureUserGamification(userId: string) {
         try {
-            await this.prisma.userStats.upsert({
+            await this.prisma.userGamification.upsert({
                 where: { userId },
-                create: { userId, xp: 0, level: 1 },
+                create: {
+                    userId,
+                    level: 1,
+                    currentXp: 0,
+                    totalXp: 0,
+                    currentStreak: 0,
+                    longestStreak: 0
+                },
                 update: {}, // Do nothing if exists
             });
-
-            // Also ensure streak record
-            await this.prisma.userStreak.upsert({
-                where: { userId },
-                create: { userId, currentStreak: 0, longestStreak: 0 },
-                update: {},
-            });
         } catch (error) {
-            this.logger.error(`Failed to ensure stats/streak for user ${userId}`, error.stack);
+            this.logger.error(`Failed to ensure gamification for user ${userId}`, error.stack);
         }
     }
 
     async getGlobalLeaderboard(userId?: string): Promise<LeaderboardDto> {
         if (userId) {
-            await this.ensureUserStats(userId);
+            await this.ensureUserGamification(userId);
         }
 
-        // Use UserStats as primary to avoid NULL sorting issues with users without stats
-        const topStats = await this.prisma.userStats.findMany({
+        // Use UserGamification as primary
+        const topGamification = await this.prisma.userGamification.findMany({
             where: {
                 user: {
                     deletedAt: null,
@@ -44,31 +44,30 @@ export class LeaderboardService {
                 },
             },
             orderBy: [
-                { xp: 'desc' },
+                { totalXp: 'desc' },
                 { user: { createdAt: 'asc' } },
             ],
             take: 100,
             include: {
                 user: {
-                    include: {
-                        streak: {
-                            select: {
-                                currentStreak: true,
-                            },
-                        },
-                    },
+                    select: {
+                        id: true,
+                        displayName: true,
+                        avatarUrl: true,
+                        createdAt: true,
+                    }
                 },
             },
         });
 
-        const users: LeaderboardUserDto[] = topStats.map((stats, index) => ({
-            id: stats.user.id,
-            displayName: stats.user.displayName,
-            avatarUrl: stats.user.avatarUrl,
-            xp: stats.xp,
-            level: stats.level,
+        const users: LeaderboardUserDto[] = topGamification.map((g, index) => ({
+            id: g.user.id,
+            displayName: g.user.displayName,
+            avatarUrl: g.user.avatarUrl,
+            xp: g.totalXp,
+            level: g.level,
             rank: index + 1,
-            currentStreak: stats.user.streak?.currentStreak || 0,
+            currentStreak: g.currentStreak,
         }));
 
         let currentUser: LeaderboardUserDto | undefined;
@@ -78,52 +77,54 @@ export class LeaderboardService {
                 currentUser = users[userIndex];
             } else {
                 // Fetch current user rank
-                const user = await this.prisma.user.findUnique({
-                    where: { id: userId },
+                const userGamification = await this.prisma.userGamification.findUnique({
+                    where: { userId },
                     include: {
-                        stats: true,
-                        streak: {
+                        user: {
                             select: {
-                                currentStreak: true,
+                                id: true,
+                                displayName: true,
+                                avatarUrl: true,
+                                createdAt: true,
                             },
                         },
                     },
                 });
 
-                if (user) {
-                    const userXp = (user as any).stats?.xp ?? 0;
+                if (userGamification) {
+                    const userXp = userGamification.totalXp;
 
                     // Count users with more XP
-                    const betterScoreCount = await this.prisma.userStats.count({
+                    const betterScoreCount = await this.prisma.userGamification.count({
                         where: {
                             user: {
                                 deletedAt: null,
                                 role: 'learner',
                             },
-                            xp: { gt: userXp },
+                            totalXp: { gt: userXp },
                         },
                     });
 
                     // Count users with same XP but joined earlier
-                    const sameScoreBetterTimeCount = await this.prisma.userStats.count({
+                    const sameScoreBetterTimeCount = await this.prisma.userGamification.count({
                         where: {
-                            xp: userXp,
+                            totalXp: userXp,
                             user: {
                                 deletedAt: null,
                                 role: 'learner',
-                                createdAt: { lt: user.createdAt },
+                                createdAt: { lt: userGamification.user.createdAt },
                             },
                         },
                     });
 
                     currentUser = {
-                        id: user.id,
-                        displayName: user.displayName,
-                        avatarUrl: user.avatarUrl,
+                        id: userGamification.user.id,
+                        displayName: userGamification.user.displayName,
+                        avatarUrl: userGamification.user.avatarUrl,
                         xp: userXp,
-                        level: (user as any).stats?.level ?? 1,
+                        level: userGamification.level,
                         rank: betterScoreCount + sameScoreBetterTimeCount + 1,
-                        currentStreak: user.streak?.currentStreak || 0,
+                        currentStreak: userGamification.currentStreak,
                     };
                 }
             }
@@ -143,10 +144,10 @@ export class LeaderboardService {
 
     async getStreakLeaderboard(userId?: string): Promise<LeaderboardDto> {
         if (userId) {
-            await this.ensureUserStats(userId);
+            await this.ensureUserGamification(userId);
         }
         // Similarly for streak leaderboard
-        const topStreaks = await this.prisma.userStreak.findMany({
+        const topStreaks = await this.prisma.userGamification.findMany({
             where: {
                 currentStreak: { gt: 0 },
                 user: {
@@ -165,25 +166,20 @@ export class LeaderboardService {
                         id: true,
                         displayName: true,
                         avatarUrl: true,
-                        stats: {
-                            select: {
-                                xp: true,
-                                level: true,
-                            },
-                        },
+                        createdAt: true,
                     },
                 },
             },
         });
 
-        const users: LeaderboardUserDto[] = topStreaks.map((streak, index) => ({
-            id: streak.user.id,
-            displayName: streak.user.displayName,
-            avatarUrl: streak.user.avatarUrl,
-            xp: (streak.user as any).stats?.xp || 0,
-            level: (streak.user as any).stats?.level || 1,
+        const users: LeaderboardUserDto[] = topStreaks.map((g, index) => ({
+            id: g.user.id,
+            displayName: g.user.displayName,
+            avatarUrl: g.user.avatarUrl,
+            xp: g.totalXp,
+            level: g.level,
             rank: index + 1,
-            currentStreak: streak.currentStreak,
+            currentStreak: g.currentStreak,
         }));
 
         let currentUser: LeaderboardUserDto | undefined;
@@ -192,7 +188,7 @@ export class LeaderboardService {
             if (userIndex !== -1) {
                 currentUser = users[userIndex];
             } else {
-                const streak = await this.prisma.userStreak.findUnique({
+                const userGamification = await this.prisma.userGamification.findUnique({
                     where: { userId },
                     include: {
                         user: {
@@ -200,23 +196,17 @@ export class LeaderboardService {
                                 id: true,
                                 displayName: true,
                                 avatarUrl: true,
-                                stats: {
-                                    select: {
-                                        xp: true,
-                                        level: true,
-                                    },
-                                },
                                 createdAt: true,
                             },
                         },
                     },
                 });
 
-                if (streak) {
+                if (userGamification) {
                     // Count users with higher streak
-                    const betterStreakCount = await this.prisma.userStreak.count({
+                    const betterStreakCount = await this.prisma.userGamification.count({
                         where: {
-                            currentStreak: { gt: streak.currentStreak },
+                            currentStreak: { gt: userGamification.currentStreak },
                             user: {
                                 deletedAt: null,
                                 role: 'learner',
@@ -225,25 +215,25 @@ export class LeaderboardService {
                     });
 
                     // Count users with same streak but joined earlier
-                    const sameStreakBetterTimeCount = await this.prisma.userStreak.count({
+                    const sameStreakBetterTimeCount = await this.prisma.userGamification.count({
                         where: {
-                            currentStreak: streak.currentStreak,
+                            currentStreak: userGamification.currentStreak,
                             user: {
                                 deletedAt: null,
                                 role: 'learner',
-                                createdAt: { lt: streak.user.createdAt },
+                                createdAt: { lt: userGamification.user.createdAt },
                             },
                         },
                     });
 
                     currentUser = {
-                        id: streak.user.id,
-                        displayName: streak.user.displayName,
-                        avatarUrl: streak.user.avatarUrl,
-                        xp: (streak.user as any).stats?.xp || 0,
-                        level: (streak.user as any).stats?.level || 1,
+                        id: userGamification.user.id,
+                        displayName: userGamification.user.displayName,
+                        avatarUrl: userGamification.user.avatarUrl,
+                        xp: userGamification.totalXp,
+                        level: userGamification.level,
                         rank: betterStreakCount + sameStreakBetterTimeCount + 1,
-                        currentStreak: streak.currentStreak,
+                        currentStreak: userGamification.currentStreak,
                     };
                 }
             }
@@ -253,7 +243,7 @@ export class LeaderboardService {
             where: {
                 role: 'learner',
                 deletedAt: null,
-                streak: {
+                gamification: {
                     currentStreak: { gt: 0 }
                 }
             },

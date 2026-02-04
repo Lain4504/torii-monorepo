@@ -14,20 +14,20 @@ const ACHIEVEMENT_DEFINITIONS = [
     { code: 'STREAK_14', category: 'STREAK', title: 'Hai tuần quyết tâm', description: 'Học liên tục 14 ngày', icon: 'TrendingUp', requirements: { streakDays: 14 }, rewards: { freezeCount: 3 }, orderIndex: 3 },
     { code: 'STREAK_30', category: 'STREAK', title: 'Tháng thành công', description: 'Học liên tục 30 ngày', icon: 'Trophy', requirements: { streakDays: 30 }, rewards: { freezeCount: 5 }, orderIndex: 4 },
     { code: 'STREAK_100', category: 'STREAK', title: 'Bậc thầy kiên trì', description: 'Học liên tục 100 ngày', icon: 'Star', requirements: { streakDays: 100 }, rewards: { freezeCount: 10 }, orderIndex: 5 },
-    
+
     // LEARNING_PROGRESS
     { code: 'FIRST_LESSON', category: 'LEARNING_PROGRESS', title: 'Bài học đầu tiên', description: 'Hoàn thành bài học đầu tiên', icon: 'BookOpen', requirements: { lessonsCompleted: 1 }, rewards: {}, orderIndex: 6 },
     { code: 'LESSON_50', category: 'LEARNING_PROGRESS', title: 'Người học tích cực', description: 'Hoàn thành 50 bài học', icon: 'Target', requirements: { lessonsCompleted: 50 }, rewards: { freezeCount: 1 }, orderIndex: 7 },
     { code: 'FIRST_COURSE', category: 'LEARNING_PROGRESS', title: 'Bước đầu tiên', description: 'Hoàn thành khóa học đầu tiên', icon: 'GraduationCap', requirements: { coursesCompleted: 1 }, rewards: {}, orderIndex: 8 },
     { code: 'COURSE_5', category: 'LEARNING_PROGRESS', title: 'Người học chăm chỉ', description: 'Hoàn thành 5 khóa học', icon: 'Award', requirements: { coursesCompleted: 5 }, rewards: { freezeCount: 2 }, orderIndex: 9 },
-    
+
     // MASTERY
     { code: 'QUIZ_PERFECT_N5', category: 'MASTERY', title: 'Thành thạo N5', description: 'Đạt 100% trong bài kiểm tra N5', icon: 'Zap', requirements: { quizScore: 100, jlptLevel: 'N5' }, rewards: {}, orderIndex: 10 },
     { code: 'QUIZ_PERFECT_N4', category: 'MASTERY', title: 'Thành thạo N4', description: 'Đạt 100% trong bài kiểm tra N4', icon: 'Zap', requirements: { quizScore: 100, jlptLevel: 'N4' }, rewards: { freezeCount: 1 }, orderIndex: 11 },
     { code: 'QUIZ_PERFECT_N3', category: 'MASTERY', title: 'Thành thạo N3', description: 'Đạt 100% trong bài kiểm tra N3', icon: 'Zap', requirements: { quizScore: 100, jlptLevel: 'N3' }, rewards: { freezeCount: 2 }, orderIndex: 12 },
     { code: 'FLASHCARD_100', category: 'MASTERY', title: 'Người ghi nhớ', description: 'Ôn tập 100 flashcard', icon: 'Heart', requirements: { flashcardsReviewed: 100 }, rewards: {}, orderIndex: 13 },
     { code: 'FLASHCARD_1000', category: 'MASTERY', title: 'Bậc thầy ghi nhớ', description: 'Ôn tập 1000 flashcard', icon: 'Star', requirements: { flashcardsReviewed: 1000 }, rewards: { freezeCount: 5 }, orderIndex: 14 },
-    
+
     // CONSISTENCY
     { code: 'WEEKLY_WARRIOR', category: 'CONSISTENCY', title: 'Chiến binh tuần lễ', description: 'Học ít nhất 5 ngày/tuần trong 4 tuần', icon: 'Calendar', requirements: { weeksWithFiveDays: 4 }, rewards: { freezeCount: 3 }, orderIndex: 15 },
 ];
@@ -299,7 +299,7 @@ export class AchievementService {
     ): Promise<void> {
         // Grant freeze count
         if (rewards.freezeCount && typeof rewards.freezeCount === 'number') {
-            await this.prisma.userStreak.upsert({
+            await this.prisma.userGamification.upsert({
                 where: { userId },
                 update: {
                     freezeCount: { increment: rewards.freezeCount },
@@ -307,6 +307,8 @@ export class AchievementService {
                 create: {
                     userId,
                     freezeCount: rewards.freezeCount,
+                    totalXp: 0,
+                    level: 1,
                 },
             });
         }
