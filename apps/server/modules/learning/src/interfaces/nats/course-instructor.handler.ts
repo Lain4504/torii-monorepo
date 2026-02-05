@@ -10,9 +10,9 @@ export class CourseInstructorHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.course-instructor.assign' })
-    async assignLecturer(@Payload() data: CourseInstructorAssignDTO & { userId: string, userRole: string }) {
-        const { userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async assignLecturer(@Payload() data: CourseInstructorAssignDTO & { userId: string, userRole: string, userPermissions?: string[] }) {
+        const { userId, userRole, userPermissions, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.courseInstructorService.assignLecturer(requester, dto);
     }
 
@@ -27,16 +27,16 @@ export class CourseInstructorHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course-instructor.updatePrimary' })
-    async updatePrimaryInstructor(@Payload() data: CourseInstructorUpdateDTO & { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async updatePrimaryInstructor(@Payload() data: CourseInstructorUpdateDTO & { id: string, userId: string, userRole: string, userPermissions?: string[] }) {
+        const { id, userId, userRole, userPermissions, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.courseInstructorService.updatePrimaryInstructor(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.course-instructor.unassign' })
-    async unassignLecturer(@Payload() data: { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async unassignLecturer(@Payload() data: { id: string, userId: string, userRole: string, userPermissions?: string[] }) {
+        const { id, userId, userRole, userPermissions } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.courseInstructorService.unassignLecturer(requester, id);
     }
 }

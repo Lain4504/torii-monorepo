@@ -1,0 +1,524 @@
+{
+    "info": {
+        "_postman_id": "a9d8e7b6-c5d4-e3f2-a1b0-9c8d7e6f5a4b",
+        "name": "Torii - Course Management API",
+        "description": "Postman collection for automated testing of Course, Module, and Lesson APIs.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "A. Course CRUD",
+            "item": [
+                {
+                    "name": "TC_COURSE_001: Create VOD Course",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "const jsonData = pm.response.json();",
+                                    "pm.test('Course created successfully', function () {",
+                                    "    pm.expect(jsonData.success).to.eql(true);",
+                                    "    pm.expect(jsonData.data.course.status).to.eql('draft');",
+                                    "    pm.collectionVariables.set('course_id', jsonData.data.course.id);",
+                                    "    pm.collectionVariables.set('course_slug', jsonData.data.course.slug);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Học tiếng Nhật N5 cấp tốc\",\n    \"type\": \"vod\",\n    \"description\": \"Khóa học dành cho người mới bắt đầu\",\n    \"shortDescription\": \"N5 cho người mới\",\n    \"jlptLevel\": \"N5\",\n    \"price\": 299000,\n    \"isFree\": false\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/courses",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TC_COURSE_002: Create course - Invalid Price",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 400', function () {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});",
+                                    "pm.test('Error message is correct', function () {",
+                                    "    pm.expect(pm.response.json().message).to.include('Paid courses must have a price greater than 0');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Invalid Price Course\",\n    \"isFree\": false,\n    \"price\": 0\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/courses",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TC_COURSE_003: Get All Courses",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test('Response structure is valid', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(Array.isArray(jsonData.data)).to.be.true;",
+                                    "    pm.expect(jsonData.total).to.be.not.undefined;",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses?page=1&limit=10",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TC_COURSE_004: Get Course by ID",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test('Correct course ID returned', function () {",
+                                    "    pm.expect(pm.response.json().data.course.id).to.eql(pm.collectionVariables.get('course_id'));",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/{{course_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "{{course_id}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TC_COURSE_006: Update Course",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test('Update reflected', function () {",
+                                    "    pm.expect(pm.response.json().data.course.price).to.eql(350000);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Học tiếng Nhật N5 cấp tốc (Updated)\",\n    \"price\": 350000\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/{{course_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "{{course_id}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "B. Search & Discovery",
+            "item": [
+                {
+                    "name": "TC_SEARCH_001: Advanced Search",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "const jsonData = pm.response.json();",
+                                    "pm.test('Filters applied correctly', function () {",
+                                    "    jsonData.data.forEach(course => {",
+                                    "        pm.expect(course.price).to.be.at.most(500000);",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/advanced-search?search=N5&priceMin=100000&priceMax=500000&levels=N5,N4",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "advanced-search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "N5"
+                                },
+                                {
+                                    "key": "priceMin",
+                                    "value": "100000"
+                                },
+                                {
+                                    "key": "priceMax",
+                                    "value": "500000"
+                                },
+                                {
+                                    "key": "levels",
+                                    "value": "N5,N4"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TC_SEARCH_002: Get Courses By Type",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/by-type/vod",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "by-type",
+                                "vod"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "C. Course Lifecycle",
+            "item": [
+                {
+                    "name": "TC_LIFE_001: Submit for Review",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status is pending_review', function () {",
+                                    "    pm.expect(pm.response.json().data.course.status).to.eql('pending_review');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/{{course_id}}/submit-for-review",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "{{course_id}}",
+                                "submit-for-review"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TC_LIFE_002: Publish Course",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status is published', function () {",
+                                    "    pm.expect(pm.response.json().data.course.status).to.eql('published');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/{{course_id}}/publish",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "{{course_id}}",
+                                "publish"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "D. Curriculum",
+            "item": [
+                {
+                    "name": "TC_MOD_001: Create Module",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const jsonData = pm.response.json();",
+                                    "pm.collectionVariables.set('module_id', jsonData.data.module.id);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"courseId\": \"{{course_id}}\",\n    \"title\": \"Chương 1: Bảng chữ cái Hiragana\",\n    \"description\": \"Học về 46 chữ cái Hiragana\",\n    \"orderIndex\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/modules",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "modules"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TC_LES_001: Create Lesson",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const jsonData = pm.response.json();",
+                                    "pm.collectionVariables.set('lesson_id', jsonData.data.lesson.id);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"moduleId\": \"{{module_id}}\",\n    \"title\": \"Bài 1: Hàng chữ A\",\n    \"contentType\": \"video\",\n    \"videoUrl\": \"https://video.com/les-1\",\n    \"videoDuration\": 600,\n    \"orderIndex\": 1,\n    \"isPreview\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/lessons",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "lessons"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TC_LES_002: Get Curriculum",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Curriculum has modules', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.modules.length).to.be.at.least(1);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/{{course_id}}/curriculum",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "{{course_id}}",
+                                "curriculum"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{access_token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:3001"
+        },
+        {
+            "key": "access_token",
+            "value": "your_token_here"
+        },
+        {
+            "key": "course_id",
+            "value": ""
+        },
+        {
+            "key": "course_slug",
+            "value": ""
+        },
+        {
+            "key": "module_id",
+            "value": ""
+        },
+        {
+            "key": "lesson_id",
+            "value": ""
+        }
+    ]
+}

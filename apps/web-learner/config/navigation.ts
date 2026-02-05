@@ -11,7 +11,6 @@ import {
     Settings,
     LifeBuoy,
     BrainCircuit,
-    MessageSquare,
     Bot,
     MessageSquare,
     Users,

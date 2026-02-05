@@ -10,9 +10,9 @@ export class ModuleHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.module.create' })
-    async create(@Payload() data: ModuleCreateDTO & { userId: string, userRole: string }) {
-        const { userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async create(@Payload() data: ModuleCreateDTO & { userId: string, userRole: string, userPermissions?: string[] }) {
+        const { userId, userRole, userPermissions, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.moduleService.create(requester, dto);
     }
 
@@ -22,8 +22,8 @@ export class ModuleHandler {
     }
 
     @MessagePattern({ cmd: 'learning.module.findByCourseId' })
-    async findByCourseId(@Payload() data: { courseId: string, userId: string, userRole?: string }) {
-        const requester = { sub: data.userId, role: (data.userRole || 'LEARNER') as any, permissions: [] };
+    async findByCourseId(@Payload() data: { courseId: string, userId: string, userRole?: string, userPermissions?: string[] }) {
+        const requester = { sub: data.userId, role: (data.userRole || 'LEARNER') as any, permissions: data.userPermissions || [] };
         return this.moduleService.findByCourseId(data.courseId, requester);
     }
 
@@ -33,23 +33,23 @@ export class ModuleHandler {
     }
 
     @MessagePattern({ cmd: 'learning.module.update' })
-    async update(@Payload() data: ModuleUpdateDTO & { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async update(@Payload() data: ModuleUpdateDTO & { id: string, userId: string, userRole: string, userPermissions?: string[] }) {
+        const { id, userId, userRole, userPermissions, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.moduleService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.module.delete' })
-    async delete(@Payload() data: { id: string, userId: string, userRole: string, hardDelete?: boolean }) {
-        const { id, userId, userRole, hardDelete } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async delete(@Payload() data: { id: string, userId: string, userRole: string, hardDelete?: boolean, userPermissions?: string[] }) {
+        const { id, userId, userRole, hardDelete, userPermissions } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.moduleService.delete(requester, id, hardDelete);
     }
 
     @MessagePattern({ cmd: 'learning.module.reorder' })
-    async reorder(@Payload() data: { courseId: string, moduleOrders: { id: string; orderIndex: number }[], userId: string, userRole: string }) {
-        const { courseId, moduleOrders, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async reorder(@Payload() data: { courseId: string, moduleOrders: { id: string; orderIndex: number }[], userId: string, userRole: string, userPermissions?: string[] }) {
+        const { courseId, moduleOrders, userId, userRole, userPermissions } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.moduleService.reorder(requester, courseId, moduleOrders);
     }
 }
