@@ -97,10 +97,15 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     ports:
       - "8080:8080"
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -119,8 +124,13 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -134,8 +144,13 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -149,8 +164,13 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
       - ./storage/trash:/app/trash # Mount trash for janitor
       - ./recording_files/del_backup:/app/recording_backup
     depends_on:
@@ -166,8 +186,12 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -197,8 +221,12 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -212,8 +240,12 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -227,8 +259,12 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
@@ -242,8 +278,12 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
     volumes:
-      - ./apps/server/config/config.yaml:/app/config/config.yaml
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
       - nats
       - postgres
