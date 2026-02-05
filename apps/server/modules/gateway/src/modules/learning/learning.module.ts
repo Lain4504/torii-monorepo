@@ -14,6 +14,7 @@ import { QuestionController } from './controllers/question.controller';
 import { QuestionPoolController } from './controllers/question-pool.controller';
 import { ReviewController } from './controllers/review.controller';
 import { LiveSessionController } from './controllers/live-session.controller';
+import { TeachingScheduleController } from './controllers/teaching-schedule.controller';
 
 import { WishlistController } from './controllers/wishlist.controller';
 import { BlogController } from './controllers/blog.controller';
@@ -36,6 +37,7 @@ import { CertificateController } from './controllers/certificate.controller';
     imports: [NatsClientModule],
     controllers: [
         ReviewController,
+        TeachingScheduleController,
         CourseController,
         ModuleController,
         LessonController,

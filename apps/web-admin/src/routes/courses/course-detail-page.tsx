@@ -11,8 +11,11 @@ import {
     ShieldCheck,
     Fingerprint,
     Zap,
-    Clock
+    Clock,
+    Video,
+    CalendarCheck2
 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { useCourse } from '@/api/services/courses';
 import { useModules } from '@/api/services/modules';
 import { useModulesLessons } from '@/api/services/lesson';
@@ -27,14 +30,13 @@ import { EditLessonSheet } from '@/components/lessons/edit-lesson-sheet.tsx';
 import { DeleteModuleDialog } from '@/components/modules/delete-module-dialog';
 import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog';
 import { ModuleItem } from '@/components/modules/module-item';
+import { TeachingScheduleGrid } from '@/components/courses/teaching-schedule-grid';
+import { CreateLiveSessionDialog } from '@/components/courses/create-live-session-dialog';
+import { useLiveSessions } from '@/api/services/live-sessions';
 import { cn } from '@workspace/ui/lib/utils';
 import { Card } from '@workspace/ui/components/card';
-import { formatDateTime, formatCurrency } from '@/lib/format-utils.ts';
+import { formatDateTime } from '@/lib/format-utils.ts';
 import { PageLoading } from '@workspace/ui/components/page-loading';
-import { Can } from '@/lib/guard/can';
-
-import { CreateAssignmentSheet } from '@/components/assignments/create-assignment-sheet.tsx';
-import { BookOpen } from 'lucide-react';
 
 export default function CourseDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -56,11 +58,8 @@ export default function CourseDetailPage() {
     const [deleteLessonOpen, setDeleteLessonOpen] = useState(false);
     const [selectedLesson, setSelectedLesson] = useState<LessonResponseDTO | null>(null);
 
-    const [createAssignmentOpen, setCreateAssignmentOpen] = useState(false);
-    const [assignmentContext, setAssignmentContext] = useState<{
-        moduleId?: string;
-        lessonId?: string;
-    }>({});
+    const [liveSessionOpen, setLiveSessionOpen] = useState(false);
+    const { data: liveSessions } = useLiveSessions(id || '');
 
     const modules = modulesData?.data || [];
 
@@ -90,11 +89,6 @@ export default function CourseDetailPage() {
     const handleDeleteLesson = (lesson: LessonResponseDTO) => {
         setSelectedLesson(lesson);
         setDeleteLessonOpen(true);
-    };
-
-    const handleAddAssignment = (moduleId?: string, lessonId?: string) => {
-        setAssignmentContext({ moduleId, lessonId });
-        setCreateAssignmentOpen(true);
     };
 
     if (isLoadingCourse) {
@@ -175,87 +169,151 @@ export default function CourseDetailPage() {
                                 <p className="text-lg font-bold text-foreground">{course.jlptLevel || 'N/A'}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Can permission="course.manage">
-                                <Button
-                                    onClick={() => handleAddAssignment()}
-                                    variant="outline"
-                                    className="h-11 px-6 rounded-xl border-border hover:bg-muted/10 font-bold text-xs uppercase tracking-wide transition-all"
-                                >
-                                    <BookOpen className="mr-2 size-4" />
-                                    Thêm Bài Tập
-                                </Button>
-                            </Can>
-                            <Button
-                                onClick={() => setCreateModuleOpen(true)}
-                                className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-md transition-all"
-                            >
-                                <Plus className="mr-2 size-4" />
-                                Thêm Học Phần
-                            </Button>
-                        </div>
+                        <Button
+                            onClick={() => setLiveSessionOpen(true)}
+                            variant="outline"
+                            className="h-11 px-6 rounded-xl border-border/40 font-bold text-xs uppercase tracking-wide hover:bg-muted/10 transition-all flex items-center gap-2"
+                        >
+                            Lịch học Live
+                            <Video className="size-4" />
+                        </Button>
+                        <Button
+                            onClick={() => setCreateModuleOpen(true)}
+                            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-md transition-all"
+                        >
+                            Thêm Học Phần
+                            <Plus className="ml-2 size-4" />
+                        </Button>
                     </div>
                 </div>
             </div>
 
             {/* Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left Column: Curriculum */}
+                {/* Left Column: Curriculum & Live */}
                 <div className="lg:col-span-8 space-y-6">
-                    <div className="flex items-center justify-between pb-2 border-b border-border">
-                        <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
-                            <Layers className="size-5 text-primary" />
-                            Cấu Trúc Chương Trình
-                        </h2>
-                    </div>
+                    <Tabs defaultValue="curriculum" className="w-full">
+                        <TabsList className="bg-muted/50 p-1 rounded-2xl mb-6 border border-border/20 self-start">
+                            <TabsTrigger value="curriculum" className="rounded-xl px-6 py-2 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                <Layers className="size-3.5 mr-2" />
+                                Chương Trình
+                            </TabsTrigger>
+                            <TabsTrigger value="live-schedule" className="rounded-xl px-6 py-2 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                <CalendarCheck2 className="size-3.5 mr-2" />
+                                Thời Khóa Biểu
+                            </TabsTrigger>
+                        </TabsList>
 
-                    {modules.length === 0 ? (
-                        <div className="p-12 text-center space-y-6 bg-background rounded-xl border border-dashed border-border flex flex-col items-center justify-center min-h-[300px]">
-                            <div className="size-16 rounded-full bg-muted/30 flex items-center justify-center">
-                                <Layers className="size-8 text-muted-foreground/40" />
+                        <TabsContent value="curriculum" className="space-y-6 focus-visible:outline-none">
+                            <div className="flex items-center justify-between pb-2 border-b border-border">
+                                <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
+                                    <Layers className="size-5 text-primary" />
+                                    Cấu Trúc Chương Trình
+                                </h2>
                             </div>
-                            <div className="space-y-1">
-                                <h3 className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Chưa có nội dung</h3>
-                                <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                                    Khóa học này chưa có học phần nào. Hãy bắt đầu xây dựng chương trình học ngay.
-                                </p>
-                            </div>
-                            <Button
-                                onClick={() => setCreateModuleOpen(true)}
-                                variant="outline"
-                                className="h-10 rounded-xl px-6 font-medium"
-                            >
-                                Tạo Học Phần Mới
-                            </Button>
-                        </div>
-                    ) : (
-                        <Card className="rounded-xl bg-background border border-border shadow-sm overflow-hidden p-6">
-                            <Accordion type="multiple" className="space-y-4">
-                                {modules.map((module, idx) => {
-                                    const lessonQuery = lessonQueries[idx];
-                                    const lessons = lessonQuery?.data?.data || [];
-                                    const lessonsLoading = lessonQuery?.isLoading || false;
 
-                                    return (
-                                        <div key={module.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
-                                            <ModuleItem
-                                                module={module}
-                                                lessons={lessons}
-                                                isLoading={lessonsLoading}
-                                                onEditModule={handleEditModule}
-                                                onDeleteModule={handleDeleteModule}
-                                                onAddLesson={handleAddLesson}
-                                                onAddModuleAssignment={(moduleId) => handleAddAssignment(moduleId)}
-                                                onAddLessonAssignment={(moduleId, lessonId) => handleAddAssignment(moduleId, lessonId)}
-                                                onEditLesson={handleEditLesson}
-                                                onDeleteLesson={handleDeleteLesson}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </Accordion>
-                        </Card>
-                    )}
+                            {modules.length === 0 ? (
+                                <div className="p-12 text-center space-y-6 bg-background rounded-xl border border-dashed border-border flex flex-col items-center justify-center min-h-[300px]">
+                                    <div className="size-16 rounded-full bg-muted/30 flex items-center justify-center">
+                                        <Layers className="size-8 text-muted-foreground/40" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h3 className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Chưa có nội dung</h3>
+                                        <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                                            Khóa học này chưa có học phần nào. Hãy bắt đầu xây dựng chương trình học ngay.
+                                        </p>
+                                    </div>
+                                    <Button
+                                        onClick={() => setCreateModuleOpen(true)}
+                                        variant="outline"
+                                        className="h-10 rounded-xl px-6 font-medium"
+                                    >
+                                        Tạo Học Phần Mới
+                                    </Button>
+                                </div>
+                            ) : (
+                                <Card className="rounded-xl bg-background border border-border shadow-sm overflow-hidden p-6">
+                                    <Accordion type="multiple" className="space-y-4">
+                                        {modules.map((module, idx) => {
+                                            const lessonQuery = lessonQueries[idx];
+                                            const lessons = lessonQuery?.data?.data || [];
+                                            const lessonsLoading = lessonQuery?.isLoading || false;
+
+                                            return (
+                                                <div key={module.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
+                                                    <ModuleItem
+                                                        module={module}
+                                                        lessons={lessons}
+                                                        isLoading={lessonsLoading}
+                                                        onEditModule={handleEditModule}
+                                                        onDeleteModule={handleDeleteModule}
+                                                        onAddLesson={handleAddLesson}
+                                                        onEditLesson={handleEditLesson}
+                                                        onDeleteLesson={handleDeleteLesson}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
+                                    </Accordion>
+                                </Card>
+                            )}
+                        </TabsContent>
+
+                        <TabsContent value="live-schedule" className="space-y-6 focus-visible:outline-none">
+                            <div className="flex items-center justify-between pb-2 border-b border-border">
+                                <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
+                                    <CalendarCheck2 className="size-5 text-primary" />
+                                    Thời Khóa Biểu Cố Định
+                                </h2>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setLiveSessionOpen(true)}
+                                    className="text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5"
+                                >
+                                    + Thiết lập lịch học
+                                </Button>
+                            </div>
+
+                            <TeachingScheduleGrid courseId={id || ''} />
+
+                            <div className="pt-8 space-y-4">
+                                <h2 className="text-lg font-bold tracking-tight flex items-center gap-2 pb-2 border-b border-border">
+                                    <Video className="size-5 text-primary" />
+                                    Danh Sách Buổi Học Đã Lên Lịch
+                                </h2>
+                                <div className="grid grid-cols-1 gap-3">
+                                    {liveSessions?.length === 0 ? (
+                                        <p className="text-xs text-muted-foreground text-center py-8 italic uppercase tracking-widest opacity-40">Chưa có buổi học nào được tạo</p>
+                                    ) : (
+                                        liveSessions?.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()).map((s) => (
+                                            <div key={s.id} className="flex items-center justify-between p-4 rounded-2xl bg-background border border-border/20 hover:border-primary/40 transition-all group">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-bold text-xs uppercase italic">
+                                                        {new Date(s.scheduledAt).getDate()}/{new Date(s.scheduledAt).getMonth() + 1}
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <h4 className="text-sm font-bold tracking-tight">{s.title}</h4>
+                                                        <div className="flex items-center gap-3 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                                                            <span className="flex items-center gap-1">
+                                                                <Clock className="size-3" />
+                                                                {formatDateTime(s.scheduledAt)}
+                                                            </span>
+                                                            <span className="flex items-center gap-1">
+                                                                <ShieldCheck className="size-3" />
+                                                                {s.status}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <Button variant="ghost" size="sm" className="rounded-xl text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Chi tiết</Button>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </TabsContent>
+                    </Tabs>
                 </div>
 
                 {/* Right Column: Metadata & Details */}
@@ -322,14 +380,6 @@ export default function CourseDetailPage() {
                 existingModules={modules}
             />
 
-            <CreateAssignmentSheet
-                open={createAssignmentOpen}
-                onOpenChange={setCreateAssignmentOpen}
-                courseId={id}
-                moduleId={assignmentContext.moduleId}
-                lessonId={assignmentContext.lessonId}
-            />
-
             {selectedModule && (
                 <>
                     <EditModuleSheet
@@ -357,6 +407,12 @@ export default function CourseDetailPage() {
                 </Suspense>
             )}
 
+            <CreateLiveSessionDialog
+                open={liveSessionOpen}
+                onOpenChange={setLiveSessionOpen}
+                courseId={id || ''}
+            />
+
             {selectedLesson && (
                 <>
                     <EditLessonSheet
@@ -374,3 +430,10 @@ export default function CourseDetailPage() {
         </div>
     );
 }
+
+const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(value);
+};

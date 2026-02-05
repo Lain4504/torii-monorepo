@@ -48,6 +48,7 @@ export const mainNavItems: NavItem[] = [
             { titleKey: "Khóa học của tôi", url: "/courses/my", permission: "course.view_my" },
             { titleKey: "Tất cả khóa học", url: "/courses", permission: "course.view_restricted" },
             { titleKey: "Phản hồi học viên", url: "/courses/reviews", permission: "course.manage" },
+            { titleKey: "Yêu cầu đổi lịch", url: "/courses/requests", permission: "course.manage" },
         ]
     },
     {

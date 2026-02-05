@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { LIVE_SESSION_SERVICE_TOKEN, ILiveSessionService } from '../../interfaces/services';
-import { LiveSessionCreateDTO, LiveSessionUpdateDTO, Requester } from '@workspace/schemas';
+import { LiveSessionBulkCreateDTO, LiveSessionCreateDTO, LiveSessionUpdateDTO, Requester } from '@workspace/schemas';
 
 @Controller()
 export class LiveSessionHandler {
@@ -10,10 +10,27 @@ export class LiveSessionHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.liveSession.create' })
-    async create(@Payload() data: LiveSessionCreateDTO & { userId: string; userRole: string; userEmail: string }) {
-        const { userId, userRole, userEmail, ...dto } = data;
-        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
+    async create(@Payload() data: LiveSessionCreateDTO & { userId: string; userRole: string; userEmail: string; displayName?: string }) {
+        const { userId, userRole, userEmail, displayName, ...dto } = data;
+        const requester: Requester & { email: string; displayName?: string } = {
+            sub: userId,
+            role: userRole as any,
+            email: userEmail,
+            displayName,
+        };
         return this.liveSessionService.create(requester, dto);
+    }
+
+    @MessagePattern({ cmd: 'learning.liveSession.bulkCreate' })
+    async bulkCreate(@Payload() data: LiveSessionBulkCreateDTO & { userId: string; userRole: string; userEmail: string; displayName?: string }) {
+        const { userId, userRole, userEmail, displayName, ...dto } = data;
+        const requester: Requester & { email: string; displayName?: string } = {
+            sub: userId,
+            role: userRole as any,
+            email: userEmail,
+            displayName,
+        };
+        return this.liveSessionService.bulkCreate(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.update' })
@@ -52,5 +69,17 @@ export class LiveSessionHandler {
         const { id, userId, userRole, userEmail } = data;
         const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
         return this.liveSessionService.endSession(requester, id);
+    }
+
+    @MessagePattern({ cmd: 'learning.liveSession.join' })
+    async join(@Payload() data: { id: string; userId: string; userRole: string; userEmail: string; displayName?: string }) {
+        const { id, userId, userRole, userEmail, displayName } = data;
+        const requester: Requester & { email: string; displayName?: string } = {
+            sub: userId,
+            role: userRole as any,
+            email: userEmail,
+            displayName,
+        };
+        return this.liveSessionService.joinSession(requester, id);
     }
 }

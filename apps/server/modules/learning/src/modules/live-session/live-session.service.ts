@@ -13,8 +13,14 @@ import {
     Requester,
     UserRole,
     LiveSessionStatus,
+    LiveSessionJoinResponseDTO,
+    LiveSessionBulkCreateDTO,
 } from '@workspace/schemas';
 import type { LiveSession } from '@prisma/generated';
+import { create } from '@bufbuild/protobuf';
+import { CreateRoomReqSchema } from '@workspace/protocol';
+import { lastValueFrom } from 'rxjs';
+import { ClientProxy } from '@nestjs/microservices';
 import { ILiveSessionService } from '../../interfaces/services/i-live-session.service';
 import {
     ILiveSessionRepository,
@@ -34,6 +40,8 @@ export class LiveSessionService implements ILiveSessionService {
         @Inject(COURSE_REPOSITORY_TOKEN)
         private readonly courseRepository: ICourseRepository,
         private readonly prisma: PrismaService,
+        @Inject('NATS_SERVICE')
+        private readonly natsClient: ClientProxy,
     ) { }
 
     /**
@@ -71,6 +79,41 @@ export class LiveSessionService implements ILiveSessionService {
     async findByCourseId(courseId: string): Promise<LiveSessionResponseDTO[]> {
         const sessions = await this.liveSessionRepository.findByCourseId(courseId);
         return sessions.map((s) => this.toLiveSessionResponseDTO(s));
+    }
+
+    async bulkCreate(requester: Requester, dto: LiveSessionBulkCreateDTO): Promise<LiveSessionResponseDTO[]> {
+        // Only authorized users can schedule live sessions
+        if (!this.hasPermission(requester, 'live_class.schedule')) {
+            throw new ForbiddenException('Only authorized staff can schedule live sessions');
+        }
+
+        const course = await this.courseRepository.findById(dto.courseId);
+        if (!course) {
+            throw new NotFoundException(`Course with id ${dto.courseId} not found`);
+        }
+
+        if (course.type !== 'live') {
+            throw new BadRequestException('Live sessions can only be scheduled for live courses');
+        }
+
+        const createdSessions: LiveSession[] = [];
+
+        for (let i = 0; i < dto.dates.length; i++) {
+            const date = new Date(dto.dates[i]);
+            const title = `${dto.titlePrefix} - Buổi ${i + 1}`;
+
+            const session = await this.liveSessionRepository.create({
+                course: { connect: { id: dto.courseId } },
+                title: title,
+                description: dto.description,
+                scheduledAt: date,
+                duration: dto.duration,
+                lecturerId: dto.lecturerId,
+            });
+            createdSessions.push(session);
+        }
+
+        return createdSessions.map((s) => this.toLiveSessionResponseDTO(s));
     }
 
     async create(requester: Requester, dto: LiveSessionCreateDTO): Promise<LiveSessionResponseDTO> {
@@ -153,7 +196,31 @@ export class LiveSessionService implements ILiveSessionService {
             throw new ForbiddenException('You are not authorized to start this session');
         }
 
-        const updated = await this.liveSessionRepository.update(id, { status: LiveSessionStatus.LIVE });
+        // Create a room in Meet module if it doesn't exist
+        const roomId = `live-session-${id}`;
+        try {
+            const createRoomReq = create(CreateRoomReqSchema, {
+                roomId: roomId,
+                metadata: {
+                    roomTitle: existing.title,
+                    isBreakoutRoom: false,
+                },
+            });
+
+            await lastValueFrom(
+                this.natsClient.send({ cmd: 'room.create' }, createRoomReq)
+            );
+            this.logger.log(`Created WebRTC room for live session: ${roomId}`);
+        } catch (error) {
+            this.logger.error(`Failed to create WebRTC room: ${error.message}`);
+            // We still continue to mark the session as LIVE even if room creation fails 
+            // because it might have been created already or error is transient.
+        }
+
+        const updated = await this.liveSessionRepository.update(id, {
+            status: LiveSessionStatus.LIVE,
+            meetingId: roomId,
+        });
         return this.toLiveSessionResponseDTO(updated);
     }
 
@@ -171,7 +238,85 @@ export class LiveSessionService implements ILiveSessionService {
             throw new ForbiddenException('You are not authorized to end this session');
         }
 
+        // End room in Meet module
+        if (existing.meetingId) {
+            try {
+                await lastValueFrom(
+                    this.natsClient.send({ cmd: 'room.end' }, { roomId: existing.meetingId })
+                );
+                this.logger.log(`Ended WebRTC room for live session: ${existing.meetingId}`);
+            } catch (error) {
+                this.logger.error(`Failed to end WebRTC room: ${error.message}`);
+            }
+        }
+
         const updated = await this.liveSessionRepository.update(id, { status: LiveSessionStatus.ENDED });
         return this.toLiveSessionResponseDTO(updated);
+    }
+
+    async joinSession(requester: Requester, id: string): Promise<LiveSessionJoinResponseDTO> {
+        const session = await this.liveSessionRepository.findById(id);
+        if (!session) {
+            throw new NotFoundException(`Live session with id ${id} not found`);
+        }
+
+        if (session.status !== LiveSessionStatus.LIVE) {
+            throw new BadRequestException('Session is not live');
+        }
+
+        // Authorization check
+        const isAdmin = requester.role === UserRole.ADMIN;
+        const isLecturer = session.lecturerId === requester.sub;
+        const isStaff = requester.role === UserRole.STAFF;
+
+        let hasAccess = isAdmin || isLecturer || isStaff;
+
+        if (!hasAccess) {
+            // Check enrollment for student
+            const enrollment = await this.prisma.enrollment.findUnique({
+                where: {
+                    userId_courseId: {
+                        userId: requester.sub,
+                        courseId: session.courseId,
+                    },
+                },
+            });
+            if (enrollment) {
+                hasAccess = true;
+            }
+        }
+
+        if (!hasAccess) {
+            throw new ForbiddenException('You do not have access to this live session');
+        }
+
+        // Request token from Meet module
+        try {
+            const tokenResponse = await lastValueFrom(
+                this.natsClient.send({ cmd: 'user.generateJoinToken' }, {
+                    roomId: session.meetingId,
+                    userInfo: {
+                        userId: requester.sub,
+                        name: requester.displayName || 'User',
+                        isAdmin: isAdmin || isLecturer || isStaff,
+                    },
+                })
+            );
+
+            // Get room info to return SID
+            const roomInfo = await lastValueFrom(
+                this.natsClient.send({ cmd: 'room.getRoomInfo' }, { roomId: session.meetingId })
+            );
+
+            return {
+                token: tokenResponse.token,
+                roomId: session.meetingId!,
+                roomTitle: session.title,
+                sid: roomInfo.sid,
+            };
+        } catch (error) {
+            this.logger.error(`Failed to join WebRTC room: ${error.message}`);
+            throw new BadRequestException(`Failed to join live session: ${error.message}`);
+        }
     }
 }

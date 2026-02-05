@@ -1,4 +1,4 @@
-import { LiveSessionCreateDTO, LiveSessionResponseDTO, LiveSessionUpdateDTO, Requester } from '@workspace/schemas';
+import { LiveSessionBulkCreateDTO, LiveSessionCreateDTO, LiveSessionJoinResponseDTO, LiveSessionResponseDTO, LiveSessionUpdateDTO, Requester } from '@workspace/schemas';
 
 /**
  * Live Session Service Interface
@@ -21,6 +21,11 @@ export interface ILiveSessionService {
     create(requester: Requester, dto: LiveSessionCreateDTO): Promise<LiveSessionResponseDTO>;
 
     /**
+     * Create multiple live sessions (bulk scheduling)
+     */
+    bulkCreate(requester: Requester, dto: LiveSessionBulkCreateDTO): Promise<LiveSessionResponseDTO[]>;
+
+    /**
      * Update a live session
      */
     update(requester: Requester, id: string, dto: LiveSessionUpdateDTO): Promise<LiveSessionResponseDTO>;
@@ -39,4 +44,9 @@ export interface ILiveSessionService {
      * End a live session (update status to ended)
      */
     endSession(requester: Requester, id: string): Promise<LiveSessionResponseDTO>;
+
+    /**
+     * Join a live session (get JWT token for WebRTC)
+     */
+    joinSession(requester: Requester, id: string): Promise<LiveSessionJoinResponseDTO>;
 }

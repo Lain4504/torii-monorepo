@@ -9,6 +9,8 @@ export interface TokenPayload {
     iat?: number;
     aud?: string;
     iss?: string;
+    displayName?: string;
+    email?: string;
 }
 
 export interface Requester extends TokenPayload { }
