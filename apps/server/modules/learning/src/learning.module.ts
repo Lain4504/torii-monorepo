@@ -17,6 +17,7 @@ import { EnrollmentModule } from './modules/enrollment/enrollment.module';
 import { LearningProgressModule } from './modules/learning-progress/learning-progress.module';
 import { LiveSessionModule } from './modules/live-session/live-session.module';
 import { CouponModule } from './modules/coupon/coupon.module';
+import { CertificateModule } from './modules/certificate/certificate.module';
 
 // Community Modules
 import { PostModule } from './modules/post/post.module';
@@ -60,6 +61,7 @@ import { CouponHandler } from './interfaces/nats/coupon.handler';
 import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
 import { AssignmentHandler } from './interfaces/nats/assignment.handler';
 import { SubmissionHandler } from './interfaces/nats/submission.handler';
+import { CertificateHandler } from './interfaces/nats/certificate.handler';
 
 import { AssignmentModule } from './modules/assignment/assignment.module';
 import { SubmissionModule } from './modules/submission/submission.module';
@@ -85,6 +87,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     CouponModule,
     AssignmentModule,
     SubmissionModule,
+    CertificateModule,
 
     // Community Modules
     PostModule,
@@ -129,6 +132,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     AnalyticsHandler,
     AssignmentHandler,
     SubmissionHandler,
+    CertificateHandler,
   ],
   providers: [
     {
