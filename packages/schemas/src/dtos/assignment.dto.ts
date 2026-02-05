@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AssignmentType, AssignmentStatus } from '../models/assignment.model';
+import { AssignmentType, AssignmentStatus, assignmentSchema, submissionSchema, SubmissionStatus } from '../models/assignment.model';
 
 // ============================================
 // ASSIGNMENT DTOs
@@ -117,9 +117,16 @@ export type ReturnSubmissionDto = z.infer<typeof returnSubmissionDto>;
 export const querySubmissionsDto = z.object({
   assignmentId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
-  status: z.enum(['DRAFT', 'SUBMITTED', 'GRADED', 'RETURNED']).optional(),
+  status: z.nativeEnum(SubmissionStatus).optional(),
   page: z.number().min(1).default(1),
   limit: z.number().min(1).max(100).default(20),
 });
 
 export type QuerySubmissionsDto = z.infer<typeof querySubmissionsDto>;
+
+// Response DTOs
+export const assignmentResponseDto = assignmentSchema;
+export type AssignmentResponseDTO = z.infer<typeof assignmentResponseDto>;
+
+export const submissionResponseDto = submissionSchema;
+export type SubmissionResponseDTO = z.infer<typeof submissionResponseDto>;

@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import type { Assignment } from '@prisma/generated';
 import {
   type CreateAssignmentDto,
@@ -10,6 +12,7 @@ import {
   type ReturnSubmissionDto,
   AssignmentStatus,
   type Requester,
+  type AssignmentResponseDTO,
 } from '@workspace/schemas';
 
 import { AssignmentRepository } from './assignment.repository';
@@ -28,6 +31,8 @@ export class AssignmentService {
     private readonly submissionRepository: SubmissionRepository,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
+    @InjectMapper()
+    private readonly mapper: Mapper,
   ) {}
 
 
@@ -40,6 +45,13 @@ export class AssignmentService {
   }
 
   /**
+   * Map Assignment entity to AssignmentResponseDTO
+   */
+  private toAssignmentResponseDTO(assignment: Assignment): AssignmentResponseDTO {
+    return this.mapper.map<Assignment, AssignmentResponseDTO>(assignment, 'Assignment', 'AssignmentResponseDTO');
+  }
+
+  /**
    * BR-01: Create Assignment
    */
   async create(requester: Requester, dto: CreateAssignmentDto) {
@@ -49,11 +61,6 @@ export class AssignmentService {
     }
 
     try {
-      // Validate: At least one of courseId/moduleId/lessonId
-      if (!dto.courseId && !dto.moduleId && !dto.lessonId) {
-        throw new BadRequestException('At least one of courseId, moduleId, or lessonId is required');
-      }
-
       // Create assignment
       const assignment = await this.assignmentRepository.create({
         title: dto.title,
@@ -77,7 +84,7 @@ export class AssignmentService {
       } as any);
 
 
-      return assignment;
+      return this.toAssignmentResponseDTO(assignment);
     } catch (error: any) {
       this.logger.error('Error creating assignment', error);
       throw new BadRequestException(`Failed to create assignment: ${error?.message}`);
@@ -121,7 +128,7 @@ export class AssignmentService {
       const assignment = await this.assignmentRepository.update(assignmentId, updateData);
 
 
-      return assignment;
+      return this.toAssignmentResponseDTO(assignment);
     } catch (error: any) {
       throw new BadRequestException(`Failed to update assignment: ${error?.message}`);
     }
@@ -160,7 +167,7 @@ export class AssignmentService {
     });
 
 
-    return updated;
+    return this.toAssignmentResponseDTO(updated);
   }
 
   /**
@@ -198,7 +205,7 @@ export class AssignmentService {
     ]);
 
     return {
-      data: assignments,
+      data: assignments.map(a => this.toAssignmentResponseDTO(a)),
       total,
       page,
       limit,
@@ -214,7 +221,7 @@ export class AssignmentService {
     if (!assignment) {
       throw new NotFoundException('Assignment not found');
     }
-    return assignment;
+    return this.toAssignmentResponseDTO(assignment);
   }
 
   /**

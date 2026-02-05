@@ -11,6 +11,7 @@ import {
     HttpStatus,
     Req,
     ParseUUIDPipe,
+    UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -19,74 +20,18 @@ import {
     PermissionsGuard,
     Permissions,
     successResponse,
+    ZodValidationPipe,
 } from '@server/shared';
 import { Request } from 'express';
-import { Requester } from '@workspace/schemas';
+import { 
+    Requester, 
+    submitAssignmentDto, 
+    gradeSubmissionDto, 
+    returnSubmissionDto 
+} from '@workspace/schemas';
 
 interface RequestWithUser extends Request {
     user: Requester & { email: string };
-}
-
-@Controller('api/assignments/:assignmentId/submissions')
-@UseGuards(GatewayAuthGuard, PermissionsGuard)
-export class AssignmentSubmissionController {
-    constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
-
-    @Post('draft')
-    async saveDraft(
-        @Param('assignmentId', new ParseUUIDPipe()) assignmentId: string,
-        @Body() dto: any,
-        @Req() req: RequestWithUser
-    ) {
-        const result = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'learning.submission.saveDraft' },
-                { assignmentId, ...dto, requester: req.user }
-            )
-        );
-        return successResponse(result, 'Draft saved successfully');
-    }
-
-    @Post('submit')
-    async submit(
-        @Param('assignmentId', new ParseUUIDPipe()) assignmentId: string,
-        @Body() dto: any,
-        @Req() req: RequestWithUser
-    ) {
-        const result = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'learning.submission.submit' },
-                { assignmentId, ...dto, requester: req.user }
-            )
-        );
-        return successResponse(result, 'Assignment submitted successfully');
-    }
-
-    @Get('my-submission')
-    async getMySubmission(
-        @Param('assignmentId', new ParseUUIDPipe()) assignmentId: string,
-        @Req() req: RequestWithUser
-    ) {
-        const result = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'learning.submission.getMySubmission' },
-                { assignmentId, userId: req.user.sub }
-            )
-        );
-        return successResponse(result);
-    }
-
-    @Get()
-    @Permissions('assignment.grade')
-    async getSubmissions(@Param('assignmentId', new ParseUUIDPipe()) assignmentId: string) {
-        const result = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'learning.submission.findAll' },
-                { assignmentId }
-            )
-        );
-        return successResponse(result);
-    }
 }
 
 @Controller('api/submissions')
@@ -94,35 +39,44 @@ export class AssignmentSubmissionController {
 export class SubmissionController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
+    private sendCmd(cmd: string, payload: any) {
+        return firstValueFrom(this.natsClient.send({ cmd: `learning.submission.${cmd}` }, payload));
+    }
+
+    @Post(':assignmentId')
+    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
+    submit(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        return this.sendCmd('submit', { assignmentId, ...dto, requester: req.user });
+    }
+
+    @Post(':assignmentId/draft')
+    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
+    draft(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        return this.sendCmd('saveDraft', { assignmentId, ...dto, requester: req.user });
+    }
+
+    @Get('my/:assignmentId')
+    my(@Param('assignmentId') assignmentId: string, @Req() req: RequestWithUser) {
+        return this.sendCmd('getMySubmission', { assignmentId, userId: req.user.sub });
+    }
+
+    @Get('assignment/:assignmentId')
+    @Permissions('assignment.grade')
+    all(@Param('assignmentId') assignmentId: string) {
+        return this.sendCmd('findAll', { assignmentId });
+    }
+
     @Put(':id/grade')
     @Permissions('assignment.grade')
-    async grade(
-        @Param('id', new ParseUUIDPipe()) id: string,
-        @Body() dto: any,
-        @Req() req: RequestWithUser
-    ) {
-        const result = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'learning.submission.grade' },
-                { id, ...dto, requester: req.user }
-            )
-        );
-        return successResponse(result, 'Submission graded successfully');
+    @UsePipes(new ZodValidationPipe(gradeSubmissionDto))
+    grade(@Param('id') id: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        return this.sendCmd('grade', { id, ...dto, requester: req.user });
     }
 
     @Post(':id/return')
     @Permissions('assignment.grade')
-    async returnSubmission(
-        @Param('id', new ParseUUIDPipe()) id: string,
-        @Body() dto: any,
-        @Req() req: RequestWithUser
-    ) {
-        const result = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'learning.submission.return' },
-                { id, ...dto, requester: req.user }
-            )
-        );
-        return successResponse(result, 'Submission returned successfully');
+    @UsePipes(new ZodValidationPipe(returnSubmissionDto))
+    return(@Param('id') id: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        return this.sendCmd('return', { id, ...dto, requester: req.user });
     }
 }

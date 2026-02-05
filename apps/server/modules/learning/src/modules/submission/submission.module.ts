@@ -3,6 +3,7 @@ import { NatsClientModule } from '@server/shared';
 import { SubmissionService } from './submission.service';
 import { SubmissionRepository } from './submission.repository';
 import { AssignmentModule } from '../assignment/assignment.module';
+import { SubmissionProfile } from '../../infrastructure/mappings/submission.profile';
 
 /**
  * Submission Feature Module
@@ -16,6 +17,7 @@ import { AssignmentModule } from '../assignment/assignment.module';
   providers: [
     SubmissionRepository,
     SubmissionService,
+    SubmissionProfile,
   ],
   exports: [SubmissionService, SubmissionRepository],
 })

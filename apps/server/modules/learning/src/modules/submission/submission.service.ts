@@ -1,7 +1,15 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import type { Submission } from '@prisma/generated';
-import type { Requester, SubmitAssignmentDto, GradeSubmissionDto, ReturnSubmissionDto } from '@workspace/schemas';
+import type { 
+  Requester, 
+  SubmitAssignmentDto, 
+  GradeSubmissionDto, 
+  ReturnSubmissionDto,
+  SubmissionResponseDTO 
+} from '@workspace/schemas';
 
 import { SubmissionRepository } from './submission.repository';
 import { AssignmentRepository } from '../assignment/assignment.repository';
@@ -19,6 +27,8 @@ export class SubmissionService {
     private readonly assignmentRepository: AssignmentRepository,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
+    @InjectMapper()
+    private readonly mapper: Mapper,
   ) {}
 
   /**
@@ -27,6 +37,13 @@ export class SubmissionService {
   private hasPermission(requester: Requester, permission: string): boolean {
     if (!requester.permissions) return false;
     return requester.permissions.includes('*') || requester.permissions.includes(permission);
+  }
+
+  /**
+   * Map Submission entity to SubmissionResponseDTO
+   */
+  private toSubmissionResponseDTO(submission: Submission): SubmissionResponseDTO {
+    return this.mapper.map<Submission, SubmissionResponseDTO>(submission, 'Submission', 'SubmissionResponseDTO');
   }
 
 
@@ -54,15 +71,17 @@ export class SubmissionService {
 
     if (existing && existing.status === 'DRAFT') {
       // Update existing draft
-      return this.submissionRepository.update(existing.id, data);
+      const submission = await this.submissionRepository.update(existing.id, data);
+      return this.toSubmissionResponseDTO(submission);
     } else {
       // Create new draft
-      return this.submissionRepository.create({
+      const submission = await this.submissionRepository.create({
         assignment: { connect: { id: assignmentId } },
         userId: requester.sub,
         ...data,
         attemptNumber: existing ? existing.attemptNumber + 1 : 1,
       } as any);
+      return this.toSubmissionResponseDTO(submission);
     }
   }
 
@@ -161,7 +180,7 @@ export class SubmissionService {
     });
 
 
-    return submission;
+    return this.toSubmissionResponseDTO(submission);
   }
 
   /**
@@ -193,9 +212,23 @@ export class SubmissionService {
       throw new BadRequestException(`Score must be between 0 and ${assignment.maxScore}`);
     }
 
+    // BR-04: Auto-calculate late penalty if applicable
+    let finalScore = dto.score;
+    let penaltyApplied = 0;
+
+    if (submission.isLate && assignment.latePenaltyPercent && Number(assignment.latePenaltyPercent) > 0) {
+      // Penalty = (score * penaltyPercent) / 100
+      // We apply percent penalty regardless of how many days late (as per BR-04 simplified implementation)
+      const penaltyPercent = Number(assignment.latePenaltyPercent);
+      penaltyApplied = (finalScore * penaltyPercent) / 100;
+      finalScore = Math.max(0, finalScore - penaltyApplied);
+      
+      this.logger.log(`Late penalty applied to submission ${submissionId}: -${penaltyApplied} (${penaltyPercent}%)`);
+    }
+
     const graded = await this.submissionRepository.update(submissionId, {
-      score: dto.score,
-      feedback: dto.feedback,
+      score: finalScore,
+      feedback: dto.feedback + (penaltyApplied > 0 ? `\n\n(Đã trừ ${penaltyApplied} điểm do nộp muộn)` : ''),
       gradedBy: requester.sub,
       gradedAt: new Date(),
       status: 'GRADED',
@@ -225,7 +258,7 @@ export class SubmissionService {
     }
 
 
-    return graded;
+    return this.toSubmissionResponseDTO(graded);
   }
 
   /**
@@ -269,20 +302,35 @@ export class SubmissionService {
       feedback: dto.feedback,
     });
 
-    return returned;
+    return this.toSubmissionResponseDTO(returned);
   }
 
   /**
    * Get student's submission for an assignment
    */
   async getMySubmission(userId: string, assignmentId: string) {
-    return this.submissionRepository.findByAssignmentAndUser(assignmentId, userId);
+    const submission = await this.submissionRepository.findByAssignmentAndUser(assignmentId, userId);
+    return submission ? this.toSubmissionResponseDTO(submission) : null;
   }
 
   /**
    * Get all submissions for an assignment (instructor view)
+   * BR-05: Only returns the latest attempt for each user
    */
   async getSubmissions(assignmentId: string) {
-    return this.submissionRepository.findByAssignmentId(assignmentId);
+    const allSubmissions = await this.submissionRepository.findByAssignmentId(assignmentId);
+    
+    // Group by userId and pick the highest attemptNumber
+    const latestSubmissionsMap = new Map<string, Submission>();
+    
+    for (const sub of allSubmissions) {
+      const existing = latestSubmissionsMap.get(sub.userId);
+      if (!existing || sub.attemptNumber > existing.attemptNumber) {
+        latestSubmissionsMap.set(sub.userId, sub);
+      }
+    }
+
+    const latestSubmissions = Array.from(latestSubmissionsMap.values());
+    return latestSubmissions.map(s => this.toSubmissionResponseDTO(s));
   }
 }

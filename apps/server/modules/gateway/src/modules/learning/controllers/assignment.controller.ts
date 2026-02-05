@@ -14,6 +14,7 @@ import {
     HttpStatus,
     Req,
     ParseUUIDPipe,
+    UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -23,9 +24,15 @@ import {
     Permissions,
     successResponse,
     successPaginatedResponse,
+    ZodValidationPipe,
 } from '@server/shared';
 import { Request } from 'express';
-import { Requester } from '@workspace/schemas';
+import { 
+    Requester, 
+    createAssignmentDto, 
+    updateAssignmentDto, 
+    queryAssignmentsDto 
+} from '@workspace/schemas';
 
 interface RequestWithUser extends Request {
     user: Requester & { email: string };
@@ -39,6 +46,7 @@ export class AssignmentController {
     @Post()
     @Permissions('assignment.create')
     @HttpCode(HttpStatus.CREATED)
+    @UsePipes(new ZodValidationPipe(createAssignmentDto))
     async create(@Body() dto: any, @Req() req: RequestWithUser) {
         const result = await firstValueFrom(
             this.natsClient.send(
@@ -50,7 +58,7 @@ export class AssignmentController {
     }
 
     @Get()
-    async findAll(@Query() query: any, @Req() req: RequestWithUser) {
+    async findAll(@Query(new ZodValidationPipe(queryAssignmentsDto)) query: any, @Req() req: RequestWithUser) {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.assignment.findAll' },
@@ -72,7 +80,7 @@ export class AssignmentController {
     @Permissions('assignment.update')
     async update(
         @Param('id', new ParseUUIDPipe()) id: string,
-        @Body() dto: any,
+        @Body(new ZodValidationPipe(updateAssignmentDto)) dto: any,
         @Req() req: RequestWithUser
     ) {
         const result = await firstValueFrom(
