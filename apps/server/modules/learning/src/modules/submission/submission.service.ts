@@ -212,23 +212,9 @@ export class SubmissionService {
       throw new BadRequestException(`Score must be between 0 and ${assignment.maxScore}`);
     }
 
-    // BR-04: Auto-calculate late penalty if applicable
-    let finalScore = dto.score;
-    let penaltyApplied = 0;
-
-    if (submission.isLate && assignment.latePenaltyPercent && Number(assignment.latePenaltyPercent) > 0) {
-      // Penalty = (score * penaltyPercent) / 100
-      // We apply percent penalty regardless of how many days late (as per BR-04 simplified implementation)
-      const penaltyPercent = Number(assignment.latePenaltyPercent);
-      penaltyApplied = (finalScore * penaltyPercent) / 100;
-      finalScore = Math.max(0, finalScore - penaltyApplied);
-      
-      this.logger.log(`Late penalty applied to submission ${submissionId}: -${penaltyApplied} (${penaltyPercent}%)`);
-    }
-
     const graded = await this.submissionRepository.update(submissionId, {
-      score: finalScore,
-      feedback: dto.feedback + (penaltyApplied > 0 ? `\n\n(Đã trừ ${penaltyApplied} điểm do nộp muộn)` : ''),
+      score: dto.score,
+      feedback: dto.feedback,
       gradedBy: requester.sub,
       gradedAt: new Date(),
       status: 'GRADED',
