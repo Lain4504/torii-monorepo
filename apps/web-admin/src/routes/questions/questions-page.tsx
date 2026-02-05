@@ -22,8 +22,9 @@ import {
 import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { cn } from '@workspace/ui/lib/utils';
-import { Plus, ShieldAlert, Sparkles } from 'lucide-react';
+import { Plus, ShieldAlert } from 'lucide-react';
 import { Card } from "@workspace/ui/components/card";
+import { PageHeader } from '@/components/common/page-header';
 
 export default function QuestionsPage() {
     const [page, setPage] = useState(1);
@@ -142,7 +143,7 @@ export default function QuestionsPage() {
                             e.preventDefault();
                             setPage(1);
                         }}
-                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all"
+                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all cursor-pointer"
                     >
                         1
                     </PaginationLink>
@@ -161,7 +162,7 @@ export default function QuestionsPage() {
                             setPage(i);
                         }}
                         className={cn(
-                            "rounded-xl h-10 w-10 text-[11px] font-black transition-all",
+                            "rounded-xl h-10 w-10 text-[11px] font-black transition-all cursor-pointer",
                             page === i ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground/60 hover:text-primary"
                         )}
                     >
@@ -180,7 +181,7 @@ export default function QuestionsPage() {
                             e.preventDefault();
                             setPage(meta.totalPages);
                         }}
-                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all"
+                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all cursor-pointer"
                     >
                         {meta.totalPages}
                     </PaginationLink>
@@ -192,117 +193,109 @@ export default function QuestionsPage() {
     };
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700 pb-20">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-start justify-end gap-8 relative px-2">
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-6 sm:pt-0 ml-auto">
-                    <Card className="flex items-center gap-4 p-4 rounded-2xl border-border bg-card hidden sm:flex shadow-sm">
-                        <div className="space-y-0.5">
-                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium text-center">Tổng số Câu hỏi</p>
-                            <h3 className="text-2xl font-bold text-center text-primary">{meta?.total || 0}</h3>
-                        </div>
-                    </Card>
+        <div className="space-y-6 animate-in fade-in duration-700 pb-20">
+            {/* Page Header */}
+            <PageHeader
+                title="Ngân hàng Câu hỏi"
+                subtitle="Quản lý và tổ chức câu hỏi thi"
+                stats={[
+                    {
+                        label: 'Tổng số',
+                        value: meta?.total || 0,
+                    },
+                ]}
+                actions={
                     <Can permission="question.create">
                         <Button
                             onClick={() => setShowCreateDialog(true)}
-                            className="w-full sm:w-auto h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
+                            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
                         >
-                            Tạo Câu hỏi Mới
+                            Tạo Câu hỏi
                             <Plus className="ml-2 size-4 opacity-70 group-hover:opacity-100 transition-opacity" />
                         </Button>
                     </Can>
-                </div>
-            </div>
+                }
+            />
 
-            <div className="space-y-6 px-2">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                    <div className="flex-1 w-full">
-                        <QuestionsPrimaryToolbar
-                            search={search}
-                            onSearchChange={setSearch}
-                            questionTypeFilter={questionTypeFilter}
-                            onQuestionTypeFilterChange={setQuestionTypeFilter}
-                            categoryFilter={categoryFilter}
-                            onCategoryFilterChange={setCategoryFilter}
-                            jlptLevelFilter={jlptLevelFilter}
-                            onJlptLevelFilterChange={setJlptLevelFilter}
-                            difficultyFilter={difficultyFilter}
-                            onDifficultyFilterChange={setDifficultyFilter}
-                            statusFilter={statusFilter}
-                            onStatusFilterChange={setStatusFilter}
-                            poolIdFilter={poolIdFilter}
-                            onPoolIdFilterChange={setPoolIdFilter}
-                        />
+            {/* Filters */}
+            <QuestionsPrimaryToolbar
+                search={search}
+                onSearchChange={setSearch}
+                questionTypeFilter={questionTypeFilter}
+                onQuestionTypeFilterChange={setQuestionTypeFilter}
+                categoryFilter={categoryFilter}
+                onCategoryFilterChange={setCategoryFilter}
+                jlptLevelFilter={jlptLevelFilter}
+                onJlptLevelFilterChange={setJlptLevelFilter}
+                difficultyFilter={difficultyFilter}
+                onDifficultyFilterChange={setDifficultyFilter}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                poolIdFilter={poolIdFilter}
+                onPoolIdFilterChange={setPoolIdFilter}
+            />
+
+            {/* Table */}
+            <Card className="rounded-xl border-border bg-card overflow-hidden shadow-sm">
+                <QuestionsTable
+                    data={questions}
+                    onView={setViewingQuestion}
+                    onEdit={setEditingQuestion}
+                    onDelete={setDeletingQuestion}
+                    onApprove={handleApprove}
+                    onDeactivate={handleDeactivate}
+                    onReject={handleReject}
+                    onSendForReview={handleSendForReview}
+                    page={page}
+                    limit={queryParams.limit || 10}
+                    isLoading={isLoading}
+                />
+            </Card>
+
+            {/* Pagination */}
+            {meta && meta.totalPages > 1 && (
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium">
+                        <div>Trang {page} / {meta.totalPages}</div>
+                        <div className="w-1 h-1 rounded-full bg-border" />
+                        <div>Tổng cộng: <span className="text-foreground font-semibold">{meta.total}</span> câu hỏi</div>
                     </div>
-                </div>
 
-                <Card className="rounded-3xl border-border bg-card overflow-hidden relative group/table shadow-sm">
-                    <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none" />
-                    <QuestionsTable
-                        data={questions}
-                        onView={setViewingQuestion}
-                        onEdit={setEditingQuestion}
-                        onDelete={setDeletingQuestion}
-                        onApprove={handleApprove}
-                        onDeactivate={handleDeactivate}
-                        onReject={handleReject}
-                        onSendForReview={handleSendForReview}
-                        page={page}
-                        limit={queryParams.limit || 10}
-                        isLoading={isLoading}
-                    />
-                </Card>
+                    <Pagination>
+                        <PaginationContent className="flex items-center gap-2">
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (page > 1) setPage(p => p - 1);
+                                    }}
+                                    className={cn(
+                                        "h-10 px-4 rounded-xl bg-card border border-border/20 text-xs font-medium transition-all",
+                                        page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                    )}
+                                />
+                            </PaginationItem>
 
-                {/* Pagination */}
-                {meta && (
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-xs text-muted-foreground font-medium text-center lg:text-left pl-2">
-                            <div className="inline-flex items-center gap-2">
-                                <Sparkles className="size-3.5 text-primary/70" />
-                                <span>Tổng cộng: <span className="text-foreground">{meta.total} Câu hỏi</span></span>
+                            <div className="hidden md:flex items-center gap-1 mx-2">
+                                {renderPaginationItems()}
                             </div>
-                            <div className="hidden lg:block w-1 h-1 rounded-full bg-border" />
-                            <div>Trang {page} / {meta.totalPages}</div>
-                        </div>
 
-                        {meta.totalPages > 1 && (
-                            <Pagination>
-                                <PaginationContent className="flex items-center gap-2">
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setPage(p => Math.max(1, p - 1));
-                                            }}
-                                            className={cn(
-                                                "h-10 px-4 rounded-xl bg-card border border-border/20 text-xs font-medium transition-all",
-                                                page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
-                                            )}
-                                        />
-                                    </PaginationItem>
-
-                                    <div className="hidden md:flex items-center gap-1 mx-2">
-                                        {renderPaginationItems()}
-                                    </div>
-
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setPage(p => Math.min(meta.totalPages, p + 1));
-                                            }}
-                                            className={cn(
-                                                "h-10 px-4 rounded-xl bg-card border border-border/20 text-xs font-medium transition-all",
-                                                page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
-                                            )}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        )}
-                    </div>
-                )}
-            </div>
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (page < meta.totalPages) setPage(p => p + 1);
+                                    }}
+                                    className={cn(
+                                        "h-10 px-4 rounded-xl bg-card border border-border/20 text-xs font-medium transition-all",
+                                        page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                    )}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                </div>
+            )}
 
             {/* Dialogs */}
             <CreateQuestionDialog

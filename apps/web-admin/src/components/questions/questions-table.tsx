@@ -73,12 +73,15 @@ export function QuestionsTable({
 
     return (
         <Table className="min-w-[1200px] border-collapse bg-transparent">
-            <TableHeader className="bg-muted/10 border-b border-border/20">
+            <TableHeader className="bg-muted/30 border-b border-border">
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
+                    <TableRow key={headerGroup.id} className="hover:bg-transparent border-none">
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">
+                                <TableHead
+                                    key={header.id}
+                                    className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0"
+                                >
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -107,10 +110,10 @@ export function QuestionsTable({
                         <TableRow
                             key={row.id}
                             data-state={row.getIsSelected() && 'selected'}
-                            className="border-b border-border/10 hover:bg-primary/[0.02] transition-all duration-500 group"
+                            className="border-b border-border/50 hover:bg-muted/30 transition-colors"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-5 px-6 text-[13px] font-bold text-foreground/80 whitespace-nowrap group-hover:text-primary transition-colors">
+                                <TableCell key={cell.id} className="py-4 px-4 text-sm">
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
