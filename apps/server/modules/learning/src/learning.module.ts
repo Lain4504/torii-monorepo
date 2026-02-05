@@ -58,6 +58,11 @@ import { LearningProgressHandler } from './interfaces/nats/learning-progress.han
 import { LiveSessionHandler } from './interfaces/nats/live-session.handler';
 import { CouponHandler } from './interfaces/nats/coupon.handler';
 import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
+import { AssignmentHandler } from './interfaces/nats/assignment.handler';
+import { SubmissionHandler } from './interfaces/nats/submission.handler';
+
+import { AssignmentModule } from './modules/assignment/assignment.module';
+import { SubmissionModule } from './modules/submission/submission.module';
 
 @Module({
   imports: [
@@ -78,6 +83,8 @@ import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
     LearningProgressModule,
     LiveSessionModule,
     CouponModule,
+    AssignmentModule,
+    SubmissionModule,
 
     // Community Modules
     PostModule,
@@ -120,6 +127,8 @@ import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
     LiveSessionHandler,
     CouponHandler,
     AnalyticsHandler,
+    AssignmentHandler,
+    SubmissionHandler,
   ],
   providers: [
     {
