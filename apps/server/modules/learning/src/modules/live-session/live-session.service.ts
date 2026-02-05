@@ -18,7 +18,26 @@ import {
 } from '@workspace/schemas';
 import type { LiveSession } from '@prisma/generated';
 import { create } from '@bufbuild/protobuf';
-import { CreateRoomReqSchema } from '@workspace/protocol';
+import {
+    CreateRoomReqSchema,
+    RoomMetadataSchema,
+    RoomCreateFeaturesSchema,
+    RecordingFeaturesSchema,
+    ChatFeaturesSchema,
+    WhiteboardFeaturesSchema,
+    ExternalMediaPlayerFeaturesSchema,
+    WaitingRoomFeaturesSchema,
+    BreakoutRoomFeaturesSchema,
+    DisplayExternalLinkFeaturesSchema,
+    IngressFeaturesSchema,
+    PollsFeaturesSchema,
+    InsightsFeaturesSchema,
+    InsightsTranscriptionFeaturesSchema,
+    InsightsChatTranslationFeaturesSchema,
+    InsightsAIFeaturesSchema,
+    InsightsAITextChatFeaturesSchema,
+    InsightsAIMeetingSummarizationFeaturesSchema,
+} from '@workspace/protocol';
 import { lastValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { ILiveSessionService } from '../../interfaces/services/i-live-session.service';
@@ -197,14 +216,82 @@ export class LiveSessionService implements ILiveSessionService {
         }
 
         // Create a room in Meet module if it doesn't exist
-        const roomId = `live-session-${id}`;
+        const roomId = existing.meetingId || `live-session-${id}`;
         try {
             const createRoomReq = create(CreateRoomReqSchema, {
                 roomId: roomId,
-                metadata: {
+                metadata: create(RoomMetadataSchema, {
                     roomTitle: existing.title,
-                    isBreakoutRoom: false,
-                },
+                    welcomeMessage: `Chào mừng bạn đến với buổi học trực tuyến: <b>${existing.title}</b>.<br /> Vui lòng kiểm tra Microphone và Camera trước khi bắt đầu.`,
+                    roomFeatures: create(RoomCreateFeaturesSchema, {
+                        allowWebcams: true,
+                        muteOnStart: false,
+                        allowScreenShare: true,
+                        allowRtmp: true,
+                        adminOnlyWebcams: false,
+                        allowViewOtherWebcams: true,
+                        allowViewOtherUsersList: true,
+                        roomDuration: '0',
+                        enableAnalytics: true,
+                        allowVirtualBg: true,
+                        allowRaiseHand: true,
+                        recordingFeatures: create(RecordingFeaturesSchema, {
+                            isAllow: true,
+                            isAllowCloud: true,
+                            isAllowLocal: true,
+                            enableAutoCloudRecording: false,
+                            onlyRecordAdminWebcams: false,
+                        }),
+                        chatFeatures: create(ChatFeaturesSchema, {
+                            isAllow: true,
+                            isAllowFileUpload: true,
+                            maxFileSize: '50',
+                            allowedFileTypes: ['jpg', 'png', 'zip', 'pdf'],
+                        }),
+                        whiteboardFeatures: create(WhiteboardFeaturesSchema, {
+                            isAllow: true,
+                        }),
+                        externalMediaPlayerFeatures: create(ExternalMediaPlayerFeaturesSchema, {
+                            isAllow: true,
+                        }),
+                        waitingRoomFeatures: create(WaitingRoomFeaturesSchema, {
+                            isActive: true,
+                        }),
+                        breakoutRoomFeatures: create(BreakoutRoomFeaturesSchema, {
+                            isAllow: true,
+                            allowedNumberRooms: 6,
+                        }),
+                        displayExternalLinkFeatures: create(DisplayExternalLinkFeaturesSchema, {
+                            isAllow: true,
+                        }),
+                        ingressFeatures: create(IngressFeaturesSchema, {
+                            isAllow: true,
+                        }),
+                        pollsFeatures: create(PollsFeaturesSchema, {
+                            isAllow: true,
+                        }),
+                        insightsFeatures: create(InsightsFeaturesSchema, {
+                            isAllow: true,
+                            transcriptionFeatures: create(InsightsTranscriptionFeaturesSchema, {
+                                isAllow: true,
+                                isAllowTranslation: true,
+                                maxSelectedTransLangs: 2,
+                            }),
+                            chatTranslationFeatures: create(InsightsChatTranslationFeaturesSchema, {
+                                isAllow: true,
+                            }),
+                            aiFeatures: create(InsightsAIFeaturesSchema, {
+                                isAllow: true,
+                                aiTextChatFeatures: create(InsightsAITextChatFeaturesSchema, {
+                                    isAllow: true,
+                                }),
+                                meetingSummarizationFeatures: create(InsightsAIMeetingSummarizationFeaturesSchema, {
+                                    isAllow: true,
+                                })
+                            }),
+                        }),
+                    }),
+                }),
             });
 
             await lastValueFrom(
@@ -213,8 +300,6 @@ export class LiveSessionService implements ILiveSessionService {
             this.logger.log(`Created WebRTC room for live session: ${roomId}`);
         } catch (error) {
             this.logger.error(`Failed to create WebRTC room: ${error.message}`);
-            // We still continue to mark the session as LIVE even if room creation fails 
-            // because it might have been created already or error is transient.
         }
 
         const updated = await this.liveSessionRepository.update(id, {
@@ -255,6 +340,7 @@ export class LiveSessionService implements ILiveSessionService {
     }
 
     async joinSession(requester: Requester, id: string): Promise<LiveSessionJoinResponseDTO> {
+        // ... (existing joinSession code)
         const session = await this.liveSessionRepository.findById(id);
         if (!session) {
             throw new NotFoundException(`Live session with id ${id} not found`);
@@ -317,6 +403,23 @@ export class LiveSessionService implements ILiveSessionService {
         } catch (error) {
             this.logger.error(`Failed to join WebRTC room: ${error.message}`);
             throw new BadRequestException(`Failed to join live session: ${error.message}`);
+        }
+    }
+
+    async syncEndedSession(meetingId: string): Promise<void> {
+        this.logger.log(`Syncing ended session for meetingId: ${meetingId}`);
+        const sessions = await this.prisma.liveSession.findMany({
+            where: {
+                meetingId: meetingId,
+                status: LiveSessionStatus.LIVE,
+            },
+        });
+
+        for (const session of sessions) {
+            await this.liveSessionRepository.update(session.id, {
+                status: LiveSessionStatus.ENDED,
+            });
+            this.logger.log(`Updated LiveSession ${session.id} to ENDED via sync`);
         }
     }
 }

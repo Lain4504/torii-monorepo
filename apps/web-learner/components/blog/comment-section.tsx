@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
-import { blogCommentApi } from '@/apis/services/blog-comment-api'
+import { postCommentApi } from '@/apis/services/post-comment-api'
 import type { CommentResponseDTO } from '@workspace/schemas'
+import { CommentTargetType } from '@workspace/schemas'
 import { User, Heart, Reply, MoreHorizontal, Loader2, Send, Edit, Trash } from 'lucide-react'
 import {
     DropdownMenu,
@@ -17,12 +18,12 @@ import Link from 'next/link'
 import { toast } from '@workspace/ui/components/sonner'
 
 interface CommentSectionProps {
-    blogId?: string
-    feedId?: string
+    postId?: string
+    qaId?: string
     onCommentCountChange?: (delta: number) => void // Callback to update parent's comment count
 }
 
-export function CommentSection({ blogId, feedId, onCommentCountChange }: CommentSectionProps) {
+export function CommentSection({ postId, qaId, onCommentCountChange }: CommentSectionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const [comments, setComments] = useState<CommentResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
@@ -31,7 +32,11 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
     const fetchComments = async () => {
         try {
             setLoading(true)
-            const response = await blogCommentApi.findAll({ page: 1, limit: 100, blogId, feedId }) // Load many for nesting
+            const entityId = postId || qaId
+            const targetType = postId ? CommentTargetType.BLOG : CommentTargetType.QA
+            if (!entityId) return
+
+            const response = await postCommentApi.findAll({ page: 1, limit: 100, entityId, targetType }) // Load many for nesting
 
             // Flatten nested structure: backend returns root comments with nested replies
             // We need to flatten this into a single array for our rendering logic
@@ -62,10 +67,10 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
     }
 
     useEffect(() => {
-        if (blogId || feedId) {
+        if (postId || qaId) {
             fetchComments()
         }
-    }, [blogId, feedId])
+    }, [postId, qaId])
 
     const handleSubmitComment = async (content: string, parentId?: string) => {
         if (!content.trim()) {
@@ -79,9 +84,16 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
         }
 
         try {
-            const newComment = await blogCommentApi.create({
-                blogId: blogId || undefined,
-                feedId: feedId || undefined,
+            const entityId = postId || qaId
+            const targetType = postId ? CommentTargetType.BLOG : CommentTargetType.QA
+            if (!entityId) {
+                toast.error('Không thể xác định bài viết')
+                return
+            }
+
+            const newComment = await postCommentApi.create({
+                entityId,
+                targetType,
                 userId: user.id,
                 content: content.trim(),
                 parentId: parentId || undefined
@@ -122,7 +134,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
         }))
 
         try {
-            const result = await blogCommentApi.toggleLike(commentId)
+            const result = await postCommentApi.toggleLike(commentId)
             // Sync with server result just in case
             setComments(prev => prev.map(c => {
                 if (c.id === commentId) {
@@ -156,7 +168,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
 
     const handleUpdateComment = async (commentId: string, content: string) => {
         try {
-            const updatedComment = await blogCommentApi.update(commentId, { content })
+            const updatedComment = await postCommentApi.update(commentId, { content })
 
             // Update local state
             setComments(prev => prev.map(c => c.id === commentId ? { ...c, content: updatedComment.content } : c))
@@ -174,7 +186,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
         if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return
 
         try {
-            await blogCommentApi.delete(commentId)
+            await postCommentApi.delete(commentId)
 
             // Remove from local state
             setComments(prev => prev.filter(c => c.id !== commentId))
@@ -226,7 +238,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
                             user={user}
                             onUpdateComment={handleUpdateComment}
                             onDeleteComment={handleDeleteComment}
-                            canLike={!!feedId || !!blogId}
+                            canLike={!!qaId || !!postId}
                         />
                     ))
                 ) : (

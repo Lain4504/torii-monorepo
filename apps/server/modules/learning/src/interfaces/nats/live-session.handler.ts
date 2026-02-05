@@ -1,13 +1,27 @@
-import { Controller, Inject } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller, Inject, Logger } from '@nestjs/common';
+import { MessagePattern, Payload, EventPattern } from '@nestjs/microservices';
 import { LIVE_SESSION_SERVICE_TOKEN, ILiveSessionService } from '../../interfaces/services';
-import { LiveSessionBulkCreateDTO, LiveSessionCreateDTO, LiveSessionUpdateDTO, Requester } from '@workspace/schemas';
+import { LiveSessionBulkCreateDTO, LiveSessionCreateDTO, LiveSessionUpdateDTO, Requester, LiveSessionStatus } from '@workspace/schemas';
 
 @Controller()
 export class LiveSessionHandler {
+    private readonly logger = new Logger(LiveSessionHandler.name);
+
     constructor(
         @Inject(LIVE_SESSION_SERVICE_TOKEN) private readonly liveSessionService: ILiveSessionService
     ) { }
+
+    @EventPattern('events.meet.room_ended')
+    async handleRoomEnded(@Payload() data: { roomId: string; roomSID: string }) {
+        this.logger.log(`Received room_ended event for roomId: ${data.roomId}`);
+        try {
+            // Find live session by meetingId (which is the roomId in meet module)
+            // and update its status to ENDED
+            await (this.liveSessionService as any).syncEndedSession(data.roomId);
+        } catch (error) {
+            this.logger.error(`Failed to sync ended session: ${error.message}`);
+        }
+    }
 
     @MessagePattern({ cmd: 'learning.liveSession.create' })
     async create(@Payload() data: LiveSessionCreateDTO & { userId: string; userRole: string; userEmail: string; displayName?: string }) {

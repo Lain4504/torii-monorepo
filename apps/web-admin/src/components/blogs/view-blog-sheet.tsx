@@ -9,22 +9,22 @@ import { Badge } from '@workspace/ui/components/badge';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
-import type { BlogResponseDTO } from '@workspace/schemas';
+import type { PostResponseDTO } from '@workspace/schemas';
 import { Calendar, Eye, MessageCircle, FileText, User } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 
-interface ViewBlogSheetProps {
+interface ViewPostSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    blog: BlogResponseDTO | null;
+    post: PostResponseDTO | null;
 }
 
-export function ViewBlogSheet({
+export function ViewPostSheet({
     open,
     onOpenChange,
-    blog,
-}: ViewBlogSheetProps) {
-    if (!blog) return null;
+    post,
+}: ViewPostSheetProps) {
+    if (!post) return null;
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -38,10 +38,10 @@ export function ViewBlogSheet({
                             </div>
                             <div className="space-y-1">
                                 <SheetTitle className="text-2xl font-bold tracking-tight">
-                                    View <span className="text-primary">Blog</span>
+                                    View <span className="text-primary">Post</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                                    ID: <span className="font-mono text-primary">{blog.id.substring(0, 8)}</span>
+                                    ID: <span className="font-mono text-primary">{post.id.substring(0, 8)}</span>
                                 </SheetDescription>
                             </div>
                         </div>
@@ -49,13 +49,13 @@ export function ViewBlogSheet({
                             variant="outline"
                             className={cn(
                                 "px-3 py-1.5 uppercase tracking-widest text-[10px] font-black border-2",
-                                blog.status === 'published'
+                                post.status === 'published'
                                     ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10"
-                                    : blog.status === 'draft'
+                                    : post.status === 'draft'
                                         ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
                                         : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
                             )}>
-                            {blog.status}
+                            {post.status}
                         </Badge>
                     </div>
                 </SheetHeader>
@@ -73,7 +73,7 @@ export function ViewBlogSheet({
                                     <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Views</span>
                                 </div>
                                 <div className="text-4xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
-                                    {blog.viewCount || 0}
+                                    {post.viewCount || 0}
                                 </div>
                             </div>
                             <div className="p-5 rounded-3xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all group">
@@ -84,7 +84,7 @@ export function ViewBlogSheet({
                                     <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Comments</span>
                                 </div>
                                 <div className="text-4xl font-black text-foreground tracking-tight group-hover:text-blue-500 transition-colors">
-                                    {blog.commentCount || 0}
+                                    {post.commentCount || 0}
                                 </div>
                             </div>
                             <div className="p-5 rounded-3xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all group">
@@ -95,7 +95,7 @@ export function ViewBlogSheet({
                                     <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Last Updated</span>
                                 </div>
                                 <div className="text-xl font-bold text-foreground font-mono tracking-tight group-hover:text-purple-500 transition-colors pt-2">
-                                    {new Date(blog.updatedAt).toLocaleDateString(undefined, {
+                                    {new Date(post.updatedAt).toLocaleDateString(undefined, {
                                         month: 'short',
                                         day: 'numeric',
                                         year: 'numeric'
@@ -111,7 +111,7 @@ export function ViewBlogSheet({
                             <div className="flex items-center gap-3 pb-2 border-b border-border/20">
                                 <div className="h-px flex-1 bg-border/20" />
                                 <h3 className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/40 text-center">
-                                    Blog Details
+                                    Post Details
                                 </h3>
                                 <div className="h-px flex-1 bg-border/20" />
                             </div>
@@ -120,7 +120,7 @@ export function ViewBlogSheet({
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Title</label>
                                 <div className="h-14 px-5 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold uppercase flex items-center">
-                                    {blog.title}
+                                    {post.title}
                                 </div>
                             </div>
 
@@ -129,16 +129,16 @@ export function ViewBlogSheet({
                                 <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Author</label>
                                 <div className="h-14 px-5 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold flex items-center gap-3">
                                     <User className="h-4 w-4 text-muted-foreground/60" />
-                                    {blog.author?.displayName || 'Unknown'}
+                                    {post.author?.displayName || 'Unknown'}
                                 </div>
                             </div>
 
                             {/* Excerpt */}
-                            {blog.excerpt && (
+                            {post.excerpt && (
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Excerpt</label>
                                     <div className="min-h-[80px] px-5 py-4 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold flex items-start">
-                                        {blog.excerpt}
+                                        {post.excerpt}
                                     </div>
                                 </div>
                             )}
@@ -148,7 +148,7 @@ export function ViewBlogSheet({
                                 <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Content</label>
                                 <div className="rounded-2xl border border-border/20 bg-background overflow-hidden">
                                     <TiptapEditor
-                                        content={blog.content}
+                                        content={post.content}
                                         mode="readonly"
                                         className="min-h-[400px]"
                                     />
@@ -160,24 +160,24 @@ export function ViewBlogSheet({
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Status</label>
                                     <div className="h-14 px-5 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold uppercase flex items-center">
-                                        {blog.status}
+                                        {post.status}
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Published At</label>
                                     <div className="h-14 px-5 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold font-mono flex items-center gap-2">
                                         <Calendar className="h-4 w-4 text-muted-foreground/60" />
-                                        {blog.publishedAt ? new Date(blog.publishedAt).toLocaleString() : 'Not published'}
+                                        {post.publishedAt ? new Date(post.publishedAt).toLocaleString() : 'Not published'}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Tags */}
-                            {blog.tags && blog.tags.length > 0 && (
+                            {post.tags && post.tags.length > 0 && (
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Tags</label>
                                     <div className="px-5 py-4 rounded-2xl bg-muted/10 border border-border/20 flex flex-wrap gap-2">
-                                        {blog.tags.map((tag, index) => (
+                                        {post.tags.map((tag, index) => (
                                             <Badge key={index} variant="outline" className="uppercase text-[10px] font-black tracking-wider">
                                                 {tag}
                                             </Badge>
@@ -187,12 +187,12 @@ export function ViewBlogSheet({
                             )}
 
                             {/* Cover Image */}
-                            {blog.coverImageUrl && (
+                            {post.coverImageUrl && (
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Cover Image</label>
                                     <div className="rounded-2xl overflow-hidden border border-border/40 bg-muted/30 aspect-video relative shadow-sm group max-w-2xl">
                                         <img
-                                            src={blog.coverImageUrl}
+                                            src={post.coverImageUrl}
                                             alt="Cover"
                                             className="object-cover w-full h-full transition-transform group-hover:scale-105"
                                         />
@@ -201,36 +201,7 @@ export function ViewBlogSheet({
                                 </div>
                             )}
 
-                            {/* SEO Metadata */}
-                            {(blog.seoTitle || blog.seoDescription) && (
-                                <div className="space-y-6 pt-6">
-                                    <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                        <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                            SEO Metadata
-                                        </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
-                                    </div>
 
-                                    {blog.seoTitle && (
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">SEO Title</label>
-                                            <div className="h-14 px-5 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold flex items-center">
-                                                {blog.seoTitle}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {blog.seoDescription && (
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">SEO Description</label>
-                                            <div className="min-h-[80px] px-5 py-4 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold flex items-start">
-                                                {blog.seoDescription}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
 
                             {/* Timestamps */}
                             <div className="space-y-6 pt-6">
@@ -247,14 +218,14 @@ export function ViewBlogSheet({
                                         <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Created At</label>
                                         <div className="h-14 px-5 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold font-mono flex items-center gap-2">
                                             <Calendar className="h-4 w-4 text-muted-foreground/60" />
-                                            {new Date(blog.createdAt).toLocaleString()}
+                                            {new Date(post.createdAt).toLocaleString()}
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Updated At</label>
                                         <div className="h-14 px-5 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold font-mono flex items-center gap-2">
                                             <Calendar className="h-4 w-4 text-muted-foreground/60" />
-                                            {new Date(blog.updatedAt).toLocaleString()}
+                                            {new Date(post.updatedAt).toLocaleString()}
                                         </div>
                                     </div>
                                 </div>

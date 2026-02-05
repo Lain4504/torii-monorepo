@@ -119,10 +119,10 @@ export function ScheduleRequestDialog({
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
+                    <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <FormField
-                                control={form.control}
+                                control={form.control as any}
                                 name="dayOfWeek"
                                 render={({ field }) => (
                                     <FormItem>
@@ -150,7 +150,7 @@ export function ScheduleRequestDialog({
                             />
 
                             <FormField
-                                control={form.control}
+                                control={form.control as any}
                                 name="startTime"
                                 render={({ field }) => (
                                     <FormItem>
@@ -169,7 +169,7 @@ export function ScheduleRequestDialog({
                         </div>
 
                         <FormField
-                            control={form.control}
+                            control={form.control as any}
                             name="duration"
                             render={({ field }) => (
                                 <FormItem>
@@ -188,7 +188,7 @@ export function ScheduleRequestDialog({
                         />
 
                         <FormField
-                            control={form.control}
+                            control={form.control as any}
                             name="reason"
                             render={({ field }) => (
                                 <FormItem>

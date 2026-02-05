@@ -65,6 +65,12 @@ export const liveSessionsApi = {
         return response.data.data!;
     },
 
+    // POST /api/live-sessions/:id/join
+    async join(id: string): Promise<{ token: string; roomId: string; roomTitle: string; sid: string }> {
+        const response = await apiClient.post<StandardApiResponse<{ token: string; roomId: string; roomTitle: string; sid: string }>>(`/api/live-sessions/${id}/join`);
+        return response.data.data!;
+    },
+
     // --- Teaching Schedule API ---
 
     // GET /api/teaching-schedules/check-availability

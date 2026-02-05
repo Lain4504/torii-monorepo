@@ -49,4 +49,9 @@ export interface ILiveSessionService {
      * Join a live session (get JWT token for WebRTC)
      */
     joinSession(requester: Requester, id: string): Promise<LiveSessionJoinResponseDTO>;
+
+    /**
+     * Synchronize session state when a Meet room ends
+     */
+    syncEndedSession(meetingId: string): Promise<void>;
 }

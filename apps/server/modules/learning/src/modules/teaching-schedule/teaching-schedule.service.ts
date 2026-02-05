@@ -7,6 +7,7 @@ import {
     ScheduleRequestResponseDTO,
     Requester
 } from '@workspace/schemas';
+import { v4 as uuidv4 } from 'uuid';
 import { ITeachingScheduleService } from '../../interfaces/services/i-teaching-schedule.service';
 
 @Injectable()
@@ -224,7 +225,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         });
         if (!schedule) return;
 
-        const sessions = [];
+        const sessions: any[] = [];
         const [hours, minutes] = schedule.startTime.split(':').map(Number);
 
         let currentDate = new Date();
@@ -243,6 +244,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
                 lecturerId: schedule.lecturerId,
                 scheduleId: schedule.id,
                 title: `${schedule.course.title} - Buổi học ${i + 1}`,
+                meetingId: `live-${uuidv4().substring(0, 8)}`,
                 scheduledAt,
                 duration: schedule.duration,
                 status: 'scheduled',

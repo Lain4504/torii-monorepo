@@ -26,7 +26,8 @@ import {
     useLiveSessions,
     useDeleteLiveSession,
     useStartLiveSession,
-    useEndLiveSession
+    useEndLiveSession,
+    liveSessionsApi
 } from '@/api/services/live-sessions';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -192,9 +193,26 @@ export function LiveSessionManagementSheet({ open, onOpenChange, course }: LiveS
                                                             </DropdownMenuItem>
                                                         )}
                                                         {session.status === 'live' && (
-                                                            <DropdownMenuItem onClick={() => handleEnd(session.id)} className="text-orange-600 focus:text-orange-700 focus:bg-orange-50 gap-2">
-                                                                <CheckCircle2 className="size-4" /> <span>Kết thúc Live</span>
-                                                            </DropdownMenuItem>
+                                                            <>
+                                                                <DropdownMenuItem onClick={() => handleEnd(session.id)} className="text-orange-600 focus:text-orange-700 focus:bg-orange-50 gap-2">
+                                                                    <CheckCircle2 className="size-4" /> <span>Kết thúc Live</span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem
+                                                                    onClick={async () => {
+                                                                        try {
+                                                                            const joinData = await liveSessionsApi.join(session.id);
+                                                                            const meetUrl = import.meta.env.VITE_MEET_URL || 'https://meet.torii.com';
+                                                                            window.open(`${meetUrl}?access_token=${joinData.token}`, '_blank');
+                                                                            toast.success('Đang tham gia buổi học');
+                                                                        } catch (error: any) {
+                                                                            toast.error(error.response?.data?.message || 'Không thể tham gia buổi học');
+                                                                        }
+                                                                    }}
+                                                                    className="text-primary focus:text-primary focus:bg-primary/10 gap-2"
+                                                                >
+                                                                    <Video className="size-4" /> <span>Tham gia ngay</span>
+                                                                </DropdownMenuItem>
+                                                            </>
                                                         )}
                                                         <DropdownMenuItem onClick={() => setEditingSession(session)} className="gap-2">
                                                             <Pencil className="size-4" /> <span>Sửa thông tin</span>

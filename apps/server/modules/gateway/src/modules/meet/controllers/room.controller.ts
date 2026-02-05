@@ -20,10 +20,6 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { create, fromBinary } from '@bufbuild/protobuf';
 import {
-    CreateRoomReq,
-    CreateRoomReqSchema,
-    CreateRoomRes,
-    CreateRoomResSchema,
     IsRoomActiveReq,
     IsRoomActiveReqSchema,
     IsRoomActiveResSchema,
@@ -62,55 +58,6 @@ export class RoomController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
-
-    /**
-     * HandleRoomCreate handles creating a new room
-     *
-     * @route POST /auth/room/create
-     */
-    @Post('create')
-    async handleRoomCreate(
-        @Body() body: any, // Accept both JSON and binary
-        @Res() res: Response,
-    ): Promise<void> {
-        // Parse and validate request
-        let request: CreateRoomReq;
-        try {
-            request = parseAndValidateRequest<CreateRoomReq>(
-                body,
-                CreateRoomReqSchema,
-            );
-        } catch (error) {
-            sendCommonProtoJsonResponse(
-                res,
-                false,
-                error instanceof Error ? error.message : 'Invalid request',
-            );
-            return;
-        }
-
-        // Call room service via NATS (plain object, not binary)
-        try {
-            const roomInfo = await firstValueFrom(
-                this.natsClient.send({ cmd: 'room.create' }, request),
-            );
-
-            const response = create(CreateRoomResSchema, {
-                status: true,
-                msg: 'success',
-                roomInfo: roomInfo,
-            });
-
-            res.status(200);
-            sendProtoJsonResponse(res, CreateRoomResSchema, response);
-        } catch (error) {
-            sendCommonProtoJsonResponse(
-                res,
-                false,
-                error instanceof Error ? error.message : 'Error creating room',
-            );
-        }
-    }
 
     /**
      * HandleIsRoomActive checks if a room is active
