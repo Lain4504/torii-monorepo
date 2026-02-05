@@ -21,6 +21,7 @@ import CourseReviewsPage from '@/routes/courses/course-reviews-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
 import MyCoursesPage from '@/routes/courses/my-courses-page.tsx'
 import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
+import CourseLiveSessionsPage from '@/routes/courses/course-live-sessions-page.tsx'
 
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
@@ -77,6 +78,7 @@ function App() {
                 <Route path="courses/reviews" element={<CourseReviewsPage />} />
                 <Route path="courses/requests" element={<ScheduleRequestsPage />} />
                 <Route path="courses/:id" element={<CourseDetailPage />} />
+                <Route path="courses/:id/live-sessions" element={<CourseLiveSessionsPage />} />
 
                 <Route path="rooms" element={<RoomsPage />} />
 

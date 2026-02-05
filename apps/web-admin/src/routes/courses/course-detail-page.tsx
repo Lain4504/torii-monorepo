@@ -1,50 +1,69 @@
-
 import { useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
-import { Accordion } from '@workspace/ui/components/accordion';
 import {
-    Layers,
     Plus,
     ChevronLeft,
     AlertCircle,
-    ShieldCheck,
-    Fingerprint,
-    Zap,
-    Clock,
+    Layers,
     Video,
-    CalendarCheck2
+    CalendarCheck2,
+    Edit,
+    Trash,
+    MoreHorizontal,
+    PlayCircle,
+    StopCircle,
+    Settings,
+    FileText,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@workspace/ui/components/table';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@workspace/ui/components/dropdown-menu';
+import { Badge } from '@workspace/ui/components/badge';
 import { useCourse } from '@/api/services/courses';
 import { useModules } from '@/api/services/modules';
 import { useModulesLessons } from '@/api/services/lesson';
+import {
+    useLiveSessions,
+    useDeleteLiveSession,
+    useStartLiveSession,
+    useEndLiveSession,
+    liveSessionsApi
+} from '@/api/services/live-sessions';
 import type { ModuleResponseDTO, LessonResponseDTO } from '@workspace/schemas';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { toast } from '@workspace/ui/components/sonner';
 
 import { CreateModuleSheet } from '@/components/modules/create-module-sheet.tsx';
 import { EditModuleSheet } from '@/components/modules/edit-module-sheet.tsx';
-// Lazy load CreateLessonSheet for optimization
 const CreateLessonSheet = lazy(() => import('@/components/lessons/create-lesson-sheet.tsx').then(m => ({ default: m.CreateLessonSheet })));
-
 import { EditLessonSheet } from '@/components/lessons/edit-lesson-sheet.tsx';
 import { DeleteModuleDialog } from '@/components/modules/delete-module-dialog';
 import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog';
-import { ModuleItem } from '@/components/modules/module-item';
-import { TeachingScheduleGrid } from '@/components/courses/teaching-schedule-grid';
-import { CreateLiveSessionDialog } from '@/components/courses/create-live-session-dialog';
-import { useLiveSessions } from '@/api/services/live-sessions';
+import { TeachingScheduleSheet } from '@/components/courses/teaching-schedule-sheet';
 import { cn } from '@workspace/ui/lib/utils';
-import { Card } from '@workspace/ui/components/card';
-import { formatDateTime } from '@/lib/format-utils.ts';
 import { PageLoading } from '@workspace/ui/components/page-loading';
+import { PageHeader } from '@/components/common/page-header';
 
 export default function CourseDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: course, isLoading: isLoadingCourse } = useCourse(id || '');
-    const { data: modulesData } = useModules({
-        page: 1, limit: 100, courseId: id
-    });
+    const { data: modulesData } = useModules({ page: 1, limit: 100, courseId: id });
+    const { data: liveSessions } = useLiveSessions(id || '');
 
     // Dialog States
     const [createModuleOpen, setCreateModuleOpen] = useState(false);
@@ -57,65 +76,81 @@ export default function CourseDetailPage() {
     const [editLessonOpen, setEditLessonOpen] = useState(false);
     const [deleteLessonOpen, setDeleteLessonOpen] = useState(false);
     const [selectedLesson, setSelectedLesson] = useState<LessonResponseDTO | null>(null);
+    const [isScheduleSheetOpen, setIsScheduleSheetOpen] = useState(false);
 
-    const [liveSessionOpen, setLiveSessionOpen] = useState(false);
-    const { data: liveSessions } = useLiveSessions(id || '');
+    const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
     const modules = modulesData?.data || [];
-
-    // Optimized lesson fetching using dedicated hook
     const lessonQueries = useModulesLessons(modules);
 
-    const handleEditModule = (module: ModuleResponseDTO) => {
-        setSelectedModule(module);
-        setEditModuleOpen(true);
+    const deleteLiveSessionMutation = useDeleteLiveSession();
+    const startMutation = useStartLiveSession();
+    const endMutation = useEndLiveSession();
+
+    const toggleModule = (moduleId: string) => {
+        const newExpanded = new Set(expandedModules);
+        if (newExpanded.has(moduleId)) {
+            newExpanded.delete(moduleId);
+        } else {
+            newExpanded.add(moduleId);
+        }
+        setExpandedModules(newExpanded);
     };
 
-    const handleDeleteModule = (module: ModuleResponseDTO) => {
-        setSelectedModule(module);
-        setDeleteModuleOpen(true);
+    const handleDeleteLiveSession = async (sessionId: string) => {
+        if (!confirm('Bạn có chắc chắn muốn xóa buổi học này?')) return;
+        try {
+            await deleteLiveSessionMutation.mutateAsync({ id: sessionId, courseId: course!.id });
+            toast.success('Đã xóa buổi học');
+        } catch (error) {
+            toast.error('Không thể xóa buổi học');
+        }
     };
 
-    const handleAddLesson = (moduleId: string) => {
-        setSelectedModuleIdForLesson(moduleId);
-        setCreateLessonOpen(true);
+    const handleStartLiveSession = async (sessionId: string) => {
+        try {
+            await startMutation.mutateAsync(sessionId);
+            toast.success('Đã bắt đầu buổi học');
+        } catch (error) {
+            toast.error('Không thể bắt đầu buổi học');
+        }
     };
 
-    const handleEditLesson = (lesson: LessonResponseDTO) => {
-        setSelectedLesson(lesson);
-        setEditLessonOpen(true);
+    const handleEndLiveSession = async (sessionId: string) => {
+        try {
+            await endMutation.mutateAsync(sessionId);
+            toast.info('Đã kết thúc buổi học');
+        } catch (error) {
+            toast.error('Không thể kết thúc buổi học');
+        }
     };
 
-    const handleDeleteLesson = (lesson: LessonResponseDTO) => {
-        setSelectedLesson(lesson);
-        setDeleteLessonOpen(true);
+    const handleJoinLiveSession = async (sessionId: string) => {
+        try {
+            const joinData = await liveSessionsApi.join(sessionId);
+            const meetUrl = import.meta.env.VITE_MEET_URL || 'https://meet.torii.com';
+            window.open(`${meetUrl}?access_token=${joinData.token}`, '_blank');
+            toast.success('Đang tham gia buổi học');
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Không thể tham gia buổi học');
+        }
     };
 
     if (isLoadingCourse) {
-        return (
-            <PageLoading text="Đang tải dữ liệu khóa học..." className="min-h-[60vh]" />
-        );
+        return <PageLoading text="Đang tải dữ liệu khóa học..." className="min-h-[60vh]" />;
     }
 
     if (!course) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-in fade-in duration-500 max-w-lg mx-auto px-6">
-                <div className="p-6 rounded-3xl bg-destructive/5 border border-destructive/20 relative group">
-                    <div className="absolute inset-0 bg-destructive/5 blur-xl rounded-full opacity-50" />
-                    <AlertCircle className="size-12 text-destructive/60 relative z-10 mx-auto" />
+                <div className="p-6 rounded-3xl bg-destructive/5 border border-destructive/20">
+                    <AlertCircle className="size-12 text-destructive/60 mx-auto" />
                 </div>
-                <div className="space-y-2 text-center relative z-10">
+                <div className="space-y-2 text-center">
                     <h2 className="text-2xl font-sans font-bold italic tracking-tight uppercase">Không tìm thấy khóa học</h2>
-                    <p className="text-xs font-medium text-muted-foreground leading-relaxed max-w-sm mx-auto">
-                        Khóa học bạn yêu cầu không tồn tại hoặc đã bị xóa. <br />
-                        Vui lòng kiểm tra lại đường dẫn hoặc quyền truy cập.
-                    </p>
+                    <p className="text-xs font-medium text-muted-foreground">Khóa học bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
                 </div>
-                <Button
-                    variant="outline"
-                    className="h-10 px-6 rounded-xl border-border/20 bg-background/50 text-xs font-bold uppercase tracking-wider hover:bg-muted/10 transition-all"
-                    onClick={() => navigate('/courses')}
-                >
+                <Button variant="outline" className="h-10 px-6 rounded-xl" onClick={() => navigate('/courses')}>
                     <ChevronLeft className="mr-2 size-3.5" />
                     Quay về danh sách
                 </Button>
@@ -123,9 +158,12 @@ export default function CourseDetailPage() {
         );
     }
 
+    const sortedSessions = liveSessions?.sort((a, b) =>
+        new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
+    ) || [];
+
     return (
-        <div className="flex flex-col gap-8 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
-            {/* Header */}
+        <div className="space-y-6 animate-in fade-in duration-700 pb-20">
             <div className="space-y-4">
                 <Button
                     variant="ghost"
@@ -137,303 +175,299 @@ export default function CourseDetailPage() {
                     <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại danh sách</span>
                 </Button>
 
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                    <div className="space-y-2 max-w-2xl">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                                {course.title}
-                            </h1>
-                            <div className={cn(
-                                "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border flex-shrink-0 uppercase tracking-wide",
-                                course.status === 'published'
-                                    ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                                    : "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                            )}>
-                                {course.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}
-                            </div>
-                        </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                            {course.shortDescription || "Chưa có mô tả ngắn cho khóa học này."}
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-4 flex-shrink-0">
-                        <div className="hidden lg:flex items-center gap-6 px-6 py-3 rounded-xl bg-background border border-border">
-                            <div className="text-center">
-                                <p className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/70 mb-0.5">Học phần</p>
-                                <p className="text-lg font-bold text-foreground">{modules.length}</p>
-                            </div>
-                            <div className="w-px h-8 bg-border/50 mx-2" />
-                            <div className="text-center">
-                                <p className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/70 mb-0.5">Cấp độ</p>
-                                <p className="text-lg font-bold text-foreground">{course.jlptLevel || 'N/A'}</p>
-                            </div>
-                        </div>
-                        <Button
-                            onClick={() => setLiveSessionOpen(true)}
-                            variant="outline"
-                            className="h-11 px-6 rounded-xl border-border/40 font-bold text-xs uppercase tracking-wide hover:bg-muted/10 transition-all flex items-center gap-2"
-                        >
-                            Lịch học Live
-                            <Video className="size-4" />
-                        </Button>
+                <PageHeader
+                    title={course.title}
+                    subtitle={course.shortDescription || "Chưa có mô tả ngắn cho khóa học này."}
+                    stats={[
+                        { label: "Học phần", value: modules.length },
+                        { label: "Cấp độ", value: course.jlptLevel || 'N/A' },
+                        { label: "Buổi học live", value: liveSessions?.length || 0 },
+                    ]}
+                    actions={
                         <Button
                             onClick={() => setCreateModuleOpen(true)}
-                            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-md transition-all"
+                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
                         >
                             Thêm Học Phần
                             <Plus className="ml-2 size-4" />
                         </Button>
-                    </div>
-                </div>
+                    }
+                />
             </div>
 
-            {/* Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left Column: Curriculum & Live */}
-                <div className="lg:col-span-8 space-y-6">
-                    <Tabs defaultValue="curriculum" className="w-full">
-                        <TabsList className="bg-muted/50 p-1 rounded-2xl mb-6 border border-border/20 self-start">
-                            <TabsTrigger value="curriculum" className="rounded-xl px-6 py-2 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                                <Layers className="size-3.5 mr-2" />
-                                Chương Trình
-                            </TabsTrigger>
-                            <TabsTrigger value="live-schedule" className="rounded-xl px-6 py-2 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                                <CalendarCheck2 className="size-3.5 mr-2" />
-                                Thời Khóa Biểu
-                            </TabsTrigger>
-                        </TabsList>
+            <Tabs defaultValue="curriculum" className="space-y-6">
+                <TabsList className="h-12 p-1.5 rounded-2xl bg-muted/30 border border-border/40">
+                    <TabsTrigger value="curriculum" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <Layers className="size-4 mr-2" />
+                        Chương Trình
+                    </TabsTrigger>
+                    <TabsTrigger value="live-schedule" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <CalendarCheck2 className="size-4 mr-2" />
+                        Lịch học Live
+                    </TabsTrigger>
+                </TabsList>
 
-                        <TabsContent value="curriculum" className="space-y-6 focus-visible:outline-none">
-                            <div className="flex items-center justify-between pb-2 border-b border-border">
-                                <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
-                                    <Layers className="size-5 text-primary" />
-                                    Cấu Trúc Chương Trình
-                                </h2>
+                {/* Curriculum Tab */}
+                <TabsContent value="curriculum" className="space-y-4">
+                    {modules.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-20 text-center space-y-6 border-2 border-dashed border-border/40 rounded-3xl bg-muted/5">
+                            <div className="p-6 rounded-full bg-muted/10">
+                                <Layers className="size-16 text-muted-foreground/20" />
                             </div>
-
-                            {modules.length === 0 ? (
-                                <div className="p-12 text-center space-y-6 bg-background rounded-xl border border-dashed border-border flex flex-col items-center justify-center min-h-[300px]">
-                                    <div className="size-16 rounded-full bg-muted/30 flex items-center justify-center">
-                                        <Layers className="size-8 text-muted-foreground/40" />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h3 className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Chưa có nội dung</h3>
-                                        <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                                            Khóa học này chưa có học phần nào. Hãy bắt đầu xây dựng chương trình học ngay.
-                                        </p>
-                                    </div>
-                                    <Button
-                                        onClick={() => setCreateModuleOpen(true)}
-                                        variant="outline"
-                                        className="h-10 rounded-xl px-6 font-medium"
-                                    >
-                                        Tạo Học Phần Mới
-                                    </Button>
-                                </div>
-                            ) : (
-                                <Card className="rounded-xl bg-background border border-border shadow-sm overflow-hidden p-6">
-                                    <Accordion type="multiple" className="space-y-4">
-                                        {modules.map((module, idx) => {
-                                            const lessonQuery = lessonQueries[idx];
-                                            const lessons = lessonQuery?.data?.data || [];
-                                            const lessonsLoading = lessonQuery?.isLoading || false;
-
-                                            return (
-                                                <div key={module.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
-                                                    <ModuleItem
-                                                        module={module}
-                                                        lessons={lessons}
-                                                        isLoading={lessonsLoading}
-                                                        onEditModule={handleEditModule}
-                                                        onDeleteModule={handleDeleteModule}
-                                                        onAddLesson={handleAddLesson}
-                                                        onEditLesson={handleEditLesson}
-                                                        onDeleteLesson={handleDeleteLesson}
-                                                    />
-                                                </div>
-                                            );
-                                        })}
-                                    </Accordion>
-                                </Card>
-                            )}
-                        </TabsContent>
-
-                        <TabsContent value="live-schedule" className="space-y-6 focus-visible:outline-none">
-                            <div className="flex items-center justify-between pb-2 border-b border-border">
-                                <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
-                                    <CalendarCheck2 className="size-5 text-primary" />
-                                    Thời Khóa Biểu Cố Định
-                                </h2>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setLiveSessionOpen(true)}
-                                    className="text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5"
-                                >
-                                    + Thiết lập lịch học
-                                </Button>
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-sans font-bold italic text-muted-foreground/50 uppercase tracking-tight">Chưa có nội dung</h3>
+                                <p className="text-sm text-muted-foreground/40 max-w-sm mx-auto">Khóa học này chưa có học phần nào. Hãy bắt đầu xây dựng chương trình học ngay.</p>
                             </div>
+                            <Button onClick={() => setCreateModuleOpen(true)} variant="outline" className="h-11 px-8 rounded-xl">
+                                Tạo Học Phần Mới
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+                            <Table>
+                                <TableHeader className="bg-muted/30 border-b border-border">
+                                    <TableRow className="hover:bg-transparent border-none">
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-12">#</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Học phần / Bài học</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-32">Loại</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-24">Thứ tự</TableHead>
+                                        <TableHead className="text-right h-11 text-xs font-semibold text-muted-foreground px-4 w-32">Thao tác</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {modules.map((module, moduleIdx) => {
+                                        const lessonQuery = lessonQueries[moduleIdx];
+                                        const lessons = lessonQuery?.data?.data || [];
+                                        const isExpanded = expandedModules.has(module.id);
 
-                            <TeachingScheduleGrid courseId={id || ''} />
-
-                            <div className="pt-8 space-y-4">
-                                <h2 className="text-lg font-bold tracking-tight flex items-center gap-2 pb-2 border-b border-border">
-                                    <Video className="size-5 text-primary" />
-                                    Danh Sách Buổi Học Đã Lên Lịch
-                                </h2>
-                                <div className="grid grid-cols-1 gap-3">
-                                    {liveSessions?.length === 0 ? (
-                                        <p className="text-xs text-muted-foreground text-center py-8 italic uppercase tracking-widest opacity-40">Chưa có buổi học nào được tạo</p>
-                                    ) : (
-                                        liveSessions?.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()).map((s) => (
-                                            <div key={s.id} className="flex items-center justify-between p-4 rounded-2xl bg-background border border-border/20 hover:border-primary/40 transition-all group">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-bold text-xs uppercase italic">
-                                                        {new Date(s.scheduledAt).getDate()}/{new Date(s.scheduledAt).getMonth() + 1}
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <h4 className="text-sm font-bold tracking-tight">{s.title}</h4>
-                                                        <div className="flex items-center gap-3 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                                                            <span className="flex items-center gap-1">
-                                                                <Clock className="size-3" />
-                                                                {formatDateTime(s.scheduledAt)}
-                                                            </span>
-                                                            <span className="flex items-center gap-1">
-                                                                <ShieldCheck className="size-3" />
-                                                                {s.status}
-                                                            </span>
+                                        return (
+                                            <>
+                                                <TableRow key={module.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                                                    <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30">{moduleIdx + 1}</TableCell>
+                                                    <TableCell className="border-r border-border/30">
+                                                        <div className="flex items-center gap-3">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="size-6 rounded-lg"
+                                                                onClick={() => toggleModule(module.id)}
+                                                            >
+                                                                <ChevronLeft className={cn("size-3 transition-transform", isExpanded && "-rotate-90")} />
+                                                            </Button>
+                                                            <div>
+                                                                <p className="font-semibold text-sm">{module.title}</p>
+                                                                {module.description && <p className="text-xs text-muted-foreground line-clamp-1">{module.description}</p>}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <Button variant="ghost" size="sm" className="rounded-xl text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Chi tiết</Button>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
-                </div>
-
-                {/* Right Column: Metadata & Details */}
-                <div className="lg:col-span-4 space-y-6">
-                    <Card className="rounded-xl bg-background border border-border shadow-sm p-6 space-y-6">
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 pb-4 border-b border-border">
-                                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                                    <Fingerprint className="size-4" />
-                                </div>
-                                <h3 className="text-sm font-sans font-bold italic uppercase tracking-wide text-foreground">Thông Tin Chi Tiết</h3>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4">
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/70">Mã khóa học</p>
-                                    <p className="text-xs font-mono font-medium text-foreground bg-muted/30 px-2 py-1.5 rounded-md truncate select-all border border-border/50">
-                                        {course.id}
-                                    </p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/70">Học phí</p>
-                                    <p className="text-xl font-bold text-emerald-600 tracking-tight">{formatCurrency(course.price)}</p>
-                                    {course.discountPrice && (
-                                        <p className="text-sm font-medium text-muted-foreground line-through decoration-muted-foreground/50">
-                                            {formatCurrency(course.discountPrice)}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
+                                                    </TableCell>
+                                                    <TableCell className="border-r border-border/30">
+                                                        <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
+                                                            Học phần
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-sm font-medium border-r border-border/30">{module.orderIndex}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon" className="size-8 rounded-lg">
+                                                                    <MoreHorizontal className="size-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
+                                                                <DropdownMenuItem onClick={() => { setSelectedModuleIdForLesson(module.id); setCreateLessonOpen(true); }} className="rounded-lg gap-2 py-2">
+                                                                    <Plus className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài học</span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => { setSelectedModule(module); setEditModuleOpen(true); }} className="rounded-lg gap-2 py-2">
+                                                                    <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => { setSelectedModule(module); setDeleteModuleOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
+                                                                    <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                </TableRow>
+                                                {isExpanded && lessons.map((lesson, lessonIdx) => (
+                                                    <TableRow key={lesson.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors bg-muted/5">
+                                                        <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30 pl-8">{moduleIdx + 1}.{lessonIdx + 1}</TableCell>
+                                                        <TableCell className="border-r border-border/30 pl-12">
+                                                            <div className="flex items-center gap-2">
+                                                                <FileText className="size-4 text-primary" />
+                                                                <div>
+                                                                    <p className="font-medium text-sm">{lesson.title}</p>
+                                                                </div>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="border-r border-border/30">
+                                                            <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
+                                                                Bài học
+                                                            </Badge>
+                                                        </TableCell>
+                                                        <TableCell className="text-sm font-medium border-r border-border/30">{lesson.orderIndex}</TableCell>
+                                                        <TableCell className="text-right">
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="icon" className="size-8 rounded-lg">
+                                                                        <MoreHorizontal className="size-4" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
+                                                                    <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setEditLessonOpen(true); }} className="rounded-lg gap-2 py-2">
+                                                                        <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setDeleteLessonOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
+                                                                        <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
                         </div>
+                    )}
+                </TabsContent>
 
-                        <div className="pt-4 border-t border-border space-y-3">
-                            <div className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors">
-                                <Clock className="size-4" />
-                                <p className="text-xs font-medium">Cập nhật: {formatDateTime(course.updatedAt)}</p>
-                            </div>
-                            <div className="flex items-center gap-2.5 text-emerald-600">
-                                <ShieldCheck className="size-4" />
-                                <p className="text-xs font-medium">Nội dung đã được kiểm duyệt</p>
-                            </div>
-                        </div>
-                    </Card>
-
-                    {/* Quick Guide */}
-                    <div className="p-5 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
-                        <div className="flex items-center gap-2 text-primary">
-                            <Zap className="size-4 fill-current" />
-                            <h4 className="text-xs font-sans font-bold italic uppercase tracking-wide">Mẹo quản trị</h4>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                            Cấu trúc chương trình học rõ ràng giúp học viên dễ dàng theo dõi. Hãy chia nhỏ nội dung thành các bài học vừa phải.
-                        </p>
+                {/* Live Schedule Tab */}
+                <TabsContent value="live-schedule" className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-muted-foreground">Quản lý lịch dạy live và thời khóa biểu cố định</p>
+                        <Button
+                            onClick={() => setIsScheduleSheetOpen(true)}
+                            className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 transition-all"
+                        >
+                            <Settings className="mr-2 size-4" />
+                            Quản lý lịch cố định
+                        </Button>
                     </div>
-                </div>
-            </div>
 
-            {/* Dialogs */}
-            <CreateModuleSheet
-                open={createModuleOpen}
-                onOpenChange={setCreateModuleOpen}
-                courseId={id}
-                courseTitle={course.title}
-                existingModules={modules}
-            />
+                    {sortedSessions.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-20 text-center space-y-6 border-2 border-dashed border-border/40 rounded-3xl bg-muted/5">
+                            <div className="p-6 rounded-full bg-muted/10">
+                                <Video className="size-16 text-muted-foreground/20" />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-sans font-bold italic text-muted-foreground/50 uppercase tracking-tight">Chưa có lịch dạy nào</h3>
+                                <p className="text-sm text-muted-foreground/40 max-w-sm mx-auto">Hãy bắt đầu bằng cách thiết lập lịch cố định hàng tuần cho khóa học này.</p>
+                            </div>
+                            <Button onClick={() => setIsScheduleSheetOpen(true)} variant="outline" className="h-11 px-8 rounded-xl">
+                                Thiết lập lịch cố định
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+                            <Table>
+                                <TableHeader className="bg-muted/30 border-b border-border">
+                                    <TableRow className="hover:bg-transparent border-none">
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-12">#</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Trạng thái</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Tiêu đề</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Thời gian</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Thời lượng</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Giảng viên</TableHead>
+                                        <TableHead className="text-right h-11 text-xs font-semibold text-muted-foreground px-4">Thao tác</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {sortedSessions.map((session, idx) => (
+                                        <TableRow key={session.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                                            <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30">{idx + 1}</TableCell>
+                                            <TableCell className="border-r border-border/30">
+                                                <div className="flex items-center gap-2">
+                                                    {session.status === 'live' && (
+                                                        <span className="relative flex h-2 w-2">
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                                        </span>
+                                                    )}
+                                                    <Badge
+                                                        variant={session.status === 'scheduled' ? "outline" : session.status === 'live' ? "destructive" : "secondary"}
+                                                        className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg"
+                                                    >
+                                                        {session.status === 'scheduled' ? "Sắp diễn ra" : session.status === 'live' ? "Đang live" : "Hoàn thành"}
+                                                    </Badge>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="border-r border-border/30">
+                                                <div className="space-y-1">
+                                                    <p className="font-semibold text-sm">{session.title}</p>
+                                                    <p className="text-[10px] text-muted-foreground font-mono">ID: {session.id.slice(0, 8)}</p>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="border-r border-border/30">
+                                                <div className="text-sm">
+                                                    <p className="font-medium">{format(new Date(session.scheduledAt), 'HH:mm', { locale: vi })}</p>
+                                                    <p className="text-xs text-muted-foreground">{format(new Date(session.scheduledAt), 'EEEE, dd/MM/yyyy', { locale: vi })}</p>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="border-r border-border/30">
+                                                <span className="text-sm font-medium">{session.duration} phút</span>
+                                            </TableCell>
+                                            <TableCell className="border-r border-border/30">
+                                                <span className="text-sm">{session.lecturer?.displayName || 'Chưa chỉ định'}</span>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    {session.status === 'live' && (
+                                                        <Button
+                                                            variant="default"
+                                                            size="sm"
+                                                            className="rounded-lg h-8 px-3 text-[10px] font-bold uppercase tracking-widest gap-1.5"
+                                                            onClick={() => handleJoinLiveSession(session.id)}
+                                                        >
+                                                            <Video className="size-3" />
+                                                            Vào dạy
+                                                        </Button>
+                                                    )}
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon" className="size-8 rounded-lg">
+                                                                <MoreHorizontal className="size-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
+                                                            {session.status === 'scheduled' && (
+                                                                <DropdownMenuItem onClick={() => handleStartLiveSession(session.id)} className="rounded-lg text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 gap-2 py-2">
+                                                                    <PlayCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Bắt đầu</span>
+                                                                </DropdownMenuItem>
+                                                            )}
+                                                            {session.status === 'live' && (
+                                                                <DropdownMenuItem onClick={() => handleEndLiveSession(session.id)} className="rounded-lg text-orange-600 focus:text-orange-700 focus:bg-orange-50 gap-2 py-2">
+                                                                    <StopCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Kết thúc</span>
+                                                                </DropdownMenuItem>
+                                                            )}
+                                                            <DropdownMenuItem onClick={() => handleDeleteLiveSession(session.id)} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
+                                                                <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
+                </TabsContent>
+            </Tabs>
 
-            {selectedModule && (
-                <>
-                    <EditModuleSheet
-                        open={editModuleOpen}
-                        onOpenChange={setEditModuleOpen}
-                        module={selectedModule}
-                        existingModules={modules}
-                        courseTitle={course.title}
-                    />
-                    <DeleteModuleDialog
-                        open={deleteModuleOpen}
-                        onOpenChange={setDeleteModuleOpen}
-                        module={selectedModule}
-                    />
-                </>
-            )}
+            {/* Dialogs & Sheets */}
+            <CreateModuleSheet open={createModuleOpen} onOpenChange={setCreateModuleOpen} courseId={id || ''} />
+            <EditModuleSheet open={editModuleOpen} onOpenChange={setEditModuleOpen} module={selectedModule} />
+            <DeleteModuleDialog open={deleteModuleOpen} onOpenChange={setDeleteModuleOpen} module={selectedModule} />
 
-            {selectedModuleIdForLesson && (
-                <Suspense fallback={null}>
-                    <CreateLessonSheet
-                        open={createLessonOpen}
-                        onOpenChange={setCreateLessonOpen}
-                        moduleId={selectedModuleIdForLesson || ''}
-                    />
-                </Suspense>
-            )}
+            <Suspense fallback={<div>Loading...</div>}>
+                <CreateLessonSheet open={createLessonOpen} onOpenChange={setCreateLessonOpen} moduleId={selectedModuleIdForLesson || ''} />
+            </Suspense>
+            <EditLessonSheet open={editLessonOpen} onOpenChange={setEditLessonOpen} lesson={selectedLesson} />
+            <DeleteLessonDialog open={deleteLessonOpen} onOpenChange={setDeleteLessonOpen} lesson={selectedLesson} />
 
-            <CreateLiveSessionDialog
-                open={liveSessionOpen}
-                onOpenChange={setLiveSessionOpen}
-                courseId={id || ''}
-            />
-
-            {selectedLesson && (
-                <>
-                    <EditLessonSheet
-                        open={editLessonOpen}
-                        onOpenChange={setEditLessonOpen}
-                        lesson={selectedLesson}
-                    />
-                    <DeleteLessonDialog
-                        open={deleteLessonOpen}
-                        onOpenChange={setDeleteLessonOpen}
-                        lesson={selectedLesson}
-                    />
-                </>
-            )}
+            <TeachingScheduleSheet open={isScheduleSheetOpen} onOpenChange={setIsScheduleSheetOpen} course={course} />
         </div>
     );
 }
-
-const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(value);
-};

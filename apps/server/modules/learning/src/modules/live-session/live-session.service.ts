@@ -383,7 +383,7 @@ export class LiveSessionService implements ILiveSessionService {
                     roomId: session.meetingId,
                     userInfo: {
                         userId: requester.sub,
-                        name: requester.displayName || 'User',
+                        name: requester.user_metadata?.displayName || 'User',
                         isAdmin: isAdmin || isLecturer || isStaff,
                     },
                 })

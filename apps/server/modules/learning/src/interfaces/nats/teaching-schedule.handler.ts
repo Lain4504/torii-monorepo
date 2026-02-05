@@ -17,12 +17,8 @@ export class TeachingScheduleHandler {
     }
 
     @MessagePattern({ cmd: 'learning.teachingSchedule.assign' })
-    async assign(@Payload() data: TeachingScheduleCreateDTO & { userId: string; userRole: string; userEmail: string; displayName?: string }) {
-        const { userId, userRole, userEmail, displayName, ...dto } = data;
-        const requester: Requester = {
-            sub: userId,
-            role: userRole as any,
-        };
+    async assign(@Payload() data: TeachingScheduleCreateDTO & { requester: Requester }) {
+        const { requester, ...dto } = data;
         return this.scheduleService.assignSchedule(requester, dto);
     }
 
@@ -37,21 +33,13 @@ export class TeachingScheduleHandler {
     }
 
     @MessagePattern({ cmd: 'learning.teachingSchedule.remove' })
-    async remove(@Payload() data: { id: string; userId: string; userRole: string }) {
-        const requester: Requester = {
-            sub: data.userId,
-            role: data.userRole as any,
-        };
-        return this.scheduleService.removeSchedule(requester, data.id);
+    async remove(@Payload() data: { id: string; requester: Requester }) {
+        return this.scheduleService.removeSchedule(data.requester, data.id);
     }
 
     @MessagePattern({ cmd: 'learning.teachingSchedule.createRequest' })
-    async createRequest(@Payload() data: ScheduleRequestCreateDTO & { userId: string; userRole: string }) {
-        const { userId, userRole, ...dto } = data;
-        const requester: Requester = {
-            sub: userId,
-            role: userRole as any,
-        };
+    async createRequest(@Payload() data: ScheduleRequestCreateDTO & { requester: Requester }) {
+        const { requester, ...dto } = data;
         return this.scheduleService.createRequest(requester, dto);
     }
 
@@ -61,11 +49,7 @@ export class TeachingScheduleHandler {
     }
 
     @MessagePattern({ cmd: 'learning.teachingSchedule.handleRequest' })
-    async handleRequest(@Payload() data: { requestId: string; action: 'approve' | 'reject'; userId: string; userRole: string }) {
-        const requester: Requester = {
-            sub: data.userId,
-            role: data.userRole as any,
-        };
-        return this.scheduleService.handleRequest(requester, data.requestId, data.action);
+    async handleRequest(@Payload() data: { requestId: string; action: 'approve' | 'reject'; requester: Requester }) {
+        return this.scheduleService.handleRequest(data.requester, data.requestId, data.action);
     }
 }

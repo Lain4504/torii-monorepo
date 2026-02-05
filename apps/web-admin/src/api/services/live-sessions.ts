@@ -2,9 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
 import type {
     LiveSessionResponseDTO,
-    LiveSessionCreateDTO,
-    LiveSessionBulkCreateDTO,
-    LiveSessionUpdateDTO,
     TeachingScheduleCreateDTO,
     TeachingScheduleResponseDTO,
     ScheduleRequestCreateDTO,
@@ -29,25 +26,7 @@ export const liveSessionsApi = {
         return response.data.data!;
     },
 
-    // POST /api/live-sessions
-    async create(dto: LiveSessionCreateDTO): Promise<LiveSessionResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<LiveSessionResponseDTO>>('/api/live-sessions', dto);
-        return response.data.data!;
-    },
-
-    // POST /api/live-sessions/bulk
-    async bulkCreate(dto: LiveSessionBulkCreateDTO): Promise<LiveSessionResponseDTO[]> {
-        const response = await apiClient.post<StandardApiResponse<LiveSessionResponseDTO[]>>('/api/live-sessions/bulk', dto);
-        return response.data.data!;
-    },
-
-    // PUT /api/live-sessions/:id
-    async update(id: string, dto: LiveSessionUpdateDTO): Promise<LiveSessionResponseDTO> {
-        const response = await apiClient.put<StandardApiResponse<LiveSessionResponseDTO>>(`/api/live-sessions/${id}`, dto);
-        return response.data.data!;
-    },
-
-    // DELETE /api/live-sessions/:id
+    // DELETE /api/live-sessions/:id - Only for emergency deletion
     async delete(id: string): Promise<boolean> {
         const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/live-sessions/${id}`);
         return response.data.success;
@@ -116,7 +95,7 @@ export const liveSessionsApi = {
 };
 
 // ============================================================================
-// React Query Hooks
+// React Query Hooks - Live Sessions
 // ============================================================================
 
 export function useLiveSessions(courseId: string) {
@@ -135,46 +114,11 @@ export function useLiveSession(id: string) {
     });
 }
 
-export function useCreateLiveSession() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (dto: LiveSessionCreateDTO) => liveSessionsApi.create(dto),
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseId] });
-        },
-    });
-}
-
-export function useBulkCreateLiveSession() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (dto: LiveSessionBulkCreateDTO) => liveSessionsApi.bulkCreate(dto),
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseId] });
-        },
-    });
-}
-
-export function useUpdateLiveSession() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({ id, dto }: { id: string; dto: LiveSessionUpdateDTO }) =>
-            liveSessionsApi.update(id, dto),
-        onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', data.id] });
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', data.courseId] });
-        },
-    });
-}
-
 export function useDeleteLiveSession() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id }: { id: string; courseId: string }) => liveSessionsApi.delete(id),
+        mutationFn: ({ id, courseId }: { id: string; courseId: string }) => liveSessionsApi.delete(id),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseId] });
         },
@@ -205,7 +149,9 @@ export function useEndLiveSession() {
     });
 }
 
-// --- Teaching Schedule Hooks ---
+// ============================================================================
+// React Query Hooks - Teaching Schedules
+// ============================================================================
 
 export function useTeachingSchedules(courseId: string) {
     return useQuery({
@@ -254,9 +200,13 @@ export function useRemoveTeachingSchedule() {
     });
 }
 
+// ============================================================================
+// React Query Hooks - Schedule Requests
+// ============================================================================
+
 export function usePendingScheduleRequests() {
     return useQuery({
-        queryKey: ['teaching-schedules', 'requests', 'pending'],
+        queryKey: ['schedule-requests', 'pending'],
         queryFn: () => liveSessionsApi.getPendingScheduleRequests(),
     });
 }

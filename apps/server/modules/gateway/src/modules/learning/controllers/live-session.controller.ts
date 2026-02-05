@@ -2,9 +2,7 @@ import {
     Controller,
     Get,
     Post,
-    Put,
     Delete,
-    Body,
     Param,
     UseGuards,
     Inject,
@@ -19,30 +17,15 @@ import {
     successResponse,
 } from '@server/shared';
 import {
-    LiveSessionCreateDTO,
-    LiveSessionUpdateDTO,
     ReqWithRequester,
 } from '@workspace/schemas';
 
-@Controller('live-sessions')
+@Controller('api/live-sessions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LiveSessionController {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy
     ) { }
-
-    @Post()
-    @Permissions('live_class.schedule')
-    async create(@Body() dto: LiveSessionCreateDTO, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
-        const result = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'learning.liveSession.create' },
-                { ...dto, userId: requester.sub }
-            )
-        );
-        return successResponse(result, 'Live session scheduled successfully');
-    }
 
     @Get('course/:courseId')
     async findByCourse(@Param('courseId') courseId: string) {
@@ -58,23 +41,6 @@ export class LiveSessionController {
             this.natsClient.send({ cmd: 'learning.liveSession.findOne' }, { id })
         );
         return successResponse(result);
-    }
-
-    @Put(':id')
-    @Permissions('live_class.schedule')
-    async update(
-        @Param('id') id: string,
-        @Body() dto: LiveSessionUpdateDTO,
-        @Req() req: ReqWithRequester
-    ) {
-        const requester = req.requester;
-        const result = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'learning.liveSession.update' },
-                { id, ...dto, userId: requester.sub }
-            )
-        );
-        return successResponse(result, 'Live session updated successfully');
     }
 
     @Delete(':id')
@@ -114,5 +80,17 @@ export class LiveSessionController {
             )
         );
         return successResponse(result, 'Live session ended');
+    }
+
+    @Post(':id/join')
+    async join(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.liveSession.join' },
+                { id, userId: requester.sub }
+            )
+        );
+        return successResponse(result);
     }
 }

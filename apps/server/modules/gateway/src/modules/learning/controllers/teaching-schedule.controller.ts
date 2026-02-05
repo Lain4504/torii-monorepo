@@ -3,17 +3,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     TeachingScheduleCreateDTO,
-    TeachingScheduleResponseDTO,
     ScheduleRequestCreateDTO,
-    ScheduleRequestResponseDTO,
-    Requester
+    ReqWithRequester
 } from '@workspace/schemas';
 import { GatewayAuthGuard, PermissionsGuard, Permissions, successResponse } from '@server/shared';
-import { Request } from 'express';
-
-interface RequestWithUser extends Request {
-    user: Requester & { email: string };
-}
 
 @Controller('api/teaching-schedules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -44,16 +37,14 @@ export class TeachingScheduleController {
     @Post()
     @Permissions('live_class.schedule')
     async assignSchedule(
-        @Req() req: RequestWithUser,
+        @Req() req: ReqWithRequester,
         @Body() dto: TeachingScheduleCreateDTO
     ) {
-        const user = req.user;
+        const requester = req.requester;
         const data = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.teachingSchedule.assign' }, {
                 ...dto,
-                userId: user.sub,
-                userRole: user.role,
-                userEmail: user.email,
+                requester,
             })
         );
         return successResponse(data, 'Đã gán lịch dạy thành công');
@@ -71,15 +62,14 @@ export class TeachingScheduleController {
     @Delete(':id')
     @Permissions('live_class.schedule')
     async removeSchedule(
-        @Req() req: RequestWithUser,
+        @Req() req: ReqWithRequester,
         @Param('id') id: string
     ) {
-        const user = req.user;
+        const requester = req.requester;
         await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.teachingSchedule.remove' }, {
                 id,
-                userId: user.sub,
-                userRole: user.role
+                requester
             })
         );
         return successResponse(true, 'Đã xóa lịch dạy thành công');
@@ -88,15 +78,14 @@ export class TeachingScheduleController {
     @Post('requests')
     @Permissions('live_class.request_change')
     async createRequest(
-        @Req() req: RequestWithUser,
+        @Req() req: ReqWithRequester,
         @Body() dto: ScheduleRequestCreateDTO
     ) {
-        const user = req.user;
+        const requester = req.requester;
         const data = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.teachingSchedule.createRequest' }, {
                 ...dto,
-                userId: user.sub,
-                userRole: user.role,
+                requester,
             })
         );
         return successResponse(data, 'Đã gửi yêu cầu thay đổi lịch dạy');
@@ -114,17 +103,16 @@ export class TeachingScheduleController {
     @Post('requests/:id/handle')
     @Permissions('live_class.schedule')
     async handleRequest(
-        @Req() req: RequestWithUser,
+        @Req() req: ReqWithRequester,
         @Param('id') requestId: string,
         @Body('action') action: 'approve' | 'reject'
     ) {
-        const user = req.user;
+        const requester = req.requester;
         await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.teachingSchedule.handleRequest' }, {
                 requestId,
                 action,
-                userId: user.sub,
-                userRole: user.role,
+                requester,
             })
         );
         return successResponse(true, action === 'approve' ? 'Đã phê duyệt yêu cầu' : 'Đã từ chối yêu cầu');
