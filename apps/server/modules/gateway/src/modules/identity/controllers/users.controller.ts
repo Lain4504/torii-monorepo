@@ -69,8 +69,7 @@ export class UsersController {
 
     @Post()
     @Permissions('user.manage')
-    @UsePipes(new ZodValidationPipe(userCreateDTOSchema))
-    async create(@Body() dto: UserCreateDTO) {
+    async create(@Body(new ZodValidationPipe(userCreateDTOSchema)) dto: UserCreateDTO) {
         try {
             const user = await firstValueFrom(this.natsClient.send({ cmd: 'identity.users.create' }, dto));
             return successResponse({ user }, 'User created successfully');
@@ -81,10 +80,9 @@ export class UsersController {
 
     @Post('internal')
     @Permissions('user.manage')
-    @UsePipes(new ZodValidationPipe(adminCreateInternalUserDTOSchema))
     async createInternal(
         @Req() req: ReqWithRequester,
-        @Body() dto: AdminCreateInternalUserDTO,
+        @Body(new ZodValidationPipe(adminCreateInternalUserDTOSchema)) dto: AdminCreateInternalUserDTO,
     ) {
         try {
             const requester = req.requester;
@@ -102,11 +100,10 @@ export class UsersController {
 
     @Patch(':id')
     @Permissions('user.manage')
-    @UsePipes(new ZodValidationPipe(userAdminUpdateDTOSchema))
     async update(
         @Req() req: ReqWithRequester,
         @Param('id') id: string,
-        @Body() dto: UserAdminUpdateDTO,
+        @Body(new ZodValidationPipe(userAdminUpdateDTOSchema)) dto: UserAdminUpdateDTO,
     ) {
         try {
             const requester = req.requester;

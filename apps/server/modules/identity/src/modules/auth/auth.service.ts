@@ -75,9 +75,15 @@ export class AuthService implements IAuthService {
             }
         }
 
-        // 2. Revoke Refresh Token Session
+        // 2. Revoke Refresh Token Session & Clear Permission Cache
         if (refreshToken) {
             try {
+                // Decode refresh token to get sid
+                const payload = await this.jwtTokenProvider.verifyRefreshToken(refreshToken);
+                if (payload?.sid) {
+                    await this.redis.del(`session:${payload.sid}:permissions`);
+                }
+
                 const tokenHash = this.sessionService.hashTokenPublic(refreshToken);
                 await this.sessionService.revokeSession(tokenHash);
             } catch (error) {
@@ -335,6 +341,8 @@ export class AuthService implements IAuthService {
             ['password', 'totp'],
             { user_metadata: { displayName: user.displayName } }
         );
+
+        // Emit activity
 
         // Emit activity
         this.emitLoginActivity(user.id);
@@ -1204,11 +1212,25 @@ export class AuthService implements IAuthService {
         amr: string[] = ['password'],
         metadata?: { user_metadata?: any; app_metadata?: any }
     ): Promise<string> {
-        const { permissions } = await this.authorizationService.getUserPermissions(userId, role);
+        // Centralized caching: If session ID is provided, cache the latest permissions in Redis
+        if (sid) {
+            try {
+                const { permissions } = await this.authorizationService.getUserPermissions(userId, role);
+                await this.redis.set(
+                    `session:${sid}:permissions`,
+                    JSON.stringify(permissions),
+                    'EX',
+                    7 * 24 * 60 * 60 // 7 days matches refresh token expiry
+                );
+            } catch (error) {
+                console.error(`[AuthService] Failed to cache permissions for session ${sid}:`, error);
+                // Continue token generation even if cache fails
+            }
+        }
+
         return this.jwtTokenProvider.generateToken({
             sub: userId,
             role: role as UserRole,
-            permissions,
             sid,
             amr,
             ...metadata,
