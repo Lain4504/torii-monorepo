@@ -18,7 +18,7 @@ import {
     successPaginatedResponse
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
+import { ReqWithRequester } from '@workspace/schemas';
 
 @Controller('api/exams')
 @UseGuards(GatewayAuthGuard)
@@ -26,13 +26,13 @@ export class ExamController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Get()
-    async findAll(@Query() query: any, @Req() req: Request) {
+    async findAll(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.findAllWithStatus' },
-                    { query, userId: user.sub }
+                    { query, userId: requester.sub }
                 )
             );
             return successPaginatedResponse(result);
@@ -42,13 +42,13 @@ export class ExamController {
     }
 
     @Get('attempts')
-    async getExamAttempts(@Query() query: any, @Req() req: Request) {
+    async getExamAttempts(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.getUserSessions' },
-                    { query, userId: user.sub }
+                    { query, userId: requester.sub }
                 )
             );
             return successPaginatedResponse(result);
@@ -61,14 +61,14 @@ export class ExamController {
     async saveAnswers(
         @Param('sessionId') sessionId: string,
         @Body() data: any,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.saveAnswers' },
-                    { sessionId, userId: user.sub, dto: data }
+                    { sessionId, userId: requester.sub, dto: data }
                 )
             );
             return successResponse({ session: result });
@@ -78,13 +78,13 @@ export class ExamController {
     }
 
     @Post('sessions/:sessionId/submit')
-    async submitSession(@Param('sessionId') sessionId: string, @Req() req: Request) {
+    async submitSession(@Param('sessionId') sessionId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.submitSession' },
-                    { sessionId, userId: user.sub }
+                    { sessionId, userId: requester.sub }
                 )
             );
             return successResponse({ session: result });
@@ -94,13 +94,13 @@ export class ExamController {
     }
 
     @Post(':id/start')
-    async startExam(@Param('id') examId: string, @Req() req: Request) {
+    async startExam(@Param('id') examId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.startExam' },
-                    { examId, userId: user.sub }
+                    { examId, userId: requester.sub }
                 )
             );
             return successResponse({ session: result });
@@ -110,13 +110,13 @@ export class ExamController {
     }
 
     @Get('sessions/:sessionId/details')
-    async getAttemptDetails(@Param('sessionId') sessionId: string, @Req() req: Request) {
+    async getAttemptDetails(@Param('sessionId') sessionId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.getAttemptDetails' },
-                    { sessionId, userId: user.sub }
+                    { sessionId, userId: requester.sub }
                 )
             );
             return successResponse({ session: result });
@@ -126,13 +126,13 @@ export class ExamController {
     }
 
     @Get(':id/sessions')
-    async getExamSessions(@Param('id') examId: string, @Query() query: any, @Req() req: Request) {
+    async getExamSessions(@Param('id') examId: string, @Query() query: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.getExamSessions' },
-                    { examId, userId: user.sub, query }
+                    { examId, userId: requester.sub, query }
                 )
             );
             return successPaginatedResponse(result);
@@ -142,13 +142,13 @@ export class ExamController {
     }
 
     @Get(':id')
-    async getExamById(@Param('id') examId: string, @Req() req: Request) {
+    async getExamById(@Param('id') examId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.getExamById' },
-                    { examId, userId: user.sub }
+                    { examId, userId: requester.sub }
                 )
             );
             return successResponse({ exam: result });

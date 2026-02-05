@@ -18,7 +18,7 @@ import {
     successPaginatedResponse
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
+import { ReqWithRequester } from '@workspace/schemas';
 
 @Controller('api/enrollments')
 @UseGuards(GatewayAuthGuard)
@@ -56,13 +56,13 @@ export class EnrollmentController {
     }
 
     @Get('check/:courseId')
-    async checkEnrollment(@Param('courseId') courseId: string, @Req() req: Request) {
+    async checkEnrollment(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.check' },
-                    { courseId, userId: user.sub, userRole: user.role }
+                    { courseId, userId: requester.sub }
                 )
             );
             return successResponse(result);
@@ -72,13 +72,13 @@ export class EnrollmentController {
     }
 
     @Post()
-    async create(@Body() input: any, @Req() req: Request) {
+    async create(@Body() input: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.create' },
-                    { ...input, userId: user.sub, userRole: user.role }
+                    { ...input, userId: requester.sub }
                 )
             );
             return successResponse({ enrollment: result });

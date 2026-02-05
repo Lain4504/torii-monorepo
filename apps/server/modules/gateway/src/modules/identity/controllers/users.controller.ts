@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { ZodValidationPipe, successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard, PermissionsGuard, Permissions } from '@server/shared';
+import { ZodValidationPipe, successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard, PermissionsGuard, Permissions, ReqWithRequester } from '@server/shared';
 import {
     userCreateDTOSchema,
     userAdminUpdateDTOSchema,
@@ -27,7 +27,6 @@ import type {
     UserAdminUpdateDTO,
     AdminCreateInternalUserDTO,
 } from '@workspace/schemas';
-import { Request } from 'express';
 
 @Controller('api/admin/users')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -84,15 +83,15 @@ export class UsersController {
     @Permissions('user.manage')
     @UsePipes(new ZodValidationPipe(adminCreateInternalUserDTOSchema))
     async createInternal(
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Body() dto: AdminCreateInternalUserDTO,
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const newUser = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.users.createInternal' },
-                    { dto, requesterId: user.sub },
+                    { dto, requesterId: requester.sub },
                 ),
             );
             return successResponse({ user: newUser }, 'Internal user created successfully');
@@ -105,16 +104,16 @@ export class UsersController {
     @Permissions('user.manage')
     @UsePipes(new ZodValidationPipe(userAdminUpdateDTOSchema))
     async update(
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Param('id') id: string,
         @Body() dto: UserAdminUpdateDTO,
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const updatedUser = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.users.update' },
-                    { id, dto, requester: { sub: user.sub, roles: user.roles || [] } },
+                    { id, dto, requester: { sub: requester.sub, permissions: requester.permissions || [] } },
                 ),
             );
             return successResponse({ user: updatedUser }, 'User updated successfully');
@@ -126,19 +125,19 @@ export class UsersController {
     @Delete(':id')
     @Permissions('user.manage')
     async delete(
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Param('id') id: string,
         @Query('hardDelete') hardDelete?: string,
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.users.delete' },
                     {
                         id,
                         hardDelete: hardDelete === 'true',
-                        requester: { sub: user.sub, roles: user.roles || [] },
+                        requester: { sub: requester.sub, permissions: requester.permissions || [] },
                     },
                 ),
             );

@@ -129,3 +129,6 @@ export * from './utils/api-response.util';
 // Filters
 export * from './filters/global-exception.filter';
 export * from './filters/rpc-exception.filter';
+
+// Types
+export * from './types/auth-request.type';

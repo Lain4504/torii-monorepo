@@ -33,8 +33,7 @@ export class GatewayAuthGuard implements CanActivate {
                 try {
                     const payload = await this.jwtTokenProvider.verifyToken(token);
                     if (payload) {
-                        request['user'] = payload;
-                        request['requester'] = { sub: payload.sub, role: payload.role };
+                        request['requester'] = payload;
                     }
                 } catch (e) {
                     // Ignore error for public routes
@@ -64,12 +63,7 @@ export class GatewayAuthGuard implements CanActivate {
         }
 
         // Assign payload to request
-        request['user'] = payload;
-        request['requester'] = {
-            sub: payload.sub,
-            role: payload.role,
-            permissions: payload.permissions || []
-        };
+        request['requester'] = payload;
 
         this.logger.log(`[GatewayAuthGuard] Auth check passed for user ${payload.sub}`);
         return true;

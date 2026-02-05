@@ -19,18 +19,10 @@ import {
     successResponse,
 } from '@server/shared';
 import {
-    UserRole,
     LiveSessionCreateDTO,
     LiveSessionUpdateDTO,
+    ReqWithRequester,
 } from '@workspace/schemas';
-
-interface RequestWithUser extends Request {
-    user: {
-        sub: string;
-        role: string;
-        email: string;
-    };
-}
 
 @Controller('live-sessions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -41,12 +33,12 @@ export class LiveSessionController {
 
     @Post()
     @Permissions('live_class.schedule')
-    async create(@Body() dto: LiveSessionCreateDTO, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async create(@Body() dto: LiveSessionCreateDTO, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.liveSession.create' },
-                { ...dto, userId: user.sub, userRole: user.role, userEmail: user.email }
+                { ...dto, userId: requester.sub }
             )
         );
         return successResponse(result, 'Live session scheduled successfully');
@@ -73,13 +65,13 @@ export class LiveSessionController {
     async update(
         @Param('id') id: string,
         @Body() dto: LiveSessionUpdateDTO,
-        @Req() req: RequestWithUser
+        @Req() req: ReqWithRequester
     ) {
-        const user = req.user;
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.liveSession.update' },
-                { id, ...dto, userId: user.sub, userRole: user.role, userEmail: user.email }
+                { id, ...dto, userId: requester.sub }
             )
         );
         return successResponse(result, 'Live session updated successfully');
@@ -87,12 +79,12 @@ export class LiveSessionController {
 
     @Delete(':id')
     @Permissions('live_class.schedule')
-    async delete(@Param('id') id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async delete(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.liveSession.delete' },
-                { id, userId: user.sub, userRole: user.role, userEmail: user.email }
+                { id, userId: requester.sub }
             )
         );
         return successResponse(result, 'Live session deleted successfully');
@@ -100,12 +92,12 @@ export class LiveSessionController {
 
     @Post(':id/start')
     @Permissions('live_class.manage')
-    async start(@Param('id') id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async start(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.liveSession.start' },
-                { id, userId: user.sub, userRole: user.role, userEmail: user.email }
+                { id, userId: requester.sub }
             )
         );
         return successResponse(result, 'Live session started');
@@ -113,12 +105,12 @@ export class LiveSessionController {
 
     @Post(':id/end')
     @Permissions('live_class.manage')
-    async end(@Param('id') id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async end(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.liveSession.end' },
-                { id, userId: user.sub, userRole: user.role, userEmail: user.email }
+                { id, userId: requester.sub }
             )
         );
         return successResponse(result, 'Live session ended');

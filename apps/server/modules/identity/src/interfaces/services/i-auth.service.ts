@@ -239,7 +239,13 @@ export interface IAuthService {
      * @param role - The user's role
      * @returns The generated JWT access token
      */
-    generateAccessToken(userId: string, role: string): Promise<string>;
+    generateAccessToken(
+        userId: string,
+        role: string,
+        sid?: string,
+        amr?: string[],
+        metadata?: { user_metadata?: any; app_metadata?: any }
+    ): Promise<string>;
 
     /**
      * Generate refresh token for a user using a stable session ID
