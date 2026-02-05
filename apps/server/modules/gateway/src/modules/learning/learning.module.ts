@@ -24,6 +24,8 @@ import { FlashcardController } from './controllers/flashcard.controller';
 import { FlashcardReviewController } from './controllers/flashcard-review.controller';
 import { LearningProgressController } from './controllers/learning-progress.controller';
 import { CouponController } from './controllers/coupon.controller';
+import { AssignmentController } from './controllers/assignment.controller';
+import { SubmissionController } from './controllers/submission.controller';
 
 /**
  * Learning Module for Gateway
@@ -56,6 +58,8 @@ import { CouponController } from './controllers/coupon.controller';
         LiveSessionController,
 
         CouponController,
+        AssignmentController,
+        SubmissionController,
     ],
 })
 export class LearningModule { }

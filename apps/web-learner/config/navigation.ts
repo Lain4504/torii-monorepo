@@ -13,7 +13,6 @@ import {
     BrainCircuit,
     MessageSquare,
     Bot,
-    MessageSquare,
     Users,
 } from 'lucide-react'
 
