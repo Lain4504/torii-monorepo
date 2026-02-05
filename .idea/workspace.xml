@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: implement AppConfigService for centralized configuration management across services">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/post/comment-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/post/comment-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/qa/qa-post-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/qa/qa-post-card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/BUILD_FIXES_2026-02-05.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/learning/controllers/teaching-schedule.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/learning/controllers/teaching-schedule.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/room.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/live-session/live-session.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/live-session/live-session.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +40,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="agent-analysic" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -145,7 +146,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#140 on merge-live-class-to-meet-flow",
+    "git-widget-placeholder": "#140 on Rebasing merge-live-class-to-meet-flow",
     "go.import.settings.migrated": "true",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
@@ -160,7 +161,7 @@
     "nodejs_package_manager_path": "pnpm",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -373,6 +374,8 @@
       <workItem from="1770260684480" duration="1083000" />
       <workItem from="1770263376444" duration="864000" />
       <workItem from="1770264822708" duration="463000" />
+      <workItem from="1770282785185" duration="3025000" />
+      <workItem from="1770285990064" duration="133000" />
     </task>
     <task id="LOCAL-00777" summary="update nats logic">
       <option name="closed" value="true" />

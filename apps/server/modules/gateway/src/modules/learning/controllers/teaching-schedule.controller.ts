@@ -18,7 +18,7 @@ interface RequestWithUser extends Request {
 @Controller('api/teaching-schedules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class TeachingScheduleController {
-    constructor(@Inject('NATS_SERVICE') private client: ClientProxy) { }
+    constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Get('check-availability')
     @Permissions('live_class.schedule')
@@ -30,7 +30,7 @@ export class TeachingScheduleController {
         @Query('excludeScheduleId') excludeScheduleId?: string,
     ) {
         const data = await firstValueFrom(
-            this.client.send({ cmd: 'learning.teachingSchedule.checkAvailability' }, {
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.checkAvailability' }, {
                 lecturerId,
                 dayOfWeek,
                 startTime,
@@ -49,7 +49,7 @@ export class TeachingScheduleController {
     ) {
         const user = req.user;
         const data = await firstValueFrom(
-            this.client.send({ cmd: 'learning.teachingSchedule.assign' }, {
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.assign' }, {
                 ...dto,
                 userId: user.sub,
                 userRole: user.role,
@@ -63,7 +63,7 @@ export class TeachingScheduleController {
     @Permissions('live_class.view')
     async findByCourse(@Param('courseId') courseId: string) {
         const data = await firstValueFrom(
-            this.client.send({ cmd: 'learning.teachingSchedule.findByCourse' }, { courseId })
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.findByCourse' }, { courseId })
         );
         return successResponse(data);
     }
@@ -76,7 +76,7 @@ export class TeachingScheduleController {
     ) {
         const user = req.user;
         await firstValueFrom(
-            this.client.send({ cmd: 'learning.teachingSchedule.remove' }, {
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.remove' }, {
                 id,
                 userId: user.sub,
                 userRole: user.role
@@ -93,7 +93,7 @@ export class TeachingScheduleController {
     ) {
         const user = req.user;
         const data = await firstValueFrom(
-            this.client.send({ cmd: 'learning.teachingSchedule.createRequest' }, {
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.createRequest' }, {
                 ...dto,
                 userId: user.sub,
                 userRole: user.role,
@@ -106,7 +106,7 @@ export class TeachingScheduleController {
     @Permissions('live_class.schedule')
     async getPendingRequests() {
         const data = await firstValueFrom(
-            this.client.send({ cmd: 'learning.teachingSchedule.getPendingRequests' }, {})
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.getPendingRequests' }, {})
         );
         return successResponse(data);
     }
@@ -120,7 +120,7 @@ export class TeachingScheduleController {
     ) {
         const user = req.user;
         await firstValueFrom(
-            this.client.send({ cmd: 'learning.teachingSchedule.handleRequest' }, {
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.handleRequest' }, {
                 requestId,
                 action,
                 userId: user.sub,
