@@ -10,13 +10,13 @@ export class CourseHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.course.create' })
-    async create(@Payload() data: CourseCreateDTO & { instructorId: string, userRole: string, userEmail: string, userPermissions?: string[] }) {
-        const { instructorId, userRole, userEmail, userPermissions, ...dto } = data;
+    async create(@Payload() data: CourseCreateDTO & { instructorId: string, userEmail: string }) {
+        const { instructorId, userEmail, ...dto } = data;
         const requester: Requester & { email: string } = {
             sub: instructorId,
-            role: userRole as any,
+            role: 'STAFF' as any,
             email: userEmail,
-            permissions: userPermissions || []
+            permissions: []
         };
         return this.courseService.create(requester, dto);
     }

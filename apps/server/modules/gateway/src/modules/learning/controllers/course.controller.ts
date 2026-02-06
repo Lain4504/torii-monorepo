@@ -47,7 +47,7 @@ export class CourseController {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.create' },
-                { ...dto, instructorId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
+                { ...dto, instructorId: user.sub, userEmail: user.email }
             )
         );
         return successResponse({ course: result }, 'Course created successfully');
