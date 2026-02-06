@@ -12,7 +12,6 @@ import {
     LifeBuoy,
     BrainCircuit,
     Bot,
-    MessageSquare,
     Users,
 } from 'lucide-react'
 
