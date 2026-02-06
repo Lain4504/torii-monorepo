@@ -70,12 +70,6 @@ export class CourseInstructorService implements ICourseInstructorService {
      * Assign a lecturer to a course
      */
     async assignLecturer(requester: Requester, dto: CourseInstructorAssignDTO): Promise<CourseInstructorResponseDTO> {
-        // Check permissions - only ADMIN and STAFF can assign lecturers
-        const role = requester.role.toLowerCase();
-        if (role !== 'admin' && !role.startsWith('staff')) {
-            throw new ForbiddenException('Only admins and staff can assign lecturers to courses');
-        }
-
         try {
             // Verify course exists
             const course = await this.prisma.course.findUnique({

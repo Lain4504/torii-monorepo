@@ -321,11 +321,6 @@ export class CourseService implements ICourseService {
    * Create a new course
    */
   async create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO> {
-    // Check permissions
-    if (!this.hasPermission(requester, 'course.create')) {
-      throw new ForbiddenException('You do not have permission to create courses');
-    }
-
     try {
       // Generate unique slug
       const baseSlug = generateSlug(dto.title);

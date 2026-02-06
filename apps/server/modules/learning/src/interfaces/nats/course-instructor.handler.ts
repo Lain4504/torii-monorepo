@@ -10,9 +10,9 @@ export class CourseInstructorHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.course-instructor.assign' })
-    async assignLecturer(@Payload() data: CourseInstructorAssignDTO & { userId: string, userRole: string, userPermissions?: string[] }) {
-        const { userId, userRole, userPermissions, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
+    async assignLecturer(@Payload() data: CourseInstructorAssignDTO & { userId: string }) {
+        const { userId, ...dto } = data;
+        const requester = { sub: userId, role: 'STAFF' as any, permissions: [] };
         return this.courseInstructorService.assignLecturer(requester, dto);
     }
 

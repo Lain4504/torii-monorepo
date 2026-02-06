@@ -113,7 +113,7 @@ export class LessonController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.create' },
-                    { ...dto, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { ...dto, userId: user.sub }
                 )
             );
             return successResponse({ lesson: result }, 'Lesson created successfully');

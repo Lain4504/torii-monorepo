@@ -34,7 +34,7 @@ export class CourseInstructorController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course-instructor.assign' },
-                    { ...dto, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { ...dto, userId: user.sub }
                 )
             );
             return successResponse(result, 'Lecturer assigned successfully');

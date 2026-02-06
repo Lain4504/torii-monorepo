@@ -90,7 +90,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.create' },
-                    { ...dto, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { ...dto, userId: user.sub }
                 )
             );
             return successResponse({ module: result }, 'Module created successfully');

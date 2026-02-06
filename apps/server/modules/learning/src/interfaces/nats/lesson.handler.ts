@@ -10,9 +10,9 @@ export class LessonHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.lesson.create' })
-    async create(@Payload() data: LessonCreateDTO & { userId: string, userRole: string, userPermissions?: string[] }) {
-        const { userId, userRole, userPermissions, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
+    async create(@Payload() data: LessonCreateDTO & { userId: string }) {
+        const { userId, ...dto } = data;
+        const requester = { sub: userId, role: 'STAFF' as any, permissions: [] };
         return this.lessonService.create(requester, dto);
     }
 
