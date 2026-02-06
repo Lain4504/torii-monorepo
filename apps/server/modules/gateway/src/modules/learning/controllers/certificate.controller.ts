@@ -1,12 +1,12 @@
 import {
     Controller,
     Get,
-    Post,
     Param,
     Query,
-    Body,
     UseGuards,
     Inject,
+    UsePipes,
+    Req,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -15,15 +15,23 @@ import {
     errorResponse,
     successPaginatedResponse,
     GatewayAuthGuard,
+    Public,
+    ZodValidationPipe,
 } from '@server/shared';
+import { 
+    certificateQueryDTOSchema, 
+    type CertificateQueryDTO 
+} from '@workspace/schemas';
+import { Request } from 'express';
 
 @Controller('api/certificates')
+@UseGuards(GatewayAuthGuard)
 export class CertificateController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Get()
-    @UseGuards(GatewayAuthGuard)
-    async findAll(@Query() query: any) {
+    @UsePipes(new ZodValidationPipe(certificateQueryDTOSchema))
+    async findAll(@Query() query: CertificateQueryDTO, @Req() req: Request) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -37,6 +45,7 @@ export class CertificateController {
         }
     }
 
+    @Public()
     @Get('verify/:code')
     async verify(@Param('code') code: string) {
         try {
@@ -53,7 +62,6 @@ export class CertificateController {
     }
 
     @Get(':id')
-    @UseGuards(GatewayAuthGuard)
     async findOne(@Param('id') id: string) {
         try {
             const result = await firstValueFrom(
