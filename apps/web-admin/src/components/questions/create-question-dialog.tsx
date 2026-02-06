@@ -32,7 +32,6 @@ import {
 } from '@workspace/schemas';
 import type { z } from 'zod';
 
-
 type CreateQuestionFormData = z.input<typeof questionCreateDTOSchema>;
 
 interface CreateQuestionDialogProps {
@@ -71,7 +70,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
     const category = watch('category');
 
     useEffect(() => {
-        if (open && defaultPoolId) {
+        if (open) {
             reset({
                 questionText: '',
                 questionType: QuestionType.MULTIPLE_CHOICE,
@@ -81,8 +80,10 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                 correctAnswer: '',
                 explanation: '',
                 tags: [],
-                poolId: defaultPoolId,
+                poolId: defaultPoolId || undefined,
             });
+            setOptions({ A: '', B: '' });
+            setOptionKeys(['A', 'B']);
         }
     }, [open, defaultPoolId, reset]);
 
@@ -94,7 +95,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
 
     const removeOption = (key: string) => {
         if (optionKeys.length <= 2) {
-            toast.error('Requirement Unmet', { description: 'Minimum of 2 options required for multiple choice.' });
+            toast.error('Không thể thực hiện', { description: 'Câu hỏi trắc nghiệm cần tối thiểu 2 lựa chọn.' });
             return;
         }
         setOptionKeys(optionKeys.filter(k => k !== key));
@@ -111,328 +112,311 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
             };
 
             await createQuestion.mutateAsync(submitData);
-            toast.success('Question Created', {
-                description: 'Question successfully added to the database.',
+            toast.success('Thành công', {
+                description: 'Đã tạo câu hỏi mới thành công.',
             });
-            reset();
-            setOptions({ A: '', B: '' });
-            setOptionKeys(['A', 'B']);
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Creation Failed', {
-                description: error.response?.data?.message || 'System unable to save question data.',
+            toast.error('Lỗi khởi tạo', {
+                description: error.response?.data?.message || 'Không thể lưu câu hỏi vào hệ thống.',
             });
         }
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl border-none shadow-2xl bg-background rounded-3xl p-0 max-h-[90vh] overflow-y-auto">
-                <DialogHeader className="p-8 pb-6 bg-muted/5 border-b border-border/10 relative">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
-                    <div className="relative z-10">
-                        <DialogTitle className="text-2xl font-bold tracking-tight">
-                            Create <span className="text-primary">Question</span>
-                        </DialogTitle>
-                        <DialogDescription className="text-xs font-medium text-muted-foreground/60 mt-1">
-                            Define question parameters and evaluation criteria.
-                        </DialogDescription>
-                    </div>
+            <DialogContent className="max-w-3xl border-border bg-background rounded-xl p-0 max-h-[90vh] overflow-hidden flex flex-col">
+                <DialogHeader className="p-6 border-b border-border bg-muted/5">
+                    <DialogTitle className="text-xl font-bold">
+                        Tạo câu hỏi mới
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-muted-foreground mt-1">
+                        Thiết lập nội dung và các thuộc tính cho câu hỏi thi.
+                    </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
-                    <Controller
-                        name="questionText"
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Question Content *</FieldLabel>
-                                <div className="relative">
-                                    <Textarea
-                                        {...field}
-                                        placeholder="Enter question text..."
-                                        className="min-h-[120px] rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
-                                    />
-                                    <FileText className="absolute right-4 top-4 h-4 w-4 text-muted-foreground/30 pointer-events-none" />
-                                </div>
-                                {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                            </Field>
-                        )}
-                    />
-
-                    <div className="grid grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto flex-1">
+                    <div className="p-6 space-y-6">
                         <Controller
-                            name="questionType"
+                            name="questionText"
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Question Type *</FieldLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger className="h-10 px-5 rounded-xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="border-border/10 shadow-2xl bg-background rounded-2xl overflow-hidden p-1">
-                                            <SelectItem value={QuestionType.MULTIPLE_CHOICE} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Multiple Choice</SelectItem>
-                                            <SelectItem value={QuestionType.TRUE_FALSE} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">True/False</SelectItem>
-                                            <SelectItem value={QuestionType.FILL_BLANK} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Fill Blank</SelectItem>
-                                            <SelectItem value={QuestionType.MATCHING} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Matching</SelectItem>
-                                            <SelectItem value={QuestionType.ESSAY} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Essay</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                    <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Nội dung câu hỏi *</FieldLabel>
+                                    <div className="relative">
+                                        <Textarea
+                                            {...field}
+                                            placeholder="Nhập nội dung câu hỏi..."
+                                            className="min-h-[100px] rounded-xl bg-background border-border hover:border-primary/50 focus-visible:ring-primary/20 text-sm transition-all resize-none p-4 pr-10"
+                                        />
+                                        <FileText className="absolute right-3.5 top-3.5 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
+                                    </div>
+                                    {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
                                 </Field>
                             )}
                         />
 
-                        <Controller
-                            name="category"
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Category</FieldLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="border-border/10 shadow-2xl bg-background rounded-2xl overflow-hidden p-1">
-                                            <SelectItem value={QuestionCategory.VOCAB} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Vocabulary</SelectItem>
-                                            <SelectItem value={QuestionCategory.GRAMMAR} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Grammar</SelectItem>
-                                            <SelectItem value={QuestionCategory.READING} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Reading</SelectItem>
-                                            <SelectItem value={QuestionCategory.LISTENING} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Listening</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                </Field>
-                            )}
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                        <Controller
-                            name="jlptLevel"
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Proficiency Level (JLPT)</FieldLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="border-border/10 shadow-2xl bg-background rounded-2xl overflow-hidden p-1">
-                                            <SelectItem value={QuestionJlptLevel.N5} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">N5 (Beginner)</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N4} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">N4</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N3} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">N3</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N2} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">N2</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N1} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">N1 (Advanced)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            name="difficulty"
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Difficulty</FieldLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="border-border/10 shadow-2xl bg-background rounded-2xl overflow-hidden p-1">
-                                            <SelectItem value={QuestionDifficultyLevel.EASY} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Low</SelectItem>
-                                            <SelectItem value={QuestionDifficultyLevel.MEDIUM} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Medium</SelectItem>
-                                            <SelectItem value={QuestionDifficultyLevel.HARD} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">High</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                </Field>
-                            )}
-                        />
-                    </div>
-
-                    <Controller
-                        name="poolId"
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Question Pool (Optional)</FieldLabel>
-                                <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
-                                    <SelectTrigger className="h-14 px-5 rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus:ring-primary/20 text-sm font-bold uppercase transition-all">
-                                        <SelectValue placeholder="SELECT POOL" />
-                                    </SelectTrigger>
-                                    <SelectContent className="border-border/10 shadow-2xl bg-background rounded-2xl overflow-hidden p-1">
-                                        <SelectItem value="none" className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">Unassigned</SelectItem>
-                                        {poolsData?.data?.map((pool) => (
-                                            <SelectItem key={pool.id} value={pool.id} className="rounded-xl font-bold uppercase text-xs py-3 cursor-pointer focus:bg-primary/10">
-                                                {pool.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                            </Field>
-                        )}
-                    />
-
-
-                    {(category === QuestionCategory.LISTENING || questionType === QuestionType.LISTENING) && (
-                        <div className="space-y-4 p-6 rounded-3xl bg-muted/5 border border-border/10">
-                            <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                <div className="h-px flex-1 bg-border/20" />
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center flex items-center gap-2">
-                                    <Headphones className="h-3 w-3" />
-                                    Listening Assets
-                                </h4>
-                                <div className="h-px flex-1 bg-border/20" />
-                            </div>
-
+                        <div className="grid grid-cols-2 gap-4">
                             <Controller
-                                name="metadata.audioUrl"
+                                name="questionType"
                                 control={control}
-                                rules={{ required: "Audio URL is required for listening questions" }}
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Audio URL *</FieldLabel>
-                                        <div className="relative">
-                                            <FileUpload
-                                                onUploadComplete={(url) => field.onChange(url)}
-                                                accept="audio/*"
-                                                label="Click to Upload Audio"
-                                                currentValue={field.value}
-                                            />
-                                        </div>
-                                        {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
+                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Loại câu hỏi *</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl p-1">
+                                                <SelectItem value={QuestionType.MULTIPLE_CHOICE} className="rounded-lg text-sm cursor-pointer">Trắc nghiệm</SelectItem>
+                                                <SelectItem value={QuestionType.TRUE_FALSE} className="rounded-lg text-sm cursor-pointer">Đúng/Sai</SelectItem>
+                                                <SelectItem value={QuestionType.FILL_BLANK} className="rounded-lg text-sm cursor-pointer">Điền vào chỗ trống</SelectItem>
+                                                <SelectItem value={QuestionType.MATCHING} className="rounded-lg text-sm cursor-pointer">Ghép cặp</SelectItem>
+                                                <SelectItem value={QuestionType.ESSAY} className="rounded-lg text-sm cursor-pointer">Tự luận</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="category"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Danh mục *</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl p-1">
+                                                <SelectItem value={QuestionCategory.VOCAB} className="rounded-lg text-sm cursor-pointer">Từ vựng</SelectItem>
+                                                <SelectItem value={QuestionCategory.GRAMMAR} className="rounded-lg text-sm cursor-pointer">Ngữ pháp</SelectItem>
+                                                <SelectItem value={QuestionCategory.READING} className="rounded-lg text-sm cursor-pointer">Đọc hiểu</SelectItem>
+                                                <SelectItem value={QuestionCategory.LISTENING} className="rounded-lg text-sm cursor-pointer">Nghe hiểu</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
                                     </Field>
                                 )}
                             />
                         </div>
-                    )}
 
-                    {(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) && (
-                        <div className="space-y-4 p-6 rounded-3xl bg-muted/5 border border-border/10">
-                            <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                <div className="h-px flex-1 bg-border/20" />
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center flex items-center gap-2">
-                                    <AlignLeft className="h-3 w-3" />
-                                    Options
-                                </h4>
-                                <div className="h-px flex-1 bg-border/20" />
-                            </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <Controller
+                                name="jlptLevel"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Cấp độ JLPT</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl p-1">
+                                                <SelectItem value={QuestionJlptLevel.N5} className="rounded-lg text-sm cursor-pointer">N5</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N4} className="rounded-lg text-sm cursor-pointer">N4</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N3} className="rounded-lg text-sm cursor-pointer">N3</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N2} className="rounded-lg text-sm cursor-pointer">N2</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N1} className="rounded-lg text-sm cursor-pointer">N1</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
 
-                            <div className="space-y-3">
-                                {optionKeys.map((key) => (
-                                    <div key={key} className="flex gap-3">
-                                        <div className="flex items-center justify-center w-12 h-14 rounded-2xl bg-background/50 border border-border/20 font-black text-xs text-muted-foreground">
-                                            {key}
-                                        </div>
-                                        <Input
-                                            value={options[key] || ''}
-                                            onChange={(e) => setOptions({ ...options, [key]: e.target.value })}
-                                            placeholder={`Option ${key}`}
-                                            className="h-10 px-5 rounded-xl bg-background border-border/20 hover:bg-muted/5 focus:ring-primary/20 text-sm font-medium transition-all flex-1"
-                                        />
-                                        {optionKeys.length > 2 && (
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => removeOption(key)}
-                                                className="h-14 w-12 rounded-2xl hover:bg-destructive/10 hover:text-destructive"
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={addOption}
-                                    className="w-full h-12 rounded-xl border-dashed border-border/40 hover:bg-muted/10 hover:border-border/60 text-[11px] font-black uppercase tracking-widest"
-                                >
-                                    <Plus className="h-3 w-3 mr-2" />
-                                    Add Option
-                                </Button>
-                            </div>
+                            <Controller
+                                name="difficulty"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Độ khó</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl p-1">
+                                                <SelectItem value={QuestionDifficultyLevel.EASY} className="rounded-lg text-sm cursor-pointer">Dễ</SelectItem>
+                                                <SelectItem value={QuestionDifficultyLevel.MEDIUM} className="rounded-lg text-sm cursor-pointer">Trung bình</SelectItem>
+                                                <SelectItem value={QuestionDifficultyLevel.HARD} className="rounded-lg text-sm cursor-pointer">Khó</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
                         </div>
-                    )}
 
-                    <div className="grid grid-cols-1 gap-6">
                         <Controller
-                            name="correctAnswer"
+                            name="poolId"
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Correct Answer *</FieldLabel>
-                                    <div className="relative">
-                                        <Input
-                                            {...field}
-                                            placeholder={(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) ? "e.g., A" : "Enter correct answer"}
-                                            className="h-10 px-5 rounded-xl bg-emerald-500/5 border-emerald-500/20 hover:bg-emerald-500/10 focus-visible:ring-emerald-500/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all uppercase"
-                                        />
-                                        <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500/30 pointer-events-none" />
-                                    </div>
-                                    {(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) && (
-                                        <p className="text-[10px] font-bold text-muted-foreground/50 ml-2 mt-1 uppercase tracking-wide">
-                                            Must match one of the option keys above
-                                        </p>
+                                    <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Nhóm câu hỏi (Tùy chọn)</FieldLabel>
+                                    <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
+                                        <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                            <SelectValue placeholder="Chọn nhóm câu hỏi" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl p-1 max-h-[250px]">
+                                            <SelectItem value="none" className="rounded-lg text-sm cursor-pointer italic">Không chỉ định</SelectItem>
+                                            {poolsData?.data?.map((pool) => (
+                                                <SelectItem key={pool.id} value={pool.id} className="rounded-lg text-sm cursor-pointer">
+                                                    {pool.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                </Field>
+                            )}
+                        />
+
+                        {(category === QuestionCategory.LISTENING || questionType === QuestionType.LISTENING) && (
+                            <div className="space-y-4 p-5 rounded-xl bg-muted/20 border border-border/50">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Headphones className="h-4 w-4 text-primary" />
+                                    <h4 className="text-sm font-bold uppercase tracking-wide text-primary/80">
+                                        Tệp âm thanh (Nghe hiểu)
+                                    </h4>
+                                </div>
+
+                                <Controller
+                                    name="metadata.audioUrl"
+                                    control={control}
+                                    rules={{ required: "Bắt buộc phải có tệp âm thanh cho câu hỏi nghe hiểu" }}
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FileUpload
+                                                onUploadComplete={(url) => field.onChange(url)}
+                                                accept="audio/*"
+                                                label="Bấm để tải tệp âm thanh"
+                                                currentValue={field.value}
+                                            />
+                                            {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                        </Field>
                                     )}
-                                    {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                </Field>
-                            )}
-                        />
+                                />
+                            </div>
+                        )}
 
-                        <Controller
-                            name="explanation"
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel className="text-xs font-medium text-muted-foreground ml-1">Explanation</FieldLabel>
-                                    <div className="relative">
-                                        <Textarea
-                                            {...field}
-                                            placeholder="Explain why this answer is correct..."
-                                            className="min-h-[100px] rounded-2xl bg-muted/10 border-border/20 hover:bg-muted/20 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
-                                        />
-                                        <BrainCircuit className="absolute right-4 top-4 h-4 w-4 text-muted-foreground/30 pointer-events-none" />
-                                    </div>
-                                    {fieldState.error && <FieldError className="text-[10px] uppercase font-bold text-rose-500 tracking-wider pl-2">{fieldState.error.message}</FieldError>}
-                                </Field>
-                            )}
-                        />
+                        {(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) && (
+                            <div className="space-y-4 p-5 rounded-xl bg-muted/20 border border-border/50">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <AlignLeft className="h-4 w-4 text-primary" />
+                                    <h4 className="text-sm font-bold uppercase tracking-wide text-primary/80">
+                                        Các lựa chọn trả lời
+                                    </h4>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {optionKeys.map((key) => (
+                                        <div key={key} className="flex gap-2">
+                                            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-background border border-border font-bold text-xs text-muted-foreground shrink-0 shadow-sm">
+                                                {key}
+                                            </div>
+                                            <Input
+                                                value={options[key] || ''}
+                                                onChange={(e) => setOptions({ ...options, [key]: e.target.value })}
+                                                placeholder={`Nhập nội dung lựa chọn ${key}...`}
+                                                className="h-10 px-4 rounded-xl border-border bg-background focus-visible:ring-primary/20 text-sm transition-all flex-1"
+                                            />
+                                            {optionKeys.length > 2 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => removeOption(key)}
+                                                    className="h-10 w-10 text-destructive hover:bg-destructive/10 rounded-lg shrink-0"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={addOption}
+                                        className="w-full h-10 rounded-xl border-dashed hover:bg-muted/30 text-xs font-semibold mt-2"
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Thêm lựa chọn
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-6">
+                            <Controller
+                                name="correctAnswer"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Đáp án đúng *</FieldLabel>
+                                        <div className="relative">
+                                            <Input
+                                                {...field}
+                                                placeholder={(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) ? "Ví dụ: A" : "Nhập nội dung đáp án đúng"}
+                                                className="h-10 px-4 pr-10 rounded-xl border-emerald-500/30 bg-emerald-500/5 focus-visible:ring-emerald-500/20 text-sm uppercase"
+                                            />
+                                            <CheckCircle2 className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600/50 pointer-events-none" />
+                                        </div>
+                                        {(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) && (
+                                            <p className="text-[11px] text-muted-foreground/70 ml-1 mt-1.5 italic">
+                                                * Phải khớp với một trong các ký tự lựa chọn (A, B, C,...)
+                                            </p>
+                                        )}
+                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="explanation"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Giải thích đáp án</FieldLabel>
+                                        <div className="relative">
+                                            <Textarea
+                                                {...field}
+                                                placeholder="Nhập giải thích cho đáp án..."
+                                                className="min-h-[80px] rounded-xl bg-background border-border hover:border-primary/50 focus-visible:ring-primary/20 text-sm transition-all resize-none p-4 pr-10"
+                                            />
+                                            <BrainCircuit className="absolute right-3.5 top-3.5 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
+                                        </div>
+                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+                        </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4 border-t border-border/10">
+                    <div className="p-6 border-t border-border bg-muted/5 flex justify-end gap-3 shrink-0">
                         <Button
                             type="button"
-                            variant="ghost"
-                            onClick={() => {
-                                reset();
-                                setOptions({ A: '', B: '' });
-                                setOptionKeys(['A', 'B']);
-                                onOpenChange(false);
-                            }}
-                            className="rounded-xl h-10 px-6 hover:bg-muted/20 text-[11px] font-black uppercase tracking-widest"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            className="rounded-xl h-10 px-6"
                         >
-                            Discard
+                            Hủy
                         </Button>
                         <Button
                             type="submit"
                             disabled={createQuestion.isPending}
-                            className="rounded-xl h-10 px-8 bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
+                            className="rounded-xl h-10 px-8 shadow-sm"
                         >
                             {createQuestion.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating...
+                                    Đang xử lý...
                                 </>
                             ) : (
                                 <>
                                     <Plus className="mr-2 h-4 w-4" />
-                                    Create Question
+                                    Khởi tạo câu hỏi
                                 </>
                             )}
                         </Button>

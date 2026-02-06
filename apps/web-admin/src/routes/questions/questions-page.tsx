@@ -236,7 +236,7 @@ export default function QuestionsPage() {
             />
 
             {/* Table */}
-            <Card className="rounded-xl border-border bg-card overflow-hidden shadow-sm">
+            <Card className="rounded-xl border-border bg-card overflow-hidden shadow-sm p-0">
                 <QuestionsTable
                     data={questions}
                     onView={setViewingQuestion}
