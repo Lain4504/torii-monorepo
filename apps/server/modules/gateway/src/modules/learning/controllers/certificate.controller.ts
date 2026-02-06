@@ -33,6 +33,8 @@ export class CertificateController {
     @UsePipes(new ZodValidationPipe(certificateQueryDTOSchema))
     async findAll(@Query() query: CertificateQueryDTO, @Req() req: Request) {
         try {
+            const user = req.user as any;
+            query.userId = user.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.certificate.findAll' },
@@ -42,6 +44,20 @@ export class CertificateController {
             return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch certificates');
+        }
+    }
+    @Get(':id')
+    async findOne(@Param('id') id: string) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.certificate.findOne' },
+                    { id }
+                )
+            );
+            return successResponse({ certificate: result });
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch certificate');
         }
     }
 
@@ -58,21 +74,6 @@ export class CertificateController {
             return successResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to verify certificate');
-        }
-    }
-
-    @Get(':id')
-    async findOne(@Param('id') id: string) {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'learning.certificate.findOne' },
-                    { id }
-                )
-            );
-            return successResponse({ certificate: result });
-        } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch certificate');
         }
     }
 }
