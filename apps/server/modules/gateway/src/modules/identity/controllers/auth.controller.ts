@@ -20,10 +20,9 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import {
     Public,
-    VerifiedOnly,
     successResponse,
     errorResponse,
     AppConfigService,
@@ -446,7 +445,7 @@ export class AuthController {
         if (!idToken) {
             throw new BadRequestException('Google ID token is required');
         }
-        const requester = (req as any).requester;
+        const requester = req.requester;
         try {
             await firstValueFrom(
                 this.natsClient.send(
@@ -475,7 +474,7 @@ export class AuthController {
         if (!provider) {
             throw new BadRequestException('Provider is required');
         }
-        const requester = (req as any).requester;
+        const requester = req.requester;
         try {
             await firstValueFrom(
                 this.natsClient.send(
@@ -515,7 +514,7 @@ export class AuthController {
 
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
-    async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+    async refresh(@Req() req: ReqWithRequester, @Res({ passthrough: true }) res: Response) {
         const oldRefreshToken = req.cookies?.refresh_token || req.body?.refresh_token;
         if (!oldRefreshToken) {
             throw new UnauthorizedException('No refresh token provided');
@@ -553,7 +552,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async logout(
         @Body() dto: LogoutDTO = {} as LogoutDTO,
-        @Req() req: any,
+        @Req() req: ReqWithRequester,
         @Res({ passthrough: true }) res: Response,
     ) {
         const authHeader = req.headers?.authorization;
@@ -606,7 +605,7 @@ export class AuthController {
 
     @Get('sessions')
     @UseGuards(GatewayAuthGuard)
-    async getSessions(@Req() req: any) {
+    async getSessions(@Req() req: ReqWithRequester) {
         const requester = req.requester;
         const refreshToken = req.cookies?.refresh_token;
 
@@ -644,7 +643,7 @@ export class AuthController {
 
     @Delete('sessions/other')
     @UseGuards(GatewayAuthGuard)
-    async revokeOtherSessions(@Req() req: any) {
+    async revokeOtherSessions(@Req() req: ReqWithRequester) {
         const requester = req.requester;
         const refreshToken = req.cookies?.refresh_token || req.body?.refreshToken;
 
@@ -692,7 +691,6 @@ export class AuthController {
 
     @Patch('me')
     @UseGuards(GatewayAuthGuard)
-    @VerifiedOnly()
     async updateMe(
         @Req() req: ReqWithRequester,
         @Body() dto: { displayName?: string; userMetadata?: Record<string, any> },
@@ -715,7 +713,6 @@ export class AuthController {
 
     @Patch('me/avatar')
     @UseGuards(GatewayAuthGuard)
-    @VerifiedOnly()
     async updateAvatar(
         @Req() req: ReqWithRequester,
         @Body('fileId') fileId: string,

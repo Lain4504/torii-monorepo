@@ -13,8 +13,6 @@ export { createNatsServiceConfig } from './nats/nats-service.config';
 export * from './guards/api-key.guard';
 export * from './guards/jwt-auth.guard';
 export * from './guards/gateway-auth.guard';
-export * from './guards/verified.guard';
-export * from './guards/verified-only.decorator';
 export * from './decorators/public.decorator';
 export * from './decorators/permissions.decorator';
 
