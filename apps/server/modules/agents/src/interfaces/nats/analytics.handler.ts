@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FastMcpService } from '../../fastmcp/fastmcp.service';
+import { AnalyticsService } from '../../modules/analytics/analytics.service';
 
 /**
  * NATS Handler for Analytics Agent
@@ -8,7 +8,7 @@ import { FastMcpService } from '../../fastmcp/fastmcp.service';
  */
 @Controller()
 export class AnalyticsHandler {
-  constructor(private readonly fastMcpService: FastMcpService) { }
+  constructor(private readonly analyticsService: AnalyticsService) { }
 
   @MessagePattern({ cmd: 'agents.analytics.trackProgress' })
   async trackProgress(
@@ -18,7 +18,7 @@ export class AnalyticsHandler {
       timeframe?: 'week' | 'month' | 'quarter' | 'year';
     },
   ) {
-    return this.fastMcpService.trackProgress(
+    return this.analyticsService.trackProgress(
       data.userId,
       data.timeframe || 'month',
     );
@@ -33,7 +33,7 @@ export class AnalyticsHandler {
       timeframe?: string;
     },
   ) {
-    return this.fastMcpService.suggestStudyPath(
+    return this.analyticsService.suggestStudyPath(
       data.userId,
       data.targetLevel || 'N5',
       data.timeframe,
@@ -45,7 +45,7 @@ export class AnalyticsHandler {
     @Payload()
     data: { userId: string },
   ) {
-    return this.fastMcpService.identifyWeaknesses(data.userId);
+    return this.analyticsService.identifyWeaknesses(data.userId);
   }
 
   @MessagePattern({ cmd: 'agents.analytics.predictReadiness' })
@@ -58,7 +58,7 @@ export class AnalyticsHandler {
     },
   ) {
     const level = (data.level || data.targetLevel || 'N5') as 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    return this.fastMcpService.predictReadiness(data.userId, level);
+    return this.analyticsService.predictReadiness(data.userId, level);
   }
 
   @MessagePattern({ cmd: 'agents.analytics.generateReport' })
@@ -70,7 +70,7 @@ export class AnalyticsHandler {
       timeframe?: string;
     },
   ) {
-    return this.fastMcpService.generateReport(
+    return this.analyticsService.generateReport(
       data.userId,
       data.reportType || 'comprehensive',
       data.timeframe || 'month',
