@@ -127,5 +127,4 @@ export class CourseHandler {
         };
         return this.courseService.reject(requester, id, reason);
     }
-
 }

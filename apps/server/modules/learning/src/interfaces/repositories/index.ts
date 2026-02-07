@@ -14,6 +14,7 @@ export * from './i-learning-progress.repository';
 export * from './i-flashcard.repository';
 export * from './i-flashcard-deck.repository';
 export * from './i-coupon.repository';
+export * from './i-certificate.repository';
 
 // Injection tokens for repositories
 export const COURSE_REPOSITORY_TOKEN = Symbol('COURSE_REPOSITORY');
@@ -26,3 +27,4 @@ export { EXAM_REPOSITORY_TOKEN } from './i-exam.repository';
 export const ENROLLMENT_REPOSITORY_TOKEN = Symbol('ENROLLMENT_REPOSITORY');
 export const LIVE_SESSION_REPOSITORY_TOKEN = Symbol('LIVE_SESSION_REPOSITORY');
 export const COUPON_REPOSITORY_TOKEN = Symbol('COUPON_REPOSITORY');
+export const CERTIFICATE_REPOSITORY_TOKEN = Symbol('CERTIFICATE_REPOSITORY');

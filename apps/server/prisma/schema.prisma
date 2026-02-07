@@ -64,6 +64,7 @@ model Course {
   liveSessions LiveSession[]
   enrollments  Enrollment[]
   assignments  Assignment[]
+  certificates Certificate[]
 
   @@index([jlptLevel])
   @@index([createdBy])
@@ -493,6 +494,7 @@ model User {
   orders                  Order[]
   payments                Payment[]
   giftEnrollments         Enrollment[]             @relation("GiftEnrollments")
+  certificates            Certificate[]
 
   // Gamification Relations
   gamification    UserGamification?
@@ -1267,6 +1269,7 @@ model Enrollment {
   order          Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
   sender         User?            @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
   lessonProgress LessonProgress[]
+  certificate    Certificate?
 
   @@unique([userId, courseId]) // Mỗi user chỉ enroll 1 lần cho 1 course
   @@index([userId])
@@ -1608,4 +1611,24 @@ model Ticket {
   @@index([status])
   @@index([type])
   @@map("tickets")
+}
+
+// Certificate - Issued when a user completes a course
+model Certificate {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  courseId         String   @map("course_id") @db.Uuid
+  enrollmentId     String   @unique @map("enrollment_id") @db.Uuid
+  certificateCode  String   @unique @map("certificate_code") @db.VarChar(50)
+  issueDate        DateTime @default(now()) @map("issue_date")
+  fileUrl          String   @map("file_url") @db.Text
+  metadata         Json?    @default("{}") 
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+  @@map("certificates")
 }
