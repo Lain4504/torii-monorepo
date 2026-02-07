@@ -1,8 +1,13 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { PrismaService, AppConfigService } from '@server/shared';
-import axios, { AxiosInstance } from 'axios';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import * as Handlebars from 'handlebars';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { FastMCP } from 'fastmcp';
+import { z } from 'zod';
 
-interface ToolContext {
+export interface ToolContext {
   userId: string;
   enrolledCourses?: string[];
   jlptLevels?: string[];
@@ -10,56 +15,188 @@ interface ToolContext {
 }
 
 /**
- * FastMCP Service - HTTP Client for Torii Sensei Brain
+ * FastMCP Service - Generic AI Client & Prompt Engine
  * 
- * Architecture:
- * NestJS Controller → FastMcpService (HTTP Client) → FastMCP Server (port 3333) → Gemini API
- * 
- * This service acts as an HTTP CLIENT that communicates with the standalone FastMCP server.
- * The FastMCP server runs as a separate process and is the ONLY place where Gemini is called.
+ * Responsibilities:
+ * - Managed Gemini API connection
+ * - Prompt Template loading & rendering
+ * - Response parsing/cleaning
+ * - User Context retrieval (shared)
  */
 @Injectable()
 export class FastMcpService implements OnModuleInit {
   private readonly logger = new Logger(FastMcpService.name);
-  private httpClient: AxiosInstance;
-  private fastmcpUrl: string;
+  private server: FastMCP;
+  private toolRegistry = new Map<string, { schema: any; handler: Function }>();
+  private genAI: GoogleGenerativeAI;
 
   constructor(
     private readonly appConfig: AppConfigService,
     private readonly prisma: PrismaService,
   ) {
-    this.fastmcpUrl = this.appConfig.fastmcp.url;
-    this.httpClient = axios.create({
-      baseURL: this.fastmcpUrl,
-      timeout: 60000, // 60 seconds for AI responses
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
+    this.registerHandlebarsHelpers();
 
-  async onModuleInit() {
-    await this.checkConnection();
-  }
+    // Initialize FastMCP Server
+    this.server = new FastMCP({
+      name: 'Torii Agents',
+      version: '1.0.0',
+      transportType: 'httpStream',
+    } as any);
 
-  /**
-   * Check connection to FastMCP server
-   */
-  private async checkConnection() {
-    try {
-      const response = await this.httpClient.get('/health');
-      this.logger.log(`✅ Connected to FastMCP Server: ${response.data.service} v${response.data.version}`);
-    } catch (error: any) {
-      this.logger.error(`❌ Failed to connect to FastMCP Server at ${this.fastmcpUrl}`);
-      this.logger.error(`Make sure the FastMCP server is running: cd mcp-server && pnpm dev`);
-      throw new Error(`FastMCP Server not available: ${error.message}`);
+    // Priority: 1. Config (YAML), 2. Environment Variable
+    const apiKey = this.appConfig.thirdParty.gemini.apiKey || process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      this.logger.error('GEMINI_API_KEY is not set in config.yaml or .env!');
+    } else {
+      this.genAI = new GoogleGenerativeAI(apiKey);
     }
   }
 
-  /**
-   * Get user context from database
-   */
-  private async getUserContext(userId: string): Promise<ToolContext> {
+  async onModuleInit() {
+    this.logger.log('✅ Integrated AI Service Initialized');
+
+    // Start FastMCP server on internal port 4000
+    // This allows us to proxy requests from the main NestJS app (port 3004) -> FastMCP (port 4000)
+    await this.server.start({
+      transportType: 'httpStream',
+      httpStream: {
+        port: 4000,
+        endpoint: '/sse', // Standard MCP endpoint
+      }
+    } as any);
+  }
+
+  public getApp() {
+    return this.server.getApp();
+  }
+
+  // ==================== TOOL REGISTRY ====================
+
+  public addTool(name: string, description: string, schema: any, handler: Function) {
+    this.logger.debug(`🛠️ Registering Tool: ${name}`);
+
+    // 1. Register with FastMCP (for external MCP clients)
+    this.server.addTool({
+      name,
+      description,
+      parameters: schema,
+      execute: async (args) => handler(args),
+    });
+
+    // 2. Register internally (for NATS execution)
+    this.toolRegistry.set(name, { schema, handler });
+  }
+
+  public async callTool(name: string, args: any): Promise<any> {
+    const tool = this.toolRegistry.get(name);
+    if (!tool) {
+      throw new Error(`Tool not found: ${name}`);
+    }
+
+    // Optional: We could validate 'args' against 'tool.schema' here using Zod
+    // const validatedArgs = tool.schema.parse(args);
+
+    this.logger.debug(`▶️ Executing Tool: ${name}`);
+    return tool.handler(args);
+  }
+
+  // ==================== PUBLIC HELPERS ====================
+
+  public loadPromptTemplate(templatePath: string): HandlebarsTemplateDelegate {
+    try {
+      // 1. Try Build Path (Standard Prod)
+      // If we are in apps/server/dist, this might be correct or nested
+      const buildPath = join(process.cwd(), 'dist/modules/agents/src/assets/prompts', templatePath);
+
+      // 2. Try Source Path (Service Root - apps/server)
+      // When running 'nest start' from apps/server, cwd is apps/server
+      const serviceSourcePath = join(process.cwd(), 'modules/agents/src/assets/prompts', templatePath);
+
+      // 3. Try Source Path (Monorepo Root)
+      // When running from root
+      const monorepoSourcePath = join(process.cwd(), 'apps/server/modules/agents/src/assets/prompts', templatePath);
+
+      // 4. Try Relative to Service File (Fallback)
+      const localPath = join(__dirname, '../../assets/prompts', templatePath);
+
+      let templateContent: string;
+      try {
+        templateContent = readFileSync(buildPath, 'utf-8');
+      } catch (e1) {
+        try {
+          templateContent = readFileSync(serviceSourcePath, 'utf-8');
+        } catch (e2) {
+          try {
+            templateContent = readFileSync(monorepoSourcePath, 'utf-8');
+          } catch (e3) {
+            templateContent = readFileSync(localPath, 'utf-8');
+          }
+        }
+      }
+
+      return Handlebars.compile(templateContent);
+    } catch (error) {
+      this.logger.error(`Failed to load prompt template: ${templatePath}`, error);
+      throw new Error(`Template not found: ${templatePath}`);
+    }
+  }
+
+  public async callGemini(prompt: string): Promise<string> {
+    if (!this.genAI) {
+      throw new Error('Gemini API Key is missing');
+    }
+
+    try {
+      const model = this.genAI.getGenerativeModel({
+        model: 'gemini-2.0-flash',
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 8192,
+        },
+      });
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (error: any) {
+      this.logger.error('Gemini API Error:', error);
+      throw new Error(`Gemini API Error: ${error.message}`);
+    }
+  }
+
+  public cleanJsonResponse(text: string): any {
+    if (process.env.DEBUG_AI) {
+      // console.log('--- RAW AI RESPONSE ---');
+      // console.log(text);
+      // console.log('-----------------------');
+    }
+
+    let cleaned = text.trim();
+    const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (codeBlockMatch) {
+      cleaned = codeBlockMatch[1];
+    }
+
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+    }
+
+    try {
+      return JSON.parse(cleaned);
+    } catch (e) {
+      this.logger.error('❌ JSON Parse Error', e);
+      return {
+        error: 'Failed to parse AI response',
+        raw: text,
+      };
+    }
+  }
+
+  public async getUserContext(userId: string): Promise<ToolContext> {
     try {
       const enrollments = await this.prisma.enrollment.findMany({
         where: { userId },
@@ -86,247 +223,12 @@ export class FastMcpService implements OnModuleInit {
     }
   }
 
-  // ==================== SENSEI AGENT METHODS ====================
-
-  async checkGrammar(userId: string, text: string): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/sensei/check-grammar', { text, userContext });
-    return response.data;
-  }
-
-  async translate(
-    userId: string,
-    text: string,
-    sourceLanguage: string,
-    targetLanguage: string,
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/sensei/translate', {
-      text,
-      sourceLanguage,
-      targetLanguage,
-      userContext,
+  private registerHandlebarsHelpers() {
+    Handlebars.registerHelper('eq', function (a: any, b: any) {
+      return a === b;
     });
-    return response.data;
-  }
-
-  async createFlashcard(
-    userId: string,
-    topic: string,
-    difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/sensei/create-flashcard', {
-      topic,
-      difficulty,
-      userContext,
+    Handlebars.registerHelper('json', function (obj: any) {
+      return JSON.stringify(obj, null, 2);
     });
-    return response.data;
-  }
-
-  async generatePracticeDrill(
-    userId: string,
-    type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading',
-    topic: string,
-    difficulty: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
-    count: number = 5,
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/sensei/generate-drill', {
-      type,
-      topic,
-      difficulty,
-      count,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async simulateConversation(
-    userId: string,
-    scenario: 'restaurant' | 'shopping' | 'station' | 'office' | 'casual' | 'formal',
-    difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
-    turns: number = 4,
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/sensei/simulate-conversation', {
-      scenario,
-      difficulty,
-      turns,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async recommendResources(
-    userId: string,
-    topic: string,
-    resourceType: 'article' | 'video' | 'book' | 'app' | 'website' | 'all' = 'all',
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/sensei/recommend-resources', {
-      topic,
-      resourceType,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async chat(
-    userId: string,
-    message: string,
-    history: any[] = [],
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/sensei/chat', {
-      message,
-      history,
-      userContext,
-    });
-    return response.data;
-  }
-
-  // ==================== ASSESSMENT AGENT METHODS ====================
-
-  async generateJlptTest(
-    userId: string,
-    level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
-    section: 'vocabulary' | 'grammar' | 'reading' | 'listening' | 'full',
-    questionCount: number = 10,
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/assessment/generate-test', {
-      level,
-      section,
-      questionCount,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async evaluateTest(
-    userId: string,
-    testId: string,
-    answers: Array<{ questionId: string; userAnswer: string; correctAnswer: string }>,
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/assessment/evaluate-test', {
-      testId,
-      answers,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async getProgressBenchmark(
-    userId: string,
-    targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/assessment/progress-benchmark', {
-      targetLevel,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async scheduleTest(
-    userId: string,
-    targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/assessment/schedule-test', {
-      targetLevel,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async generatePlacementTest(
-    userId: string,
-    questionCount: number = 15,
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/assessment/placement-test', {
-      questionCount,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async evaluatePlacementTest(
-    userId: string,
-    testId: string,
-    userAnswers: any,
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/assessment/evaluate-placement', {
-      testId,
-      userAnswers,
-      userContext,
-    });
-    return response.data;
-  }
-
-  // ==================== ANALYTICS AGENT METHODS ====================
-
-  async trackProgress(
-    userId: string,
-    timeframe: 'week' | 'month' | 'quarter' | 'year' = 'month',
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/analytics/track-progress', {
-      timeframe,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async suggestStudyPath(
-    userId: string,
-    targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
-    timeframe?: string,
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/analytics/suggest-study-path', {
-      targetLevel,
-      timeframe,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async identifyWeaknesses(userId: string): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/analytics/identify-weaknesses', {
-      userContext,
-    });
-    return response.data;
-  }
-
-  async predictReadiness(
-    userId: string,
-    targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/analytics/predict-readiness', {
-      targetLevel,
-      userContext,
-    });
-    return response.data;
-  }
-
-  async generateReport(
-    userId: string,
-    reportType: 'progress' | 'assessment' | 'comprehensive' = 'comprehensive',
-    timeframe: string = 'month',
-  ): Promise<any> {
-    const userContext = await this.getUserContext(userId);
-    const response = await this.httpClient.post('/api/analytics/generate-report', {
-      reportType,
-      timeframe,
-      userContext,
-    });
-    return response.data;
   }
 }

@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { SharedModule } from '@server/shared';
 import { FastMcpService } from './fastmcp.service';
-import { PrismaModule } from '@server/shared';
+import { McpController } from './mcp.controller';
 
 @Module({
-  imports: [ConfigModule, PrismaModule],
+  imports: [SharedModule],
   providers: [FastMcpService],
   exports: [FastMcpService],
+  controllers: [McpController],
 })
-export class FastMcpModule {}
+export class FastMcpModule { }
