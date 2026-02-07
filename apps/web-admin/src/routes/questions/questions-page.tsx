@@ -5,9 +5,8 @@ import { Can } from "@/lib/guard/can";
 import { useQuestions, useApproveQuestion, useDeactivateQuestion, useRejectQuestion, useSendForReviewQuestion } from "@/api/services/questions.ts";
 import { QuestionsPrimaryToolbar } from "@/components/questions/questions-primary-toolbar.tsx";
 import { QuestionsTable } from "@/components/questions/questions-table.tsx";
-import { CreateQuestionDialog } from "@/components/questions/create-question-dialog.tsx";
-import { ViewQuestionDialog } from "@/components/questions/view-question-dialog.tsx";
-import { EditQuestionDialog } from "@/components/questions/edit-question-dialog.tsx";
+import { QuestionFormSheet } from "@/components/questions/question-form-sheet";
+import { QuestionDetailSheet } from "@/components/questions/question-detail-sheet";
 import { DeleteQuestionDialog } from "@/components/questions/delete-question-dialog.tsx";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import {
@@ -297,21 +296,21 @@ export default function QuestionsPage() {
                 </div>
             )}
 
-            {/* Dialogs */}
-            <CreateQuestionDialog
+            {/* Sheets & Dialogs */}
+            <QuestionFormSheet
                 open={showCreateDialog}
                 onOpenChange={setShowCreateDialog}
             />
 
-            <ViewQuestionDialog
+            <QuestionDetailSheet
                 open={!!viewingQuestion}
-                onOpenChange={(open) => !open && setViewingQuestion(null)}
+                onOpenChange={(open: boolean) => !open && setViewingQuestion(null)}
                 question={viewingQuestion}
             />
 
-            <EditQuestionDialog
+            <QuestionFormSheet
                 open={!!editingQuestion}
-                onOpenChange={(open) => !open && setEditingQuestion(null)}
+                onOpenChange={(open: boolean) => !open && setEditingQuestion(null)}
                 question={editingQuestion}
             />
 

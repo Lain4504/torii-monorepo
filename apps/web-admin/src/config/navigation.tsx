@@ -59,7 +59,7 @@ export const mainNavItems: NavItem[] = [
         descriptionKey: "common:navDescriptions.liveClasses",
     },
     {
-        titleKey: "Kho đề thi",
+        titleKey: "Ngân hàng Câu hỏi",
         url: "/question-bank",
         icon: FileQuestion,
         anyPermission: ["question.manage", "question_pool.manage"],
