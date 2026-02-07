@@ -11,9 +11,7 @@ import {
     Settings,
     LifeBuoy,
     BrainCircuit,
-    MessageSquare,
     Bot,
-    MessageSquare,
     Users,
 } from 'lucide-react'
 

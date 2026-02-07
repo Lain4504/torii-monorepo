@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule, NatsClientModule } from '@server/shared';
 import { LearningProgressController } from './learning-progress.controller';
 import { LearningProgressService } from './learning-progress.service';
@@ -7,6 +7,7 @@ import { EnrollmentRepository } from '../enrollment/enrollment.repository';
 import { CourseRepository } from '../course/course.repository';
 import { LessonRepository } from '../lesson/lesson.repository';
 import { ModuleRepository } from '../module/module.repository';
+import { CertificateModule } from '../certificate/certificate.module';
 
 import { LEARNING_PROGRESS_SERVICE_TOKEN } from '../../interfaces/services';
 import {
@@ -18,7 +19,11 @@ import {
 } from '../../interfaces/repositories';
 
 @Module({
-    imports: [PrismaModule, NatsClientModule],
+    imports: [
+        PrismaModule, 
+        NatsClientModule,
+        forwardRef(() => CertificateModule)
+    ],
     controllers: [LearningProgressController],
     providers: [
         {

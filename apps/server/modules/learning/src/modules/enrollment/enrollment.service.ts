@@ -9,7 +9,8 @@ import {
     type PaginatedResponseDTO,
     EnrollmentStatus,
 } from '@workspace/schemas';
-import type { IEnrollmentService } from '../../interfaces/services';
+import type { IEnrollmentService, ICertificateService } from '../../interfaces/services';
+import { CERTIFICATE_SERVICE_TOKEN } from '../../interfaces/services';
 import { EnrollmentRepository } from './enrollment.repository';
 import { ICourseRepository, COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
@@ -26,6 +27,8 @@ export class EnrollmentService implements IEnrollmentService {
         private readonly enrollmentRepository: EnrollmentRepository,
         @Inject(COURSE_REPOSITORY_TOKEN)
         private readonly courseRepository: ICourseRepository,
+        @Inject(CERTIFICATE_SERVICE_TOKEN)
+        private readonly certificateService: ICertificateService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
     ) { }
@@ -274,6 +277,12 @@ export class EnrollmentService implements IEnrollmentService {
                     completionStatus: EnrollmentStatus.COMPLETED,
                     completedAt: new Date(),
                 });
+                
+                // Trigger certificate issuance
+                this.certificateService.issueCertificate(enrollment.userId, enrollment.courseId, enrollmentId).catch((err: any) => {
+                    this.logger.error(`Failed to automatically issue certificate: ${err.message}`, err.stack);
+                });
+                
                 return this.toEnrollmentDto({ ...updated, completionStatus: EnrollmentStatus.COMPLETED, completedAt: new Date() });
             }
 
