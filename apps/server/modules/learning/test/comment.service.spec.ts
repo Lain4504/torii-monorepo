@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CommentService } from './comment.service';
-import { CommentRepository } from './comment.repository';
-import { PostRepository } from '../post/post.repository';
+import { CommentService } from '../src/modules/comment/comment.service';
+import { CommentRepository } from '../src/modules/comment/comment.repository';
+import { PostRepository } from '../src/modules/post/post.repository';
 import { PrismaService } from '@server/shared';
 import { getMapperToken } from '@automapper/nestjs';
 import { NotFoundException, BadRequestException } from '@nestjs/common';

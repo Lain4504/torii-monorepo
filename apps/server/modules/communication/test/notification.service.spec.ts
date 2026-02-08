@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotificationService } from './notification.service';
+import { NotificationService } from '../src/modules/notification/notification.service';
 import { PrismaService } from '@server/shared';
-import { NOTIFICATION_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { NOTIFICATION_REPOSITORY_TOKEN } from '../src/interfaces/repositories';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { NotificationType } from '@workspace/schemas';
 import type {
