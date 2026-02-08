@@ -1,7 +1,7 @@
 'use client'
 
-import { QAFeed } from '@/components/qa/qa-feed'
-import { QASidebar } from '@/components/qa/qa-sidebar'
+import { Feed } from '@/components/feed/feed'
+import { FeedSidebar } from '@/components/feed/feed-sidebar'
 import { useParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { apiClient } from '@/apis/api-client'
@@ -74,7 +74,7 @@ export default function UserProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
                 {/* Posts Feed */}
                 <div className="min-w-0">
-                    <QAFeed
+                    <Feed
                         userId={userId}
                         sortBy={sortBy}
                         onTotalPostsChange={setTotalPosts}
@@ -83,7 +83,7 @@ export default function UserProfilePage() {
 
                 {/* Sidebar */}
                 <div className="hidden lg:block">
-                    <QASidebar onSortChange={handleSortChange} />
+                    <FeedSidebar onSortChange={handleSortChange} />
                 </div>
             </div>
         </div>

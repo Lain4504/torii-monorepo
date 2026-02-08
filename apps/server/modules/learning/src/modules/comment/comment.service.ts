@@ -89,13 +89,13 @@ export class CommentService implements ICommentService {
       if (!post) {
         throw new NotFoundException(`Post with id "${dto.entityId}" not found`);
       }
-    } else if (dto.targetType === 'QA' && !dto.parentId) {
-      const qa = await this.prisma.qA.findUnique({
+    } else if (dto.targetType === 'FEED' && !dto.parentId) {
+      const feed = await this.prisma.feed.findUnique({
         where: { id: dto.entityId },
       });
 
-      if (!qa) {
-        throw new NotFoundException(`QA with id "${dto.entityId}" not found`);
+      if (!feed) {
+        throw new NotFoundException(`Feed with id "${dto.entityId}" not found`);
       }
     }
 
@@ -157,9 +157,9 @@ export class CommentService implements ICommentService {
       await this.postRepository.update(dto.entityId, {
         commentCount: { increment: 1 },
       });
-    } else if (dto.targetType === 'QA') {
+    } else if (dto.targetType === 'FEED') {
       try {
-        await this.prisma.qA.update({
+        await this.prisma.feed.update({
           where: { id: dto.entityId },
           data: { commentCount: { increment: 1 } }
         });
@@ -336,9 +336,9 @@ export class CommentService implements ICommentService {
       await this.postRepository.update(entityId, {
         commentCount: { decrement: 1 },
       });
-    } else if (targetType === 'QA') {
+    } else if (targetType === 'FEED') {
       try {
-        await this.prisma.qA.update({
+        await this.prisma.feed.update({
           where: { id: entityId },
           data: { commentCount: { decrement: 1 } }
         });

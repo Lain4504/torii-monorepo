@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { QAFeed } from '@/components/qa/qa-feed'
-import { QASidebar } from '@/components/qa/qa-sidebar'
+import { Feed } from '@/components/feed/feed'
+import { FeedSidebar } from '@/components/feed/feed-sidebar'
 
-export default function QAPage() {
+export default function FeedPage() {
     const [activeTab, setActiveTab] = useState('ALL')
     const [followedTags, setFollowedTags] = useState<string[]>([])
     const [showFollowingSelector, setShowFollowingSelector] = useState(false)
@@ -22,8 +22,7 @@ export default function QAPage() {
 
     const handleTagSelect = (tag: string | undefined) => {
         setSelectedTag(tag)
-        setSearchQuery('') // Clear search when selecting tag
-        // When a tag is selected, switch to ALL tab to show filtered results
+        setSearchQuery('')
         if (tag) {
             setActiveTab('ALL')
         }
@@ -32,9 +31,9 @@ export default function QAPage() {
     const handleTabChange = (tab: string) => {
         setActiveTab(tab)
         setShowFollowingSelector(tab === 'FOLLOWING')
-        setSortBy(undefined) // Reset sort when changing tabs
-        setSelectedTag(undefined) // Clear tag filter when changing tabs
-        setSearchQuery('') // Clear search when changing tabs
+        setSortBy(undefined)
+        setSelectedTag(undefined)
+        setSearchQuery('')
     }
 
     return (
@@ -51,7 +50,7 @@ export default function QAPage() {
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
                 {/* Main Feed */}
                 <div className="min-w-0">
-                    <QAFeed
+                    <Feed
                         category={activeTab}
                         followedTags={activeTab === 'FOLLOWING' ? followedTags : undefined}
                         activeTab={activeTab}
@@ -65,7 +64,7 @@ export default function QAPage() {
 
                 {/* Sidebar */}
                 <div className="hidden lg:block">
-                    <QASidebar
+                    <FeedSidebar
                         activeCategory={activeTab}
                         onSortChange={handleSortChange}
                         onSearch={handleSearch}

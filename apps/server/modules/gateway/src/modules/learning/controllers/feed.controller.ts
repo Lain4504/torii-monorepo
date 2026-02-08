@@ -22,9 +22,9 @@ import {
 } from '@server/shared';
 import { Request } from 'express';
 
-@Controller('api/qa')
+@Controller('api/feed')
 @UseGuards(GatewayAuthGuard)
-export class QAController {
+export class FeedController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Public()
@@ -34,13 +34,13 @@ export class QAController {
             const user = (req as any).user;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    'qa.findAll',
+                    'feed.findAll',
                     { query, userId: user?.sub || user?.uid }
                 )
             );
             return successPaginatedResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch QAs');
+            return errorResponse(error.message || 'Failed to fetch Feeds');
         }
     }
 
@@ -51,13 +51,13 @@ export class QAController {
             const user = (req as any).user;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    'qa.findById',
+                    'feed.findById',
                     { id, userId: user?.sub || user?.uid }
                 )
             );
             return successResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch QA');
+            return errorResponse(error.message || 'Failed to fetch Feed');
         }
     }
 
@@ -67,13 +67,13 @@ export class QAController {
             const user = req.user as any;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    'qa.create',
+                    'feed.create',
                     { dto, userId: user?.sub || user?.uid }
                 )
             );
-            return successResponse(result, 'QA created successfully');
+            return successResponse(result, 'Feed created successfully');
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to create QA');
+            return errorResponse(error.message || 'Failed to create Feed');
         }
     }
 
@@ -83,7 +83,7 @@ export class QAController {
             const user = req.user as any;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    'qa.toggleLike',
+                    'feed.toggleLike',
                     { id, userId: user?.sub || user?.uid }
                 )
             );
@@ -93,21 +93,19 @@ export class QAController {
         }
     }
 
-
-
     @Delete(':id')
     async delete(@Param('id') id: string, @Req() req: Request) {
         try {
             const user = req.user as any;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    'qa.delete',
+                    'feed.delete',
                     { id, userId: user?.sub || user?.uid }
                 )
             );
-            return successResponse(result, 'QA deleted successfully');
+            return successResponse(result, 'Feed deleted successfully');
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to delete QA');
+            return errorResponse(error.message || 'Failed to delete Feed');
         }
     }
 }
