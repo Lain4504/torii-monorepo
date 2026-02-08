@@ -5,7 +5,7 @@ import { useAppSelector } from '@/hooks/hooks'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Input } from '@workspace/ui/components/input'
 import { Button } from '@workspace/ui/components/button'
-import { qaApi } from '@/apis/services/qa-api'
+import { feedApi } from '@/apis/services/feed-api'
 import { toast } from '@workspace/ui/components/sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog'
 import { Textarea } from '@workspace/ui/components/textarea'
@@ -21,7 +21,7 @@ const CATEGORIES = [
     { id: 'JAPANESE_CULTURE', label: 'Văn Hoá Nhật Bản' },
 ]
 
-export function QACreatePost({ onPostCreated }: { onPostCreated?: () => void }) {
+export function FeedCreatePost({ onPostCreated }: { onPostCreated?: () => void }) {
     const { user } = useAppSelector(state => state.auth)
     const [isOpen, setIsOpen] = useState(false)
     const [category, setCategory] = useState('')
@@ -37,7 +37,7 @@ export function QACreatePost({ onPostCreated }: { onPostCreated?: () => void }) 
 
         try {
             setSubmitting(true)
-            await qaApi.create({
+            await feedApi.create({
                 title: title.trim() || undefined,
                 content: content.trim(),
                 tags: category ? [category] : []
