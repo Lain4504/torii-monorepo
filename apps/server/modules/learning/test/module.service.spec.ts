@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ModuleService } from './module.service';
-import { MODULE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
+import { ModuleService } from '../src/modules/module/module.service';
+import { MODULE_REPOSITORY_TOKEN } from '../src/interfaces/repositories';
+import { COURSE_SERVICE_TOKEN } from '../src/interfaces/services';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UserRole } from '@workspace/schemas';
 
@@ -138,7 +138,7 @@ describe('ModuleService', () => {
         });
 
         it('should throw ForbiddenException if user lacks "module.update" permission', async () => {
-            const weakRequester = { sub: 'user-2', role: UserRole.STUDENT, permissions: [] };
+            const weakRequester = { sub: 'user-2', role: UserRole.LEARNER, permissions: [] };
 
             await expect(service.update(weakRequester as any, moduleId, updateDto))
                 .rejects.toThrow(ForbiddenException);
@@ -174,7 +174,7 @@ describe('ModuleService', () => {
         });
 
         it('should throw ForbiddenException if user lacks delete permission', async () => {
-            const weakRequester = { sub: 'user-2', role: UserRole.STUDENT, permissions: [] };
+            const weakRequester = { sub: 'user-2', role: UserRole.LEARNER, permissions: [] };
 
             await expect(service.delete(weakRequester as any, moduleId))
                 .rejects.toThrow(ForbiddenException);
@@ -200,7 +200,7 @@ describe('ModuleService', () => {
         });
 
         it('should throw ForbiddenException if user lacks update permission', async () => {
-            const weakRequester = { sub: 'user-2', role: UserRole.STUDENT, permissions: [] };
+            const weakRequester = { sub: 'user-2', role: UserRole.LEARNER, permissions: [] };
 
             await expect(service.reorder(weakRequester as any, courseId, orders))
                 .rejects.toThrow(ForbiddenException);
