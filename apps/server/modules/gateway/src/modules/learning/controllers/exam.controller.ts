@@ -15,10 +15,10 @@ import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
     errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { ReqWithRequester } from '@workspace/schemas';
 
 @Controller('api/exams')
 @UseGuards(GatewayAuthGuard)

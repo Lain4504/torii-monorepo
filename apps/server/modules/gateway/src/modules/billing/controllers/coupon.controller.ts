@@ -13,8 +13,8 @@ import {
     successResponse,
     errorResponse,
     GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { Request } from 'express';
 import { CouponValidateRequestDTO } from '@workspace/schemas';
 
 @Controller('api/billing/coupons')
@@ -25,13 +25,13 @@ export class CouponController {
 
     @Post('validate')
     @UseGuards(GatewayAuthGuard)
-    async validate(@Body() input: CouponValidateRequestDTO, @Req() req: Request) {
+    async validate(@Body() input: CouponValidateRequestDTO, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             // Ensure userId is passed from auth token if not in body
             const payload = {
                 ...input,
-                userId: user.sub,
+                userId: requester.sub,
             };
 
             const result = await firstValueFrom(

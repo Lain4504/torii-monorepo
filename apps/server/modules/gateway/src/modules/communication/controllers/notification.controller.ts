@@ -20,6 +20,7 @@ import {
     errorResponse,
     successPaginatedResponse,
     GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
 import {
     NotificationQueryDTO,
@@ -36,11 +37,11 @@ export class NotificationController {
     @Get()
     @UsePipes(new ZodValidationPipe(notificationQueryDTOSchema)) // Optional: if query validation is needed here
     async findAll(
-        @Req() req: any,
+        @Req() req: ReqWithRequester,
         @Query() query: NotificationQueryDTO,
     ) {
         try {
-            const userId = req.user?.sub || req.user?.uid;
+            const userId = req.requester?.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.findAll' },
@@ -58,9 +59,9 @@ export class NotificationController {
     }
 
     @Get('unread-count')
-    async getUnreadCount(@Req() req: any) {
+    async getUnreadCount(@Req() req: ReqWithRequester) {
         try {
-            const userId = req.user?.sub || req.user?.uid;
+            const userId = req.requester?.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.getUnreadCount' },
@@ -76,10 +77,10 @@ export class NotificationController {
     @Patch(':id/read')
     async markAsRead(
         @Param('id') notificationId: string,
-        @Req() req: any,
+        @Req() req: ReqWithRequester,
     ) {
         try {
-            const userId = req.user?.sub || req.user?.uid;
+            const userId = req.requester?.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.markAsRead' },
@@ -93,9 +94,9 @@ export class NotificationController {
     }
 
     @Patch('read-all')
-    async markAllAsRead(@Req() req: any) {
+    async markAllAsRead(@Req() req: ReqWithRequester) {
         try {
-            const userId = req.user?.sub || req.user?.uid;
+            const userId = req.requester?.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.markAllAsRead' },
@@ -111,10 +112,10 @@ export class NotificationController {
     @Delete(':id')
     async delete(
         @Param('id') notificationId: string,
-        @Req() req: any,
+        @Req() req: ReqWithRequester,
     ) {
         try {
-            const userId = req.user?.sub || req.user?.uid;
+            const userId = req.requester?.sub;
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.delete' },

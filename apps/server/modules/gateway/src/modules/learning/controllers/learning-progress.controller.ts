@@ -1,9 +1,7 @@
 import { Controller, Get, Post, Body, Param, Req, Inject, UseGuards } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse } from '@server/shared';
-import { Request } from 'express';
-import { GatewayAuthGuard } from '@server/shared';
+import { successResponse, errorResponse, GatewayAuthGuard, ReqWithRequester } from '@server/shared';
 
 @Controller('api/learning-progress')
 @UseGuards(GatewayAuthGuard)
@@ -11,11 +9,11 @@ export class LearningProgressController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Get('my-courses')
-    async getMyCourses(@Req() req: Request) {
+    async getMyCourses(@Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.progress.myCourses' }, { userId: user.sub })
+                this.natsClient.send({ cmd: 'learning.progress.myCourses' }, { userId: requester.sub })
             );
             return successResponse({ courses: result });
         } catch (error: any) {
@@ -24,12 +22,12 @@ export class LearningProgressController {
     }
 
     @Post('track')
-    async trackProgress(@Req() req: Request, @Body() body: { lessonId: string; seconds: number; totalSeconds: number }) {
+    async trackProgress(@Req() req: ReqWithRequester, @Body() body: { lessonId: string; seconds: number; totalSeconds: number }) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send({ cmd: 'learning.progress.track' }, {
-                    userId: user.sub,
+                    userId: requester.sub,
                     lessonId: body.lessonId,
                     seconds: body.seconds,
                     totalSeconds: body.totalSeconds
@@ -42,11 +40,11 @@ export class LearningProgressController {
     }
 
     @Get('stats')
-    async getStats(@Req() req: Request) {
+    async getStats(@Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.progress.stats' }, { userId: user.sub })
+                this.natsClient.send({ cmd: 'learning.progress.stats' }, { userId: requester.sub })
             );
             return successResponse({ stats: result });
         } catch (error: any) {
@@ -55,11 +53,11 @@ export class LearningProgressController {
     }
 
     @Get('completed-lessons/:courseId')
-    async getCompletedLessons(@Req() req: Request, @Param('courseId') courseId: string) {
+    async getCompletedLessons(@Req() req: ReqWithRequester, @Param('courseId') courseId: string) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.progress.completedLessons' }, { userId: user.sub, courseId })
+                this.natsClient.send({ cmd: 'learning.progress.completedLessons' }, { userId: requester.sub, courseId })
             );
             return successResponse({ lessonIds: result });
         } catch (error: any) {
@@ -68,11 +66,11 @@ export class LearningProgressController {
     }
 
     @Get('history')
-    async getHistory(@Req() req: Request) {
+    async getHistory(@Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.progress.history' }, { userId: user.sub })
+                this.natsClient.send({ cmd: 'learning.progress.history' }, { userId: requester.sub })
             );
             return successResponse({ history: result });
         } catch (error: any) {

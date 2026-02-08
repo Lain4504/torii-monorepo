@@ -20,13 +20,9 @@ import {
     Permissions,
     successResponse,
     successPaginatedResponse,
+    ReqWithRequester,
 } from '@server/shared';
-import { Request } from 'express';
-import { CreateTicketDTO, TicketQueryDTO, UpdateTicketStatusDTO, Requester } from '@workspace/schemas';
-
-interface RequestWithUser extends Request {
-    user: Requester & { email: string };
-}
+import { CreateTicketDTO, TicketQueryDTO, UpdateTicketStatusDTO } from '@workspace/schemas';
 
 @Controller('api/tickets')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -35,24 +31,24 @@ export class TicketController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    async createTicket(@Body() dto: CreateTicketDTO, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async createTicket(@Body() dto: CreateTicketDTO, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'communication.ticket.create' },
-                { userId: user.sub, dto }
+                { userId: requester.sub, dto }
             )
         );
         return successResponse(result, 'Ticket submitted successfully');
     }
 
     @Get()
-    async getTickets(@Query() query: TicketQueryDTO, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async getTickets(@Query() query: TicketQueryDTO, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
 
         // Learners can only see their own tickets
-        if (user.role === 'learner') {
-            query.userId = user.sub;
+        if (requester.role === 'learner') {
+            query.userId = requester.sub;
         }
 
         const result = await firstValueFrom(
@@ -74,13 +70,13 @@ export class TicketController {
     async updateTicketStatus(
         @Param('id') id: string,
         @Body() dto: UpdateTicketStatusDTO,
-        @Req() req: RequestWithUser
+        @Req() req: ReqWithRequester
     ) {
-        const user = req.user;
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'communication.ticket.updateStatus' },
-                { id, handlerId: user.sub, dto }
+                { id, handlerId: requester.sub, dto }
             )
         );
         return successResponse(result, 'Ticket status updated successfully');

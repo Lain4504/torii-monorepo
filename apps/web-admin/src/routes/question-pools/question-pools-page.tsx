@@ -56,7 +56,7 @@ export default function QuestionPoolsPage() {
                     <ShieldAlert className="size-8 text-destructive/50" />
                 </div>
                 <div className="space-y-1">
-                    <h3 className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground">Thông báo hệ thống</h3>
+                    <h3 className="text-lg font-bold text-foreground">Thông báo hệ thống</h3>
                     <p className="text-sm text-muted-foreground">{error.message}</p>
                 </div>
             </div>
@@ -69,13 +69,13 @@ export default function QuestionPoolsPage() {
                 title="Ngân hàng Câu hỏi"
                 subtitle="Hệ thống quản lý và tổ chức kho dữ liệu câu hỏi tri thức"
                 stats={[
-                    { label: "Tổng số kho đề", value: meta?.total.toLocaleString() || 0 }
+                    { label: "Tổng số kho đề", value: meta?.total?.toLocaleString() || 0 }
                 ]}
                 actions={
                     <Can permission="question_pool.create">
                         <Button
                             onClick={() => setShowCreateDialog(true)}
-                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
+                            className="h-10 px-4 rounded-xl font-semibold shadow-sm"
                         >
                             Tạo Kho đề mới
                             <Plus className="ml-2 size-4" />

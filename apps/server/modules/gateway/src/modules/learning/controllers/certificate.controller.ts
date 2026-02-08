@@ -17,12 +17,12 @@ import {
     GatewayAuthGuard,
     Public,
     ZodValidationPipe,
+    ReqWithRequester,
 } from '@server/shared';
-import { 
-    certificateQueryDTOSchema, 
-    type CertificateQueryDTO 
+import {
+    certificateQueryDTOSchema,
+    type CertificateQueryDTO
 } from '@workspace/schemas';
-import { Request } from 'express';
 
 @Controller('api/certificates')
 @UseGuards(GatewayAuthGuard)
@@ -31,10 +31,10 @@ export class CertificateController {
 
     @Get()
     @UsePipes(new ZodValidationPipe(certificateQueryDTOSchema))
-    async findAll(@Query() query: CertificateQueryDTO, @Req() req: Request) {
+    async findAll(@Query() query: CertificateQueryDTO, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
-            query.userId = user.sub;
+            const requester = req.requester;
+            query.userId = requester.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.certificate.findAll' },

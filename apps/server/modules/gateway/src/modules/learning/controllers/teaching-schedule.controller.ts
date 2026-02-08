@@ -4,9 +4,14 @@ import { firstValueFrom } from 'rxjs';
 import {
     TeachingScheduleCreateDTO,
     ScheduleRequestCreateDTO,
-    ReqWithRequester
 } from '@workspace/schemas';
-import { GatewayAuthGuard, PermissionsGuard, Permissions, successResponse } from '@server/shared';
+import {
+    GatewayAuthGuard,
+    PermissionsGuard,
+    Permissions,
+    successResponse,
+    ReqWithRequester,
+} from '@server/shared';
 
 @Controller('api/teaching-schedules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)

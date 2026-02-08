@@ -18,7 +18,6 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
-    GlobalExceptionsFilter,
     GatewayAuthGuard,
     PermissionsGuard,
     Permissions,
@@ -27,8 +26,6 @@ import {
     Public,
     ReqWithRequester,
 } from '@server/shared';
-// Remove GatewayAuthGuard import if unused
-import { UserRole, Requester } from '@workspace/schemas';
 
 @Controller('api/courses')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -78,7 +75,7 @@ export class CourseController {
 
     @Get()
     @Public()
-    async getCourses(@Query() query: any, @Req() req: any) {
+    async getCourses(@Query() query: any, @Req() req: ReqWithRequester) {
         const requester = req.requester;
 
         // Logic:
@@ -101,7 +98,7 @@ export class CourseController {
 
     @Get(':id')
     @Public()
-    async getCourse(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: any) {
+    async getCourse(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
         const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
@@ -114,7 +111,7 @@ export class CourseController {
 
     @Get('slug/:slug')
     @Public()
-    async getCourseBySlug(@Param('slug') slug: string, @Req() req: any) {
+    async getCourseBySlug(@Param('slug') slug: string, @Req() req: ReqWithRequester) {
         const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
@@ -156,14 +153,14 @@ export class CourseController {
     }
 
     @Get(':id/enrollment-status')
-    async checkEnrollmentStatus(@Param('id') id: string, @Req() req: any) {
+    async checkEnrollmentStatus(@Param('id') id: string, @Req() req: ReqWithRequester) {
         // Placeholder implementation matching original service
         return successResponse({ isEnrolled: false });
     }
 
     @Get(':id/curriculum')
     @Public()
-    async getCurriculum(@Param('id') id: string, @Req() req: any) {
+    async getCurriculum(@Param('id') id: string, @Req() req: ReqWithRequester) {
         const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(

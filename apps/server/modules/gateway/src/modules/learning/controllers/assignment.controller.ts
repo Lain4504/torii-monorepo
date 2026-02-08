@@ -25,18 +25,13 @@ import {
     successResponse,
     successPaginatedResponse,
     ZodValidationPipe,
+    ReqWithRequester,
 } from '@server/shared';
-import { Request } from 'express';
-import { 
-    Requester, 
-    createAssignmentDto, 
-    updateAssignmentDto, 
-    queryAssignmentsDto 
+import {
+    createAssignmentDto,
+    updateAssignmentDto,
+    queryAssignmentsDto
 } from '@workspace/schemas';
-
-interface RequestWithUser extends Request {
-    user: Requester & { email: string };
-}
 
 @Controller('api/assignments')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -47,22 +42,22 @@ export class AssignmentController {
     @Permissions('assignment.create')
     @HttpCode(HttpStatus.CREATED)
     @UsePipes(new ZodValidationPipe(createAssignmentDto))
-    async create(@Body() dto: any, @Req() req: RequestWithUser) {
+    async create(@Body() dto: any, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.assignment.create' },
-                { ...dto, requester: req.user }
+                { ...dto, requester: req.requester }
             )
         );
         return successResponse({ assignment: result }, 'Assignment created successfully');
     }
 
     @Get()
-    async findAll(@Query(new ZodValidationPipe(queryAssignmentsDto)) query: any, @Req() req: RequestWithUser) {
+    async findAll(@Query(new ZodValidationPipe(queryAssignmentsDto)) query: any, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.assignment.findAll' },
-                { ...query, requester: req.user }
+                { ...query, requester: req.requester }
             )
         );
         return successPaginatedResponse(result);
@@ -90,12 +85,12 @@ export class AssignmentController {
     async update(
         @Param('id', new ParseUUIDPipe()) id: string,
         @Body(new ZodValidationPipe(updateAssignmentDto)) dto: any,
-        @Req() req: RequestWithUser
+        @Req() req: ReqWithRequester
     ) {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.assignment.update' },
-                { id, ...dto, requester: req.user }
+                { id, ...dto, requester: req.requester }
             )
         );
         return successResponse({ assignment: result }, 'Assignment updated successfully');
@@ -103,11 +98,11 @@ export class AssignmentController {
 
     @Patch(':id/publish')
     @Permissions('assignment.publish')
-    async publish(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: RequestWithUser) {
+    async publish(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.assignment.publish' },
-                { id, requester: req.user }
+                { id, requester: req.requester }
             )
         );
         return successResponse({ assignment: result }, 'Assignment published successfully');
@@ -115,11 +110,11 @@ export class AssignmentController {
 
     @Delete(':id')
     @Permissions('assignment.delete')
-    async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: RequestWithUser) {
+    async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
         await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.assignment.delete' },
-                { id, requester: req.user }
+                { id, requester: req.requester }
             )
         );
         return successResponse(null, 'Assignment deleted successfully');

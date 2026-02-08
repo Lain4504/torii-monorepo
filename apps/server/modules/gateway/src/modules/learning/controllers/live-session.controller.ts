@@ -15,10 +15,8 @@ import {
     PermissionsGuard,
     Permissions,
     successResponse,
-} from '@server/shared';
-import {
     ReqWithRequester,
-} from '@workspace/schemas';
+} from '@server/shared';
 
 @Controller('api/live-sessions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
