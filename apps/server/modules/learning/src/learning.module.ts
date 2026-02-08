@@ -20,7 +20,7 @@ import { CouponModule } from './modules/coupon/coupon.module';
 import { CertificateModule } from './modules/certificate/certificate.module';
 
 // Community Modules
-import { PostModule } from './modules/post/post.module';
+import { BlogModule } from './modules/blog/blog.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { FeedModule } from './modules/feed/feed.module';
 
@@ -49,7 +49,7 @@ import { QuestionHandler } from './interfaces/nats/question.handler';
 import { QuestionPoolHandler } from './interfaces/nats/question-pool.handler';
 import { ReviewHandler } from './interfaces/nats/review.handler';
 import { WishlistHandler } from './interfaces/nats/wishlist.handler';
-import { PostHandler } from './interfaces/nats/post.handler';
+import { BlogHandler } from './interfaces/nats/blog.handler';
 import { CommentHandler } from './interfaces/nats/comment.handler';
 import { FeedHandler } from './interfaces/nats/feed.handler';
 import { FlashcardDeckHandler } from './interfaces/nats/flashcard-deck.handler';
@@ -90,7 +90,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     CertificateModule,
 
     // Community Modules
-    PostModule,
+    BlogModule,
     CommentModule,
     FeedModule,
 
@@ -120,7 +120,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     QuestionPoolHandler,
     ReviewHandler,
     WishlistHandler,
-    PostHandler,
+    BlogHandler,
     CommentHandler,
     FeedHandler,
     FlashcardDeckHandler,

@@ -72,7 +72,7 @@ export interface INotificationService {
    */
   handleCommentReply(payload: {
     commentId: string;
-    postId: string;
+    blogId: string;
     parentCommentId: string;
     repliedToUserId: string;
     replyAuthorId: string;
@@ -80,12 +80,12 @@ export interface INotificationService {
   }): Promise<void>;
 
   /**
-   * Handle post interaction stats event - create notification for staff about post interactions
+   * Handle blog interaction stats event - create notification for staff about blog interactions
    * @deprecated Use handleSendNotification instead
    */
-  handlePostInteractionStats(payload: {
-    postId: string;
-    postTitle: string;
+  handleBlogInteractionStats(payload: {
+    blogId: string;
+    blogTitle: string;
     authorId: string;
     commentCount: number;
     likeCount: number;

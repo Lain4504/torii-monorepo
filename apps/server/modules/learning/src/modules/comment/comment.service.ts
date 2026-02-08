@@ -17,7 +17,7 @@ import { CommentTargetType } from '@workspace/schemas/src/models/comment.model';
 import type { Comment, Prisma } from '@prisma/generated';
 import type { ICommentService } from '../../interfaces/services';
 import { CommentRepository } from './comment.repository';
-import { PostRepository } from '../post/post.repository';
+import { BlogRepository } from '../blog/blog.repository';
 
 /**
  * Comment Service
@@ -29,7 +29,7 @@ export class CommentService implements ICommentService {
 
   constructor(
     private readonly commentRepository: CommentRepository,
-    private readonly postRepository: PostRepository,
+    private readonly blogRepository: BlogRepository,
     private readonly prisma: PrismaService,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject('NATS_SERVICE')
@@ -82,12 +82,12 @@ export class CommentService implements ICommentService {
   async createComment(dto: CommentCreateDTO): Promise<CommentResponseDTO> {
     // Verify target entity exists if this is a root comment or validation is needed
     if (dto.targetType === 'BLOG' && !dto.parentId) {
-      const post = await this.prisma.post.findUnique({
-        where: { id: dto.entityId },
+      const blog = await this.prisma.blog.findUnique({
+        where: { id: dto.entityId! },
       });
 
-      if (!post) {
-        throw new NotFoundException(`Post with id "${dto.entityId}" not found`);
+      if (!blog) {
+        throw new NotFoundException(`Blog with id "${dto.entityId}" not found`);
       }
     } else if (dto.targetType === 'FEED' && !dto.parentId) {
       const feed = await this.prisma.feed.findUnique({
@@ -140,7 +140,7 @@ export class CommentService implements ICommentService {
         },
         {
           targetType: dto.targetType as any,
-          targetId: dto.entityId,
+          targetId: dto.entityId!,
         }
       );
     }
@@ -153,8 +153,8 @@ export class CommentService implements ICommentService {
     // User said: "create comment hay create reply là truyền xuống 1 field type nữa". 
     // So current DTO has target info even for replies.
 
-    if (dto.targetType === 'BLOG') {
-      await this.postRepository.update(dto.entityId, {
+    if (dto.targetType === 'BLOG' && dto.entityId) {
+      await this.blogRepository.update(dto.entityId, {
         commentCount: { increment: 1 },
       });
     } else if (dto.targetType === 'FEED') {
@@ -219,7 +219,7 @@ export class CommentService implements ICommentService {
       // Filter by Target (Polymorphic)
       // Only root comments usually have targets directly attached in this schema design 
       // (replies are linked to parent).
-      // However, if we want all comments for a post, we generally fetch Roots + include Replies.
+      // However, if we want all comments for a blog, we generally fetch Roots + include Replies.
       if (query.entityId && query.targetType) {
         where.targets = {
           some: {
@@ -332,8 +332,8 @@ export class CommentService implements ICommentService {
     const targetType = (comment as any).targetType;
     const entityId = (comment as any).entityId;
 
-    if (targetType === 'BLOG') {
-      await this.postRepository.update(entityId, {
+    if (targetType === 'BLOG' && entityId) {
+      await this.blogRepository.update(entityId, {
         commentCount: { decrement: 1 },
       });
     } else if (targetType === 'FEED') {

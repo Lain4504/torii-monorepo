@@ -26,9 +26,14 @@ export class CommentProfile extends AutomapperProfile {
           mapFrom((src: Comment) => src.id),
         ),
         forMember(
-          // Map postId from targets (assuming BLOG type for posts)
-          (dest: CommentResponseDTO) => dest.postId,
+          // Map blogId from targets
+          (dest: CommentResponseDTO) => dest.blogId,
           mapFrom((src: any) => src.targets?.find((t: any) => t.targetType === 'BLOG')?.targetId),
+        ),
+        forMember(
+          // Map feedId from targets
+          (dest: CommentResponseDTO) => dest.feedId,
+          mapFrom((src: any) => src.targets?.find((t: any) => t.targetType === 'FEED')?.targetId),
         ),
         forMember(
           (dest: CommentResponseDTO) => dest.userId,

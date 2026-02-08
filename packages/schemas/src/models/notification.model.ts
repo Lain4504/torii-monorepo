@@ -8,6 +8,8 @@ export enum NotificationType {
     ACHIEVEMENT = 'achievement',
     REMINDER = 'reminder',
     COMMENT_REPLY = 'comment_reply',
+    COMMENT = 'comment',
+    BLOG_ANALYTICS = 'blog_analytics',
     ORDER_SUCCESS = 'order_success',
     ORDER_STATUS_UPDATE = 'order_status_update',
 }

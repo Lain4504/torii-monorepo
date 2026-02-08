@@ -14,7 +14,7 @@ export default function UserProfilePage() {
     const userId = params.id as string
     const [user, setUser] = useState<UserResponseDTO | null>(null)
     const [loading, setLoading] = useState(true)
-    const [totalPosts, setTotalPosts] = useState(0)
+    const [totalBlogs, setTotalBlogs] = useState(0)
     const [sortBy, setSortBy] = useState<'likes' | 'comments' | undefined>(undefined)
 
     const handleSortChange = (sort: 'likes' | 'comments') => {
@@ -64,7 +64,7 @@ export default function UserProfilePage() {
                         </div>
                         <div className="flex items-center gap-1.5 text-sm text-muted-foreground bg-secondary/50 px-3 py-1.5 rounded-full border border-border/50">
                             <MessageSquare className="w-4 h-4 text-primary" />
-                            <span>{totalPosts} bài viết</span>
+                            <span>{totalBlogs} blog</span>
                         </div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@ export default function UserProfilePage() {
                     <Feed
                         userId={userId}
                         sortBy={sortBy}
-                        onTotalPostsChange={setTotalPosts}
+                        onTotalBlogsChange={setTotalBlogs}
                     />
                 </div>
 

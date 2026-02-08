@@ -41,6 +41,7 @@ export const feedResponseDTOSchema = feedSchema.extend({
     likes: z.number().optional().default(0),
     comments: z.number().optional().default(0), // Count
     isLiked: z.boolean().optional().default(false),
+    isFollowingAuthor: z.boolean().optional(),
 });
 
 export type FeedResponseDTO = z.infer<typeof feedResponseDTOSchema>;
