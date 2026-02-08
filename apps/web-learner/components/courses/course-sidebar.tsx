@@ -5,6 +5,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
 import { BookOpen, Clock, Globe, Award, Heart, Sparkles, ShieldCheck } from 'lucide-react'
+import Link from 'next/link'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { CourseVideoPreview } from './course-video-preview'
@@ -20,6 +21,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     const {
         isInWishlist,
         isEnrolled,
+        enrollment,
         isLoadingWishlist,
         isLoadingEnrollment,
         isToggling,
@@ -97,12 +99,26 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
 
                     <div className="space-y-3">
                         {isEnrolled ? (
-                            <Button
-                                className="w-full h-12 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer active:scale-[0.98] transition-all"
-                                onClick={() => router.push(`/courses/${course.slug}/learn`)}
-                            >
-                                Tiếp tục học tập
-                            </Button>
+                            <div className="flex flex-col gap-3">
+                                <Button
+                                    className="w-full h-12 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer active:scale-[0.98] transition-all"
+                                    onClick={() => router.push(`/courses/${course.slug}/learn`)}
+                                >
+                                    Tiếp tục học tập
+                                </Button>
+
+                                {enrollment && enrollment.completionPercentage >= 100 && (
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        className="w-full h-12 rounded-xl text-sm font-bold border-amber-500 text-amber-700 hover:bg-amber-50 shadow-sm cursor-pointer active:scale-[0.98] transition-all"
+                                    >
+                                        <Link href="/dashboard/certificates">
+                                            <Award className="w-4 h-4 mr-2" /> Tải chứng chỉ
+                                        </Link>
+                                    </Button>
+                                )}
+                            </div>
                         ) : (
                             <div className="flex gap-3">
                                 <Button
