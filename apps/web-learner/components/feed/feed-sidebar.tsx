@@ -21,29 +21,29 @@ export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSide
     const { user } = useAppSelector(state => state.auth)
     const pathname = usePathname()
     const isProfilePage = pathname.startsWith('/user/')
-    const [hotBlogs, setHotBlogs] = useState<FeedResponseDTO[]>([])
-    const [loadingHotBlogs, setLoadingHotBlogs] = useState(true)
+    const [hotFeeds, setHotFeeds] = useState<FeedResponseDTO[]>([])
+    const [loadingHotFeeds, setLoadingHotFeeds] = useState(true)
 
-    // Fetch top 5 most liked Feed blogs
+    // Fetch top 5 most liked Feed posts
     useEffect(() => {
-        const fetchHotBlogs = async () => {
+        const fetchHotFeeds = async () => {
             try {
-                setLoadingHotBlogs(true)
+                setLoadingHotFeeds(true)
                 const response = await feedApi.findAll({
                     page: 1,
                     limit: 5,
                     sortBy: 'likes',
                     sortOrder: 'desc'
                 })
-                setHotBlogs(response.data || [])
+                setHotFeeds(response.data || [])
             } catch (error) {
-                console.error('Failed to fetch hot blogs:', error)
+                console.error('Failed to fetch hot Feeds:', error)
             } finally {
-                setLoadingHotBlogs(false)
+                setLoadingHotFeeds(false)
             }
         }
 
-        fetchHotBlogs()
+        fetchHotFeeds()
     }, [])
 
     return (
@@ -65,14 +65,14 @@ export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSide
             </div>
 
 
-            {/* Profile/Blog List Link Widget */}
+            {/* Profile/QA List Link Widget */}
             <Link href={isProfilePage ? '/dashboard/feed' : (user ? `/user/${(user as any).id}` : '/login')} className="block">
                 <div className="bg-background rounded-xl border border-border/40 p-4 shadow-sm hover:border-primary/30 transition-all flex items-center gap-3 group">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
                         {isProfilePage ? <LayoutList className="h-5 w-5" /> : <User className="h-5 w-5" />}
                     </div>
                     <span className="font-medium text-foreground group-hover:text-primary transition-colors">
-                        {isProfilePage ? 'Danh sách blog' : 'Trang cá nhân'}
+                        {isProfilePage ? 'Danh sách câu hỏi' : 'Trang cá nhân'}
                     </span>
                 </div>
             </Link>
@@ -109,46 +109,46 @@ export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSide
                 </CardContent>
             </Card>
 
-            {/* Hot Blogs Widget */}
+            {/* Hot Questions Widget */}
             <Card className="rounded-xl border-border/40 shadow-sm overflow-hidden">
                 <CardHeader className="pb-3 border-b border-border/30 bg-muted/20 px-4 pt-4">
                     <CardTitle className="text-base font-semibold flex items-center gap-2">
                         <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
-                        Blog nổi bật
+                        Câu hỏi nổi bật
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="divide-y divide-border/30">
-                        {loadingHotBlogs ? (
+                        {loadingHotFeeds ? (
                             <div className="p-6 text-center text-sm text-muted-foreground">
                                 Đang tải...
                             </div>
-                        ) : hotBlogs.length > 0 ? (
-                            hotBlogs.map((blog, i) => (
+                        ) : hotFeeds.length > 0 ? (
+                            hotFeeds.map((feed, i) => (
                                 <Link
-                                    key={blog.id}
-                                    href={`/feed/${blog.id}`}
+                                    key={feed.id}
+                                    href={`/feed/${feed.id}`}
                                     className="block p-3 hover:bg-muted/30 cursor-pointer transition-colors group"
                                 >
                                     <div className="text-xs font-semibold text-muted-foreground mb-1 group-hover:text-primary/70">{i + 1}.</div>
                                     <h4 className="text-sm font-medium text-foreground/90 line-clamp-2 group-hover:text-primary transition-colors">
-                                        {blog.title || blog.content.substring(0, 50) + '...'}
+                                        {feed.title || feed.content.substring(0, 50) + '...'}
                                     </h4>
                                     <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                         <span className="flex items-center gap-1">
                                             <Heart className="h-3 w-3" />
-                                            {blog.likes || 0}
+                                            {feed.likes || 0}
                                         </span>
                                         <span className="flex items-center gap-1">
                                             <MessageCircle className="h-3 w-3" />
-                                            {blog.comments || 0}
+                                            {feed.comments || 0}
                                         </span>
                                     </div>
                                 </Link>
                             ))
                         ) : (
                             <div className="p-6 text-center text-sm text-muted-foreground">
-                                Chưa có blog nào
+                                Chưa có câu hỏi nào
                             </div>
                         )}
                     </div>

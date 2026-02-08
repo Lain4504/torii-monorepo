@@ -19,38 +19,38 @@ const CATEGORIES = [
     { id: 'JAPANESE_CULTURE', label: 'Văn Hoá Nhật Bản' },
 ]
 
-interface FeedEditBlogDialogProps {
+interface FeedEditPostDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    blog: FeedResponseDTO
-    onBlogUpdated?: (updatedBlog: FeedResponseDTO) => void
+    post: FeedResponseDTO
+    onPostUpdated?: (updatedPost: FeedResponseDTO) => void
 }
 
-export function FeedEditBlogDialog({ open, onOpenChange, blog, onBlogUpdated }: FeedEditBlogDialogProps) {
+export function FeedEditPostDialog({ open, onOpenChange, post, onPostUpdated }: FeedEditPostDialogProps) {
     const [category, setCategory] = useState('')
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
-        if (open && blog) {
-            setTitle(blog.title || '')
-            setContent(blog.content || '')
+        if (open && post) {
+            setTitle(post.title || '')
+            setContent(post.content || '')
             // Try to match tags to category
-            if (blog.tags && blog.tags.length > 0) {
+            if (post.tags && post.tags.length > 0) {
                 // Find the first tag that matches one of our defined categories
-                const matchingCategory = CATEGORIES.find(c => blog.tags.includes(c.id))
+                const matchingCategory = CATEGORIES.find(c => post.tags.includes(c.id))
                 if (matchingCategory) {
                     setCategory(matchingCategory.id)
                 } else {
                     // Or just take the first tag if no match logic exists
-                    setCategory(blog.tags[0] || '')
+                    setCategory(post.tags[0] || '')
                 }
             } else {
                 setCategory('')
             }
         }
-    }, [open, blog])
+    }, [open, post])
 
     const handleSubmit = async () => {
         if (!content.trim()) {
@@ -60,17 +60,17 @@ export function FeedEditBlogDialog({ open, onOpenChange, blog, onBlogUpdated }: 
 
         try {
             setSubmitting(true)
-            const updated = await feedApi.update(blog.id, {
+            const updated = await feedApi.update(post.id, {
                 title: title.trim() || undefined,
                 content: content.trim(),
                 tags: category ? [category] : []
             })
-            toast.success('Cập nhật blog thành công')
+            toast.success('Cập nhật bài viết thành công')
             onOpenChange(false)
-            onBlogUpdated?.(updated)
+            onPostUpdated?.(updated)
         } catch (error) {
             console.error(error)
-            toast.error('Có lỗi xảy ra', { description: 'Không thể cập nhật blog' })
+            toast.error('Có lỗi xảy ra', { description: 'Không thể cập nhật bài viết' })
         } finally {
             setSubmitting(false)
         }

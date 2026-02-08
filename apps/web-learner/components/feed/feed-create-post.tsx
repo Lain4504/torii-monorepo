@@ -21,7 +21,7 @@ const CATEGORIES = [
     { id: 'JAPANESE_CULTURE', label: 'Văn Hoá Nhật Bản' },
 ]
 
-export function FeedCreateBlog({ onBlogCreated }: { onBlogCreated?: () => void }) {
+export function FeedCreatePost({ onPostCreated }: { onPostCreated?: () => void }) {
     const { user } = useAppSelector(state => state.auth)
     const [isOpen, setIsOpen] = useState(false)
     const [category, setCategory] = useState('')
@@ -42,15 +42,15 @@ export function FeedCreateBlog({ onBlogCreated }: { onBlogCreated?: () => void }
                 content: content.trim(),
                 tags: category ? [category] : []
             })
-            toast.success('Đăng blog thành công')
+            toast.success('Đăng bài thành công')
             setIsOpen(false)
             setCategory('')
             setTitle('')
             setContent('')
-            onBlogCreated?.()
+            onPostCreated?.()
         } catch (error) {
             console.error(error)
-            toast.error('Có lỗi xảy ra', { description: 'Không thể đăng blog' })
+            toast.error('Có lỗi xảy ra', { description: 'Không thể đăng bài viết' })
         } finally {
             setSubmitting(false)
         }
