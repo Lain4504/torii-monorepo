@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FastMcpService } from '../../fastmcp/fastmcp.service';
+import { SenseiService } from '../../modules/sensei/sensei.service';
 
 /**
  * NATS Handler for Sensei Agent
@@ -8,11 +8,11 @@ import { FastMcpService } from '../../fastmcp/fastmcp.service';
  */
 @Controller()
 export class SenseiHandler {
-  constructor(private readonly fastMcpService: FastMcpService) { }
+  constructor(private readonly senseiService: SenseiService) { }
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; userId: string }) {
-    return this.fastMcpService.checkGrammar(data.userId, data.text);
+    return this.senseiService.checkGrammar(data.userId, data.text);
   }
 
   @MessagePattern({ cmd: 'agents.sensei.translate' })
@@ -20,7 +20,7 @@ export class SenseiHandler {
     @Payload()
     data: { text: string; from: string; to: string; userId: string },
   ) {
-    return this.fastMcpService.translate(data.userId, data.text, data.from, data.to);
+    return this.senseiService.translate(data.userId, data.text, data.from, data.to);
   }
 
   @MessagePattern({ cmd: 'agents.sensei.createFlashcard' })
@@ -28,7 +28,7 @@ export class SenseiHandler {
     @Payload()
     data: { topic: string; difficulty?: 'beginner' | 'intermediate' | 'advanced'; userId: string },
   ) {
-    return this.fastMcpService.createFlashcard(
+    return this.senseiService.createFlashcard(
       data.userId,
       data.topic,
       data.difficulty || 'intermediate',
@@ -46,7 +46,7 @@ export class SenseiHandler {
       userId: string;
     },
   ) {
-    return this.fastMcpService.generatePracticeDrill(
+    return this.senseiService.generatePracticeDrill(
       data.userId,
       data.drillType,
       data.topic,
@@ -65,7 +65,7 @@ export class SenseiHandler {
       userId: string;
     },
   ) {
-    return this.fastMcpService.simulateConversation(
+    return this.senseiService.simulateConversation(
       data.userId,
       data.scenario,
       data.difficulty || 'intermediate',
@@ -82,7 +82,7 @@ export class SenseiHandler {
       userId: string;
     },
   ) {
-    return this.fastMcpService.recommendResources(
+    return this.senseiService.recommendResources(
       data.userId,
       data.topic,
       data.resourceType || 'all',
@@ -98,7 +98,7 @@ export class SenseiHandler {
       userId: string;
     },
   ) {
-    return this.fastMcpService.chat(
+    return this.senseiService.chat(
       data.userId,
       data.message,
       data.history || [],

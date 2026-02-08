@@ -224,11 +224,6 @@ export class LessonService implements ILessonService {
    * Create a new lesson
    */
   async create(requester: Requester, dto: LessonCreateDTO): Promise<LessonResponseDTO> {
-    // Check permissions
-    if (!this.hasPermission(requester, 'lesson.create')) {
-      throw new ForbiddenException('Only authorized staff can create lessons');
-    }
-
     try {
       const module = await this.moduleRepository.findById(dto.moduleId);
       if (!module) throw new NotFoundException('Module not found');

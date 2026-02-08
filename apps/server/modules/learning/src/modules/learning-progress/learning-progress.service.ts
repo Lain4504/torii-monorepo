@@ -7,7 +7,7 @@ import {
     ILessonRepository, LESSON_REPOSITORY_TOKEN,
     IModuleRepository, MODULE_REPOSITORY_TOKEN
 } from '../../interfaces/repositories';
-import { ILearningProgressService } from '../../interfaces/services';
+import { ILearningProgressService, ICertificateService, CERTIFICATE_SERVICE_TOKEN } from '../../interfaces/services';
 import { EnrollmentStatus, UserActivityEvent } from '@workspace/schemas';
 
 
@@ -26,6 +26,8 @@ export class LearningProgressService implements ILearningProgressService {
         private readonly lessonRepo: ILessonRepository,
         @Inject(MODULE_REPOSITORY_TOKEN)
         private readonly moduleRepo: IModuleRepository,
+        @Inject(CERTIFICATE_SERVICE_TOKEN)
+        private readonly certificateService: ICertificateService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
@@ -183,6 +185,13 @@ export class LearningProgressService implements ILearningProgressService {
             completionStatus: percentage >= 100 ? EnrollmentStatus.COMPLETED : EnrollmentStatus.IN_PROGRESS,
             completedAt: percentage >= 100 ? (enrollment.completedAt || new Date()) : null
         });
+
+        // Trigger certificate issuance if course completed
+        if (percentage >= 100) {
+            this.certificateService.issueCertificate(userId, courseId, enrollment.id).catch((err: any) => {
+                this.logger.error(`Failed to automatically issue certificate: ${err.message}`, err.stack);
+            });
+        }
 
         // Emit activity events to gamification service
         try {

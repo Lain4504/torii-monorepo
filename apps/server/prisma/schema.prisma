@@ -63,6 +63,8 @@ model Course {
   instructors  CourseInstructor[]
   liveSessions LiveSession[]
   enrollments  Enrollment[]
+  assignments  Assignment[]
+  certificates Certificate[]
 
   @@index([jlptLevel])
   @@index([createdBy])
@@ -85,8 +87,9 @@ model Module {
   updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt       DateTime? @map("deleted_at")
 
-  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons Lesson[]
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  assignments Assignment[]
 
   @@index([courseId])
   @@map("modules")
@@ -115,6 +118,7 @@ model Lesson {
   quizzes        Quiz[]
   materials      LessonMaterial[]
   lessonProgress LessonProgress[]
+  assignments    Assignment[]
 
   @@index([moduleId])
   @@map("lessons")
@@ -140,6 +144,129 @@ model LessonProgress {
   @@index([lessonId])
   @@map("lesson_progress")
 }
+
+// ============================================
+// ASSIGNMENTS & SUBMISSIONS
+// ============================================
+
+// Assignment Types
+enum AssignmentType {
+  TEXT // Text answer only
+  FILE // File upload only  
+  BOTH // Text + File
+}
+
+// Assignment - Bài tập do giảng viên tạo
+model Assignment {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String         @db.VarChar(255)
+  description     String         @db.Text
+  type            AssignmentType @default(TEXT)
+
+  // Associated with (at least one required)
+  courseId String? @map("course_id") @db.Uuid
+  moduleId String? @map("module_id") @db.Uuid
+  lessonId String? @map("lesson_id") @db.Uuid
+
+  // Grading config
+  maxScore     Decimal @default(100.00) @map("max_score") @db.Decimal(5, 2)
+  passingScore Decimal? @map("passing_score") @db.Decimal(5, 2)
+
+  // Deadlines
+  dueDate             DateTime? @map("due_date")
+  allowLateSubmission Boolean   @default(true) @map("allow_late_submission")
+  latePenaltyPercent  Decimal?  @map("late_penalty_percent") @db.Decimal(5, 2) // Optional reference, không auto-apply
+
+  // File upload config
+  allowedFileTypes String[] @default([]) @map("allowed_file_types") @db.VarChar(20) // ["pdf", "docx", "png"]
+  maxFileSize      Int?     @default(52428800) @map("max_file_size") // bytes (default 50MB)
+  maxFiles         Int?     @default(5) @map("max_files")
+
+  // Metadata
+  instructions   String?  @db.Text
+  attachmentUrls String[] @default([]) @map("attachment_urls") @db.Text
+  createdBy      String   @map("created_by") @db.Uuid
+  status         AssignmentStatus @default(DRAFT)
+  publishedAt    DateTime? @map("published_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  module      Module?      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  lesson      Lesson?      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@index([courseId])
+  @@index([moduleId])
+  @@index([lessonId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdBy])
+  @@map("assignments")
+}
+
+// Assignment Status
+enum AssignmentStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+// Submission Status
+enum SubmissionStatus {
+  DRAFT     // Đang soạn (chưa nộp)
+  SUBMITTED // Đã nộp
+  GRADED    // Đã chấm
+  RETURNED  // Trả lại để sửa
+}
+
+// Submission - Bài nộp của học viên
+model Submission {
+  id           String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  assignmentId String           @map("assignment_id") @db.Uuid
+  userId       String           @map("user_id") @db.Uuid
+
+  // Submission content
+  textAnswer String?  @map("text_answer") @db.Text
+  fileUrls   String[] @default([]) @map("file_urls") @db.Text
+
+  // Status tracking
+  status      SubmissionStatus @default(DRAFT)
+  submittedAt DateTime?        @map("submitted_at")
+  isLate      Boolean          @default(false) @map("is_late")
+  daysLate    Int?             @default(0) @map("days_late") // For BR-04: penalty calculation
+
+  // Grading
+  score    Decimal?  @db.Decimal(5, 2)
+  feedback String?   @db.Text
+  gradedBy String?   @map("graded_by") @db.Uuid
+  gradedAt DateTime? @map("graded_at")
+
+  // History tracking
+  attemptNumber        Int     @default(1) @map("attempt_number")
+  previousSubmissionId String? @map("previous_submission_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, userId, attemptNumber])
+  @@index([assignmentId])
+  @@index([userId])
+  @@index([status])
+  @@index([submittedAt])
+  @@index([gradedBy])
+  @@map("submissions")
+}
+
+// ============================================
+// COURSE INSTRUCTOR
+// ============================================
+
 
 enum InstructorRole {
   MAIN
@@ -367,6 +494,7 @@ model User {
   orders                  Order[]
   payments                Payment[]
   giftEnrollments         Enrollment[]             @relation("GiftEnrollments")
+  certificates            Certificate[]
 
   // Gamification Relations
   gamification    UserGamification?
@@ -1141,6 +1269,7 @@ model Enrollment {
   order          Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
   sender         User?            @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
   lessonProgress LessonProgress[]
+  certificate    Certificate?
 
   @@unique([userId, courseId]) // Mỗi user chỉ enroll 1 lần cho 1 course
   @@index([userId])
@@ -1482,4 +1611,24 @@ model Ticket {
   @@index([status])
   @@index([type])
   @@map("tickets")
+}
+
+// Certificate - Issued when a user completes a course
+model Certificate {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  courseId         String   @map("course_id") @db.Uuid
+  enrollmentId     String   @unique @map("enrollment_id") @db.Uuid
+  certificateCode  String   @unique @map("certificate_code") @db.VarChar(50)
+  issueDate        DateTime @default(now()) @map("issue_date")
+  fileUrl          String   @map("file_url") @db.Text
+  metadata         Json?    @default("{}") 
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+  @@map("certificates")
 }

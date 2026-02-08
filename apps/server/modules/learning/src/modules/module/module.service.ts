@@ -158,11 +158,6 @@ export class ModuleService implements IModuleService {
    * Create a new module
    */
   async create(requester: Requester, dto: ModuleCreateDTO): Promise<ModuleResponseDTO> {
-    // Check permissions
-    if (!this.hasPermission(requester, 'module.create')) {
-      throw new ForbiddenException('Only authorized staff can create modules');
-    }
-
     try {
       // Get next order index if not provided
       let orderIndex = dto.orderIndex;
