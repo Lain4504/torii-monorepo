@@ -4,12 +4,14 @@ import { paginatedResponseSchema } from './common.dto';
 
 // Use extend to add non-model fields or pick to select model fields
 export const commentCreateDTOSchema = z.object({
-    targetType: z.nativeEnum(CommentTargetType),
-    entityId: z.string().uuid(),
+    targetType: z.nativeEnum(CommentTargetType).optional(),
+    entityId: z.string().uuid().optional(),
     userId: z.string().uuid(),
     content: z.string().min(1),
     parentId: z.string().uuid().optional(),
     authorId: z.string().uuid().optional(), // Alias
+    blogId: z.string().uuid().optional(),
+    feedId: z.string().uuid().optional(),
 });
 
 export type CommentCreateDTO = z.infer<typeof commentCreateDTOSchema>;
@@ -28,6 +30,8 @@ export const commentQueryDTOSchema = z.object({
     parentId: z.string().uuid().optional(),
     sortBy: z.string().optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
+    blogId: z.string().uuid().optional(),
+    feedId: z.string().uuid().optional(),
 });
 
 export type CommentQueryDTO = z.infer<typeof commentQueryDTOSchema>;
@@ -39,6 +43,8 @@ export const commentResponseDTOSchema: z.ZodType<any> = commentSchema.extend({
         displayName: z.string(),
         avatarUrl: z.string().optional(),
     }).optional(),
+    blogId: z.string().uuid().optional(),
+    feedId: z.string().uuid().optional(),
     replyCount: z.number().optional().default(0),
     likeCount: z.number().optional().default(0),
     isLiked: z.boolean().optional().default(false),

@@ -9,7 +9,7 @@ export * from './i-wishlist.repository';
 export * from './i-exam.repository';
 export * from './i-enrollment.repository';
 export * from './i-comment.repository';
-export * from './i-post.repository';
+export * from './i-blog.repository';
 export * from './i-learning-progress.repository';
 export * from './i-flashcard.repository';
 export * from './i-flashcard-deck.repository';

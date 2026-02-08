@@ -8,7 +8,7 @@ import {
 import { StreakService } from './streak.service';
 import { AchievementService } from './achievement.service';
 
-const XP_REWARDS: Record<ActivityType, number> = {
+const XP_REWARDS: Record<string, number> = {
     LESSON_COMPLETE: 50,
     QUIZ_ANSWER: 10,
     VIDEO_WATCH: 20,
@@ -16,7 +16,7 @@ const XP_REWARDS: Record<ActivityType, number> = {
     PRACTICE: 15,
     FLASHCARD_REVIEW: 5,
     EXAM_COMPLETE: 100,
-    POST_CREATE: 20,
+    BLOG_CREATE: 20,
     COMMENT_CREATE: 10,
     LOGIN: 10,
 };
@@ -53,7 +53,7 @@ export class ActivityService {
                 userId_date_activityType: {
                     userId,
                     date: today,
-                    activityType,
+                    activityType: activityType as any,
                 },
             },
         });
@@ -64,7 +64,7 @@ export class ActivityService {
                 data: {
                     userId,
                     date: today,
-                    activityType,
+                    activityType: activityType as any,
                     meta: meta || {},
                 },
             });

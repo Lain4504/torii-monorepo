@@ -19,7 +19,7 @@ export class NotificationService implements INotificationService {
   constructor(
     @Inject(NOTIFICATION_REPOSITORY_TOKEN)
     private readonly notificationRepository: INotificationRepository,
-    private readonly prisma: PrismaService, // Still needed for cross-service queries (post, user, wishlist)
+    private readonly prisma: PrismaService, // Still needed for cross-service queries (blog, user, wishlist)
   ) { }
 
   /**
@@ -306,7 +306,7 @@ export class NotificationService implements INotificationService {
       this.logger.log(`Handling send_notification event: type=${payload.type}, recipientId=${payload.recipientId}`);
 
       // Map notification type to database type
-      const notificationType = payload.type === 'COMMENT_REPLY' ? 'comment' : 'post_analytics';
+      const notificationType = payload.type === 'COMMENT_REPLY' ? 'comment' : 'blog_analytics';
 
       // Create notification
       await this.notificationRepository.create({
@@ -332,12 +332,12 @@ export class NotificationService implements INotificationService {
    * Handle comment reply event - create notification for the person being replied to
    * @deprecated Use handleSendNotification instead
    * 
-   * Business Rules: Send notification if recipient ≠ reply author and recipient ≠ post author
+   * Business Rules: Send notification if recipient ≠ reply author and recipient ≠ blog author
    * Skip if: replying to self or replying to staff
    */
   async handleCommentReply(payload: {
     commentId: string;
-    postId: string;
+    blogId: string;
     parentCommentId: string;
     repliedToUserId: string;
     replyAuthorId: string;
@@ -353,22 +353,22 @@ export class NotificationService implements INotificationService {
         return;
       }
 
-      // Get post info to check if replied user is staff
-      const post = await this.prisma.post.findUnique({
-        where: { id: payload.postId },
+      // Get blog info to check if replied user is staff
+      const blog = await this.prisma.blog.findUnique({
+        where: { id: payload.blogId },
         select: {
           title: true,
           authorId: true,
         },
       });
 
-      if (!post) {
-        this.logger.warn(`Post ${payload.postId} not found, skipping notification`);
+      if (!blog) {
+        this.logger.warn(`Blog ${payload.blogId} not found, skipping notification`);
         return;
       }
 
       // Check if replied user is the blog owner (staff)
-      const isReplyingStaff = payload.repliedToUserId === post.authorId;
+      const isReplyingStaff = payload.repliedToUserId === blog.authorId;
       if (isReplyingStaff) {
         this.logger.log(`Skipping notification: User ${payload.repliedToUserId} is the blog owner (staff) - will receive summary notification instead`);
         return;
@@ -384,17 +384,17 @@ export class NotificationService implements INotificationService {
       });
 
       const authorName = replyAuthor?.displayName || replyAuthor?.email || 'Someone';
-      const postTitle = post.title || 'post';
+      const blogTitle = blog.title || 'bài viết';
 
       // Create notification for the person being replied to (user, not staff)
       await this.notificationRepository.create({
         userId: payload.repliedToUserId,
-        title: 'New reply to your comment',
-        message: `${authorName} replied to your comment on "${postTitle}"`,
+        title: 'Bình luận của bạn có phản hồi mới',
+        message: `${authorName} đã phản hồi bình luận của bạn trong bài viết "${blogTitle}"`,
         notificationType: 'comment',
         metadata: {
           commentId: payload.commentId,
-          postId: payload.postId,
+          blogId: payload.blogId,
           parentCommentId: payload.parentCommentId,
           replyAuthorId: payload.replyAuthorId,
         },
@@ -412,11 +412,11 @@ export class NotificationService implements INotificationService {
   }
 
   /**
-   * Handle post interaction stats event - create notification for staff about daily post interactions
+   * Handle blog interaction stats event - create notification for staff about daily blog interactions
    */
-  async handlePostInteractionStats(payload: {
-    postId: string;
-    postTitle: string;
+  async handleBlogInteractionStats(payload: {
+    blogId: string;
+    blogTitle: string;
     authorId: string;
     commentCount: number;
     likeCount: number;
@@ -424,24 +424,24 @@ export class NotificationService implements INotificationService {
     date: string;
   }): Promise<void> {
     try {
-      this.logger.log(`Handling post interaction stats event for post: ${payload.postId}`);
+      this.logger.log(`Handling blog interaction stats event for blog: ${payload.blogId}`);
 
       const totalInteractions = payload.commentCount + payload.likeCount;
 
       if (totalInteractions === 0) {
-        this.logger.log(`No interactions for post ${payload.postId}, skipping notification`);
+        this.logger.log(`No interactions for blog ${payload.blogId}, skipping notification`);
         return;
       }
 
-      // Create notification for post author (staff)
+      // Create notification for blog author (staff)
       await this.notificationRepository.create({
         userId: payload.authorId,
         title: 'Thống kê tương tác bài viết',
-        message: `Bài viết "${payload.postTitle}" của bạn đã nhận được ${payload.commentCount} bình luận và ${payload.likeCount} lượt thích sau 1 ngày`,
-        notificationType: 'post_analytics',
+        message: `Bài viết "${payload.blogTitle}" của bạn đã nhận được ${payload.commentCount} bình luận và ${payload.likeCount} lượt thích sau 1 ngày`,
+        notificationType: 'blog_analytics',
         metadata: {
-          postId: payload.postId,
-          postTitle: payload.postTitle,
+          blogId: payload.blogId,
+          blogTitle: payload.blogTitle,
           commentCount: payload.commentCount,
           likeCount: payload.likeCount,
           viewCount: payload.viewCount,
@@ -453,10 +453,10 @@ export class NotificationService implements INotificationService {
       });
 
       this.logger.log(
-        `Successfully created notification for post interaction stats: ${payload.postId}`,
+        `Successfully created notification for blog interaction stats: ${payload.blogId}`,
       );
     } catch (error: any) {
-      this.logger.error('Error handling post interaction stats event:', error);
+      this.logger.error('Error handling blog interaction stats event:', error);
       // Don't throw - event-driven should be fire-and-forget
     }
   }

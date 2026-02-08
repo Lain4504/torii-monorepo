@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FeedPostCard } from './feed-post-card'
-import { FeedCreatePost } from './feed-create-post'
+import { FeedPostCard } from './feed-blog-card'
+import { FeedCreatePost } from './feed-create-blog'
 import { feedApi } from '@/apis/services/feed-api'
 import type { FeedResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
-import { CommentSection } from '../post/comment-section'
+import { CommentSection } from '../blog/comment-section'
 import { Loader2, ChevronDown } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 
