@@ -38,16 +38,16 @@ export const blogCommentApi = {
      */
     findAll: async (params: CommentQueryDTO): Promise<CommentPaginatedResponse> => {
         try {
-            // Transform frontend params (blogId/qaId) to backend format (entityId/targetType)
+            // Transform frontend params (blogId/feedId) to backend format (entityId/targetType)
             const backendParams: any = { ...params };
 
-            // Remove blogId/qaId and replace with entityId/targetType
-            if ((params as any).blogId) {
-                backendParams.entityId = (params as any).blogId;
+            // Remove blogId/feedId and replace with entityId/targetType
+            if (params.blogId) {
+                backendParams.entityId = params.blogId;
                 backendParams.targetType = 'BLOG';
-                delete backendParams.postId;
-            } else if ((params as any).feedId) {
-                backendParams.entityId = (params as any).feedId;
+                delete backendParams.blogId;
+            } else if (params.feedId) {
+                backendParams.entityId = params.feedId;
                 backendParams.targetType = 'FEED';
                 delete backendParams.feedId;
             }
@@ -111,12 +111,12 @@ export const blogCommentApi = {
         // Transform frontend DTO (blogId/feedId) to backend format (entityId/targetType)
         const backendDto: any = { ...dto };
 
-        if ((dto as any).blogId) {
-            backendDto.entityId = (dto as any).blogId;
+        if (dto.blogId) {
+            backendDto.entityId = dto.blogId;
             backendDto.targetType = 'BLOG';
-            delete backendDto.postId;
-        } else if ((dto as any).feedId) {
-            backendDto.entityId = (dto as any).feedId;
+            delete backendDto.blogId;
+        } else if (dto.feedId) {
+            backendDto.entityId = dto.feedId;
             backendDto.targetType = 'FEED';
             delete backendDto.feedId;
         }

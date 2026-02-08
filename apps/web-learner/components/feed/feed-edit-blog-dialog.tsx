@@ -19,49 +19,38 @@ const CATEGORIES = [
     { id: 'JAPANESE_CULTURE', label: 'Văn Hoá Nhật Bản' },
 ]
 
-<<<<<<<< HEAD:apps/web-learner/components/feed/qa-edit-blog-dialog.tsx
-interface QAEditBlogDialogProps {
+interface FeedEditBlogDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    post: QAResponseDTO
-    onBlogUpdated?: (updatedPost: QAResponseDTO) => void
+    blog: FeedResponseDTO
+    onBlogUpdated?: (updatedBlog: FeedResponseDTO) => void
 }
 
-export function QAEditBlogDialog({ open, onOpenChange, post, onBlogUpdated }: QAEditBlogDialogProps) {
-========
-interface FeedEditPostDialogProps {
-    open: boolean
-    onOpenChange: (open: boolean) => void
-    post: FeedResponseDTO
-    onPostUpdated?: (updatedPost: FeedResponseDTO) => void
-}
-
-export function FeedEditPostDialog({ open, onOpenChange, post, onPostUpdated }: FeedEditPostDialogProps) {
->>>>>>>> main:apps/web-learner/components/feed/feed-edit-post-dialog.tsx
+export function FeedEditBlogDialog({ open, onOpenChange, blog, onBlogUpdated }: FeedEditBlogDialogProps) {
     const [category, setCategory] = useState('')
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
-        if (open && post) {
-            setTitle(post.title || '')
-            setContent(post.content || '')
+        if (open && blog) {
+            setTitle(blog.title || '')
+            setContent(blog.content || '')
             // Try to match tags to category
-            if (post.tags && post.tags.length > 0) {
+            if (blog.tags && blog.tags.length > 0) {
                 // Find the first tag that matches one of our defined categories
-                const matchingCategory = CATEGORIES.find(c => post.tags.includes(c.id))
+                const matchingCategory = CATEGORIES.find(c => blog.tags.includes(c.id))
                 if (matchingCategory) {
                     setCategory(matchingCategory.id)
                 } else {
                     // Or just take the first tag if no match logic exists
-                    setCategory(post.tags[0] || '')
+                    setCategory(blog.tags[0] || '')
                 }
             } else {
                 setCategory('')
             }
         }
-    }, [open, post])
+    }, [open, blog])
 
     const handleSubmit = async () => {
         if (!content.trim()) {
@@ -71,17 +60,17 @@ export function FeedEditPostDialog({ open, onOpenChange, post, onPostUpdated }: 
 
         try {
             setSubmitting(true)
-            const updated = await feedApi.update(post.id, {
+            const updated = await feedApi.update(blog.id, {
                 title: title.trim() || undefined,
                 content: content.trim(),
                 tags: category ? [category] : []
             })
-            toast.success('Cập nhật bài viết thành công')
+            toast.success('Cập nhật blog thành công')
             onOpenChange(false)
             onBlogUpdated?.(updated)
         } catch (error) {
             console.error(error)
-            toast.error('Có lỗi xảy ra', { description: 'Không thể cập nhật bài viết' })
+            toast.error('Có lỗi xảy ra', { description: 'Không thể cập nhật blog' })
         } finally {
             setSubmitting(false)
         }

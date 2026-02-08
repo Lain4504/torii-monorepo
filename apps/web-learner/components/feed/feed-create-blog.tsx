@@ -21,11 +21,7 @@ const CATEGORIES = [
     { id: 'JAPANESE_CULTURE', label: 'Văn Hoá Nhật Bản' },
 ]
 
-<<<<<<<< HEAD:apps/web-learner/components/feed/qa-create-blog.tsx
-export function QACreateBlog({ onBlogCreated }: { onBlogCreated?: () => void }) {
-========
-export function FeedCreatePost({ onPostCreated }: { onPostCreated?: () => void }) {
->>>>>>>> main:apps/web-learner/components/feed/feed-create-post.tsx
+export function FeedCreateBlog({ onBlogCreated }: { onBlogCreated?: () => void }) {
     const { user } = useAppSelector(state => state.auth)
     const [isOpen, setIsOpen] = useState(false)
     const [category, setCategory] = useState('')
@@ -46,7 +42,7 @@ export function FeedCreatePost({ onPostCreated }: { onPostCreated?: () => void }
                 content: content.trim(),
                 tags: category ? [category] : []
             })
-            toast.success('Đăng bài thành công')
+            toast.success('Đăng blog thành công')
             setIsOpen(false)
             setCategory('')
             setTitle('')
@@ -54,7 +50,7 @@ export function FeedCreatePost({ onPostCreated }: { onPostCreated?: () => void }
             onBlogCreated?.()
         } catch (error) {
             console.error(error)
-            toast.error('Có lỗi xảy ra', { description: 'Không thể đăng bài viết' })
+            toast.error('Có lỗi xảy ra', { description: 'Không thể đăng blog' })
         } finally {
             setSubmitting(false)
         }

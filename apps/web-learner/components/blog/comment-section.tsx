@@ -18,7 +18,7 @@ import { toast } from '@workspace/ui/components/sonner'
 
 interface CommentSectionProps {
     blogId?: string
-    qaId?: string
+    feedId?: string
     onCommentCountChange?: (delta: number) => void // Callback to update parent's comment count
 }
 

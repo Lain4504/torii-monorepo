@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FeedPostCard } from './feed-post-card'
-import { FeedCreatePost } from './feed-create-post'
+import { FeedBlogCard } from './feed-blog-card'
+import { FeedCreateBlog } from './feed-create-blog'
 import { feedApi } from '@/apis/services/feed-api'
 import type { FeedResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
@@ -26,21 +26,21 @@ interface FeedProps {
     activeTab?: string
     sortBy?: 'likes' | 'comments'
     onTabChange?: (tab: string) => void
-    onTotalPostsChange?: (total: number) => void
+    onTotalBlogsChange?: (total: number) => void
     selectedTag?: string
     onTagSelect?: (tag: string | undefined) => void
     searchQuery?: string
 }
 
-export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL', sortBy, onTabChange, onTotalPostsChange, selectedTag, onTagSelect, searchQuery }: FeedProps) {
-    const [posts, setPosts] = useState<FeedResponseDTO[]>([])
+export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL', sortBy, onTabChange, onTotalBlogsChange, selectedTag, onTagSelect, searchQuery }: FeedProps) {
+    const [blogs, setBlogs] = useState<FeedResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
-    const [expandedPostId, setExpandedPostId] = useState<string | null>(null)
+    const [expandedBlogId, setExpandedBlogId] = useState<string | null>(null)
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
 
-    const fetchPosts = async (reset = false) => {
+    const fetchBlogs = async (reset = false) => {
         try {
             if (reset) setLoading(true)
             else setLoadingMore(true)
@@ -74,13 +74,13 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
             const res = await feedApi.findAll(params)
 
             if (reset) {
-                setPosts(res.data)
-                // Notify parent of total posts count
-                if (onTotalPostsChange) {
-                    onTotalPostsChange(res.total || 0)
+                setBlogs(res.data)
+                // Notify parent of total blogs count
+                if (onTotalBlogsChange) {
+                    onTotalBlogsChange(res.total || 0)
                 }
             } else {
-                setPosts(prev => [...prev, ...res.data])
+                setBlogs(prev => [...prev, ...res.data])
             }
 
             setHasMore(currentPage < res.totalPages)
@@ -95,21 +95,21 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
     }
 
     useEffect(() => {
-        fetchPosts(true)
+        fetchBlogs(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId, category, JSON.stringify(followedTags), sortBy, selectedTag, searchQuery])
 
     const handleLike = async (id: string) => {
         try {
             const res = await feedApi.toggleLike(id)
-            setPosts(prev => prev.map(p => p.id === id ? { ...p, isLiked: res.isLiked, likes: res.likeCount } : p))
+            setBlogs(prev => prev.map(p => p.id === id ? { ...p, isLiked: res.isLiked, likes: res.likeCount } : p))
         } catch (error) {
-            toast.error('Có lỗi xảy ra', { description: 'Không thể like bài viết' })
+            toast.error('Có lỗi xảy ra', { description: 'Không thể like blog' })
         }
     }
 
     const handleCommentClick = (id: string) => {
-        setExpandedPostId(prev => prev === id ? null : id)
+        setExpandedBlogId(prev => prev === id ? null : id)
     }
 
     const handleTagClick = (tag: string) => {
@@ -117,13 +117,13 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
         onTagSelect?.(tag)
     }
 
-    const handlePostDelete = (postId: string) => {
-        setPosts(prev => prev.filter(p => p.id !== postId))
+    const handleBlogDelete = (blogId: string) => {
+        setBlogs(prev => prev.filter(p => p.id !== blogId))
     }
 
     return (
         <div className="space-y-6">
-            {!userId && <FeedCreatePost onPostCreated={() => fetchPosts(true)} />}
+            {!userId && <FeedCreateBlog onBlogCreated={() => fetchBlogs(true)} />}
 
             {/* Tabs Navigation */}
             {!userId && (
@@ -174,27 +174,27 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary w-8 h-8" /></div>
             ) : (
                 <div className="space-y-4">
-                    {posts.map(post => (
-                        <div key={post.id} className="space-y-0 relative z-10">
-                            <FeedPostCard
-                                post={post}
+                    {blogs.map(blog => (
+                        <div key={blog.id} className="space-y-0 relative z-10">
+                            <FeedBlogCard
+                                blog={blog}
                                 onLike={handleLike}
                                 onComment={handleCommentClick}
-                                onDelete={() => handlePostDelete(post.id)}
+                                onDelete={() => handleBlogDelete(blog.id)}
                                 onTagClick={handleTagClick}
-                                onBlogUpdated={(updatedPost) => {
-                                    setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p))
+                                onBlogUpdated={(updatedBlog) => {
+                                    setBlogs(prev => prev.map(p => p.id === updatedBlog.id ? updatedBlog : p))
                                 }}
                             />
-                            {expandedPostId === post.id && (
+                            {expandedBlogId === blog.id && (
                                 <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-300">
                                     <div className="border border-border/40 border-t-0 rounded-b-xl bg-background/50 p-4 -mt-2 pt-6 relative z-0 shadow-inner">
                                         <CommentSection
-                                            feedId={post.id}
+                                            feedId={blog.id}
                                             onCommentCountChange={(delta) => {
                                                 // Update comment count in real-time
-                                                setPosts(prev => prev.map(p =>
-                                                    p.id === post.id
+                                                setBlogs(prev => prev.map(p =>
+                                                    p.id === blog.id
                                                         ? { ...p, comments: (p.comments || 0) + delta }
                                                         : p
                                                 ))
@@ -206,7 +206,7 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
                         </div>
                     ))}
 
-                    {posts.length === 0 && (
+                    {blogs.length === 0 && (
                         <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-xl border border-dashed border-border/60">
                             Chưa có bài viết nào. Hãy là người đầu tiên đặt câu hỏi!
                         </div>
@@ -215,7 +215,7 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
                     {hasMore && (
                         <div className="flex justify-center pt-4 pb-8">
                             <button
-                                onClick={() => fetchPosts(false)}
+                                onClick={() => fetchBlogs(false)}
                                 disabled={loadingMore}
                                 className="text-sm text-primary hover:underline font-medium flex items-center gap-2 disabled:opacity-50"
                             >

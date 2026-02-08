@@ -28,51 +28,37 @@ import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { feedApi } from '@/apis/services/feed-api'
 import { toast } from '@workspace/ui/components/sonner'
-<<<<<<<< HEAD:apps/web-learner/components/feed/qa-blog-card.tsx
-import { QAEditBlogDialog } from './qa-edit-blog-dialog'
+import { FeedEditBlogDialog } from './feed-edit-blog-dialog'
 
-interface QABlogCardProps {
-    post: QAResponseDTO
-========
-import { FeedEditPostDialog } from './feed-edit-post-dialog'
-
-interface FeedPostCardProps {
-    post: FeedResponseDTO
->>>>>>>> main:apps/web-learner/components/feed/feed-post-card.tsx
+interface FeedBlogCardProps {
+    blog: FeedResponseDTO
     onLike?: (id: string) => void
     onComment?: (id: string) => void
     onDelete?: () => void
     onTagClick?: (tag: string) => void
     onFollow?: (authorId: string) => void
-<<<<<<<< HEAD:apps/web-learner/components/feed/qa-blog-card.tsx
-    onBlogUpdated?: (updatedPost: QAResponseDTO) => void
+    onBlogUpdated?: (updatedBlog: FeedResponseDTO) => void
 }
 
-export function QABlogCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onBlogUpdated }: QABlogCardProps) {
-========
-    onPostUpdated?: (updatedPost: FeedResponseDTO) => void
-}
-
-export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onPostUpdated }: FeedPostCardProps) {
->>>>>>>> main:apps/web-learner/components/feed/feed-post-card.tsx
+export function FeedBlogCard({ blog, onLike, onComment, onDelete, onTagClick, onFollow, onBlogUpdated }: FeedBlogCardProps) {
     const { user } = useAppSelector(state => state.auth)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showEditDialog, setShowEditDialog] = useState(false)
     const [deleting, setDeleting] = useState(false)
 
     // Convert both IDs to strings for reliable comparison
-    const isOwnPost = user?.id && post.author?.id && String(user.id) === String(post.author.id)
+    const isOwnBlog = user?.id && blog.author?.id && String(user.id) === String(blog.author.id)
 
     const handleDelete = async () => {
         try {
             setDeleting(true)
-            await feedApi.delete(post.id)
-            toast.success('Đã xóa bài viết')
+            await feedApi.delete(blog.id)
+            toast.success('Đã xóa blog')
             setShowDeleteDialog(false)
             onDelete?.()
         } catch (error) {
             console.error(error)
-            toast.error('Không thể xóa bài viết')
+            toast.error('Không thể xóa blog')
         } finally {
             setDeleting(false)
         }
@@ -88,20 +74,20 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
             <div className="bg-background rounded-xl border border-border/40 p-5 space-y-4 hover:border-primary/20 transition-all shadow-sm">
                 <div className="flex justify-between items-start">
                     <div className="flex gap-3">
-                        <Link href={`/user/${post.author?.id}`} className="flex-shrink-0">
+                        <Link href={`/user/${blog.author?.id}`} className="flex-shrink-0">
                             <Avatar>
-                                <AvatarImage src={post.author?.avatarUrl || undefined} />
-                                <AvatarFallback>{post.author?.displayName?.[0] || 'U'}</AvatarFallback>
+                                <AvatarImage src={blog.author?.avatarUrl || undefined} />
+                                <AvatarFallback>{blog.author?.displayName?.[0] || 'U'}</AvatarFallback>
                             </Avatar>
                         </Link>
                         <div>
-                            <Link href={`/user/${post.author?.id}`} className="font-semibold text-foreground hover:underline block">
-                                {post.author?.displayName || 'Unknown User'}
+                            <Link href={`/user/${blog.author?.id}`} className="font-semibold text-foreground hover:underline block">
+                                {blog.author?.displayName || 'Unknown User'}
                             </Link>
                             <div className="text-xs text-muted-foreground flex items-center">
                                 <span className="text-primary font-medium mr-1 bg-primary/10 px-1.5 rounded text-[10px]">Thành viên mới</span>
                                 <span className="mx-1">•</span>
-                                {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi })}
+                                {formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true, locale: vi })}
                             </div>
                         </div>
                     </div>
@@ -114,7 +100,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            {isOwnPost ? (
+                            {isOwnBlog ? (
                                 <>
                                     <DropdownMenuItem
                                         className="cursor-pointer"
@@ -128,7 +114,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                                         onClick={() => setShowDeleteDialog(true)}
                                     >
                                         <Trash2 className="w-4 h-4 mr-2" />
-                                        Xóa bài viết
+                                        Xóa blog
                                     </DropdownMenuItem>
                                 </>
                             ) : (
@@ -145,9 +131,9 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                 </div>
 
                 <div className="space-y-2">
-                    {post.tags && post.tags.length > 0 && (
+                    {blog.tags && blog.tags.length > 0 && (
                         <div className="flex gap-2 flex-wrap">
-                            {post.tags.map(tag => (
+                            {blog.tags.map(tag => (
                                 <Badge
                                     key={tag}
                                     variant="outline"
@@ -163,9 +149,9 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                         </div>
                     )}
                     <div className="cursor-pointer">
-                        {post.title && <h3 className="font-semibold text-lg text-foreground mb-1">{post.title}</h3>}
+                        {blog.title && <h3 className="font-semibold text-lg text-foreground mb-1">{blog.title}</h3>}
                         <p className="text-muted-foreground text-sm line-clamp-3 whitespace-pre-line">
-                            {post.content}
+                            {blog.content}
                         </p>
                     </div>
                 </div>
@@ -174,14 +160,14 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                     <Button
                         variant="ghost"
                         size="sm"
-                        className={`gap-2 h-8 px-2 ${post.isLiked ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'text-muted-foreground hover:text-primary'}`}
+                        className={`gap-2 h-8 px-2 ${blog.isLiked ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'text-muted-foreground hover:text-primary'}`}
                         onClick={(e) => {
                             e.stopPropagation();
-                            onLike?.(post.id);
+                            onLike?.(blog.id);
                         }}
                     >
-                        <Heart className={`w-4 h-4 ${post.isLiked ? 'fill-current' : ''}`} />
-                        <span className="text-xs">Yêu thích ({post.likes || 0})</span>
+                        <Heart className={`w-4 h-4 ${blog.isLiked ? 'fill-current' : ''}`} />
+                        <span className="text-xs">Yêu thích ({blog.likes || 0})</span>
                     </Button>
                     <Button
                         variant="ghost"
@@ -189,11 +175,11 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                         className="gap-2 h-8 px-2 text-muted-foreground hover:text-primary"
                         onClick={(e) => {
                             e.stopPropagation();
-                            onComment?.(post.id);
+                            onComment?.(blog.id);
                         }}
                     >
                         <MessageCircle className="w-4 h-4" />
-                        <span className="text-xs">Bình luận ({post.comments || 0})</span>
+                        <span className="text-xs">Bình luận ({blog.comments || 0})</span>
                     </Button>
                     {/* <Button
                         variant="ghost"
@@ -214,9 +200,9 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Xác nhận xóa bài viết</AlertDialogTitle>
+                        <AlertDialogTitle>Xác nhận xóa blog</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Bạn có chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác.
+                            Bạn có chắc chắn muốn xóa blog này? Hành động này không thể hoàn tác.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -233,14 +219,10 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
             </AlertDialog>
 
             {/* Edit Dialog */}
-<<<<<<<< HEAD:apps/web-learner/components/feed/qa-blog-card.tsx
-            <QAEditBlogDialog
-========
-            <FeedEditPostDialog
->>>>>>>> main:apps/web-learner/components/feed/feed-post-card.tsx
+            <FeedEditBlogDialog
                 open={showEditDialog}
                 onOpenChange={setShowEditDialog}
-                post={post}
+                blog={blog}
                 onBlogUpdated={onBlogUpdated}
             />
         </>
