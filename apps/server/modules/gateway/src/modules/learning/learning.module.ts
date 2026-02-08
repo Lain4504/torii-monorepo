@@ -26,6 +26,11 @@ import { LearningProgressController } from './controllers/learning-progress.cont
 import { CouponController } from './controllers/coupon.controller';
 import { AssignmentController } from './controllers/assignment.controller';
 import { SubmissionController } from './controllers/submission.controller';
+<<<<<<< HEAD
+=======
+import { CertificateController } from './controllers/certificate.controller';
+
+>>>>>>> main
 
 /**
  * Learning Module for Gateway
@@ -60,6 +65,10 @@ import { SubmissionController } from './controllers/submission.controller';
         CouponController,
         AssignmentController,
         SubmissionController,
+<<<<<<< HEAD
+=======
+        CertificateController,
+>>>>>>> main
     ],
 })
 export class LearningModule { }

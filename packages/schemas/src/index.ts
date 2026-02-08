@@ -23,6 +23,7 @@ export * from './models/coupon.model';
 export * from './models/ticket.model';
 export * from './models/qa.model';
 export * from './models/assignment.model';
+export * from './models/certificate.model';
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
@@ -58,6 +59,7 @@ export * from './dtos/live-session.dto';
 export * from './dtos/ticket.dto';
 export * from './dtos/qa.dto';
 export * from './dtos/assignment.dto';
+export * from './dtos/certificate.dto';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

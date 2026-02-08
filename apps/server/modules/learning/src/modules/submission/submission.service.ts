@@ -187,8 +187,11 @@ export class SubmissionService {
    * BR-05, BR-07: Grade Submission
    */
   async grade(requester: Requester, submissionId: string, dto: GradeSubmissionDto) {
+<<<<<<< HEAD
     console.log('🎯 Grade submission called:', { submissionId, dto, requester: requester.sub });
     
+=======
+>>>>>>> main
     const submission = await this.submissionRepository.findById(submissionId);
     if (!submission) {
       throw new NotFoundException('Submission not found');
@@ -199,27 +202,40 @@ export class SubmissionService {
       throw new NotFoundException('Assignment not found');
     }
 
+<<<<<<< HEAD
     console.log('📊 Assignment maxScore:', assignment.maxScore, typeof assignment.maxScore);
 
     // Permission check: Only instructor can grade
     if (!this.hasPermission(requester, 'assignment.grade')) {
       console.error('❌ Permission denied: assignment.grade');
+=======
+    // Permission check: Only instructor can grade
+    if (!this.hasPermission(requester, 'assignment.grade')) {
+>>>>>>> main
       throw new ForbiddenException('Only instructors can grade submissions');
     }
 
     // Ownership check: Only assignment owner or admin can grade
     if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
+<<<<<<< HEAD
       console.error('❌ Ownership check failed');
+=======
+>>>>>>> main
       throw new ForbiddenException('You can only grade submissions for your own assignments');
     }
 
     // Validate score
+<<<<<<< HEAD
     const maxScore = typeof assignment.maxScore === 'object' ? Number(assignment.maxScore) : assignment.maxScore;
     console.log('✅ Converted maxScore:', maxScore, typeof maxScore);
     
     if (dto.score < 0 || dto.score > maxScore) {
       console.error('❌ Score validation failed:', { score: dto.score, maxScore });
       throw new BadRequestException(`Score must be between 0 and ${maxScore}`);
+=======
+    if (dto.score < 0 || dto.score > Number(assignment.maxScore)) {
+      throw new BadRequestException(`Score must be between 0 and ${assignment.maxScore}`);
+>>>>>>> main
     }
 
     const graded = await this.submissionRepository.update(submissionId, {

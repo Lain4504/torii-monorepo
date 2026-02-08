@@ -23,8 +23,8 @@ export const createAssignmentDto = z.object({
   // Deadlines
   dueDate: z.preprocess(
     (val) => (val === '' ? undefined : val),
-    z.string().optional()
-  ), // Flexible string, validated in service or refined if needed
+    z.string().datetime().optional()
+  ),
   allowLateSubmission: z.boolean().default(true),
   latePenaltyPercent: z.number().min(0).max(100).optional(),
 
@@ -65,7 +65,7 @@ export const updateAssignmentDto = z.object({
 
   dueDate: z.preprocess(
     (val) => (val === '' || val === null ? undefined : val),
-    z.string().optional()
+    z.string().datetime().optional()
   ),
   allowLateSubmission: z.boolean().optional(),
   latePenaltyPercent: z.number().min(0).max(100).optional(),

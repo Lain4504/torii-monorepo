@@ -14,10 +14,11 @@ export class LessonMaterialHandler {
         dto: LessonMaterialCreateDTO,
         fileId: string,
         userId: string,
-        userRole: string
+        userRole: string,
+        userPermissions?: string[]
     }) {
-        const { dto, fileId, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+        const { dto, fileId, userId, userRole, userPermissions } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
 
         return this.lessonMaterialService.uploadMaterial(
             requester,
@@ -32,16 +33,16 @@ export class LessonMaterialHandler {
     }
 
     @MessagePattern({ cmd: 'learning.lesson-material.update' })
-    async update(@Payload() data: LessonMaterialUpdateDTO & { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async update(@Payload() data: LessonMaterialUpdateDTO & { id: string, userId: string, userRole: string, userPermissions?: string[] }) {
+        const { id, userId, userRole, userPermissions, ...dto } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.lessonMaterialService.updateMaterial(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.lesson-material.delete' })
-    async delete(@Payload() data: { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async delete(@Payload() data: { id: string, userId: string, userRole: string, userPermissions?: string[] }) {
+        const { id, userId, userRole, userPermissions } = data;
+        const requester = { sub: userId, role: userRole as any, permissions: userPermissions || [] };
         return this.lessonMaterialService.deleteMaterial(requester, id);
     }
 }

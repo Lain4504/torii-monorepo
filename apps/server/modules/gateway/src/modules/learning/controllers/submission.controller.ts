@@ -19,7 +19,10 @@ import {
     GatewayAuthGuard,
     PermissionsGuard,
     Permissions,
+<<<<<<< HEAD
     Public,
+=======
+>>>>>>> main
     successResponse,
     ZodValidationPipe,
 } from '@server/shared';
@@ -44,6 +47,7 @@ export class SubmissionController {
         return firstValueFrom(this.natsClient.send({ cmd: `learning.submission.${cmd}` }, payload));
     }
 
+<<<<<<< HEAD
     // Specific routes first to avoid conflicts
     @Get('my/:assignmentId')
     @Public()
@@ -65,10 +69,34 @@ export class SubmissionController {
     async draft(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
         const result = await this.sendCmd('saveDraft', { assignmentId, ...dto, requester: req.user });
         return successResponse({ submission: result });
+=======
+    @Post(':assignmentId')
+    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
+    submit(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        return this.sendCmd('submit', { assignmentId, ...dto, requester: req.user });
+    }
+
+    @Post(':assignmentId/draft')
+    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
+    draft(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        return this.sendCmd('saveDraft', { assignmentId, ...dto, requester: req.user });
+    }
+
+    @Get('my/:assignmentId')
+    my(@Param('assignmentId') assignmentId: string, @Req() req: RequestWithUser) {
+        return this.sendCmd('getMySubmission', { assignmentId, userId: req.user.sub });
+    }
+
+    @Get('assignment/:assignmentId')
+    @Permissions('assignment.grade')
+    all(@Param('assignmentId') assignmentId: string) {
+        return this.sendCmd('findAll', { assignmentId });
+>>>>>>> main
     }
 
     @Put(':id/grade')
     @Permissions('assignment.grade')
+<<<<<<< HEAD
     async grade(
         @Param('id') id: string, 
         @Body(new ZodValidationPipe(gradeSubmissionDto)) dto: any, 
@@ -109,5 +137,17 @@ export class SubmissionController {
         console.log('📦 DTO received:', JSON.stringify(dto, null, 2));
         const result = await this.sendCmd('submit', { assignmentId, ...dto, requester: req.user });
         return successResponse({ submission: result });
+=======
+    @UsePipes(new ZodValidationPipe(gradeSubmissionDto))
+    grade(@Param('id') id: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        return this.sendCmd('grade', { id, ...dto, requester: req.user });
+    }
+
+    @Post(':id/return')
+    @Permissions('assignment.grade')
+    @UsePipes(new ZodValidationPipe(returnSubmissionDto))
+    return(@Param('id') id: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        return this.sendCmd('return', { id, ...dto, requester: req.user });
+>>>>>>> main
     }
 }

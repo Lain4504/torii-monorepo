@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FastMcpService } from '../../fastmcp/fastmcp.service';
+import { AssessmentService } from '../../modules/assessment/assessment.service';
 
 /**
  * NATS Handler for Assessment Agent
@@ -8,7 +8,7 @@ import { FastMcpService } from '../../fastmcp/fastmcp.service';
  */
 @Controller()
 export class AssessmentHandler {
-  constructor(private readonly fastMcpService: FastMcpService) { }
+  constructor(private readonly assessmentService: AssessmentService) { }
 
   @MessagePattern({ cmd: 'agents.assessment.generateTest' })
   async generateTest(
@@ -20,7 +20,7 @@ export class AssessmentHandler {
       userId: string;
     },
   ) {
-    return this.fastMcpService.generateJlptTest(
+    return this.assessmentService.generateJlptTest(
       data.userId,
       data.level,
       data.section,
@@ -37,7 +37,7 @@ export class AssessmentHandler {
       userId: string;
     },
   ) {
-    return this.fastMcpService.evaluateTest(
+    return this.assessmentService.evaluateTest(
       data.userId,
       data.testId,
       data.answers,
@@ -54,7 +54,7 @@ export class AssessmentHandler {
     },
   ) {
     const level = (data.level || data.targetLevel || 'N5') as 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    return this.fastMcpService.getProgressBenchmark(data.userId, level);
+    return this.assessmentService.getProgressBenchmark(data.userId, level);
   }
 
   @MessagePattern({ cmd: 'agents.assessment.scheduleTest' })
@@ -67,7 +67,7 @@ export class AssessmentHandler {
     },
   ) {
     const level = (data.level || data.targetLevel || 'N5') as 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    return this.fastMcpService.scheduleTest(data.userId, level);
+    return this.assessmentService.scheduleTest(data.userId, level);
   }
 
   @MessagePattern({ cmd: 'agents.assessment.placementTest' })
@@ -78,7 +78,7 @@ export class AssessmentHandler {
       questionCount?: number;
     },
   ) {
-    return this.fastMcpService.generatePlacementTest(
+    return this.assessmentService.generatePlacementTest(
       data.userId,
       data.questionCount || 15,
     );
@@ -93,7 +93,7 @@ export class AssessmentHandler {
       answers: any;
     },
   ) {
-    return this.fastMcpService.evaluatePlacementTest(
+    return this.assessmentService.evaluatePlacementTest(
       data.userId,
       data.testId,
       data.answers,
