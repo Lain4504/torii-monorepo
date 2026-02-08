@@ -64,10 +64,7 @@ model Course {
   liveSessions LiveSession[]
   enrollments  Enrollment[]
   assignments  Assignment[]
-<<<<<<< HEAD
-=======
   certificates Certificate[]
->>>>>>> main
 
   @@index([jlptLevel])
   @@index([createdBy])
