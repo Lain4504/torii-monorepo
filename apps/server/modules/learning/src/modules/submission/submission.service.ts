@@ -187,6 +187,8 @@ export class SubmissionService {
    * BR-05, BR-07: Grade Submission
    */
   async grade(requester: Requester, submissionId: string, dto: GradeSubmissionDto) {
+    console.log('🎯 Grade submission called:', { submissionId, dto, requester: requester.sub });
+    
     const submission = await this.submissionRepository.findById(submissionId);
     if (!submission) {
       throw new NotFoundException('Submission not found');
@@ -197,19 +199,27 @@ export class SubmissionService {
       throw new NotFoundException('Assignment not found');
     }
 
+    console.log('📊 Assignment maxScore:', assignment.maxScore, typeof assignment.maxScore);
+
     // Permission check: Only instructor can grade
     if (!this.hasPermission(requester, 'assignment.grade')) {
+      console.error('❌ Permission denied: assignment.grade');
       throw new ForbiddenException('Only instructors can grade submissions');
     }
 
     // Ownership check: Only assignment owner or admin can grade
     if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
+      console.error('❌ Ownership check failed');
       throw new ForbiddenException('You can only grade submissions for your own assignments');
     }
 
     // Validate score
-    if (dto.score < 0 || dto.score > Number(assignment.maxScore)) {
-      throw new BadRequestException(`Score must be between 0 and ${assignment.maxScore}`);
+    const maxScore = typeof assignment.maxScore === 'object' ? Number(assignment.maxScore) : assignment.maxScore;
+    console.log('✅ Converted maxScore:', maxScore, typeof maxScore);
+    
+    if (dto.score < 0 || dto.score > maxScore) {
+      console.error('❌ Score validation failed:', { score: dto.score, maxScore });
+      throw new BadRequestException(`Score must be between 0 and ${maxScore}`);
     }
 
     const graded = await this.submissionRepository.update(submissionId, {

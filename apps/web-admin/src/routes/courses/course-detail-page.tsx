@@ -29,8 +29,12 @@ import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog';
 import { ModuleItem } from '@/components/modules/module-item';
 import { cn } from '@workspace/ui/lib/utils';
 import { Card } from '@workspace/ui/components/card';
-import { formatDateTime } from '@/lib/format-utils.ts';
+import { formatDateTime, formatCurrency } from '@/lib/format-utils.ts';
 import { PageLoading } from '@workspace/ui/components/page-loading';
+import { Can } from '@/lib/guard/can';
+
+import { CreateAssignmentSheet } from '@/components/assignments/create-assignment-sheet.tsx';
+import { BookOpen } from 'lucide-react';
 
 export default function CourseDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -51,6 +55,12 @@ export default function CourseDetailPage() {
     const [editLessonOpen, setEditLessonOpen] = useState(false);
     const [deleteLessonOpen, setDeleteLessonOpen] = useState(false);
     const [selectedLesson, setSelectedLesson] = useState<LessonResponseDTO | null>(null);
+
+    const [createAssignmentOpen, setCreateAssignmentOpen] = useState(false);
+    const [assignmentContext, setAssignmentContext] = useState<{
+        moduleId?: string;
+        lessonId?: string;
+    }>({});
 
     const modules = modulesData?.data || [];
 
@@ -80,6 +90,11 @@ export default function CourseDetailPage() {
     const handleDeleteLesson = (lesson: LessonResponseDTO) => {
         setSelectedLesson(lesson);
         setDeleteLessonOpen(true);
+    };
+
+    const handleAddAssignment = (moduleId?: string, lessonId?: string) => {
+        setAssignmentContext({ moduleId, lessonId });
+        setCreateAssignmentOpen(true);
     };
 
     if (isLoadingCourse) {
@@ -160,13 +175,25 @@ export default function CourseDetailPage() {
                                 <p className="text-lg font-bold text-foreground">{course.jlptLevel || 'N/A'}</p>
                             </div>
                         </div>
-                        <Button
-                            onClick={() => setCreateModuleOpen(true)}
-                            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-md transition-all"
-                        >
-                            Thêm Học Phần
-                            <Plus className="ml-2 size-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Can permission="course.manage" roles={["lecturer"]}>
+                                <Button
+                                    onClick={() => handleAddAssignment()}
+                                    variant="outline"
+                                    className="h-11 px-6 rounded-xl border-border hover:bg-muted/10 font-bold text-xs uppercase tracking-wide transition-all"
+                                >
+                                    <BookOpen className="mr-2 size-4" />
+                                    Thêm Bài Tập
+                                </Button>
+                            </Can>
+                            <Button
+                                onClick={() => setCreateModuleOpen(true)}
+                                className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide hover:bg-primary/90 hover:shadow-md transition-all"
+                            >
+                                <Plus className="mr-2 size-4" />
+                                Thêm Học Phần
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -218,6 +245,8 @@ export default function CourseDetailPage() {
                                                 onEditModule={handleEditModule}
                                                 onDeleteModule={handleDeleteModule}
                                                 onAddLesson={handleAddLesson}
+                                                onAddModuleAssignment={(moduleId) => handleAddAssignment(moduleId)}
+                                                onAddLessonAssignment={(moduleId, lessonId) => handleAddAssignment(moduleId, lessonId)}
                                                 onEditLesson={handleEditLesson}
                                                 onDeleteLesson={handleDeleteLesson}
                                             />
@@ -293,6 +322,14 @@ export default function CourseDetailPage() {
                 existingModules={modules}
             />
 
+            <CreateAssignmentSheet
+                open={createAssignmentOpen}
+                onOpenChange={setCreateAssignmentOpen}
+                courseId={id}
+                moduleId={assignmentContext.moduleId}
+                lessonId={assignmentContext.lessonId}
+            />
+
             {selectedModule && (
                 <>
                     <EditModuleSheet
@@ -337,10 +374,3 @@ export default function CourseDetailPage() {
         </div>
     );
 }
-
-const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(value);
-};

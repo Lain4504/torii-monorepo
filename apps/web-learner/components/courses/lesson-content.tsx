@@ -4,23 +4,27 @@ import {
     BookOpen,
     FileText,
     MessageSquare,
-    Download
+    Download,
+    ClipboardList
 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { cn } from '@workspace/ui/lib/utils'
+import { CourseAssignmentsList } from './course-assignments-list'
 
 interface LessonContentProps {
     description: string;
+    courseId?: string;
 }
 
-export function LessonContent({ description }: LessonContentProps) {
+export function LessonContent({ description, courseId }: LessonContentProps) {
     return (
         <Tabs defaultValue="content" className="w-full">
             <TabsList className="bg-muted/20 border-none w-auto inline-flex h-auto p-1.5 gap-2 rounded-full">
                 {[
                     { id: 'content', label: 'Bài học', icon: BookOpen },
                     { id: 'resources', label: 'Tài liệu', icon: FileText, badge: 1 },
+                    { id: 'assignments', label: 'Bài tập', icon: ClipboardList },
                     { id: 'comments', label: 'Thảo luận', icon: MessageSquare }
                 ].map((tab) => (
                     <TabsTrigger
@@ -79,7 +83,7 @@ export function LessonContent({ description }: LessonContentProps) {
                                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Tài liệu đi kèm</p>
                                 <h4 className="text-2xl font-sans font-bold italic text-foreground tracking-tight uppercase leading-none">Giáo trình bài học (PDF)</h4>
                                 <p className="text-[10px] text-muted-foreground/30 font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <span>ĐỊNH DẠNG PDF</span> <div className="w-1 h-1 bg-primary/40 rounded-full" /> <span>DUNG LƯỢNG 4.2 MB</span>
+                                    <span>ĐỊNH DẠNG PDF</span> <span className="w-1 h-1 bg-primary/40 rounded-full inline-block" /> <span>DUNG LƯỢNG 4.2 MB</span>
                                 </p>
                             </div>
                         </div>
@@ -88,6 +92,24 @@ export function LessonContent({ description }: LessonContentProps) {
                         </Button>
                     </div>
                 </div>
+            </TabsContent>
+
+            <TabsContent value="assignments" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
+                {courseId ? (
+                    <CourseAssignmentsList courseId={courseId} />
+                ) : (
+                    <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 rounded-[3rem] border border-border/10 bg-muted/5">
+                        <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center shadow-2xl border border-border/10">
+                            <ClipboardList className="w-10 h-10 text-muted-foreground" />
+                        </div>
+                        <div className="space-y-3">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Bài tập khóa học</h4>
+                            <p className="text-xl font-sans font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto">
+                                Không thể tải danh sách bài tập
+                            </p>
+                        </div>
+                    </div>
+                )}
             </TabsContent>
 
             <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">

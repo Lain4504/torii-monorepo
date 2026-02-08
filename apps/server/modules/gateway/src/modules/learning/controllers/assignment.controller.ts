@@ -54,7 +54,7 @@ export class AssignmentController {
                 { ...dto, requester: req.user }
             )
         );
-        return successResponse(result, 'Assignment created successfully');
+        return successResponse({ assignment: result }, 'Assignment created successfully');
     }
 
     @Get()
@@ -73,7 +73,16 @@ export class AssignmentController {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.assignment.findOne' }, { id })
         );
-        return successResponse(result);
+        return successResponse({ assignment: result });
+    }
+
+    @Get(':id/submissions')
+    @Permissions('assignment.grade')
+    async getSubmissions(@Param('id', new ParseUUIDPipe()) id: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.submission.findAll' }, { assignmentId: id })
+        );
+        return successResponse({ submissions: result });
     }
 
     @Put(':id')
@@ -89,10 +98,10 @@ export class AssignmentController {
                 { id, ...dto, requester: req.user }
             )
         );
-        return successResponse(result, 'Assignment updated successfully');
+        return successResponse({ assignment: result }, 'Assignment updated successfully');
     }
 
-    @Patch(':id/publish')
+    @Post(':id/publish')
     @Permissions('assignment.publish')
     async publish(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: RequestWithUser) {
         const result = await firstValueFrom(
@@ -101,7 +110,7 @@ export class AssignmentController {
                 { id, requester: req.user }
             )
         );
-        return successResponse(result, 'Assignment published successfully');
+        return successResponse({ assignment: result }, 'Assignment published successfully');
     }
 
     @Delete(':id')

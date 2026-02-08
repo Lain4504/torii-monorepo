@@ -104,8 +104,8 @@ export class AssignmentService {
       throw new NotFoundException('Assignment not found');
     }
 
-    // Check ownership
-    if (existing.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
+    // Strict ownership check: Only creator can update
+    if (existing.createdBy !== requester.sub) {
       throw new ForbiddenException('You can only update your own assignments');
     }
 
@@ -143,8 +143,9 @@ export class AssignmentService {
       throw new NotFoundException('Assignment not found');
     }
 
-    if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
-      throw new ForbiddenException('Only the owner can publish');
+    // Strict ownership check: Only owner can publish
+    if (assignment.createdBy !== requester.sub) {
+      throw new ForbiddenException('Only the owner can publish this assignment');
     }
 
     if (assignment.status === 'PUBLISHED') {
@@ -194,6 +195,12 @@ export class AssignmentService {
       }
     }
 
+    // Ownership filter: Everyone only sees their own assignments in management view
+    // (Admin/Staff irrelevant per user request)
+    if (this.hasPermission(requester, 'assignment.create') || this.hasPermission(requester, 'assignment.manage')) {
+      where.createdBy = requester.sub;
+    }
+
     const [total, assignments] = await Promise.all([
       this.assignmentRepository.count(where),
       this.assignmentRepository.findMany({
@@ -204,8 +211,34 @@ export class AssignmentService {
       }),
     ]);
 
+    // Fetch user's submissions for all assignments in this list
+    const assignmentIds = assignments.map(a => a.id);
+    const submissions = await this.submissionRepository.findMany({
+      where: {
+        assignmentId: { in: assignmentIds },
+        userId: requester.sub,
+      },
+    });
+
+    // Create a map of assignmentId -> submission status
+    const submissionStatusMap = new Map();
+    submissions.forEach(sub => {
+      submissionStatusMap.set(sub.assignmentId, sub.status);
+    });
+
+    // Map assignments to DTOs with userSubmissionStatus
+    const data = assignments.map(assignment => {
+      const dto = this.toAssignmentResponseDTO(assignment);
+      // Add user's submission status if exists
+      const userStatus = submissionStatusMap.get(assignment.id);
+      return {
+        ...dto,
+        userSubmissionStatus: userStatus || undefined,
+      };
+    });
+
     return {
-      data: assignments.map(a => this.toAssignmentResponseDTO(a)),
+      data,
       total,
       page,
       limit,
@@ -237,8 +270,8 @@ export class AssignmentService {
       throw new NotFoundException('Assignment not found');
     }
 
-    // Check ownership
-    if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
+    // Strict ownership check: Only creator can delete
+    if (assignment.createdBy !== requester.sub) {
       throw new ForbiddenException('You can only delete your own assignments');
     }
 

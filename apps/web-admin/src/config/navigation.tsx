@@ -11,6 +11,7 @@ import {
     BarChart3,
     ShieldCheck,
     Ticket,
+    FileText,
 } from "lucide-react";
 
 export interface NavItem {
@@ -20,6 +21,8 @@ export interface NavItem {
     badge?: string;
     permission?: string;
     anyPermission?: string[];
+    role?: string;
+    roles?: string[];
     descriptionKey?: string;
     items?: {
         titleKey: string;
@@ -86,6 +89,16 @@ export const mainNavItems: NavItem[] = [
         icon: Newspaper,
         permission: "post.manage",
         descriptionKey: "common:navDescriptions.post",
+    },
+    {
+        titleKey: "Bài tập",
+        url: "/assignments",
+        icon: FileText,
+        // Remove admin from roles to strictly show only for lecturer
+        roles: ["lecturer"],
+        // Keep permission for safety, but role check in PermissionWrapper will handle the "only" part
+        anyPermission: ["course.manage"],
+        descriptionKey: "Quản lý bài tập & chấm điểm bài nộp",
     },
 ];
 

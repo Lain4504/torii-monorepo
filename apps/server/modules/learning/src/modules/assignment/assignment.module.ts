@@ -2,8 +2,8 @@ import { Module, forwardRef } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
 import { AssignmentService } from './assignment.service';
 import { AssignmentRepository } from './assignment.repository';
-import { SubmissionModule } from '../submission/submission.module';
 import { AssignmentProfile } from '../../infrastructure/mappings/assignment.profile';
+import { SubmissionModule } from '../submission/submission.module';
 
 /**
  * Assignment Feature Module
