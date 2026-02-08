@@ -23,24 +23,38 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog'
-import type { QAResponseDTO } from '@workspace/schemas'
+import type { FeedResponseDTO } from '@workspace/schemas'
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
-import { qaApi } from '@/apis/services/qa-api'
+import { feedApi } from '@/apis/services/feed-api'
 import { toast } from '@workspace/ui/components/sonner'
+<<<<<<<< HEAD:apps/web-learner/components/feed/qa-blog-card.tsx
 import { QAEditBlogDialog } from './qa-edit-blog-dialog'
 
 interface QABlogCardProps {
     post: QAResponseDTO
+========
+import { FeedEditPostDialog } from './feed-edit-post-dialog'
+
+interface FeedPostCardProps {
+    post: FeedResponseDTO
+>>>>>>>> main:apps/web-learner/components/feed/feed-post-card.tsx
     onLike?: (id: string) => void
     onComment?: (id: string) => void
     onDelete?: () => void
     onTagClick?: (tag: string) => void
     onFollow?: (authorId: string) => void
+<<<<<<<< HEAD:apps/web-learner/components/feed/qa-blog-card.tsx
     onBlogUpdated?: (updatedPost: QAResponseDTO) => void
 }
 
 export function QABlogCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onBlogUpdated }: QABlogCardProps) {
+========
+    onPostUpdated?: (updatedPost: FeedResponseDTO) => void
+}
+
+export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onPostUpdated }: FeedPostCardProps) {
+>>>>>>>> main:apps/web-learner/components/feed/feed-post-card.tsx
     const { user } = useAppSelector(state => state.auth)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showEditDialog, setShowEditDialog] = useState(false)
@@ -52,7 +66,7 @@ export function QABlogCard({ post, onLike, onComment, onDelete, onTagClick, onFo
     const handleDelete = async () => {
         try {
             setDeleting(true)
-            await qaApi.delete(post.id)
+            await feedApi.delete(post.id)
             toast.success('Đã xóa bài viết')
             setShowDeleteDialog(false)
             onDelete?.()
@@ -181,7 +195,7 @@ export function QABlogCard({ post, onLike, onComment, onDelete, onTagClick, onFo
                         <MessageCircle className="w-4 h-4" />
                         <span className="text-xs">Bình luận ({post.comments || 0})</span>
                     </Button>
-                    <Button
+                    {/* <Button
                         variant="ghost"
                         size="sm"
                         className={`gap-2 h-8 px-2 ${post.isFollowingAuthor ? 'text-primary bg-primary/5' : 'text-muted-foreground hover:text-primary'}`}
@@ -192,7 +206,7 @@ export function QABlogCard({ post, onLike, onComment, onDelete, onTagClick, onFo
                     >
                         {post.isFollowingAuthor ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
                         <span className="text-xs">{post.isFollowingAuthor ? 'Đang theo dõi' : 'Theo dõi'}</span>
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
 
@@ -219,7 +233,11 @@ export function QABlogCard({ post, onLike, onComment, onDelete, onTagClick, onFo
             </AlertDialog>
 
             {/* Edit Dialog */}
+<<<<<<<< HEAD:apps/web-learner/components/feed/qa-blog-card.tsx
             <QAEditBlogDialog
+========
+            <FeedEditPostDialog
+>>>>>>>> main:apps/web-learner/components/feed/feed-post-card.tsx
                 open={showEditDialog}
                 onOpenChange={setShowEditDialog}
                 post={post}

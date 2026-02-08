@@ -505,8 +505,8 @@ model User {
   createdCoupons  Coupon[]         @relation("CouponCreator")
 
   // QA Relations
-  qas             QA[]
-  qaLikes         QAUserLike[]
+  feeds           Feed[]
+  feedLikes       FeedUserLike[]
   commentLikes    CommentLike[]
 
   // Ticket Relations
@@ -932,7 +932,7 @@ model Blog {
 
 enum CommentTargetType {
   BLOG
-  QA
+  FEED
   LESSON
 }
 
@@ -973,8 +973,8 @@ model CommentTarget {
   @@map("comment_targets")
 }
 
-// QA - Community Questions/Posts (separate from Blog Posts)
-model QA {
+// Feed - Community Questions/Posts (separate from Blog Posts)
+model Feed {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title       String?  @db.VarChar(255) // Optional, as some posts might just be content
   content     String   @db.Text
@@ -990,25 +990,25 @@ model QA {
   // Relations
   author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  likes       QAUserLike[]
+  likes       FeedUserLike[]
 
   @@index([authorId])
   @@index([createdAt(sort: Desc)])
-  @@map("qas")
+  @@map("feeds")
 }
 
-model QAUserLike {
-  qaId      String   @map("qa_id") @db.Uuid
+model FeedUserLike {
+  feedId    String   @map("feed_id") @db.Uuid
   userId    String   @map("user_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
 
-  qa   QA   @relation(fields: [qaId], references: [id], onDelete: Cascade)
+  feed Feed @relation(fields: [feedId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([qaId, userId])
-  @@index([qaId])
+  @@id([feedId, userId])
+  @@index([feedId])
   @@index([userId])
-  @@map("qa_user_likes")
+  @@map("feed_user_likes")
 }
 
 model CommentLike {

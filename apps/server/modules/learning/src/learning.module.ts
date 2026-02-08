@@ -22,7 +22,7 @@ import { CertificateModule } from './modules/certificate/certificate.module';
 // Community Modules
 import { BlogModule } from './modules/blog/blog.module';
 import { CommentModule } from './modules/comment/comment.module';
-import { QAModule } from './modules/qa/qa.module';
+import { FeedModule } from './modules/feed/feed.module';
 
 // Assessment Modules
 import { QuestionModule } from './modules/question/question.module';
@@ -51,7 +51,7 @@ import { ReviewHandler } from './interfaces/nats/review.handler';
 import { WishlistHandler } from './interfaces/nats/wishlist.handler';
 import { BlogHandler } from './interfaces/nats/blog.handler';
 import { CommentHandler } from './interfaces/nats/comment.handler';
-import { QAHandler } from './interfaces/nats/qa.handler';
+import { FeedHandler } from './interfaces/nats/feed.handler';
 import { FlashcardDeckHandler } from './interfaces/nats/flashcard-deck.handler';
 import { FlashcardHandler } from './interfaces/nats/flashcard.handler';
 import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handler';
@@ -92,7 +92,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     // Community Modules
     BlogModule,
     CommentModule,
-    QAModule,
+    FeedModule,
 
     // Assessment Modules
     QuestionModule,
@@ -122,7 +122,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     WishlistHandler,
     BlogHandler,
     CommentHandler,
-    QAHandler,
+    FeedHandler,
     FlashcardDeckHandler,
     FlashcardHandler,
     FlashcardReviewHandler,

@@ -36,7 +36,7 @@ export const learningNav: NavItem[] = [
 ]
 
 export const communityNav: NavItem[] = [
-    { name: 'Hỏi đáp', href: '/dashboard/qa', icon: MessageSquare },
+    { name: 'Cộng đồng', href: '/dashboard/feed', icon: Users },
 ]
 
 export const progressNav: NavItem[] = [

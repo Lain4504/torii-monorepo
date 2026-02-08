@@ -8,42 +8,42 @@ import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { qaApi } from '@/apis/services/qa-api'
-import type { QAResponseDTO } from '@workspace/schemas'
+import { feedApi } from '@/apis/services/feed-api'
+import type { FeedResponseDTO } from '@workspace/schemas'
 
-interface QASidebarProps {
+interface FeedSidebarProps {
     activeCategory?: string
     onSortChange?: (sortBy: 'likes' | 'comments') => void
     onSearch?: (query: string) => void
 }
 
-export function QASidebar({ activeCategory, onSortChange, onSearch }: QASidebarProps) {
+export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSidebarProps) {
     const { user } = useAppSelector(state => state.auth)
     const pathname = usePathname()
     const isProfilePage = pathname.startsWith('/user/')
-    const [hotQAs, setHotQAs] = useState<QAResponseDTO[]>([])
-    const [loadingHotQAs, setLoadingHotQAs] = useState(true)
+    const [hotFeeds, setHotFeeds] = useState<FeedResponseDTO[]>([])
+    const [loadingHotFeeds, setLoadingHotFeeds] = useState(true)
 
-    // Fetch top 5 most liked QA posts
+    // Fetch top 5 most liked Feed posts
     useEffect(() => {
-        const fetchHotQAs = async () => {
+        const fetchHotFeeds = async () => {
             try {
-                setLoadingHotQAs(true)
-                const response = await qaApi.findAll({
+                setLoadingHotFeeds(true)
+                const response = await feedApi.findAll({
                     page: 1,
                     limit: 5,
                     sortBy: 'likes',
                     sortOrder: 'desc'
                 })
-                setHotQAs(response.data || [])
+                setHotFeeds(response.data || [])
             } catch (error) {
-                console.error('Failed to fetch hot QAs:', error)
+                console.error('Failed to fetch hot Feeds:', error)
             } finally {
-                setLoadingHotQAs(false)
+                setLoadingHotFeeds(false)
             }
         }
 
-        fetchHotQAs()
+        fetchHotFeeds()
     }, [])
 
     return (
@@ -66,7 +66,7 @@ export function QASidebar({ activeCategory, onSortChange, onSearch }: QASidebarP
 
 
             {/* Profile/QA List Link Widget */}
-            <Link href={isProfilePage ? '/dashboard/qa' : (user ? `/user/${(user as any).id}` : '/login')} className="block">
+            <Link href={isProfilePage ? '/dashboard/feed' : (user ? `/user/${(user as any).id}` : '/login')} className="block">
                 <div className="bg-background rounded-xl border border-border/40 p-4 shadow-sm hover:border-primary/30 transition-all flex items-center gap-3 group">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
                         {isProfilePage ? <LayoutList className="h-5 w-5" /> : <User className="h-5 w-5" />}
@@ -119,29 +119,29 @@ export function QASidebar({ activeCategory, onSortChange, onSearch }: QASidebarP
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="divide-y divide-border/30">
-                        {loadingHotQAs ? (
+                        {loadingHotFeeds ? (
                             <div className="p-6 text-center text-sm text-muted-foreground">
                                 Đang tải...
                             </div>
-                        ) : hotQAs.length > 0 ? (
-                            hotQAs.map((qa, i) => (
+                        ) : hotFeeds.length > 0 ? (
+                            hotFeeds.map((feed, i) => (
                                 <Link
-                                    key={qa.id}
-                                    href={`/qa/${qa.id}`}
+                                    key={feed.id}
+                                    href={`/feed/${feed.id}`}
                                     className="block p-3 hover:bg-muted/30 cursor-pointer transition-colors group"
                                 >
                                     <div className="text-xs font-semibold text-muted-foreground mb-1 group-hover:text-primary/70">{i + 1}.</div>
                                     <h4 className="text-sm font-medium text-foreground/90 line-clamp-2 group-hover:text-primary transition-colors">
-                                        {qa.title || qa.content.substring(0, 50) + '...'}
+                                        {feed.title || feed.content.substring(0, 50) + '...'}
                                     </h4>
                                     <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                         <span className="flex items-center gap-1">
                                             <Heart className="h-3 w-3" />
-                                            {qa.likes || 0}
+                                            {feed.likes || 0}
                                         </span>
                                         <span className="flex items-center gap-1">
                                             <MessageCircle className="h-3 w-3" />
-                                            {qa.comments || 0}
+                                            {feed.comments || 0}
                                         </span>
                                     </div>
                                 </Link>

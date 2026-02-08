@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { QABlogCard } from './qa-blog-card'
-import { QACreateBlog } from './qa-create-blog'
-import { qaApi } from '@/apis/services/qa-api'
-import type { QAResponseDTO } from '@workspace/schemas'
+import { FeedPostCard } from './feed-post-card'
+import { FeedCreatePost } from './feed-create-post'
+import { feedApi } from '@/apis/services/feed-api'
+import type { FeedResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { CommentSection } from '../blog/comment-section'
 import { Loader2, ChevronDown } from 'lucide-react'
@@ -19,7 +19,7 @@ const CATEGORIES = [
     { id: 'JAPANESE_CULTURE', label: 'Văn Hoá Nhật Bản' },
 ]
 
-interface QAFeedProps {
+interface FeedProps {
     userId?: string
     category?: string
     followedTags?: string[]
@@ -32,8 +32,8 @@ interface QAFeedProps {
     searchQuery?: string
 }
 
-export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'ALL', sortBy, onTabChange, onTotalPostsChange, selectedTag, onTagSelect, searchQuery }: QAFeedProps) {
-    const [posts, setPosts] = useState<QAResponseDTO[]>([])
+export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL', sortBy, onTabChange, onTotalPostsChange, selectedTag, onTagSelect, searchQuery }: FeedProps) {
+    const [posts, setPosts] = useState<FeedResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const [expandedPostId, setExpandedPostId] = useState<string | null>(null)
     const [page, setPage] = useState(1)
@@ -71,7 +71,7 @@ export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'AL
                 params.tagId = category
             }
 
-            const res = await qaApi.findAll(params)
+            const res = await feedApi.findAll(params)
 
             if (reset) {
                 setPosts(res.data)
@@ -101,7 +101,7 @@ export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'AL
 
     const handleLike = async (id: string) => {
         try {
-            const res = await qaApi.toggleLike(id)
+            const res = await feedApi.toggleLike(id)
             setPosts(prev => prev.map(p => p.id === id ? { ...p, isLiked: res.isLiked, likes: res.likeCount } : p))
         } catch (error) {
             toast.error('Có lỗi xảy ra', { description: 'Không thể like bài viết' })
@@ -123,7 +123,7 @@ export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'AL
 
     return (
         <div className="space-y-6">
-            {!userId && <QACreateBlog onBlogCreated={() => fetchPosts(true)} />}
+            {!userId && <FeedCreatePost onPostCreated={() => fetchPosts(true)} />}
 
             {/* Tabs Navigation */}
             {!userId && (
@@ -176,7 +176,7 @@ export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'AL
                 <div className="space-y-4">
                     {posts.map(post => (
                         <div key={post.id} className="space-y-0 relative z-10">
-                            <QABlogCard
+                            <FeedPostCard
                                 post={post}
                                 onLike={handleLike}
                                 onComment={handleCommentClick}
@@ -190,7 +190,7 @@ export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'AL
                                 <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-300">
                                     <div className="border border-border/40 border-t-0 rounded-b-xl bg-background/50 p-4 -mt-2 pt-6 relative z-0 shadow-inner">
                                         <CommentSection
-                                            qaId={post.id}
+                                            feedId={post.id}
                                             onCommentCountChange={(delta) => {
                                                 // Update comment count in real-time
                                                 setPosts(prev => prev.map(p =>

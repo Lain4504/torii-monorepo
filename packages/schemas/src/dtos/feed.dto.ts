@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { qaSchema } from '../models/qa.model';
+import { feedSchema } from '../models/feed.model';
 import { paginatedResponseSchema } from './common.dto';
 
-export const qaCreateDTOSchema = qaSchema.pick({
+export const feedCreateDTOSchema = feedSchema.pick({
     title: true,
     content: true,
     tags: true,
@@ -10,17 +10,17 @@ export const qaCreateDTOSchema = qaSchema.pick({
     tags: z.array(z.string()).optional().default([]),
 });
 
-export type QACreateDTO = z.infer<typeof qaCreateDTOSchema>;
+export type FeedCreateDTO = z.infer<typeof feedCreateDTOSchema>;
 
-export const qaUpdateDTOSchema = qaSchema.pick({
+export const feedUpdateDTOSchema = feedSchema.pick({
     title: true,
     content: true,
     tags: true,
 }).partial();
 
-export type QAUpdateDTO = z.infer<typeof qaUpdateDTOSchema>;
+export type FeedUpdateDTO = z.infer<typeof feedUpdateDTOSchema>;
 
-export const qaQueryDTOSchema = z.object({
+export const feedQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(100).default(20),
     search: z.string().optional(),
@@ -30,9 +30,9 @@ export const qaQueryDTOSchema = z.object({
     sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
-export type QAQueryDTO = z.infer<typeof qaQueryDTOSchema>;
+export type FeedQueryDTO = z.infer<typeof feedQueryDTOSchema>;
 
-export const qaResponseDTOSchema = qaSchema.extend({
+export const feedResponseDTOSchema = feedSchema.extend({
     author: z.object({
         id: z.string().uuid(),
         displayName: z.string(),
@@ -44,8 +44,8 @@ export const qaResponseDTOSchema = qaSchema.extend({
     isFollowingAuthor: z.boolean().optional(),
 });
 
-export type QAResponseDTO = z.infer<typeof qaResponseDTOSchema>;
+export type FeedResponseDTO = z.infer<typeof feedResponseDTOSchema>;
 
-export const qaPaginatedResponseSchema = paginatedResponseSchema(qaResponseDTOSchema);
+export const feedPaginatedResponseSchema = paginatedResponseSchema(feedResponseDTOSchema);
 
-export type QAPaginatedResponse = z.infer<typeof qaPaginatedResponseSchema>;
+export type FeedPaginatedResponse = z.infer<typeof feedPaginatedResponseSchema>;

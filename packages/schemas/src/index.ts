@@ -21,7 +21,7 @@ export * from './models/enrollment.model';
 export * from './models/order.model';
 export * from './models/coupon.model';
 export * from './models/ticket.model';
-export * from './models/qa.model';
+export * from './models/feed.model';
 export * from './models/assignment.model';
 export * from './models/certificate.model';
 
@@ -57,7 +57,7 @@ export * from './dtos/coupon.dto';
 export * from './dtos/gamification.dto';
 export * from './dtos/live-session.dto';
 export * from './dtos/ticket.dto';
-export * from './dtos/qa.dto';
+export * from './dtos/feed.dto';
 export * from './dtos/assignment.dto';
 export * from './dtos/certificate.dto';
 
