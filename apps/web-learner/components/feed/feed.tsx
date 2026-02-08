@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FeedPostCard } from './feed-blog-card'
-import { FeedCreatePost } from './feed-create-blog'
+import { FeedPostCard } from './feed-post-card'
+import { FeedCreatePost } from './feed-create-post'
 import { feedApi } from '@/apis/services/feed-api'
 import type { FeedResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
