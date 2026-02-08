@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const qaSchema = z.object({
+export const feedSchema = z.object({
     id: z.string().uuid(),
     title: z.string().max(255).optional().nullable(),
     content: z.string().min(1),
@@ -11,4 +11,4 @@ export const qaSchema = z.object({
     updatedAt: z.date(),
 });
 
-export type QA = z.infer<typeof qaSchema>;
+export type Feed = z.infer<typeof feedSchema>;

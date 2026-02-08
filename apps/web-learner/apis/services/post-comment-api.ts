@@ -46,10 +46,10 @@ export const postCommentApi = {
                 backendParams.entityId = (params as any).postId;
                 backendParams.targetType = 'BLOG';
                 delete backendParams.postId;
-            } else if ((params as any).qaId) {
-                backendParams.entityId = (params as any).qaId;
-                backendParams.targetType = 'QA';
-                delete backendParams.qaId;
+            } else if ((params as any).feedId) {
+                backendParams.entityId = (params as any).feedId;
+                backendParams.targetType = 'FEED';
+                delete backendParams.feedId;
             }
 
             const response = await apiClient.get<PaginatedApiResponse<CommentResponseDTO>>('/api/comments', {
@@ -108,17 +108,17 @@ export const postCommentApi = {
      * Create a new comment
      */
     create: async (dto: CommentCreateDTO): Promise<CommentResponseDTO> => {
-        // Transform frontend DTO (postId/qaId) to backend format (entityId/targetType)
+        // Transform frontend DTO (postId/feedId) to backend format (entityId/targetType)
         const backendDto: any = { ...dto };
 
         if ((dto as any).postId) {
             backendDto.entityId = (dto as any).postId;
             backendDto.targetType = 'BLOG';
             delete backendDto.postId;
-        } else if ((dto as any).qaId) {
-            backendDto.entityId = (dto as any).qaId;
-            backendDto.targetType = 'QA';
-            delete backendDto.qaId;
+        } else if ((dto as any).feedId) {
+            backendDto.entityId = (dto as any).feedId;
+            backendDto.targetType = 'FEED';
+            delete backendDto.feedId;
         }
 
         const response = await apiClient.post<StandardApiResponse<CommentResponseDTO>>('/api/comments', backendDto);

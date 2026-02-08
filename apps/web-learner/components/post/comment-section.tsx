@@ -18,11 +18,11 @@ import { toast } from '@workspace/ui/components/sonner'
 
 interface CommentSectionProps {
     postId?: string
-    qaId?: string
+    feedId?: string
     onCommentCountChange?: (delta: number) => void // Callback to update parent's comment count
 }
 
-export function CommentSection({ postId, qaId, onCommentCountChange }: CommentSectionProps) {
+export function CommentSection({ postId, feedId, onCommentCountChange }: CommentSectionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const [comments, setComments] = useState<CommentResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
@@ -31,7 +31,7 @@ export function CommentSection({ postId, qaId, onCommentCountChange }: CommentSe
     const fetchComments = async () => {
         try {
             setLoading(true)
-            const response = await postCommentApi.findAll({ page: 1, limit: 100, postId, qaId }) // Load many for nesting
+            const response = await postCommentApi.findAll({ page: 1, limit: 100, postId, feedId }) // Load many for nesting
 
             // Flatten nested structure: backend returns root comments with nested replies
             // We need to flatten this into a single array for our rendering logic
@@ -62,10 +62,10 @@ export function CommentSection({ postId, qaId, onCommentCountChange }: CommentSe
     }
 
     useEffect(() => {
-        if (postId || qaId) {
+        if (postId || feedId) {
             fetchComments()
         }
-    }, [postId, qaId])
+    }, [postId, feedId])
 
     const handleSubmitComment = async (content: string, parentId?: string) => {
         if (!content.trim()) {
@@ -81,7 +81,7 @@ export function CommentSection({ postId, qaId, onCommentCountChange }: CommentSe
         try {
             const newComment = await postCommentApi.create({
                 postId: postId || undefined,
-                qaId: qaId || undefined,
+                feedId: feedId || undefined,
                 userId: user.id,
                 content: content.trim(),
                 parentId: parentId || undefined
@@ -226,7 +226,7 @@ export function CommentSection({ postId, qaId, onCommentCountChange }: CommentSe
                             user={user}
                             onUpdateComment={handleUpdateComment}
                             onDeleteComment={handleDeleteComment}
-                            canLike={!!qaId || !!postId}
+                            canLike={!!feedId || !!postId}
                         />
                     ))
                 ) : (

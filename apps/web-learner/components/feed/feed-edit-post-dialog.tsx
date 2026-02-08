@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@workspace/ui/components/button'
-import { qaApi } from '@/apis/services/qa-api'
+import { feedApi } from '@/apis/services/feed-api'
 import { toast } from '@workspace/ui/components/sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@workspace/ui/components/dialog'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { Label } from '@workspace/ui/components/label'
 import { Input } from '@workspace/ui/components/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
-import type { QAResponseDTO } from '@workspace/schemas'
+import type { FeedResponseDTO } from '@workspace/schemas'
 
 const CATEGORIES = [
     { id: 'TRANSLATION', label: 'Dịch' },
@@ -19,14 +19,14 @@ const CATEGORIES = [
     { id: 'JAPANESE_CULTURE', label: 'Văn Hoá Nhật Bản' },
 ]
 
-interface QAEditPostDialogProps {
+interface FeedEditPostDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    post: QAResponseDTO
-    onPostUpdated?: (updatedPost: QAResponseDTO) => void
+    post: FeedResponseDTO
+    onPostUpdated?: (updatedPost: FeedResponseDTO) => void
 }
 
-export function QAEditPostDialog({ open, onOpenChange, post, onPostUpdated }: QAEditPostDialogProps) {
+export function FeedEditPostDialog({ open, onOpenChange, post, onPostUpdated }: FeedEditPostDialogProps) {
     const [category, setCategory] = useState('')
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
@@ -60,7 +60,7 @@ export function QAEditPostDialog({ open, onOpenChange, post, onPostUpdated }: QA
 
         try {
             setSubmitting(true)
-            const updated = await qaApi.update(post.id, {
+            const updated = await feedApi.update(post.id, {
                 title: title.trim() || undefined,
                 content: content.trim(),
                 tags: category ? [category] : []

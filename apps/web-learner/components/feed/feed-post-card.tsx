@@ -23,24 +23,24 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog'
-import type { QAResponseDTO } from '@workspace/schemas'
+import type { FeedResponseDTO } from '@workspace/schemas'
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
-import { qaApi } from '@/apis/services/qa-api'
+import { feedApi } from '@/apis/services/feed-api'
 import { toast } from '@workspace/ui/components/sonner'
-import { QAEditPostDialog } from './qa-edit-post-dialog'
+import { FeedEditPostDialog } from './feed-edit-post-dialog'
 
-interface QAPostCardProps {
-    post: QAResponseDTO
+interface FeedPostCardProps {
+    post: FeedResponseDTO
     onLike?: (id: string) => void
     onComment?: (id: string) => void
     onDelete?: () => void
     onTagClick?: (tag: string) => void
     onFollow?: (authorId: string) => void
-    onPostUpdated?: (updatedPost: QAResponseDTO) => void
+    onPostUpdated?: (updatedPost: FeedResponseDTO) => void
 }
 
-export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onPostUpdated }: QAPostCardProps) {
+export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onPostUpdated }: FeedPostCardProps) {
     const { user } = useAppSelector(state => state.auth)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showEditDialog, setShowEditDialog] = useState(false)
@@ -52,7 +52,7 @@ export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFo
     const handleDelete = async () => {
         try {
             setDeleting(true)
-            await qaApi.delete(post.id)
+            await feedApi.delete(post.id)
             toast.success('Đã xóa bài viết')
             setShowDeleteDialog(false)
             onDelete?.()
@@ -181,7 +181,7 @@ export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFo
                         <MessageCircle className="w-4 h-4" />
                         <span className="text-xs">Bình luận ({post.comments || 0})</span>
                     </Button>
-                    <Button
+                    {/* <Button
                         variant="ghost"
                         size="sm"
                         className={`gap-2 h-8 px-2 ${post.isFollowingAuthor ? 'text-primary bg-primary/5' : 'text-muted-foreground hover:text-primary'}`}
@@ -192,7 +192,7 @@ export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFo
                     >
                         {post.isFollowingAuthor ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
                         <span className="text-xs">{post.isFollowingAuthor ? 'Đang theo dõi' : 'Theo dõi'}</span>
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
 
@@ -219,7 +219,7 @@ export function QAPostCard({ post, onLike, onComment, onDelete, onTagClick, onFo
             </AlertDialog>
 
             {/* Edit Dialog */}
-            <QAEditPostDialog
+            <FeedEditPostDialog
                 open={showEditDialog}
                 onOpenChange={setShowEditDialog}
                 post={post}
