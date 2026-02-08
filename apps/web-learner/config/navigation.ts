@@ -13,6 +13,7 @@ import {
     BrainCircuit,
     Bot,
     Users,
+    MessageSquare,
 } from 'lucide-react'
 
 export interface NavItem {

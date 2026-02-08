@@ -9,7 +9,7 @@ export * from './i-wishlist.service';
 export * from './i-exam.service';
 export * from './i-enrollment.service';
 export * from './i-comment.service';
-export * from './i-post.service';
+export * from './i-blog.service';
 export * from './i-learning-progress.service';
 export * from './i-flashcard.service';
 export * from './i-flashcard-deck.service';

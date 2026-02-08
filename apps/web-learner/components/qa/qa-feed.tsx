@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { QAPostCard } from './qa-post-card'
-import { QACreatePost } from './qa-create-post'
+import { QABlogCard } from './qa-blog-card'
+import { QACreateBlog } from './qa-create-blog'
 import { qaApi } from '@/apis/services/qa-api'
 import type { QAResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
-import { CommentSection } from '../post/comment-section'
+import { CommentSection } from '../blog/comment-section'
 import { Loader2, ChevronDown } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 
@@ -123,7 +123,7 @@ export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'AL
 
     return (
         <div className="space-y-6">
-            {!userId && <QACreatePost onPostCreated={() => fetchPosts(true)} />}
+            {!userId && <QACreateBlog onBlogCreated={() => fetchPosts(true)} />}
 
             {/* Tabs Navigation */}
             {!userId && (
@@ -176,13 +176,13 @@ export function QAFeed({ userId, category = 'ALL', followedTags, activeTab = 'AL
                 <div className="space-y-4">
                     {posts.map(post => (
                         <div key={post.id} className="space-y-0 relative z-10">
-                            <QAPostCard
+                            <QABlogCard
                                 post={post}
                                 onLike={handleLike}
                                 onComment={handleCommentClick}
                                 onDelete={() => handlePostDelete(post.id)}
                                 onTagClick={handleTagClick}
-                                onPostUpdated={(updatedPost) => {
+                                onBlogUpdated={(updatedPost) => {
                                     setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p))
                                 }}
                             />
