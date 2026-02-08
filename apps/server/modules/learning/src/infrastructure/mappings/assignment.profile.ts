@@ -1,14 +1,6 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-<<<<<<< HEAD
 import { createMap, forMember, mapFrom, Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import type { Assignment, Prisma } from '@prisma/generated';
-import type { AssignmentResponseDTO } from '@workspace/schemas';
-
-=======
-import type { Mapper } from '@automapper/core';
-import { Injectable } from '@nestjs/common';
-import { createMap, forMember, mapFrom } from '@automapper/core';
 import type { Assignment } from '@prisma/generated';
 import type { AssignmentResponseDTO } from '@workspace/schemas';
 
@@ -16,7 +8,6 @@ import type { AssignmentResponseDTO } from '@workspace/schemas';
  * Assignment AutoMapper Profile
  * Maps Assignment entity (Prisma) to AssignmentResponseDTO
  */
->>>>>>> main
 @Injectable()
 export class AssignmentProfile extends AutomapperProfile {
   constructor(@InjectMapper() mapper: Mapper) {
@@ -24,18 +15,12 @@ export class AssignmentProfile extends AutomapperProfile {
   }
 
   override get profile() {
-<<<<<<< HEAD
     return (mapper: Mapper) => {
       createMap<Assignment, AssignmentResponseDTO>(
-=======
-    return (mapper) => {
-      createMap(
->>>>>>> main
         mapper,
         'Assignment',
         'AssignmentResponseDTO',
         forMember(
-<<<<<<< HEAD
           (dest) => dest.id,
           mapFrom((src) => src.id)
         ),
@@ -49,38 +34,38 @@ export class AssignmentProfile extends AutomapperProfile {
         ),
         forMember(
           (dest) => dest.type,
-          mapFrom((src) => src.type)
+          mapFrom((src) => src.type as any)
         ),
         forMember(
           (dest) => dest.courseId,
-          mapFrom((src) => src.courseId)
+          mapFrom((src) => src.courseId || undefined)
         ),
         forMember(
           (dest) => dest.moduleId,
-          mapFrom((src) => src.moduleId)
+          mapFrom((src) => src.moduleId || undefined)
         ),
         forMember(
           (dest) => dest.lessonId,
-          mapFrom((src) => src.lessonId)
+          mapFrom((src) => src.lessonId || undefined)
         ),
         forMember(
-          (dest) => dest.maxScore as any,
-          mapFrom((src) => src.maxScore)
+          (dest) => dest.maxScore,
+          mapFrom((src) => Number(src.maxScore))
         ),
         forMember(
-          (dest) => dest.passingScore as any,
-          mapFrom((src) => src.passingScore)
+          (dest) => dest.passingScore,
+          mapFrom((src) => src.passingScore ? Number(src.passingScore) : undefined)
         ),
         forMember(
-          (dest) => dest.dueDate as any,
-          mapFrom((src) => src.dueDate?.toISOString())
+          (dest) => dest.dueDate,
+          mapFrom((src) => src.dueDate || undefined)
         ),
         forMember(
           (dest) => dest.allowLateSubmission,
           mapFrom((src) => src.allowLateSubmission)
         ),
         forMember(
-          (dest) => dest.latePenaltyPercent as any,
+          (dest) => dest.latePenaltyPercent,
           mapFrom((src) => src.latePenaltyPercent ? Number(src.latePenaltyPercent) : undefined)
         ),
         forMember(
@@ -89,125 +74,40 @@ export class AssignmentProfile extends AutomapperProfile {
         ),
         forMember(
           (dest) => dest.maxFileSize,
-          mapFrom((src) => src.maxFileSize)
+          mapFrom((src) => src.maxFileSize ? Number(src.maxFileSize) : undefined)
         ),
         forMember(
           (dest) => dest.maxFiles,
-          mapFrom((src) => src.maxFiles)
+          mapFrom((src) => src.maxFiles || undefined)
         ),
         forMember(
           (dest) => dest.instructions,
-          mapFrom((src) => src.instructions)
+          mapFrom((src) => src.instructions || undefined)
         ),
         forMember(
           (dest) => dest.attachmentUrls,
           mapFrom((src) => src.attachmentUrls as string[])
         ),
         forMember(
+          (dest) => dest.createdBy,
+          mapFrom((src) => src.createdBy)
+        ),
+        forMember(
           (dest) => dest.status,
-          mapFrom((src) => src.status)
+          mapFrom((src) => src.status as any)
         ),
         forMember(
-          (dest) => dest.publishedAt as any,
-          mapFrom((src) => src.publishedAt?.toISOString())
+          (dest) => dest.publishedAt,
+          mapFrom((src) => src.publishedAt || undefined)
         ),
         forMember(
-          (dest) => dest.createdAt as any,
-          mapFrom((src) => src.createdAt.toISOString())
+          (dest) => dest.createdAt,
+          mapFrom((src) => src.createdAt)
         ),
         forMember(
-          (dest) => dest.updatedAt as any,
-          mapFrom((src) => src.updatedAt.toISOString())
+          (dest) => dest.updatedAt,
+          mapFrom((src) => src.updatedAt)
         )
-=======
-          (dest: AssignmentResponseDTO) => dest.id,
-          mapFrom((src: Assignment) => src.id),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.title,
-          mapFrom((src: Assignment) => src.title),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.description,
-          mapFrom((src: Assignment) => src.description),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.type,
-          mapFrom((src: Assignment) => src.type as any),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.courseId,
-          mapFrom((src: Assignment) => src.courseId || undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.moduleId,
-          mapFrom((src: Assignment) => src.moduleId || undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.lessonId,
-          mapFrom((src: Assignment) => src.lessonId || undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.maxScore,
-          mapFrom((src: Assignment) => Number(src.maxScore)),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.passingScore,
-          mapFrom((src: Assignment) => src.passingScore ? Number(src.passingScore) : undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.dueDate,
-          mapFrom((src: Assignment) => src.dueDate || undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.allowLateSubmission,
-          mapFrom((src: Assignment) => src.allowLateSubmission),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.latePenaltyPercent,
-          mapFrom((src: Assignment) => src.latePenaltyPercent ? Number(src.latePenaltyPercent) : undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.allowedFileTypes,
-          mapFrom((src: Assignment) => src.allowedFileTypes),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.maxFileSize,
-          mapFrom((src: Assignment) => src.maxFileSize ? Number(src.maxFileSize) : undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.maxFiles,
-          mapFrom((src: Assignment) => src.maxFiles || undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.instructions,
-          mapFrom((src: Assignment) => src.instructions || undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.attachmentUrls,
-          mapFrom((src: Assignment) => src.attachmentUrls),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.createdBy,
-          mapFrom((src: Assignment) => src.createdBy),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.status,
-          mapFrom((src: Assignment) => src.status as any),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.publishedAt,
-          mapFrom((src: Assignment) => src.publishedAt || undefined),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.createdAt,
-          mapFrom((src: Assignment) => src.createdAt),
-        ),
-        forMember(
-          (dest: AssignmentResponseDTO) => dest.updatedAt,
-          mapFrom((src: Assignment) => src.updatedAt),
-        ),
->>>>>>> main
       );
     };
   }

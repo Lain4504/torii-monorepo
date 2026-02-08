@@ -104,13 +104,8 @@ export class AssignmentService {
       throw new NotFoundException('Assignment not found');
     }
 
-<<<<<<< HEAD
-    // Strict ownership check: Only creator can update
-    if (existing.createdBy !== requester.sub) {
-=======
     // Check ownership
     if (existing.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
->>>>>>> main
       throw new ForbiddenException('You can only update your own assignments');
     }
 
@@ -148,14 +143,8 @@ export class AssignmentService {
       throw new NotFoundException('Assignment not found');
     }
 
-<<<<<<< HEAD
-    // Strict ownership check: Only owner can publish
-    if (assignment.createdBy !== requester.sub) {
-      throw new ForbiddenException('Only the owner can publish this assignment');
-=======
     if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
-      throw new ForbiddenException('Only the owner can publish');
->>>>>>> main
+      throw new ForbiddenException('Only the owner can publish this assignment');
     }
 
     if (assignment.status === 'PUBLISHED') {
@@ -205,15 +194,13 @@ export class AssignmentService {
       }
     }
 
-<<<<<<< HEAD
     // Ownership filter: Everyone only sees their own assignments in management view
-    // (Admin/Staff irrelevant per user request)
     if (this.hasPermission(requester, 'assignment.create') || this.hasPermission(requester, 'assignment.manage')) {
-      where.createdBy = requester.sub;
+      if (!this.hasPermission(requester, '*')) {
+        where.createdBy = requester.sub;
+      }
     }
 
-=======
->>>>>>> main
     const [total, assignments] = await Promise.all([
       this.assignmentRepository.count(where),
       this.assignmentRepository.findMany({
@@ -224,7 +211,6 @@ export class AssignmentService {
       }),
     ]);
 
-<<<<<<< HEAD
     // Fetch user's submissions for all assignments in this list
     const assignmentIds = assignments.map(a => a.id);
     const submissions = await this.submissionRepository.findMany({
@@ -253,10 +239,6 @@ export class AssignmentService {
 
     return {
       data,
-=======
-    return {
-      data: assignments.map(a => this.toAssignmentResponseDTO(a)),
->>>>>>> main
       total,
       page,
       limit,
@@ -288,13 +270,8 @@ export class AssignmentService {
       throw new NotFoundException('Assignment not found');
     }
 
-<<<<<<< HEAD
-    // Strict ownership check: Only creator can delete
-    if (assignment.createdBy !== requester.sub) {
-=======
     // Check ownership
     if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
->>>>>>> main
       throw new ForbiddenException('You can only delete your own assignments');
     }
 

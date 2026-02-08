@@ -61,10 +61,7 @@ import { CouponHandler } from './interfaces/nats/coupon.handler';
 import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
 import { AssignmentHandler } from './interfaces/nats/assignment.handler';
 import { SubmissionHandler } from './interfaces/nats/submission.handler';
-<<<<<<< HEAD
-=======
 import { CertificateHandler } from './interfaces/nats/certificate.handler';
->>>>>>> main
 
 import { AssignmentModule } from './modules/assignment/assignment.module';
 import { SubmissionModule } from './modules/submission/submission.module';
@@ -90,10 +87,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     CouponModule,
     AssignmentModule,
     SubmissionModule,
-<<<<<<< HEAD
-=======
     CertificateModule,
->>>>>>> main
 
     // Community Modules
     PostModule,
@@ -138,10 +132,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     AnalyticsHandler,
     AssignmentHandler,
     SubmissionHandler,
-<<<<<<< HEAD
-=======
     CertificateHandler,
->>>>>>> main
   ],
   providers: [
     {
