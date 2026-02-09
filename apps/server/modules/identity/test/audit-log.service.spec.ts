@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuditLogService } from './audit-log.service';
-import { AUDIT_LOG_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { AuditLogService } from '../src/modules/audit/audit-log.service';
+import { AUDIT_LOG_REPOSITORY_TOKEN } from '../src/interfaces/repositories';
 import { Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/generated';
 import { AuditLogEntryDTO, AuditLogFiltersDTO } from '@workspace/schemas';
