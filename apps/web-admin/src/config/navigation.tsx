@@ -11,6 +11,7 @@ import {
     BarChart3,
     ShieldCheck,
     Ticket,
+    FileText,
 } from "lucide-react";
 
 export interface NavItem {
@@ -20,6 +21,8 @@ export interface NavItem {
     badge?: string;
     permission?: string;
     anyPermission?: string[];
+    role?: string;
+    roles?: string[];
     descriptionKey?: string;
     items?: {
         titleKey: string;
@@ -86,6 +89,13 @@ export const mainNavItems: NavItem[] = [
         icon: Newspaper,
         permission: "blog.manage",
         descriptionKey: "common:navDescriptions.blog",
+    },
+    {
+        titleKey: "Bài tập",
+        url: "/assignments",
+        icon: FileText,
+        permission: "assignment.manage",
+        descriptionKey: "Quản lý bài tập & chấm điểm bài nộp",
     },
 ];
 

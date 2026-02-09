@@ -208,8 +208,9 @@ export class SubmissionService {
     }
 
     // Validate score
-    if (dto.score < 0 || dto.score > Number(assignment.maxScore)) {
-      throw new BadRequestException(`Score must be between 0 and ${assignment.maxScore}`);
+    const maxScore = Number(assignment.maxScore);
+    if (dto.score < 0 || dto.score > maxScore) {
+      throw new BadRequestException(`Score must be between 0 and ${maxScore}`);
     }
 
     const graded = await this.submissionRepository.update(submissionId, {

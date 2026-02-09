@@ -10,7 +10,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton'
 import type { CertificateResponseDTO } from '@workspace/schemas'
 
 export default function CertificatesPage() {
-    const { data: response, isLoading } = useCertificates({ limit: 50 })
+    const { data: response, isLoading } = useCertificates({ limit: '50' })
     const certificates = response?.data || []
 
     const stats = [

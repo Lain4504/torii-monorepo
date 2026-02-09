@@ -144,7 +144,7 @@ export class AssignmentService {
     }
 
     if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
-      throw new ForbiddenException('Only the owner can publish');
+      throw new ForbiddenException('Only the owner can publish this assignment');
     }
 
     if (assignment.status === 'PUBLISHED') {
@@ -194,6 +194,13 @@ export class AssignmentService {
       }
     }
 
+    // Ownership filter: Everyone only sees their own assignments in management view
+    if (this.hasPermission(requester, 'assignment.create') || this.hasPermission(requester, 'assignment.manage')) {
+      if (!this.hasPermission(requester, '*')) {
+        where.createdBy = requester.sub;
+      }
+    }
+
     const [total, assignments] = await Promise.all([
       this.assignmentRepository.count(where),
       this.assignmentRepository.findMany({
@@ -204,8 +211,34 @@ export class AssignmentService {
       }),
     ]);
 
+    // Fetch user's submissions for all assignments in this list
+    const assignmentIds = assignments.map(a => a.id);
+    const submissions = await this.submissionRepository.findMany({
+      where: {
+        assignmentId: { in: assignmentIds },
+        userId: requester.sub,
+      },
+    });
+
+    // Create a map of assignmentId -> submission status
+    const submissionStatusMap = new Map();
+    submissions.forEach(sub => {
+      submissionStatusMap.set(sub.assignmentId, sub.status);
+    });
+
+    // Map assignments to DTOs with userSubmissionStatus
+    const data = assignments.map(assignment => {
+      const dto = this.toAssignmentResponseDTO(assignment);
+      // Add user's submission status if exists
+      const userStatus = submissionStatusMap.get(assignment.id);
+      return {
+        ...dto,
+        userSubmissionStatus: userStatus || undefined,
+      };
+    });
+
     return {
-      data: assignments.map(a => this.toAssignmentResponseDTO(a)),
+      data,
       total,
       page,
       limit,

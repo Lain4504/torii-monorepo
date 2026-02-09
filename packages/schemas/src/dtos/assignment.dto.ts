@@ -12,16 +12,19 @@ export const createAssignmentDto = z.object({
   type: z.nativeEnum(AssignmentType).default(AssignmentType.TEXT),
 
   // At least one must be provided
-  courseId: z.string().uuid().optional(),
-  moduleId: z.string().uuid().optional(),
-  lessonId: z.string().uuid().optional(),
+  courseId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
+  moduleId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
+  lessonId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
 
   // Grading config
   maxScore: z.number().min(0).max(1000).default(100),
   passingScore: z.number().min(0).max(1000).optional(),
 
   // Deadlines
-  dueDate: z.string().datetime().optional(), // ISO string
+  dueDate: z.preprocess(
+    (val) => (val === '' ? undefined : val),
+    z.string().datetime().optional()
+  ),
   allowLateSubmission: z.boolean().default(true),
   latePenaltyPercent: z.number().min(0).max(100).optional(),
 
@@ -53,14 +56,17 @@ export const updateAssignmentDto = z.object({
   description: z.string().min(1).optional(),
   type: z.nativeEnum(AssignmentType).optional(),
 
-  courseId: z.string().uuid().optional(),
-  moduleId: z.string().uuid().optional(),
-  lessonId: z.string().uuid().optional(),
+  courseId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
+  moduleId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
+  lessonId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
 
   maxScore: z.number().min(0).max(1000).optional(),
   passingScore: z.number().min(0).max(1000).optional(),
 
-  dueDate: z.string().datetime().optional(),
+  dueDate: z.preprocess(
+    (val) => (val === '' || val === null ? undefined : val),
+    z.string().datetime().optional()
+  ),
   allowLateSubmission: z.boolean().optional(),
   latePenaltyPercent: z.number().min(0).max(100).optional(),
 
@@ -80,8 +86,8 @@ export const queryAssignmentsDto = z.object({
   moduleId: z.string().uuid().optional(),
   lessonId: z.string().uuid().optional(),
   status: z.nativeEnum(AssignmentStatus).optional(),
-  page: z.number().min(1).default(1),
-  limit: z.number().min(1).max(100).default(20),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
 });
 
 export type QueryAssignmentsDto = z.infer<typeof queryAssignmentsDto>;
@@ -93,7 +99,7 @@ export type QueryAssignmentsDto = z.infer<typeof queryAssignmentsDto>;
 // Submit Assignment DTO (create/update draft)
 export const submitAssignmentDto = z.object({
   textAnswer: z.string().optional(),
-  fileUrls: z.array(z.string().url()).default([]),
+  fileUrls: z.array(z.string()).default([]), // Accept any string, not just URLs
 });
 
 export type SubmitAssignmentDto = z.infer<typeof submitAssignmentDto>;
@@ -101,7 +107,7 @@ export type SubmitAssignmentDto = z.infer<typeof submitAssignmentDto>;
 // Grade Submission DTO
 export const gradeSubmissionDto = z.object({
   score: z.number().min(0).max(1000),
-  feedback: z.string().max(5000).optional(),
+  feedback: z.string().max(5000).optional().or(z.literal('')),
 });
 
 export type GradeSubmissionDto = z.infer<typeof gradeSubmissionDto>;
@@ -118,14 +124,17 @@ export const querySubmissionsDto = z.object({
   assignmentId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   status: z.nativeEnum(SubmissionStatus).optional(),
-  page: z.number().min(1).default(1),
-  limit: z.number().min(1).max(100).default(20),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
 });
 
 export type QuerySubmissionsDto = z.infer<typeof querySubmissionsDto>;
 
 // Response DTOs
-export const assignmentResponseDto = assignmentSchema;
+export const assignmentResponseDto = assignmentSchema.extend({
+  // Optional: User's submission status for this assignment (populated when fetching for authenticated user)
+  userSubmissionStatus: z.nativeEnum(SubmissionStatus).optional(),
+});
 export type AssignmentResponseDTO = z.infer<typeof assignmentResponseDto>;
 
 export const submissionResponseDto = submissionSchema;

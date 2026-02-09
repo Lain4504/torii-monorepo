@@ -19,6 +19,7 @@ import {
     GatewayAuthGuard,
     PermissionsGuard,
     Permissions,
+    Public,
     successResponse,
     ZodValidationPipe,
 } from '@server/shared';
@@ -43,40 +44,67 @@ export class SubmissionController {
         return firstValueFrom(this.natsClient.send({ cmd: `learning.submission.${cmd}` }, payload));
     }
 
-    @Post(':assignmentId')
-    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
-    submit(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
-        return this.sendCmd('submit', { assignmentId, ...dto, requester: req.user });
-    }
-
-    @Post(':assignmentId/draft')
-    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
-    draft(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
-        return this.sendCmd('saveDraft', { assignmentId, ...dto, requester: req.user });
-    }
-
+    // Specific routes first to avoid conflicts
     @Get('my/:assignmentId')
-    my(@Param('assignmentId') assignmentId: string, @Req() req: RequestWithUser) {
-        return this.sendCmd('getMySubmission', { assignmentId, userId: req.user.sub });
+    @Public()
+    async my(@Param('assignmentId') assignmentId: string, @Req() req: RequestWithUser) {
+        const result = await this.sendCmd('getMySubmission', { assignmentId, userId: req.user.sub });
+        return successResponse({ submission: result });
     }
 
     @Get('assignment/:assignmentId')
     @Permissions('assignment.grade')
-    all(@Param('assignmentId') assignmentId: string) {
-        return this.sendCmd('findAll', { assignmentId });
+    async all(@Param('assignmentId') assignmentId: string) {
+        const result = await this.sendCmd('findAll', { assignmentId });
+        return successResponse({ submissions: result });
+    }
+
+    @Post(':assignmentId/draft')
+    @Public()
+    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
+    async draft(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
+        const result = await this.sendCmd('saveDraft', { assignmentId, ...dto, requester: req.user });
+        return successResponse({ submission: result });
     }
 
     @Put(':id/grade')
     @Permissions('assignment.grade')
-    @UsePipes(new ZodValidationPipe(gradeSubmissionDto))
-    grade(@Param('id') id: string, @Body() dto: any, @Req() req: RequestWithUser) {
-        return this.sendCmd('grade', { id, ...dto, requester: req.user });
+    async grade(
+        @Param('id') id: string,
+        @Body(new ZodValidationPipe(gradeSubmissionDto)) dto: any,
+        @Req() req: RequestWithUser
+    ) {
+        const result = await this.sendCmd('grade', { id, ...dto, requester: req.user });
+        return successResponse({ submission: result });
     }
 
-    @Post(':id/return')
+    @Put(':id/return')
     @Permissions('assignment.grade')
-    @UsePipes(new ZodValidationPipe(returnSubmissionDto))
-    return(@Param('id') id: string, @Body() dto: any, @Req() req: RequestWithUser) {
-        return this.sendCmd('return', { id, ...dto, requester: req.user });
+    async return(
+        @Param('id') id: string,
+        @Body(new ZodValidationPipe(returnSubmissionDto)) dto: any,
+        @Req() req: RequestWithUser
+    ) {
+        const result = await this.sendCmd('return', { id, ...dto, requester: req.user });
+        return successResponse({ submission: result });
+    }
+
+    // Generic routes last
+    @Get(':id')
+    @Permissions('assignment.grade')
+    async findOne(@Param('id') id: string) {
+        const result = await this.sendCmd('findOne', { id });
+        return successResponse({ submission: result });
+    }
+
+    @Post(':assignmentId')
+    @Public()
+    async submit(
+        @Param('assignmentId') assignmentId: string,
+        @Body(new ZodValidationPipe(submitAssignmentDto)) dto: any,
+        @Req() req: RequestWithUser
+    ) {
+        const result = await this.sendCmd('submit', { assignmentId, ...dto, requester: req.user });
+        return successResponse({ submission: result });
     }
 }

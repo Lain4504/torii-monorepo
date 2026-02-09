@@ -28,7 +28,6 @@ import { AssignmentController } from './controllers/assignment.controller';
 import { SubmissionController } from './controllers/submission.controller';
 import { CertificateController } from './controllers/certificate.controller';
 
-
 /**
  * Learning Module for Gateway
  * Handles all Learning service HTTP routes via NATS
