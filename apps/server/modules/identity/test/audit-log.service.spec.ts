@@ -55,10 +55,9 @@ describe('AuditLogService', () => {
             entity: 'Post',
             entityId: 'post-1',
             description: 'Created a post',
-            oldValues: null,
+            oldValues: undefined,
             newValues: { title: 'New Post' },
             metadata: { ip: '127.0.0.1' },
-            req: {} as any, // Mock req object if needed by DTO
         };
 
         it('nên tạo log thành công với dữ liệu hợp lệ', async () => {
@@ -116,7 +115,7 @@ describe('AuditLogService', () => {
         });
 
         it('nên xử lý trường hợp không có oldValues hoặc newValues', async () => {
-            const entry = { ...baseEntry, oldValues: null, newValues: null };
+            const entry = { ...baseEntry, oldValues: undefined, newValues: undefined };
             await service.log(entry);
 
             expect(auditLogRepository.create).toHaveBeenCalledWith(expect.objectContaining({
@@ -186,8 +185,8 @@ describe('AuditLogService', () => {
             mockAuditLogRepository.count.mockResolvedValue(0);
 
             const filters: AuditLogFiltersDTO = {
-                startDate: '2023-01-01',
-                endDate: '2023-12-31',
+                startDate: new Date('2023-01-01'),
+                endDate: new Date('2023-12-31'),
             };
 
             await service.query(filters);
