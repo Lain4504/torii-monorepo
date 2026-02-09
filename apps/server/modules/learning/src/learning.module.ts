@@ -20,9 +20,9 @@ import { CouponModule } from './modules/coupon/coupon.module';
 import { CertificateModule } from './modules/certificate/certificate.module';
 
 // Community Modules
-import { PostModule } from './modules/post/post.module';
+import { BlogModule } from './modules/blog/blog.module';
 import { CommentModule } from './modules/comment/comment.module';
-import { QAModule } from './modules/qa/qa.module';
+import { FeedModule } from './modules/feed/feed.module';
 
 // Assessment Modules
 import { QuestionModule } from './modules/question/question.module';
@@ -49,9 +49,9 @@ import { QuestionHandler } from './interfaces/nats/question.handler';
 import { QuestionPoolHandler } from './interfaces/nats/question-pool.handler';
 import { ReviewHandler } from './interfaces/nats/review.handler';
 import { WishlistHandler } from './interfaces/nats/wishlist.handler';
-import { PostHandler } from './interfaces/nats/post.handler';
+import { BlogHandler } from './interfaces/nats/blog.handler';
 import { CommentHandler } from './interfaces/nats/comment.handler';
-import { QAHandler } from './interfaces/nats/qa.handler';
+import { FeedHandler } from './interfaces/nats/feed.handler';
 import { FlashcardDeckHandler } from './interfaces/nats/flashcard-deck.handler';
 import { FlashcardHandler } from './interfaces/nats/flashcard.handler';
 import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handler';
@@ -90,9 +90,9 @@ import { SubmissionModule } from './modules/submission/submission.module';
     CertificateModule,
 
     // Community Modules
-    PostModule,
+    BlogModule,
     CommentModule,
-    QAModule,
+    FeedModule,
 
     // Assessment Modules
     QuestionModule,
@@ -120,9 +120,9 @@ import { SubmissionModule } from './modules/submission/submission.module';
     QuestionPoolHandler,
     ReviewHandler,
     WishlistHandler,
-    PostHandler,
+    BlogHandler,
     CommentHandler,
-    QAHandler,
+    FeedHandler,
     FlashcardDeckHandler,
     FlashcardHandler,
     FlashcardReviewHandler,

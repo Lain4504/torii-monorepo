@@ -16,9 +16,9 @@ import { ReviewController } from './controllers/review.controller';
 import { LiveSessionController } from './controllers/live-session.controller';
 
 import { WishlistController } from './controllers/wishlist.controller';
-import { PostController } from './controllers/post.controller';
+import { BlogController } from './controllers/blog.controller';
 import { CommentController } from './controllers/comment.controller';
-import { QAController } from './controllers/qa.controller';
+import { FeedController } from './controllers/feed.controller';
 import { FlashcardDeckController } from './controllers/flashcard-deck.controller';
 import { FlashcardController } from './controllers/flashcard.controller';
 import { FlashcardReviewController } from './controllers/flashcard-review.controller';
@@ -49,9 +49,9 @@ import { CertificateController } from './controllers/certificate.controller';
         QuestionPoolController,
 
         WishlistController,
-        PostController,
+        BlogController,
         CommentController,
-        QAController,
+        FeedController,
         FlashcardDeckController,
         FlashcardController,
         FlashcardReviewController,

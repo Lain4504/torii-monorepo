@@ -4,10 +4,12 @@ import { wishlistApi } from '@/apis/services/wishlist-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
 import { useRouter } from 'next/navigation'
+import type { EnrollmentResponseDTO } from '@workspace/schemas'
 
 export function useCourseEnrollment(courseId: string, courseSlug: string) {
     const [isInWishlist, setIsInWishlist] = useState(false)
     const [isEnrolled, setIsEnrolled] = useState(false)
+    const [enrollment, setEnrollment] = useState<EnrollmentResponseDTO | null>(null)
     const [isLoadingWishlist, setIsLoadingWishlist] = useState(false)
     const [isLoadingEnrollment, setIsLoadingEnrollment] = useState(false)
     const [isToggling, setIsToggling] = useState(false)
@@ -41,6 +43,9 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
             setIsLoadingEnrollment(true)
             const result = await enrollmentApi.checkEnrollment(courseId)
             setIsEnrolled(result.isEnrolled)
+            if (result.enrollment) {
+                setEnrollment(result.enrollment)
+            }
         } catch (error) {
             console.error('Failed to check enrollment status:', error)
         } finally {
@@ -77,8 +82,9 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
 
         try {
             setIsEnrolling(true)
-            await enrollmentApi.createEnrollment({ courseId })
+            const newEnrollment = await enrollmentApi.createEnrollment({ courseId })
             setIsEnrolled(true)
+            setEnrollment(newEnrollment)
             toast.success('Đã đăng ký khóa học thành công!')
             router.push(`/courses/${courseSlug}/learn`)
         } catch (error: any) {
@@ -92,6 +98,7 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
     return {
         isInWishlist,
         isEnrolled,
+        enrollment,
         isLoadingWishlist,
         isLoadingEnrollment,
         isToggling,

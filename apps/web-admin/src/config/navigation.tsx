@@ -85,10 +85,10 @@ export const mainNavItems: NavItem[] = [
     },
     {
         titleKey: "Bài viết & Tin tức",
-        url: "/posts",
+        url: "/blogs",
         icon: Newspaper,
-        permission: "post.manage",
-        descriptionKey: "common:navDescriptions.post",
+        permission: "blog.manage",
+        descriptionKey: "common:navDescriptions.blog",
     },
     {
         titleKey: "Bài tập",

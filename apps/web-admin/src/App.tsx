@@ -28,7 +28,7 @@ import TransactionsPage from '@/routes/finance/payments-page.tsx'
 
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
-import { PostPage } from '@/routes/post/post-page.tsx'
+import { BlogPage } from '@/routes/blog/blog-page.tsx'
 import QuestionBankPage from '@/routes/question-bank/question-bank-page.tsx'
 import QuestionsPage from '@/routes/questions/questions-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
@@ -86,8 +86,8 @@ function App() {
                   <Route path="permissions" element={<PermissionsPage />} />
                 </Route>
 
-                <Route element={<RoutePermissionGuard permission="post.manage" />}>
-                  <Route path="posts" element={<PostPage />} />
+                <Route element={<RoutePermissionGuard permission="blog.manage" />}>
+                  <Route path="blogs" element={<BlogPage />} />
                 </Route>
 
                 {/* Question Bank - Unified entry point */}
