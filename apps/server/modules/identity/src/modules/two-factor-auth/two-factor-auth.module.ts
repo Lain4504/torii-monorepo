@@ -4,10 +4,10 @@ import { TwoFactorAuthService } from './two-factor-auth.service';
 import { TwoFactorAuthRepository } from './two-factor-auth.repository';
 import {
     TWO_FACTOR_AUTH_SERVICE_TOKEN,
-} from '../../interfaces/services';
+} from '@server/identity/interfaces/services';
 import {
     TWO_FACTOR_AUTH_REPOSITORY_TOKEN,
-} from '../../interfaces/repositories';
+} from '@server/identity/interfaces/repositories';
 
 /**
  * Two-Factor Authentication Feature Module
@@ -28,3 +28,4 @@ import {
     exports: [TWO_FACTOR_AUTH_SERVICE_TOKEN],
 })
 export class TwoFactorAuthModule { }
+

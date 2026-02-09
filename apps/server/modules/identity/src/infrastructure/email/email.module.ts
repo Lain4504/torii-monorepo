@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SharedEmailModule } from '@server/shared';
 import { EmailService } from './email.service';
-import { EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
+import { EMAIL_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 
 @Module({
     imports: [SharedEmailModule],
@@ -14,3 +14,4 @@ import { EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
     exports: [EMAIL_SERVICE_TOKEN],
 })
 export class EmailModule { }
+

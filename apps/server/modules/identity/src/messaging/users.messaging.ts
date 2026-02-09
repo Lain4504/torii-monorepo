@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { IUsersService } from '../interfaces/services';
-import { USERS_SERVICE_TOKEN } from '../interfaces/services';
+import type { IUsersService } from '@server/identity/interfaces/services';
+import { USERS_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 
 /**
  * Users NATS Message Handler
@@ -105,3 +105,4 @@ export class UsersMessagingController {
         }
     }
 }
+

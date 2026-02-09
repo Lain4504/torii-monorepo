@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@server/shared";
 import { Prisma, AuditLog } from "@prisma/generated";
 import type { AuditLogActivityDTO } from '@workspace/schemas';
-import type { IAuditLogRepository } from '../../interfaces/repositories';
+import type { IAuditLogRepository } from '@server/identity/interfaces/repositories';
 
 export type AuditLogWithUser = AuditLog & { user?: { id: string; email: string; displayName: string; role: string } };
 
@@ -143,3 +143,4 @@ export class AuditLogRepository implements IAuditLogRepository {
         return result.count;
     }
 }
+

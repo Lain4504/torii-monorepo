@@ -29,6 +29,9 @@
       "@server/shared/*": [
         "./libs/shared/src/*"
       ],
+      "@server/identity/*": [
+        "./modules/identity/src/*"
+      ],
       "@prisma/generated": [
         "./generated/prisma/client"
       ],

@@ -29,10 +29,10 @@ import {
     ErrUserNotFound,
 } from '@workspace/schemas';
 import type { User, Prisma } from '@prisma/generated';
-import type { IUsersRepository } from '../../interfaces/repositories';
-import type { IUsersService, IAuthorizationService, IEmailService, UserWithPermissions } from '../../interfaces/services';
-import { USERS_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { AUTHORIZATION_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
+import type { IUsersRepository } from '@server/identity/interfaces/repositories';
+import type { IUsersService, IAuthorizationService, IEmailService, UserWithPermissions } from '@server/identity/interfaces/services';
+import { USERS_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
+import { AUTHORIZATION_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 import { REDIS_CLIENT, generateSecureRandomString, AppConfigService } from '@server/shared';
 import * as argon2 from 'argon2';
 

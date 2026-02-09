@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { JwtTokenProvider, type RefreshTokenPayload } from '@server/shared';
 import { createHash, randomUUID } from 'crypto';
-import type { ISessionService } from '../../interfaces/services';
+import type { ISessionService } from '@server/identity/interfaces/services';
 
 
 @Injectable()
@@ -248,3 +248,4 @@ export class SessionService implements ISessionService {
         });
     }
 }
+
