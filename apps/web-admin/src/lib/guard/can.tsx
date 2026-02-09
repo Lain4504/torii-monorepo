@@ -8,10 +8,6 @@ interface CanProps {
     anyPermission?: string[];
     /** Require ALL of these permissions */
     allPermissions?: string[];
-    /** Single role required (Strict check, bypasses admin wildcard if role doesn't match) */
-    role?: string;
-    /** Require ANY of these roles (Strict check, bypasses admin wildcard if role doesn't match) */
-    roles?: string[];
     /** Content to render if user has permission */
     children: ReactNode;
     /** Optional fallback content if user doesn't have permission */
@@ -30,20 +26,12 @@ interface CanProps {
  *   <CourseEditor />
  * </Can>
  */
-export function Can({ permission, anyPermission, allPermissions, role, roles, children, fallback = null }: CanProps) {
-    const { can, canAny, canAll, role: userRole } = usePermissions();
+export function Can({ permission, anyPermission, allPermissions, children, fallback = null }: CanProps) {
+    const { can, canAny, canAll } = usePermissions();
 
-    // 1. Role Check (Strict - takes precedence even over admin wildcard)
-    if (role && userRole !== role) return <>{fallback}</>;
-    if (roles && !roles.includes(userRole as string)) return <>{fallback}</>;
-
-    // 2. Permission Check
     let hasAccess = false;
-    
-    // If no permissions are specified but role check passed (or wasn't requested), grant access
-    if (!permission && !anyPermission && !allPermissions) {
-        hasAccess = true;
-    } else if (permission) {
+
+    if (permission) {
         hasAccess = can(permission);
     } else if (anyPermission) {
         hasAccess = canAny(anyPermission);
@@ -53,4 +41,3 @@ export function Can({ permission, anyPermission, allPermissions, role, roles, ch
 
     return hasAccess ? <>{children}</> : <>{fallback}</>;
 }
-

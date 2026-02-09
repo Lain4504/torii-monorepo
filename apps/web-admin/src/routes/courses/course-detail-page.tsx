@@ -176,7 +176,7 @@ export default function CourseDetailPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Can permission="course.manage" roles={["lecturer"]}>
+                            <Can permission="course.manage">
                                 <Button
                                     onClick={() => handleAddAssignment()}
                                     variant="outline"

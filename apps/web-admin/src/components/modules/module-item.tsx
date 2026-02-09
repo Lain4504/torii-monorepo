@@ -89,7 +89,7 @@ const LessonRow = ({
                 >
                     <Pencil className="h-3.5 w-3.5" />
                 </Button>
-                <Can permission="course.manage" roles={["lecturer"]}>
+                <Can permission="course.manage">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -223,7 +223,7 @@ export function ModuleItem({
                             <DropdownMenuItem onClick={() => onAddLesson(module.id)} className="sm:hidden cursor-pointer rounded-lg text-xs font-medium py-2.5">
                                 <Plus className="mr-2 h-4 w-4 opacity-70" /> Thêm bài học
                             </DropdownMenuItem>
-                            <Can permission="course.manage" roles={["lecturer"]}>
+                            <Can permission="course.manage">
                                 <DropdownMenuItem onClick={() => onAddModuleAssignment(module.id)} className="cursor-pointer rounded-lg text-xs font-medium py-2.5">
                                     <BookOpen className="mr-2 h-4 w-4 opacity-70" /> Thêm bài tập
                                 </DropdownMenuItem>
