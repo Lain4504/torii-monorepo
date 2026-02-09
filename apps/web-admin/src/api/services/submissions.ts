@@ -3,8 +3,7 @@ import { apiClient } from '@/api/api-client.ts';
 import type { 
   SubmissionResponseDTO, 
   GradeSubmissionDto, 
-  ReturnSubmissionDto, 
-  QuerySubmissionsDto, 
+  ReturnSubmissionDto,
   StandardApiResponse 
 } from '@workspace/schemas';
 

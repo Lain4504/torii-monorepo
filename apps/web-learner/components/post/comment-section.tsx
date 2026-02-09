@@ -31,7 +31,7 @@ export function CommentSection({ postId, qaId, onCommentCountChange }: CommentSe
     const fetchComments = async () => {
         try {
             setLoading(true)
-            const response = await postCommentApi.findAll({ page: 1, limit: 100, postId, qaId }) // Load many for nesting
+            const response = await postCommentApi.findAll({ page: 1, limit: 100, postId, qaId } as any) // Load many for nesting
 
             // Flatten nested structure: backend returns root comments with nested replies
             // We need to flatten this into a single array for our rendering logic
@@ -85,7 +85,7 @@ export function CommentSection({ postId, qaId, onCommentCountChange }: CommentSe
                 userId: user.id,
                 content: content.trim(),
                 parentId: parentId || undefined
-            })
+            } as any)
 
             setReplyTo(null)
             setComments(prev => [...prev, newComment]) // Optimistic add

@@ -22,16 +22,14 @@ import {
   FormItem, 
   FormLabel, 
   FormMessage,
-  FormDescription
 } from "@workspace/ui/components/form";
 import { Input } from "@workspace/ui/components/input";
 import { Button } from "@workspace/ui/components/button";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { useGradeSubmission, useReturnSubmission } from "@/api/services/submissions";
 import { toast } from "@workspace/ui/components/sonner";
-import { Loader2, FileText, Download, ExternalLink, AlertCircle } from "lucide-react";
-import { ScrollArea } from "@workspace/ui/components/scroll-area";
-import { Separator } from "@workspace/ui/components/separator";
+import { Loader2, FileText, Download, ExternalLink, PenLine } from "lucide-react";
+
 import { Badge } from "@workspace/ui/components/badge";
 
 interface GradeSubmissionSheetProps {
@@ -69,21 +67,11 @@ export function GradeSubmissionSheet({
 
   const onGrade = async (data: GradeSubmissionDto) => {
     if (!submission) return;
-    console.log('📤 Grading submission:', { 
-      id: submission.id, 
-      data,
-      score: data.score,
-      feedback: data.feedback,
-      scoreType: typeof data.score,
-      feedbackType: typeof data.feedback
-    });
     try {
       await gradeMutation.mutateAsync({ id: submission.id, data });
       toast.success("Đã chấm điểm thành công");
       onOpenChange(false);
     } catch (error: any) {
-      console.error('❌ Grade error:', error);
-      console.error('❌ Error response:', error.response?.data);
       const errorMsg = error.response?.data?.message || error.userMessage || "Lỗi khi chấm điểm";
       toast.error(errorMsg);
     }
@@ -109,55 +97,58 @@ export function GradeSubmissionSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[800px] flex flex-col gap-0 p-0 text-left">
-        <SheetHeader className="p-6 border-b">
+      <SheetContent className="sm:max-w-[700px] h-full flex flex-col p-0 border-l border-border/50 shadow-2xl overflow-hidden outline-none text-left">
+        <SheetHeader className="p-6 border-b border-border/40 bg-muted/5">
           <div className="flex items-center gap-3 mb-1">
-            <SheetTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
+            <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight uppercase">
               Chấm <span className="text-primary not-italic">Bài Làm</span>
             </SheetTitle>
-            <Badge variant={submission.isLate ? "destructive" : "outline"} className="rounded-lg uppercase text-[10px] font-bold">
+            <Badge variant={submission.isLate ? "destructive" : "outline"} className="rounded-md uppercase text-[10px] font-bold py-0.5">
                {submission.isLate ? "Nộp muộn" : "Đúng hạn"}
             </Badge>
           </div>
-          <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground/50">
-            Học viên: {(submission as any).user?.displayName || submission.userId}
+          <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground/50 font-semibold">
+            Học viên: <span className="text-primary">{(submission as any).user?.displayName || submission.userId}</span> • ID: <span className="font-mono">{submission.id.slice(0, 8)}</span>
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 max-h-[calc(100vh-180px)]">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <div className="p-6 space-y-8">
             {/* Submission Content */}
             <section className="space-y-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
                 <FileText className="size-4 text-primary" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Nội dung bài nộp</h3>
+                <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Nội dung bài nộp</h3>
               </div>
               
               {submission.textAnswer && (
-                <div className="p-4 rounded-xl bg-muted/30 border border-border/50 text-sm leading-relaxed whitespace-pre-wrap">
+                <div className="p-5 rounded-xl bg-muted/30 border border-border/50 text-sm leading-relaxed whitespace-pre-wrap font-medium text-foreground/80">
                   {submission.textAnswer}
                 </div>
               )}
 
               {submission.fileUrls.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   {submission.fileUrls.map((url, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-background border border-border/50 group hover:border-primary/30 transition-colors">
+                    <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/50 group hover:border-primary/30 hover:shadow-sm transition-all">
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="p-2 rounded-lg bg-primary/5 text-primary">
+                        <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
                           <Download className="size-4" />
                         </div>
-                        <span className="text-xs font-medium truncate max-w-[150px]">
-                          Tệp đính kèm {i + 1}
-                        </span>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold truncate max-w-[200px] text-foreground/90">
+                              Tệp đính kèm {i + 1}
+                            </span>
+                            <span className="text-[10px] uppercase text-muted-foreground tracking-wider">File Upload</span>
+                        </div>
                       </div>
                       <Button 
                         variant="ghost" 
-                        size="icon" 
-                        className="size-8 rounded-lg"
+                        size="sm" 
+                        className="h-8 rounded-lg text-xs font-bold uppercase text-muted-foreground hover:text-primary hover:bg-primary/5"
                         onClick={() => window.open(url, '_blank')}
                       >
-                        <ExternalLink className="size-3" />
+                        Mở <ExternalLink className="ml-2 size-3" />
                       </Button>
                     </div>
                   ))}
@@ -165,106 +156,102 @@ export function GradeSubmissionSheet({
               )}
 
               {!submission.textAnswer && submission.fileUrls.length === 0 && (
-                <p className="text-sm italic text-muted-foreground/50 text-center py-8">Không có nội dung bài nộp.</p>
+                <div className="flex flex-col items-center justify-center py-10 border-2 border-dashed border-border/40 rounded-xl bg-muted/5">
+                    <FileText className="size-8 text-muted-foreground/20 mb-2" />
+                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/40">Không có nội dung</p>
+                </div>
               )}
             </section>
 
-            <Separator className="bg-border/10" />
-
             {/* Grading Form */}
             <section className="space-y-6">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="size-4 text-primary" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Đánh giá & Chấm điểm</h3>
+              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+                <PenLine className="size-4 text-primary" />
+                <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Đánh giá & Chấm điểm</h3>
               </div>
 
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onGrade)} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="score"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Điểm số</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input 
-                                type="number" 
+                <form id="grade-form" onSubmit={form.handleSubmit(onGrade)} className="space-y-6">
+                  <div className="p-5 rounded-2xl bg-muted/10 border border-border/40 space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="score"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Điểm số</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input 
+                                  type="number" 
+                                  {...field} 
+                                  value={field.value || ''}
+                                  onChange={e => {
+                                    const input = e.target.value;
+                                    field.onChange(input === '' ? 0 : parseFloat(input));
+                                  }}
+                                  className="rounded-xl pr-12 font-black text-2xl h-14 bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all" 
+                                  placeholder="0"
+                                  min="0"
+                                  max={maxScore}
+                                  step="0.5"
+                                />
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-muted-foreground/40 italic">
+                                  / {maxScore} điểm
+                                </span>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="feedback"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Phản hồi</FormLabel>
+                            <FormControl>
+                              <Textarea 
                                 {...field} 
-                                value={field.value || ''}
-                                onChange={e => {
-                                  const input = e.target.value;
-                                  if (input === '') {
-                                    field.onChange(0);
-                                  } else {
-                                    const value = parseFloat(input);
-                                    field.onChange(isNaN(value) ? 0 : value);
-                                  }
-                                }}
-                                className="rounded-xl pr-12 font-bold text-lg" 
-                                placeholder="0"
-                                min="0"
-                                max={maxScore}
-                                step="0.5"
+                                className="min-h-[120px] rounded-xl resize-none bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all text-sm leading-relaxed" 
+                                placeholder="Nhập nhận xét chi tiết..."
                               />
-                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase text-muted-foreground/40 italic">
-                                / {maxScore} pt
-                              </span>
-                            </div>
-                          </FormControl>
-                          <FormDescription className="text-[9px] uppercase tracking-tighter">
-                            Thang điểm tối đa: {maxScore}
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="feedback"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Phản hồi (Feedback)</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            {...field} 
-                            className="min-h-[150px] rounded-xl resize-none" 
-                            placeholder="Nhập nhận xét của bạn về bài làm này..."
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="pt-4 flex items-center justify-between gap-4 border-t border-border/10">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={onReturn}
-                      disabled={returnMutation.isPending || gradeMutation.isPending}
-                      className="flex-1 rounded-xl border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white font-sans font-bold italic text-xs uppercase transition-all"
-                    >
-                      {returnMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Yêu cầu sửa lại
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={gradeMutation.isPending || returnMutation.isPending}
-                      className="flex-1 rounded-xl font-sans font-bold italic text-xs uppercase shadow-lg shadow-primary/20"
-                    >
-                      {gradeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Hoàn tất chấm điểm
-                    </Button>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                   </div>
                 </form>
               </Form>
             </section>
           </div>
-        </ScrollArea>
+        </div>
+
+        <div className="p-6 border-t border-border/40 bg-muted/5">
+          <div className="flex items-center justify-between gap-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onReturn}
+              disabled={returnMutation.isPending || gradeMutation.isPending}
+              className="flex-1 h-11 rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 font-bold uppercase text-xs tracking-wide"
+            >
+              {returnMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Trả lại bài
+            </Button>
+            <Button
+              type="submit"
+              form="grade-form"
+              disabled={gradeMutation.isPending || returnMutation.isPending}
+              className="flex-[2] h-11 rounded-xl font-bold uppercase text-xs tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
+            >
+              {gradeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Hoàn tất chấm điểm
+            </Button>
+          </div>
+        </div>
       </SheetContent>
     </Sheet>
   );

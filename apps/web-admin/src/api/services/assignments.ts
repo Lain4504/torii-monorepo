@@ -44,9 +44,9 @@ export const assignmentsApi = {
         return response.data.success;
     },
 
-    // POST /api/assignments/:id/publish
+    // PATCH /api/assignments/:id/publish
     async publish(id: string): Promise<AssignmentResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ assignment: AssignmentResponseDTO }>>(`/api/assignments/${id}/publish`);
+        const response = await apiClient.patch<StandardApiResponse<{ assignment: AssignmentResponseDTO }>>(`/api/assignments/${id}/publish`);
         return response.data.data!.assignment;
     },
 };

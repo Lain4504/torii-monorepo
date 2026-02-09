@@ -31,7 +31,6 @@ import { Checkbox } from "@workspace/ui/components/checkbox";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { TiptapEditor } from "@workspace/ui/components/tiptap-editor";
 import { MultiFileUpload } from "@/components/common/multi-file-upload";
-import { createAssignmentDto } from "@workspace/schemas";
 import type { CreateAssignmentDto } from "@workspace/schemas";
 import { AssignmentType } from "@workspace/schemas";
 import { useCreateAssignment } from "@/api/services/assignments";

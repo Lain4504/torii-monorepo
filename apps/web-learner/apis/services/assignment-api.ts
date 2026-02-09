@@ -21,6 +21,8 @@ export interface AssignmentResponseDTO {
   instructions?: string;
   attachmentUrls?: string[];
   status: 'DRAFT' | 'PUBLISHED' | 'CLOSED';
+  userSubmissionStatus?: 'DRAFT' | 'SUBMITTED' | 'GRADED' | 'RETURNED';
+  order?: number;
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;

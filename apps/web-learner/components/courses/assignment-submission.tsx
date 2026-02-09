@@ -178,109 +178,127 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto px-6 py-10">
-      {/* Header */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
-            <FileText className="w-7 h-7 text-primary" />
+      {/* Header Section */}
+      <div className="relative p-10 rounded-[2.5rem] bg-gradient-to-br from-primary/5 via-primary/0 to-background border border-primary/10 overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 transition-colors group-hover:bg-primary/10" />
+        
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-background flex items-center justify-center border border-border/40 shadow-xl group-hover:scale-110 transition-transform duration-500">
+              <FileText className="w-8 h-8 text-primary group-hover:animate-pulse" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-3xl font-black text-foreground uppercase tracking-tighter italic leading-none">
+                {assignment.title}
+              </h2>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Assignment</span>
+                <div className="h-1 w-1 rounded-full bg-border" />
+                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{assignment.type}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex-1">
-            <span className="text-xs font-bold text-primary uppercase tracking-widest">Bài tập</span>
-            <h1 className="text-3xl font-sans font-bold italic text-foreground tracking-tight uppercase">
-              {assignment.title}
-            </h1>
-          </div>
-        </div>
 
-        {/* Status Badge */}
-        <div className="flex items-center gap-3">
-          {isGraded && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-xs font-bold text-green-500 uppercase tracking-wide">Đã chấm điểm</span>
-            </div>
-          )}
-          {isSubmitted && !isGraded && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
-              <CheckCircle2 className="w-4 h-4 text-blue-500" />
-              <span className="text-xs font-bold text-blue-500 uppercase tracking-wide">Đã nộp</span>
-            </div>
-          )}
-          {isDraft && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20">
-              <Clock className="w-4 h-4 text-yellow-500" />
-              <span className="text-xs font-bold text-yellow-500 uppercase tracking-wide">Bản nháp</span>
-            </div>
-          )}
-          {isReturned && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20">
-              <AlertCircle className="w-4 h-4 text-orange-500" />
-              <span className="text-xs font-bold text-orange-500 uppercase tracking-wide">Yêu cầu sửa lại</span>
-            </div>
-          )}
-          {dueDate && (
-            <div className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-full border",
-              isOverdue 
-                ? "bg-red-500/10 border-red-500/20" 
-                : "bg-muted/10 border-border/20"
-            )}>
-              <Calendar className={cn("w-4 h-4", isOverdue ? "text-red-500" : "text-muted-foreground")} />
-              <span className={cn(
-                "text-xs font-bold uppercase tracking-wide",
-                isOverdue ? "text-red-500" : "text-muted-foreground"
+          <div className="flex flex-wrap items-center gap-3">
+            {isGraded && (
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-green-500/10 border border-green-500/20 shadow-sm animate-in fade-in zoom-in duration-500">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-black text-green-600 uppercase tracking-[0.1em]">Đã chấm điểm</span>
+              </div>
+            )}
+            {isSubmitted && !isGraded && (
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.1em]">Đã nộp</span>
+              </div>
+            )}
+            {isDraft && (
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-500/10 border border-amber-500/20 shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-[10px] font-black text-amber-600 uppercase tracking-[0.1em]">Bản nháp</span>
+              </div>
+            )}
+            {isReturned && (
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-500/10 border border-rose-500/20 shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-rose-500 animate-bounce" />
+                <span className="text-[10px] font-black text-rose-600 uppercase tracking-[0.1em]">Yêu cầu sửa lại</span>
+              </div>
+            )}
+            {dueDate && (
+              <div className={cn(
+                "flex items-center gap-2 px-5 py-2.5 rounded-full border shadow-sm transition-all",
+                isOverdue 
+                  ? "bg-rose-500/10 border-rose-500/20" 
+                  : "bg-muted/10 border-border/20"
               )}>
-                Hạn nộp: {dueDate.toLocaleDateString('vi-VN')}
-              </span>
-            </div>
-          )}
+                <Calendar className={cn("w-3.5 h-3.5", isOverdue ? "text-rose-500" : "text-muted-foreground")} />
+                <span className={cn(
+                  "text-[10px] font-black uppercase tracking-[0.1em]",
+                  isOverdue ? "text-rose-600" : "text-muted-foreground"
+                )}>
+                  Hạn nộp: {dueDate.toLocaleDateString('vi-VN')}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Instructions */}
       {assignment.instructions && (
-        <div className="p-8 rounded-2xl border border-border/10 bg-muted/5 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-5 bg-primary/40 rounded-full" />
-            <h3 className="text-lg font-sans font-bold italic text-foreground uppercase tracking-tight">
-              Hướng dẫn
+        <div className="p-10 rounded-[2.5rem] border border-border/30 bg-muted/5 space-y-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+            <FileText className="w-32 h-32" />
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-6 bg-primary rounded-full" />
+            <h3 className="text-lg font-black italic text-foreground uppercase tracking-tight">
+              Hướng dẫn chi tiết
             </h3>
           </div>
-          <div className="prose prose-sm dark:prose-invert max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: assignment.instructions }} className="text-foreground/80 leading-relaxed" />
+          <div className="prose prose-sm dark:prose-invert max-w-none relative z-10">
+            <div 
+              dangerouslySetInnerHTML={{ __html: assignment.instructions }} 
+              className="text-foreground/80 leading-relaxed font-medium italic" 
+            />
           </div>
         </div>
       )}
 
       {/* Attachments */}
       {assignment.attachmentUrls && assignment.attachmentUrls.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-5 bg-primary/40 rounded-full" />
-            <h3 className="text-lg font-sans font-bold italic text-foreground uppercase tracking-tight">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-6 bg-primary rounded-full" />
+            <h3 className="text-lg font-black italic text-foreground uppercase tracking-tight">
               Tài liệu đính kèm
             </h3>
+            <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] ml-2">
+              {assignment.attachmentUrls.filter(Boolean).length} FILES
+            </span>
           </div>
-          <div className="grid gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             {assignment.attachmentUrls.filter(url => url).map((url, index) => {
               const filename = url?.split('/').pop() || `File ${index + 1}`;
               return (
-                <div
+                <button
                   key={index}
-                  className="group flex items-center justify-between p-6 rounded-2xl border border-border/20 bg-muted/5 hover:bg-background hover:shadow-lg transition-all cursor-pointer"
+                  className="group flex items-center justify-between p-5 rounded-[1.5rem] border border-border/30 bg-muted/5 hover:bg-background hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 text-left"
                   onClick={() => handleDownloadAttachment(url)}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center border border-border/20 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
+                    <div className="w-12 h-12 bg-background rounded-2xl flex items-center justify-center border border-border/40 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                       <FileText className="w-6 h-6" />
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-foreground">{filename}</p>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Nhấn để tải xuống</p>
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-bold text-foreground truncate max-w-[150px]">{filename}</p>
+                      <p className="text-[10px] text-primary font-black uppercase tracking-widest mt-1 opacity-60 group-hover:opacity-100 italic transition-opacity">Nhấn để tải</p>
                     </div>
                   </div>
-                  <Download className="w-5 h-5 text-primary" />
-                </div>
+                  <div className="p-3 rounded-xl bg-primary/10 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Download className="w-4 h-4" />
+                  </div>
+                </button>
               );
             })}
           </div>
@@ -297,28 +315,25 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
             </h3>
           </div>
 
-          {/* Text Answer */}
-          {(assignment.type === 'TEXT' || assignment.type === 'BOTH') && (
-            <div className="space-y-3">
-              <label className="text-sm font-bold text-foreground uppercase tracking-wide">
-                Câu trả lời <span className="text-red-500">*</span>
-              </label>
-              <Textarea
-                value={textAnswer}
-                onChange={(e) => setTextAnswer(e.target.value)}
-                placeholder="Nhập câu trả lời của bạn..."
-                className="min-h-[200px] resize-none rounded-xl border-border/20 bg-background"
-                disabled={isSubmitted}
-              />
-            </div>
-          )}
+          {/* Text Answer - Always visible */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-foreground uppercase tracking-[0.15em]">
+              Câu trả lời văn bản {(assignment.type === 'TEXT' || assignment.type === 'BOTH') && <span className="text-red-600">*</span>}
+            </label>
+            <Textarea
+              value={textAnswer}
+              onChange={(e) => setTextAnswer(e.target.value)}
+              placeholder="Nhập câu trả lời của bạn..."
+              className="min-h-[240px] resize-none rounded-2xl border-border/30 bg-background focus:border-primary/40 transition-colors text-sm leading-relaxed"
+              disabled={isSubmitted}
+            />
+          </div>
 
-          {/* File Upload */}
-          {(assignment.type === 'FILE' || assignment.type === 'BOTH') && (
-            <div className="space-y-3">
-              <label className="text-sm font-bold text-foreground uppercase tracking-wide">
-                Tải lên file <span className="text-red-500">*</span>
-              </label>
+          {/* File Upload - Always visible */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-foreground uppercase tracking-[0.15em]">
+              Tải lên file đính kèm {(assignment.type === 'FILE' || assignment.type === 'BOTH') && <span className="text-red-600">*</span>}
+            </label>
               <input
                 type="file"
                 id="file-upload"
@@ -331,17 +346,19 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
               <label
                 htmlFor="file-upload"
                 className={cn(
-                  "block p-8 rounded-xl border-2 border-dashed border-border/40 bg-background hover:border-primary/40 transition-colors cursor-pointer",
+                  "block p-10 rounded-2xl border-2 border-dashed border-border/30 bg-muted/5 hover:bg-muted/10 hover:border-primary/40 transition-all cursor-pointer group",
                   (isSubmitted || uploadingFiles) && "opacity-50 cursor-not-allowed"
                 )}
               >
-                <div className="flex flex-col items-center gap-3 text-center">
-                  <Upload className="w-10 h-10 text-muted-foreground" />
+                <div className="flex flex-col items-center gap-4 text-center">
+                  <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center border border-border/30 group-hover:border-primary/40 group-hover:bg-primary/5 transition-all">
+                    <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
                   <div>
-                    <p className="text-sm font-bold text-foreground">
-                      {uploadingFiles ? 'Đang tải lên...' : 'Nhấn để tải lên file'}
+                    <p className="text-sm font-bold text-foreground mb-1">
+                      {uploadingFiles ? 'Đang tải lên...' : 'Nhấn để chọn file'}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground font-medium">
                       {assignment.allowedFileTypes?.join(', ') || 'Tất cả định dạng'}
                       {assignment.maxFileSize && ` • Tối đa ${assignment.maxFileSize / 1024 / 1024}MB`}
                     </p>
@@ -352,7 +369,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
               {/* Uploaded Files List */}
               {fileUrls.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em]">
                     File đã tải lên ({fileUrls.length})
                   </p>
                   {fileUrls.filter(url => url).map((url, index) => {
@@ -360,18 +377,20 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                     return (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 rounded-lg border border-border/20 bg-muted/5"
+                        className="flex items-center justify-between p-4 rounded-xl bg-background border border-border/30 hover:border-primary/30 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <FileText className="w-4 h-4 text-primary" />
-                          <span className="text-sm text-foreground">{filename}</span>
+                          <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+                            <FileText className="w-5 h-5 text-primary" />
+                          </div>
+                          <span className="text-sm font-semibold text-foreground">{filename}</span>
                         </div>
                         {!isSubmitted && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleRemoveFile(index)}
-                            className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500"
+                            className="h-9 w-9 p-0 rounded-xl hover:bg-red-500/10 hover:text-red-600 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -381,18 +400,27 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                   })}
                 </div>
               )}
-            </div>
-          )}
+          </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-4 pt-4">
+          <div className="flex flex-wrap items-center gap-4 pt-6">
             <Button
               onClick={handleSubmit}
-              className="h-12 px-8 rounded-xl font-bold uppercase tracking-wide bg-primary text-white hover:opacity-90"
+              className="h-14 px-10 rounded-[1.25rem] font-black uppercase tracking-[0.1em] bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
               disabled={submitMutation.isPending}
             >
-              <Send className="w-4 h-4 mr-2" />
-              Nộp bài
+              <Send className="w-4 h-4 mr-3" />
+              Nộp bài tập ngay
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={handleSaveDraft}
+              className="h-14 px-8 rounded-[1.25rem] font-black uppercase tracking-[0.1em] border-border/40 hover:bg-muted/5 transition-all duration-300"
+              disabled={saveDraftMutation.isPending}
+            >
+              <Save className="w-4 h-4 mr-3" />
+              Lưu bản nháp
             </Button>
           </div>
         </div>
@@ -400,70 +428,140 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
 
       {/* Feedback & Score */}
       {isGraded && submission && (
-        <div className="space-y-6 p-8 rounded-2xl border border-green-500/20 bg-green-500/5">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-5 bg-green-500/40 rounded-full" />
-            <h3 className="text-lg font-sans font-bold italic text-foreground uppercase tracking-tight">
-              Kết quả chấm điểm
-            </h3>
+        <div className="relative p-10 rounded-[2.5rem] border border-green-500/20 bg-gradient-to-br from-green-500/5 via-green-500/0 to-background overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity">
+            <CheckCircle2 className="w-32 h-32 text-green-500" />
           </div>
-
-          <div className="flex items-center gap-6">
-            <div className="text-center">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Điểm số</p>
-              <p className="text-4xl font-black text-primary">
-                {submission.score}/{assignment.maxScore}
-              </p>
+          
+          <div className="relative space-y-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-1.5 h-6 bg-green-500 rounded-full" />
+                <h3 className="text-lg font-black italic text-foreground uppercase tracking-tight">
+                  Kết quả chấm điểm
+                </h3>
+              </div>
+              
+              {assignment.passingScore && (
+                <div className={cn(
+                  "flex items-center gap-2 px-5 py-2 rounded-full border shadow-sm",
+                  submission.score! >= assignment.passingScore 
+                    ? "bg-green-500/10 border-green-500/20 text-green-600" 
+                    : "bg-rose-500/10 border-rose-500/20 text-rose-600"
+                )}>
+                  {submission.score! >= assignment.passingScore ? (
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  ) : (
+                    <XCircle className="w-3.5 h-3.5" />
+                  )}
+                  <span className="text-[10px] font-black uppercase tracking-[0.1em]">
+                    {submission.score! >= assignment.passingScore ? 'Đạt yêu cầu' : 'Chưa đạt yêu cầu'}
+                  </span>
+                </div>
+              )}
             </div>
-            {assignment.passingScore && (
-              <div className="flex items-center gap-2">
-                {submission.score! >= assignment.passingScore ? (
-                  <CheckCircle2 className="w-6 h-6 text-green-500" />
-                ) : (
-                  <XCircle className="w-6 h-6 text-red-500" />
-                )}
-                <span className="text-sm font-bold">
-                  {submission.score! >= assignment.passingScore ? 'Đạt' : 'Chưa đạt'}
-                </span>
+
+            <div className="flex items-center gap-8 py-4 border-y border-border/10">
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Điểm số</p>
+                <div className="flex items-end gap-1">
+                  <span className="text-6xl font-black text-primary leading-none tracking-tighter">
+                    {submission.score}
+                  </span>
+                  <span className="text-xl font-bold text-muted-foreground/40 mb-1">/{assignment.maxScore}</span>
+                </div>
+              </div>
+              
+              <div className="h-12 w-px bg-border/20" />
+              
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Trạng thái</p>
+                <p className="text-xl font-black text-foreground italic uppercase tracking-tight leading-none">
+                  {submission.score! >= (assignment.passingScore || 0) ? 'Xuất sắc' : 'Cần cố gắng'}
+                </p>
+              </div>
+            </div>
+
+            {submission.feedback && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-3 bg-green-500/40 rounded-full" />
+                  <p className="text-[10px] font-black text-foreground uppercase tracking-[0.15em]">Nhận xét của giáo viên</p>
+                </div>
+                <div className="p-6 rounded-2xl bg-background border border-border/30 shadow-sm">
+                  <p className="text-sm text-foreground leading-relaxed font-medium italic">"{submission.feedback}"</p>
+                </div>
               </div>
             )}
           </div>
-
-          {submission.feedback && (
-            <div className="space-y-2">
-              <p className="text-sm font-bold text-foreground uppercase tracking-wide">Nhận xét</p>
-              <div className="p-4 rounded-xl bg-background border border-border/20">
-                <p className="text-sm text-foreground/80 leading-relaxed">{submission.feedback}</p>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
       {/* Submitted Content (Read-only) */}
-      {isSubmitted && submission && (
-        <div className="space-y-6 p-8 rounded-2xl border border-border/10 bg-muted/5">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-5 bg-blue-500/40 rounded-full" />
-            <h3 className="text-lg font-sans font-bold italic text-foreground uppercase tracking-tight">
-              Bài làm đã nộp
-            </h3>
+      {(isSubmitted || isGraded) && submission && (
+        <div className="space-y-8 p-10 rounded-[2.5rem] border border-border/30 bg-muted/5 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+            <Send className="w-32 h-32" />
+          </div>
+
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
+              <h3 className="text-lg font-black italic text-foreground uppercase tracking-tight">
+                Nội dung bài làm
+              </h3>
+            </div>
+            
+            {submission.submittedAt && (
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-background border border-border/40 shadow-sm">
+                <Clock className="w-3 h-3 text-muted-foreground" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
+                  {new Date(submission.submittedAt).toLocaleString('vi-VN')}
+                </span>
+                {submission.isLate && (
+                  <span className="text-[10px] font-black text-rose-600 uppercase tracking-tight ml-2">
+                    • TRỄ {submission.daysLate} NGÀY
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {submission.textAnswer && (
-            <div className="space-y-2">
-              <p className="text-sm font-bold text-foreground uppercase tracking-wide">Câu trả lời</p>
-              <div className="p-4 rounded-xl bg-background border border-border/20">
-                <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{submission.textAnswer}</p>
+            <div className="space-y-4 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-3 bg-blue-500/40 rounded-full" />
+                <p className="text-[10px] font-black text-foreground uppercase tracking-[0.15em]">Câu trả lời của bạn</p>
+              </div>
+              <div className="p-8 rounded-3xl bg-background border border-border/30 shadow-sm">
+                <p className="text-sm text-foreground leading-relaxed font-medium italic whitespace-pre-wrap">{submission.textAnswer}</p>
               </div>
             </div>
           )}
 
-          {submission.submittedAt && (
-            <p className="text-xs text-muted-foreground">
-              Nộp lúc: {new Date(submission.submittedAt).toLocaleString('vi-VN')}
-              {submission.isLate && <span className="text-red-500 ml-2">(Nộp trễ {submission.daysLate} ngày)</span>}
-            </p>
+          {submission.fileUrls && submission.fileUrls.length > 0 && (
+            <div className="space-y-4 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-3 bg-blue-500/40 rounded-full" />
+                <p className="text-[10px] font-black text-foreground uppercase tracking-[0.15em]">File đính kèm</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {submission.fileUrls.map((url, index) => {
+                  const filename = url.split('/').pop() || `File ${index + 1}`;
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-4 rounded-2xl bg-background border border-border/30"
+                    >
+                      <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
+                        <FileText className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <span className="text-sm font-bold text-foreground truncate">{filename}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
       )}
