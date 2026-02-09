@@ -3,9 +3,9 @@ import { PrismaModule, NatsClientModule } from '@server/shared';
 import { AuthorizationService } from './authorization.service';
 import { AuthorizationConfigService } from './authorization-config.service';
 import { AuthorizationSeederService } from './authorization-seeder.service';
-import { AuthorizationMessagingController } from '../../messaging/authorization.messaging';
+import { AuthorizationMessagingController } from '@server/identity/messaging/authorization.messaging';
 import { AuditModule } from '../audit/audit.module';
-import { AUTHORIZATION_SERVICE_TOKEN } from '../../interfaces/services';
+import { AUTHORIZATION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 
 /**
  * Authorization Feature Module
@@ -29,4 +29,5 @@ import { AUTHORIZATION_SERVICE_TOKEN } from '../../interfaces/services';
     ],
 })
 export class AuthorizationModule { }
+
 

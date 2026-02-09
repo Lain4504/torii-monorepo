@@ -7,15 +7,15 @@ import { UserIdentityRepository } from './user-identity.repository';
 import { AuthorizationModule } from '../authorization/authorization.module';
 import { TwoFactorAuthModule } from '../two-factor-auth/two-factor-auth.module';
 import { UsersModule } from '../users/users.module';
-import { EmailModule } from '../../infrastructure/email/email.module';
+import { EmailModule } from '@server/identity/infrastructure/email/email.module';
 import {
     AUTH_SERVICE_TOKEN,
     SESSION_SERVICE_TOKEN,
     GOOGLE_AUTH_SERVICE_TOKEN,
-} from '../../interfaces/services';
+} from '@server/identity/interfaces/services';
 import {
     USER_IDENTITY_REPOSITORY_TOKEN,
-} from '../../interfaces/repositories';
+} from '@server/identity/interfaces/repositories';
 
 /**
  * Authentication Feature Module
@@ -55,3 +55,4 @@ import {
     ],
 })
 export class AuthModule { }
+

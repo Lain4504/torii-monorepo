@@ -1,7 +1,7 @@
 import { Controller, Inject, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { IAuthService, ISessionService } from '../../interfaces/services';
-import { AUTH_SERVICE_TOKEN, SESSION_SERVICE_TOKEN } from '../../interfaces/services';
+import type { IAuthService, ISessionService } from '@server/identity/interfaces/services';
+import { AUTH_SERVICE_TOKEN, SESSION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 import type {
     UserRegistrationDTO,
     UserLoginDTO,
@@ -196,3 +196,4 @@ export class AuthHandler {
         return { success: true };
     }
 }
+

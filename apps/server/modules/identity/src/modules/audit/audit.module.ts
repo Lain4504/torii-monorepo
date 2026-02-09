@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuditLogService } from './audit-log.service';
 import { AuditLogRepository } from './audit-log.repository';
-import { AUDIT_LOG_SERVICE_TOKEN } from '../../interfaces/services';
-import { AUDIT_LOG_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { AUDIT_LOG_SERVICE_TOKEN } from '@server/identity/interfaces/services';
+import { AUDIT_LOG_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
 
 /**
  * Audit Logging Feature Module  
@@ -22,3 +22,4 @@ import { AUDIT_LOG_REPOSITORY_TOKEN } from '../../interfaces/repositories';
     exports: [AUDIT_LOG_SERVICE_TOKEN],
 })
 export class AuditModule { }
+

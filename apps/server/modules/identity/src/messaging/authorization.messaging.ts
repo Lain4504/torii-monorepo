@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { IAuthorizationService } from '../interfaces/services';
-import { AUTHORIZATION_SERVICE_TOKEN } from '../interfaces/services';
+import type { IAuthorizationService } from '@server/identity/interfaces/services';
+import { AUTHORIZATION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 
 /**
  * Authorization NATS Message Handler
@@ -102,4 +102,5 @@ export class AuthorizationMessagingController {
         }
     }
 }
+
 
