@@ -5,8 +5,8 @@ import {
     ActivityType,
     StreakUpdatedEvent,
 } from '@workspace/schemas';
-import { StreakService } from './streak.service';
-import { AchievementService } from './achievement.service';
+import { StreakService } from '@server/gamification/services';
+import { AchievementService } from '@server/gamification/services';
 
 const XP_REWARDS: Record<string, number> = {
     LESSON_COMPLETE: 50,
