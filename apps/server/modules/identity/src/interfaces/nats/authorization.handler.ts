@@ -1,9 +1,9 @@
 import { Controller, Inject, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { IAuthorizationService } from '../../interfaces/services';
-import { AUTHORIZATION_SERVICE_TOKEN } from '../../interfaces/services';
-import { AuthorizationConfigService } from '../../modules/authorization/authorization-config.service';
-import { AuthorizationSeederService } from '../../modules/authorization/authorization-seeder.service';
+import type { IAuthorizationService } from '@server/identity/interfaces/services';
+import { AUTHORIZATION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
+import { AuthorizationConfigService } from '@server/identity/modules/authorization/authorization-config.service';
+import { AuthorizationSeederService } from '@server/identity/modules/authorization/authorization-seeder.service';
 
 @Controller()
 export class AuthorizationHandler {
@@ -62,3 +62,4 @@ export class AuthorizationHandler {
         return this.seeder.reseedNewPermissions();
     }
 }
+

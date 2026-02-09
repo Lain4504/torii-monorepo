@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { User, Prisma } from '@prisma/generated';
-import type { IUsersRepository } from '../../interfaces/repositories';
+import type { IUsersRepository } from '@server/identity/interfaces/repositories';
 
 /**
  * User Repository
@@ -283,3 +283,4 @@ export class UsersRepository implements IUsersRepository {
         });
     }
 }
+

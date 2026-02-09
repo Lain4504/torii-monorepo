@@ -12,7 +12,7 @@ export const ActivityTypeSchema = z.enum([
     'PRACTICE',
     'FLASHCARD_REVIEW',
     'EXAM_COMPLETE',
-    'POST_CREATE',
+    'BLOG_CREATE',
     'COMMENT_CREATE',
     'LOGIN',
 ]);

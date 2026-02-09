@@ -5,27 +5,27 @@ import { pojos } from '@automapper/pojos';
 import { SharedModule } from '@server/shared';
 
 // Feature modules
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
-import { AuthorizationModule } from './modules/authorization/authorization.module';
-import { AuditModule } from './modules/audit/audit.module';
-import { TwoFactorAuthModule } from './modules/two-factor-auth/two-factor-auth.module';
-import { PaymentsModule } from './modules/payments/payments.module';
-import { EmailModule } from './infrastructure/email/email.module';
+import { AuthModule } from '@server/identity/modules/auth/auth.module';
+import { UsersModule } from '@server/identity/modules/users/users.module';
+import { AuthorizationModule } from '@server/identity/modules/authorization/authorization.module';
+import { AuditModule } from '@server/identity/modules/audit/audit.module';
+import { TwoFactorAuthModule } from '@server/identity/modules/two-factor-auth/two-factor-auth.module';
+import { PaymentsModule } from '@server/identity/modules/payments/payments.module';
+import { EmailModule } from '@server/identity/infrastructure/email/email.module';
 
 // NATS Handlers (replacing HTTP controllers)
-import { AuthHandler } from './interfaces/nats/auth.handler';
-import { UsersHandler } from './interfaces/nats/users.handler';
-import { AuthorizationHandler } from './interfaces/nats/authorization.handler';
-import { AuditLogHandler } from './interfaces/nats/audit-log.handler';
-import { TwoFactorAuthHandler } from './interfaces/nats/two-factor-auth.handler';
-import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
+import { AuthHandler } from '@server/identity/interfaces/nats/auth.handler';
+import { UsersHandler } from '@server/identity/interfaces/nats/users.handler';
+import { AuthorizationHandler } from '@server/identity/interfaces/nats/authorization.handler';
+import { AuditLogHandler } from '@server/identity/interfaces/nats/audit-log.handler';
+import { TwoFactorAuthHandler } from '@server/identity/interfaces/nats/two-factor-auth.handler';
+import { AnalyticsHandler } from '@server/identity/interfaces/nats/analytics.handler';
 
 // Filters
 import { GlobalRpcExceptionFilter } from '@server/shared';
 
 // Services
-import { DefaultAdminService } from './services/default-admin.service';
+import { DefaultAdminService } from '@server/identity/services/default-admin.service';
 
 @Module({
   imports: [

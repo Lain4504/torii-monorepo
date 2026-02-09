@@ -3,6 +3,7 @@ import { CourseCurriculum } from "@/components/courses/course-curriculum"
 import { CourseInstructor } from "@/components/courses/course-instructor"
 import { CourseReviews } from "@/components/courses/course-reviews"
 import { CourseSidebar } from "@/components/courses/course-sidebar"
+import { CourseAssignmentsList } from "@/components/courses/course-assignments-list"
 import { CheckCircle2, Sparkles, BookOpen, GraduationCap } from "lucide-react"
 import { courseApi } from "@/apis/services/course-api"
 import { notFound } from "next/navigation"
@@ -95,6 +96,11 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                         {/* Curriculum */}
                         <div id="curriculum">
                             <CourseCurriculum curriculum={curriculum} courseSlug={course.slug} />
+                        </div>
+
+                        {/* Assignments */}
+                        <div id="assignments" className="animate-in fade-in duration-700">
+                            <CourseAssignmentsList courseId={course.id} />
                         </div>
 
                         {/* Instructor */}

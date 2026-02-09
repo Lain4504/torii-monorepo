@@ -72,11 +72,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         // If Admin, show ALL menu items in a single unified workspace
         if (userRole === UserRole.ADMIN) {
-            // Filter mainNavItems to remove "My Courses" for Admin
-            const filteredMainNavItems = mainNavItems.map(item => ({
-                ...item,
-                items: item.items?.filter(subItem => subItem.url !== '/courses/my')
-            }));
+            // Filter mainNavItems for Admin: 
+            // 1. Remove "My Courses" sub-item
+            // 2. Remove "Assignments" top-level item (as it's for lecturers)
+            const filteredMainNavItems = mainNavItems
+                .filter(item => item.url !== '/assignments')
+                .map(item => ({
+                    ...item,
+                    items: item.items?.filter(subItem => subItem.url !== '/courses/my')
+                }));
 
             return [{
                 id: "admin-all",

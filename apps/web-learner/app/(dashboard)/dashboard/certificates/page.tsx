@@ -3,45 +3,35 @@
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { Award, Download, Share2, Calendar, CheckCircle2, ChevronRight, FileText } from 'lucide-react'
+import { Award, Download, Share2, Calendar, CheckCircle2, FileText, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { useCertificates } from '@/apis/services/certificate-api'
+import { Skeleton } from '@workspace/ui/components/skeleton'
+import type { CertificateResponseDTO } from '@workspace/schemas'
 
 export default function CertificatesPage() {
-    const certificates = [
-        {
-            id: 1,
-            courseTitle: 'Tiếng Nhật N5 - Khóa học toàn diện',
-            instructor: 'Nguyễn Văn A',
-            issuedDate: '2024-01-15',
-            certificateId: 'TORII-N5-2024-001',
-            level: 'N5',
-            score: 95,
-        },
-        {
-            id: 2,
-            courseTitle: 'Ngữ pháp N4',
-            instructor: 'Trần Thị B',
-            issuedDate: '2024-02-20',
-            certificateId: 'TORII-N4-2024-002',
-            level: 'N4',
-            score: 88,
-        },
-        {
-            id: 3,
-            courseTitle: 'Từ vựng N3',
-            instructor: 'Lê Văn C',
-            issuedDate: '2024-03-10',
-            certificateId: 'TORII-N3-2024-003',
-            level: 'N3',
-            score: 92,
-        },
-    ]
+    const { data: response, isLoading } = useCertificates({ limit: '50' })
+    const certificates = response?.data || []
 
     const stats = [
         { label: 'Chứng chỉ', value: certificates.length.toString(), icon: Award, color: 'text-amber-500' },
-        { label: 'Điểm TB', value: '92', icon: CheckCircle2, color: 'text-emerald-500' },
-        { label: 'Cấp độ', value: 'N3', icon: Award, color: 'text-primary' },
+        { label: 'Điểm TB', value: '100', icon: CheckCircle2, color: 'text-emerald-500' },
+        { label: 'Cấp độ', value: 'N/A', icon: Award, color: 'text-primary' },
     ]
+
+    const handleShare = (cert: CertificateResponseDTO) => {
+        const verifyUrl = `${window.location.origin}/verify/${cert.certificateCode}`
+        if (navigator.share) {
+            navigator.share({
+                title: 'Chứng chỉ Torii Academy',
+                text: `Tôi đã hoàn thành khóa học ${cert.course?.title}!`,
+                url: verifyUrl,
+            }).catch(console.error)
+        } else {
+            navigator.clipboard.writeText(verifyUrl)
+            alert('Đã sao chép link xác thực vào bộ nhớ tạm!')
+        }
+    }
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-6xl animate-in fade-in duration-500">
@@ -61,60 +51,101 @@ export default function CertificatesPage() {
                     const Icon = stat.icon
                     return (
                         <div key={index} className="p-4 rounded-xl border border-border bg-card shadow-sm flex flex-col items-center text-center space-y-1">
-                            <Icon className={`w-5 h-5 ${stat.color} opacity-80`} />
-                            <p className="text-xl font-bold text-foreground">{stat.value}</p>
-                            <p className="text-xs font-bold text-muted-foreground">{stat.label}</p>
+                            {isLoading ? (
+                                <Skeleton className="h-4 w-4 rounded-full mb-1" />
+                            ) : (
+                                <Icon className={`w-5 h-5 ${stat.color} opacity-80`} />
+                            )}
+                            <div className="text-xl font-bold text-foreground">
+                                {isLoading ? <Skeleton className="h-6 w-8 mx-auto" /> : stat.value}
+                            </div>
+                            <div className="text-xs font-bold text-muted-foreground">{stat.label}</div>
                         </div>
                     )
                 })}
             </div>
 
             {/* Certificates List */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {certificates.map((cert) => (
-                    <Card key={cert.id} className="border-border bg-card hover:shadow-lg transition-all group overflow-hidden flex flex-col cursor-pointer rounded-2xl">
-                        <div className="aspect-[1.4] bg-muted/30 border-b border-border flex flex-col items-center justify-center p-6 text-center space-y-3 relative group-hover:bg-muted/50 transition-colors">
-                            <div className="absolute top-3 right-3">
-                                <Badge className="text-xs font-bold bg-background text-foreground border-border shadow-sm">
-                                    {cert.level}
-                                </Badge>
+            {isLoading ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <Card key={i} className="rounded-2xl overflow-hidden border-border space-y-4 p-4">
+                            <Skeleton className="aspect-[1.4] w-full rounded-xl" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="h-3 w-1/2" />
                             </div>
-                            <div className="w-16 h-16 rounded-full bg-background shadow-md flex items-center justify-center border border-border/20 group-hover:scale-105 transition-transform duration-500">
-                                <Award className="w-8 h-8 text-primary" />
+                            <div className="flex gap-2">
+                                <Skeleton className="h-9 flex-1 rounded-xl" />
+                                <Skeleton className="h-9 w-9 rounded-xl" />
                             </div>
-                            <div>
-                                <h3 className="text-sm font-bold text-foreground line-clamp-2 px-2 leading-snug">{cert.courseTitle}</h3>
-                                <p className="text-xs text-muted-foreground mt-1 font-mono">{cert.certificateId}</p>
-                            </div>
-                        </div>
-                        <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                            <div className="space-y-3">
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between border-b border-border/50 pb-2">
-                                        <span className="text-xs text-muted-foreground font-medium">Điểm số</span>
-                                        <span className="text-sm font-bold text-emerald-600">{cert.score}/100</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground font-medium">Ngày cấp</span>
-                                        <span className="text-xs font-bold">{new Date(cert.issuedDate).toLocaleDateString('vi-VN')}</span>
-                                    </div>
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {certificates.map((cert: CertificateResponseDTO) => (
+                        <Card key={cert.id} className="border-border bg-card hover:shadow-lg transition-all group overflow-hidden flex flex-col cursor-pointer rounded-2xl">
+                            <div className="aspect-[1.4] bg-muted/30 border-b border-border flex flex-col items-center justify-center p-6 text-center space-y-3 relative group-hover:bg-muted/50 transition-colors">
+                                <div className="absolute top-3 right-3">
+                                    <Badge className="text-xs font-bold bg-background text-foreground border-border shadow-sm">
+                                        {cert.course?.jlptLevel || 'CERT'}
+                                    </Badge>
+                                </div>
+                                <div className="w-16 h-16 rounded-full bg-background shadow-md flex items-center justify-center border border-border/20 group-hover:scale-105 transition-transform duration-500">
+                                    <Award className="w-8 h-8 text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-bold text-foreground line-clamp-2 px-2 leading-snug">{cert.course?.title}</h3>
+                                    <p className="text-xs text-muted-foreground mt-1 font-mono">{cert.certificateCode}</p>
                                 </div>
                             </div>
+                            <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                                <div className="space-y-3">
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                                            <span className="text-xs text-muted-foreground font-medium">Trạng thái</span>
+                                            <span className="text-sm font-bold text-emerald-600 flex items-center gap-1">
+                                                <CheckCircle2 className="w-3 h-3" /> Đã cấp
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs text-muted-foreground font-medium">Ngày cấp</span>
+                                            <span className="text-xs font-bold">{new Date(cert.issueDate).toLocaleDateString('vi-VN')}</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" className="flex-1 rounded-xl text-xs font-bold h-9 hover:bg-muted transition-all shadow-sm">
-                                    <Download className="w-3.5 h-3.5 mr-1.5" /> Tải về
-                                </Button>
-                                <Button variant="outline" size="icon" className="rounded-xl w-9 h-9 hover:bg-muted transition-all shadow-sm">
-                                    <Share2 className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+                                <div className="flex gap-2">
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex-1 rounded-xl text-xs font-bold h-9 hover:bg-muted transition-all shadow-sm"
+                                    >
+                                        <Link href={cert.fileUrl} target="_blank" download>
+                                            <Download className="w-3.5 h-3.5 mr-1.5" /> Tải về
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="rounded-xl w-9 h-9 hover:bg-muted transition-all shadow-sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleShare(cert)
+                                        }}
+                                    >
+                                        <Share2 className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
 
-            {certificates.length === 0 && (
+            {!isLoading && certificates.length === 0 && (
                 <div className="py-20 text-center space-y-4 rounded-2xl border border-dashed border-border bg-muted/5">
                     <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto">
                         <Award className="w-8 h-8 text-muted-foreground/30" />

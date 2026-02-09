@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import type { GoogleUserInfo } from '@workspace/schemas';
-import type { IGoogleAuthService } from '../../interfaces/services';
+import type { IGoogleAuthService } from '@server/identity/interfaces/services';
 import { AppConfigService } from '@server/shared';
 
 /**
@@ -68,3 +68,4 @@ export class GoogleAuthService implements IGoogleAuthService {
         return !!this.appConfig.thirdParty.google.clientId;
     }
 }
+

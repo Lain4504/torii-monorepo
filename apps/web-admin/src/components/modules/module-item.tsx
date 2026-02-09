@@ -1,5 +1,6 @@
 
 import { Button } from '@workspace/ui/components/button';
+import { Can } from '@/lib/guard/can';
 import {
     AccordionContent,
     AccordionItem,
@@ -12,7 +13,7 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { Badge } from '@workspace/ui/components/badge';
-import { Layers, FileText, Plus, MoreVertical, Pencil, Trash, Video, ClipboardList, ChevronDown, Sparkles } from 'lucide-react';
+import { Layers, FileText, Plus, MoreVertical, Pencil, Trash, Video, ClipboardList, ChevronDown, Sparkles, BookOpen } from 'lucide-react';
 
 import type { ModuleResponseDTO, LessonResponseDTO } from '@workspace/schemas';
 import { LessonContentType } from '@workspace/schemas';
@@ -35,11 +36,13 @@ const getLessonIcon = (type: string) => {
 const LessonRow = ({
     lesson,
     onEdit,
-    onDelete
+    onDelete,
+    onAddAssignment
 }: {
     lesson: LessonResponseDTO;
     onEdit: (lesson: LessonResponseDTO) => void;
     onDelete: (lesson: LessonResponseDTO) => void;
+    onAddAssignment: (lessonId: string) => void;
 }) => {
     return (
         <div
@@ -86,6 +89,20 @@ const LessonRow = ({
                 >
                     <Pencil className="h-3.5 w-3.5" />
                 </Button>
+                <Can permission="course.manage">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onAddAssignment(lesson.id);
+                        }}
+                        title="Thêm bài tập"
+                    >
+                        <BookOpen className="h-3.5 w-3.5" />
+                    </Button>
+                </Can>
                 <Button
                     variant="ghost"
                     size="icon"
@@ -111,6 +128,8 @@ export function ModuleItem({
     onEditModule,
     onDeleteModule,
     onAddLesson,
+    onAddModuleAssignment,
+    onAddLessonAssignment,
     onEditLesson,
     onDeleteLesson
 }: {
@@ -120,6 +139,8 @@ export function ModuleItem({
     onEditModule: (module: ModuleResponseDTO) => void;
     onDeleteModule: (module: ModuleResponseDTO) => void;
     onAddLesson: (moduleId: string) => void;
+    onAddModuleAssignment: (moduleId: string) => void;
+    onAddLessonAssignment: (moduleId: string, lessonId: string) => void;
     onEditLesson: (lesson: LessonResponseDTO) => void;
     onDeleteLesson: (lesson: LessonResponseDTO) => void;
 }) {
@@ -202,6 +223,11 @@ export function ModuleItem({
                             <DropdownMenuItem onClick={() => onAddLesson(module.id)} className="sm:hidden cursor-pointer rounded-lg text-xs font-medium py-2.5">
                                 <Plus className="mr-2 h-4 w-4 opacity-70" /> Thêm bài học
                             </DropdownMenuItem>
+                            <Can permission="course.manage">
+                                <DropdownMenuItem onClick={() => onAddModuleAssignment(module.id)} className="cursor-pointer rounded-lg text-xs font-medium py-2.5">
+                                    <BookOpen className="mr-2 h-4 w-4 opacity-70" /> Thêm bài tập
+                                </DropdownMenuItem>
+                            </Can>
                             <DropdownMenuItem onClick={() => onEditModule(module)} className="cursor-pointer rounded-lg text-xs font-medium py-2.5">
                                 <Pencil className="mr-2 h-4 w-4 opacity-70" /> Chỉnh sửa học phần
                             </DropdownMenuItem>
@@ -255,6 +281,7 @@ export function ModuleItem({
                                         lesson={lesson}
                                         onEdit={onEditLesson}
                                         onDelete={onDeleteLesson}
+                                        onAddAssignment={(lessonId) => onAddLessonAssignment(module.id, lessonId)}
                                     />
                                 ))}
                             </div>

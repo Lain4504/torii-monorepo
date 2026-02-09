@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { ITwoFactorAuthService } from '../../interfaces/services';
-import { TWO_FACTOR_AUTH_SERVICE_TOKEN } from '../../interfaces/services';
+import type { ITwoFactorAuthService } from '@server/identity/interfaces/services';
+import { TWO_FACTOR_AUTH_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 import { PrismaService } from '@server/shared';
 import * as argon2 from 'argon2';
 
@@ -57,3 +57,4 @@ export class TwoFactorAuthHandler {
         return this.twoFactorAuthService.get2FAStatus(data.userId);
     }
 }
+

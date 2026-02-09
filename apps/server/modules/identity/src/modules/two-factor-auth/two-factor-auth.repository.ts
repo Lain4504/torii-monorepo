@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { TwoFactorAuth, Prisma } from '@prisma/generated';
-import type { ITwoFactorAuthRepository } from '../../interfaces/repositories';
+import type { ITwoFactorAuthRepository } from '@server/identity/interfaces/repositories';
 
 /**
  * Two-Factor Authentication Repository
@@ -141,3 +141,4 @@ export class TwoFactorAuthRepository implements ITwoFactorAuthRepository {
         await this.updateBackupCodes(userId, updatedCodes);
     }
 }
+
