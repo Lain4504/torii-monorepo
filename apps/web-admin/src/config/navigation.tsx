@@ -94,10 +94,7 @@ export const mainNavItems: NavItem[] = [
         titleKey: "Bài tập",
         url: "/assignments",
         icon: FileText,
-        // Remove admin from roles to strictly show only for lecturer
-        roles: ["lecturer"],
-        // Keep permission for safety, but role check in PermissionWrapper will handle the "only" part
-        anyPermission: ["course.manage"],
+        permission: "assignment.manage",
         descriptionKey: "Quản lý bài tập & chấm điểm bài nộp",
     },
 ];

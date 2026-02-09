@@ -30,7 +30,6 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { cn } from "@workspace/ui/lib/utils"
 import { Can } from "@/lib/guard/can"
-import { usePermissions } from "@/hooks/use-permissions"
 
 export interface NavMainItem {
     titleKey: string
@@ -39,8 +38,6 @@ export interface NavMainItem {
     isActive?: boolean
     permission?: string
     anyPermission?: string[]
-    role?: string
-    roles?: string[]
     items?: {
         titleKey: string
         url: string
@@ -184,7 +181,7 @@ export function NavMain({
                     )
 
                     return (
-                        <PermissionWrapper key={item.titleKey} permission={item.permission} anyPermission={item.anyPermission} role={item.role} roles={item.roles}>
+                        <PermissionWrapper key={item.titleKey} permission={item.permission} anyPermission={item.anyPermission}>
                             {content}
                         </PermissionWrapper>
                     )
@@ -197,32 +194,13 @@ export function NavMain({
 function PermissionWrapper({
     permission,
     anyPermission,
-    role,
-    roles,
     children
 }: {
     permission?: string;
     anyPermission?: string[];
-    role?: string;
-    roles?: string[];
     children: React.ReactNode
 }) {
-    const { role: userRole } = usePermissions();
-
-    // Role check (Strict)
-    if (role && userRole !== role) return null;
-    if (roles && !roles.includes(userRole as string)) return null;
-
-    // If role matches and no permissions are required, or we want role to be sufficient
     if (!permission && !anyPermission) return <>{children}</>
-
-    // Special case: If role is specified and matches, we might want to bypass permission check 
-    // if the user intended it to be strictly role-based (as in "only lecturer").
-    // However, to be safe and consistent with existing system, we still check permission.
-    // BUT! If the user says lecturer doesn't see it, then they don't have the permission.
-    // So for "Only Lecturer" items, we should probably bypass permission if role matches.
-    if (roles && roles.includes(userRole as string)) return <>{children}</>;
-
     return (
         <Can permission={permission} anyPermission={anyPermission}>
             {children}
