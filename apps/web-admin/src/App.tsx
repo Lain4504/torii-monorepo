@@ -31,8 +31,6 @@ import TransactionsPage from '@/routes/finance/payments-page.tsx'
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
-import QuestionBankPage from '@/routes/question-bank/question-bank-page.tsx'
-import QuestionsPage from '@/routes/questions/questions-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
 
@@ -110,7 +108,7 @@ function App() {
                 <Route element={<RoutePermissionGuard permission="report.view" />}>
                   <Route path="analytics/revenue" element={<RevenueAnalytics />} />
                   <Route path="analytics/learning" element={<LearningAnalytics />} />
-                <Route path="analytics/users" element={<UserAnalytics />} />
+                  <Route path="analytics/users" element={<UserAnalytics />} />
                 </Route>
 
                 <Route element={<RoutePermissionGuard permission="course.manage" />}>

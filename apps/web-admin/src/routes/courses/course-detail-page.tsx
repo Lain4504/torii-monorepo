@@ -15,6 +15,9 @@ import {
     StopCircle,
     Settings,
     FileText,
+    BookOpen,
+    Search,
+    PenTool
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import {
@@ -42,10 +45,16 @@ import {
     useEndLiveSession,
     liveSessionsApi
 } from '@/api/services/live-sessions';
-import type { ModuleResponseDTO, LessonResponseDTO } from '@workspace/schemas';
+import type { ModuleResponseDTO, LessonResponseDTO, AssignmentResponseDTO } from '@workspace/schemas';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { toast } from '@workspace/ui/components/sonner';
+import {
+    useAssignments,
+    useDeleteAssignment,
+    usePublishAssignment
+} from '@/api/services/assignments';
+import { AssignmentStatus } from '@workspace/schemas';
 
 import { CreateModuleSheet } from '@/components/modules/create-module-sheet.tsx';
 import { EditModuleSheet } from '@/components/modules/edit-module-sheet.tsx';
@@ -54,9 +63,13 @@ import { EditLessonSheet } from '@/components/lessons/edit-lesson-sheet.tsx';
 import { DeleteModuleDialog } from '@/components/modules/delete-module-dialog';
 import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog';
 import { TeachingScheduleSheet } from '@/components/courses/teaching-schedule-sheet';
+import { AssignmentsTable } from '@/components/assignments/assignments-table';
+import { CreateAssignmentSheet } from '@/components/assignments/create-assignment-sheet';
+import { EditAssignmentSheet } from '@/components/assignments/edit-assignment-sheet';
 import { cn } from '@workspace/ui/lib/utils';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { PageHeader } from '@/components/common/page-header';
+import { SmartPagination } from '@/components/common/smart-pagination';
 
 export default function CourseDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -78,6 +91,14 @@ export default function CourseDetailPage() {
     const [selectedLesson, setSelectedLesson] = useState<LessonResponseDTO | null>(null);
     const [isScheduleSheetOpen, setIsScheduleSheetOpen] = useState(false);
 
+    // Assignment States
+    const [createAssignmentOpen, setCreateAssignmentOpen] = useState(false);
+    const [selectedModuleIdForAssignment, setSelectedModuleIdForAssignment] = useState<string | null>(null);
+    const [selectedLessonIdForAssignment, setSelectedLessonIdForAssignment] = useState<string | null>(null);
+    const [editAssignmentOpen, setEditAssignmentOpen] = useState(false);
+    const [selectedAssignment, setSelectedAssignment] = useState<AssignmentResponseDTO | null>(null);
+    const [assignmentPage, setAssignmentPage] = useState(1);
+
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
     const modules = modulesData?.data || [];
@@ -86,6 +107,15 @@ export default function CourseDetailPage() {
     const deleteLiveSessionMutation = useDeleteLiveSession();
     const startMutation = useStartLiveSession();
     const endMutation = useEndLiveSession();
+
+    // Assignment Hooks
+    const { data: assignmentsData, isLoading: isLoadingAssignments } = useAssignments({
+        courseId: id,
+        page: assignmentPage,
+        limit: 50,
+    });
+    const publishAssignmentMutation = usePublishAssignment();
+    const deleteAssignmentMutation = useDeleteAssignment();
 
     const toggleModule = (moduleId: string) => {
         const newExpanded = new Set(expandedModules);
@@ -134,6 +164,34 @@ export default function CourseDetailPage() {
         } catch (error: any) {
             toast.error(error.response?.data?.message || 'Không thể tham gia buổi học');
         }
+    };
+
+    const handlePublishAssignment = async (assignment: AssignmentResponseDTO) => {
+        try {
+            await publishAssignmentMutation.mutateAsync(assignment.id);
+            toast.success(`Đã công bố bài tập: ${assignment.title}`);
+        } catch (error) {
+            toast.error("Công bố thất bại");
+        }
+    };
+
+    const handleDeleteAssignment = async (assignment: AssignmentResponseDTO) => {
+        if (!confirm(`Bạn có chắc muốn xóa bài tập "${assignment.title}"?`)) return;
+        try {
+            await deleteAssignmentMutation.mutateAsync(assignment.id);
+            toast.success("Đã xóa bài tập");
+        } catch (error) {
+            toast.error("Xóa thất bại");
+        }
+    };
+
+    const handleEditAssignment = (assignment: AssignmentResponseDTO) => {
+        setSelectedAssignment(assignment);
+        setEditAssignmentOpen(true);
+    };
+
+    const handleViewSubmissions = (assignment: AssignmentResponseDTO) => {
+        navigate(`/assignments/${assignment.id}/submissions`);
     };
 
     if (isLoadingCourse) {
@@ -204,6 +262,10 @@ export default function CourseDetailPage() {
                     <TabsTrigger value="live-schedule" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
                         <CalendarCheck2 className="size-4 mr-2" />
                         Lịch học Live
+                    </TabsTrigger>
+                    <TabsTrigger value="assignments" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <PenTool className="size-4 mr-2" />
+                        Bài Tập
                     </TabsTrigger>
                 </TabsList>
 
@@ -277,6 +339,13 @@ export default function CourseDetailPage() {
                                                                 <DropdownMenuItem onClick={() => { setSelectedModuleIdForLesson(module.id); setCreateLessonOpen(true); }} className="rounded-lg gap-2 py-2">
                                                                     <Plus className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài học</span>
                                                                 </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => {
+                                                                    setSelectedModuleIdForAssignment(module.id);
+                                                                    setSelectedLessonIdForAssignment(null);
+                                                                    setCreateAssignmentOpen(true);
+                                                                }} className="rounded-lg gap-2 py-2">
+                                                                    <PenTool className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài tập</span>
+                                                                </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => { setSelectedModule(module); setEditModuleOpen(true); }} className="rounded-lg gap-2 py-2">
                                                                     <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
                                                                 </DropdownMenuItem>
@@ -314,6 +383,13 @@ export default function CourseDetailPage() {
                                                                 <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
                                                                     <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setEditLessonOpen(true); }} className="rounded-lg gap-2 py-2">
                                                                         <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => {
+                                                                        setSelectedModuleIdForAssignment(module.id);
+                                                                        setSelectedLessonIdForAssignment(lesson.id);
+                                                                        setCreateAssignmentOpen(true);
+                                                                    }} className="rounded-lg gap-2 py-2">
+                                                                        <PenTool className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài tập</span>
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setDeleteLessonOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
                                                                         <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
@@ -454,6 +530,51 @@ export default function CourseDetailPage() {
                         </div>
                     )}
                 </TabsContent>
+
+                {/* Assignments Tab */}
+                <TabsContent value="assignments" className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-muted-foreground">Quản lý bài tập về nhà và các bài kiểm tra định kỳ</p>
+                        <Button
+                            onClick={() => {
+                                setSelectedModuleIdForAssignment(null);
+                                setSelectedLessonIdForAssignment(null);
+                                setCreateAssignmentOpen(true);
+                            }}
+                            className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 transition-all"
+                        >
+                            <Plus className="mr-2 size-4" />
+                            Thêm bài tập mới
+                        </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+                            <div className="bg-card/20 backdrop-blur-sm overflow-x-auto">
+                                <AssignmentsTable
+                                    data={assignmentsData?.data || []}
+                                    isLoading={isLoadingAssignments}
+                                    onEdit={handleEditAssignment}
+                                    onDelete={handleDeleteAssignment}
+                                    onPublish={handlePublishAssignment}
+                                    onViewSubmissions={handleViewSubmissions}
+                                />
+                            </div>
+                        </div>
+
+                        {assignmentsData && assignmentsData.totalPages > 1 && (
+                            <div className="flex justify-end">
+                                <SmartPagination
+                                    page={assignmentPage}
+                                    totalItems={assignmentsData.total}
+                                    totalPages={assignmentsData.totalPages}
+                                    onPageChange={setAssignmentPage}
+                                    itemName="bài tập"
+                                />
+                            </div>
+                        )}
+                    </div>
+                </TabsContent>
             </Tabs>
 
             {/* Dialogs & Sheets */}
@@ -468,6 +589,19 @@ export default function CourseDetailPage() {
             <DeleteLessonDialog open={deleteLessonOpen} onOpenChange={setDeleteLessonOpen} lesson={selectedLesson} />
 
             <TeachingScheduleSheet open={isScheduleSheetOpen} onOpenChange={setIsScheduleSheetOpen} course={course} />
+
+            <CreateAssignmentSheet
+                open={createAssignmentOpen}
+                onOpenChange={setCreateAssignmentOpen}
+                courseId={id}
+                moduleId={selectedModuleIdForAssignment || undefined}
+                lessonId={selectedLessonIdForAssignment || undefined}
+            />
+            <EditAssignmentSheet
+                open={editAssignmentOpen}
+                onOpenChange={setEditAssignmentOpen}
+                assignment={selectedAssignment}
+            />
         </div>
     );
 }
