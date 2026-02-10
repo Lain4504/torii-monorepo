@@ -91,5 +91,24 @@ export class EnrollmentRepository implements IEnrollmentRepository {
             where: { id },
         });
     }
+
+    /**
+     * Count total learning seconds for a user across all enrollments
+     * based on completed lessons
+     */
+    async countTotalLearningSeconds(userId: string): Promise<number> {
+        const result = await this.prisma.lessonProgress.aggregate({
+            where: {
+                enrollment: {
+                    userId,
+                },
+            },
+            _sum: {
+                watchedDuration: true,
+            },
+        });
+
+        return result._sum.watchedDuration || 0;
+    }
 }
 

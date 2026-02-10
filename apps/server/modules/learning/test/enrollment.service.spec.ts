@@ -22,6 +22,7 @@ describe('EnrollmentService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        countTotalLearningSeconds: jest.fn(),
     };
 
     const mockCourseRepository = {
@@ -62,7 +63,7 @@ describe('EnrollmentService', () => {
     });
 
     describe('getLearnerStats', () => {
-        it('should calculate stats correctly for a user with enrollments', async () => {
+        it('should calculate stats correctly using watched duration from repository', async () => {
             const userId = 'user-1';
             const mockEnrollments = {
                 total: 2,
@@ -71,6 +72,9 @@ describe('EnrollmentService', () => {
                     { completionStatus: EnrollmentStatus.IN_PROGRESS, completionPercentage: 50 },
                 ],
             };
+            
+            // 9000 seconds = 2.5 hours (total time watched across all lessons)
+            mockEnrollmentRepository.countTotalLearningSeconds.mockResolvedValue(9000);
 
             // findAll is called internally
             jest.spyOn(service, 'findAll').mockResolvedValue(mockEnrollments as any);
@@ -80,12 +84,14 @@ describe('EnrollmentService', () => {
             expect(result.totalCourses).toBe(2);
             expect(result.completedCourses).toBe(1);
             expect(result.averageProgress).toBe(75);
-            // totalLearningHours = Math.floor(2 * 10 * (75/100)) = 15
-            expect(result.totalLearningHours).toBe(15);
+            // totalLearningHours = 9000 / 3600 = 2.5
+            expect(result.totalLearningHours).toBe(2.5);
+            expect(enrollmentRepository.countTotalLearningSeconds).toHaveBeenCalledWith(userId);
         });
 
-        it('should return zeros for a user with no enrollments', async () => {
+        it('should return zeros for a user with no enrollments and no time', async () => {
             jest.spyOn(service, 'findAll').mockResolvedValue({ total: 0, data: [], page: 1, limit: 10, totalPages: 0 });
+            mockEnrollmentRepository.countTotalLearningSeconds.mockResolvedValue(0);
 
             const result = await service.getLearnerStats('user-2');
 

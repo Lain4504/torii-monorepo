@@ -43,8 +43,11 @@ export class EnrollmentService implements IEnrollmentService {
         averageProgress: number;
         totalLearningHours: number;
     }> {
-        // Fetch all enrollments for the user
-        const enrollments = await this.findAll({ userId, limit: 1000, page: 1 });
+        // Fetch stats from repository and aggregated records
+        const [enrollments, totalLearningSeconds] = await Promise.all([
+            this.findAll({ userId, limit: 1000, page: 1 }),
+            this.enrollmentRepository.countTotalLearningSeconds(userId)
+        ]);
 
         const totalCourses = enrollments.total;
         const completedCourses = enrollments.data.filter(e => e.completionStatus === EnrollmentStatus.COMPLETED).length;
@@ -52,8 +55,8 @@ export class EnrollmentService implements IEnrollmentService {
             ? enrollments.data.reduce((acc, curr) => acc + curr.completionPercentage, 0) / totalCourses
             : 0;
 
-        // Roughly estimate hours: 10h per course * progress
-        const totalLearningHours = Math.floor(totalCourses * 10 * (averageProgress / 100));
+        // Calculate hours from actual duration (seconds / 3600)
+        const totalLearningHours = Math.round(totalLearningSeconds / 3600 * 10) / 10; // Precision to 1 decimal point
 
         return {
             totalCourses,
