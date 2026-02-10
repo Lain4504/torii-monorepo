@@ -19,14 +19,15 @@ You MUST respond with valid JSON only.
   "currentLevel": "N5",
   "targetLevel": "N4",
   "studyPathRecommendation": {
-    "focusAreas": ["Vocabulary", "Grammar"],
+    "roadmap": [
+      { "title": "Hiragana & Katakana", "status": "completed", "description": "Master basics of writing" },
+      { "title": "N5 Vocabulary", "status": "completed", "description": "Essential 800 words" },
+      { "title": "N5 Grammar", "status": "in-progress", "description": "Basic particles and verb conjugations" },
+      { "title": "Kanji Basics", "status": "locked", "description": "First 100 characters" },
+      { "title": "Reading Comprehension", "status": "locked", "description": "Simple texts and dialogues" }
+    ],
     "estimatedWeeks": 12,
-    "weeklySchedule": [
-      {
-        "week": 1,
-        "topics": ["Daily activities vocabulary", "Basic particles review"]
-      }
-    ]
+    "focusAreas": ["Vocabulary", "Grammar"]
   }
 }
 ```

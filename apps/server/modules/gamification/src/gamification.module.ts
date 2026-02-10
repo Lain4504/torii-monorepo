@@ -3,17 +3,18 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule, SharedModule, NatsClientModule } from '@server/shared';
 
 // NATS Handlers
-import { GamificationHandler } from './interfaces/nats/gamification.handler';
-import { ActivityHandler } from './interfaces/nats/activity.handler';
+import { GamificationHandler, ActivityHandler } from '@server/gamification/interfaces/nats';
 
 // Services
-import { StreakService } from './services/streak.service';
-import { AchievementService } from './services/achievement.service';
-import { ActivityService } from './services/activity.service';
-import { LeaderboardService } from './services/leaderboard.service';
+import {
+    StreakService,
+    AchievementService,
+    ActivityService,
+    LeaderboardService,
+} from '@server/gamification/services';
 
 // Jobs
-import { StreakCheckJob } from './jobs/streak-check.job';
+import { StreakCheckJob } from '@server/gamification/jobs/streak-check.job';
 
 @Module({
     imports: [

@@ -12,6 +12,7 @@ export interface ToolContext {
   enrolledCourses?: string[];
   jlptLevels?: string[];
   aiMetadata?: any[];
+  recentActivity?: { date: string; lessons: number; averageScore: number }[];
 }
 
 /**
@@ -211,12 +212,76 @@ export class FastMcpService implements OnModuleInit {
       const courseTitles = enrollments.map(e => e.course.title);
       const jlptLevels = [...new Set(enrollments.map(e => e.course.jlptLevel).filter(Boolean))];
 
+      // Fetch Recent Activity (Last 30 Days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      // 1. Lessons Completed
+      const completedLessons = await this.prisma.lessonProgress.findMany({
+        where: {
+          enrollment: { userId },
+          completedAt: { gte: thirtyDaysAgo },
+          status: 'completed'
+        },
+        select: { completedAt: true }
+      });
+
+      // 2. Quiz/Test Scores
+      const completedQuizzes = await this.prisma.quizAttempt.findMany({
+        where: {
+          userId,
+          completedAt: { gte: thirtyDaysAgo },
+          status: 'completed' // or 'submitted'
+        },
+        select: { completedAt: true, percentage: true }
+      });
+
+      // 3. Aggregate by Date
+      const activityMap = new Map<string, { lessons: number, scores: number[], date: string }>();
+
+      // Init helper
+      const getDateKey = (date: Date) => date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+      completedLessons.forEach(l => {
+        if (!l.completedAt) return;
+        const dateKey = getDateKey(l.completedAt);
+        if (!activityMap.has(dateKey)) {
+          activityMap.set(dateKey, { lessons: 0, scores: [], date: dateKey });
+        }
+        activityMap.get(dateKey)!.lessons += 1;
+      });
+
+      completedQuizzes.forEach(q => {
+        if (!q.completedAt) return;
+        const dateKey = getDateKey(q.completedAt);
+        if (!activityMap.has(dateKey)) {
+          activityMap.set(dateKey, { lessons: 0, scores: [], date: dateKey });
+        }
+        if (q.percentage !== null) {
+          activityMap.get(dateKey)!.scores.push(Number(q.percentage));
+        }
+      });
+
+      // Convert to Array and Calculate Averages
+      const recentActivity = Array.from(activityMap.values()).map(item => ({
+        date: item.date,
+        lessons: item.lessons,
+        averageScore: item.scores.length > 0
+          ? Math.round(item.scores.reduce((a, b) => a + b, 0) / item.scores.length)
+          : 0
+      })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      // Limit to last 7 days? Or keep all 30? Context window assumes 30 is fine.
+      // Let's pass the last 14 days to be safe and concise.
+      const conciseActivity = recentActivity.slice(-14);
+
       return {
         userId,
         enrolledCourses: courseTitles,
         jlptLevels,
         aiMetadata: courseMetadata,
-      };
+        recentActivity: conciseActivity,
+      } as any; // Cast as any to bypass partial interface for now or update interface
     } catch (error) {
       this.logger.warn(`Failed to fetch user context: ${error.message}`);
       return { userId };

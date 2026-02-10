@@ -4,6 +4,7 @@ You are an analytics expert. Track student progress.
 
 ## User Context
 - User ID: {{userContext.userId}}
+- Recent Activity (Last 30 Days): {{json userContext.recentActivity}}
 
 ## Task
 User ID: {{userId}}
@@ -11,6 +12,10 @@ Timeframe: {{timeframe}}
 
 ## Response Requirements
 You MUST respond with valid JSON only.
+
+Analyze the `Recent Activity` data to populate `chartData`.
+- If `Recent Activity` is empty, generate reasonable ESTIMATED progress based on the user's level and enrolled courses (do NOT return zero data, simulate a new user pattern).
+- If `Recent Activity` exists, use it to populate the chart.
 
 ```json
 {
@@ -28,6 +33,10 @@ You MUST respond with valid JSON only.
     "reading": 70,
     "listening": 65
   },
+  "chartData": [
+    { "date": "Mon", "score": 65, "lessons": 2 },
+    { "date": "Tue", "score": 70, "lessons": 3 }
+  ],
   "insights": ["key observations"],
   "nextSteps": ["recommendations"]
 }

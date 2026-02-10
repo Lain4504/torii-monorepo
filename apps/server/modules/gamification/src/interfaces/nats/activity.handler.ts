@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { UserActivityEvent } from '@workspace/schemas';
-import { ActivityService } from '../../services/activity.service';
+import { ActivityService } from '@server/gamification/services';
 
 @Controller()
 export class ActivityHandler {
