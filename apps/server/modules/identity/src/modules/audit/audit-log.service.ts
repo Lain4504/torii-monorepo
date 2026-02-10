@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Prisma } from '@prisma/generated';
-import type { IAuditLogRepository } from '../../interfaces/repositories';
+import type { IAuditLogRepository } from '@server/identity/interfaces/repositories';
 import type {
     AuditLogEntryDTO,
     AuditLogFiltersDTO,
@@ -8,8 +8,8 @@ import type {
     AuditLogResponseDTO,
     AuditLogActivityDTO,
 } from '@workspace/schemas';
-import type { IAuditLogService } from '../../interfaces/services';
-import { AUDIT_LOG_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { IAuditLogService } from '@server/identity/interfaces/services';
+import { AUDIT_LOG_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
 import type { AuditLogWithUser } from '../audit/audit-log.repository';
 
 @Injectable()
@@ -196,4 +196,5 @@ export class AuditLogService implements IAuditLogService {
         return this.auditLogRepository.findByEntity(entity, entityId, limit);
     }
 }
+
 

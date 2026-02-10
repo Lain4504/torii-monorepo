@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { StreakService } from '../services/streak.service';
+import { StreakService } from '@server/gamification/services';
 
 @Injectable()
 export class StreakCheckJob {

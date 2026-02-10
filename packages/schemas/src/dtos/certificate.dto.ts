@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import { certificateSchema } from '../models/certificate.model';
 
-export const certificateResponseDTOSchema = certificateSchema;
+import { courseSchema } from '../models/course.model';
+
+export const certificateResponseDTOSchema = certificateSchema.extend({
+    course: courseSchema.optional(),
+});
 
 export type CertificateResponseDTO = z.infer<typeof certificateResponseDTOSchema>;
 

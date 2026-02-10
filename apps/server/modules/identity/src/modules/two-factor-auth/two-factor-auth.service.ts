@@ -12,15 +12,15 @@ import * as argon2 from 'argon2';
 import { randomBytes } from 'crypto';
 import Redis from 'ioredis';
 import { PrismaService, REDIS_CLIENT, EncryptionService, AppConfigService } from '@server/shared';
-import type { ITwoFactorAuthRepository } from '../../interfaces/repositories';
-import { TWO_FACTOR_AUTH_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ITwoFactorAuthRepository } from '@server/identity/interfaces/repositories';
+import { TWO_FACTOR_AUTH_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
 import type {
     TwoFactorAuthStatus,
     TotpSetupResponse,
     EnableTotpResponse,
     TwoFactorMethod,
 } from '@workspace/schemas';
-import type { ITwoFactorAuthService } from '../../interfaces/services';
+import type { ITwoFactorAuthService } from '@server/identity/interfaces/services';
 
 /**
  * Two-Factor Authentication Service
@@ -386,3 +386,4 @@ export class TwoFactorAuthService implements ITwoFactorAuthService {
         await this.twoFactorAuthRepository.resetFailedAttempts(userId);
     }
 }
+

@@ -29,6 +29,12 @@
       "@server/shared/*": [
         "./libs/shared/src/*"
       ],
+      "@server/identity/*": [
+        "./modules/identity/src/*"
+      ],
+      "@server/gamification/*": [
+        "./modules/gamification/src/*"
+      ],
       "@prisma/generated": [
         "./generated/prisma/client"
       ],

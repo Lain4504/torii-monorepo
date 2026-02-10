@@ -6,7 +6,7 @@ import {
     RecordActivityDto,
     UserGamificationDto,
 } from '@workspace/schemas';
-import { ActivityService } from './activity.service';
+import { ActivityService } from '@server/gamification/services';
 
 @Injectable()
 export class StreakService {

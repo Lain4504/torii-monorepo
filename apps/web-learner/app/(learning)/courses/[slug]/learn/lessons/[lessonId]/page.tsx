@@ -20,6 +20,7 @@ import { LessonHeader } from '@/components/courses/lesson-header'
 import { LessonVideoPlayer } from '@/components/courses/lesson-video-player'
 import { LessonNavigation } from '@/components/courses/lesson-navigation'
 import { LessonContent } from '@/components/courses/lesson-content'
+import { AssignmentSubmission } from '@/components/courses/assignment-submission'
 import { Separator } from '@workspace/ui/components/separator'
 
 export default function LessonDetailPage() {
@@ -192,9 +193,24 @@ export default function LessonDetailPage() {
                                         onNext={handleNext}
                                     />
                                     <Separator className="bg-border/30 mb-12" />
-                                    <LessonContent description={currentLesson.description || ''} />
+                                    <LessonContent description={currentLesson.description || ''} courseId={course?.id} />
                                 </div>
                             </>
+                        ) : currentLesson.contentType === 'assignment' ? (
+                            <div className="px-6 py-10 md:px-12 space-y-12">
+                                {/* Navigation for assignment */}
+                                <LessonNavigation
+                                    duration={0}
+                                    order={currentLesson.orderIndex || 0}
+                                    hasPrevious={!!findPreviousLesson()}
+                                    hasNext={!!findNextLesson()}
+                                    onPrevious={handlePrevious}
+                                    onNext={handleNext}
+                                />
+
+                                {/* Assignment Submission Component */}
+                                <AssignmentSubmission assignmentId={lessonId} />
+                            </div>
                         ) : (
                             <div className="px-6 py-10 md:px-12 space-y-12">
                                 {/* Navigation for non-video */}

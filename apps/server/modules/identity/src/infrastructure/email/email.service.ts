@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SharedEmailService } from '@server/shared';
-import { IEmailService } from '../../interfaces/services/i-email.service';
+import { IEmailService } from '@server/identity/interfaces/services/i-email.service';
 import { generateInviteEmailHtml } from './templates/invite.template';
 
 /**
@@ -224,3 +224,4 @@ export class EmailService implements IEmailService {
 }
 
 // Token moved to interface file
+

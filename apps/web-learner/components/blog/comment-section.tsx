@@ -85,7 +85,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
                 userId: user.id,
                 content: content.trim(),
                 parentId: parentId || undefined
-            })
+            } as any)
 
             setReplyTo(null)
             setComments(prev => [...prev, newComment]) // Optimistic add

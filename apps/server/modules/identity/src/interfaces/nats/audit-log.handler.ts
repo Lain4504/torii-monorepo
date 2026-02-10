@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { IAuditLogService } from '../../interfaces/services';
-import { AUDIT_LOG_SERVICE_TOKEN } from '../../interfaces/services';
+import type { IAuditLogService } from '@server/identity/interfaces/services';
+import { AUDIT_LOG_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 import type { AuditLogFiltersDTO } from '@workspace/schemas';
 
 @Controller()
@@ -32,3 +32,4 @@ export class AuditLogHandler {
         return this.auditLogService.log(entry);
     }
 }
+

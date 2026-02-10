@@ -4,10 +4,10 @@ import { firstValueFrom } from 'rxjs';
 import Redis from 'ioredis';
 import * as argon2 from 'argon2';
 import { JwtTokenProvider, REDIS_CLIENT, BlacklistService, AppConfigService } from '@server/shared';
-import type { IUsersRepository, IUserIdentityRepository } from '../../interfaces/repositories';
-import type { IAuthService, ISessionService, IGoogleAuthService, IAuthorizationService, ITwoFactorAuthService, IEmailService } from '../../interfaces/services';
-import { USERS_REPOSITORY_TOKEN, USER_IDENTITY_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { SESSION_SERVICE_TOKEN, GOOGLE_AUTH_SERVICE_TOKEN, AUTHORIZATION_SERVICE_TOKEN, TWO_FACTOR_AUTH_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '../../interfaces/services';
+import type { IUsersRepository, IUserIdentityRepository } from '@server/identity/interfaces/repositories';
+import type { IAuthService, ISessionService, IGoogleAuthService, IAuthorizationService, ITwoFactorAuthService, IEmailService } from '@server/identity/interfaces/services';
+import { USERS_REPOSITORY_TOKEN, USER_IDENTITY_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
+import { SESSION_SERVICE_TOKEN, GOOGLE_AUTH_SERVICE_TOKEN, AUTHORIZATION_SERVICE_TOKEN, TWO_FACTOR_AUTH_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 
 import { UserRole } from '@workspace/schemas';
 import type {

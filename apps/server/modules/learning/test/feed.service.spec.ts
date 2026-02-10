@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FeedService } from './feed.service';
-import { FeedRepository } from './feed.repository';
+import { FeedService } from '../src/modules/feed/feed.service';
+import { FeedRepository } from '../src/modules/feed/feed.repository';
 import { PrismaService } from '@server/shared';
 import { Mapper } from '@automapper/core';
 import { getMapperToken } from '@automapper/nestjs';

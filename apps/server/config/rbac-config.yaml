@@ -128,6 +128,15 @@ permissions:
   - code: assignment.manage
     description: Manage assignments
     category: Assessment
+  - code: assignment.update
+    description: Update assignments
+    category: Assessment
+  - code: assignment.publish
+    description: Publish assignments
+    category: Assessment
+  - code: assignment.delete
+    description: Delete assignments
+    category: Assessment
   - code: submission.grade
     description: Grade student submissions
     category: Assessment
@@ -221,6 +230,9 @@ default_role_permissions:
     - class_member.view
     - attendance.view
     - assignment.manage
+    - assignment.update
+    - assignment.publish
+    - assignment.delete
     - material.upload
     - material.view
     - blog.manage
@@ -266,6 +278,9 @@ default_role_permissions:
     - attendance.mark
     - assignment.create
     - assignment.manage
+    - assignment.update
+    - assignment.publish
+    - assignment.delete
     - submission.grade
     - material.upload
     - material.view

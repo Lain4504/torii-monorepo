@@ -1,7 +1,6 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import type { Mapper } from '@automapper/core';
+import { createMap, forMember, mapFrom, Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { createMap, forMember, mapFrom } from '@automapper/core';
 import type { Assignment } from '@prisma/generated';
 import type { AssignmentResponseDTO } from '@workspace/schemas';
 
@@ -16,99 +15,99 @@ export class AssignmentProfile extends AutomapperProfile {
   }
 
   override get profile() {
-    return (mapper) => {
-      createMap(
+    return (mapper: Mapper) => {
+      createMap<Assignment, AssignmentResponseDTO>(
         mapper,
         'Assignment',
         'AssignmentResponseDTO',
         forMember(
-          (dest: AssignmentResponseDTO) => dest.id,
-          mapFrom((src: Assignment) => src.id),
+          (dest) => dest.id,
+          mapFrom((src) => src.id)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.title,
-          mapFrom((src: Assignment) => src.title),
+          (dest) => dest.title,
+          mapFrom((src) => src.title)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.description,
-          mapFrom((src: Assignment) => src.description),
+          (dest) => dest.description,
+          mapFrom((src) => src.description)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.type,
-          mapFrom((src: Assignment) => src.type as any),
+          (dest) => dest.type,
+          mapFrom((src) => src.type as any)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.courseId,
-          mapFrom((src: Assignment) => src.courseId || undefined),
+          (dest) => dest.courseId,
+          mapFrom((src) => src.courseId || undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.moduleId,
-          mapFrom((src: Assignment) => src.moduleId || undefined),
+          (dest) => dest.moduleId,
+          mapFrom((src) => src.moduleId || undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.lessonId,
-          mapFrom((src: Assignment) => src.lessonId || undefined),
+          (dest) => dest.lessonId,
+          mapFrom((src) => src.lessonId || undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.maxScore,
-          mapFrom((src: Assignment) => Number(src.maxScore)),
+          (dest) => dest.maxScore,
+          mapFrom((src) => Number(src.maxScore))
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.passingScore,
-          mapFrom((src: Assignment) => src.passingScore ? Number(src.passingScore) : undefined),
+          (dest) => dest.passingScore,
+          mapFrom((src) => src.passingScore ? Number(src.passingScore) : undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.dueDate,
-          mapFrom((src: Assignment) => src.dueDate || undefined),
+          (dest) => dest.dueDate,
+          mapFrom((src) => src.dueDate || undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.allowLateSubmission,
-          mapFrom((src: Assignment) => src.allowLateSubmission),
+          (dest) => dest.allowLateSubmission,
+          mapFrom((src) => src.allowLateSubmission)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.latePenaltyPercent,
-          mapFrom((src: Assignment) => src.latePenaltyPercent ? Number(src.latePenaltyPercent) : undefined),
+          (dest) => dest.latePenaltyPercent,
+          mapFrom((src) => src.latePenaltyPercent ? Number(src.latePenaltyPercent) : undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.allowedFileTypes,
-          mapFrom((src: Assignment) => src.allowedFileTypes),
+          (dest) => dest.allowedFileTypes,
+          mapFrom((src) => src.allowedFileTypes as string[])
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.maxFileSize,
-          mapFrom((src: Assignment) => src.maxFileSize ? Number(src.maxFileSize) : undefined),
+          (dest) => dest.maxFileSize,
+          mapFrom((src) => src.maxFileSize ? Number(src.maxFileSize) : undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.maxFiles,
-          mapFrom((src: Assignment) => src.maxFiles || undefined),
+          (dest) => dest.maxFiles,
+          mapFrom((src) => src.maxFiles || undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.instructions,
-          mapFrom((src: Assignment) => src.instructions || undefined),
+          (dest) => dest.instructions,
+          mapFrom((src) => src.instructions || undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.attachmentUrls,
-          mapFrom((src: Assignment) => src.attachmentUrls),
+          (dest) => dest.attachmentUrls,
+          mapFrom((src) => src.attachmentUrls as string[])
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.createdBy,
-          mapFrom((src: Assignment) => src.createdBy),
+          (dest) => dest.createdBy,
+          mapFrom((src) => src.createdBy)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.status,
-          mapFrom((src: Assignment) => src.status as any),
+          (dest) => dest.status,
+          mapFrom((src) => src.status as any)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.publishedAt,
-          mapFrom((src: Assignment) => src.publishedAt || undefined),
+          (dest) => dest.publishedAt,
+          mapFrom((src) => src.publishedAt || undefined)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.createdAt,
-          mapFrom((src: Assignment) => src.createdAt),
+          (dest) => dest.createdAt,
+          mapFrom((src) => src.createdAt)
         ),
         forMember(
-          (dest: AssignmentResponseDTO) => dest.updatedAt,
-          mapFrom((src: Assignment) => src.updatedAt),
-        ),
+          (dest) => dest.updatedAt,
+          mapFrom((src) => src.updatedAt)
+        )
       );
     };
   }
