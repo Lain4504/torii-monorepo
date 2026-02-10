@@ -1,0 +1,12 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    title Xác thực tài khoản
+  body(style="font-family: sans-serif; background-color: #f5f5f5; padding: 20px;")
+    div(style="max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px;")
+      h2(style="color: #2563eb;") Xin chào #{displayName}!
+      p Cảm ơn bạn đã đăng ký tài khoản Torii Nihongo.
+      p Vui lòng click vào link dưới đây để xác thực email:
+      a(href=verificationUrl, style="display: inline-block; background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin: 10px 0;") Xác thực Email
+      p(style="color: gray; font-size: 0.9em;") Link hết hạn sau 24 giờ.

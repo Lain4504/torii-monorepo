@@ -1,14 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SharedEmailService } from '@server/shared';
-import type { SendEmailEvent, EmailType, OrderSuccessEmailData } from '../../infrastructure/events/email.event';
-import { generateOrderSuccessEmailHtml } from './templates/order-success.template';
-import { generateVerificationEmailHtml } from './templates/verification.template';
-import { generatePasswordResetEmailHtml } from './templates/password-reset.template';
-import { generateOtpEmailHtml } from './templates/otp.template';
-import { generateWelcomeEmailHtml } from './templates/welcome.template';
-import { generateEnrollmentSuccessEmailHtml } from './templates/enrollment-success.template';
-import type { EnrollmentSuccessEmailData } from '../../infrastructure/events/email.event';
-
+import { SendEmailEvent, OrderSuccessEmailData, EnrollmentSuccessEmailData } from '../../infrastructure/events/email.event';
+import * as pug from 'pug';
+import * as path from 'path';
 
 /**
  * Email Service
@@ -17,8 +11,19 @@ import type { EnrollmentSuccessEmailData } from '../../infrastructure/events/ema
 @Injectable()
 export class EmailService {
     private readonly logger = new Logger(EmailService.name);
+    private readonly templateDir = path.join(__dirname, 'templates', 'pug');
 
     constructor(private readonly sharedEmailService: SharedEmailService) { }
+
+    private render(templateName: string, data: any): string {
+        try {
+            const templatePath = path.join(this.templateDir, `${templateName}.pug`);
+            return pug.renderFile(templatePath, data);
+        } catch (error) {
+            this.logger.error(`Failed to render template ${templateName}: ${error.message}`);
+            throw error;
+        }
+    }
 
     /**
      * Send email based on event type
@@ -69,7 +74,7 @@ export class EmailService {
      * Send order success email with course link
      */
     private async sendOrderSuccessEmail(to: string | string[], data: OrderSuccessEmailData): Promise<void> {
-        const html = generateOrderSuccessEmailHtml(data);
+        const html = this.render('order-success', data);
 
         await this.sharedEmailService.sendMail({
             to,
@@ -84,7 +89,7 @@ export class EmailService {
      * Send verification email
      */
     private async sendVerificationEmail(to: string | string[], data: any): Promise<void> {
-        const html = generateVerificationEmailHtml(data);
+        const html = this.render('verification', data);
 
         await this.sharedEmailService.sendMail({
             to,
@@ -99,7 +104,7 @@ export class EmailService {
      * Send password reset email
      */
     private async sendPasswordResetEmail(to: string | string[], data: any): Promise<void> {
-        const html = generatePasswordResetEmailHtml(data);
+        const html = this.render('password-reset', data);
 
         await this.sharedEmailService.sendMail({
             to,
@@ -114,7 +119,7 @@ export class EmailService {
      * Send OTP email
      */
     private async sendOtpEmail(to: string | string[], data: any): Promise<void> {
-        const html = generateOtpEmailHtml(data);
+        const html = this.render('otp', data);
 
         await this.sharedEmailService.sendMail({
             to,
@@ -129,7 +134,7 @@ export class EmailService {
      * Send welcome email
      */
     private async sendWelcomeEmail(to: string | string[], data: any): Promise<void> {
-        const html = generateWelcomeEmailHtml(data);
+        const html = this.render('welcome', data);
 
         await this.sharedEmailService.sendMail({
             to,
@@ -145,7 +150,7 @@ export class EmailService {
      */
     private async sendEnrollmentSuccessEmail(to: string | string[], data: EnrollmentSuccessEmailData): Promise<void> {
 
-        const html = generateEnrollmentSuccessEmailHtml(data);
+        const html = this.render('enrollment-success', data);
 
         await this.sharedEmailService.sendMail({
             to,
