@@ -37,11 +37,8 @@ export function isLanguageSupported(language: string): language is SupportedLang
 }
 
 /**
- * Get the browser's preferred language if supported, otherwise return default
+ * Get the browser's preferred language (Force Vietnamese)
  */
 export function getBrowserLanguage(): SupportedLanguage {
-    const browserLang = navigator.language?.split('-')[0] ?? 'vi';
-    return isLanguageSupported(browserLang)
-        ? browserLang
-        : SUPPORTED_LANGUAGES.vi;
+    return 'vi';
 }
