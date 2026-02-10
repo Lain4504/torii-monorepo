@@ -8,11 +8,13 @@ import { PrismaModule, SharedModule, GlobalRpcExceptionFilter, NatsClientModule 
 // Billing Modules
 import { OrderModule } from './modules/payment/order.module';
 import { CouponModule } from './modules/coupon/coupon.module';
+import { CoinModule } from './modules/coin/coin.module';
 
 // Handlers
 import { OrderHandler } from './interfaces/nats/order.handler';
 import { CouponHandler } from './interfaces/nats/coupon.handler';
 import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
+import { CoinHandler } from './interfaces/nats/coin.handler';
 
 @Module({
     imports: [
@@ -25,12 +27,14 @@ import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
         // Billing Modules
         OrderModule,
         CouponModule,
+        CoinModule,
     ],
     controllers: [
         // NATS Handlers
         OrderHandler,
         CouponHandler,
         AnalyticsHandler,
+        CoinHandler,
     ],
     providers: [
         {

@@ -26,13 +26,13 @@ interface FeedProps {
     activeTab?: string
     sortBy?: 'likes' | 'comments'
     onTabChange?: (tab: string) => void
-    onTotalPostsChange?: (total: number) => void
+    onTotalBlogsChange?: (total: number) => void
     selectedTag?: string
     onTagSelect?: (tag: string | undefined) => void
     searchQuery?: string
 }
 
-export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL', sortBy, onTabChange, onTotalPostsChange, selectedTag, onTagSelect, searchQuery }: FeedProps) {
+export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL', sortBy, onTabChange, onTotalBlogsChange, selectedTag, onTagSelect, searchQuery }: FeedProps) {
     const [posts, setPosts] = useState<FeedResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const [expandedPostId, setExpandedPostId] = useState<string | null>(null)
@@ -75,9 +75,9 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
 
             if (reset) {
                 setPosts(res.data)
-                // Notify parent of total posts count
-                if (onTotalPostsChange) {
-                    onTotalPostsChange(res.total || 0)
+                // Notify parent of total blogs count
+                if (onTotalBlogsChange) {
+                    onTotalBlogsChange(res.total || 0)
                 }
             } else {
                 setPosts(prev => [...prev, ...res.data])

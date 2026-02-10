@@ -37,14 +37,20 @@ export class StreakService {
             });
         }
 
+        // Fetch actual coin balance from userCoins table
+        const userCoin = await this.prisma.userCoin.findUnique({
+            where: { userId }
+        });
+
         return {
             id: gamification.id,
             userId: gamification.userId,
             level: gamification.level,
             currentXp: gamification.currentXp,
             totalXp: gamification.totalXp,
-            coins: gamification.coins,
+            points: (gamification as any).points,
             gems: gamification.gems,
+            coinBalance: userCoin?.balance || 0,
             currentStreak: gamification.currentStreak,
             longestStreak: gamification.longestStreak,
             lastActiveDate: gamification.lastActiveDate,
@@ -53,7 +59,7 @@ export class StreakService {
             weeklyActiveCount: gamification.weeklyActiveCount,
             monthlyActiveCount: gamification.monthlyActiveCount,
             updatedAt: gamification.updatedAt.toISOString(),
-        };
+        } as any;
     }
 
     async getStreakStatus(userId: string): Promise<StreakStatusDto> {

@@ -82,6 +82,7 @@ export const userResponseDTOSchema = userSchema.omit({
     password: true,
 }).extend({
     linkedMethods: z.array(z.string()).optional(),
+    coinBalance: z.number().int().optional(),
 });
 
 export type UserResponseDTO = z.infer<typeof userResponseDTOSchema>;

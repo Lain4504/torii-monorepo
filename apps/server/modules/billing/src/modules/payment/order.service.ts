@@ -253,10 +253,17 @@ export class OrderService implements IOrderService {
 
             this.logger.log(`Creating order for course ${courseId}: price=${course.price}, discountPrice=${course.discountPrice}, calculatedAmount=${amount}, isFree=${course.isFree}`);
 
-            if (amount === 0 || course.isFree) {
+            if (course && (amount === 0 || course.isFree)) {
                 this.logger.log(`Course ${courseId} is free, skipping order creation. calculatedAmount=${amount}, isFree=${course.isFree}`);
                 throw new BadRequestException('Free courses do not require payment');
             }
+        } else if (input.orderType === OrderType.TOP_UP) {
+            amount = Number((input as any).amount);
+            if (!amount || amount <= 0) {
+                throw new BadRequestException('Amount is required for top-up and must be positive');
+            }
+            this.logger.log(`Creating top-up order for user ${userId}: amount=${amount}`);
+
         } else if (!courseId && input.orderType === OrderType.COURSE_PURCHASE) {
             throw new BadRequestException('CourseId is required for course_purchase order type');
         }
@@ -544,6 +551,23 @@ export class OrderService implements IOrderService {
             }
 
             this.logger.log(`Order ${orderId} confirmed successfully`);
+
+            // Handle TOP_UP logic
+            if (order.orderType === OrderType.TOP_UP) {
+                try {
+                    await lastValueFrom(
+                        this.natsClient.send({ cmd: 'billing.coin.add' }, {
+                            userId: order.userId,
+                            amount: Math.round(Number(order.amount)),
+                            reason: `Nạp tiền vào tài khoản (Đơn hàng #${order.id})`
+                        })
+                    );
+                    this.logger.log(`User ${order.userId} account credited with ${order.amount} coins`);
+                } catch (coinError: any) {
+                    this.logger.error(`Failed to credit coins for top-up: ${coinError.message}`);
+                }
+            }
+
             return this.toOrderDto(updated);
         } catch (error: any) {
             await this.orderRepository.update(orderId, {

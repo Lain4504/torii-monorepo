@@ -20,6 +20,7 @@ import {
     X,
     ChevronDown,
     LayoutDashboard,
+    Coins,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
@@ -100,6 +101,12 @@ export function Header() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-2 sm:gap-4">
+                        {isAuthenticated && (
+                            <div className="hidden sm:flex items-center px-3 py-1 bg-yellow-500/10 rounded-full text-yellow-600 dark:text-yellow-500 font-bold text-sm gap-2 border border-yellow-500/20 shadow-sm">
+                                <Coins className="w-4 h-4" />
+                                <span>{((user as any)?.coinBalance || 0).toLocaleString()}</span>
+                            </div>
+                        )}
                         <div className="hidden sm:flex items-center gap-2">
                             {/* Language Switcher */}
                             <LanguageSwitcher />
