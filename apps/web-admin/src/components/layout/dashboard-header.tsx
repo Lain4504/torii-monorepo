@@ -6,9 +6,9 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@workspace/ui/components/breadcrumb"
-import { LanguageSwitcher } from "@workspace/ui/components/language-switcher"
 import { useTranslation } from "@workspace/i18n"
 import { ChevronRight } from "lucide-react"
 
@@ -78,7 +78,6 @@ export function DashboardHeader() {
           <CommandMenu />
           <NotificationsDropdown />
           <div className="hidden sm:block w-px h-4 bg-border/50 mx-0.5" />
-          <LanguageSwitcher />
           <ModeToggle />
         </div>
       </div>
