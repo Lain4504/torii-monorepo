@@ -20,7 +20,7 @@ import {
     SheetTrigger,
 } from '@workspace/ui/components/sheet';
 import { Card } from '@workspace/ui/components/card';
-import { Eye, ShieldCheck, Terminal, Calendar, Search, Fingerprint, Zap, ShieldAlert, Clock, Copy, Check, User, Globe, Info, Database } from 'lucide-react';
+import { Eye, ShieldCheck, Terminal, Search, Fingerprint, Zap, ShieldAlert, Clock, Copy, Check, User, Globe, Info, Database } from 'lucide-react';
 import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
@@ -258,7 +258,7 @@ function AuditLogDetailsSheet({ log }: { log: AuditLog }) {
                             </div>
                             <div className="p-2.5 bg-muted/20 rounded-lg">
                                 <span className="text-[10px] font-bold text-muted-foreground/60 uppercase mb-1.5 block">User Agent</span>
-                                <p className="text-[10px] font-mono text-muted-foreground/80 leading-snug break-all truncate" title={log.userAgent}>
+                                <p className="text-[10px] font-mono text-muted-foreground/80 leading-snug break-all truncate" title={log.userAgent ?? undefined}>
                                     {log.userAgent || 'Không có dữ liệu'}
                                 </p>
                             </div>

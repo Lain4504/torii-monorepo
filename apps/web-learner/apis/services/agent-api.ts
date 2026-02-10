@@ -84,6 +84,8 @@ export interface TestGenerationResponse {
     }>;
 }
 
+export type PlacementTestResponse = TestGenerationResponse;
+
 export interface TestEvaluationResponse {
     testId: string;
     score: number;
@@ -94,6 +96,11 @@ export interface TestEvaluationResponse {
         isCorrect: boolean;
         explanation: string;
     }>;
+}
+
+export interface PlacementEvaluationResponse extends TestEvaluationResponse {
+    suggestedLevel?: string;
+    analysis?: string;
 }
 
 export interface BenchmarkResponse {

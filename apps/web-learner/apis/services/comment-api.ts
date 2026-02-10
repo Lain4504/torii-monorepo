@@ -24,24 +24,17 @@ const transformComment = (data: any): CommentResponseDTO => {
         };
     } catch (error) {
         console.error('Error transforming comment:', error, data);
-        // Return data as-is if transformation fails
         return data;
     }
 };
 
 /**
- * API client for Blog Comments
+ * API client for Comments (blog, feed, etc.)
  */
-export const blogCommentApi = {
-    /**
-     * Get all comments for a blog
-     */
+export const commentApi = {
     findAll: async (params: CommentQueryDTO): Promise<CommentPaginatedResponse> => {
         try {
-            // Transform frontend params (blogId/feedId) to backend format (entityId/targetType)
             const backendParams: any = { ...params };
-
-            // Remove blogId/feedId and replace with entityId/targetType
             if (params.blogId) {
                 backendParams.entityId = params.blogId;
                 backendParams.targetType = 'BLOG';
@@ -56,16 +49,11 @@ export const blogCommentApi = {
                 params: backendParams,
             });
 
-            // Backend returns: { success: true, data: [...], total, page, limit, totalPages }
             const responseData = response.data;
-
-            if (!responseData || !responseData.success) {
-                console.error('Invalid response from server:', responseData);
+            if (!responseData?.success) {
                 throw new Error('Invalid response format from server');
             }
-
-            if (!responseData.data || !Array.isArray(responseData.data)) {
-                console.error('Response data is not an array:', responseData);
+            if (!Array.isArray(responseData.data)) {
                 throw new Error('Response data is not an array');
             }
 
@@ -77,40 +65,24 @@ export const blogCommentApi = {
                 totalPages: responseData.totalPages || 0,
             };
         } catch (error: any) {
-            console.error('Error in blogCommentApi.findAll:', error);
-            console.error('Request params:', params);
-            if (error.response) {
-                console.error('Response status:', error.response.status);
-                console.error('Response data:', error.response.data);
-            }
+            console.error('Error in commentApi.findAll:', error);
             throw error;
         }
     },
 
-    /**
-     * Get comment with its replies
-     */
     getWithReplies: async (id: string, depth: number = 2): Promise<CommentResponseDTO> => {
         const response = await apiClient.get<StandardApiResponse<CommentResponseDTO>>(`/api/comments/${id}/replies`, {
             params: { depth },
         });
-
-        // Backend returns: { success: true, data: {...} }
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
         }
-
         return transformComment(responseData.data);
     },
 
-    /**
-     * Create a new comment
-     */
     create: async (dto: CommentCreateDTO): Promise<CommentResponseDTO> => {
-        // Transform frontend DTO (blogId/feedId) to backend format (entityId/targetType)
         const backendDto: any = { ...dto };
-
         if (dto.blogId) {
             backendDto.entityId = dto.blogId;
             backendDto.targetType = 'BLOG';
@@ -122,34 +94,22 @@ export const blogCommentApi = {
         }
 
         const response = await apiClient.post<StandardApiResponse<CommentResponseDTO>>('/api/comments', backendDto);
-
-        // Backend returns: { success: true, data: {...}, message?: string }
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
         }
-
         return transformComment(responseData.data);
     },
 
-    /**
-     * Update a comment
-     */
     update: async (id: string, dto: CommentUpdateDTO): Promise<CommentResponseDTO> => {
         const response = await apiClient.patch<StandardApiResponse<CommentResponseDTO>>(`/api/comments/${id}`, dto);
-
-        // Backend returns: { success: true, data: {...}, message?: string }
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
         }
-
         return transformComment(responseData.data);
     },
 
-    /**
-     * Delete a comment
-     */
     delete: async (id: string): Promise<{ success: boolean; message: string }> => {
         const response = await apiClient.delete<{ success: boolean; message: string }>(`/api/comments/${id}`);
         return response.data;

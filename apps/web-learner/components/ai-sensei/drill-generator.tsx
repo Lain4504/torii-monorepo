@@ -34,7 +34,7 @@ export function DrillGenerator() {
         setShowResults(false)
 
         try {
-            const data = await agentApi.sensei.generateDrill(type, topic, difficulty)
+            const data = await agentApi.sensei.generateDrill(type as 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading', topic, difficulty)
             setResult(data)
         } catch (error) {
             console.error(error)

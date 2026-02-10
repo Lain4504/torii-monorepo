@@ -44,7 +44,7 @@
 
 ## 4. Comments trên Lesson
 
-- [ ] Mở rộng `blog-comment-api.ts` hỗ trợ `targetType=LESSON` và `lessonId`
+- [ ] Mở rộng `comment-api.ts` hỗ trợ `targetType=LESSON` và `lessonId`
 - [ ] Tích hợp `CommentSection` vào tab "Thảo luận" trong `LessonContent` với `lessonId`
 
 ---

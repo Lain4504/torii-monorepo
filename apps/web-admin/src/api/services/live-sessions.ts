@@ -118,7 +118,7 @@ export function useDeleteLiveSession() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, courseId }: { id: string; courseId: string }) => liveSessionsApi.delete(id),
+        mutationFn: ({ id }: { id: string; courseId: string }) => liveSessionsApi.delete(id),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseId] });
         },

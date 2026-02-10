@@ -7,7 +7,7 @@ import {
     DialogFooter,
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
-import { Loader2, AlertTriangle, FileText, X } from 'lucide-react';
+import { Loader2, AlertTriangle, FileText } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useDeleteQuestion } from '@/api/services/questions.ts';
 import type { QuestionResponseDTO } from '@workspace/schemas';

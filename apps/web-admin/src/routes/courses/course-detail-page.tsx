@@ -15,8 +15,6 @@ import {
     StopCircle,
     Settings,
     FileText,
-    BookOpen,
-    Search,
     PenTool
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
@@ -54,8 +52,6 @@ import {
     useDeleteAssignment,
     usePublishAssignment
 } from '@/api/services/assignments';
-import { AssignmentStatus } from '@workspace/schemas';
-
 import { CreateModuleSheet } from '@/components/modules/create-module-sheet.tsx';
 import { EditModuleSheet } from '@/components/modules/edit-module-sheet.tsx';
 const CreateLessonSheet = lazy(() => import('@/components/lessons/create-lesson-sheet.tsx').then(m => ({ default: m.CreateLessonSheet })));
