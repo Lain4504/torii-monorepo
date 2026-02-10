@@ -100,8 +100,13 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.updateLiveConfig' })
-    async updateLiveConfig(@Payload() data: { id: string, config: any }) {
-        return this.courseService.updateLiveConfig(data.id, data.config);
+    async updateLiveConfig(@Payload() data: { id: string, config: any, userId: string, userPermissions?: string[] }) {
+        const requester: Requester = {
+            sub: data.userId,
+            role: 'LECTURER' as any,
+            permissions: data.userPermissions || [],
+        };
+        return this.courseService.updateLiveConfig(requester, data.id, data.config);
     }
 
     @MessagePattern({ cmd: 'learning.course.unpublish' })

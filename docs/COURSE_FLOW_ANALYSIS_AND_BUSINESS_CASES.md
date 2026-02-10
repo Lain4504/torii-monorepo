@@ -244,20 +244,58 @@ Từ `packages/schemas/src/models/user.model.ts` và gateway permissions:
 
 ## 8. Bảng nhanh: Logic / Case còn thiếu (checklist)
 
-| # | Vị trí | Mô tả ngắn | Ưu tiên |
-|---|--------|------------|--------|
-| 1 | Gateway | `GET /api/courses/:id/enrollment-status` trả placeholder; thống nhất với enrollments/check | Cao |
-| 2 | Web-admin | Ẩn tab "Lịch học Live" khi course.type === 'vod' | Cao |
-| 3 | Web-learner | Trang /live-classes và /live-classes/[slug] dùng API thật (course live + sessions) | Cao |
-| 4 | Web-learner | Trong my-courses / course learn: block lịch live + nút "Vào phòng" (join → Meet) | Cao |
-| 5 | Gateway/Service | PATCH live-config: check lecturer được gán khóa trước khi cho phép update | TB |
-| 6 | Web-learner | Quiz trong khóa: API + UI thật (làm bài, nộp, điểm) | TB |
-| 7 | Hệ thống | Xác minh recording playback cho học viên sau buổi live | TB |
-| 8 | Hệ thống | Cơ chế báo lỗi chất lượng video/network khi live | Thấp |
-| 9 | Web-learner | Lesson materials: tab Tài liệu + API | Thấp |
-| 10 | Web-learner | Notes: API + UI lưu ghi chú theo lesson | Thấp |
-| 11 | Web-learner | Comments trên lesson (targetType=LESSON, lessonId) | Thấp |
-| 12 | Catalog | Filter "Chỉ VOD" / "Chỉ Live" (optional) | Thấp |
+| # | Vị trí | Mô tả ngắn | Ưu tiên | Trạng thái |
+|---|--------|------------|--------|------------|
+| 1 | Gateway | `GET /api/courses/:id/enrollment-status` trả placeholder; thống nhất với enrollments/check | Cao | ✅ Đã làm |
+| 2 | Web-admin | Ẩn tab "Lịch học Live" khi course.type === 'vod' | Cao | ✅ Đã làm |
+| 3 | Web-learner | Trang /live-classes và /live-classes/[slug] dùng API thật (course live + sessions) | Cao | ✅ Đã làm |
+| 4 | Web-learner | Trong my-courses / course learn: block lịch live + nút "Vào phòng" (join → Meet) | Cao | ✅ Đã làm |
+| 5 | Gateway/Service | PATCH live-config: check lecturer được gán khóa trước khi cho phép update | TB | ✅ Đã làm |
+| 6 | Web-learner | Quiz trong khóa: API + UI thật (làm bài, nộp, điểm) | TB | |
+| 7 | Hệ thống | Xác minh recording playback cho học viên sau buổi live | TB | |
+| 8 | Hệ thống | Cơ chế báo lỗi chất lượng video/network khi live | Thấp | |
+| 9 | Web-learner | Lesson materials: tab Tài liệu + API (xem khuyến nghị bên dưới) | Thấp | |
+| 10 | Web-learner | Notes: API + UI lưu ghi chú theo lesson | Thấp | |
+| 11 | Web-learner | Comments trên lesson (targetType=LESSON, lessonId) | Thấp | |
+| 12 | Catalog | Filter "Chỉ VOD" / "Chỉ Live" (optional) | Thấp | |
+
+---
+
+## 9. Lesson materials & Tích hợp AI agent – Khuyến nghị
+
+> Liên quan Case 9 (tab Tài liệu + API). Câu hỏi: Lecturer nên **soạn nội dung bài học** hay chỉ **gửi file PDF**? Và làm sao có **data cho AI agent** hỗ trợ nội dung khóa tốt hơn?
+
+### Nên dùng cả hai: soạn nội dung + gửi file (PDF/tài liệu)
+
+| Cách làm | Mục đích | Phù hợp AI |
+|----------|----------|-------------|
+| **Soạn nội dung** (Lesson: `articleContent`, mô tả, title) | Nội dung hiển thị trực tiếp trên web, SEO, cấu trúc rõ. Lecturer nhập/format text trong editor. | ✅ Rất tốt: text có cấu trúc, dễ index, embed, RAG. |
+| **Gửi file** (LessonMaterial → FileAsset: PDF, slide, v.v.) | Tài liệu đính kèm để học viên tải, tham khảo. Lecturer upload file, gắn vào bài học. | ✅ Tốt: có thể extract text từ PDF (pipeline riêng) rồi đưa vào RAG hoặc metadata cho agent. |
+
+**Kết luận:** Giữ cả hai luồng. Lecturer vừa có thể soạn bài (article) trong Lesson, vừa gửi file PDF/tài liệu qua Lesson Materials. Không nên bắt buộc “chỉ soạn” hoặc “chỉ gửi file”.
+
+### Data phục vụ AI agent (hỗ trợ course tốt hơn)
+
+Để AI agent (trong hoặc ngoài hệ thống) support nội dung khóa tốt, nên có các nguồn data sau:
+
+1. **Đã có sẵn, dễ dùng ngay**
+   - **Lesson:** `title`, `description` (nếu có), `articleContent`, `contentType`, `orderIndex`; **Module:** `title`, `description`, `orderIndex`; **Course:** `title`, `description`, `shortDescription`, `learningOutcomes`, `requirements`, `jlptLevel`.  
+   → Agent có thể dùng cho RAG, gợi ý bài học, trả lời câu hỏi theo ngữ cảnh khóa.
+
+2. **Lesson Materials (file PDF, slide, …)**
+   - **Metadata:** `LessonMaterial.title`, `type` (slides / reading / …), `orderIndex`; **FileAsset:** `fileUrl`, `mimeType`, `metadata`.  
+   → Agent biết “bài này có tài liệu gì”, có thể trả link tải hoặc mô tả.
+   - **Nội dung file (optional – cần làm thêm nếu muốn RAG từ PDF):** PDF là file nhị phân, RAG cần **text** để tìm kiếm. Nếu cần RAG sâu hơn: pipeline **extract text từ PDF** (hoặc file khác) khi upload/process, lưu vào:
+     - `Lesson.aiMetadata` / `FileAsset.metadata` (đoạn text hoặc summary), hoặc
+     - Bảng/collection riêng cho “extracted content” gắn với `lessonId` / `fileAssetId`.  
+   → Sau đó agent mới dùng text đó để RAG (chunk, embed, retrieve). **Tóm lại: RAG từ PDF = phải làm thêm pipeline đọc PDF, extract text và lưu lại.**
+
+3. **Đề xuất triển khai (theo thứ tự ưu tiên)**
+   - **Bước 1:** Web-learner: tab **Tài liệu** trong LessonContent – gọi API `GET /api/lesson-materials/by-lesson/:lessonId` (đã có ở gateway), hiển thị danh sách tài liệu + nút tải (link `fileUrl` từ FileAsset). Lecturer tiếp tục soạn nội dung bài (article) và upload file qua web-admin như hiện tại.
+   - **Bước 2:** Expose API hoặc event cho AI agent: theo `courseId` / `lessonId` trả về cấu trúc course (modules, lessons) kèm `articleContent`, `learningOutcomes`, và danh sách lesson materials (metadata + fileUrl). Agent dùng để context, RAG, gợi ý.
+   - **Bước 3 (tùy chọn):** Pipeline extract text từ PDF khi upload/process Lesson Material → lưu vào `metadata` hoặc bảng riêng → agent RAG trên cả nội dung bài soạn và nội dung đã extract từ file.
+
+Tóm lại: **Lecturer nên vừa soạn nội dung bài học (article), vừa gửi file PDF/tài liệu.** Data cho AI agent nên bao gồm cả nội dung có cấu trúc (lesson/course) và metadata (kèm optional extracted text từ file) để tích hợp agent support course tốt hơn.
 
 ---
 

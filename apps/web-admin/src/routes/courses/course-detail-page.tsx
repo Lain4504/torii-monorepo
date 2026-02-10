@@ -259,10 +259,12 @@ export default function CourseDetailPage() {
                         <Layers className="size-4 mr-2" />
                         Chương Trình
                     </TabsTrigger>
-                    <TabsTrigger value="live-schedule" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <CalendarCheck2 className="size-4 mr-2" />
-                        Lịch học Live
-                    </TabsTrigger>
+                    {course?.type === 'live' && (
+                        <TabsTrigger value="live-schedule" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                            <CalendarCheck2 className="size-4 mr-2" />
+                            Lịch học Live
+                        </TabsTrigger>
+                    )}
                     <TabsTrigger value="assignments" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
                         <PenTool className="size-4 mr-2" />
                         Bài Tập
@@ -408,7 +410,8 @@ export default function CourseDetailPage() {
                     )}
                 </TabsContent>
 
-                {/* Live Schedule Tab */}
+                {/* Live Schedule Tab - only for live courses */}
+                {course?.type === 'live' && (
                 <TabsContent value="live-schedule" className="space-y-4">
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">Quản lý lịch dạy live và thời khóa biểu cố định</p>
@@ -530,6 +533,7 @@ export default function CourseDetailPage() {
                         </div>
                     )}
                 </TabsContent>
+                )}
 
                 {/* Assignments Tab */}
                 <TabsContent value="assignments" className="space-y-4">

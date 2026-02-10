@@ -153,9 +153,22 @@ export class CourseController {
     }
 
     @Get(':id/enrollment-status')
-    async checkEnrollmentStatus(@Param('id') id: string, @Req() req: ReqWithRequester) {
-        // Placeholder implementation matching original service
-        return successResponse({ isEnrolled: false });
+    async checkEnrollmentStatus(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
+        if (!requester?.sub) {
+            return successResponse({ isEnrolled: false });
+        }
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.enrollment.check' },
+                    { courseId: id, userId: requester.sub },
+                ),
+            );
+            return successResponse(result);
+        } catch {
+            return successResponse({ isEnrolled: false });
+        }
     }
 
     @Get(':id/curriculum')
@@ -186,12 +199,12 @@ export class CourseController {
 
     @Patch(':id/live-config')
     @Permissions('course.update')
-    async updateLiveConfig(@Param('id') id: string, @Body() config: any, @Req() req: ReqWithRequester) {
-        // TODO: Ensure lecturer is assigned to this course before allowing update
+    async updateLiveConfig(@Param('id', new ParseUUIDPipe()) id: string, @Body() config: any, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.updateLiveConfig' },
-                { id, config }
+                { id, config, userId: requester.sub, userPermissions: requester.permissions }
             )
         );
         return successResponse({ course: result }, 'Live configuration updated successfully');

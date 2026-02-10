@@ -273,6 +273,8 @@ export default function LessonDetailPage() {
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
                 onLessonSelect={handleLessonSelect}
+                courseId={course.id}
+                isLiveCourse={(course as any).type === 'live'}
             />
         </div>
     )

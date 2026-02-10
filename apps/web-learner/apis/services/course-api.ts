@@ -85,6 +85,14 @@ export const courseApi = {
     const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/courses/${courseId}/curriculum`);
     return response.data.data!;
   },
+
+  /**
+   * Get courses by type (vod | live)
+   */
+  getByType: async (type: 'vod' | 'live'): Promise<CourseResponseDTO[]> => {
+    const response = await apiClient.get<StandardApiResponse<{ courses: CourseResponseDTO[] }>>(`/api/courses/by-type/${type}`);
+    return response.data.data?.courses ?? [];
+  },
 };
 
 /**
