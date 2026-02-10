@@ -60,6 +60,10 @@ export class EmailService {
                     await this.sendEnrollmentSuccessEmail(to, data as EnrollmentSuccessEmailData);
                     break;
 
+                case 'invite':
+                    await this.sendInviteEmail(to, data);
+                    break;
+
 
                 default:
                     this.logger.warn(`Unknown email type: ${type}`);
@@ -159,6 +163,22 @@ export class EmailService {
         });
 
         this.logger.log(`Enrollment success email sent to: ${to}, course: ${data.courseName}`);
+    }
+
+    /**
+     * Send invite email
+     */
+    private async sendInviteEmail(to: string | string[], data: any): Promise<void> {
+        const html = this.render('invite', data);
+
+        await this.sharedEmailService.sendMail({
+            to,
+            subject: 'Lời mời tham gia Torii Nihongo',
+            html,
+            from: '"Torii Identity" <identity@torii.app>'
+        });
+
+        this.logger.log(`Invite email sent to: ${to}`);
     }
 }
 
