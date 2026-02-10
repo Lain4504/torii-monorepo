@@ -149,7 +149,7 @@ export default function DashboardPage() {
                         </div>
                     </Link>
 
-                    <Link href="/dashboard/exams">
+                    <Link href="/assessment">
                         <div className="relative group rounded-2xl bg-card border border-border p-8 min-h-[200px] flex flex-col justify-between hover:border-blue-500/50 hover:shadow-lg transition-all duration-300">
                             <div className="relative z-10">
                                 <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold mb-4">
