@@ -1,6 +1,8 @@
 import { apiClient } from '../api-client';
 
-// Types
+// --- Types ---
+
+// Sensei Types
 export interface ChatResponse {
     message: string;
     language: string;
@@ -61,6 +63,98 @@ export interface ConversationSimulationResponse {
     grammarPoints: string[];
 }
 
+export interface ResourceRecommendationResponse {
+    topic: string;
+    resources: Array<{
+        title: string;
+        type: string;
+        url: string;
+        description: string;
+    }>;
+}
+
+// Assessment Types
+export interface TestGenerationResponse {
+    testId: string;
+    questions: Array<{
+        id: string;
+        type: string;
+        content: string;
+        options?: string[];
+    }>;
+}
+
+export interface TestEvaluationResponse {
+    testId: string;
+    score: number;
+    maxScore: number;
+    feedback: string;
+    details: Array<{
+        questionId: string;
+        isCorrect: boolean;
+        explanation: string;
+    }>;
+}
+
+export interface BenchmarkResponse {
+    level: string;
+    readinessPercentage: number; // 0-100
+    recommendations: string[];
+    skillGaps: { vocabulary: number; grammar: number; reading: number; listening: number };
+    nextScheduledTest?: { date: string; type: string };
+    recentPerformance?: { averageScore: number; testsTaken: number; trend: 'improving' | 'stable' | 'declining' };
+}
+
+// ...
+
+export interface ProgressTrackResponse {
+    timeframe: string;
+    metrics: {
+        completedLessons: number;
+        averageScore: number;
+        studyHours: number;
+        streak?: number;
+    };
+    chartData: Array<{ date: string; score: number; lessons: number }>;
+}
+
+export interface StudyPathResponse {
+    targetLevel: string;
+    studyPathRecommendation: {
+        roadmap: Array<{
+            title: string;
+            status: 'completed' | 'in-progress' | 'locked';
+            description: string;
+        }>;
+        estimatedWeeks: number;
+        focusAreas: string[];
+    };
+}
+
+export interface WeaknessResponse {
+    weaknesses: Array<{
+        topic: string;
+        severity: 'low' | 'medium' | 'high';
+        description: string;
+        suggestedReview: string;
+    }>;
+}
+
+export interface ReadinessResponse {
+    targetLevel: string;
+    probability: number;
+    warnings: string[];
+}
+
+export interface ReportResponse {
+    reportType: string;
+    content: string; // Markdown or detailed object
+    generatedAt: string;
+}
+
+
+// --- API Client ---
+
 export const agentApi = {
     sensei: {
         chat: async (message: string, history: any[] = []) => {
@@ -68,24 +162,20 @@ export const agentApi = {
                 message,
                 history
             });
-            if (!response.data.success) throw new Error((response.data as any).message || 'Chat failed');
             return response.data.data;
         },
         checkGrammar: async (text: string) => {
             const response = await apiClient.post<{ success: boolean; data: GrammarCheckResponse }>('/api/agents/grammar-check', {
                 text
             });
-            if (!response.data.success) throw new Error((response.data as any).message || 'Grammar check failed');
-
             return response.data.data;
         },
-        translate: async (text: string, from: string, to: string) => {
+        translate: async (text: string, sourceLanguage: string, targetLanguage: string) => {
             const response = await apiClient.post<{ success: boolean; data: TranslateResponse }>('/api/agents/translate', {
                 text,
-                from,
-                to
+                sourceLanguage,
+                targetLanguage
             });
-            if (!response.data.success) throw new Error((response.data as any).message || 'Translation failed');
             return response.data.data;
         },
         createFlashcard: async (topic: string, difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate') => {
@@ -93,35 +183,112 @@ export const agentApi = {
                 topic,
                 difficulty
             });
-            if (!response.data.success) throw new Error((response.data as any).message || 'Flashcard creation failed');
             return response.data.data;
         },
         generateDrill: async (
-            drillType: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading' | string,
+            type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading',
             topic: string,
-            level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' | string = 'N4',
+            difficulty: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
             count: number = 5
         ) => {
             const response = await apiClient.post<{ success: boolean; data: DrillResponse }>('/api/agents/drill/generate', {
-                drillType,
+                type,
                 topic,
-                level,
+                difficulty,
                 count
             });
-            if (!response.data.success) throw new Error((response.data as any).message || 'Drill generation failed');
             return response.data.data;
         },
         simulateConversation: async (
             scenario: string,
-            difficulty: 'beginner' | 'intermediate' | 'advanced' | string = 'intermediate',
-            turns: number = 8
+            difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
+            turns: number = 4
         ) => {
             const response = await apiClient.post<{ success: boolean; data: ConversationSimulationResponse }>('/api/agents/conversation/simulate', {
                 scenario,
                 difficulty,
                 turns
             });
-            if (!response.data.success) throw new Error((response.data as any).message || 'Conversation simulation failed');
+            return response.data.data;
+        },
+        recommendResources: async (topic: string, resourceType: string = 'all') => {
+            const response = await apiClient.post<{ success: boolean; data: ResourceRecommendationResponse }>('/api/agents/resources/recommend', {
+                topic,
+                resourceType
+            });
+            return response.data.data;
+        }
+    },
+    assessment: {
+        generateTest: async (level: string, section: string, questionCount: number = 10) => {
+            const response = await apiClient.post<{ success: boolean; data: TestGenerationResponse }>('/api/agents/test/generate', {
+                level,
+                section,
+                questionCount
+            });
+            return response.data.data;
+        },
+        evaluateTest: async (testId: string, answers: any[]) => {
+            const response = await apiClient.post<{ success: boolean; data: TestEvaluationResponse }>('/api/agents/test/evaluate', {
+                testId,
+                answers
+            });
+            return response.data.data;
+        },
+        getBenchmark: async (targetLevel: string) => {
+            const response = await apiClient.post<{ success: boolean; data: BenchmarkResponse }>('/api/agents/assessment/benchmark', {
+                targetLevel
+            });
+            return response.data.data;
+        },
+        scheduleTest: async (targetLevel: string) => {
+            const response = await apiClient.post<{ success: boolean; data: any }>('/api/agents/test/schedule', {
+                targetLevel
+            });
+            return response.data.data;
+        },
+        generatePlacementTest: async (questionCount: number = 15) => {
+            const response = await apiClient.post<{ success: boolean; data: PlacementTestResponse }>('/api/agents/placement/test', {
+                questionCount
+            });
+            return response.data.data;
+        },
+        evaluatePlacementTest: async (testId: string, userAnswers: any) => {
+            const response = await apiClient.post<{ success: boolean; data: PlacementEvaluationResponse }>('/api/agents/placement/evaluate', {
+                testId,
+                userAnswers
+            });
+            return response.data.data;
+        }
+    },
+    analytics: {
+        trackProgress: async (timeframe: string = 'month') => {
+            const response = await apiClient.post<{ success: boolean; data: ProgressTrackResponse }>('/api/agents/progress/track', {
+                timeframe
+            });
+            return response.data.data;
+        },
+        suggestStudyPath: async (targetLevel: string) => {
+            const response = await apiClient.post<{ success: boolean; data: StudyPathResponse }>('/api/agents/path/suggest', {
+                targetLevel
+            });
+            return response.data.data;
+        },
+        identifyWeaknesses: async () => {
+            const response = await apiClient.post<{ success: boolean; data: WeaknessResponse }>('/api/agents/analytics/weaknesses', {});
+            return response.data.data;
+        },
+        predictReadiness: async (targetLevel: string) => {
+            const response = await apiClient.post<{ success: boolean; data: ReadinessResponse }>('/api/agents/analytics/readiness', {
+                targetLevel
+            });
+            return response.data.data;
+        },
+        generateReport: async (reportType: string = 'comprehensive', timeframe: string = 'month') => {
+            const response = await apiClient.post<{ success: boolean; data: ReportResponse }>('/api/agents/analytics/report', {
+                reportType,
+                timeframe
+            });
             return response.data.data;
         }
     }

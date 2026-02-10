@@ -16,6 +16,9 @@ import {
     TrendingUp,
     ChevronRight,
     BrainCircuit,
+    Bot,
+    FileQuestion,
+    BarChart3,
 } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { Progress } from '@workspace/ui/components/progress'
@@ -27,15 +30,19 @@ import { DailyCheckInCard } from './daily-check-in-card'
 const learningNav = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen, badge: null },
+    { name: 'AI Sensei', href: '/ai-sensei/chat', icon: Bot, badge: null },
+    { name: 'Assessment', href: '/assessment', icon: FileQuestion, badge: null },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit, badge: null },
 ]
 
 // Nhóm tiến độ và thành tích
 const progressNav = [
+    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    { name: 'AI Analytics', href: '/ai-analytics', icon: TrendingUp },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
     { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
     { name: 'Ghi chú', href: '/dashboard/notes', icon: FileText },
-    { name: 'Thống kê', href: '/dashboard/statistics', icon: TrendingUp },
+    // { name: 'Thống kê', href: '/dashboard/statistics', icon: TrendingUp }, // Replaced by Analytics
 ]
 
 // Nhóm tài khoản - ưu tiên thấp hơn

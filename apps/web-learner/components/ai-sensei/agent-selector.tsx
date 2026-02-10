@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Bot, Sparkles, Languages, History, MessagesSquare, LayoutDashboard } from "lucide-react"
+import { Bot, Sparkles, Languages, History, MessagesSquare, LayoutDashboard, Layers, Dumbbell, Library } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -36,12 +36,24 @@ const features = [
         icon: Languages,
         description: "Japanese <-> English",
     },
-
     {
         name: "Roleplay",
         href: "/ai-sensei/roleplay",
         icon: MessagesSquare,
         description: "Simulated Scenarios",
+    },
+
+    {
+        name: "Practice Drills",
+        href: "/ai-sensei/drill",
+        icon: Dumbbell,
+        description: "Targeted Exercises",
+    },
+    {
+        name: "Resources",
+        href: "/ai-sensei/resources",
+        icon: Library,
+        description: "Smart Recommendations",
     },
 ]
 
