@@ -11,13 +11,15 @@ import { Button } from '@workspace/ui/components/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { cn } from '@workspace/ui/lib/utils'
 import { CourseAssignmentsList } from './course-assignments-list'
+import { CommentSection } from '../blog/comment-section'
 
 interface LessonContentProps {
     description: string;
     courseId?: string;
+    lessonId?: string;
 }
 
-export function LessonContent({ description, courseId }: LessonContentProps) {
+export function LessonContent({ description, courseId, lessonId }: LessonContentProps) {
     return (
         <Tabs defaultValue="content" className="w-full">
             <TabsList className="bg-muted/20 border-none w-auto inline-flex h-auto p-1.5 gap-2 rounded-full">
@@ -113,23 +115,8 @@ export function LessonContent({ description, courseId }: LessonContentProps) {
             </TabsContent>
 
             <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
-                <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 rounded-[3rem] border border-border/10 bg-muted/5 backdrop-blur-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-                    <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center shadow-2xl border border-border/10 group">
-                        <MessageSquare className="w-10 h-10 text-primary/20 group-hover:text-primary transition-colors duration-500" />
-                    </div>
-                    <div className="space-y-3">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Diễn đàn thảo luận</h4>
-                        <p className="text-3xl font-sans font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto leading-none">
-                            Tham gia <span className="text-primary not-italic">Trao đổi kiến thức</span>
-                        </p>
-                        <p className="text-[11px] text-muted-foreground/50 font-black uppercase tracking-[0.1em] max-w-sm mx-auto">
-                            Tương tác với các học viên khác và đội ngũ giảng viên chuyên môn để giải đáp thắc mắc.
-                        </p>
-                    </div>
-                    <Button className="h-16 rounded-2xl px-12 text-[11px] font-black uppercase tracking-[0.3em] bg-muted/10 text-foreground border border-border/40 hover:bg-primary hover:text-white hover:border-primary transition-all duration-500">
-                        Bắt đầu thảo luận
-                    </Button>
+                <div className="py-6">
+                    {lessonId && <CommentSection lessonId={lessonId} />}
                 </div>
             </TabsContent>
         </Tabs>

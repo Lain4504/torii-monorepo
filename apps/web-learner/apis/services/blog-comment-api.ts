@@ -40,16 +40,21 @@ export const blogCommentApi = {
         try {
             // Transform frontend params (blogId/feedId) to backend format (entityId/targetType)
             const backendParams: any = { ...params };
+            const p = params as any;
 
             // Remove blogId/feedId and replace with entityId/targetType
-            if (params.blogId) {
-                backendParams.entityId = params.blogId;
+            if (p.blogId) {
+                backendParams.entityId = p.blogId;
                 backendParams.targetType = 'BLOG';
                 delete backendParams.blogId;
-            } else if (params.feedId) {
-                backendParams.entityId = params.feedId;
+            } else if (p.feedId) {
+                backendParams.entityId = p.feedId;
                 backendParams.targetType = 'FEED';
                 delete backendParams.feedId;
+            } else if (p.lessonId) {
+                backendParams.entityId = p.lessonId;
+                backendParams.targetType = 'LESSON';
+                delete backendParams.lessonId;
             }
 
             const response = await apiClient.get<PaginatedApiResponse<CommentResponseDTO>>('/api/comments', {
@@ -110,15 +115,20 @@ export const blogCommentApi = {
     create: async (dto: CommentCreateDTO): Promise<CommentResponseDTO> => {
         // Transform frontend DTO (blogId/feedId) to backend format (entityId/targetType)
         const backendDto: any = { ...dto };
+        const d = dto as any;
 
-        if (dto.blogId) {
-            backendDto.entityId = dto.blogId;
+        if (d.blogId) {
+            backendDto.entityId = d.blogId;
             backendDto.targetType = 'BLOG';
             delete backendDto.blogId;
-        } else if (dto.feedId) {
-            backendDto.entityId = dto.feedId;
+        } else if (d.feedId) {
+            backendDto.entityId = d.feedId;
             backendDto.targetType = 'FEED';
             delete backendDto.feedId;
+        } else if (d.lessonId) {
+            backendDto.entityId = d.lessonId;
+            backendDto.targetType = 'LESSON';
+            delete backendDto.lessonId;
         }
 
         const response = await apiClient.post<StandardApiResponse<CommentResponseDTO>>('/api/comments', backendDto);
