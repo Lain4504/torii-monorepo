@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
 import { logout } from '@/store/slices/authSlice'
 import { Button } from '@workspace/ui/components/button'
-import { LanguageSwitcher } from '@workspace/ui/components/language-switcher'
 import { useTranslation } from '@workspace/i18n'
 import {
     BookOpen,
@@ -108,9 +107,6 @@ export function Header() {
                             </div>
                         )}
                         <div className="hidden sm:flex items-center gap-2">
-                            {/* Language Switcher */}
-                            <LanguageSwitcher />
-
                             {/* Theme Toggle */}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
