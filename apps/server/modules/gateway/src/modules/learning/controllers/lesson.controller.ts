@@ -22,10 +22,9 @@ import {
     Public,
     Permissions,
     PermissionsGuard,
+    ReqWithRequester,
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
-import { UserRole } from '@workspace/schemas';
 
 @Controller('api/lessons')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -56,14 +55,14 @@ export class LessonController {
     @Get('by-module/:moduleId')
     async findByModuleId(
         @Param('moduleId') moduleId: string,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.findByModuleId' },
-                    { moduleId, userId: user.sub }
+                    { moduleId, userId: requester.sub }
                 )
             );
             return successResponse({ lessons: result });
@@ -89,13 +88,13 @@ export class LessonController {
 
     @Get(':id')
     @Public()
-    async findOne(@Param('id') id: string, @Req() req: Request) {
+    async findOne(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.findOne' },
-                    { id, userId: user?.sub }
+                    { id, userId: requester?.sub }
                 )
             );
             return successResponse({ lesson: result });
@@ -107,13 +106,13 @@ export class LessonController {
     @Post()
     @Permissions('lesson.create')
     @HttpCode(HttpStatus.CREATED)
-    async create(@Body() dto: any, @Req() req: Request) {
+    async create(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.create' },
-                    { ...dto, userId: user.sub }
+                    { ...dto, userId: requester.sub }
                 )
             );
             return successResponse({ lesson: result }, 'Lesson created successfully');
@@ -127,14 +126,14 @@ export class LessonController {
     async reorder(
         @Param('moduleId') moduleId: string,
         @Body() lessonOrders: { id: string; orderIndex: number }[],
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.reorder' },
-                    { moduleId, lessonOrders, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { moduleId, lessonOrders, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
                 )
             );
             return successResponse({ lessons: result }, 'Lessons reordered successfully');
@@ -148,14 +147,14 @@ export class LessonController {
     async update(
         @Param('id') id: string,
         @Body() dto: any,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.update' },
-                    { id, ...dto, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { id, ...dto, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
                 )
             );
             return successResponse({ lesson: result }, 'Lesson updated successfully');
@@ -169,15 +168,15 @@ export class LessonController {
     async delete(
         @Param('id') id: string,
         @Query('hardDelete') hardDelete: string,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const isHardDelete = hardDelete === 'true';
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.delete' },
-                    { id, userId: user.sub, userRole: user.role, hardDelete: isHardDelete, userPermissions: user.permissions }
+                    { id, userId: requester.sub, userRole: requester.role, hardDelete: isHardDelete, userPermissions: requester.permissions }
                 )
             );
             return successResponse(null, 'Lesson deleted successfully');

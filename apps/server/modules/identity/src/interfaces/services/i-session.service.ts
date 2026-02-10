@@ -13,7 +13,7 @@ export interface ISessionService {
      */
     createSession(
         userId: string,
-    ): Promise<string>;
+    ): Promise<{ refreshToken: string; sessionId: string }>;
 
     /**
      * Verify a refresh token and return session info

@@ -9,8 +9,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Request } from 'express';
-import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
+import { successResponse, errorResponse, GatewayAuthGuard, ReqWithRequester } from '@server/shared';
 
 /**
  * Analytics Gateway Handler
@@ -27,9 +26,9 @@ export class AnalyticsHandler {
 
     @Post('progress/track')
     @UseGuards(GatewayAuthGuard)
-    async trackProgress(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async trackProgress(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📈 Progress tracking request from user ${userId}`);
             const result = await firstValueFrom(
@@ -47,9 +46,9 @@ export class AnalyticsHandler {
 
     @Post('path/suggest')
     @UseGuards(GatewayAuthGuard)
-    async suggestStudyPath(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async suggestStudyPath(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`🗺️ Study path suggestion request from user ${userId}`);
             const result = await firstValueFrom(
@@ -67,9 +66,9 @@ export class AnalyticsHandler {
 
     @Post('analytics/weaknesses')
     @UseGuards(GatewayAuthGuard)
-    async identifyWeaknesses(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async identifyWeaknesses(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`🔍 Weakness identification request from user ${userId}`);
             const result = await firstValueFrom(
@@ -87,9 +86,9 @@ export class AnalyticsHandler {
 
     @Post('analytics/readiness')
     @UseGuards(GatewayAuthGuard)
-    async predictReadiness(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async predictReadiness(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`🎯 Readiness prediction request from user ${userId}`);
             const result = await firstValueFrom(
@@ -107,9 +106,9 @@ export class AnalyticsHandler {
 
     @Post('analytics/report')
     @UseGuards(GatewayAuthGuard)
-    async generateReport(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async generateReport(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📄 Report generation request from user ${userId}`);
             const result = await firstValueFrom(

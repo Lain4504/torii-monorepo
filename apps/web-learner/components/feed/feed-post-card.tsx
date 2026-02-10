@@ -181,18 +181,6 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                         <MessageCircle className="w-4 h-4" />
                         <span className="text-xs">Bình luận ({post.comments || 0})</span>
                     </Button>
-                    {/* <Button
-                        variant="ghost"
-                        size="sm"
-                        className={`gap-2 h-8 px-2 ${post.isFollowingAuthor ? 'text-primary bg-primary/5' : 'text-muted-foreground hover:text-primary'}`}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (post.author?.id) onFollow?.(post.author.id);
-                        }}
-                    >
-                        {post.isFollowingAuthor ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                        <span className="text-xs">{post.isFollowingAuthor ? 'Đang theo dõi' : 'Theo dõi'}</span>
-                    </Button> */}
                 </div>
             </div>
 

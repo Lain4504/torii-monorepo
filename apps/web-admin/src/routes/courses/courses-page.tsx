@@ -13,7 +13,6 @@ import { ManageInstructorsSheet } from "@/components/courses/manage-instructors-
 import { PublishCourseDialog } from "@/components/courses/publish-course-dialog.tsx";
 import { RejectCourseDialog } from "@/components/courses/reject-course-dialog.tsx";
 import { CourseAuditLogSheet } from "@/components/courses/course-audit-log-sheet.tsx";
-import { LiveSessionManagementSheet } from "@/components/courses/live-session-management-sheet.tsx";
 import { usePermissions } from "@/hooks/use-permissions.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
@@ -39,7 +38,6 @@ export default function CoursesPage() {
   const [publishingCourse, setPublishingCourse] = useState<CourseResponseDTO | null>(null);
   const [rejectingCourse, setRejectingCourse] = useState<CourseResponseDTO | null>(null);
   const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseResponseDTO | null>(null);
-  const [managingLiveSessionsCourse, setManagingLiveSessionsCourse] = useState<CourseResponseDTO | null>(null);
 
   const queryParams: CourseQueryDTO = {
     page,
@@ -143,7 +141,7 @@ export default function CoursesPage() {
             onPublish={setPublishingCourse}
             onReject={setRejectingCourse}
             onViewAuditLog={setViewingAuditLogCourse}
-            onManageLiveSessions={setManagingLiveSessionsCourse}
+            onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
             onSubmitForReview={handleSubmitForReview}
             onUnpublish={handleUnpublish}
             can={can}
@@ -205,11 +203,6 @@ export default function CoursesPage() {
         onClose={() => setViewingAuditLogCourse(null)}
       />
 
-      <LiveSessionManagementSheet
-        open={!!managingLiveSessionsCourse}
-        onOpenChange={(open) => !open && setManagingLiveSessionsCourse(null)}
-        course={managingLiveSessionsCourse}
-      />
     </div>
   );
 }

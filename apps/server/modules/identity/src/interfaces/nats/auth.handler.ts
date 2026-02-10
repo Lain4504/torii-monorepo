@@ -47,7 +47,8 @@ export class AuthHandler {
 
     @MessagePattern({ cmd: 'identity.session.create' })
     async createSession(@Payload() data: { userId: string }) {
-        return this.sessionService.createSession(data.userId);
+        const result = await this.sessionService.createSession(data.userId);
+        return result.refreshToken;
     }
 
     @MessagePattern({ cmd: 'identity.session.list' })
@@ -88,7 +89,13 @@ export class AuthHandler {
         }
 
         // Generate new tokens
-        const accessToken = await this.authService.generateAccessToken(user.id, user.role);
+        const accessToken = await this.authService.generateAccessToken(
+            user.id,
+            user.role,
+            payload.sid,
+            ['refresh'],
+            { user_metadata: { displayName: user.displayName } }
+        );
 
         // 2FA check or other logic can be here if needed 
         // (but for pure refresh, we just rotate the refresh token on the SAME stable row)

@@ -11,8 +11,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
+import { successResponse, errorResponse, GatewayAuthGuard, ReqWithRequester } from '@server/shared';
 import type { EnableTotpDTO, Disable2FADTO } from '@workspace/schemas';
 
 @Controller('api/auth/2fa')
@@ -21,13 +20,13 @@ export class TwoFactorAuthController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('totp/generate')
-    async generateTotpSecret(@Req() req: Request) {
+    async generateTotpSecret(@Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.2fa.generateTotpSecret' },
-                    { userId: user.sub },
+                    { userId: requester.sub },
                 ),
             );
             return successResponse(result);
@@ -38,13 +37,13 @@ export class TwoFactorAuthController {
 
     @Post('totp/enable')
     @HttpCode(HttpStatus.OK)
-    async enableTotp(@Req() req: Request, @Body() dto: EnableTotpDTO) {
+    async enableTotp(@Req() req: ReqWithRequester, @Body() dto: EnableTotpDTO) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.2fa.enableTotp' },
-                    { userId: user.sub, secret: dto.secret, code: dto.code },
+                    { userId: requester.sub, secret: dto.secret, code: dto.code },
                 ),
             );
             return successResponse(result, 'Dual-factor authentication enabled successfully');
@@ -55,13 +54,13 @@ export class TwoFactorAuthController {
 
     @Post('totp/disable')
     @HttpCode(HttpStatus.OK)
-    async disableTotp(@Req() req: Request, @Body() dto: Disable2FADTO) {
+    async disableTotp(@Req() req: ReqWithRequester, @Body() dto: Disable2FADTO) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.2fa.disableTotp' },
-                    { userId: user.sub, password: dto.password },
+                    { userId: requester.sub, password: dto.password },
                 ),
             );
             return successResponse(null, '2FA disabled successfully');
@@ -72,13 +71,13 @@ export class TwoFactorAuthController {
 
     @Post('backup-codes/regenerate')
     @HttpCode(HttpStatus.OK)
-    async regenerateBackupCodes(@Req() req: Request) {
+    async regenerateBackupCodes(@Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.2fa.regenerateBackupCodes' },
-                    { userId: user.sub },
+                    { userId: requester.sub },
                 ),
             );
             return successResponse(result, 'Backup codes regenerated successfully');
@@ -88,13 +87,13 @@ export class TwoFactorAuthController {
     }
 
     @Get('status')
-    async get2FAStatus(@Req() req: Request) {
+    async get2FAStatus(@Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.2fa.getStatus' },
-                    { userId: user.sub },
+                    { userId: requester.sub },
                 ),
             );
             return successResponse(result);

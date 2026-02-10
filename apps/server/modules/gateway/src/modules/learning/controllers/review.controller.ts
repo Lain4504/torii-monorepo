@@ -16,10 +16,10 @@ import {
     successResponse,
     errorResponse,
     successPaginatedResponse,
-    Public
+    Public,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/courses')
 export class ReviewController {
@@ -27,13 +27,13 @@ export class ReviewController {
 
     @Delete('reviews/:id')
     @UseGuards(GatewayAuthGuard)
-    async deleteReview(@Param('id') id: string, @Req() req: Request) {
+    async deleteReview(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.review.delete' },
-                    { id, userId: user.sub }
+                    { id, userId: requester.sub }
                 )
             );
             return successResponse(result);
@@ -108,13 +108,13 @@ export class ReviewController {
 
     @Post(':courseId/reviews')
     @UseGuards(GatewayAuthGuard)
-    async createReview(@Param('courseId') courseId: string, @Body() input: any, @Req() req: Request) {
+    async createReview(@Param('courseId') courseId: string, @Body() input: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.review.create' },
-                    { ...input, courseId, userId: user.sub }
+                    { ...input, courseId, userId: requester.sub }
                 )
             );
             return successResponse({ review: result });

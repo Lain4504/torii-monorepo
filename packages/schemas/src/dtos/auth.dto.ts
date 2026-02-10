@@ -8,6 +8,7 @@ import { userResponseDTOSchema } from './user.dto';
 export const authResponseDTOSchema = z.object({
     user: userResponseDTOSchema,
     accessToken: z.string(),
+    refreshToken: z.string().optional(),
 });
 
 export type AuthResponseDTO = z.infer<typeof authResponseDTOSchema>;
@@ -23,6 +24,7 @@ export const loginResponseDTOSchema = z.object({
     tempToken: z.string().optional(),
     user: userResponseDTOSchema.optional(),
     accessToken: z.string().optional(),
+    refreshToken: z.string().optional(),
 });
 
 export type LoginResponseDTO = z.infer<typeof loginResponseDTOSchema>;

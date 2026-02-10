@@ -572,9 +572,10 @@ export class CourseService implements ICourseService {
   }
 
   /**
-   * Update livestream configuration
+   * Update livestream configuration.
+   * Caller must have course.publish (admin/staff) or be an instructor assigned to this course.
    */
-  async updateLiveConfig(courseId: string, config: any): Promise<CourseResponseDTO> {
+  async updateLiveConfig(requester: Requester, courseId: string, config: any): Promise<CourseResponseDTO> {
     const existing = await this.courseRepository.findById(courseId);
     if (!existing || existing.deletedAt) {
       throw new NotFoundException(`Course with id ${courseId} not found`);
@@ -582,6 +583,14 @@ export class CourseService implements ICourseService {
 
     if (existing.type !== 'live') {
       throw new BadRequestException('Only live courses can have livestream configuration');
+    }
+
+    const canPublishOrManage = this.hasPermission(requester, 'course.publish');
+    if (!canPublishOrManage) {
+      const isInstructor = await this.isInstructor(requester.sub, courseId);
+      if (!isInstructor) {
+        throw new ForbiddenException('You must be assigned to this course to update live configuration');
+      }
     }
 
     const course = await this.courseRepository.update(courseId, { liveConfig: config });

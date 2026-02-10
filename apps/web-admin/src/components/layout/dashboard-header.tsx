@@ -74,7 +74,7 @@ export function DashboardHeader() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
-        <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-lg sm:bg-muted/20 sm:border border-border/50">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           <CommandMenu />
           <NotificationsDropdown />
           <div className="hidden sm:block w-px h-4 bg-border/50 mx-0.5" />

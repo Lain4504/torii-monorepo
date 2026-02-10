@@ -17,20 +17,15 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
-
     GatewayAuthGuard,
     PermissionsGuard,
     Permissions,
     successResponse,
     successPaginatedResponse,
     Public,
+    ReqWithRequester,
 } from '@server/shared';
-import { Request } from 'express';
-import { Requester, CouponSearchRequestDTO } from '@workspace/schemas';
-
-interface RequestWithUser extends Request {
-    user: Requester;
-}
+import { CouponSearchRequestDTO } from '@workspace/schemas';
 
 @Controller('api/coupons')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -83,12 +78,12 @@ export class CouponController {
     @Post()
     @Permissions('coupon.manage')
     @HttpCode(HttpStatus.CREATED)
-    async create(@Body() dto: any, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async create(@Body() dto: any, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.coupon.create' },
-                { ...dto, userId: user.sub, userRole: user.role }
+                { ...dto, userId: requester.sub, userRole: requester.role }
             )
         );
         return successResponse({ coupon: result }, 'Coupon created successfully');
@@ -103,13 +98,13 @@ export class CouponController {
     async update(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() dto: any,
-        @Req() req: RequestWithUser
+        @Req() req: ReqWithRequester
     ) {
-        const user = req.user;
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.coupon.update' },
-                { id, ...dto, userId: user.sub, userRole: user.role }
+                { id, ...dto, userId: requester.sub, userRole: requester.role }
             )
         );
         return successResponse({ coupon: result }, 'Coupon updated successfully');
@@ -122,12 +117,12 @@ export class CouponController {
     @Delete(':id')
     @Permissions('coupon.manage')
     @HttpCode(HttpStatus.OK)
-    async delete(@Param('id', ParseUUIDPipe) id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async delete(@Param('id', ParseUUIDPipe) id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.coupon.delete' },
-                { id, userId: user.sub, userRole: user.role }
+                { id, userId: requester.sub, userRole: requester.role }
             )
         );
         return successResponse(result, 'Coupon deleted successfully');

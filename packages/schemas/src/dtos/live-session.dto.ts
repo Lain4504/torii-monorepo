@@ -18,6 +18,17 @@ export const liveSessionCreateDTOSchema = z.object({
 
 export type LiveSessionCreateDTO = z.infer<typeof liveSessionCreateDTOSchema>;
 
+export const liveSessionBulkCreateDTOSchema = z.object({
+    courseId: z.string().uuid(),
+    lecturerId: z.string().uuid().optional(),
+    titlePrefix: z.string().min(1, 'Title prefix is required'),
+    description: z.string().optional(),
+    dates: z.array(z.string().or(z.date())).min(1, 'At least one date is required'),
+    duration: z.number().min(15).default(90),
+});
+
+export type LiveSessionBulkCreateDTO = z.infer<typeof liveSessionBulkCreateDTOSchema>;
+
 export const liveSessionUpdateDTOSchema = z.object({
     lecturerId: z.string().uuid().optional(),
     title: z.string().min(1).optional(),
@@ -43,10 +54,16 @@ export interface LiveSessionResponseDTO {
     createdAt: Date;
     updatedAt: Date;
 
-    // Optional relation data
     lecturer?: {
         id: string;
         displayName: string;
         avatarUrl: string | null;
     };
+}
+
+export interface LiveSessionJoinResponseDTO {
+    token: string;
+    roomId: string;
+    roomTitle: string;
+    sid: string;
 }

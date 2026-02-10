@@ -1,9 +1,11 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, Logger, Inject } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { JwtTokenProvider } from '../providers/jwt-token.provider';
 import { BlacklistService } from '../services/blacklist.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import Redis from 'ioredis';
+import { REDIS_CLIENT } from '../redis/redis.provider';
 
 @Injectable()
 export class GatewayAuthGuard implements CanActivate {
@@ -13,6 +15,7 @@ export class GatewayAuthGuard implements CanActivate {
         private readonly jwtTokenProvider: JwtTokenProvider,
         private readonly blacklistService: BlacklistService,
         private readonly reflector: Reflector,
+        @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -33,8 +36,14 @@ export class GatewayAuthGuard implements CanActivate {
                 try {
                     const payload = await this.jwtTokenProvider.verifyToken(token);
                     if (payload) {
-                        request['user'] = payload;
-                        request['requester'] = { sub: payload.sub, role: payload.role };
+                        // For public routes, also try to fetch permissions if sid exists
+                        if (payload.sid) {
+                            const permissions = await this.redis.get(`session:${payload.sid}:permissions`);
+                            if (permissions) {
+                                payload.permissions = JSON.parse(permissions);
+                            }
+                        }
+                        request['requester'] = payload;
                     }
                 } catch (e) {
                     // Ignore error for public routes
@@ -63,13 +72,19 @@ export class GatewayAuthGuard implements CanActivate {
             }
         }
 
+        // Fetch permissions from Redis using sid
+        if (payload.sid) {
+            const permissions = await this.redis.get(`session:${payload.sid}:permissions`);
+            if (permissions) {
+                payload.permissions = JSON.parse(permissions);
+                this.logger.debug(`[GatewayAuthGuard] Fetched ${payload.permissions?.length} permissions for sid ${payload.sid}`);
+            } else {
+                this.logger.warn(`[GatewayAuthGuard] No permissions found in Redis for sid ${payload.sid}`);
+            }
+        }
+
         // Assign payload to request
-        request['user'] = payload;
-        request['requester'] = {
-            sub: payload.sub,
-            role: payload.role,
-            permissions: payload.permissions || []
-        };
+        request['requester'] = payload;
 
         this.logger.log(`[GatewayAuthGuard] Auth check passed for user ${payload.sub}`);
         return true;

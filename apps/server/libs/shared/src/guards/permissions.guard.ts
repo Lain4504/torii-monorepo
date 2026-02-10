@@ -18,13 +18,13 @@ export class PermissionsGuard implements CanActivate {
         }
 
         const request = context.switchToHttp().getRequest();
-        const user = request.user;
+        const requester = request.requester;
 
-        if (!user || !user.permissions) {
+        if (!requester || !requester.permissions) {
             throw new UnauthorizedException('User permissions not found');
         }
 
-        const userPermissions = user.permissions as string[];
+        const userPermissions = requester.permissions as string[];
 
         // Wildcard check
         if (userPermissions.includes('*')) {

@@ -16,10 +16,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/course-instructors')
 @UseGuards(GatewayAuthGuard)
@@ -28,13 +28,13 @@ export class CourseInstructorController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    async assignLecturer(@Body() dto: any, @Req() req: Request) {
+    async assignLecturer(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course-instructor.assign' },
-                    { ...dto, userId: user.sub }
+                    { ...dto, userId: requester.sub }
                 )
             );
             return successResponse(result, 'Lecturer assigned successfully');
@@ -77,14 +77,14 @@ export class CourseInstructorController {
     async updatePrimaryInstructor(
         @Param('id') id: string,
         @Body() dto: any,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course-instructor.updatePrimary' },
-                    { id, ...dto, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { id, ...dto, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
                 )
             );
             return successResponse(result, 'Primary instructor updated successfully');
@@ -94,13 +94,13 @@ export class CourseInstructorController {
     }
 
     @Delete(':id')
-    async unassignLecturer(@Param('id') id: string, @Req() req: Request) {
+    async unassignLecturer(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.course-instructor.unassign' },
-                    { id, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { id, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
                 )
             );
             return successResponse(result, 'Lecturer unassigned successfully');

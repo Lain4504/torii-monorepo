@@ -5,11 +5,13 @@ import { NatsClientModule } from '@server/shared';
 import { AuthRoomController } from './controllers/auth-room.controller';
 import { PollsController } from './controllers/polls.controller';
 import { RoomController, RoomApiController } from './controllers/room.controller';
+import { RoomAdminController } from './controllers/room-admin.controller';
 import { UserRoomSettingController } from './controllers/user-room-setting.controller';
 import { WaitingRoomController } from './controllers/waiting-room.controller';
 import { WebhookController } from './controllers/webhook.controller';
 import { FileController } from './controllers/file.controller';
 import { ArtifactController } from './controllers/artifact.controller';
+import { ArtifactsAdminController } from './controllers/artifacts-admin.controller';
 import { BreakoutController } from './controllers/breakout.controller';
 import { EtherpadController } from './controllers/etherpad.controller';
 import { ExternalMediaController } from './controllers/external-media.controller';
@@ -32,11 +34,13 @@ import { SpeechToTextController } from './controllers/speech-to-text.controller'
         PollsController,
         RoomController,
         RoomApiController,
+        RoomAdminController,
         UserRoomSettingController,
         WaitingRoomController,
         WebhookController,
         FileController,
         ArtifactController,
+        ArtifactsAdminController,
         BreakoutController,
         EtherpadController,
         ExternalMediaController,

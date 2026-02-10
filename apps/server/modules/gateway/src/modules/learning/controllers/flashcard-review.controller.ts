@@ -15,10 +15,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/flashcards/reviews')
 @UseGuards(GatewayAuthGuard)
@@ -26,13 +26,13 @@ export class FlashcardReviewController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('submit')
-    async submitReview(@Body() body: any, @Req() req: Request) {
+    async submitReview(@Body() body: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-review.submit' },
-                    { ...body, userId: user.sub }
+                    { ...body, userId: requester.sub }
                 )
             );
             return successResponse({ review: result });
@@ -42,13 +42,13 @@ export class FlashcardReviewController {
     }
 
     @Get('due')
-    async getCardsDue(@Query() query: any, @Req() req: Request) {
+    async getCardsDue(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-review.getDue' },
-                    { userId: user.sub, query }
+                    { userId: requester.sub, query }
                 )
             );
             return successResponse({ flashcards: result });
@@ -58,13 +58,13 @@ export class FlashcardReviewController {
     }
 
     @Get('progress/:flashcardId')
-    async getUserProgress(@Param('flashcardId') flashcardId: string, @Req() req: Request) {
+    async getUserProgress(@Param('flashcardId') flashcardId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-review.getProgress' },
-                    { userId: user.sub, flashcardId }
+                    { userId: requester.sub, flashcardId }
                 )
             );
             return successResponse({ progress: result });
@@ -74,13 +74,13 @@ export class FlashcardReviewController {
     }
 
     @Post('sessions')
-    async startSession(@Body() body: any, @Req() req: Request) {
+    async startSession(@Body() body: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-session.start' },
-                    { ...body, userId: user.sub }
+                    { ...body, userId: requester.sub }
                 )
             );
             return successResponse({ session: result });
@@ -93,14 +93,14 @@ export class FlashcardReviewController {
     async completeSession(
         @Param('sessionId') sessionId: string,
         @Body() body: any,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-session.complete' },
-                    { sessionId, body, userId: user.sub }
+                    { sessionId, body, userId: requester.sub }
                 )
             );
             return successResponse({ session: result });
@@ -110,13 +110,13 @@ export class FlashcardReviewController {
     }
 
     @Get('sessions/:sessionId')
-    async getSessionById(@Param('sessionId') sessionId: string, @Req() req: Request) {
+    async getSessionById(@Param('sessionId') sessionId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-session.getById' },
-                    { sessionId, userId: user.sub }
+                    { sessionId, userId: requester.sub }
                 )
             );
             return successResponse({ session: result });
@@ -129,15 +129,15 @@ export class FlashcardReviewController {
     async getRecentSessions(
         @Query('deckId') deckId: string,
         @Query('limit') limit: string,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-session.getRecent' },
                     {
-                        userId: user.sub,
+                        userId: requester.sub,
                         deckId,
                         limit: limit ? parseInt(limit, 10) : undefined
                     }

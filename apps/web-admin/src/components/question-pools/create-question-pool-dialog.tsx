@@ -1,4 +1,3 @@
-
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -6,6 +5,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
@@ -16,7 +16,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus, Info } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateQuestionPool } from '@/api/services/question-pools.ts';
 import { useCourses } from '@/api/services/courses.ts';
@@ -59,129 +59,149 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
     const onSubmit = async (data: CreateQuestionPoolFormData) => {
         try {
             await createPool.mutateAsync(data);
-            toast.success('Đã tạo kho đề câu hỏi thành công');
+            toast.success('Thành công', {
+                description: 'Đã tạo kho đề câu hỏi mới vào hệ thống.'
+            });
             reset();
             onOpenChange(false);
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Tạo kho đề thất bại');
+            toast.error('Thất bại', {
+                description: error.response?.data?.message || 'Không thể tạo kho đề mới lúc này.'
+            });
         }
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl border border-border/50 shadow-2xl bg-background rounded-3xl p-0 max-h-[90vh] overflow-y-auto">
-                <DialogHeader className="p-8 pb-4 bg-muted/5 border-b border-border/10">
-                    <DialogTitle className="text-2xl font-semibold tracking-tight">
-                        Tạo Kho đề Câu hỏi
+            <DialogContent className="max-w-2xl border-border bg-background rounded-xl p-0 max-h-[90vh] overflow-hidden flex flex-col">
+                <DialogHeader className="p-6 border-b border-border bg-muted/5">
+                    <DialogTitle className="text-xl font-bold">
+                        Tạo Kho đề mới
                     </DialogTitle>
+                    <DialogDescription className="text-sm text-muted-foreground mt-1">
+                        Thiết lập các thông tin cơ bản cho kho lưu trữ câu hỏi.
+                    </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="p-8 pt-4 space-y-6">
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel>Tên Kho đề *</FieldLabel>
-                                <Input
-                                    {...field}
-                                    placeholder="Nhập tên kho đề..."
-                                    className="bg-background/50 border-border/40"
-                                />
-                                {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="description"
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel>Mô tả</FieldLabel>
-                                <Textarea
-                                    {...field}
-                                    placeholder="Nhập mô tả cho kho đề..."
-                                    className="min-h-[100px] bg-background/50 border-border/40"
-                                />
-                                {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
-                            </Field>
-                        )}
-                    />
-
-                    <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto flex-1">
+                    <div className="p-6 space-y-6">
                         <Controller
-                            name="courseId"
+                            name="name"
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Khóa học (Tùy chọn)</FieldLabel>
-                                    <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
-                                        <SelectTrigger className="bg-background/50 border-border/40">
-                                            <SelectValue placeholder="Chọn khóa học" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="none">Không</SelectItem>
-                                            {coursesData?.data?.map((course) => (
-                                                <SelectItem key={course.id} value={course.id}>
-                                                    {course.title}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                                    <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Tên Kho đề *</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        placeholder="Ví dụ: Từ vựng N5 - Bài 1"
+                                        className="h-10 rounded-xl bg-background border-border hover:border-primary/50 transition-all text-sm"
+                                    />
+                                    {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
                                 </Field>
                             )}
                         />
 
                         <Controller
-                            name="jlptLevel"
+                            name="description"
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Cấp độ JLPT (Tùy chọn)</FieldLabel>
-                                    <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
-                                        <SelectTrigger className="bg-background/50 border-border/40">
-                                            <SelectValue placeholder="Chọn cấp độ JLPT" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="none">Không</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N2}>N2</SelectItem>
-                                            <SelectItem value={QuestionJlptLevel.N1}>N1</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                                    <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Mô tả tóm tắt</FieldLabel>
+                                    <Textarea
+                                        {...field}
+                                        placeholder="Nhập mô tả ngắn gọn về kho đề này..."
+                                        className="min-h-[100px] rounded-xl bg-background border-border hover:border-primary/50 transition-all text-sm resize-none"
+                                    />
+                                    {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
                                 </Field>
                             )}
                         />
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <Controller
+                                name="courseId"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Khóa học liên kết</FieldLabel>
+                                        <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
+                                            <SelectTrigger className="h-10 rounded-xl bg-background border-border hover:border-primary/50 transition-all text-sm">
+                                                <SelectValue placeholder="Chọn khóa học" />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl p-1 max-h-[250px]">
+                                                <SelectItem value="none" className="rounded-lg text-sm cursor-pointer italic text-muted-foreground/60">Không chỉ định</SelectItem>
+                                                {coursesData?.data?.map((course) => (
+                                                    <SelectItem key={course.id} value={course.id} className="rounded-lg text-sm cursor-pointer">
+                                                        {course.title}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="jlptLevel"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Cấp độ JLPT</FieldLabel>
+                                        <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
+                                            <SelectTrigger className="h-10 rounded-xl bg-background border-border hover:border-primary/50 transition-all text-sm">
+                                                <SelectValue placeholder="Chọn cấp độ JLPT" />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl p-1">
+                                                <SelectItem value="none" className="rounded-lg text-sm cursor-pointer italic text-muted-foreground/60">Không chỉ định</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N1} className="rounded-lg text-sm cursor-pointer">N1</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N2} className="rounded-lg text-sm cursor-pointer">N2</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N3} className="rounded-lg text-sm cursor-pointer">N3</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N4} className="rounded-lg text-sm cursor-pointer">N4</SelectItem>
+                                                <SelectItem value={QuestionJlptLevel.N5} className="rounded-lg text-sm cursor-pointer">N5</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+                        </div>
+
+                        {selectedCourse && (
+                            <div className="p-3 bg-primary/5 rounded-xl border border-primary/10 flex items-start gap-3">
+                                <Info className="size-4 text-primary mt-0.5" />
+                                <div className="space-y-0.5">
+                                    <p className="text-xs font-bold text-primary uppercase tracking-wider">Thông tin khóa học</p>
+                                    <p className="text-sm text-foreground font-medium">{selectedCourse.title}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {selectedCourse && (
-                        <div className="p-4 bg-muted/30 rounded-lg border border-border/40">
-                            <p className="text-sm text-muted-foreground">
-                                <span className="font-medium">Khóa học đã chọn:</span> {selectedCourse.title}
-                            </p>
-                        </div>
-                    )}
-
-                    <div className="flex justify-end gap-3 pt-6 border-t border-border/10">
+                    <div className="p-6 border-t border-border bg-muted/5 flex justify-end gap-3 shrink-0">
                         <Button
                             type="button"
-                            variant="ghost"
-                            className="rounded-xl h-12 px-6"
+                            variant="outline"
+                            className="rounded-xl h-10 px-6 font-semibold"
                             onClick={() => {
                                 reset();
                                 onOpenChange(false);
                             }}
                         >
-                            Hủy bỏ
+                            Hủy
                         </Button>
-                        <Button type="submit" disabled={createPool.isPending} className="rounded-xl h-12 px-8">
-                            {createPool.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Tạo Kho đề
+                        <Button type="submit" disabled={createPool.isPending} className="rounded-xl h-10 px-8 font-semibold shadow-sm">
+                            {createPool.isPending ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Đang tạo...
+                                </>
+                            ) : (
+                                <>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Khởi tạo kho đề
+                                </>
+                            )}
                         </Button>
                     </div>
                 </form>
@@ -189,4 +209,3 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
         </Dialog>
     );
 }
-
