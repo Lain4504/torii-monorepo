@@ -152,6 +152,23 @@ export interface ReportResponse {
     generatedAt: string;
 }
 
+export interface PlacementTestResponse {
+    testId: string;
+    questions: Array<{
+        id: string;
+        content: string;
+        options: string[];
+    }>;
+}
+
+export interface PlacementEvaluationResponse {
+    suggestedLevel: string;
+    analysis: string;
+    score?: number;
+    details?: any[];
+}
+
+
 
 // --- API Client ---
 

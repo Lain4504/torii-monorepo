@@ -77,7 +77,7 @@ export default function UserProfilePage() {
                     <Feed
                         userId={userId}
                         sortBy={sortBy}
-                        onTotalBlogsChange={setTotalBlogs}
+                        onTotalPostsChange={setTotalBlogs}
                     />
                 </div>
 
