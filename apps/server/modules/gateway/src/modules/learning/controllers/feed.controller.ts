@@ -19,8 +19,8 @@ import {
     successPaginatedResponse,
     Public,
     GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/feed')
 @UseGuards(GatewayAuthGuard)
@@ -29,13 +29,13 @@ export class FeedController {
 
     @Public()
     @Get()
-    async findAll(@Query() query: any, @Req() req: Request) {
+    async findAll(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
-            const user = (req as any).user;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     'feed.findAll',
-                    { query, userId: user?.sub || user?.uid }
+                    { query, userId: requester?.sub }
                 )
             );
             return successPaginatedResponse(result);
@@ -46,13 +46,13 @@ export class FeedController {
 
     @Public()
     @Get(':id')
-    async findById(@Param('id') id: string, @Req() req: Request) {
+    async findById(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = (req as any).user;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     'feed.findById',
-                    { id, userId: user?.sub || user?.uid }
+                    { id, userId: requester?.sub }
                 )
             );
             return successResponse(result);
@@ -62,13 +62,13 @@ export class FeedController {
     }
 
     @Post()
-    async create(@Body() dto: any, @Req() req: Request) {
+    async create(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     'feed.create',
-                    { dto, userId: user?.sub || user?.uid }
+                    { dto, userId: requester?.sub }
                 )
             );
             return successResponse(result, 'Feed created successfully');
@@ -78,13 +78,13 @@ export class FeedController {
     }
 
     @Post(':id/like')
-    async toggleLike(@Param('id') id: string, @Req() req: Request) {
+    async toggleLike(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     'feed.toggleLike',
-                    { id, userId: user?.sub || user?.uid }
+                    { id, userId: requester?.sub }
                 )
             );
             return successResponse(result, 'Like toggled successfully');
@@ -94,13 +94,13 @@ export class FeedController {
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: string, @Req() req: Request) {
+    async delete(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     'feed.delete',
-                    { id, userId: user?.sub || user?.uid }
+                    { id, userId: requester?.sub }
                 )
             );
             return successResponse(result, 'Feed deleted successfully');

@@ -12,8 +12,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
+import { successResponse, errorResponse, GatewayAuthGuard, ReqWithRequester } from '@server/shared';
 
 @Controller('api/storage')
 @UseGuards(GatewayAuthGuard)
@@ -23,13 +22,13 @@ export class StorageController {
     ) { }
 
     @Post('upload-url')
-    async generatePresignedUploadUrl(@Body() data: any, @Req() req: Request) {
+    async generatePresignedUploadUrl(@Body() data: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'storage.generatePresignedUploadUrl' },
-                    { ...data, ownerId: user.sub }
+                    { ...data, ownerId: requester.sub }
                 )
             );
             // Result from NATS is plain DTO, wrap it in StandardApiResponse

@@ -30,9 +30,9 @@ export interface NavItem {
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
-    { name: 'Kiểm tra đầu vào', href: '/dashboard/placement-test', icon: Award },
+    { name: 'Assessment', href: '/assessment', icon: Award },
+    { name: 'AI Sensei', href: '/ai-sensei/chat', icon: Bot },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
-    { name: 'AI Sensei', href: '/ai-sensei', icon: Bot },
 ]
 
 export const communityNav: NavItem[] = [
@@ -40,11 +40,13 @@ export const communityNav: NavItem[] = [
 ]
 
 export const progressNav: NavItem[] = [
+    { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+    { name: 'AI Analytics', href: '/ai-analytics', icon: TrendingUp },
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
     { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
     { name: 'Ghi chú', href: '/dashboard/notes', icon: FileText },
-    { name: 'Thống kê', href: '/dashboard/statistics', icon: TrendingUp },
+    // { name: 'Thống kê', href: '/dashboard/statistics', icon: TrendingUp }, // Replaced by Analytics
 ]
 
 export const accountNav: NavItem[] = [

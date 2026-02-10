@@ -20,7 +20,7 @@ export class SessionService implements ISessionService {
      */
     async createSession(
         userId: string,
-    ): Promise<string> {
+    ): Promise<{ refreshToken: string; sessionId: string }> {
         // 1. Pre-generate the stable session ID (sid)
         const sessionId = randomUUID();
 
@@ -45,7 +45,7 @@ export class SessionService implements ISessionService {
         });
 
         this.logger.log(`Session ${sessionId} created for user ${userId}`);
-        return refreshToken;
+        return { refreshToken, sessionId };
     }
 
     /**

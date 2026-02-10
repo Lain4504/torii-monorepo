@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
-import { blogCommentApi } from '@/apis/services/blog-comment-api'
+import { commentApi } from '@/apis/services/comment-api'
 import type { CommentResponseDTO } from '@workspace/schemas'
 import { User, Heart, Reply, MoreHorizontal, Loader2, Send, Edit, Trash } from 'lucide-react'
 import {
@@ -19,7 +19,7 @@ import { toast } from '@workspace/ui/components/sonner'
 interface CommentSectionProps {
     blogId?: string
     feedId?: string
-    onCommentCountChange?: (delta: number) => void // Callback to update parent's comment count
+    onCommentCountChange?: (delta: number) => void
 }
 
 export function CommentSection({ blogId, feedId, onCommentCountChange }: CommentSectionProps) {
@@ -31,7 +31,13 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
     const fetchComments = async () => {
         try {
             setLoading(true)
-            const response = await blogCommentApi.findAll({ page: 1, limit: 100, blogId, feedId }) // Load many for nesting
+            if (!blogId && !feedId) return
+
+            const response = await commentApi.findAll({
+                page: 1,
+                limit: 100,
+                ...(blogId ? { blogId } : { feedId }),
+            })
 
             // Flatten nested structure: backend returns root comments with nested replies
             // We need to flatten this into a single array for our rendering logic
@@ -79,13 +85,17 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
         }
 
         try {
-            const newComment = await blogCommentApi.create({
-                blogId: blogId || undefined,
-                feedId: feedId || undefined,
+            if (!blogId && !feedId) {
+                toast.error('Không thể xác định bài viết')
+                return
+            }
+
+            const newComment = await commentApi.create({
+                ...(blogId ? { blogId } : { feedId: feedId! }),
                 userId: user.id,
                 content: content.trim(),
-                parentId: parentId || undefined
-            } as any)
+                parentId: parentId || undefined,
+            })
 
             setReplyTo(null)
             setComments(prev => [...prev, newComment]) // Optimistic add
@@ -122,7 +132,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
         }))
 
         try {
-            const result = await blogCommentApi.toggleLike(commentId)
+            const result = await commentApi.toggleLike(commentId)
             // Sync with server result just in case
             setComments(prev => prev.map(c => {
                 if (c.id === commentId) {
@@ -156,7 +166,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
 
     const handleUpdateComment = async (commentId: string, content: string) => {
         try {
-            const updatedComment = await blogCommentApi.update(commentId, { content })
+            const updatedComment = await commentApi.update(commentId, { content })
 
             // Update local state
             setComments(prev => prev.map(c => c.id === commentId ? { ...c, content: updatedComment.content } : c))
@@ -174,7 +184,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
         if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return
 
         try {
-            await blogCommentApi.delete(commentId)
+            await commentApi.delete(commentId)
 
             // Remove from local state
             setComments(prev => prev.filter(c => c.id !== commentId))
@@ -226,7 +236,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
                             user={user}
                             onUpdateComment={handleUpdateComment}
                             onDeleteComment={handleDeleteComment}
-                            canLike={!!feedId || !!blogId}
+                            canLike={!!blogId || !!feedId}
                         />
                     ))
                 ) : (

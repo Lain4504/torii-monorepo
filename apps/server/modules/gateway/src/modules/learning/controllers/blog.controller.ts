@@ -17,10 +17,10 @@ import {
     successResponse,
     errorResponse,
     successPaginatedResponse,
-    Public
+    Public,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/blogs')
 @UseGuards(GatewayAuthGuard)
@@ -77,7 +77,7 @@ export class BlogController {
 
     @Public()
     @Patch(':id/view')
-    async incrementViewCount(@Param('id') id: string, @Req() req: Request) {
+    async incrementViewCount(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
             const ip = req.ip || req.socket.remoteAddress || 'unknown';
             await firstValueFrom(
@@ -93,7 +93,7 @@ export class BlogController {
     }
 
     @Post()
-    async createBlog(@Body() dto: any, @Req() req: Request) {
+    async createPost(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -151,6 +151,4 @@ export class BlogController {
             return errorResponse(error.message || 'Failed to publish blog');
         }
     }
-
-
 }

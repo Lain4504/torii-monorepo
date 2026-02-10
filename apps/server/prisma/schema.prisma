@@ -60,9 +60,11 @@ model Course {
   wishlists    Wishlist[]
   reviews      Review[]
   quizzes      Quiz[]
-  instructors  CourseInstructor[]
-  liveSessions LiveSession[]
-  enrollments  Enrollment[]
+  instructors      CourseInstructor[]
+  liveSessions     LiveSession[]
+  teachingSchedules TeachingSchedule[]
+  scheduleRequests  LiveSessionScheduleRequest[]
+  enrollments      Enrollment[]
   assignments  Assignment[]
   certificates Certificate[]
 
@@ -152,7 +154,7 @@ model LessonProgress {
 // Assignment Types
 enum AssignmentType {
   TEXT // Text answer only
-  FILE // File upload only  
+  FILE // File upload only
   BOTH // Text + File
 }
 
@@ -304,12 +306,59 @@ model LiveSession {
   meetingId   String?  @map("meeting_id") @db.VarChar(100)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-  
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  scheduleId  String?  @map("schedule_id") @db.Uuid
+
+  course   Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  schedule TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
 
   @@index([courseId])
   @@index([lecturerId])
+  @@index([scheduleId])
   @@map("live_sessions")
+}
+
+// Teaching Schedule - Fixed weekly patterns for a course
+model TeachingSchedule {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId    String   @map("course_id") @db.Uuid
+  lecturerId  String   @map("lecturer_id") @db.Uuid
+  dayOfWeek   Int      @map("day_of_week") // 0 (Sun) to 6 (Sat)
+  startTime   String   @map("start_time") // HH:mm
+  duration    Int      @default(90) // minutes
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  course       Course                       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lecturer     User                         @relation("LecturerSchedules", fields: [lecturerId], references: [id], onDelete: Cascade)
+  liveSessions LiveSession[]
+  requests     LiveSessionScheduleRequest[]
+
+  @@index([courseId])
+  @@index([lecturerId])
+  @@map("teaching_schedules")
+}
+
+// Schedule Change Request - For lecturers to request adjustments
+model LiveSessionScheduleRequest {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lecturerId         String   @map("lecturer_id") @db.Uuid
+  originalScheduleId String?  @map("original_schedule_id") @db.Uuid
+  courseId           String   @map("course_id") @db.Uuid
+  dayOfWeek          Int      @map("day_of_week")
+  startTime          String   @map("start_time")
+  duration           Int      @default(90)
+  reason             String?  @db.Text
+  status             String   @default("pending") // pending, approved, rejected
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+
+  lecturer User              @relation("LecturerScheduleRequests", fields: [lecturerId], references: [id], onDelete: Cascade)
+  schedule TeachingSchedule? @relation(fields: [originalScheduleId], references: [id], onDelete: SetNull)
+  course   Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([lecturerId])
+  @@index([courseId])
+  @@map("live_session_schedule_requests")
 }
 
 // Lesson Material - Junction table linking lessons to file assets for teaching materials
@@ -504,6 +553,10 @@ model User {
 
   // Coupon Relations
   createdCoupons  Coupon[]         @relation("CouponCreator")
+
+  // Teaching Schedule Relations
+  teachingSchedules TeachingSchedule[]           @relation("LecturerSchedules")
+  scheduleRequests  LiveSessionScheduleRequest[] @relation("LecturerScheduleRequests")
 
   // QA Relations
   feeds           Feed[]
@@ -1634,7 +1687,7 @@ model Certificate {
   certificateCode  String   @unique @map("certificate_code") @db.VarChar(50)
   issueDate        DateTime @default(now()) @map("issue_date")
   fileUrl          String   @map("file_url") @db.Text
-  metadata         Json?    @default("{}") 
+  metadata         Json?    @default("{}")
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)

@@ -1,329 +1,145 @@
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowLeft, Plus, Database, FileQuestion, Target, Layout, Activity, Zap, BrainCircuit, Fingerprint, Clock, Inbox, ShieldAlert } from 'lucide-react';
-import { useQuestionPool } from '@/api/services/question-pools.ts';
-import { useQuestionsByPool } from '@/api/services/questions.ts';
-import { Badge } from '@workspace/ui/components/badge';
-import { Skeleton } from '@workspace/ui/components/skeleton';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@workspace/ui/components/table';
-import { CreateQuestionDialog } from '@/components/questions/create-question-dialog.tsx';
-import { ViewQuestionDialog } from '@/components/questions/view-question-dialog.tsx';
-import { DeleteQuestionDialog } from '@/components/questions/delete-question-dialog.tsx';
+    Plus,
+    ChevronLeft,
+    AlertCircle,
+    Search,
+    Filter,
+} from 'lucide-react';
+import { Card } from "@workspace/ui/components/card";
+import { Input } from "@workspace/ui/components/input";
+import { useQuestionPool } from '@/api/services/question-pools';
+import { useQuestionsByPool } from '@/api/services/questions';
 import type { QuestionResponseDTO } from '@workspace/schemas';
-import { toast } from '@workspace/ui/components/sonner';
-import { useUpdateQuestion } from '@/api/services/questions.ts';
-import { Card } from '@workspace/ui/components/card';
-import { cn } from '@workspace/ui/lib/utils';
+import { PageLoading } from '@workspace/ui/components/page-loading';
+import { PageHeader } from '@/components/common/page-header';
+import { QuestionsTable } from '@/components/question-pools/questions-table.tsx';
+import { QuestionFormSheet } from '@/components/questions/question-form-sheet';
+import { QuestionDetailSheet } from '@/components/questions/question-detail-sheet';
+import { DeleteQuestionDialog } from '@/components/questions/delete-question-dialog.tsx';
 
 export default function PoolDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { data: pool, isLoading: poolLoading, error: poolError } = useQuestionPool(id || '');
-    const { data: questions, isLoading: questionsLoading } = useQuestionsByPool(id || '');
+    const { data: pool, isLoading: isLoadingPool } = useQuestionPool(id || '');
+    const { data: questions = [], isLoading: isLoadingQuestions } = useQuestionsByPool(id || '');
 
-    const [showCreateDialog, setShowCreateDialog] = useState(false);
+    const [search, setSearch] = useState('');
     const [viewingQuestion, setViewingQuestion] = useState<QuestionResponseDTO | null>(null);
+    const [editingQuestion, setEditingQuestion] = useState<QuestionResponseDTO | null>(null);
     const [deletingQuestion, setDeletingQuestion] = useState<QuestionResponseDTO | null>(null);
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-    const updateQuestion = useUpdateQuestion();
-
-    const handleRemoveFromPool = async (question: QuestionResponseDTO) => {
-        try {
-            await updateQuestion.mutateAsync({
-                id: question.id,
-                question: { poolId: undefined },
-            });
-            toast.success('Đã gỡ câu hỏi khỏi kho đề');
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Gỡ câu hỏi khỏi kho đề thất bại');
-        }
-    };
-
-    if (poolLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-                <div className="relative">
-                    <Database className="size-12 text-primary animate-pulse" />
-                    <Activity className="absolute -top-1 -right-1 size-4 text-emerald-500 animate-bounce" />
-                </div>
-                <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-bold tracking-tight text-foreground/80">Đang truy cập Kho tri thức</h2>
-                    <p className="text-sm text-muted-foreground/60">Đang tải dữ liệu từ kho lưu trữ trung tâm...</p>
-                </div>
-            </div>
+    const filteredQuestions = useMemo(() => {
+        return questions.filter(q =>
+            q.questionText.toLowerCase().includes(search.toLowerCase())
         );
+    }, [questions, search]);
+
+    if (isLoadingPool) {
+        return <PageLoading text="Đang tải dữ liệu bộ câu hỏi..." className="min-h-[60vh]" />;
     }
 
-    if (poolError || !pool) {
+    if (!pool) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
-                <div className="w-24 h-24 rounded-[3rem] bg-destructive/5 flex items-center justify-center border border-dashed border-destructive/20 relative">
-                    <div className="absolute inset-0 bg-destructive/5 blur-3xl animate-pulse" />
-                    <ShieldAlert className="size-12 text-destructive/40 relative z-10" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-in fade-in duration-500 max-w-lg mx-auto px-6">
+                <div className="p-6 rounded-3xl bg-destructive/5 border border-destructive/20">
+                    <AlertCircle className="size-12 text-destructive/60 mx-auto" />
                 </div>
-                <div className="text-center space-y-3">
-                    <h2 className="text-3xl font-bold tracking-tight text-destructive/60">Đồng bộ hóa thất bại</h2>
-                    <p className="text-base text-muted-foreground/60 max-w-md mx-auto">
-                        Phát hiện lỗi không khớp dữ liệu hoặc kho lưu trữ bị hỏng. <br />
-                        {poolError?.message || 'LỖI: Tham chiếu kho tri thức không hợp lệ.'}
-                    </p>
+                <div className="space-y-2 text-center">
+                    <h2 className="text-2xl font-sans font-bold italic tracking-tight uppercase">Không tìm thấy bộ đề</h2>
+                    <p className="text-xs font-medium text-muted-foreground">Bộ đề bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
                 </div>
-                <Button
-                    onClick={() => navigate('/question-bank/pools')}
-                    className="h-14 px-10 rounded-2xl bg-muted/20 hover:bg-muted/30 border border-border/10 text-[10px] font-black uppercase tracking-widest transition-all"
-                >
-                    <ArrowLeft className="mr-3 size-4 opacity-40" />
-                    Quay lại Danh sách
+                <Button variant="outline" className="h-10 px-6 rounded-xl" onClick={() => navigate('/question-bank')}>
+                    <ChevronLeft className="mr-2 size-3.5" />
+                    Quay về danh sách
                 </Button>
             </div>
         );
     }
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700 pb-20">
-            {/* Sticky Sub-Header */}
-            <div className="sticky top-0 z-40 -mt-6 pt-6 pb-4 bg-card border-b border-border/10 px-2 lg:px-6 mb-8">
-                <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-6">
-                    <div className="flex items-center gap-6">
+        <div className="space-y-6 animate-in fade-in duration-700 pb-20">
+            <div className="space-y-4">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
+                    onClick={() => navigate('/question-bank')}
+                >
+                    <ChevronLeft className="size-4" />
+                    <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại danh sách</span>
+                </Button>
+
+                <PageHeader
+                    title={pool.name}
+                    subtitle={pool.description || "Danh sách tổng hợp các câu hỏi tri thức thuộc bộ đề này."}
+                    stats={[
+                        { label: "Tổng số câu hỏi", value: questions.length },
+                        { label: "Cấp độ", value: pool.jlptLevel || 'GLOBAL' },
+                        { label: "Lần cuối cập nhật", value: new Date(pool.updatedAt).toLocaleDateString('vi-VN') },
+                    ]}
+                    actions={
                         <Button
-                            variant="ghost"
-                            size="icon"
-                            asChild
-                            className="size-12 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all group"
+                            onClick={() => setIsCreateDialogOpen(true)}
+                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
                         >
-                            <Link to="/question-bank/pools">
-                                <ArrowLeft className="size-5 opacity-40 group-hover:opacity-100 group-hover:-translate-x-1 transition-all" />
-                            </Link>
+                            Thêm Câu Hỏi Mới
+                            <Plus className="ml-2 size-4" />
                         </Button>
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-3">
-                                <Database className="size-4 text-primary opacity-40" />
-                                <h1 className="text-xl font-bold tracking-tight text-foreground">{pool.name}</h1>
-                                <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[8px] font-black tracking-widest rounded-full px-3">
-                                    ĐANG HOẠT ĐỘNG
-                                </Badge>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-6 hidden sm:flex">
-                        <div className="flex items-center gap-3 text-right">
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30">Cấp độ Kho đề</span>
-                                <span className="text-[12px] font-black italic text-primary">{pool.jlptLevel || 'N/A'}</span>
-                            </div>
-                            <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center border border-primary/20">
-                                <Target className="size-5 text-primary opacity-60" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    }
+                />
             </div>
 
-            <div className="px-2 lg:px-6 max-w-[1400px] mx-auto space-y-12">
-                {/* Main Content Portal */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    {/* Left: Metadata & Actions */}
-                    <div className="lg:col-span-4 space-y-8">
-                        <Card className="rounded-[2.5rem] bg-card border border-border/20 p-8 space-y-8 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
-                                <Fingerprint className="size-32" />
-                            </div>
-
-                            <div className="space-y-2 relative">
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Mã nhận diện Kho lưu trữ</p>
-                                <h2 className="text-3xl font-bold tracking-tight text-foreground/80 leading-none">{pool.name}</h2>
-                                <p className="text-sm text-muted-foreground/60 mt-4 leading-relaxed line-clamp-4">
-                                    {pool.description || 'Kho tri thức do hệ thống tạo. Chưa có mô tả chi tiết.'}
-                                </p>
-                            </div>
-
-                            <div className="space-y-6 relative border-t border-border/10 pt-8">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
-                                            <FileQuestion className="size-4 text-muted-foreground/40" />
-                                        </div>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Số lượng câu hỏi</span>
-                                    </div>
-                                    <span className="text-sm font-bold">{questions?.length || 0} Câu hỏi</span>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
-                                            <Zap className="size-4 text-muted-foreground/40" />
-                                        </div>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Giao thức đồng bộ</span>
-                                    </div>
-                                    <Badge variant="outline" className="bg-emerald-500/5 text-emerald-500 border-emerald-500/20 text-[8px] font-black rounded-lg px-2">TỰ ĐỘNG</Badge>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="size-8 rounded-lg bg-muted/20 flex items-center justify-center">
-                                            <Layout className="size-4 text-muted-foreground/40" />
-                                        </div>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Tài nguyên liên kết</span>
-                                    </div>
-                                    <span className="text-[10px] font-black italic uppercase tracking-widest">{pool.courseId ? 'ĐÃ LIÊN KẾT KHÓA HỌC' : 'CHƯA LIÊN KẾT'}</span>
-                                </div>
-                            </div>
-
-                            <Button
-                                onClick={() => setShowCreateDialog(true)}
-                                className="w-full h-16 rounded-[1.5rem] bg-primary shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all relative group"
-                            >
-                                <Plus className="mr-3 size-5 group-hover:rotate-90 transition-transform duration-500" />
-                                <span className="text-xs font-black uppercase tracking-widest">Thêm Câu hỏi mới</span>
-                                <div className="absolute inset-0 rounded-[1.5rem] bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                            </Button>
-                        </Card>
-
-                        {/* Additional Info / Protocol Box */}
-                        <div className="p-8 rounded-[2.5rem] border border-border/10 bg-muted/5 space-y-4">
-                            <div className="flex items-center gap-3 text-muted-foreground/30 uppercase tracking-[0.3em] font-black text-[9px]">
-                                <Clock className="size-3" />
-                                Chu kỳ hệ thống 2024.08
-                            </div>
-                            <p className="text-[10px] font-bold text-muted-foreground/40 italic leading-relaxed">
-                                Tất cả câu hỏi trong kho đề này sẽ thừa hưởng cấp độ mặc định <span className="text-foreground/40">({pool.jlptLevel || 'GLOBAL'})</span>.
-                                Đồng bộ hóa chéo kho lưu trữ được bật cho các phiên đào tạo đang hoạt động.
-                            </p>
+            <div className="space-y-4">
+                <Card className="bg-card p-4 rounded-xl border-border shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+                        <div className="relative flex-1 group">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                            <Input
+                                placeholder="Tìm kiếm nội dung câu hỏi trong bộ đề..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="h-10 pl-9 rounded-lg border-border bg-background focus-visible:ring-primary/20 transition-all text-sm placeholder:text-muted-foreground/50"
+                            />
                         </div>
+                        <Button variant="outline" className="h-10 px-4 rounded-lg flex gap-2 text-xs font-bold uppercase tracking-wider">
+                            <Filter className="size-4 opacity-40" />
+                            Lọc nâng cao
+                        </Button>
                     </div>
+                </Card>
 
-                    {/* Right: Questions Registry */}
-                    <div className="lg:col-span-8 space-y-6">
-                        <div className="flex items-center justify-between px-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-2.5 rounded-2xl bg-primary/5 text-primary border border-primary/10">
-                                    <BrainCircuit className="size-5" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <h3 className="text-xl font-bold tracking-tight text-foreground/80">Danh mục Câu hỏi</h3>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/30">Danh sách chi tiết các thực thể logic trong kho đề.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <Card className="rounded-[3rem] bg-card border border-border/20 shadow-2xl shadow-primary/5 overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <Table className="min-w-[800px] border-collapse bg-transparent">
-                                    <TableHeader className="bg-muted/10 border-b border-border/20">
-                                        <TableRow className="border-none hover:bg-transparent">
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8">#</TableHead>
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Cấu trúc Câu hỏi</TableHead>
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Loại hình</TableHead>
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-6">Trạng thái</TableHead>
-                                            <TableHead className="h-14 text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.25em] px-8 text-right">Giao thức</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {questionsLoading ? (
-                                            Array.from({ length: 5 }).map((_, index) => (
-                                                <TableRow key={index} className="border-b border-border/10">
-                                                    <TableCell className="px-8 py-6"><Skeleton className="h-4 w-8 bg-muted/20 rounded-xl" /></TableCell>
-                                                    <TableCell className="px-6 py-6"><Skeleton className="h-6 w-full max-w-sm bg-muted/20 rounded-xl" /></TableCell>
-                                                    <TableCell className="px-6 py-6"><Skeleton className="h-6 w-24 bg-muted/20 rounded-xl" /></TableCell>
-                                                    <TableCell className="px-6 py-6"><Skeleton className="h-6 w-20 bg-muted/20 rounded-xl" /></TableCell>
-                                                    <TableCell className="px-8 py-6 text-right"><Skeleton className="h-10 w-24 bg-muted/20 rounded-xl ml-auto" /></TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : questions && questions.length > 0 ? (
-                                            questions.map((question, index) => (
-                                                <TableRow
-                                                    key={question.id}
-                                                    className="border-b border-border/10 hover:bg-primary/[0.02] transition-all duration-500 group"
-                                                >
-                                                    <TableCell className="px-8 font-black italic text-muted-foreground/30 tabular-nums text-[10px]">
-                                                        {index + 1 < 10 ? `0${index + 1}` : index + 1}
-                                                    </TableCell>
-                                                    <TableCell className="px-6">
-                                                        <div className="flex flex-col gap-1 cursor-pointer" onClick={() => setViewingQuestion(question)}>
-                                                            <div className="font-bold text-[13px] text-foreground/80 group-hover:text-primary transition-colors uppercase tracking-tight truncate max-w-[300px]">{question.questionText}</div>
-                                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/40">{question.category || 'LĨNH VỰC CHUNG'}</div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="px-6">
-                                                        <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted/10 border border-border/10 text-[8px] font-black uppercase tracking-widest text-muted-foreground">
-                                                            {question.questionType}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="px-6">
-                                                        <div className={cn(
-                                                            "inline-flex items-center px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm",
-                                                            question.status === 'active' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-muted/10 text-muted-foreground border-border/20"
-                                                        )}>
-                                                            <div className={cn("size-1 rounded-full mr-2", question.status === 'active' ? "bg-emerald-500 animate-pulse" : "bg-current")} />
-                                                            {question.status === 'active' ? 'ĐANG HOẠT ĐỘNG' : question.status}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="px-8 text-right">
-                                                        <div className="flex items-center justify-end gap-2 pr-2">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => setViewingQuestion(question)}
-                                                                className="h-9 px-4 rounded-xl hover:bg-primary/10 hover:text-primary text-[10px] font-black uppercase tracking-widest transition-all"
-                                                            >
-                                                                Xem chi tiết
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => handleRemoveFromPool(question)}
-                                                                className="h-9 px-4 rounded-xl hover:bg-rose-500/10 hover:text-rose-500 text-[10px] font-black uppercase tracking-widest transition-all"
-                                                            >
-                                                                Gỡ bỏ
-                                                            </Button>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow className="hover:bg-transparent">
-                                                <TableCell colSpan={7} className="h-64 text-center">
-                                                    <div className="flex flex-col items-center justify-center p-12 space-y-6">
-                                                        <div className="w-20 h-20 rounded-[1.5rem] bg-muted/20 flex items-center justify-center border border-border/40 relative">
-                                                            <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
-                                                            <Inbox className="size-10 text-muted-foreground/20 relative z-10" />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <h3 className="text-xl font-bold uppercase tracking-tight text-foreground/40">Chưa có Câu hỏi</h3>
-                                                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/20">Không có thực thể câu hỏi nào được liên kết với kho đề này.</p>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
+                <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
+                    <QuestionsTable
+                        data={filteredQuestions}
+                        isLoading={isLoadingQuestions}
+                        onView={setViewingQuestion}
+                        onEdit={setEditingQuestion}
+                        onDelete={setDeletingQuestion}
+                    />
+                </Card>
             </div>
 
-            {/* Dialogs */}
-            <CreateQuestionDialog
-                open={showCreateDialog}
-                onOpenChange={setShowCreateDialog}
-                defaultPoolId={pool.id}
+            {/* Sheets & Dialogs */}
+            <QuestionFormSheet
+                open={isCreateDialogOpen}
+                onOpenChange={setIsCreateDialogOpen}
+                defaultPoolId={id || ''}
             />
 
-            <ViewQuestionDialog
+            <QuestionDetailSheet
                 open={!!viewingQuestion}
                 onOpenChange={(open) => !open && setViewingQuestion(null)}
                 question={viewingQuestion}
+            />
+
+            <QuestionFormSheet
+                open={!!editingQuestion}
+                onOpenChange={(open) => !open && setEditingQuestion(null)}
+                question={editingQuestion}
             />
 
             <DeleteQuestionDialog

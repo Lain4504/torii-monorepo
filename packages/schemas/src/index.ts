@@ -56,6 +56,7 @@ export * from './dtos/order.dto';
 export * from './dtos/coupon.dto';
 export * from './dtos/gamification.dto';
 export * from './dtos/live-session.dto';
+export * from './dtos/teaching-schedule.dto';
 export * from './dtos/ticket.dto';
 export * from './dtos/feed.dto';
 export * from './dtos/assignment.dto';

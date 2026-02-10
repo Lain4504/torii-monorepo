@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Redis from 'ioredis';
 import type {
     UserUpdateDTO,
+    UserAdminUpdateDTO,
     Requester,
     UserCreateDTO,
     PaginationOptionsDTO,
@@ -23,6 +24,7 @@ import type {
 } from '@workspace/schemas';
 import {
     userUpdateDTOSchema,
+    userAdminUpdateDTOSchema,
     UserResponseDTO,
     UserRole,
     ErrEmailExisted,
@@ -264,28 +266,36 @@ export class UsersService implements IUsersService {
     }
 
     /**
-     * Update user
-     * Note: Password changes handled by Firebase, not stored in DB
+     * Update user (self or via admin)
      */
-    async update(requester: Requester, userId: string, dto: UserUpdateDTO): Promise<UserResponseDTO> {
-        // Can edit self, or has user.manage permission
-        if (requester.sub !== userId && !this.hasPermission(requester, 'user.manage')) {
+    async update(requester: Requester, userId: string, dto: UserAdminUpdateDTO | UserUpdateDTO): Promise<UserResponseDTO> {
+        const isAdminUpdate = this.hasPermission(requester, 'user.manage');
+
+        // Security check: Can edit self, or has user.manage permission
+        if (requester.sub !== userId && !isAdminUpdate) {
             throw new ForbiddenException('Forbidden');
         }
 
-        const data = userUpdateDTOSchema.parse(dto);
+        // Use appropriate schema based on permissions
+        const data = isAdminUpdate
+            ? userAdminUpdateDTOSchema.parse(dto)
+            : userUpdateDTOSchema.parse(dto);
 
         const user = await this.usersRepository.findById(userId);
         if (!user) {
             throw new NotFoundException('User not found');
         }
 
-        // Update user data (password changes handled by Firebase)
+        // Prepare update data
         const updateData: Prisma.UserUpdateInput = { ...data };
-        // Remove password field if present - Firebase handles auth
-        if ('password' in updateData) {
-            delete (updateData as { password?: unknown }).password;
+
+        // Handle password hashing if provided (not handled by provider in some flows)
+        if (updateData.password && typeof updateData.password === 'string') {
+            updateData.password = await argon2.hash(updateData.password);
         }
+
+        // Role and Email updates are already allowed if isAdminUpdate = true 
+        // as they are parsed from userAdminUpdateDTOSchema
 
         const updatedUser = await this.usersRepository.update(userId, updateData);
 
@@ -295,8 +305,8 @@ export class UsersService implements IUsersService {
             entity: 'user',
             entityId: userId,
             description: requester.sub === userId ? 'User updated their profile' : `Admin updated user: ${user.email}`,
-            oldValues: user,
-            newValues: updatedUser,
+            oldValues: { role: user.role, email: user.email, displayName: user.displayName },
+            newValues: { role: updatedUser.role, email: updatedUser.email, displayName: updatedUser.displayName },
         });
 
         // Map Prisma User to UserResponseDTO using AutoMapper

@@ -16,6 +16,7 @@ import { LessonMaterialModule } from './modules/lesson-material/lesson-material.
 import { EnrollmentModule } from './modules/enrollment/enrollment.module';
 import { LearningProgressModule } from './modules/learning-progress/learning-progress.module';
 import { LiveSessionModule } from './modules/live-session/live-session.module';
+import { TeachingScheduleModule } from './modules/teaching-schedule/teaching-schedule.module';
 import { CouponModule } from './modules/coupon/coupon.module';
 import { CertificateModule } from './modules/certificate/certificate.module';
 
@@ -57,6 +58,7 @@ import { FlashcardHandler } from './interfaces/nats/flashcard.handler';
 import { FlashcardReviewHandler } from './interfaces/nats/flashcard-review.handler';
 import { LearningProgressHandler } from './interfaces/nats/learning-progress.handler';
 import { LiveSessionHandler } from './interfaces/nats/live-session.handler';
+import { TeachingScheduleHandler } from './interfaces/nats/teaching-schedule.handler';
 import { CouponHandler } from './interfaces/nats/coupon.handler';
 import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
 import { AssignmentHandler } from './interfaces/nats/assignment.handler';
@@ -84,6 +86,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     EnrollmentModule,
     LearningProgressModule,
     LiveSessionModule,
+    TeachingScheduleModule,
     CouponModule,
     AssignmentModule,
     SubmissionModule,
@@ -128,6 +131,7 @@ import { SubmissionModule } from './modules/submission/submission.module';
     FlashcardReviewHandler,
     LearningProgressHandler,
     LiveSessionHandler,
+    TeachingScheduleHandler,
     CouponHandler,
     AnalyticsHandler,
     AssignmentHandler,

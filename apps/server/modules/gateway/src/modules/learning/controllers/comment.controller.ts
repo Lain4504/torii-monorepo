@@ -17,10 +17,10 @@ import {
     successResponse,
     errorResponse,
     successPaginatedResponse,
-    Public
+    Public,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/comments')
 @UseGuards(GatewayAuthGuard)
@@ -29,10 +29,10 @@ export class CommentController {
 
     @Public()
     @Get()
-    async findAllComments(@Query() query: any, @Req() req: Request) {
+    async findAllComments(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
-            const userId = user?.sub || user?.uid;
+            const requester = req.requester;
+            const userId = requester?.sub;
 
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -79,13 +79,13 @@ export class CommentController {
     }
 
     @Post()
-    async createComment(@Body() dto: any, @Req() req: Request) {
+    async createComment(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.comment.create' },
-                    { ...dto, userId: user?.sub || user?.uid }
+                    { ...dto, userId: requester?.sub }
                 )
             );
             return successResponse(result, 'Comment created successfully');
@@ -95,13 +95,13 @@ export class CommentController {
     }
 
     @Patch(':id')
-    async updateComment(@Param('id') id: string, @Body() dto: any, @Req() req: Request) {
+    async updateComment(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.comment.update' },
-                    { id, dto, userId: user?.sub || user?.uid }
+                    { id, dto, userId: requester?.sub }
                 )
             );
             return successResponse(result, 'Comment updated successfully');
@@ -111,13 +111,13 @@ export class CommentController {
     }
 
     @Delete(':id')
-    async deleteComment(@Param('id') id: string, @Req() req: Request) {
+    async deleteComment(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.comment.delete' },
-                    { id, userId: user?.sub || user?.uid }
+                    { id, userId: requester?.sub }
                 )
             );
             return successResponse(null, 'Comment deleted successfully');
@@ -127,13 +127,13 @@ export class CommentController {
     }
 
     @Post(':id/like')
-    async toggleLike(@Param('id') id: string, @Req() req: Request) {
+    async toggleLike(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.comment.toggleLike' },
-                    { id, userId: user?.sub || user?.uid }
+                    { id, userId: requester?.sub }
                 )
             );
             return successResponse(result, 'Like toggled successfully');
@@ -141,6 +141,4 @@ export class CommentController {
             return errorResponse(error.message || 'Failed to toggle like');
         }
     }
-
-
 }

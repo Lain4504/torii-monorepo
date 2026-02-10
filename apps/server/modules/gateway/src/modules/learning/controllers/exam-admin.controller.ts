@@ -15,10 +15,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/admin/exams')
 @UseGuards(GatewayAuthGuard)
@@ -56,13 +56,13 @@ export class ExamAdminController {
     }
 
     @Post()
-    async create(@Body() dto: any, @Req() req: Request) {
+    async create(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.create' },
-                    { ...dto, userId: user.sub, userRole: user.role }
+                    { ...dto, userId: requester.sub, userRole: requester.role }
                 )
             );
             return successResponse({ exam: result });
@@ -72,13 +72,13 @@ export class ExamAdminController {
     }
 
     @Put(':id')
-    async update(@Param('id') id: string, @Body() dto: any, @Req() req: Request) {
+    async update(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.update' },
-                    { id, ...dto, userId: user.sub, userRole: user.role }
+                    { id, ...dto, userId: requester.sub, userRole: requester.role }
                 )
             );
             return successResponse({ exam: result });
@@ -88,13 +88,13 @@ export class ExamAdminController {
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: string, @Req() req: Request) {
+    async delete(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.delete' },
-                    { id, userId: user.sub, userRole: user.role }
+                    { id, userId: requester.sub, userRole: requester.role }
                 )
             );
             return successResponse(null, 'Exam deleted successfully');
@@ -104,13 +104,13 @@ export class ExamAdminController {
     }
 
     @Post(':id/publish')
-    async publish(@Param('id') id: string, @Req() req: Request) {
+    async publish(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.publish' },
-                    { id, userId: user.sub, userRole: user.role }
+                    { id, userId: requester.sub, userRole: requester.role }
                 )
             );
             return successResponse({ exam: result });

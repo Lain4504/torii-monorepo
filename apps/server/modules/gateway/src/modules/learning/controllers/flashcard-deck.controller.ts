@@ -16,11 +16,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/flashcard-decks')
 @UseGuards(GatewayAuthGuard)
@@ -28,13 +27,13 @@ export class FlashcardDeckController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post()
-    async createDeck(@Body() input: any, @Req() req: Request) {
+    async createDeck(@Body() input: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-deck.create' },
-                    { ...input, userId: user.sub }
+                    { ...input, userId: requester.sub }
                 )
             );
             return successResponse({ deck: result });
@@ -44,13 +43,13 @@ export class FlashcardDeckController {
     }
 
     @Get()
-    async findAllDecks(@Query() query: any, @Req() req: Request) {
+    async findAllDecks(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-deck.findAll' },
-                    { query, userId: user.sub }
+                    { query, userId: requester.sub }
                 )
             );
             return successPaginatedResponse(result);
@@ -60,13 +59,13 @@ export class FlashcardDeckController {
     }
 
     @Get(':id')
-    async findOneDeck(@Param('id') id: string, @Req() req: Request) {
+    async findOneDeck(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-deck.findById' },
-                    { id, userId: user.sub }
+                    { id, userId: requester.sub }
                 )
             );
             return successResponse({ deck: result });
@@ -76,13 +75,13 @@ export class FlashcardDeckController {
     }
 
     @Patch(':id')
-    async updateDeck(@Param('id') id: string, @Body() input: any, @Req() req: Request) {
+    async updateDeck(@Param('id') id: string, @Body() input: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-deck.update' },
-                    { id, input, userId: user.sub }
+                    { id, input, userId: requester.sub }
                 )
             );
             return successResponse({ deck: result });
@@ -92,13 +91,13 @@ export class FlashcardDeckController {
     }
 
     @Delete(':id')
-    async deleteDeck(@Param('id') id: string, @Req() req: Request) {
+    async deleteDeck(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-deck.delete' },
-                    { id, userId: user.sub }
+                    { id, userId: requester.sub }
                 )
             );
             return successResponse(null, 'Deck deleted successfully');

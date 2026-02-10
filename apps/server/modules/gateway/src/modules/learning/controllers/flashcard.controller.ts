@@ -16,11 +16,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/flashcards')
 @UseGuards(GatewayAuthGuard)
@@ -28,13 +27,13 @@ export class FlashcardController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post()
-    async createFlashcard(@Body() input: any, @Req() req: Request) {
+    async createFlashcard(@Body() input: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard.create' },
-                    { ...input, userId: user.sub }
+                    { ...input, userId: requester.sub }
                 )
             );
             return successResponse({ flashcard: result });
@@ -44,13 +43,13 @@ export class FlashcardController {
     }
 
     @Get()
-    async getFlashcards(@Query() query: any, @Req() req: Request) {
+    async getFlashcards(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard.findAll' },
-                    { query, userId: user.sub }
+                    { query, userId: requester.sub }
                 )
             );
             return successPaginatedResponse(result);
@@ -75,13 +74,13 @@ export class FlashcardController {
     }
 
     @Patch()
-    async updateFlashcard(@Body() input: any, @Req() req: Request) {
+    async updateFlashcard(@Body() input: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard.update' },
-                    { ...input, userId: user.sub }
+                    { ...input, userId: requester.sub }
                 )
             );
             return successResponse({ flashcard: result });
@@ -106,13 +105,13 @@ export class FlashcardController {
     }
 
     @Post('bulk')
-    async bulkOperations(@Body() data: any, @Req() req: Request) {
+    async bulkOperations(@Body() data: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard.bulk' },
-                    { ...data, userId: user.sub }
+                    { ...data, userId: requester.sub }
                 )
             );
             return successResponse(result);

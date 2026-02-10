@@ -338,9 +338,24 @@ export class RoomEndService {
             this.logger.error(`Error in NATS cleanup: ${error.message}`);
         }
 
+        // Step 15: Notify other modules about room ending
+        try {
+            const nc = this.natsRoomService.getNatsConnection();
+            if (nc) {
+                nc.publish('events.meet.room_ended', JSON.stringify({
+                    roomId,
+                    roomSID,
+                    endedAt: new Date().toISOString()
+                }));
+                this.logger.log(`Published room_ended event for: ${roomId}`);
+            }
+        } catch (error) {
+            this.logger.error(`Failed to publish room_ended event: ${error.message}`);
+        }
+
         this.logger.log(`Room has been cleaned properly: ${roomId}`);
 
-        // Step 15: Schedule the analytics export to run after a delay
+        // Step 16: Schedule the analytics export to run after a delay
         const analyticsDelay = this.appConfig.timeouts.waitBeforeAnalyticsStart;
         setTimeout(() => {
             this.analyticsService.prepareToExportAnalytics(roomId, roomSID, metadata);
