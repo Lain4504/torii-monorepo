@@ -188,10 +188,12 @@ export class ActivityService {
                     totalXp: xpGain,
                     level: 1,
                     currentXp: xpGain, // Initial XP
+                    points: xpGain, // Added points
                 },
                 update: {
                     totalXp: { increment: xpGain },
                     currentXp: { increment: xpGain },
+                    points: { increment: xpGain }, // Added points
                 }
             });
 

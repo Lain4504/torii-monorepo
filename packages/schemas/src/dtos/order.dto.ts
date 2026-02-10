@@ -7,6 +7,7 @@ export type OrderResponseDTO = z.infer<typeof orderResponseDTOSchema>;
 
 export const orderCreateDTOSchema = z.object({
     courseId: z.string().uuid().optional(),
+    amount: z.coerce.number().optional(), // For TOP_UP order type
     paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.MOCK),
     paymentGateway: z.nativeEnum(PaymentGateway).optional(),
     orderType: z.nativeEnum(OrderType).default(OrderType.COURSE_PURCHASE),

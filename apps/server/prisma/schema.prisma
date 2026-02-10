@@ -544,6 +544,7 @@ model User {
   payments                Payment[]
   giftEnrollments         Enrollment[]             @relation("GiftEnrollments")
   certificates            Certificate[]
+  balance             UserBalance?
 
   // Gamification Relations
   gamification    UserGamification?
@@ -1463,7 +1464,7 @@ model UserGamification {
   totalXp   Int @default(0) @map("total_xp") // Tổng XP tích lũy (dùng để đua Top)
 
   // --- Currency (Economy - Chuẩn bị sẵn cho tương lai) ---
-  coins Int @default(0) // Đơn vị tiền tệ chính (kiếm được qua học tập)
+  points Int @default(0) // Điểm thưởng dùng để đổi mã giảm giá
   gems  Int @default(0) // Đơn vị cao cấp (nếu có)
 
   // --- Streak System (Gộp từ UserStreak cũ vào đây) ---
@@ -1487,6 +1488,17 @@ model UserGamification {
   @@index([totalXp(sort: Desc)]) // Index quan trọng nhất để lấy Leaderboard (Bảng xếp hạng)
   @@index([userId])
   @@map("user_gamification")
+}
+
+model UserBalance {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  balance   Int      @default(0)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_balances")
 }
 
 // Daily Activity Log (for audit + analytics)

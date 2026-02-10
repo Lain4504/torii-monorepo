@@ -280,12 +280,12 @@ export class EnrollmentService implements IEnrollmentService {
                     completionStatus: EnrollmentStatus.COMPLETED,
                     completedAt: new Date(),
                 });
-                
+
                 // Trigger certificate issuance
                 this.certificateService.issueCertificate(enrollment.userId, enrollment.courseId, enrollmentId).catch((err: any) => {
                     this.logger.error(`Failed to automatically issue certificate: ${err.message}`, err.stack);
                 });
-                
+
                 return this.toEnrollmentDto({ ...updated, completionStatus: EnrollmentStatus.COMPLETED, completedAt: new Date() });
             }
 
@@ -314,7 +314,7 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Delete enrollment by user and course
      */
-    async deleteByUserAndCourse(userId: string, courseId: string): Promise<boolean> {
+    async deleteByUserAndCourse(userId: string, courseId: string): Promise<EnrollmentResponseDTO> {
         try {
             const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
             if (!enrollment) {
@@ -332,7 +332,7 @@ export class EnrollmentService implements IEnrollmentService {
                 oldValues: enrollment,
             });
 
-            return true;
+            return this.toEnrollmentDto(enrollment);
         } catch (error: any) {
             this.logger.error(`Error deleting enrollment: ${error.message}`, error.stack);
             throw error;

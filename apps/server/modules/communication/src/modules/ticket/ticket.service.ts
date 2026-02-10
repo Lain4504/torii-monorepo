@@ -55,17 +55,28 @@ export class TicketService implements ITicketService {
                 throw new BadRequestException('Course ID is required for refund ticket');
             }
 
-            // Check if user is enrolled in the course
+            // Check if user is enrolled and within 14 days
             try {
-                const enrollment = await firstValueFrom(
-                    this.natsClient.send({ cmd: 'learning.enrollment.isEnrolled' }, { userId, courseId })
+                const result = await firstValueFrom(
+                    this.natsClient.send({ cmd: 'learning.enrollment.check' }, { userId, courseId })
                 );
-                if (!enrollment) {
-                    throw new BadRequestException('You are not enrolled in this course');
+
+                if (!result || !result.isEnrolled) {
+                    throw new BadRequestException('You are not enrolled in this course or enrollment is not active');
+                }
+
+                const enrollmentDate = new Date(result.enrollment.enrollmentDate);
+                const now = new Date();
+                const diffTime = Math.abs(now.getTime() - enrollmentDate.getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 14) {
+                    throw new BadRequestException('Bạn chỉ có thể yêu cầu hoàn tiền trong vòng 14 ngày kể từ ngày đăng ký khóa học.');
                 }
             } catch (error) {
-                this.logger.error(`Error checking enrollment: ${error.message}`);
-                throw new BadRequestException('Could not verify enrollment status');
+                if (error instanceof BadRequestException) throw error;
+                this.logger.error(`Error checking enrollment for refund: ${error.message}`);
+                throw new BadRequestException('Could not verify enrollment status or refund eligibility');
             }
         }
 
@@ -112,20 +123,53 @@ export class TicketService implements ITicketService {
 
             if (courseId && userId) {
                 try {
-                    // Logic: Delete Enrollment
-                    const deleteResult = await firstValueFrom(
+                    // Re-verify eligibility before final approval
+                    const result = await firstValueFrom(
+                        this.natsClient.send({ cmd: 'learning.enrollment.check' }, { userId, courseId })
+                    );
+
+                    if (!result || !result.isEnrolled) {
+                        throw new BadRequestException('Enrollment not found or already processed.');
+                    }
+
+                    const enrollmentDate = new Date(result.enrollment.enrollmentDate);
+                    const now = new Date();
+                    const diffTime = Math.abs(now.getTime() - enrollmentDate.getTime());
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays > 14) {
+                        throw new BadRequestException('Khóa học này đã quá thời hạn 14 ngày để hoàn tiền.');
+                    }
+
+                    // Logic: Delete Enrollment and get its data
+                    const deletedEnrollment = await firstValueFrom(
                         this.natsClient.send({ cmd: 'learning.enrollment.delete' }, { userId, courseId })
                     );
 
-                    if (!deleteResult) {
+                    if (!deletedEnrollment) {
                         this.logger.warn(`Enrollment deletion returned no data for User ${userId}, Course ${courseId}`);
+                    } else if (deletedEnrollment.finalPrice > 0) {
+                        // Refund balance
+                        await firstValueFrom(
+                            this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
+                                userId,
+                                amount: Math.round(Number(deletedEnrollment.finalPrice)),
+                                reason: `Hoàn tiền khóa học (Ticket #${ticket.id})`
+                            })
+                        );
+
+                        // Optionally update response if not provided
+                        if (!dto.response) {
+                            dto.response = `Đã hoàn trả ${deletedEnrollment.finalPrice} vào số dư cho khóa học của bạn.`;
+                        } else {
+                            dto.response = `${dto.response} (Đã hoàn trả ${deletedEnrollment.finalPrice} vào số dư)`.trim();
+                        }
                     }
 
                     this.logger.log(`Refund approved and enrollment deleted for User ${userId}, Course ${courseId}.`);
                 } catch (error) {
+                    if (error instanceof BadRequestException) throw error;
                     this.logger.error(`Error processing refund cancellation: ${error.message}`);
-                    // If enrollment not found, we might still want to approve the ticket 
-                    // (maybe it was deleted manually or already refunded)
                     if (error.message?.includes('not found')) {
                         this.logger.warn(`Enrollment not found during refund for User ${userId}, Course ${courseId}. Proceeding with ticket approval.`);
                     } else {
