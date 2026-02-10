@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@workspace/i18n';
 import { Button } from '@workspace/ui/components/button';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Loader2, RotateCcw, Zap, Cpu, Lock } from 'lucide-react';
