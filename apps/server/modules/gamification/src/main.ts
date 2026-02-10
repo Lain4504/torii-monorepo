@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
-import { GamificationModule } from './gamification.module';
+import { GamificationModule } from '@server/gamification/gamification.module';
 import { createNatsServiceConfig } from '@server/shared';
 
 async function bootstrap() {

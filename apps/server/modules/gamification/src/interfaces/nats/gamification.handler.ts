@@ -8,10 +8,12 @@ import {
     LeaderboardDto,
     UserGamificationDto,
 } from '@workspace/schemas';
-import { StreakService } from '../../services/streak.service';
-import { AchievementService } from '../../services/achievement.service';
-import { ActivityService } from '../../services/activity.service';
-import { LeaderboardService } from '../../services/leaderboard.service';
+import {
+    StreakService,
+    AchievementService,
+    ActivityService,
+    LeaderboardService,
+} from '@server/gamification/services';
 
 @Controller()
 export class GamificationHandler {
