@@ -495,7 +495,7 @@ model User {
   payments                Payment[]
   giftEnrollments         Enrollment[]             @relation("GiftEnrollments")
   certificates            Certificate[]
-  coinBalance             UserCoin?
+  balance             UserBalance?
 
   // Gamification Relations
   gamification    UserGamification?
@@ -1437,7 +1437,7 @@ model UserGamification {
   @@map("user_gamification")
 }
 
-model UserCoin {
+model UserBalance {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @unique @map("user_id") @db.Uuid
   balance   Int      @default(0)
@@ -1445,7 +1445,7 @@ model UserCoin {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("user_coins")
+  @@map("user_balances")
 }
 
 // Daily Activity Log (for audit + analytics)

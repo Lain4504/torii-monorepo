@@ -149,9 +149,9 @@ export class TicketService implements ITicketService {
                     if (!deletedEnrollment) {
                         this.logger.warn(`Enrollment deletion returned no data for User ${userId}, Course ${courseId}`);
                     } else if (deletedEnrollment.finalPrice > 0) {
-                        // Refund coins
+                        // Refund balance
                         await firstValueFrom(
-                            this.natsClient.send({ cmd: 'billing.coin.add' }, {
+                            this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
                                 userId,
                                 amount: Math.round(Number(deletedEnrollment.finalPrice)),
                                 reason: `Hoàn tiền khóa học (Ticket #${ticket.id})`
@@ -160,9 +160,9 @@ export class TicketService implements ITicketService {
 
                         // Optionally update response if not provided
                         if (!dto.response) {
-                            dto.response = `Đã hoàn trả ${deletedEnrollment.finalPrice} coin cho khóa học của bạn.`;
+                            dto.response = `Đã hoàn trả ${deletedEnrollment.finalPrice} vào số dư cho khóa học của bạn.`;
                         } else {
-                            dto.response = `${dto.response} (Đã hoàn trả ${deletedEnrollment.finalPrice} coin)`.trim();
+                            dto.response = `${dto.response} (Đã hoàn trả ${deletedEnrollment.finalPrice} vào số dư)`.trim();
                         }
                     }
 

@@ -74,7 +74,7 @@ export const UserGamificationDtoSchema = z.object({
     totalXp: z.number().int(),
     points: z.number().int(), // Renamed from coins
     gems: z.number().int(),
-    coinBalance: z.number().int().optional(), // Added for actual purchaseable coins
+    balance: z.number().int().optional(), // Added for actual purchaseable balance
     currentStreak: z.number().int(),
     longestStreak: z.number().int(),
     lastActiveDate: z.string().nullable(),

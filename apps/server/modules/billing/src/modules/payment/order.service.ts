@@ -556,15 +556,15 @@ export class OrderService implements IOrderService {
             if (order.orderType === OrderType.TOP_UP) {
                 try {
                     await lastValueFrom(
-                        this.natsClient.send({ cmd: 'billing.coin.add' }, {
+                        this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
                             userId: order.userId,
                             amount: Math.round(Number(order.amount)),
                             reason: `Nạp tiền vào tài khoản (Đơn hàng #${order.id})`
                         })
                     );
-                    this.logger.log(`User ${order.userId} account credited with ${order.amount} coins`);
-                } catch (coinError: any) {
-                    this.logger.error(`Failed to credit coins for top-up: ${coinError.message}`);
+                    this.logger.log(`User ${order.userId} account credited with ${order.amount} balance`);
+                } catch (balanceError: any) {
+                    this.logger.error(`Failed to credit balance for top-up: ${balanceError.message}`);
                 }
             }
 

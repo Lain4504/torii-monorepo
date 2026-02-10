@@ -104,7 +104,7 @@ export function Header() {
                         {isAuthenticated && (
                             <div className="hidden sm:flex items-center px-3 py-1 bg-yellow-500/10 rounded-full text-yellow-600 dark:text-yellow-500 font-bold text-sm gap-2 border border-yellow-500/20 shadow-sm">
                                 <Coins className="w-4 h-4" />
-                                <span>{((user as any)?.coinBalance || 0).toLocaleString()}</span>
+                                <span>{((user as any)?.balance || 0).toLocaleString()}</span>
                             </div>
                         )}
                         <div className="hidden sm:flex items-center gap-2">

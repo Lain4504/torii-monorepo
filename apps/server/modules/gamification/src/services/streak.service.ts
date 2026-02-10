@@ -37,8 +37,8 @@ export class StreakService {
             });
         }
 
-        // Fetch actual coin balance from userCoins table
-        const userCoin = await this.prisma.userCoin.findUnique({
+        // Fetch actual balance from userBalances table
+        const userBalance = await this.prisma.userBalance.findUnique({
             where: { userId }
         });
 
@@ -50,7 +50,7 @@ export class StreakService {
             totalXp: gamification.totalXp,
             points: (gamification as any).points,
             gems: gamification.gems,
-            coinBalance: userCoin?.balance || 0,
+            balance: userBalance?.balance || 0,
             currentStreak: gamification.currentStreak,
             longestStreak: gamification.longestStreak,
             lastActiveDate: gamification.lastActiveDate,
