@@ -1,5 +1,6 @@
 // Core exports
 export { default as i18n, initializeI18n, i18nConfig } from './config';
+export { I18nextProvider } from 'react-i18next';
 
 // Types
 export type {

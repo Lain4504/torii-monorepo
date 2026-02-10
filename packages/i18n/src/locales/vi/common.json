@@ -15,7 +15,7 @@
         "liveClasses": "Lớp trực tuyến",
         "questionBank": "Ngân hàng câu hỏi",
         "examsTests": "Bài kiểm tra",
-        "post": "Tin tức",
+        "post": "Bài viết",
         "financials": "Tài chính",
         "promotions": "Khuyến mãi",
         "analytics": "Phân tích",
@@ -30,7 +30,7 @@
         "liveClasses": "Lớp học ảo và lịch trình",
         "questionBank": "Quản lý câu hỏi và tổ chức thành bộ",
         "examsTests": "Quản lý bài kiểm tra JLPT và thực hành",
-        "post": "Quản lý tin tức và bài viết",
+        "post": "Quản lý bài viết và thông báo",
         "financials": "Doanh thu và giao dịch",
         "promotions": "Mã giảm giá và chính sách khuyến mãi",
         "analytics": "Phân tích hệ thống chi tiết",
@@ -113,7 +113,7 @@
             "flashcards": "Flashcards",
             "login": "Đăng nhập",
             "registerFree": "Đăng ký miễn phí",
-            "dashboard": "Bảng điều khiển",
+            "dashboard": "Tổng quan",
             "logout": "Đăng xuất",
             "loggingOut": "Đang đăng xuất...",
             "theme": {
@@ -124,7 +124,7 @@
             },
             "userMenu": {
                 "title": "Trung tâm cá nhân",
-                "dashboard": "Bảng điều khiển",
+                "dashboard": "Tổng quan",
                 "settings": "Cài đặt tài khoản",
                 "logout": "Đăng xuất",
                 "learnerId": "Mã học viên"

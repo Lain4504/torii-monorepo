@@ -3,7 +3,6 @@
  */
 export const SUPPORTED_LANGUAGES = {
     vi: 'vi',
-    en: 'en',
 } as const;
 
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[keyof typeof SUPPORTED_LANGUAGES];
@@ -38,17 +37,11 @@ export const LANGUAGE_METADATA: Record<SupportedLanguage, LanguageMetadata> = {
         nativeName: 'Tiếng Việt',
         flag: '🇻🇳',
     },
-    en: {
-        code: 'en',
-        name: 'English',
-        nativeName: 'English',
-        flag: '🇬🇧',
-    },
 };
 
 /**
  * Default language configuration
  */
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'vi';
-export const FALLBACK_LANGUAGE: SupportedLanguage = 'en';
+export const FALLBACK_LANGUAGE: SupportedLanguage = 'vi';
 export const DEFAULT_NAMESPACE: TranslationNamespace = 'common';
