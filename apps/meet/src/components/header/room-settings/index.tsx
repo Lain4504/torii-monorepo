@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import sanitizeHtml from 'sanitize-html';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
@@ -14,7 +13,6 @@ declare const WAJLC_VERSION: string;
 
 const RoomSettings = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const {
     serverVersion,
     currentUser,
@@ -27,27 +25,37 @@ const RoomSettings = () => {
       currentUser: session.currentUser,
       copyright_conf: session.currentRoom.metadata?.copyrightConf,
       ingressFeatures:
-      session.currentRoom.metadata?.roomFeatures?.ingressFeatures,
+        session.currentRoom.metadata?.roomFeatures?.ingressFeatures,
     };
   }, []);
 
   const isShowRoomSettingsModal = useAppSelector(
-      (state) => state.roomSettings.isShowRoomSettingsModal,
+    (state) => state.roomSettings.isShowRoomSettingsModal,
   );
 
-  const baseCategories = {
-    'header.room-settings.application': <ApplicationSettings />,
-    'header.room-settings.data-savings': <DataSavings />,
+  const baseCategories: Record<string, { title: string; content: React.ReactNode }> = {
+    application: {
+      title: 'Ứng dụng',
+      content: <ApplicationSettings />,
+    },
+    dataSavings: {
+      title: 'Tiết kiệm dữ liệu',
+      content: <DataSavings />,
+    },
   };
   if (currentUser?.metadata?.isAdmin) {
     if (ingressFeatures?.isAllow) {
-      baseCategories['header.room-settings.ingress'] = <Ingress />;
+      baseCategories.ingress = {
+        title: 'Luồng vào',
+        content: <Ingress />,
+      };
     }
   }
+
   const tabItems = Object.keys(baseCategories).map((k) => ({
     id: k,
-    title: t(k),
-    content: baseCategories[k],
+    title: baseCategories[k].title,
+    content: baseCategories[k].content,
   }));
 
   const closeModal = () => {
@@ -61,9 +69,9 @@ const RoomSettings = () => {
   const renderModalFooter = () => {
     let text = '';
     if (
-        copyright_conf &&
-        copyright_conf.display &&
-        copyright_conf.text !== ''
+      copyright_conf &&
+      copyright_conf.display &&
+      copyright_conf.text !== ''
     ) {
       text = sanitizeHtml(copyright_conf.text, {
         allowedTags: ['b', 'i', 'em', 'strong', 'a'],
@@ -73,30 +81,27 @@ const RoomSettings = () => {
       }).concat('&nbsp;');
     }
 
-    text += t('wajlc-server-client-version', {
-      server: serverVersion,
-      client: WAJLC_VERSION,
-    });
+    text += `Phiên bản Máy chủ: ${serverVersion}, Phiên bản Ứng dụng: ${WAJLC_VERSION}`;
     return (
-        <div
-            className="absolute inset-x-0 -bottom-4 text-center text-Gray-950 dark:text-white text-xs"
-            dangerouslySetInnerHTML={{ __html: text }}
-        ></div>
+      <div
+        className="absolute inset-x-0 -bottom-4 text-center text-Gray-950 dark:text-white text-xs"
+        dangerouslySetInnerHTML={{ __html: text }}
+      ></div>
     );
   };
 
   return (
-      <Modal
-          show={true}
-          onClose={closeModal}
-          title={t('header.room-settings.title')}
-          maxWidth="max-w-2xl header-room-settings"
-      >
-        <div className="wrap relative">
-          <Tabs items={tabItems} tabPanelsCss="min-h-[316px]" />
-          {renderModalFooter()}
-        </div>
-      </Modal>
+    <Modal
+      show={true}
+      onClose={closeModal}
+      title="Cài đặt"
+      maxWidth="max-w-2xl header-room-settings"
+    >
+      <div className="wrap relative">
+        <Tabs items={tabItems} tabPanelsCss="min-h-[316px]" />
+        {renderModalFooter()}
+      </div>
+    </Modal>
   );
 };
 

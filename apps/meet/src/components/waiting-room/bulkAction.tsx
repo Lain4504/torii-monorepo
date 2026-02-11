@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { IParticipant } from '../../store/slices/interfaces/participant';
 import sendAPIRequest from '../../helpers/api/api-client';
@@ -18,7 +17,6 @@ interface IBulkActionProps {
 }
 
 const BulkAction = ({ waitingParticipants }: IBulkActionProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const approveEveryone = () => {
@@ -38,7 +36,7 @@ const BulkAction = ({ waitingParticipants }: IBulkActionProps) => {
       if (!res.status) {
         dispatch(
           addUserNotification({
-            message: t(res.msg),
+            message: res.msg,
             typeOption: 'error',
           }),
         );
@@ -55,7 +53,7 @@ const BulkAction = ({ waitingParticipants }: IBulkActionProps) => {
 
     waitingParticipants.forEach(async (p) => {
       body.userId = p.userId;
-      body.msg = t('notifications.you-have-reject');
+      body.msg = 'Bạn đã bị từ chối truy cập vào phòng';
       body.blockUser = false;
 
       const r = await sendAPIRequest(
@@ -70,7 +68,7 @@ const BulkAction = ({ waitingParticipants }: IBulkActionProps) => {
       if (!res.status) {
         dispatch(
           addUserNotification({
-            message: t(res.msg),
+            message: res.msg,
             typeOption: 'error',
           }),
         );
@@ -84,13 +82,13 @@ const BulkAction = ({ waitingParticipants }: IBulkActionProps) => {
         onClick={approveEveryone}
         className="h-9 w-full cursor-pointer flex items-center justify-center rounded-lg text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 shadow-sm disabled:opacity-50"
       >
-        {t('waiting-room.accept-all')}
+        Chấp nhận tất cả
       </button>
       <button
         onClick={rejectEveryone}
         className="h-9 w-full cursor-pointer flex items-center justify-center rounded-lg text-sm font-semibold text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-all duration-300 shadow-sm disabled:opacity-50"
       >
-        {t('waiting-room.reject-all')}
+        Từ chối tất cả
       </button>
     </div>
   );

@@ -1,6 +1,3 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { IParticipant } from '../../store/slices/interfaces/participant';
 import WaitingParticipantItem from './waitingParticipantItem';
 
@@ -9,14 +6,10 @@ interface IParticipantsListProps {
 }
 
 const ParticipantsList = ({ waitingParticipants }: IParticipantsListProps) => {
-  const { t } = useTranslation();
-
   return (
     <div className="waiting-list-wrap">
       <p className="text-lg my-4 text-foreground font-medium ltr:text-left rtl:text-right">
-        {t('waiting-room.list-waiting-participants', {
-          count: waitingParticipants.length,
-        })}
+        Danh sách đang chờ ({waitingParticipants.length})
       </p>
       <div className="waiting-list scrollBar h-[122px] overflow-auto">
         <div className="waiting-list-inner pb-0.5 pr-0.5">
@@ -26,7 +19,7 @@ const ParticipantsList = ({ waitingParticipants }: IParticipantsListProps) => {
             ))
           ) : (
             <p className="text-sm text-muted-foreground">
-              {t('waiting-room.no-pending-user')}
+              Không có người dùng nào đang chờ
             </p>
           )}
         </div>

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { IncreaseBreakoutRoomDurationReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
@@ -11,7 +10,6 @@ interface IExtendTimeProps {
   setMessage: (message: BreakoutRoomMessage | null) => void;
 }
 const ExtendDuration = ({ breakoutRoomId, setMessage }: IExtendTimeProps) => {
-  const { t } = useTranslation();
   const [duration, setDuration] = useState<number>(5);
   const [increaseDuration, { isLoading, isSuccess, isError, data, error }] =
     useIncreaseDurationMutation();
@@ -20,18 +18,18 @@ const ExtendDuration = ({ breakoutRoomId, setMessage }: IExtendTimeProps) => {
     if (isSuccess && data) {
       if (data.status) {
         setMessage({
-          text: t('breakout-room.duration-extended'),
+          text: 'Đã gia hạn thời gian phòng',
           type: 'info',
         });
         setTimeout(() => setMessage(null), 5000);
       } else {
-        setMessage({ text: t(data.msg), type: 'error' });
+        setMessage({ text: data.msg, type: 'error' });
       }
     } else if (isError) {
-      const msg = (error as any)?.data?.msg ?? 'Unknown error';
-      setMessage({ text: t(msg), type: 'error' });
+      const msg = (error as any)?.data?.msg ?? 'Lỗi không xác định';
+      setMessage({ text: msg, type: 'error' });
     }
-  }, [isSuccess, isError, data, error, t, setMessage]);
+  }, [isSuccess, isError, data, error, setMessage]);
 
   const handleExtendDuration = useCallback(() => {
     if (duration > 0) {
@@ -53,7 +51,7 @@ const ExtendDuration = ({ breakoutRoomId, setMessage }: IExtendTimeProps) => {
         min="1"
         value={duration}
         onChange={(e) => setDuration(Number(e.currentTarget.value))}
-        placeholder={t('breakout-room.extend-duration').toString()}
+        placeholder="Gia hạn thời gian"
         className="max-w-[100px] text-foreground border border-border bg-card shadow-sm block px-3 py-2 w-full h-9 rounded-lg outline-hidden focus:border-primary"
       />
       <button
@@ -61,7 +59,7 @@ const ExtendDuration = ({ breakoutRoomId, setMessage }: IExtendTimeProps) => {
         disabled={isLoading || duration <= 0}
         className="h-8 px-3 text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
-        {t('breakout-room.extend-duration')}
+        Gia hạn
       </button>
     </div>
   );

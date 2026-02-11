@@ -289,6 +289,18 @@ export class OrderService implements IOrderService {
                     throw new BadRequestException(`Recipient with email ${recipientEmail} not found`);
                 }
 
+                // Check if recipient already owns the course
+                const isAlreadyOwned = await lastValueFrom(
+                    this.natsClient.send({ cmd: 'learning.enrollment.isEnrolled' }, {
+                        userId: identityResponse.user.id,
+                        courseId: courseId,
+                    })
+                );
+
+                if (isAlreadyOwned) {
+                    throw new BadRequestException('Recipient already owns this course');
+                }
+
                 // Store recipient ID in metadata for later use
                 input.metadata = {
                     ...input.metadata,
@@ -297,6 +309,9 @@ export class OrderService implements IOrderService {
                 };
 
             } catch (error: any) {
+                if (error instanceof BadRequestException) {
+                    throw error;
+                }
                 this.logger.error(`Error validating gift recipient: ${error.message}`);
                 throw new BadRequestException(`Invalid recipient email: ${recipientEmail}`);
             }

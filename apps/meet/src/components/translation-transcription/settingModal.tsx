@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { store, useAppDispatch, useAppSelector } from '../../store';
-import { useTranslation } from 'react-i18next';
 
 import Tabs, { ITabItem } from '../../helpers/ui/tabs';
 import Modal from '../../helpers/ui/modal';
@@ -15,7 +14,6 @@ import { Loader2 } from 'lucide-react';
 
 const TranslationTranscriptionSettingModal = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const showSpeechSettingsModal = useAppSelector(
     (state) => state.bottomIconsActivity.showSpeechSettingsModal,
@@ -43,14 +41,14 @@ const TranslationTranscriptionSettingModal = () => {
       if (insightsFeatures.transcriptionFeatures?.isAllow) {
         tabItems.push({
           id: 1,
-          title: t('speech-services.speech-transcription'),
+          title: 'Phát hiện ngôn ngữ & Phiên dịch',
           content: <TranscriptionSettings setErrorMsg={setErrorMsg} />,
         });
       }
       if (insightsFeatures.chatTranslationFeatures?.isAllow) {
         tabItems.push({
           id: 2,
-          title: t('speech-services.chat-translation'),
+          title: 'Dịch tin nhắn',
           content: <ChatTranslationSettings setErrorMsg={setErrorMsg} />,
         });
       }
@@ -68,7 +66,7 @@ const TranslationTranscriptionSettingModal = () => {
     <Modal
       show={showSpeechSettingsModal}
       onClose={onCloseModal}
-      title={t('speech-services.start-modal-title')}
+      title="Cấu hình Phiên dịch & Dịch lời nói"
       customClass="speechServicesModal"
       maxWidth="max-w-2xl"
     >

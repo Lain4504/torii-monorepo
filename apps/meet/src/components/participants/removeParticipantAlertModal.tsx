@@ -1,6 +1,5 @@
 import React, { Fragment, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   RemoveParticipantReqSchema,
@@ -31,7 +30,6 @@ const RemoveParticipantAlertModal = ({
   removeType,
   closeAlertModal,
 }: IRemoveParticipantAlertModalProps) => {
-  const { t } = useTranslation();
   const [blockUser, setBlockUser] = useState<number>(0);
 
   const onCloseRemoveParticipantAlert = async (remove = false) => {
@@ -47,8 +45,8 @@ const RemoveParticipantAlertModal = ({
       userId: userId,
       msg:
         removeType === 'remove'
-          ? t('notifications.you-have-removed').toString()
-          : t('notifications.you-have-reject').toString(),
+          ? 'Quản trị viên đã xóa bạn khỏi phòng.'
+          : 'Quản trị viên đã từ chối yêu cầu tham gia của bạn.',
       blockUser: blockUser === 1,
     });
 
@@ -62,12 +60,12 @@ const RemoveParticipantAlertModal = ({
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
 
     if (res.status) {
-      toast(t('left-panel.menus.notice.participant-removed'), {
+      toast('Thành viên đã bị xóa thành công.', {
         toastId: 'user-remove-status',
         type: 'info',
       });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         type: 'error',
       });
     }
@@ -81,14 +79,14 @@ const RemoveParticipantAlertModal = ({
           className="h-10 px-6 flex items-center justify-center rounded-lg text-sm font-semibold text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-all duration-300 shadow-sm"
           onClick={() => onCloseRemoveParticipantAlert(true)}
         >
-          {t('left-panel.menus.notice.remove')}
+          Xóa
         </button>
         <button
           type="button"
           className="h-10 px-6 flex items-center justify-center rounded-lg text-sm font-semibold text-foreground bg-muted hover:bg-muted/80 border border-border transition-all duration-300 shadow-sm ml-4"
           onClick={() => onCloseRemoveParticipantAlert(false)}
         >
-          {t('cancel')}
+          Hủy
         </button>
       </Fragment>
     );
@@ -98,14 +96,12 @@ const RemoveParticipantAlertModal = ({
     <Modal
       show={true}
       onClose={() => onCloseRemoveParticipantAlert(false)}
-      title={t('left-panel.menus.notice.confirm', {
-        name,
-      })}
+      title={`Xác nhận xóa ${name}?`}
       renderButtons={renderButtons}
     >
       <div className="mb-2 pl-3">
         <p className="text-sm text-muted-foreground">
-          {t('left-panel.menus.notice.want-to-block')}
+          Bạn có muốn chặn tài khoản này tham gia lại không?
         </p>
         <RadioOptions
           name="block"
@@ -115,12 +111,12 @@ const RemoveParticipantAlertModal = ({
             {
               id: 'yes',
               value: 1,
-              label: t('yes'),
+              label: 'Có',
             },
             {
               id: 'no',
               value: 0,
-              label: t('no'),
+              label: 'Không',
             },
           ]}
         />

@@ -1,5 +1,4 @@
 import React, { Dispatch, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
 import { supportedTranslationLangs } from '../helpers/supportedLangs';
@@ -21,16 +20,13 @@ const TransLangsSelector = ({
   setErrorMsg,
   maxLangsAllowSelecting,
 }: TransLangsSelectorProps) => {
-  const { t } = useTranslation();
   const [selectedItems, setSelectedItems] =
     useState<string[]>(selectedTransLangs);
   const [selectOptions, setSelectOptions] = useState<ISelectOption[]>([]);
 
   useEffect(() => {
     if (selectedItems.length > maxLangsAllowSelecting) {
-      const msg = t('speech-services.max-lang-selection-warning', {
-        num: maxLangsAllowSelecting,
-      });
+      const msg = `Bạn chỉ có thể chọn tối đa ${maxLangsAllowSelecting} ngôn ngữ`;
 
       toast.warn(msg, {
         toastId: 'max-lang-selection-warning',
@@ -44,7 +40,6 @@ const TransLangsSelector = ({
     selectedItems,
     maxLangsAllowSelecting,
     setSelectedTransLangs,
-    t,
   ]);
 
   useEffect(() => {
@@ -52,15 +47,17 @@ const TransLangsSelector = ({
   }, []);
 
   return (
-    <Dropdown
-      id="trans-lang"
-      label={label}
-      value={selectedTransLangs}
-      onChange={setSelectedItems}
-      multiple={true}
-      options={selectOptions}
-      disabled={isServiceRunning}
-    />
+    <div className="dropdown-wrap">
+      <Dropdown
+        id="trans-lang"
+        label={label}
+        value={selectedTransLangs}
+        onChange={setSelectedItems}
+        multiple={true}
+        options={selectOptions}
+        disabled={isServiceRunning}
+      />
+    </div>
   );
 };
 

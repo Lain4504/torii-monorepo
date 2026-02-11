@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { useAppDispatch, useAppSelector } from '../../../../store';
 import {
   updateIsActiveWebcam,
@@ -31,7 +29,6 @@ const ShareWebcamModal = ({
   const [selectedWebcam, setSelectWebcam] = useState<string>(selectedDeviceId);
   const [devices, setDevices] = useState<IMediaDevice[]>([]);
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   useEffect(() => {
     const getDeviceWebcams = async () => {
@@ -70,7 +67,7 @@ const ShareWebcamModal = ({
       <Modal
         show={showVideoShareModal}
         onClose={onClose}
-        title={t('footer.modal.select-webcam')}
+        title="Chọn máy ảnh"
         customClass="ChooseBackgroud"
         renderButtons={() => (
           <div className="grid grid-cols-2 gap-5">
@@ -79,9 +76,9 @@ const ShareWebcamModal = ({
               type="button"
               onClick={onClose}
             >
-              {t('cancel')}
+              Hủy
             </button>
-            <ActionButton onClick={shareWebcam}>{t('share')}</ActionButton>
+            <ActionButton onClick={shareWebcam}>Chia sẻ</ActionButton>
           </div>
         )}
       >

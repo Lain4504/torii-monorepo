@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   MuteUnMuteTrackReqSchema,
@@ -12,7 +11,6 @@ import { addUserNotification } from '../../../../../store/slices/roomSettingsSli
 
 const useMuteAll = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const { sid, roomId } = useMemo(() => {
     const session = store.getState().session;
     return {
@@ -41,19 +39,19 @@ const useMuteAll = () => {
     if (res.status) {
       dispatch(
         addUserNotification({
-          message: t('footer.notice.muted-all-microphone'),
+          message: 'Đã tắt micrô của tất cả người dùng.',
           typeOption: 'info',
         }),
       );
     } else {
       dispatch(
         addUserNotification({
-          message: t(res.msg),
+          message: res.msg,
           typeOption: 'error',
         }),
       );
     }
-  }, [sid, roomId, dispatch, t]);
+  }, [sid, roomId, dispatch]);
 
   return { muteAllUsers };
 };

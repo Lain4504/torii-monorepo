@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Popover } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
 
 import { store } from '../../../../store';
 import { History } from 'lucide-react';
@@ -12,7 +11,6 @@ interface SubtitleTextsHistoryProps {
 }
 
 const SubtitleTextsHistory = ({ isOpenPopover }: SubtitleTextsHistoryProps) => {
-  const { t } = useTranslation();
   const [showPopover, setShowPopover] = useState<boolean>(false);
 
   useEffect(() => {
@@ -36,7 +34,7 @@ const SubtitleTextsHistory = ({ isOpenPopover }: SubtitleTextsHistoryProps) => {
         <div className="chat-history-icon relative h-11 w-11 rounded-full bg-foreground/70 cursor-pointer has-tooltip border-4 border-white/5 dark:border-secondary-foreground shadow-virtual-item flex items-center justify-center">
           {!showPopover && (
             <span className="tooltip tooltip-left -left-4!">
-              {t('speech-services.subtitle-history-modal-title')}
+              Lịch sử phụ đề
             </span>
           )}
           <History className="w-6 h-6 text-white" />

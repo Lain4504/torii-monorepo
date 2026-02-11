@@ -11,7 +11,6 @@ import { AuthorizationModule } from '@server/identity/modules/authorization/auth
 import { AuditModule } from '@server/identity/modules/audit/audit.module';
 import { TwoFactorAuthModule } from '@server/identity/modules/two-factor-auth/two-factor-auth.module';
 import { PaymentsModule } from '@server/identity/modules/payments/payments.module';
-import { EmailModule } from '@server/identity/infrastructure/email/email.module';
 
 // NATS Handlers (replacing HTTP controllers)
 import { AuthHandler } from '@server/identity/interfaces/nats/auth.handler';
@@ -39,7 +38,6 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
     AuditModule,
     TwoFactorAuthModule,
     PaymentsModule,
-    EmailModule,
   ],
   controllers: [
     // NATS Handlers (not HTTP controllers)
@@ -66,7 +64,6 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
     AuditModule,
     TwoFactorAuthModule,
     PaymentsModule,
-    EmailModule
   ],
 })
 export class IdentityModule { }

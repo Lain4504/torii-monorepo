@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { differenceWith } from 'es-toolkit';
-import { useTranslation } from 'react-i18next';
 
 import {
   getFormatedRespondents,
@@ -15,7 +14,6 @@ interface NotRespondentsProps {
 }
 
 const NotRespondents = ({ pollDataWithOption }: NotRespondentsProps) => {
-  const { t } = useTranslation();
   const participants = useAppSelector(selectBasicParticipants);
 
   const { formattedNotRespondents, notRespondentsCount } = useMemo(() => {
@@ -34,9 +32,7 @@ const NotRespondents = ({ pollDataWithOption }: NotRespondentsProps) => {
   return (
     <div className="px-5 py-5">
       <p className="text-sm font-medium text-foreground mb-3">
-        {t('polls.not-respondents-total', {
-          count: notRespondentsCount,
-        })}
+        Chưa phản hồi: {notRespondentsCount}
       </p>
       <div className="wrap relative rounded-xl bg-muted border border-border overflow-auto">
         <div className="inner flex">{formattedNotRespondents}</div>

@@ -8,8 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@workspace/ui/components/breadcrumb"
-import { LanguageSwitcher } from "@workspace/ui/components/language-switcher"
-import { useTranslation } from "@workspace/i18n"
 import { ChevronRight } from "lucide-react"
 
 import { ModeToggle } from "@/components/layout/mode-toggle.tsx"
@@ -17,7 +15,6 @@ import { CommandMenu } from "@/components/layout/command-menu.tsx"
 import { NotificationsDropdown } from "@/components/layout/notifications-dropdown.tsx"
 
 export function DashboardHeader() {
-  const { t } = useTranslation('common')
   const location = useLocation()
 
   const pathSegments = location.pathname.split('/').filter(Boolean)
@@ -31,7 +28,7 @@ export function DashboardHeader() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link to="/" className="text-xs font-semibold text-muted-foreground/60 hover:text-primary transition-colors flex items-center gap-2">
-                  {t('navigation.dashboard')}
+                  Bảng điều khiển
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -78,7 +75,6 @@ export function DashboardHeader() {
           <CommandMenu />
           <NotificationsDropdown />
           <div className="hidden sm:block w-px h-4 bg-border/50 mx-0.5" />
-          <LanguageSwitcher />
           <ModeToggle />
         </div>
       </div>

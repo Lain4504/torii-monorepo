@@ -24,7 +24,7 @@ export class EnrollmentHandler {
     async checkEnrollment(@Payload() data: { userId: string, courseId: string }) {
         const enrollment = await this.enrollmentService.findByUserAndCourse(data.userId, data.courseId);
         return {
-            isEnrolled: enrollment !== null && enrollment.completionStatus === 'in_progress',
+            isEnrolled: enrollment !== null && (enrollment.completionStatus === 'in_progress' || enrollment.completionStatus === 'completed'),
             enrollment: enrollment || undefined,
         };
     }

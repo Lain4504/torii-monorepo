@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { InsightsChatTranslationConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
@@ -20,7 +19,6 @@ interface ChatTranslationSettingsProps {
 const ChatTranslationSettings = ({
   setErrorMsg,
 }: ChatTranslationSettingsProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const chatTranslationFeatures = useAppSelector(
@@ -50,14 +48,14 @@ const ChatTranslationSettings = ({
 
     const res = await enableOrUpdateChatTranslation(body);
     if (res.status) {
-      toast(t('speech-services.service-started'), {
+      toast('Dịch vụ đã bắt đầu', {
         type: 'info',
       });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         type: 'error',
       });
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
       return;
     }
     dispatch(updateDisplaySpeechSettingsModal(false));
@@ -67,14 +65,14 @@ const ChatTranslationSettings = ({
   const stopService = useCallback(async () => {
     const res = await endChatTranslation();
     if (res.status) {
-      toast(t('speech-services.service-ended'), {
+      toast('Dịch vụ đã kết thúc', {
         type: 'info',
       });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         type: 'error',
       });
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
       return;
     }
     dispatch(updateDisplaySpeechSettingsModal(false));
@@ -89,9 +87,7 @@ const ChatTranslationSettings = ({
             <div className="grid gap-4 py-4 bg-card">
               <TransLangsSelector
                 isServiceRunning={!!chatTranslationFeatures?.isEnabled}
-                label={t('speech-services.read-and-write-in-label', {
-                  num: chatTranslationFeatures?.maxSelectedTransLangs ?? 2,
-                })}
+                label={`Đọc và viết bằng tối đa ${chatTranslationFeatures?.maxSelectedTransLangs ?? 2} ngôn ngữ`}
                 selectedTransLangs={selectedTransLangs}
                 setSelectedTransLangs={setSelectedTransLangs}
                 setErrorMsg={setErrorMsg}
@@ -101,7 +97,7 @@ const ChatTranslationSettings = ({
               />
               <DefaultSubtitleLangSelector
                 isServiceRunning={!!chatTranslationFeatures?.isEnabled}
-                label={t('speech-services.default-lang-label')}
+                label="Ngôn ngữ mặc định"
                 selectedSpeechLangs={[]}
                 selectedTransLangs={selectedTransLangs}
                 selectedDefaultSubtitleLang={selectedDefaultLang}
@@ -117,7 +113,7 @@ const ChatTranslationSettings = ({
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => enableOrUpdateService()}
           >
-            {t('speech-services.enable-service')}
+            Kích hoạt dịch vụ
           </button>
         )}
         {chatTranslationFeatures?.isEnabled && (
@@ -126,13 +122,13 @@ const ChatTranslationSettings = ({
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => stopService()}
             >
-              {t('speech-services.stop-service')}
+              Dừng dịch vụ
             </button>
             <button
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => enableOrUpdateService()}
             >
-              {t('speech-services.update-service')}
+              Cập nhật dịch vụ
             </button>
           </>
         )}

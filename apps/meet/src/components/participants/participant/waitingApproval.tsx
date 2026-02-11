@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   ApproveWaitingUsersReqSchema,
   CommonResponseSchema,
@@ -26,7 +25,6 @@ const WaitingApproval = ({
     (state) =>
       participantsSelector.selectById(state, userId)?.metadata.waitForApproval,
   );
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const approve = async () => {
@@ -46,14 +44,14 @@ const WaitingApproval = ({
     if (res.status) {
       dispatch(
         addUserNotification({
-          message: t('left-panel.menus.notice.user-approved', { name: name }),
+          message: `Đã phê duyệt người dùng ${name} thành công.`,
           typeOption: 'info',
         }),
       );
     } else {
       dispatch(
         addUserNotification({
-          message: t(res.msg),
+          message: res.msg,
           typeOption: 'error',
         }),
       );
@@ -72,7 +70,7 @@ const WaitingApproval = ({
           onClick={approve}
         >
           <Check className="w-4 h-4" />
-          {t('left-panel.approve')}
+          Duyệt
         </button>
         <button
           className="h-6 w-6 flex items-center justify-center rounded-md text-destructive-foreground bg-destructive hover:bg-destructive/90 shadow-sm transition-all"

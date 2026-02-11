@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { CreateBreakoutRoomsReq } from '@workspace/protocol';
 
@@ -17,7 +16,6 @@ export interface BreakoutRoomMessage {
 }
 
 const BreakoutRoom = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [message, setMessage] = useState<BreakoutRoomMessage | null>(null);
 
@@ -33,18 +31,18 @@ const BreakoutRoom = () => {
   useEffect(() => {
     if (isSuccess && data) {
       if (data.status) {
-        toast(t('breakout-room.rooms-created'), {
+        toast('Phòng thảo luận riêng được tạo', {
           type: 'info',
         });
         dispatch(updateShowManageBreakoutRoomModal(false));
       } else {
-        setMessage({ text: t(data.msg ?? ''), type: 'error' });
+        setMessage({ text: data.msg ?? '', type: 'error' });
       }
     } else if (error) {
-      const msg = (error as any)?.data?.msg ?? 'Unknown error';
-      setMessage({ text: t(msg), type: 'error' });
+      const msg = (error as any)?.data?.msg ?? 'Lỗi không xác định';
+      setMessage({ text: msg, type: 'error' });
     }
-  }, [isSuccess, data, error, dispatch, t]);
+  }, [isSuccess, data, error, dispatch]);
 
   const handleCreateBreakoutRooms = (req: CreateBreakoutRoomsReq) => {
     // clean previous error
@@ -56,7 +54,7 @@ const BreakoutRoom = () => {
     <Modal
       show={true}
       onClose={() => dispatch(updateShowManageBreakoutRoomModal(false))}
-      title={t('breakout-room.modal-title')}
+      title="Phòng nhóm riêng"
       customClass="breakoutRoomModal"
       maxWidth="max-w-4xl"
     >
@@ -64,8 +62,8 @@ const BreakoutRoom = () => {
         {message && (
           <div
             className={`py-2 px-4 rounded-lg mb-4 text-sm ${message.type === 'error'
-                ? 'text-destructive bg-destructive/10'
-                : 'text-primary bg-primary/10'
+              ? 'text-destructive bg-destructive/10'
+              : 'text-primary bg-primary/10'
               }`}
           >
             {message.text}

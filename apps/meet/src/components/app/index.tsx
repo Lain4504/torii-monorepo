@@ -1,6 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import ErrorPage, { IErrorPageProps } from '../extra-pages/Error';
 import Loading from '../extra-pages/Loading';
 import Footer from '../footer';
@@ -27,9 +25,7 @@ import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice'
 
 const App = () => {
   const dispatch = useAppDispatch();
-  const { t, i18n } = useTranslation();
-  // make sure we're using correct body dir
-  document.dir = i18n.dir();
+
   // we'll require making ready virtual background
   // elements as early as possible.
   loadBodyPix(true).then();
@@ -38,13 +34,13 @@ const App = () => {
   // it could be recorder or RTMP bot
   const [userTypeClass, setUserTypeClass] = useState('participant');
   const [currentMediaServerConn, setCurrentMediaServerConn] =
-      useState<IConnectLivekit>();
+    useState<IConnectLivekit>();
 
   const [error, setError] = useState<IErrorPageProps | undefined>();
   const [roomConnectionStatus, setRoomConnectionStatus] =
-      useState<roomConnectionStatus>('loading');
+    useState<roomConnectionStatus>('loading');
   const [openConnInfo, setOpenConnInfo] = useState<InfoToOpenConn | undefined>(
-      undefined,
+    undefined,
   );
   const [openConn, setOpenConn] = useState<boolean>(false);
   const [isAppReady, setIsAppReady] = useState<boolean>(false);
@@ -54,17 +50,17 @@ const App = () => {
   useClientCustomization();
   useWatchVisibilityChange();
   const { deviceClass, orientationClass, screenHeight } = useWatchWindowSize(
-      currentMediaServerConn?.room,
+    currentMediaServerConn?.room,
   );
   useThemeSettings();
 
   useEffect(() => {
     verifyToken(
-        setLoading,
-        setError,
-        setOpenConnInfo,
-        setRoomConnectionStatus,
-        setOpenConn,
+      setLoading,
+      setError,
+      setOpenConnInfo,
+      setRoomConnectionStatus,
+      setOpenConn,
     ).then();
   }, []);
 
@@ -76,15 +72,15 @@ const App = () => {
 
       setRoomConnectionStatus('connecting');
       startNatsConn(
-          openConnInfo.natsWsUrls,
-          openConnInfo.accessToken,
-          openConnInfo.roomId,
-          openConnInfo.userId,
-          openConnInfo.roomStreamName,
-          openConnInfo.natsSubjects,
-          setError,
-          setRoomConnectionStatus,
-          setCurrentMediaServerConn,
+        openConnInfo.natsWsUrls,
+        openConnInfo.accessToken,
+        openConnInfo.roomId,
+        openConnInfo.userId,
+        openConnInfo.roomStreamName,
+        openConnInfo.natsSubjects,
+        setError,
+        setRoomConnectionStatus,
+        setCurrentMediaServerConn,
       ).then();
     }
   }, [dispatch, openConnInfo, openConn]);
@@ -115,43 +111,52 @@ const App = () => {
 
   const renderElms = useMemo(() => {
     switch (true) {
-      case loading:
-        return <Loading text={t('app.' + roomConnectionStatus)} />;
+      case loading: {
+        let text = 'Đang tải...';
+        if (roomConnectionStatus === 'connecting') {
+          text = 'Kết nối...';
+        } else if (roomConnectionStatus === 'checking') {
+          text = 'Kiểm tra...';
+        } else if (roomConnectionStatus === 'receiving-data') {
+          text = 'Lấy dữ liệu cuộc họp...';
+        }
+        return <Loading text={text} />;
+      }
       case error && !loading:
-        if (error.title === t('app.token-missing-title')) {
+        if (error!.title === 'Thiếu mã truy cập') {
           return <Login />;
         }
-        return <ErrorPage title={error.title} text={error.text} />;
+        return <ErrorPage title={error!.title} text={error!.text} />;
       case roomConnectionStatus === 'insert-e2ee-key':
         return <InsertE2EEKey setOpenConn={setOpenConn} />;
       case isAppReady:
         return (
-            <div className="torii-meet-app overflow-hidden h-screen">
-              <Header />
-              <MainArea />
-              <Footer />
-              <AudioNotification />
-              <DummyAudio />
-            </div>
+          <div className="torii-meet-app overflow-hidden h-screen">
+            <Header />
+            <MainArea />
+            <Footer />
+            <AudioNotification />
+            <DummyAudio />
+          </div>
         );
       default:
         return (
-            <Landing
-                setIsAppReady={setIsAppReady}
-                roomConnectionStatus={roomConnectionStatus}
-            />
+          <Landing
+            setIsAppReady={setIsAppReady}
+            roomConnectionStatus={roomConnectionStatus}
+          />
         );
     }
     //eslint-disable-next-line
   }, [loading, error, roomConnectionStatus, isAppReady]);
 
   return (
-      <div
-          className={`${orientationClass} ${deviceClass} ${userTypeClass} bg-Gray-50 dark:bg-dark-secondary`}
-          style={{ height: screenHeight }}
-      >
-        {renderElms}
-      </div>
+    <div
+      className={`${orientationClass} ${deviceClass} ${userTypeClass} bg-Gray-50 dark:bg-dark-secondary`}
+      style={{ height: screenHeight }}
+    >
+      {renderElms}
+    </div>
   );
 };
 

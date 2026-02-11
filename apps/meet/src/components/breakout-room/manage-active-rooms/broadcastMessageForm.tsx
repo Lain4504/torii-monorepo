@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { BroadcastBreakoutRoomMsgReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
@@ -11,7 +10,6 @@ interface IBroadcastMessageFormProps {
 }
 
 const BroadcastMessageForm = ({ setMessage }: IBroadcastMessageFormProps) => {
-  const { t } = useTranslation();
   const [msg, setMsg] = useState<string>('');
   const [broadcastMsg, { isLoading, data, isSuccess, error }] =
     useBroadcastBreakoutRoomMsgMutation();
@@ -20,19 +18,19 @@ const BroadcastMessageForm = ({ setMessage }: IBroadcastMessageFormProps) => {
     if (isSuccess && data) {
       if (data.status) {
         setMessage({
-          text: t('breakout-room.broadcast-msg-success'),
+          text: 'Tin nhắn đã được gửi đến tất cả các phòng',
           type: 'info',
         });
         setMsg('');
         setTimeout(() => setMessage(null), 5000);
       } else {
-        setMessage({ text: t(data.msg), type: 'error' });
+        setMessage({ text: data.msg, type: 'error' });
       }
     } else if (error) {
-      const errorMsg = (error as any)?.data?.msg ?? 'Unknown error';
-      setMessage({ text: t(errorMsg), type: 'error' });
+      const errorMsg = (error as any)?.data?.msg ?? 'Lỗi không xác định';
+      setMessage({ text: errorMsg, type: 'error' });
     }
-  }, [isSuccess, data, error, t, setMessage]);
+  }, [isSuccess, data, error, setMessage]);
 
   const send = () => {
     if (msg.trim() === '') {
@@ -59,7 +57,7 @@ const BroadcastMessageForm = ({ setMessage }: IBroadcastMessageFormProps) => {
         disabled={isLoading || msg.trim() === ''}
         className="h-9 ml-auto px-5 cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {t('breakout-room.broadcast-msg')}
+        Gửi tin nhắn
       </button>
     </div>
   );

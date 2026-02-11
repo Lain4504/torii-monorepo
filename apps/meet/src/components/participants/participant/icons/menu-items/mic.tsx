@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { MenuItem } from '@headlessui/react';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   DataMsgBodyType,
@@ -28,24 +27,29 @@ const MicMenuItem = ({ userId }: IMicMenuItemProps) => {
     (state) => participantsSelector.selectById(state, userId)?.name,
   );
   const session = store.getState().session;
-  const { t } = useTranslation();
   const conn = getNatsConn();
 
-  const { text, task } = useMemo(() => {
+  const { text, task, translatedTask } = useMemo(() => {
     if (!audioTracks) {
       return {
-        text: t('left-panel.menus.items.ask-to-share-microphone'),
-        task: 'left-panel.menus.items.share-microphone',
+        text: 'Yêu cầu chia sẻ micrô',
+        task: 'share-microphone',
+        translatedTask: 'chia sẻ micrô',
       };
     } else if (isMuted) {
       return {
-        text: t('left-panel.menus.items.ask-to-unmute-mic'),
-        task: 'left-panel.menus.items.unmute-mic',
+        text: 'Yêu cầu bật micrô',
+        task: 'unmute-mic',
+        translatedTask: 'bật micrô',
       };
     }
     // if audioTracks > 0 and not muted
-    return { text: t('left-panel.menus.items.mute-mic'), task: 'mute' };
-  }, [audioTracks, isMuted, t]);
+    return {
+      text: 'Tắt micrô',
+      task: 'mute',
+      translatedTask: 'tắt micrô',
+    };
+  }, [audioTracks, isMuted]);
 
   const muteAudio = async () => {
     const session = store.getState().session;
@@ -66,17 +70,12 @@ const MicMenuItem = ({ userId }: IMicMenuItemProps) => {
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
 
     if (res.status) {
-      toast(
-        t('left-panel.menus.notice.you-have-muted-to', {
-          name: name,
-        }),
-        {
-          toastId: 'asked-status',
-          type: 'info',
-        },
-      );
+      toast(`Bạn đã tắt micrô của ${name}.`, {
+        toastId: 'asked-status',
+        type: 'info',
+      });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         toastId: 'asked-status',
         type: 'error',
       });
@@ -91,23 +90,14 @@ const MicMenuItem = ({ userId }: IMicMenuItemProps) => {
 
     conn.sendDataMessage(
       DataMsgBodyType.INFO,
-      t('left-panel.menus.notice.asked-you-to', {
-        name: session.currentUser?.name,
-        task: t(task),
-      }),
+      `${session.currentUser?.name} đã yêu cầu bạn ${translatedTask}.`,
       userId,
     );
 
-    toast(
-      t('left-panel.menus.notice.you-have-asked', {
-        name: name,
-        task: t(task),
-      }),
-      {
-        toastId: 'asked-status',
-        type: 'info',
-      },
-    );
+    toast(`Bạn đã yêu cầu ${name} ${translatedTask}.`, {
+      toastId: 'asked-status',
+      type: 'info',
+    });
   };
 
   // This menu item is for controlling other users, not oneself.

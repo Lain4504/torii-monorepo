@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { MenuItem } from '@headlessui/react';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import { DataMsgBodyType } from '@workspace/protocol';
 
 import { store, useAppSelector } from '../../../../../store';
@@ -12,7 +11,6 @@ interface IWebcamMenuItemProps {
   userId: string;
 }
 const WebcamMenuItem = ({ userId }: IWebcamMenuItemProps) => {
-  const { t } = useTranslation();
   const name = useAppSelector(
     (state) => participantsSelector.selectById(state, userId)?.name,
   );
@@ -24,40 +22,33 @@ const WebcamMenuItem = ({ userId }: IWebcamMenuItemProps) => {
   const roomFeatures = session.currentRoom.metadata?.roomFeatures;
   const conn = getNatsConn();
 
-  const { text, task } = useMemo(() => {
+  const { text, task, translatedTask } = useMemo(() => {
     if (!videoTracks) {
       return {
-        text: t('left-panel.menus.items.ask-to-share-webcam'),
-        task: 'left-panel.menus.items.share-webcam',
+        text: 'Yêu cầu chia sẻ máy ảnh',
+        task: 'share-webcam',
+        translatedTask: 'chia sẻ máy ảnh',
       };
     } else {
       return {
-        text: t('left-panel.menus.items.ask-to-stop-webcam'),
-        task: 'left-panel.menus.items.stop-webcam',
+        text: 'Yêu cầu tắt máy ảnh',
+        task: 'stop-webcam',
+        translatedTask: 'tắt máy ảnh',
       };
     }
-  }, [t, videoTracks]);
+  }, [videoTracks]);
 
   const handleWebcamAction = async () => {
     conn.sendDataMessage(
       DataMsgBodyType.INFO,
-      t('left-panel.menus.notice.asked-you-to', {
-        name: session.currentUser?.name,
-        task: t(task),
-      }),
+      `${session.currentUser?.name} đã yêu cầu bạn ${translatedTask}.`,
       userId,
     );
 
-    toast(
-      t('left-panel.menus.notice.you-have-asked', {
-        name: name,
-        task: t(task),
-      }),
-      {
-        toastId: 'asked-status',
-        type: 'info',
-      },
-    );
+    toast(`Bạn đã yêu cầu ${name} ${translatedTask}.`, {
+      toastId: 'asked-status',
+      type: 'info',
+    });
   };
 
   // Conditions to show this menu item

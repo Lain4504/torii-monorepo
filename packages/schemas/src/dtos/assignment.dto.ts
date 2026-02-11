@@ -108,6 +108,7 @@ export type SubmitAssignmentDto = z.infer<typeof submitAssignmentDto>;
 export const gradeSubmissionDto = z.object({
   score: z.number().min(0).max(1000),
   feedback: z.string().max(5000).optional().or(z.literal('')),
+  reason: z.string().max(1000).optional(), // Reason for grading or re-grading
 });
 
 export type GradeSubmissionDto = z.infer<typeof gradeSubmissionDto>;

@@ -5,7 +5,6 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { Trash2, PlusCircle } from 'lucide-react';
 import { CreatePollOptions } from './index';
@@ -16,7 +15,6 @@ interface OptionsProps {
 }
 
 const OptionsView = ({ options, setOptions }: OptionsProps) => {
-  const { t } = useTranslation();
 
   // update option text
   const onChange = useCallback(
@@ -53,7 +51,7 @@ const OptionsView = ({ options, setOptions }: OptionsProps) => {
   return (
     <div className="option-field-wrapper pt-5 pb-6">
       <p className="text-sm text-foreground font-medium mb-2 inline-block">
-        {t('polls.options')}
+        Các lựa chọn
       </p>
       <div className="overflow-auto h-full max-h-[345px] scrollBar scrollBar2 mb-5">
         <div className="option-field-inner grid gap-5">
@@ -66,9 +64,7 @@ const OptionsView = ({ options, setOptions }: OptionsProps) => {
                   name={`opt_${elm.id}`}
                   value={elm.text}
                   onChange={(e) => onChange(index, e)}
-                  placeholder={t('polls.option', {
-                    count: index + 1,
-                  })}
+                  placeholder={`Lựa chọn ${index + 1}`}
                   className="default-input flex-1"
                   autoComplete="off"
                 />
@@ -91,7 +87,7 @@ const OptionsView = ({ options, setOptions }: OptionsProps) => {
         type="button"
         onClick={addOption}
       >
-        {t('polls.add-new-option')}
+        Thêm lựa chọn
         <PlusCircle className="w-4 h-4" />
       </button>
     </div>

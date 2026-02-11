@@ -1,6 +1,5 @@
 import React, { KeyboardEvent, useCallback, useRef, useState } from 'react';
 import { isEmpty } from 'es-toolkit/compat';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import {
@@ -19,7 +18,6 @@ import {
 import sendAPIRequest from '../../../../helpers/api/api-client';
 
 const TextBoxArea = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -52,12 +50,12 @@ const TextBoxArea = () => {
 
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
     if (!res.status) {
-      toast(t(res.msg), {
+      toast(res.msg, {
         type: 'error',
       });
       dispatch(clearIsAwaitingResponse());
     }
-  }, [t, dispatch, message, isAwaitingResponse]);
+  }, [dispatch, message, isAwaitingResponse]);
 
   const handleChange = useCallback(
     (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -77,8 +75,8 @@ const TextBoxArea = () => {
   );
 
   const placeholderText = isAwaitingResponse
-    ? t('insights.ai-text-chat.responding-placeholder')
-    : t('insights.ai-text-chat.chat-box-placeholder');
+    ? 'Đang trả lời...'
+    : 'Nhập tin nhắn...';
 
   const isSendButtonDisabled = isAwaitingResponse || isEmpty(message);
 

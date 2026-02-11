@@ -1,5 +1,4 @@
-import React, { DragEvent, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useMemo } from 'react';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
 import TextBoxArea from './text-box';
@@ -10,7 +9,6 @@ import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 import { uploadResumableFile } from '../../helpers/fileUpload';
 
 const ChatComponent = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   // Values that are static for the session
   const { isRecorder, isAdmin, chatFeatures } = useMemo(() => {
@@ -72,7 +70,7 @@ const ChatComponent = () => {
     defaultLockSettings,
   ]);
 
-  const handleOnDrop = (e: DragEvent) => {
+  const handleOnDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
 
     if (isLockChatSendMessage || isLockChatFileShare) {
@@ -90,7 +88,7 @@ const ChatComponent = () => {
           (result) => {
             dispatch(
               addUserNotification({
-                message: t('right-panel.file-upload-success'),
+                message: 'Tệp được tải lên thành công',
                 typeOption: 'success',
               }),
             );

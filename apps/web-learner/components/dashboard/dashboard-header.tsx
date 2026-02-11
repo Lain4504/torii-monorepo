@@ -6,7 +6,6 @@ import { Input } from '@workspace/ui/components/input'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from './notifications-dropdown'
 import { ModeToggle } from './mode-toggle'
-import { LanguageSwitcher } from '@workspace/ui/components/language-switcher'
 import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
 import { useRouter } from 'next/navigation'
 import { logout } from '@/store/slices/authSlice'
@@ -77,7 +76,6 @@ export function DashboardHeader() {
                     </div>
                     {/* Separate Interactive Tools */}
                     <NotificationsDropdown />
-                    <LanguageSwitcher />
                     <ModeToggle />
 
                     <DropdownMenu>

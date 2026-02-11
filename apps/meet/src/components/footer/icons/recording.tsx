@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
@@ -32,7 +31,6 @@ const RecordingIcon = () => {
     stopRecording: stopCloudRecording,
   } = useCloudRecording();
 
-  const { t } = useTranslation();
   const { roomMetadata, isAllowRecording, isAdmin, isPresenter, showTooltip } =
     useMemo(() => {
       const session = store.getState().session;
@@ -146,7 +144,7 @@ const RecordingIcon = () => {
           setDisable(false);
           dispatch(
             addUserNotification({
-              message: t('footer.notice.recording-did-not-stop'),
+              message: 'Không thể dừng ghi hình',
               typeOption: 'error',
             }),
           );
@@ -174,7 +172,7 @@ const RecordingIcon = () => {
         setDisable(false);
         dispatch(
           addUserNotification({
-            message: t('footer.notice.recording-not-start'),
+            message: 'Không thể bắt đầu ghi hình',
             typeOption: 'error',
           }),
         );
@@ -245,8 +243,8 @@ const RecordingIcon = () => {
         <div className={innerDivClasses}>
           <span className="tooltip">
             {isRecording
-              ? t('footer.icons.stop-recording')
-              : t('footer.icons.start-recording')}
+              ? 'Dừng ghi âm/hình'
+              : 'Bắt đầu ghi âm/hình'}
           </span>
           <CircleDot
             className={clsx('w-5 h-5 transition-colors duration-300', {

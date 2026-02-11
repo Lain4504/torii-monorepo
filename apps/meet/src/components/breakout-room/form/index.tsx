@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   BreakoutRoom,
   BreakoutRoomSchema,
@@ -28,7 +27,6 @@ const FromElems = ({
   isLoading,
   setMessage,
 }: IFromElemsProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const participants = useAppSelector(selectBasicParticipants);
   const droppedUser = useAppSelector((state) => state.breakoutRoom.droppedUser);
@@ -84,17 +82,17 @@ const FromElems = ({
     const generatedRooms: Array<RoomType> = [
       {
         id: 0,
-        name: t('breakout-room.main-room'),
+        name: 'Phòng chính',
       },
     ];
     for (let i = 0; i < totalRooms; i++) {
       generatedRooms.push({
         id: i + 1,
-        name: t('breakout-room.new-room', { num: i + 1 }),
+        name: `Phòng ${i + 1}`,
       });
     }
     return generatedRooms;
-  }, [totalRooms, t]);
+  }, [totalRooms]);
 
   useEffect(() => {
     if (droppedUser.id === '') {
@@ -147,7 +145,7 @@ const FromElems = ({
     });
 
     if (!tmp.length) {
-      setMessage({ text: t('breakout-room.need-one-user'), type: 'error' });
+      setMessage({ text: 'Cần ít nhất một người ở phòng thảo luận riêng', type: 'error' });
       return;
     }
 
@@ -164,7 +162,6 @@ const FromElems = ({
     welcomeMsg,
     createBreakoutRooms,
     setMessage,
-    t,
   ]);
 
   return (
@@ -179,7 +176,7 @@ const FromElems = ({
             className="block text-sm font-medium text-foreground mb-2"
             htmlFor="breakout-room-duration"
           >
-            {t('breakout-room.duration')}
+            Thời hạn (phút)
           </label>
           <input
             className="h-10 rounded-xl text-foreground border border-border bg-card shadow-sm w-full px-3 outline-hidden focus:border-primary"
@@ -196,7 +193,7 @@ const FromElems = ({
             className="block text-sm font-medium text-foreground mb-1"
             htmlFor="breakout-room-welcome"
           >
-            {t('breakout-room.welcome-msg')}
+            Lời chào mừng
           </label>
           <textarea
             className="h-20 rounded-xl text-foreground border border-border bg-card shadow-sm w-full px-3 py-2 outline-hidden focus:border-primary"
@@ -210,7 +207,7 @@ const FromElems = ({
             className="h-9 w-auto ml-auto px-5 cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm"
             onClick={randomSelection}
           >
-            {t('breakout-room.random-selection')}
+            Chọn ngẫu nhiên
           </button>
         </div>
       </div>
@@ -236,7 +233,7 @@ const FromElems = ({
           onClick={handleStartBreakoutRooms}
           disabled={isLoading}
         >
-          {t('breakout-room.start')}
+          Bắt đầu
         </button>
       </div>
     </div>

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   InsightsAIMeetingSummarizationConfigReqSchema,
@@ -20,7 +19,6 @@ const MeetingSummarization = ({
   setErrorMsg,
   closeModal,
 }: MeetingSummarizationProps) => {
-  const { t } = useTranslation();
   // all static values
   const { enabledSelfInsertEncryptionKey } = useMemo(() => {
     const enabledSelfInsertEncryptionKey =
@@ -45,7 +43,7 @@ const MeetingSummarization = ({
   useEffect(() => {
     if (!meetingSummarizationFeatures?.summarizationPrompt) {
       setSummarizationPrompt(
-        'Summarize this meeting conversation. Identify all key decisions and create a list of action items.',
+        'Tóm tắt cuộc trò chuyện trong cuộc họp này. Xác định tất cả các quyết định quan trọng và lập danh sách các mục công việc.',
       );
     }
   }, [meetingSummarizationFeatures?.summarizationPrompt]);
@@ -53,7 +51,7 @@ const MeetingSummarization = ({
   const enableOrUpdateService = useCallback(async () => {
     if (!summarizationPrompt) {
       setErrorMsg(
-        t('insights.meeting-summarization.summarization-prompt-required'),
+        'Lời nhắc tóm tắt là bắt buộc',
       );
       return;
     }
@@ -74,15 +72,15 @@ const MeetingSummarization = ({
 
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
     if (!res.status) {
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
       return;
     }
 
-    toast(t('insights.service-started-successfully'), {
+    toast('Dịch vụ đã bắt đầu thành công', {
       type: 'info',
     });
     closeModal();
-  }, [t, closeModal, setErrorMsg, isEnabled, summarizationPrompt]);
+  }, [closeModal, setErrorMsg, isEnabled, summarizationPrompt]);
 
   const stopService = useCallback(async () => {
     const r = await sendAPIRequest(
@@ -95,15 +93,15 @@ const MeetingSummarization = ({
 
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
     if (!res.status) {
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
       return;
     }
 
-    toast(t('insights.service-stopped-successfully'), {
+    toast('Dịch vụ đã dừng thành công', {
       type: 'info',
     });
     closeModal();
-  }, [t, setErrorMsg, closeModal]);
+  }, [setErrorMsg, closeModal]);
 
   const handleChange = useCallback(
     (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -116,7 +114,7 @@ const MeetingSummarization = ({
     return (
       <div className="p-4 bg-muted">
         <div className="main-wrap -my-4 text-red-600">
-          {t('insights.feature-disable-while-e2ee-self-key-enabled')}
+          Tính năng này bị vô hiệu hóa khi bật khóa mã hóa riêng
         </div>
       </div>
     );
@@ -129,7 +127,7 @@ const MeetingSummarization = ({
           <div className="grid">
             <div className="bg-muted/30 border-y border-border -mx-4 px-4 py-4">
               <SettingsSwitch
-                label={t('insights.meeting-summarization.enable')}
+                label="Bật tóm tắt cuộc họp"
                 enabled={isEnabled}
                 onChange={setIsEnabled}
                 customCss="h-11 border border-border rounded-xl px-4 bg-card shadow-sm"
@@ -141,9 +139,7 @@ const MeetingSummarization = ({
                   htmlFor="summarizationPrompt"
                   className="block text-sm font-semibold text-foreground mb-2"
                 >
-                  {t(
-                    'insights.meeting-summarization.summarization-prompt-label',
-                  )}
+                  Lời nhắc tóm tắt
                 </label>
                 <textarea
                   name="summarizationPrompt"
@@ -165,14 +161,14 @@ const MeetingSummarization = ({
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => enableOrUpdateService()}
           >
-            {t('insights.start-service')}
+            Bắt đầu dịch vụ
           </button>
         ) : (
           <button
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => stopService()}
           >
-            {t('insights.stop-service')}
+            Dừng dịch vụ
           </button>
         )}
       </div>

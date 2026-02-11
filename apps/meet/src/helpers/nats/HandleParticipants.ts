@@ -29,7 +29,6 @@ import {
   updateParticipant,
 } from '../../store/slices/participantSlice';
 import { languagesMap } from '../languages';
-import i18n from '../i18n';
 import {
   setActiveSidePanel,
   updateIsActiveRaisehand,
@@ -67,11 +66,11 @@ export default class HandleParticipants {
    */
   private serialTask = (task: () => Promise<any>): Promise<any> => {
     this.participantTaskChain = this.participantTaskChain
-        .then(task)
-        .catch((err) => {
-          console.error('A participant task failed:', err);
-          // The chain continues even if one task fails.
-        });
+      .then(task)
+      .catch((err) => {
+        console.error('A participant task failed:', err);
+        // The chain continues even if one task fails.
+      });
     return this.participantTaskChain;
   };
 
@@ -82,8 +81,8 @@ export default class HandleParticipants {
    * @param task The async function to execute.
    */
   private _runPrimaryUserTask = async (
-      userId: string,
-      task: () => Promise<any>,
+    userId: string,
+    task: () => Promise<any>,
   ) => {
     this.activeUserTasks.add(userId);
     try {
@@ -96,7 +95,7 @@ export default class HandleParticipants {
   };
 
   public addLocalParticipantInfo = async (
-      info: NatsKvUserInfo,
+    info: NatsKvUserInfo,
   ): Promise<ICurrentUser> => {
     this._isLocalUserRecorder = isUserRecorder(info.userId);
 
@@ -140,7 +139,7 @@ export default class HandleParticipants {
   };
 
   private async _addRemoteParticipant(
-      participant: NatsKvUserInfo,
+    participant: NatsKvUserInfo,
   ): Promise<boolean> {
     if (this._localUserId !== participant.userId) {
       if (isUserRecorder(participant.userId)) {
@@ -148,9 +147,9 @@ export default class HandleParticipants {
       }
       const roomMetadata = store.getState().session?.currentRoom.metadata;
       if (
-          !participant.isAdmin &&
-          !this._isLocalUserAdmin &&
-          !roomMetadata?.roomFeatures?.allowViewOtherUsersList
+        !participant.isAdmin &&
+        !this._isLocalUserAdmin &&
+        !roomMetadata?.roomFeatures?.allowViewOtherUsersList
       ) {
         return false;
       }
@@ -160,23 +159,23 @@ export default class HandleParticipants {
 
     // check if this user exists or not
     const existUser = participantsSelector.selectById(
-        store.getState(),
-        participant.userId,
+      store.getState(),
+      participant.userId,
     );
     if (
-        typeof existUser !== 'undefined' &&
-        existUser.userId === participant.userId
+      typeof existUser !== 'undefined' &&
+      existUser.userId === participant.userId
     ) {
       console.info(
-          `found same userId: ${existUser.userId} again, so updating medata only, metadata same?: ${metadata.metadataId === existUser.metadata.metadataId}`,
+        `found same userId: ${existUser.userId} again, so updating medata only, metadata same?: ${metadata.metadataId === existUser.metadata.metadataId}`,
       );
       // we've the same user, so we won't add it again
       // because maybe this user disconnected & reconnected again
       // we can just try to update metadata
       if (metadata.metadataId !== existUser.metadata.metadataId) {
         await this.updateParticipantMetadata(
-            participant.userId,
-            participant.metadata,
+          participant.userId,
+          participant.metadata,
         );
       }
       this.onAfterUserConnectMediaUpdate(participant.userId);
@@ -186,22 +185,22 @@ export default class HandleParticipants {
     this.notificationForWaitingUser(metadata, participant.name);
 
     store.dispatch(
-        addParticipant({
-          sid: participant.userSid,
-          userId: participant.userId,
-          name: participant.name,
-          metadata: metadata,
-          isLocal: false,
-          joinedAt: Number(participant.joinedAt),
-          visibility: 'visible',
-          audioVolume: store.getState().roomSettings.roomAudioVolume,
-          audioTracks: 0,
-          videoTracks: 0,
-          screenShareTrack: 0,
-          isMuted: false,
-          connectionQuality: ConnectionQuality.Unknown,
-          isOnline: true,
-        }),
+      addParticipant({
+        sid: participant.userSid,
+        userId: participant.userId,
+        name: participant.name,
+        metadata: metadata,
+        isLocal: false,
+        joinedAt: Number(participant.joinedAt),
+        visibility: 'visible',
+        audioVolume: store.getState().roomSettings.roomAudioVolume,
+        audioTracks: 0,
+        videoTracks: 0,
+        screenShareTrack: 0,
+        isMuted: false,
+        connectionQuality: ConnectionQuality.Unknown,
+        isOnline: true,
+      }),
     );
 
     this.onAfterUserConnectMediaUpdate(participant.userId);
@@ -222,33 +221,29 @@ export default class HandleParticipants {
   };
 
   public updateParticipantMetadata = async (
-      userId: string,
-      metadata: string | UserMetadata,
+    userId: string,
+    metadata: string | UserMetadata,
   ) => {
     if (typeof metadata === 'string') {
       metadata = this.decodeMetadata(metadata);
     }
 
     store.dispatch(
-        updateParticipant({
-          id: userId,
-          changes: {
-            metadata,
-          },
-        }),
+      updateParticipant({
+        id: userId,
+        changes: {
+          metadata,
+        },
+      }),
     );
 
     if (this._localUserId === userId) {
       if (
-          this.preferredLang === '' &&
-          typeof metadata.preferredLang !== 'undefined' &&
-          metadata.preferredLang !== ''
+        this.preferredLang === '' &&
+        typeof metadata.preferredLang !== 'undefined' &&
+        metadata.preferredLang !== ''
       ) {
         this.preferredLang = metadata.preferredLang;
-        const lang = languagesMap.get(metadata.preferredLang.toLowerCase());
-        if (lang) {
-          await i18n.changeLanguage(lang.code);
-        }
       }
 
       store.dispatch(updateCurrentUserMetadata(metadata));
@@ -262,8 +257,8 @@ export default class HandleParticipants {
    * @param isCompleteRemove If true, performs full removal (like offline); otherwise, marks as disconnected.
    */
   private _handleParticipantCleanup = (
-      userId: string,
-      isCompleteRemove: boolean,
+    userId: string,
+    isCompleteRemove: boolean,
   ) => {
     const mediaConn = getMediaServerConn();
     // Always remove media subscribers for this user
@@ -278,12 +273,12 @@ export default class HandleParticipants {
     } else {
       // Partial cleanup: mark as disconnected
       store.dispatch(
-          updateParticipant({
-            id: userId,
-            changes: {
-              isOnline: false,
-            },
-          }),
+        updateParticipant({
+          id: userId,
+          changes: {
+            isOnline: false,
+          },
+        }),
       );
     }
   };
@@ -337,29 +332,29 @@ export default class HandleParticipants {
       try {
         const serverUsersRaw: string[] = JSON.parse(msg);
         const serverUsers = serverUsersRaw.map((u) =>
-            fromJson(NatsKvUserInfoSchema, u, {
-              ignoreUnknownFields: true,
-            }),
+          fromJson(NatsKvUserInfoSchema, u, {
+            ignoreUnknownFields: true,
+          }),
         );
         const serverUserIds = new Set(serverUsers.map((u) => u.userId));
         const currentParticipantsInStore = participantsSelector.selectAll(
-            store.getState(),
+          store.getState(),
         );
 
         for (const u of serverUsers) {
           if (this.activeUserTasks.has(u.userId)) {
             console.log(
-                `Reconciliation: Deferring addition of ${u.userId} because a primary task is active.`,
+              `Reconciliation: Deferring addition of ${u.userId} because a primary task is active.`,
             );
             continue;
           }
 
           const isPresentLocally = currentParticipantsInStore.some(
-              (p) => p.userId === u.userId,
+            (p) => p.userId === u.userId,
           );
           if (!isPresentLocally) {
             console.log(
-                `Reconciliation: Adding missing participant ${u.userId}`,
+              `Reconciliation: Adding missing participant ${u.userId}`,
             );
             await this._addRemoteParticipant(u);
           }
@@ -372,13 +367,13 @@ export default class HandleParticipants {
           if (!serverUserIds.has(p.userId)) {
             if (this.activeUserTasks.has(p.userId)) {
               console.log(
-                  `Reconciliation: Deferring removal of ${p.userId} because a primary task is active.`,
+                `Reconciliation: Deferring removal of ${p.userId} because a primary task is active.`,
               );
               continue; // Hands off!
             }
 
             console.log(
-                `Reconciliation: Removing stale participant ${p.userId}`,
+              `Reconciliation: Removing stale participant ${p.userId}`,
             );
             this._handleParticipantCleanup(p.userId, true);
           }
@@ -423,8 +418,8 @@ export default class HandleParticipants {
   }
 
   private notificationForWaitingUser(
-      metadata: ICurrentUserMetadata,
-      name: string,
+    metadata: ICurrentUserMetadata,
+    name: string,
   ) {
     if (this._isLocalUserRecorder) {
       // if the current user is recorder then don't need to do anything
@@ -434,19 +429,17 @@ export default class HandleParticipants {
     if (metadata.waitForApproval && this._isLocalUserAdmin) {
       // we can open the participants panel if close
       if (
-          store.getState().bottomIconsActivity.activeSidePanel !== 'PARTICIPANTS'
+        store.getState().bottomIconsActivity.activeSidePanel !== 'PARTICIPANTS'
       ) {
         store.dispatch(setActiveSidePanel('PARTICIPANTS'));
       }
       // also play notification
       store.dispatch(updatePlayAudioNotification(true));
       store.dispatch(
-          addUserNotification({
-            message: i18n.t('waiting-room.user-waiting', {
-              name: name,
-            }),
-            typeOption: 'info',
-          }),
+        addUserNotification({
+          message: `${name} đang chờ duyệt vào phòng`,
+          typeOption: 'info',
+        }),
       );
     }
   }
@@ -463,7 +456,7 @@ export default class HandleParticipants {
     this.participantCounterInterval = setInterval(async () => {
       const allParticipants = participantsSelector.selectIds(store.getState());
       const validUsers = allParticipants.filter(
-          (userId) => !isUserRecorder(userId),
+        (userId) => !isUserRecorder(userId),
       );
       if (!validUsers.length) {
         console.log('NO_USER_ONLINE');
@@ -474,27 +467,27 @@ export default class HandleParticipants {
 
   private onAfterUserConnectMediaUpdate(userId: string) {
     store.dispatch(
-        updateParticipant({
-          id: userId,
-          changes: {
-            isOnline: true,
-          },
-        }),
+      updateParticipant({
+        id: userId,
+        changes: {
+          isOnline: true,
+        },
+      }),
     );
 
     const mediaConn = getMediaServerConn();
     const participant = mediaConn.room.getParticipantByIdentity(
-        toLiveKitUserId(userId),
+      toLiveKitUserId(userId),
     );
     if (participant) {
       participant.trackPublications.forEach((track) => {
         if (
-            track.source === Track.Source.ScreenShare ||
-            track.source === Track.Source.ScreenShareAudio
+          track.source === Track.Source.ScreenShare ||
+          track.source === Track.Source.ScreenShareAudio
         ) {
           mediaConn.addScreenShareTrack(
-              participant.identity,
-              track as RemoteTrackPublication,
+            participant.identity,
+            track as RemoteTrackPublication,
           );
         } else {
           mediaConn.addVideoSubscriber(participant);

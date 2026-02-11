@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ChatFeatures, RoomUploadedFileType } from '@workspace/protocol';
 
 import { useAppDispatch } from '../../../store';
@@ -14,7 +13,6 @@ interface IFileSendProps {
 
 const FileSend = ({ lockSendFile, chatFeatures }: IFileSendProps) => {
   const inputFile = useRef<HTMLInputElement>(null);
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [files, setFiles] = useState<Array<File>>();
 
@@ -38,7 +36,7 @@ const FileSend = ({ lockSendFile, chatFeatures }: IFileSendProps) => {
     if (result && result.filePath && result.fileName) {
       dispatch(
         addUserNotification({
-          message: t('right-panel.file-upload-success'),
+          message: 'Tệp được tải lên thành công',
           typeOption: 'success',
         }),
       );

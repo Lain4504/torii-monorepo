@@ -16,7 +16,6 @@ import { pollsApi } from '../../store/services/pollsApi';
 import { updateParticipant } from '../../store/slices/participantSlice';
 import { addExternalMediaPlayerEvent } from '../../store/slices/externalMediaPlayer';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import i18n from '../i18n';
 import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
 import { WhiteboardDataAsDonorData } from '../../store/slices/interfaces/whiteboard';
 import { fromJsonString } from '@bufbuild/protobuf';
@@ -68,30 +67,30 @@ export default class HandleDataMessage {
         break;
       case DataMsgBodyType.INFO:
         if (
-            payload.fromUserId === this.connectNats.userId ||
-            this.connectNats.isRecorder
+          payload.fromUserId === this.connectNats.userId ||
+          this.connectNats.isRecorder
         ) {
           return;
         }
         store.dispatch(
-            addUserNotification({
-              message: i18n.t(payload.message),
-              typeOption: 'info',
-            }),
+          addUserNotification({
+            message: payload.message,
+            typeOption: 'info',
+          }),
         );
         break;
       case DataMsgBodyType.ALERT:
         if (
-            payload.fromUserId === this.connectNats.userId ||
-            this.connectNats.isRecorder
+          payload.fromUserId === this.connectNats.userId ||
+          this.connectNats.isRecorder
         ) {
           return;
         }
         store.dispatch(
-            addUserNotification({
-              message: i18n.t(payload.message),
-              typeOption: 'warning',
-            }),
+          addUserNotification({
+            message: payload.message,
+            typeOption: 'warning',
+          }),
         );
         break;
       case DataMsgBodyType.EXTERNAL_MEDIA_PLAYER_EVENTS:
@@ -105,30 +104,30 @@ export default class HandleDataMessage {
           return;
         }
         store.dispatch(
-            pollsApi.util.invalidateTags([
-              {
-                type: 'Count',
-                id: payload.message,
-              },
-              {
-                type: 'Selected',
-                id: payload.message,
-              },
-              {
-                type: 'PollDetails',
-                id: payload.message,
-              },
-            ]),
+          pollsApi.util.invalidateTags([
+            {
+              type: 'Count',
+              id: payload.message,
+            },
+            {
+              type: 'Selected',
+              id: payload.message,
+            },
+            {
+              type: 'PollDetails',
+              id: payload.message,
+            },
+          ]),
         );
         break;
       case DataMsgBodyType.USER_CONNECTION_QUALITY_CHANGE:
         store.dispatch(
-            updateParticipant({
-              id: payload.fromUserId,
-              changes: {
-                connectionQuality: payload.message as ConnectionQuality,
-              },
-            }),
+          updateParticipant({
+            id: payload.fromUserId,
+            changes: {
+              connectionQuality: payload.message as ConnectionQuality,
+            },
+          }),
         );
         break;
       case DataMsgBodyType.PUSH_JOIN_BREAKOUT_ROOM:
@@ -147,10 +146,10 @@ export default class HandleDataMessage {
     // we'll update the reducer-only
     // component will take care for sending data
     store.dispatch(
-        updateRequestedWhiteboardData({
-          requested: true,
-          sendTo: payload.fromUserId,
-        }),
+      updateRequestedWhiteboardData({
+        requested: true,
+        sendTo: payload.fromUserId,
+      }),
     );
   }
 
@@ -159,12 +158,12 @@ export default class HandleDataMessage {
       return;
     }
     store.dispatch(
-        updateParticipant({
-          id: payload.fromUserId,
-          changes: {
-            visibility: payload.message,
-          },
-        }),
+      updateParticipant({
+        id: payload.fromUserId,
+        changes: {
+          visibility: payload.message,
+        },
+      }),
     );
   }
 
@@ -201,10 +200,10 @@ export default class HandleDataMessage {
       }
 
       store.dispatch(
-          addSpeechSubtitleText({
-            type,
-            result,
-          }),
+        addSpeechSubtitleText({
+          type,
+          result,
+        }),
       );
     }
   }
@@ -220,16 +219,16 @@ export default class HandleDataMessage {
 
   private handlePublicChatDataReq(fromUserId: string) {
     const publicChats = selectPublicChatMessages(store.getState()).filter(
-        (msg) => msg.fromUserId !== 'system',
+      (msg) => msg.fromUserId !== 'system',
     );
     if (publicChats.length) {
       this.connectNats
-          .sendDataMessage(
-              DataMsgBodyType.RES_PUBLIC_CHAT_DATA,
-              JSON.stringify(publicChats),
-              fromUserId,
-          )
-          .then();
+        .sendDataMessage(
+          DataMsgBodyType.RES_PUBLIC_CHAT_DATA,
+          JSON.stringify(publicChats),
+          fromUserId,
+        )
+        .then();
     }
   }
 
@@ -237,10 +236,10 @@ export default class HandleDataMessage {
     try {
       const data: ChatMessage[] = JSON.parse(msg);
       store.dispatch(
-          addAllChatMessages({
-            messages: data,
-            currentUserId: this.connectNats.userId,
-          }),
+        addAllChatMessages({
+          messages: data,
+          currentUserId: this.connectNats.userId,
+        }),
       );
     } catch (e) {
       console.error(e);

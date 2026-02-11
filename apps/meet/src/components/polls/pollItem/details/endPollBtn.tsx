@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { useEndPoll } from '../../hooks/useEndPoll';
 import ActionButton from '../../../../helpers/ui/actionButton';
@@ -9,7 +8,6 @@ interface EndPollBtnProps {
 }
 
 const EndPollBtn = ({ pollId }: EndPollBtnProps) => {
-  const { t } = useTranslation();
   const { endPoll, isEndingPoll } = useEndPoll();
 
   return (
@@ -19,7 +17,7 @@ const EndPollBtn = ({ pollId }: EndPollBtnProps) => {
       buttonType="button"
       custom="w-44 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-transparent rounded-lg shadow-sm"
     >
-      {t('polls.end-poll')}
+      Kết thúc bình chọn
     </ActionButton>
   );
 };

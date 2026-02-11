@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { debounce, throttle } from 'es-toolkit';
-import { useTranslation } from 'react-i18next';
 import {
   CaptureUpdateAction,
   Excalidraw,
@@ -70,7 +69,6 @@ const CURSOR_SYNC_TIMEOUT = 33,
 
 const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
   const dispatch = useAppDispatch();
-  const { i18n, t } = useTranslation();
   // static variables
   const { currentUser, isRecorder, roomId } = useMemo(() => {
     const session = store.getState().session;
@@ -536,13 +534,13 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
 
   const showSwitchingWarning = useCallback(() => {
     if (isSwitching.current) {
-      toast(t('notifications.whiteboard-other-task-to-finish'), {
+      toast('Vui lòng chờ tiến trình khác hoàn tất', {
         type: 'warning',
       });
       return true;
     }
     return false;
-  }, [t]);
+  }, []);
 
   const onScrollChange: ExcalidrawProps['onScrollChange'] = useCallback(() => {
     // When a non-presenter scrolls manually, disable "follow mode".
@@ -561,13 +559,13 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
               className="wb-manage-upload-file ml-1 flex items-center justify-center gap-1.5"
             >
               <Paperclip className="w-3.5 h-3.5" />
-              {t('whiteboard.manage-files')}
+              Quản lý tệp
             </button>
           </div>
         )}
       </>
     ),
-    [isPresenter, excalidrawAPI, t],
+    [isPresenter, excalidrawAPI],
   );
 
   const renderFooter = useMemo(
@@ -620,7 +618,7 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
         }}
         autoFocus={true}
         detectScroll={true}
-        langCode={i18n.languages[0]}
+        langCode="vi"
         renderTopRightUI={renderTopRightUI}
         libraryReturnUrl=""
       >

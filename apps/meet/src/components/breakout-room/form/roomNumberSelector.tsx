@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '../../../store';
 import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
 
@@ -12,7 +11,6 @@ const RoomNumberSelector = ({
   totalRooms,
   setTotalRooms,
 }: RoomNumberSelectorProps) => {
-  const { t } = useTranslation();
   const maxRooms = useAppSelector(
     (state) =>
       state.session.currentRoom.metadata?.roomFeatures?.breakoutRoomFeatures
@@ -28,7 +26,7 @@ const RoomNumberSelector = ({
     <div className="numbers-of-room w-full sm:w-56 mb-2 sm:ltr:mr-10 sm:rtl:ml-10">
       <Dropdown
         id="breakout-room-number"
-        label={t('breakout-room.num-rooms')}
+        label="Số lượng phòng"
         value={totalRooms}
         onChange={setTotalRooms}
         options={options}

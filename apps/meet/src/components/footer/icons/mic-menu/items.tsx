@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { MenuItem, MenuItems } from '@headlessui/react';
 import { Room, Track } from 'livekit-client';
-import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch, useAppSelector } from '../../../../store';
 import { updateSelectedAudioDevice } from '../../../../store/slices/roomSettingsSlice';
@@ -17,7 +16,6 @@ interface IMicMenuItemsProps {
 
 const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const audioDevices = useAppSelector(
     (state) => state.roomSettings.audioDevices,
@@ -78,20 +76,22 @@ const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
       className="menu origin-top-right z-10 absolute ltr:-left-8 md:ltr:left-0 rtl:right-0 bottom-12 border border-border bg-popover shadow-lg rounded-2xl overflow-hidden p-2 w-max"
     >
       <div className="title h-8 w-full flex items-center text-xs leading-none text-muted-foreground px-2 uppercase">
-        {t('footer.icons.select-microphone')}
+        Chọn micrô
       </div>
       {audioDevices.map((device) => (
         <MenuItem key={device.id}>
           {() => (
             <p
-              className={`${selectedAudioDevice === device.id
-                ? 'bg-muted'
-                : ''
+              className={`${selectedAudioDevice === device.id ? 'bg-muted' : ''
                 } h-8 w-full flex items-center justify-between text-sm gap-2 leading-none font-medium text-foreground px-2 rounded-lg transition-all duration-300 hover:bg-muted`}
               onClick={() => handleDeviceChange(device.id)}
             >
               {device.label}
-              {selectedAudioDevice === device.id ? <Check className="w-4 h-4 text-primary" /> : ''}
+              {selectedAudioDevice === device.id ? (
+                <Check className="w-4 h-4 text-primary" />
+              ) : (
+                ''
+              )}
             </p>
           )}
         </MenuItem>
@@ -107,12 +107,12 @@ const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
               {isMicMuted ? (
                 <>
                   <Mic className={'h-4 w-auto'} />
-                  {t('footer.menus.unmute-microphone')}
+                  Bật micrô
                 </>
               ) : (
                 <>
                   <MicOff className={'h-4 w-auto'} />
-                  {t('footer.menus.mute-microphone')}
+                  Tắt micrô
                 </>
               )}
             </p>
@@ -127,7 +127,7 @@ const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
               onClick={leaveMic}
             >
               <LogOut className="w-4 h-4 transition ease-in" />
-              {t('footer.menus.leave-microphone')}
+              Rời khỏi micrô
             </p>
           )}
         </MenuItem>

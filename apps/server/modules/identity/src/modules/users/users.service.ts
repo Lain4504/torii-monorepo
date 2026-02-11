@@ -32,9 +32,9 @@ import {
 } from '@workspace/schemas';
 import type { User, Prisma } from '@prisma/generated';
 import type { IUsersRepository } from '@server/identity/interfaces/repositories';
-import type { IUsersService, IAuthorizationService, IEmailService, UserWithPermissions } from '@server/identity/interfaces/services';
+import type { IUsersService, IAuthorizationService, UserWithPermissions } from '@server/identity/interfaces/services';
 import { USERS_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
-import { AUTHORIZATION_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '@server/identity/interfaces/services';
+import { AUTHORIZATION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 import { REDIS_CLIENT, generateSecureRandomString, AppConfigService } from '@server/shared';
 import * as argon2 from 'argon2';
 
@@ -44,7 +44,6 @@ export class UsersService implements IUsersService {
         private readonly appConfig: AppConfigService,
         @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
         @Inject(AUTHORIZATION_SERVICE_TOKEN) private readonly authorizationService: IAuthorizationService,
-        @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
         @InjectMapper() private readonly mapper: Mapper,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
@@ -207,12 +206,11 @@ export class UsersService implements IUsersService {
         // Send invite email with password - link to login page
         // Internal users (staff/lecturer) use web-admin, so use webAdminUrl from config
         const loginUrl = `${this.appConfig.identity.webAdminUrl.replace(/\/+$/, '')}/login`;
-        await this.emailService.sendInviteEmail(
-            user.email,
-            user.displayName,
-            loginUrl,
-            randomPassword // Send plain password in email (only time it's exposed)
-        );
+        this.natsClient.emit({ cmd: 'send_email' }, {
+            type: 'invite',
+            to: user.email,
+            data: { displayName: user.displayName, inviteUrl: loginUrl, password: randomPassword }
+        });
 
         await this.createAuditLog({
             userId: adminId,

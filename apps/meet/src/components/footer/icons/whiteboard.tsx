@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   ChangeVisibilityRes,
   ChangeVisibilityResSchema,
@@ -14,7 +13,6 @@ import { Presentation } from 'lucide-react';
 import { participantsSelector } from '../../../store/slices/participantSlice';
 
 const WhiteboardIcon = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const isInitialMount = useRef(true);
   const isLocalAction = useRef(false);
@@ -137,8 +135,8 @@ const WhiteboardIcon = () => {
         >
           <span className="tooltip">
             {isActiveWhiteboard
-              ? t('footer.icons.hide-whiteboard')
-              : t('footer.icons.show-whiteboard')}
+              ? 'Ẩn bảng trắng'
+              : 'Hiển thị bảng trắng'}
           </span>
           <Presentation className="w-auto h-4 3xl:h-5" />
         </div>

@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { CloudRecordingVariants, RecordingFeatures } from '@workspace/protocol';
 
 import { RecordingType, SelectedRecordingType } from './IRecording';
@@ -24,7 +23,6 @@ const RecordingModal = ({
   const [recordingType, setRecordingType] = useState<
     SelectedRecordingType | undefined
   >(undefined);
-  const { t } = useTranslation();
   const isCloud = store.getState().session.isCloud;
   const e2eeFeatures =
     store.getState().session.currentRoom?.metadata?.roomFeatures
@@ -52,33 +50,33 @@ const RecordingModal = ({
       options.push({
         id: 'local',
         value: RecordingType.RECORDING_TYPE_LOCAL,
-        label: t('footer.icons.local-recording'),
+        label: 'Ghi hình cục bộ',
       });
     }
     if (recordingFeatures?.isAllowCloud) {
       options.push({
         id: 'full-screen',
         value: CloudRecordingVariants.FULL_SCREEN_CLOUD_RECORDING,
-        label: t('footer.icons.cloud-recording'),
+        label: 'Ghi hình trên đám mây',
         disabled: !!e2eeFeatures?.enabledSelfInsertEncryptionKey,
         description: e2eeFeatures?.enabledSelfInsertEncryptionKey
-          ? t('notifications.cloud-recording-not-supported-self-key')
+          ? 'Ghi hình trên đám mây không được hỗ trợ khi sử dụng khóa tự nhập.'
           : undefined,
       });
       if (isCloud) {
         options.push({
           id: 'media-only',
           value: CloudRecordingVariants.MEDIA_ONLY_CLOUD_RECORDING,
-          label: t('footer.icons.cloud-media-only-recording'),
+          label: 'Chỉ ghi hình đa phương tiện trên đám mây',
           disabled: !!e2eeFeatures?.isEnabled,
           description: e2eeFeatures?.isEnabled
-            ? t('notifications.media-only-recording-not-support-e2ee')
+            ? 'Chỉ ghi hình đa phương tiện không được hỗ trợ khi bật mã hóa đầu cuối.'
             : undefined,
         });
       }
     }
     return options;
-  }, [recordingFeatures, isCloud, e2eeFeatures, t]);
+  }, [recordingFeatures, isCloud, e2eeFeatures]);
 
   const handleRadioChange = (value: any) => {
     if (value === RecordingType.RECORDING_TYPE_LOCAL) {
@@ -102,13 +100,13 @@ const RecordingModal = ({
     <Modal
       show={showModal}
       onClose={closeModal}
-      title={t('footer.icons.how-to-record')}
+      title="Bạn muốn ghi hình như thế nào?"
       renderButtons={() => (
         <ActionButton
           buttonType="submit"
           onClick={(e) => startRecording(e as any)}
         >
-          {t('footer.icons.start-recording')}
+          Bắt đầu ghi hình
         </ActionButton>
       )}
     >
@@ -119,7 +117,7 @@ const RecordingModal = ({
         onSubmit={(e) => startRecording(e)}
       >
         <p className="text-sm text-foreground">
-          {t('footer.icons.recording-types-des')}
+          Chọn loại ghi hình phù hợp cho cuộc họp của bạn.
         </p>
         <RadioOptions
           name="recording-type"

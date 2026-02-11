@@ -1,6 +1,4 @@
 import React, { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
 import { useAppDispatch } from '../../../store';
 import { BarChart2 } from 'lucide-react';
@@ -12,7 +10,6 @@ interface INewPollProps {
 }
 
 const NewPoll = ({ createdAt, onClosePopover }: INewPollProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const openPollsPanel = useCallback(() => {
@@ -37,14 +34,14 @@ const NewPoll = ({ createdAt, onClosePopover }: INewPollProps) => {
         <BarChart2 className="w-[15px] text-white" />
       </div>
       <div className="text flex-1 text-foreground dark:text-white text-sm">
-        <p>{t('polls.new-poll')}</p>
+        <p>Cuộc thăm dò mới</p>
         <div className="bottom flex justify-between text-foreground dark:text-white text-xs items-center">
           <span className="">{formatDate(createdAt)}</span>{' '}
           <ActionButton
             onClick={openPollsPanel}
             custom="!h-5 w-auto px-2 !text-[10px] !rounded-md bg-Blue2-500 hover:bg-Blue2-600 border-Blue2-600"
           >
-            {t('open')}
+            Mở
           </ActionButton>
         </div>
       </div>

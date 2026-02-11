@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import {
   ActivatePollsReqSchema,
@@ -13,14 +12,13 @@ import { setActiveSidePanel } from '../../../../../store/slices/bottomIconsActiv
 
 const usePolls = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const isActivePoll = useAppSelector(
     (state) =>
       state.session.currentRoom.metadata?.roomFeatures?.pollsFeatures?.isActive,
   );
 
   const togglePolls = useCallback(async () => {
-    const id = toast.loading(t('please-wait'), {
+    const id = toast.loading('Vui lòng đợi...', {
       type: 'info',
     });
 
@@ -38,7 +36,7 @@ const usePolls = () => {
 
     if (!res.status) {
       toast.update(id, {
-        render: t(res.msg),
+        render: res.msg,
         type: 'error',
         isLoading: false,
         autoClose: 3000,
@@ -47,7 +45,7 @@ const usePolls = () => {
       toast.dismiss(id);
       dispatch(setActiveSidePanel('POLLS'));
     }
-  }, [isActivePoll, dispatch, t]);
+  }, [isActivePoll, dispatch]);
 
   return { togglePolls, isActivePoll };
 };

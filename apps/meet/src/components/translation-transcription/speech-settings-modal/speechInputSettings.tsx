@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
 import { Field, Label, Switch } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
 import { InsightsTranscriptionFeatures } from '@workspace/protocol';
 
 import { speechLangsMap } from '../helpers/supportedLangs';
@@ -27,7 +26,6 @@ const SpeechInputSettings = ({
   selectedSpeechLang,
   setSelectedSpeechLang,
 }: ISpeechInputSettingsProps) => {
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (!enableSpeech) {
@@ -48,7 +46,7 @@ const SpeechInputSettings = ({
       <Field className="-mt-4 px-4 py-4 bg-background border-y border-dotted border-border">
         <div className="flex items-center cursor-pointer justify-between shadow-Icon-box h-11 border border-border rounded-2xl px-4 bg-card">
           <Label className="pr-4 w-full text-sm text-foreground font-medium cursor-pointer">
-            {t('speech-services.enable-speech-to-text')}
+            Bật tính năng chuyển đổi giọng nói thành văn bản
           </Label>
           <Switch
             checked={enableSpeech}
@@ -59,8 +57,8 @@ const SpeechInputSettings = ({
           >
             <span
               className={`${enableSpeech
-                  ? 'ltr:translate-x-5 rtl:-translate-x-5'
-                  : 'ltr:translate-x-1 rtl:-translate-x-0.5'
+                ? 'ltr:translate-x-5 rtl:-translate-x-5'
+                : 'ltr:translate-x-1 rtl:-translate-x-0.5'
                 } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
             />
           </Switch>
@@ -71,7 +69,7 @@ const SpeechInputSettings = ({
           <Field className="grid gap-4 bg-card py-4 px-4">
             <div className="flex items-center cursor-pointer justify-between shadow-Icon-box h-11 border border-border rounded-2xl px-4 bg-card">
               <Label className="pr-4 w-full text-sm text-foreground font-medium cursor-pointer">
-                {t('speech-services.allow-transcription-storage')}
+                Cho phép lưu trữ bản ghi
               </Label>
               <Switch
                 checked={allowTranscriptionStorage}
@@ -82,8 +80,8 @@ const SpeechInputSettings = ({
               >
                 <span
                   className={`${allowTranscriptionStorage
-                      ? 'ltr:translate-x-5 rtl:-translate-x-5'
-                      : 'ltr:translate-x-1 rtl:-translate-x-0.5'
+                    ? 'ltr:translate-x-5 rtl:-translate-x-5'
+                    : 'ltr:translate-x-1 rtl:-translate-x-0.5'
                     } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
                 />
               </Switch>
@@ -95,7 +93,7 @@ const SpeechInputSettings = ({
               value={selectedSpeechLang}
               onChange={setSelectedSpeechLang}
               options={speechLangOptions}
-              label={t('speech-services.speech-lang-label')}
+              label='Ngôn ngữ nói'
               direction="vertical"
               disabled={isServiceActive}
             />

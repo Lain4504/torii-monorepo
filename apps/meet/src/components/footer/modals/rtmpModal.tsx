@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   RecordingReqSchema,
@@ -20,7 +19,6 @@ import { DESIGN_CUSTOMIZATION } from '../../../config';
 
 const RtmpModal = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const isActiveRtmpBroadcasting = useAppSelector(
     (state) => state.session.isActiveRtmpBroadcasting,
   );
@@ -53,11 +51,11 @@ const RtmpModal = () => {
       setDisplayError('');
 
       if (provider === 'other' && serverUrl.trim() === '') {
-        setDisplayError(t('footer.notice.external-media-player-url-required'));
+        setDisplayError('Yêu cầu URL trình phát đa phương tiện bên ngoài');
         return;
       }
       if (serverKey.trim() === '') {
-        setDisplayError(t('footer.notice.rtmp-stream-key-required'));
+        setDisplayError('Yêu cầu mã khóa luồng RTMP');
         return;
       }
       let url: string;
@@ -69,7 +67,7 @@ const RtmpModal = () => {
 
       const rtmpUrlRegex = /^rtmps?:\/\/[^\s/$.?#].\S*$/i;
       if (!rtmpUrlRegex.test(url)) {
-        setDisplayError(t('footer.notice.rtmp-url-invalid'));
+        setDisplayError('URL RTMP không hợp lệ');
         return;
       }
 
@@ -94,14 +92,14 @@ const RtmpModal = () => {
         'arraybuffer',
       );
       const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
-      let msg = 'footer.notice.rtmp-starting';
+      let msg = 'Đang chuẩn bị phát trực tiếp...';
 
       if (!res.status) {
         msg = res.msg;
       }
       dispatch(
         addUserNotification({
-          message: t(msg),
+          message: msg,
           typeOption: 'info',
         }),
       );
@@ -110,7 +108,7 @@ const RtmpModal = () => {
       setIsLoading(false);
     },
     // oxlint-disable-next-line exhaustive-deps
-    [provider, serverUrl, serverKey, dispatch, t],
+    [provider, serverUrl, serverKey, dispatch],
   );
 
   const renderStartBroadcastModal = () => {
@@ -118,10 +116,10 @@ const RtmpModal = () => {
       <Modal
         show={!isActiveRtmpBroadcasting}
         onClose={closeStartModal}
-        title={t('footer.modal.rtmp-title')}
+        title="Phát trực tiếp (RTMP)"
         renderButtons={() => (
           <ActionButton onClick={startBroadcasting} isLoading={isLoading}>
-            {t('footer.modal.rtmp-start-broadcast')}
+            Bắt đầu phát
           </ActionButton>
         )}
         customClass="StartBroadcastModal"
@@ -133,20 +131,20 @@ const RtmpModal = () => {
             </div>
           )}
           <Dropdown
-            label={t('footer.modal.rtmp-select-provider')}
+            label="Chọn nền tảng"
             id="provider"
             value={provider}
             onChange={setProvider}
             options={[
               { value: 'youtube', text: 'YouTube' },
               { value: 'facebook', text: 'Facebook' },
-              { value: 'other', text: 'Other' },
+              { value: 'other', text: 'Khác' },
             ]}
             direction="horizontal"
           />
           {showServerUrl && (
             <FormattedInputField
-              label={t('footer.modal.rtmp-server-url')}
+              label="URL máy chủ"
               id="stream-url"
               value={serverUrl}
               onChange={(e) => {
@@ -156,7 +154,7 @@ const RtmpModal = () => {
             />
           )}
           <FormattedInputField
-            label={t('footer.modal.rtmp-stream-key')}
+            label="Mã khóa luồng"
             id="stream-key"
             value={serverKey}
             onChange={(e) => {
@@ -183,14 +181,14 @@ const RtmpModal = () => {
       'arraybuffer',
     );
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
-    let msg = t('footer.notice.rtmp-ending');
+    let msg = 'Đang dừng phát trực tiếp...';
 
     if (!res.status) {
       msg = res.msg;
     }
     dispatch(
       addUserNotification({
-        message: t(msg),
+        message: msg,
         typeOption: 'info',
       }),
     );
@@ -204,8 +202,8 @@ const RtmpModal = () => {
       show={isActiveRtmpBroadcasting}
       onClose={() => dispatch(updateShowRtmpModal(false))}
       onConfirm={handleStopBroadcast}
-      title={t('footer.modal.rtmp-close-confirm')}
-      text={t('footer.modal.rtmp-close-msg')}
+      title="Xác nhận"
+      text="Bạn có chắc chắn muốn dừng phát trực tiếp?"
     />
   );
 };

@@ -5,7 +5,6 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
 import { BreakoutRoom } from '@workspace/protocol';
 
 import EndBtn from './endBtn';
@@ -21,7 +20,6 @@ interface RoomItemProps {
 }
 
 const RoomItem = ({ room, setMessage }: RoomItemProps) => {
-  const { t } = useTranslation();
 
   return (
     <Disclosure as="div">
@@ -42,7 +40,7 @@ const RoomItem = ({ room, setMessage }: RoomItemProps) => {
                     created={BigInt(room.created)}
                   />
                 ) : (
-                  t('breakout-room.not-started')
+                  "Chưa bắt đầu"
                 )}
               </div>
               <motion.div

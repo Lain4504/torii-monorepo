@@ -5,7 +5,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useTranslation } from 'react-i18next';
 import { marked } from 'marked';
 import Draggable from 'react-draggable';
 
@@ -19,7 +18,6 @@ import TextBoxArea from './textBoxArea';
 import { ArrowDown, X } from 'lucide-react';
 
 const InsightsAiTextChat = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const nodeRef = useRef(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -115,7 +113,7 @@ const InsightsAiTextChat = () => {
                 id="draggable-aichat"
                 className="absolute top-0 w-full flex items-center justify-between text-base font-medium leading-7 text-foreground px-4 py-2 border-b border-border bg-muted rounded-t-xl cursor-move"
               >
-                <span>{t('insights.ai-text-chat.panel-title')}</span>
+                <span>Trò chuyện cùng AI</span>
                 <div className="flex items-center space-x-2">
                   {showScrollDownBtn && (
                     <button
@@ -157,7 +155,7 @@ const InsightsAiTextChat = () => {
                         >
                           {msg.role === 'model' ? (
                             <AIMessage
-                              name={t('insights.ai-text-chat.name')}
+                              name="Trợ lý AI"
                               message={parsedMessage}
                               isStreaming={isStreaming}
                               sentAt={msg.createdAt}

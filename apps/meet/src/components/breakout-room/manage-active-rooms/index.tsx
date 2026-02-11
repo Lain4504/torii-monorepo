@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import BroadcastMessageForm from './broadcastMessageForm';
 import RoomLists from './roomLists';
@@ -14,7 +13,6 @@ interface IManageActiveRoomsProps {
 }
 
 const ManageActiveRooms = ({ setMessage }: IManageActiveRoomsProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [endAllRooms, { isLoading, data, isSuccess, error }] =
     useEndAllRoomsMutation();
@@ -24,13 +22,13 @@ const ManageActiveRooms = ({ setMessage }: IManageActiveRoomsProps) => {
       if (data.status) {
         dispatch(updateShowManageBreakoutRoomModal(false));
       } else {
-        setMessage({ text: t(data.msg), type: 'error' });
+        setMessage({ text: data.msg, type: 'error' });
       }
     } else if (error) {
-      const msg = (error as any)?.data?.msg ?? 'Unknown error';
-      setMessage({ text: t(msg), type: 'error' });
+      const msg = (error as any)?.data?.msg ?? 'Lỗi không xác định';
+      setMessage({ text: msg, type: 'error' });
     }
-  }, [isSuccess, data, error, dispatch, t, setMessage]);
+  }, [isSuccess, data, error, dispatch, setMessage]);
 
   const onEndAllRooms = () => {
     setMessage(null);
@@ -47,7 +45,7 @@ const ManageActiveRooms = ({ setMessage }: IManageActiveRoomsProps) => {
           onClick={onEndAllRooms}
           disabled={isLoading}
         >
-          {t('breakout-room.end-all')}
+          Kết thúc tất cả
         </button>
       </div>
     </div>

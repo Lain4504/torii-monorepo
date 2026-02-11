@@ -1,5 +1,4 @@
 import React, { Dispatch, FormEvent } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { addSelfInsertedE2EESecretKey } from '../../store/slices/roomSettingsSlice';
@@ -11,7 +10,6 @@ export interface IInsertE2EEKeyProps {
 
 const InsertE2EEKey = ({ setOpenConn }: IInsertE2EEKeyProps) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -19,7 +17,7 @@ const InsertE2EEKey = ({ setOpenConn }: IInsertE2EEKeyProps) => {
     const data = new FormData(event.currentTarget);
     const secretKey = data.get('secretKey');
     if (!secretKey) {
-      toast(t('notifications.e2ee-empty-key-msg'), {
+      toast('Khóa bí mật không được để trống', {
         type: 'error',
       });
       return;
@@ -50,7 +48,7 @@ const InsertE2EEKey = ({ setOpenConn }: IInsertE2EEKeyProps) => {
                 className="block text-foreground text-lg font-bold mb-4"
                 htmlFor="secretKey"
               >
-                {t('app.insert-secret-key')}
+                Nhập khóa bí mật
               </label>
               <input
                 className="bg-muted border border-border rounded-lg w-full py-3 px-4 text-foreground mb-3 leading-tight focus:outline-hidden focus:ring-2 focus:ring-primary/50 transition-all duration-300"
@@ -60,12 +58,12 @@ const InsertE2EEKey = ({ setOpenConn }: IInsertE2EEKeyProps) => {
                 name="secretKey"
               />
               <p className="text-destructive text-sm italic">
-                {t('app.insert-secret-help')}
+                Vui lòng nhập khóa bí mật để tiếp tục
               </p>
             </div>
             <div className="flex justify-center">
               <button className="text-center py-2 px-8 transition duration-300 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl cursor-pointer shadow-md">
-                {t('app.save')}
+                Lưu
               </button>
             </div>
           </form>

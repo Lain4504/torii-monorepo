@@ -16,14 +16,18 @@ export interface ISubmissionRepository {
   upsert(where: Prisma.SubmissionWhereUniqueInput, create: Prisma.SubmissionCreateInput, update: Prisma.SubmissionUpdateInput): Promise<Submission>;
   findByAssignmentAndUser(assignmentId: string, userId: string): Promise<Submission | null>;
   findByAssignmentId(assignmentId: string): Promise<Submission[]>;
+  createGradeHistory(data: any): Promise<any>;
 }
 
 @Injectable()
 export class SubmissionRepository implements ISubmissionRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(id: string): Promise<Submission | null> {
-    return this.prisma.submission.findUnique({ where: { id } });
+    return this.prisma.submission.findUnique({
+      where: { id },
+      include: { gradeHistories: true }
+    }) as any;
   }
 
   async findMany(params: {
@@ -68,5 +72,9 @@ export class SubmissionRepository implements ISubmissionRepository {
       where: { assignmentId },
       orderBy: { submittedAt: 'desc' },
     });
+  }
+
+  async createGradeHistory(data: any): Promise<any> {
+    return this.prisma.gradeHistory.create({ data });
   }
 }

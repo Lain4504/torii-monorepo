@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { store, useAppDispatch, useAppSelector } from '../../../../store';
 import FooterMenuItem from './menuItem';
@@ -11,7 +10,6 @@ import {
 import { BarChart2, PenTool, NotebookPen, Captions } from 'lucide-react';
 
 const IconsInMenu = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const { roomFeatures } = useMemo(() => {
@@ -31,8 +29,6 @@ const IconsInMenu = () => {
     }
     dispatch(updateIsActiveWhiteboard(!isActiveWhiteboard));
   }, [dispatch, isActiveWhiteboard]);
-
-
 
   const isActivePoll = useAppSelector(
     (state) =>
@@ -70,8 +66,8 @@ const IconsInMenu = () => {
           icon={<PenTool />}
           text={
             isActiveWhiteboard
-              ? t('footer.icons.hide-whiteboard')
-              : t('footer.icons.show-whiteboard')
+              ? 'Ẩn bảng trắng'
+              : 'Hiển thị bảng trắng'
           }
         />
       )}
@@ -83,8 +79,8 @@ const IconsInMenu = () => {
           icon={<BarChart2 className="w-6" />}
           text={
             isActivePollsPanel
-              ? t('footer.icons.hide-polls-panel')
-              : t('footer.icons.show-polls-panel')
+              ? 'Ẩn bảng bình chọn'
+              : 'Hiển thị bảng bình chọn'
           }
         />
       )}
@@ -95,8 +91,8 @@ const IconsInMenu = () => {
           icon={<Captions className="w-auto" />}
           text={
             isActiveDisplaySpeechSettingOptionsModal
-              ? t('footer.icons.hide-translation-settings')
-              : t('footer.icons.show-translation-settings')
+              ? 'Ẩn cài đặt dịch'
+              : 'Hiển thị cài đặt dịch'
           }
         />
       )}

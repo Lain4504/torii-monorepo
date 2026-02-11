@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Menu, MenuButton, Transition } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
-
 import { store, useAppSelector } from '../../store';
 import HeaderMenus from './menus';
 import RoomSettings from './room-settings';
@@ -21,7 +19,6 @@ const Header = () => {
   );
   const isRecorder = store.getState().session.currentUser?.isRecorder;
 
-  const { t } = useTranslation();
   const [title, setTitle] = useState<string>('');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalText, setModalText] = useState('');
@@ -36,12 +33,12 @@ const Header = () => {
   const handleLogout = useCallback(() => {
     const confirm = async () => {
       const conn = getNatsConn();
-      await conn.endSession('notifications.user-logged-out');
+      await conn.endSession('Người dùng đã đăng xuất');
     };
-    setModalText(t('header.menus.alert.logout'));
+    setModalText('Bạn có chắc chắn muốn thoát khỏi phiên họp này không?');
     setOnConfirm(() => confirm);
     setShowModal(true);
-  }, [t]);
+  }, []);
 
   return (
     !isRecorder && (
@@ -101,7 +98,7 @@ const Header = () => {
             onConfirm();
             setShowModal(false);
           }}
-          title={t('header.menus.alert.confirm')}
+          title="Xác nhận"
           text={modalText}
         />
         <RoomSettings />

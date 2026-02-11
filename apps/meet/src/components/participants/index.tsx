@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import useVirtual from 'react-cool-virtual';
 
 import ParticipantComponent from './participant';
@@ -13,7 +12,6 @@ import { selectVisibleParticipants } from '../../store/slices/participantSlice';
 import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
 
 const ParticipantsComponent = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [searchParticipant, setSearchParticipant] = useState<string>('');
   const [removeParticipantData, setRemoveParticipantData] =
@@ -101,9 +99,7 @@ const ParticipantsComponent = () => {
       <div className="inner-wrapper relative z-20 w-full">
         <div className="top flex items-center h-10 px-3 3xl:px-5">
           <p className="text-sm text-foreground font-medium leading-tight">
-            {t('left-panel.participants', {
-              total: participants.length,
-            })}
+            Thành viên ({participants.length})
           </p>
         </div>
         <div className="search-participants-wrap h-[55px] flex items-center px-3 3xl:px-5 border-y border-border">
@@ -115,8 +111,8 @@ const ParticipantsComponent = () => {
               type="text"
               name="search-participants"
               id="search-participants"
-              placeholder="Search for Participant"
-              className="text-foreground placeholder:text-muted-foreground h-9 rounded-lg bg-secondary border border-border w-full pl-8 3xl:pl-10 outline-hidden text-xs 3xl:text-sm"
+              placeholder="Tìm kiếm thành viên"
+              className="text-foreground placeholder:text-muted-foreground h-9 rounded-lg bg-secondary border border-border w-full ltr:pl-8 3xl:ltr:pl-10 rtl:pr-8 3xl:rtl:pr-10 outline-hidden text-xs 3xl:text-sm"
               onChange={(e) => setSearchParticipant(e.target.value)}
             />
           </div>
