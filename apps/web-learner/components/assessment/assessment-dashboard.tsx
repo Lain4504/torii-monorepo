@@ -6,23 +6,25 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@workspace/ui/components/card"
 import { Progress } from "@workspace/ui/components/progress"
 import Link from "next/link"
-import { agentApi, BenchmarkResponse } from "@/apis/services/agent-api"
+import { agentApi, ReadinessProfileResponse } from "@/apis/services/agent-api"
 
 export function AssessmentDashboard() {
-    const [benchmark, setBenchmark] = React.useState<BenchmarkResponse | null>(null)
-    const [isLoading, setIsLoading] = React.useState(false)
+    const [profile, setProfile] = React.useState<ReadinessProfileResponse | null>(null)
+    const [isLoading, setIsLoading] = React.useState(true)
 
     React.useEffect(() => {
-        const fetchBenchmark = async () => {
+        const fetchProfile = async () => {
             // Example: defaulting to N5 for demo. Ideally this comes from user profile.
             try {
-                const data = await agentApi.assessment.getBenchmark("N5")
-                setBenchmark(data)
+                const data = await agentApi.analytics.getReadinessProfile("N5")
+                setProfile(data)
             } catch (error) {
-                console.error("Failed to fetch benchmark", error)
+                console.error("Failed to fetch readiness profile", error)
+            } finally {
+                setIsLoading(false)
             }
         }
-        fetchBenchmark()
+        fetchProfile()
     }, [])
 
     return (
@@ -51,36 +53,18 @@ export function AssessmentDashboard() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Current Level</CardTitle>
+                        <CardTitle className="text-sm font-medium">JLPT Readiness</CardTitle>
                         <GraduationCap className="size-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{benchmark?.level || "N5"}</div>
+                        <div className="text-2xl font-bold">{profile?.targetLevel || "N5"}</div>
                         <p className="text-xs text-muted-foreground">
-                            Target: N4
+                            Đánh giá mức độ sẵn sàng cho kỳ thi
                         </p>
                         <div className="mt-4">
-                            <Progress value={benchmark?.readinessPercentage || 0} className="h-2" />
-                            <p className="text-xs text-muted-foreground mt-2 text-right">{benchmark?.readinessPercentage || 0}% Ready</p>
+                            <Progress value={profile?.readinessPercentage || 0} className="h-2" />
+                            <p className="text-xs text-muted-foreground mt-2 text-right">{profile?.readinessPercentage || 0}% Ready</p>
                         </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Next Scheduled Test</CardTitle>
-                        <Calendar className="size-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {benchmark?.nextScheduledTest ? new Date(benchmark.nextScheduledTest.date).toLocaleDateString() : "Not Scheduled"}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            {benchmark?.nextScheduledTest?.type || "No upcoming tests"}
-                        </p>
-                        <Button variant="link" className="p-0 h-auto mt-4 text-xs">
-                            View Schedule <ArrowRight className="ml-1 size-3" />
-                        </Button>
                     </CardContent>
                 </Card>
 
@@ -90,23 +74,45 @@ export function AssessmentDashboard() {
                         <BarChart3 className="size-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{benchmark?.recentPerformance?.averageScore || 0}%</div>
+                        <div className="text-2xl font-bold">{profile?.recentPerformance?.averageScore || 0}%</div>
                         <p className="text-xs text-muted-foreground">
-                            Average Score ({benchmark?.recentPerformance?.testsTaken || 0} tests)
+                            Average Score ({profile?.recentPerformance?.testsTaken || 0} tests)
                         </p>
-                        <div className="mt-4 flex gap-2">
-                            {/* Dynamically rendering skill gaps if available */}
-                            {benchmark?.skillGaps && (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {profile?.skillGaps && (
                                 <>
-                                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                        Vocab: {benchmark.skillGaps.vocabulary}%
+                                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-[10px] font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                        Vocab: {profile.skillGaps.vocabulary}%
                                     </span>
-                                    <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
-                                        Grammar: {benchmark.skillGaps.grammar}%
+                                    <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-[10px] font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+                                        Grammar: {profile.skillGaps.grammar}%
+                                    </span>
+                                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-800 ring-1 ring-inset ring-blue-600/20">
+                                        Reading: {profile.skillGaps.reading}%
                                     </span>
                                 </>
                             )}
                         </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">AI Recommendations</CardTitle>
+                        <Sparkles className="size-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-sm font-medium text-foreground line-clamp-2">
+                            {profile?.recommendations?.[0] || "Take more tests to get personalized insights."}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                            {profile?.nextSteps?.[0] || "Start with a practice test."}
+                        </p>
+                        <Button variant="link" className="p-0 h-auto mt-4 text-xs" asChild>
+                            <Link href="/ai-analytics">
+                                View Full Analysis <ArrowRight className="ml-1 size-3" />
+                            </Link>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>

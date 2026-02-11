@@ -123,4 +123,24 @@ export class AnalyticsHandler {
             return errorResponse(error.message || 'Failed to generate report');
         }
     }
+
+    @Post('analytics/readiness-profile')
+    @UseGuards(GatewayAuthGuard)
+    async getReadinessProfile(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
+        try {
+            this.logger.log(`📊 Readiness profile request from user ${userId}`);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.analytics.readinessProfile' },
+                    { userId: userId, ...body }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Readiness profile failed for user ${userId}`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch readiness profile');
+        }
+    }
 }

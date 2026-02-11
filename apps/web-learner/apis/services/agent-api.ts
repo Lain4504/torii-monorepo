@@ -167,6 +167,31 @@ export interface ReportResponse {
     generatedAt: string;
 }
 
+export interface ReadinessProfileResponse {
+    userId: string;
+    targetLevel: string;
+    readinessPercentage: number;
+    skillGaps: {
+        vocabulary: number;
+        grammar: number;
+        reading: number;
+        listening: number;
+    };
+    weaknesses: Array<{
+        topic: string;
+        severity: 'low' | 'medium' | 'high';
+        description: string;
+        suggestedReview: string;
+    }>;
+    recommendations: string[];
+    recentPerformance?: {
+        averageScore: number;
+        testsTaken: number;
+        trend: 'improving' | 'stable' | 'declining';
+    };
+    nextSteps: string[];
+}
+
 
 // --- API Client ---
 
@@ -324,6 +349,12 @@ export const agentApi = {
             const response = await apiClient.post<{ success: boolean; data: ReportResponse }>('/api/agents/analytics/report', {
                 reportType,
                 timeframe
+            });
+            return response.data.data;
+        },
+        getReadinessProfile: async (targetLevel: string) => {
+            const response = await apiClient.post<{ success: boolean; data: ReadinessProfileResponse }>('/api/agents/analytics/readiness-profile', {
+                targetLevel
             });
             return response.data.data;
         }

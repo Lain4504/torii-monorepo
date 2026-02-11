@@ -1,30 +1,30 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp, Target, AlertTriangle, FileText, Download, Loader2 } from "lucide-react"
+import { TrendingUp, Target, AlertTriangle, FileText, Download, Loader2, Sparkles } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { ProgressChart } from "./progress-chart"
 import { StudyPath } from "./study-path"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi, ReadinessProfileResponse } from "@/apis/services/agent-api"
 
 export function AnalyticsDashboard() {
     const [progress, setProgress] = React.useState<any>(null)
     const [studyPath, setStudyPath] = React.useState<any>(null)
-    const [weaknesses, setWeaknesses] = React.useState<any>(null)
+    const [profile, setProfile] = React.useState<ReadinessProfileResponse | null>(null)
     const [isLoading, setIsLoading] = React.useState(true)
 
     React.useEffect(() => {
         const fetchData = async () => {
             try {
-                const [progressData, pathData, weakData] = await Promise.all([
+                const [progressData, pathData, profileData] = await Promise.all([
                     agentApi.analytics.trackProgress('month'),
                     agentApi.analytics.suggestStudyPath('N5'), // Default target
-                    agentApi.analytics.identifyWeaknesses()
+                    agentApi.analytics.getReadinessProfile('N5')
                 ])
                 setProgress(progressData)
                 setStudyPath(pathData)
-                setWeaknesses(weakData)
+                setProfile(profileData)
             } catch (error) {
                 console.error("Failed to fetch analytics data", error)
             } finally {
@@ -65,12 +65,12 @@ export function AnalyticsDashboard() {
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Study Streak</CardTitle>
-                        <Target className="size-4 text-primary" />
+                        <CardTitle className="text-sm font-medium">JLPT Readiness</CardTitle>
+                        <Sparkles className="size-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{progress?.metrics?.streak || 0} Days</div>
-                        <p className="text-xs text-muted-foreground">Keep it up!</p>
+                        <div className="text-2xl font-bold">{profile?.readinessPercentage || 0}%</div>
+                        <p className="text-xs text-muted-foreground">Target: {profile?.targetLevel || "N5"}</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -79,7 +79,7 @@ export function AnalyticsDashboard() {
                         <AlertTriangle className="size-4 text-yellow-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{weaknesses?.weaknesses?.length || 0} Topics</div>
+                        <div className="text-2xl font-bold">{profile?.weaknesses?.length || 0} Topics</div>
                         <p className="text-xs text-muted-foreground">Requires review</p>
                     </CardContent>
                 </Card>
@@ -102,21 +102,32 @@ export function AnalyticsDashboard() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Focus Areas</CardTitle>
-                            <CardDescription>Topics identified as weaknesses by AI</CardDescription>
+                            <CardTitle>Weaknesses & Focus Areas</CardTitle>
+                            <CardDescription>Knowledge gaps identified from your performance</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {weaknesses?.weaknesses?.map((weakness: any, i: number) => (
+                                {profile?.weaknesses?.map((weakness: any, i: number) => (
                                     <div key={i} className="flex items-center justify-between p-4 border rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800">
                                         <div className="space-y-1">
-                                            <h4 className="font-semibold text-orange-700 dark:text-orange-400">{weakness.topic}</h4>
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-semibold text-orange-700 dark:text-orange-400">{weakness.topic}</h4>
+                                                <span className={cn(
+                                                    "px-1.5 py-0.5 rounded text-[10px] font-bold uppercase",
+                                                    weakness.severity === 'high' ? "bg-red-100 text-red-700" :
+                                                        weakness.severity === 'medium' ? "bg-orange-100 text-orange-700" :
+                                                            "bg-yellow-100 text-yellow-700"
+                                                )}>
+                                                    {weakness.severity}
+                                                </span>
+                                            </div>
                                             <p className="text-sm text-orange-600/80 dark:text-orange-400/70">{weakness.description}</p>
+                                            <p className="text-xs font-medium text-orange-800/60 dark:text-orange-300/60 italic">Gợi ý: {weakness.suggestedReview}</p>
                                         </div>
                                         <Button size="sm" variant="secondary" className="bg-orange-100 hover:bg-orange-200 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">Review</Button>
                                     </div>
                                 ))}
-                                {(!weaknesses?.weaknesses || weaknesses.weaknesses.length === 0) && (
+                                {(!profile?.weaknesses || profile.weaknesses.length === 0) && (
                                     <p className="text-center text-muted-foreground py-4">No significant weaknesses detected. Great job!</p>
                                 )}
                             </div>

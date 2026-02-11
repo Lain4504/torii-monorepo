@@ -101,16 +101,17 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 ## G. Analytics dashboard & UI
 
 - **G1 – Chuẩn hoá dashboard readiness/profile**  
-  - Trạng thái: TODO  
-  - Việc cần làm:
-    - Cập nhật `/assessment` và `/ai-analytics` dùng API readiness/profile thống nhất.  
-    - Gắn rõ `targetLevel` theo user/course thay vì hardcode `"N5"`.
+  - Trạng thái: DONE
+  - Ghi chú:
+    - Đã tạo API `readiness-profile` thống nhất thay thế combo benchmark/readiness/weaknesses.
+    - Tích hợp vào `/assessment` và `/ai-analytics` dashboards.
+    - Sử dụng `targetLevel` linh hoạt thay vì hardcode.
 
 - **G2 – Dọn API/UI legacy/auxiliary**  
-  - Trạng thái: TODO  
-  - Việc cần làm:
-    - Rà soát và ẩn các nút/luồng UI gọi API được đánh dấu legacy trong `FEATURES.md` (scheduleTest, predictReadiness riêng lẻ, PlacementTestWizard…).  
-    - Cập nhật docs nội bộ cho frontend/backend về API nào coi là chuẩn (stable).
+  - Trạng thái: DONE
+  - Ghi chú:
+    - Đã xoá `PlacementTestWizard` legacy, redirect về luồng `/assessment/placement` chuẩn.
+    - Ẩn các card/nút tính năng chưa dùng (schedule test) trên dashboard.
 
 ---
 

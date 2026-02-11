@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
+import { AgentReadinessProfileResponseSchema } from '@workspace/schemas';
 
 @Injectable()
 export class AnalyticsService implements OnModuleInit {
@@ -98,6 +99,22 @@ export class AnalyticsService implements OnModuleInit {
                 return this.fastMcpService.cleanJsonResponse(response);
             }
         );
+
+        // 6. Readiness Profile (Unified)
+        this.fastMcpService.addTool(
+            'analytics_get_readiness_profile',
+            'Get a comprehensive readiness profile and benchmark',
+            z.object({
+                userId: z.string(),
+                targetLevel: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
+            }),
+            async ({ userId, targetLevel }) => {
+                const template = this.fastMcpService.loadPromptTemplate('analytics/readiness-profile.md');
+                const userContext = await this.fastMcpService.getUserContext(userId);
+                const prompt = template({ userId, targetLevel, userContext, timestamp: new Date().toISOString() });
+                return this.fastMcpService.callGeminiWithSchema(prompt, AgentReadinessProfileResponseSchema);
+            }
+        );
     }
 
     // --- Public Methods (Delegate to Tools) ---
@@ -128,5 +145,9 @@ export class AnalyticsService implements OnModuleInit {
         timeframe: string = 'month',
     ): Promise<any> {
         return this.fastMcpService.callTool('analytics_generate_report', { userId, reportType, timeframe });
+    }
+
+    async getReadinessProfile(userId: string, targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'): Promise<any> {
+        return this.fastMcpService.callTool('analytics_get_readiness_profile', { userId, targetLevel });
     }
 }
