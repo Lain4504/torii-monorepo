@@ -52,7 +52,7 @@ export const assignmentSchema = z.object({
   instructions: z.string().optional(),
   attachmentUrls: z.array(z.string()),
   createdBy: z.string().uuid(),
-  status: z.nativeEnum(AssignmentStatus), 
+  status: z.nativeEnum(AssignmentStatus),
   publishedAt: z.date().optional().nullable(),
 
   createdAt: z.date(),
@@ -60,6 +60,21 @@ export const assignmentSchema = z.object({
 });
 
 export type Assignment = z.infer<typeof assignmentSchema>;
+
+// Grade History Schema (Audit Trail)
+export const gradeHistorySchema = z.object({
+  id: z.string().uuid(),
+  submissionId: z.string().uuid(),
+  oldScore: z.number().optional().nullable(),
+  newScore: z.number(),
+  oldFeedback: z.string().optional().nullable(),
+  newFeedback: z.string().optional().nullable(),
+  changedBy: z.string().uuid(),
+  reason: z.string().optional().nullable(),
+  createdAt: z.date(),
+});
+
+export type GradeHistory = z.infer<typeof gradeHistorySchema>;
 
 // Submission Schema
 export const submissionSchema = z.object({
@@ -86,6 +101,7 @@ export const submissionSchema = z.object({
   // History tracking
   attemptNumber: z.number(),
   previousSubmissionId: z.string().uuid().optional(),
+  gradeHistories: z.array(gradeHistorySchema).optional(),
 
   createdAt: z.date(),
   updatedAt: z.date(),
