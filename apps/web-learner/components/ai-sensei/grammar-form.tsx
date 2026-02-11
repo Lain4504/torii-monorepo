@@ -4,12 +4,14 @@ import * as React from "react"
 import { Sparkles, Check, ArrowRight, BookOpen } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { agentApi, GrammarCheckResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentGrammarCheckResponseDTO } from "@workspace/schemas"
+
 
 export function GrammarForm() {
     const [input, setInput] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(false)
-    const [result, setResult] = React.useState<GrammarCheckResponse | null>(null)
+    const [result, setResult] = React.useState<AgentGrammarCheckResponseDTO | null>(null)
 
     const handleCheck = async () => {
         if (!input.trim()) return

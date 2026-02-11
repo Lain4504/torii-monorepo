@@ -11,7 +11,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { agentApi, ResourceRecommendationResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentResourceRecommendationResponseDTO } from "@workspace/schemas"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 
@@ -19,7 +21,7 @@ export function ResourceRecommender() {
     const [topic, setTopic] = React.useState("")
     const [type, setType] = React.useState<string>("all")
     const [isLoading, setIsLoading] = React.useState(false)
-    const [result, setResult] = React.useState<ResourceRecommendationResponse | null>(null)
+    const [result, setResult] = React.useState<AgentResourceRecommendationResponseDTO | null>(null)
 
     const handleSearch = async () => {
         if (!topic.trim()) return

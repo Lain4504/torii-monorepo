@@ -7,7 +7,9 @@ import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { cn } from "@workspace/ui/lib/utils"
-import { agentApi, ChatResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentChatResponseDTO } from "@workspace/schemas"
+
 
 interface Message {
     id: string
@@ -49,7 +51,7 @@ export function ChatInterface() {
                 content: m.content
             }));
 
-            const data: ChatResponse = await agentApi.sensei.chat(userMessage.content, history);
+            const data: AgentChatResponseDTO = await agentApi.sensei.chat(userMessage.content, history);
 
             const response: Message = {
                 id: (Date.now() + 1).toString(),

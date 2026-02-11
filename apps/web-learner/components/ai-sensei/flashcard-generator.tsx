@@ -11,14 +11,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { agentApi, FlashcardResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentFlashcardResponseDTO } from "@workspace/schemas"
+
 import { Card, CardContent } from "@workspace/ui/components/card"
 
 export function FlashcardGenerator() {
     const [topic, setTopic] = React.useState("")
     const [difficulty, setDifficulty] = React.useState<"beginner" | "intermediate" | "advanced">("intermediate")
     const [isLoading, setIsLoading] = React.useState(false)
-    const [result, setResult] = React.useState<FlashcardResponse | null>(null)
+    const [result, setResult] = React.useState<AgentFlashcardResponseDTO | null>(null)
     const [flippedCards, setFlippedCards] = React.useState<Record<number, boolean>>({})
 
     const handleGenerate = async () => {

@@ -6,12 +6,14 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
-import { agentApi, ConversationSimulationResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentConversationSimulationResponseDTO } from "@workspace/schemas"
+
 
 export function RoleplayStudio() {
     const [scenario, setScenario] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(false)
-    const [roleplayData, setRoleplayData] = React.useState<ConversationSimulationResponse | null>(null)
+    const [roleplayData, setRoleplayData] = React.useState<AgentConversationSimulationResponseDTO | null>(null)
     const [isPracticeMode, setIsPracticeMode] = React.useState(false)
 
     const handleGenerate = async () => {

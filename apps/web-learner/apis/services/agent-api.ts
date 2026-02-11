@@ -1,184 +1,43 @@
 import { apiClient } from '../api-client';
-
-// --- Types ---
-
-// Sensei Types
-export interface ChatResponse {
-    message: string;
-    language: string;
-    suggestions: string[];
-}
-
-export interface GrammarCheckResponse {
-    isCorrect: boolean;
-    originalText: string;
-    correctedText: string;
-    errors: Array<{
-        type: string;
-        location: string;
-        issue: string;
-        correction: string;
-        explanation: string;
-    }>;
-    suggestions: string[];
-}
-
-export interface TranslateResponse {
-    originalText: string;
-    translatedText: string;
-    sourceLanguage: string;
-    targetLanguage: string;
-    culturalNotes?: string;
-    alternativeTranslations?: string[];
-}
-
-export interface FlashcardResponse {
-    topic: string;
-    flashcards: Array<{
-        front: string;
-        back: string;
-        reading?: string;
-    }>;
-}
-
-export interface DrillResponse {
-    topic: string;
-    drills: Array<{
-        question: string;
-        options: string[];
-        correctAnswer: string;
-        explanation: string;
-    }>;
-}
-
-export interface ConversationSimulationResponse {
-    scenario: string;
-    conversation: Array<{
-        speaker: string;
-        japanese: string;
-        romaji: string;
-        english: string;
-    }>;
-    vocabulary: string[];
-    grammarPoints: string[];
-}
-
-export interface ResourceRecommendationResponse {
-    topic: string;
-    resources: Array<{
-        title: string;
-        type: string;
-        url: string;
-        description: string;
-    }>;
-}
-
-// Assessment Types
-export interface TestGenerationResponse {
-    testId: string;
-    questions: Array<{
-        id: string;
-        type: string;
-        content: string;
-        options?: string[];
-    }>;
-}
-
-export type PlacementTestResponse = TestGenerationResponse;
-
-export interface TestEvaluationResponse {
-    testId: string;
-    score: number;
-    maxScore: number;
-    feedback: string;
-    details: Array<{
-        questionId: string;
-        isCorrect: boolean;
-        explanation: string;
-    }>;
-}
-
-export interface PlacementEvaluationResponse extends TestEvaluationResponse {
-    suggestedLevel?: string;
-    analysis?: string;
-}
-
-export interface BenchmarkResponse {
-    level: string;
-    readinessPercentage: number; // 0-100
-    recommendations: string[];
-    skillGaps: { vocabulary: number; grammar: number; reading: number; listening: number };
-    nextScheduledTest?: { date: string; type: string };
-    recentPerformance?: { averageScore: number; testsTaken: number; trend: 'improving' | 'stable' | 'declining' };
-}
-
-// ...
-
-export interface ProgressTrackResponse {
-    timeframe: string;
-    metrics: {
-        completedLessons: number;
-        averageScore: number;
-        studyHours: number;
-        streak?: number;
-    };
-    chartData: Array<{ date: string; score: number; lessons: number }>;
-}
-
-export interface StudyPathResponse {
-    targetLevel: string;
-    studyPathRecommendation: {
-        roadmap: Array<{
-            title: string;
-            status: 'completed' | 'in-progress' | 'locked';
-            description: string;
-        }>;
-        estimatedWeeks: number;
-        focusAreas: string[];
-    };
-}
-
-export interface WeaknessResponse {
-    weaknesses: Array<{
-        topic: string;
-        severity: 'low' | 'medium' | 'high';
-        description: string;
-        suggestedReview: string;
-    }>;
-}
-
-export interface ReadinessResponse {
-    targetLevel: string;
-    probability: number;
-    warnings: string[];
-}
-
-export interface ReportResponse {
-    reportType: string;
-    content: string; // Markdown or detailed object
-    generatedAt: string;
-}
-
+import type {
+    AgentChatResponseDTO,
+    AgentGrammarCheckResponseDTO,
+    AgentTranslateResponseDTO,
+    AgentFlashcardResponseDTO,
+    AgentDrillResponseDTO,
+    AgentConversationSimulationResponseDTO,
+    AgentResourceRecommendationResponseDTO,
+    AgentTestGenerationResponseDTO,
+    AgentTestEvaluationResponseDTO,
+    AgentPlacementTestResponseDTO,
+    AgentPlacementEvaluationResponseDTO,
+    AgentBenchmarkResponseDTO,
+    AgentProgressTrackResponseDTO,
+    AgentStudyPathResponseDTO,
+    AgentWeaknessResponseDTO,
+    AgentReadinessResponseDTO,
+    AgentReportResponseDTO
+} from '@workspace/schemas';
 
 // --- API Client ---
 
 export const agentApi = {
     sensei: {
         chat: async (message: string, history: any[] = []) => {
-            const response = await apiClient.post<{ success: boolean; data: ChatResponse }>('/api/agents/chat', {
+            const response = await apiClient.post<{ success: boolean; data: AgentChatResponseDTO }>('/api/agents/chat', {
                 message,
                 history
             });
             return response.data.data;
         },
         checkGrammar: async (text: string) => {
-            const response = await apiClient.post<{ success: boolean; data: GrammarCheckResponse }>('/api/agents/grammar-check', {
+            const response = await apiClient.post<{ success: boolean; data: AgentGrammarCheckResponseDTO }>('/api/agents/grammar-check', {
                 text
             });
             return response.data.data;
         },
         translate: async (text: string, sourceLanguage: string, targetLanguage: string) => {
-            const response = await apiClient.post<{ success: boolean; data: TranslateResponse }>('/api/agents/translate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentTranslateResponseDTO }>('/api/agents/translate', {
                 text,
                 sourceLanguage,
                 targetLanguage
@@ -186,7 +45,7 @@ export const agentApi = {
             return response.data.data;
         },
         createFlashcard: async (topic: string, difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate') => {
-            const response = await apiClient.post<{ success: boolean; data: FlashcardResponse }>('/api/agents/flashcard', {
+            const response = await apiClient.post<{ success: boolean; data: AgentFlashcardResponseDTO }>('/api/agents/flashcard', {
                 topic,
                 difficulty
             });
@@ -198,7 +57,7 @@ export const agentApi = {
             difficulty: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
             count: number = 5
         ) => {
-            const response = await apiClient.post<{ success: boolean; data: DrillResponse }>('/api/agents/drill/generate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentDrillResponseDTO }>('/api/agents/drill/generate', {
                 type,
                 topic,
                 difficulty,
@@ -211,7 +70,7 @@ export const agentApi = {
             difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
             turns: number = 4
         ) => {
-            const response = await apiClient.post<{ success: boolean; data: ConversationSimulationResponse }>('/api/agents/conversation/simulate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentConversationSimulationResponseDTO }>('/api/agents/conversation/simulate', {
                 scenario,
                 difficulty,
                 turns
@@ -219,16 +78,17 @@ export const agentApi = {
             return response.data.data;
         },
         recommendResources: async (topic: string, resourceType: string = 'all') => {
-            const response = await apiClient.post<{ success: boolean; data: ResourceRecommendationResponse }>('/api/agents/resources/recommend', {
+            const response = await apiClient.post<{ success: boolean; data: AgentResourceRecommendationResponseDTO }>('/api/agents/resources/recommend', {
                 topic,
                 resourceType
             });
             return response.data.data;
-        }
+        },
+        // Additional methods would be added here
     },
     assessment: {
         generateTest: async (level: string, section: string, questionCount: number = 10) => {
-            const response = await apiClient.post<{ success: boolean; data: TestGenerationResponse }>('/api/agents/test/generate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO }>('/api/agents/test/generate', {
                 level,
                 section,
                 questionCount
@@ -236,14 +96,14 @@ export const agentApi = {
             return response.data.data;
         },
         evaluateTest: async (testId: string, answers: any[]) => {
-            const response = await apiClient.post<{ success: boolean; data: TestEvaluationResponse }>('/api/agents/test/evaluate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestEvaluationResponseDTO }>('/api/agents/test/evaluate', {
                 testId,
                 answers
             });
             return response.data.data;
         },
         getBenchmark: async (targetLevel: string) => {
-            const response = await apiClient.post<{ success: boolean; data: BenchmarkResponse }>('/api/agents/assessment/benchmark', {
+            const response = await apiClient.post<{ success: boolean; data: AgentBenchmarkResponseDTO }>('/api/agents/assessment/benchmark', {
                 targetLevel
             });
             return response.data.data;
@@ -255,13 +115,13 @@ export const agentApi = {
             return response.data.data;
         },
         generatePlacementTest: async (questionCount: number = 15) => {
-            const response = await apiClient.post<{ success: boolean; data: PlacementTestResponse }>('/api/agents/placement/test', {
+            const response = await apiClient.post<{ success: boolean; data: AgentPlacementTestResponseDTO }>('/api/agents/placement/test', {
                 questionCount
             });
             return response.data.data;
         },
         evaluatePlacementTest: async (testId: string, userAnswers: any) => {
-            const response = await apiClient.post<{ success: boolean; data: PlacementEvaluationResponse }>('/api/agents/placement/evaluate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentPlacementEvaluationResponseDTO }>('/api/agents/placement/evaluate', {
                 testId,
                 userAnswers
             });
@@ -270,29 +130,29 @@ export const agentApi = {
     },
     analytics: {
         trackProgress: async (timeframe: string = 'month') => {
-            const response = await apiClient.post<{ success: boolean; data: ProgressTrackResponse }>('/api/agents/progress/track', {
+            const response = await apiClient.post<{ success: boolean; data: AgentProgressTrackResponseDTO }>('/api/agents/progress/track', {
                 timeframe
             });
             return response.data.data;
         },
         suggestStudyPath: async (targetLevel: string) => {
-            const response = await apiClient.post<{ success: boolean; data: StudyPathResponse }>('/api/agents/path/suggest', {
+            const response = await apiClient.post<{ success: boolean; data: AgentStudyPathResponseDTO }>('/api/agents/path/suggest', {
                 targetLevel
             });
             return response.data.data;
         },
         identifyWeaknesses: async () => {
-            const response = await apiClient.post<{ success: boolean; data: WeaknessResponse }>('/api/agents/analytics/weaknesses', {});
+            const response = await apiClient.post<{ success: boolean; data: AgentWeaknessResponseDTO }>('/api/agents/analytics/weaknesses', {});
             return response.data.data;
         },
         predictReadiness: async (targetLevel: string) => {
-            const response = await apiClient.post<{ success: boolean; data: ReadinessResponse }>('/api/agents/analytics/readiness', {
+            const response = await apiClient.post<{ success: boolean; data: AgentReadinessResponseDTO }>('/api/agents/analytics/readiness', {
                 targetLevel
             });
             return response.data.data;
         },
         generateReport: async (reportType: string = 'comprehensive', timeframe: string = 'month') => {
-            const response = await apiClient.post<{ success: boolean; data: ReportResponse }>('/api/agents/analytics/report', {
+            const response = await apiClient.post<{ success: boolean; data: AgentReportResponseDTO }>('/api/agents/analytics/report', {
                 reportType,
                 timeframe
             });

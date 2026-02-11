@@ -7,11 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@work
 import { ProgressChart } from "./progress-chart"
 import { StudyPath } from "./study-path"
 import { agentApi } from "@/apis/services/agent-api"
+import type { AgentProgressTrackResponseDTO, AgentStudyPathResponseDTO, AgentWeaknessResponseDTO } from "@workspace/schemas"
+
 
 export function AnalyticsDashboard() {
-    const [progress, setProgress] = React.useState<any>(null)
-    const [studyPath, setStudyPath] = React.useState<any>(null)
-    const [weaknesses, setWeaknesses] = React.useState<any>(null)
+    const [progress, setProgress] = React.useState<AgentProgressTrackResponseDTO | null>(null)
+    const [studyPath, setStudyPath] = React.useState<AgentStudyPathResponseDTO | null>(null)
+    const [weaknesses, setWeaknesses] = React.useState<AgentWeaknessResponseDTO | null>(null)
     const [isLoading, setIsLoading] = React.useState(true)
 
     React.useEffect(() => {

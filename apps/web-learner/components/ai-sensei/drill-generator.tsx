@@ -11,7 +11,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { agentApi, DrillResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentDrillResponseDTO } from "@workspace/schemas"
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
@@ -22,7 +24,7 @@ export function DrillGenerator() {
     const [difficulty, setDifficulty] = React.useState<"N5" | "N4" | "N3" | "N2" | "N1">("N5")
     const [type, setType] = React.useState<string>("grammar")
     const [isLoading, setIsLoading] = React.useState(false)
-    const [result, setResult] = React.useState<DrillResponse | null>(null)
+    const [result, setResult] = React.useState<AgentDrillResponseDTO | null>(null)
     const [userAnswers, setUserAnswers] = React.useState<Record<number, string>>({})
     const [showResults, setShowResults] = React.useState(false)
 

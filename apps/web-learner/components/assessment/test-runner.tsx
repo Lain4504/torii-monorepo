@@ -7,7 +7,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@workspace/ui/components/select"
-import { agentApi, TestGenerationResponse, TestEvaluationResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentTestGenerationResponseDTO, AgentTestEvaluationResponseDTO } from "@workspace/schemas"
+
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
 
@@ -16,9 +18,9 @@ export function TestRunner() {
     const [level, setLevel] = React.useState<string>("N5")
     const [section, setSection] = React.useState<string>("full")
     const [isLoading, setIsLoading] = React.useState(false)
-    const [testData, setTestData] = React.useState<TestGenerationResponse | null>(null)
+    const [testData, setTestData] = React.useState<AgentTestGenerationResponseDTO | null>(null)
     const [answers, setAnswers] = React.useState<Record<string, string>>({})
-    const [evaluation, setEvaluation] = React.useState<TestEvaluationResponse | null>(null)
+    const [evaluation, setEvaluation] = React.useState<AgentTestEvaluationResponseDTO | null>(null)
 
     // Generate Test
     const handleStart = async () => {

@@ -6,10 +6,12 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@workspace/ui/components/card"
 import { Progress } from "@workspace/ui/components/progress"
 import Link from "next/link"
-import { agentApi, BenchmarkResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentBenchmarkResponseDTO } from "@workspace/schemas"
+
 
 export function AssessmentDashboard() {
-    const [benchmark, setBenchmark] = React.useState<BenchmarkResponse | null>(null)
+    const [benchmark, setBenchmark] = React.useState<AgentBenchmarkResponseDTO | null>(null)
     const [isLoading, setIsLoading] = React.useState(false)
 
     React.useEffect(() => {

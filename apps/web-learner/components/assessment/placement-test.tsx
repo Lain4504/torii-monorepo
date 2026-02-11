@@ -6,16 +6,18 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
-import { agentApi, PlacementTestResponse, PlacementEvaluationResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentPlacementTestResponseDTO, AgentPlacementEvaluationResponseDTO } from "@workspace/schemas"
+
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
 
 export function PlacementTest() {
     const [step, setStep] = React.useState<"intro" | "test" | "result">("intro")
     const [isLoading, setIsLoading] = React.useState(false)
-    const [testData, setTestData] = React.useState<PlacementTestResponse | null>(null)
+    const [testData, setTestData] = React.useState<AgentPlacementTestResponseDTO | null>(null)
     const [answers, setAnswers] = React.useState<Record<string, string>>({})
-    const [result, setResult] = React.useState<PlacementEvaluationResponse | null>(null)
+    const [result, setResult] = React.useState<AgentPlacementEvaluationResponseDTO | null>(null)
 
     const handleStart = async () => {
         setIsLoading(true)

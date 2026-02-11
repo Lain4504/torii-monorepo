@@ -4,7 +4,9 @@ import * as React from "react"
 import { Languages, ArrowRightLeft, Loader2, Copy, Sparkles, MoveRight } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { agentApi, TranslateResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import type { AgentTranslateResponseDTO } from "@workspace/schemas"
+
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 
@@ -13,7 +15,7 @@ export function TranslatorView() {
     const [sourceLang, setSourceLang] = React.useState("Japanese")
     const [targetLang, setTargetLang] = React.useState("English")
     const [input, setInput] = React.useState("")
-    const [result, setResult] = React.useState<TranslateResponse | null>(null)
+    const [result, setResult] = React.useState<AgentTranslateResponseDTO | null>(null)
     const [isLoading, setIsLoading] = React.useState(false)
 
     const languages = [
