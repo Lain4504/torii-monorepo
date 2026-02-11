@@ -35,6 +35,9 @@
       "@server/gamification/*": [
         "./modules/gamification/src/*"
       ],
+      "@server/agents/*": [
+        "./modules/agents/src/*"
+      ],
       "@prisma/generated": [
         "./generated/prisma/client"
       ],

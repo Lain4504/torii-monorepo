@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { FastMcpModule } from '../../fastmcp/fastmcp.module';
+import { FastMcpModule } from '@server/agents/fastmcp/fastmcp.module';
 import { AnalyticsService } from './analytics.service';
+
 
 @Module({
     imports: [FastMcpModule],

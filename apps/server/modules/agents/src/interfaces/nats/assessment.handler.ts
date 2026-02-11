@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AssessmentService } from '../../modules/assessment/assessment.service';
+import { AssessmentService } from '@server/agents/modules';
+
 
 /**
  * NATS Handler for Assessment Agent
