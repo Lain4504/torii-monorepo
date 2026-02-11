@@ -48,8 +48,16 @@ export class EmailService {
                     await this.sendPasswordResetEmail(to, data);
                     break;
 
+                case 'password_reset_confirmation':
+                    await this.sendPasswordResetConfirmationEmail(to, data);
+                    break;
+
                 case 'otp':
                     await this.sendOtpEmail(to, data);
+                    break;
+
+                case '2fa_code':
+                    await this.send2FACodeEmail(to, data);
                     break;
 
                 case 'welcome':
@@ -180,5 +188,36 @@ export class EmailService {
 
         this.logger.log(`Invite email sent to: ${to}`);
     }
+
+    /**
+     * Send 2FA code email
+     */
+    private async send2FACodeEmail(to: string | string[], data: any): Promise<void> {
+        const html = this.render('2fa-code', data);
+
+        await this.sharedEmailService.sendMail({
+            to,
+            subject: 'Mã xác thực 2FA - Torii Nihongo',
+            html,
+        });
+
+        this.logger.log(`2FA code email sent to: ${to}`);
+    }
+
+    /**
+     * Send password reset confirmation email
+     */
+    private async sendPasswordResetConfirmationEmail(to: string | string[], data: any): Promise<void> {
+        const html = this.render('password-reset-confirmation', data);
+
+        await this.sharedEmailService.sendMail({
+            to,
+            subject: 'Mật khẩu đã được đặt lại thành công - Torii Nihongo',
+            html,
+        });
+
+        this.logger.log(`Password reset confirmation email sent to: ${to}`);
+    }
 }
+
 

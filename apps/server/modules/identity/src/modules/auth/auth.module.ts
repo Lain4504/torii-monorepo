@@ -7,7 +7,6 @@ import { UserIdentityRepository } from './user-identity.repository';
 import { AuthorizationModule } from '../authorization/authorization.module';
 import { TwoFactorAuthModule } from '../two-factor-auth/two-factor-auth.module';
 import { UsersModule } from '../users/users.module';
-import { EmailModule } from '@server/identity/infrastructure/email/email.module';
 import {
     AUTH_SERVICE_TOKEN,
     SESSION_SERVICE_TOKEN,
@@ -28,7 +27,6 @@ import {
         AuthorizationModule,
         TwoFactorAuthModule,
         UsersModule,
-        EmailModule,
     ],
     providers: [
         {
