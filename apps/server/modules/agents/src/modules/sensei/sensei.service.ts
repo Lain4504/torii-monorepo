@@ -1,6 +1,15 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
+import {
+    AgentGrammarCheckResponseSchema,
+    AgentTranslateResponseSchema,
+    AgentFlashcardResponseSchema,
+    AgentDrillResponseSchema,
+    AgentConversationSimulationResponseSchema,
+    AgentResourceRecommendationResponseSchema,
+    AgentChatResponseSchema,
+} from '@workspace/schemas';
 
 @Injectable()
 export class SenseiService implements OnModuleInit {
@@ -25,8 +34,11 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/grammar-check.md');
                 const prompt = template({ text, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentGrammarCheckResponseSchema,
+                    { maxRetries: 1 },
+                );
             }
         );
 
@@ -44,8 +56,11 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/translation.md');
                 const prompt = template({ text, sourceLanguage, targetLanguage, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentTranslateResponseSchema,
+                    { maxRetries: 1 },
+                );
             }
         );
 
@@ -62,8 +77,11 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/flashcard-creation.md');
                 const prompt = template({ topic, difficulty, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentFlashcardResponseSchema,
+                    { maxRetries: 1 },
+                );
             }
         );
 
@@ -82,8 +100,11 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/practice-drill.md');
                 const prompt = template({ type, topic, difficulty, count, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentDrillResponseSchema,
+                    { maxRetries: 1 },
+                );
             }
         );
 
@@ -101,8 +122,11 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/conversation-simulation.md');
                 const prompt = template({ scenario, difficulty, turns, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentConversationSimulationResponseSchema,
+                    { maxRetries: 1 },
+                );
             }
         );
 
@@ -119,8 +143,11 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/resource-recommendation.md');
                 const prompt = template({ topic, resourceType, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentResourceRecommendationResponseSchema,
+                    { maxRetries: 1 },
+                );
             }
         );
 
@@ -137,8 +164,11 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/chat.md');
                 const prompt = template({ message, history, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentChatResponseSchema,
+                    { maxRetries: 1 },
+                );
             }
         );
 

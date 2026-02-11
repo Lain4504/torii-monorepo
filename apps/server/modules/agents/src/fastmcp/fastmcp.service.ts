@@ -162,6 +162,45 @@ export class FastMcpService {
     }
   }
 
+  /**
+   * Call Gemini and validate the parsed JSON output against a Zod schema.
+   * - Sử dụng cleanJsonResponse để trích JSON từ nội dung trả về.
+   * - Validate bằng Zod; nếu fail thì log warn và (tuỳ chọn) retry một lần nữa.
+   */
+  public async callGeminiWithSchema<T>(
+    prompt: string,
+    schema: z.ZodSchema<T>,
+    options?: { maxRetries?: number },
+  ): Promise<T> {
+    const maxRetries = options?.maxRetries ?? 1;
+    let lastError: unknown = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const raw = await this.callGemini(prompt);
+      const json = this.cleanJsonResponse(raw);
+
+      try {
+        const parsed = schema.parse(json);
+        return parsed;
+      } catch (err) {
+        lastError = err;
+        this.logger.warn(
+          `AI output validation failed (attempt ${attempt + 1}/${maxRetries + 1}): ${(err as Error).message}`,
+        );
+
+        if (attempt === maxRetries) {
+          // Ném lỗi cuối cùng kèm theo raw để phía trên có thể quyết định fallback.
+          throw new Error(
+            `AI output schema validation failed after ${maxRetries + 1} attempts`,
+          );
+        }
+      }
+    }
+
+    // theoretically unreachable
+    throw lastError as Error;
+  }
+
   public async getUserContext(userId: string): Promise<ToolContext> {
     try {
       const enrollments = await this.prisma.enrollment.findMany({

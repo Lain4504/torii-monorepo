@@ -142,6 +142,24 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 - **I2 – Tăng cường validation output AI**  
   - Trạng thái: TODO  
   - Việc cần làm:
-    - Áp dụng Zod schema cho mọi tool output, xử lý fallback khi `cleanJsonResponse` parse lỗi.  
+    - Áp dụng Zod schema cho mọi tool output, xử lý fallback khi `cleanJsovNnResponse` parse lỗi.  
     - Thiết kế error contract rõ ràng cho frontend (ví dụ: `aiParseError` vs `upstreamError`).
+
+- **I3 – Structured Output & Retry Loop (New)**
+  - Trạng thái: TODO
+  - Việc cần làm:
+    - Cấu hình Gemini Response Schema / Zod validation layer trong `FastMcpService`.
+    - Implement cơ chế feedback loop: nếu parse lỗi, gửi error message lại cho AI để sửa (max retries = 1-2).
+
+- **H3 – Caching & Internal Resources (New)**
+  - Trạng thái: TODO
+  - Việc cần làm:
+    - Redis Cache cho `getUserContext`: Cache user profile/level/history (TTL 5-10 phút).
+    - Resource Abstraction: Tạo khái niệm internal resource (ví dụ `jlpt_syllabus`) để load dữ liệu tĩnh từ DB vào context thay vì để AI tự nhớ.
+
+- **D1+ – Hybrid Search cho Resource Recommendation (New)**
+  - Trạng thái: TODO
+  - Việc cần làm:
+    - Kết hợp tìm kiếm DB (Postgres/Elastic) để lấy danh sách bài học/quiz phù hợp level.
+    - AI chỉ đóng vai trò rank/filter và viết lời giới thiệu (narrative) từ kết quả DB.
 
