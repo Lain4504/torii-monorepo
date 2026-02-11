@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { SenseiService } from '../../modules/sensei/sensei.service';
+import { SenseiService } from '@server/agents/modules';
+
 
 /**
  * NATS Handler for Sensei Agent
