@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { Ticket, TicketQueryDTO, CreateTicketDTO, TicketStatus } from '@workspace/schemas';
-import { ITicketRepository } from '../../interfaces/repositories';
+import { ITicketRepository } from '@server/communication/interfaces/repositories';
 
 @Injectable()
 export class TicketRepository implements ITicketRepository {

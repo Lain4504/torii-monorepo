@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { EmailService } from '../../modules/email/email.service';
-import type { SendEmailEvent } from '../../infrastructure/events/email.event';
+import { EmailService } from '@server/communication/modules/email/email.service';
+import type { SendEmailEvent } from '@server/communication/infrastructure/events/email.event';
 
 /**
  * Email NATS Message Handler

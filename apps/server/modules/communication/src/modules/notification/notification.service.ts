@@ -8,9 +8,9 @@ import {
   NotificationUnreadCountResponseDTO,
   PaginatedResponseDTO,
 } from '@workspace/schemas';
-import type { INotificationService } from '../../interfaces/services';
-import type { INotificationRepository } from '../../interfaces/repositories';
-import { NOTIFICATION_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { INotificationService } from '@server/communication/interfaces/services';
+import type { INotificationRepository } from '@server/communication/interfaces/repositories';
+import { NOTIFICATION_REPOSITORY_TOKEN } from '@server/communication/interfaces/repositories';
 
 @Injectable()
 export class NotificationService implements INotificationService {

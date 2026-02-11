@@ -78,6 +78,19 @@ export const AgentChatResponseSchema = z.object({
     message: z.string(),
     language: z.string(),
     suggestions: z.array(z.string()),
+    action: z.object({
+        type: z.enum([
+            'grammar_check',
+            'translate',
+            'generate_drill',
+            'create_flashcard',
+            'recommend_resources',
+            'simulate_conversation',
+            'test_generation',
+            'placement_test'
+        ]),
+        payload: z.any()
+    }).optional()
 });
 
 export const AgentReadinessProfileResponseSchema = z.object({

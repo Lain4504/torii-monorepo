@@ -1,8 +1,8 @@
 import { Controller, Inject, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { INotificationService } from '../../interfaces/services';
-import { NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
-import type { NotificationEventData } from '../../interfaces/events';
+import type { INotificationService } from '@server/communication/interfaces/services';
+import { NOTIFICATION_SERVICE_TOKEN } from '@server/communication/interfaces/services';
+import type { NotificationEventData } from '@server/communication/interfaces/events';
 
 /**
  * Notification NATS Message Handler

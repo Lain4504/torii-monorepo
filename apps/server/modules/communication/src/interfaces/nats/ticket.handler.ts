@@ -1,8 +1,8 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { TICKET_SERVICE_TOKEN } from '../../interfaces/services';
-import { ITicketService } from '../../interfaces/services';
-import { CreateTicketDTO, TicketQueryDTO, UpdateTicketStatusDTO } from '@workspace/schemas';
+import { TICKET_SERVICE_TOKEN } from '@server/communication/interfaces/services';
+import { ITicketService } from '@server/communication/interfaces/services';
+import { CreateTicketDTO, TicketQueryDTO, UpdateTicketStatusDTO, TicketStatus } from '@workspace/schemas';
 
 @Controller()
 export class TicketHandler {

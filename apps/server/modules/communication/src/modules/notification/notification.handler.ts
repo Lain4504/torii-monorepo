@@ -1,12 +1,12 @@
 import { Controller, Logger, Inject } from '@nestjs/common';
 import { EventPattern, Payload, ClientProxy } from '@nestjs/microservices';
 import { NotificationType } from '@workspace/schemas';
-import type { SendNotificationEvent } from '../../infrastructure/events/notification.event';
-import type { OrderPaymentSuccessEvent, OrderStatusChangedEvent } from '../../infrastructure/events/order.event';
-import type { CourseEnrollmentSuccessEvent, CourseGiftReceivedEvent } from '../../infrastructure/events/enrollment.event';
+import type { SendNotificationEvent } from '@server/communication/infrastructure/events/notification.event';
+import type { OrderPaymentSuccessEvent, OrderStatusChangedEvent } from '@server/communication/infrastructure/events/order.event';
+import type { CourseEnrollmentSuccessEvent, CourseGiftReceivedEvent } from '@server/communication/infrastructure/events/enrollment.event';
 
-import { NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
-import type { INotificationService } from '../../interfaces/services';
+import { NOTIFICATION_SERVICE_TOKEN } from '@server/communication/interfaces/services';
+import type { INotificationService } from '@server/communication/interfaces/services';
 import { AppConfigService } from '@server/shared';
 
 /**

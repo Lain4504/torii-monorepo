@@ -25,10 +25,12 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 ## B. Test, question bank, placement
 
 - **B1 – Thiết kế & sử dụng question bank JLPT**  
-  - Trạng thái: TODO  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Thiết kế schema DB cho question bank JLPT (level, section, answers, explanations, tags).
-    - Cập nhật `generateTest` / `placementTest` để lấy câu hỏi từ bank + optional AI cho authoring, không sinh full đề 100% từ model.
+    - [x] Sử dụng schema DB cho question bank JLPT (level, category, options, correctAnswer...).
+    - [x] Cập nhật `generateTest` / `placementTest` để ưu tiên lấy câu hỏi từ Prisma DB.
+    - [x] Tăng `usageCount` để phân bổ đề thi đồng đều, tránh trùng lặp.
+    - [x] Fallback sang AI authoring khi DB không đủ câu hỏi.
 
 - **B2 – Làm giàu User Context (History, Errors, Vocabulary)**  
   - Trạng thái: DONE  
@@ -50,10 +52,11 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
     - Điều chỉnh prompt roleplay để đảm bảo output có Japanese + romaji + (vi/en) rõ ràng.
 
 - **C2 – Thiết kế mô hình “Sensei Chat + internal tools”**  
-  - Trạng thái: TODO  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Định nghĩa cơ chế tool-calling nội bộ trong `sensei.chat` (grammar, translate, drill, flashcard, resources, conversation).
-    - Quyết định giữ hay gom bớt các endpoint riêng (`/grammar-check`, `/translate`, ...) làm shortcut map về cùng luồng chat.
+    - [x] Cập nhật `AgentChatResponseSchema` để hỗ trợ field `action`.
+    - [x] Cập nhật prompt `sensei/chat.md` để AI biết cách trigger action khi người dùng yêu cầu bài tập/kiểm tra.
+    - [ ] Quyết định giữ hay gom bớt các endpoint riêng (`/grammar-check`, `/translate`, ...) làm shortcut map về cùng luồng chat.
 
 ---
 
