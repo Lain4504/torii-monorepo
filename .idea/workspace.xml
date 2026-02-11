@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: implement AppConfigService for centralized configuration management across services">
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/FEATURES.md" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/FEATURES.md" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="docs: update FEATURES.md to detail Agents Service architecture and user flows">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,52 +52,59 @@
     &quot;state&quot;: &quot;OPEN&quot;
   }
 }</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: [
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66sc24&quot;,
-        &quot;number&quot;: 35
+      "id": {
+        "id": "PR_kwDOQmD9iM66sc24",
+        "number": 35
       },
-      &quot;lastSeen&quot;: 1766837511440
+      "lastSeen": 1766837511440
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66twAD&quot;,
-        &quot;number&quot;: 38
+      "id": {
+        "id": "PR_kwDOQmD9iM66twAD",
+        "number": 38
       },
-      &quot;lastSeen&quot;: 1766885614934
+      "lastSeen": 1766885614934
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66oPXy&quot;,
-        &quot;number&quot;: 31
+      "id": {
+        "id": "PR_kwDOQmD9iM66oPXy",
+        "number": 31
       },
-      &quot;lastSeen&quot;: 1766974161892
+      "lastSeen": 1766974161892
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM67ZerY&quot;,
-        &quot;number&quot;: 48
+      "id": {
+        "id": "PR_kwDOQmD9iM67ZerY",
+        "number": 48
       },
-      &quot;lastSeen&quot;: 1767495744090
+      "lastSeen": 1767495744090
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AaErH&quot;,
-        &quot;number&quot;: 113
+      "id": {
+        "id": "PR_kwDOQmD9iM7AaErH",
+        "number": 113
       },
-      &quot;lastSeen&quot;: 1769855142628
+      "lastSeen": 1769855142628
     },
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AuiQ2&quot;,
-        &quot;number&quot;: 121
+      "id": {
+        "id": "PR_kwDOQmD9iM7AuiQ2",
+        "number": 121
       },
-      &quot;lastSeen&quot;: 1770017085445
+      "lastSeen": 1770017085445
+    },
+    {
+      "id": {
+        "id": "PR_kwDOQmD9iM7C-TdR",
+        "number": 187
+      },
+      "lastSeen": 1770817417849
     }
   ]
-}</component>
+}]]></component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
@@ -375,14 +382,6 @@
       <workItem from="1770522195985" duration="5000" />
       <workItem from="1770522531811" duration="63000" />
       <workItem from="1770522694227" duration="28000" />
-    </task>
-    <task id="LOCAL-00777" summary="update nats logic">
-      <option name="closed" value="true" />
-      <created>1769999743535</created>
-      <option name="number" value="00777" />
-      <option name="presentableId" value="LOCAL-00777" />
-      <option name="project" value="LOCAL" />
-      <updated>1769999743535</updated>
     </task>
     <task id="LOCAL-00778" summary="update nats logic">
       <option name="closed" value="true" />
@@ -768,7 +767,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770211151581</updated>
     </task>
-    <option name="localTasksCounter" value="826" />
+    <task id="LOCAL-00826" summary="docs: update FEATURES.md to detail Agents Service architecture and user flows">
+      <option name="closed" value="true" />
+      <created>1770817607394</created>
+      <option name="number" value="00826" />
+      <option name="presentableId" value="LOCAL-00826" />
+      <option name="project" value="LOCAL" />
+      <updated>1770817607394</updated>
+    </task>
+    <option name="localTasksCounter" value="827" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -785,7 +792,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="agent-refactor" />
                       </list>
                     </value>
                   </entry>
@@ -803,7 +810,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="implement meet UI and logic" />
     <MESSAGE value="remove unused files" />
     <MESSAGE value="merge" />
     <MESSAGE value="feat: add file management functionality to meet module" />
@@ -828,7 +834,8 @@
     <MESSAGE value="refactor: extract LiveKit constants into a separate file for better organization" />
     <MESSAGE value="refactor: enhance LiveKit module by injecting clients for improved configuration management" />
     <MESSAGE value="refactor: implement AppConfigService for centralized configuration management across services" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: implement AppConfigService for centralized configuration management across services" />
+    <MESSAGE value="docs: update FEATURES.md to detail Agents Service architecture and user flows" />
+    <option name="LAST_COMMIT_MESSAGE" value="docs: update FEATURES.md to detail Agents Service architecture and user flows" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
