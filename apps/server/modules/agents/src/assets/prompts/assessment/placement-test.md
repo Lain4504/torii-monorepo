@@ -32,7 +32,7 @@ You MUST respond with valid JSON only.
       "type": "vocabulary",
       "question": "Choose the correct reading for: 猫",
       "options": ["neko", "inu", "tori", "uma"],
-      "correctAnswer": "neko"
+      "correctAnswer": 0
     },
     {
       "id": "q2",
@@ -40,11 +40,18 @@ You MUST respond with valid JSON only.
       "type": "grammar",
       "question": "Fill in the blank: 私は寿司 ___ 好きです。",
       "options": ["が", "を", "に", "で"],
-      "correctAnswer": "が"
+      "correctAnswer": 0
     }
   ],
   "estimatedTimeMinutes": 15
 }
 ```
+
+**Rules:**
+- `correctAnswer` MUST be the index (0-3) of the correct option.
+- Distribute questions across multiple difficulty levels (N5-N1).
+- All questions must be unique.
+- Output ONLY valid JSON.
+
 
 Remember: Output ONLY valid JSON, no other text!

@@ -41,16 +41,50 @@ export class AssessmentService implements OnModuleInit {
                 testId: z.string(),
                 answers: z.array(z.object({
                     questionId: z.string(),
-                    userAnswer: z.string(),
-                    correctAnswer: z.string(),
+                    userAnswer: z.union([z.string(), z.number()]),
+                    correctAnswer: z.union([z.string(), z.number()]),
                 })),
             }),
             async ({ userId, testId, answers }) => {
+                // Determine scores in code (Deterministic)
+                const details = answers.map(ans => ({
+                    questionId: ans.questionId,
+                    isCorrect: String(ans.userAnswer) === String(ans.correctAnswer)
+                }));
+                const score = details.filter(d => d.isCorrect).length;
+                const maxScore = answers.length;
+                const percentage = Math.round((score / maxScore) * 100);
+
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('assessment/test-evaluation.md');
-                const prompt = template({ testId, userAnswers: answers, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+
+                // Call AI for feedback and explanations only
+                const prompt = template({
+                    testId,
+                    userAnswers: answers,
+                    calculatedResult: { score, maxScore, percentage, details },
+                    userContext,
+                    timestamp: new Date().toISOString()
+                });
+
+                const aiResponse = await this.fastMcpService.callGemini(prompt);
+                const aiParsed = this.fastMcpService.cleanJsonResponse(aiResponse);
+
+                // Merge: Code scores + AI explanations
+                return {
+                    testId,
+                    score,
+                    maxScore,
+                    percentage,
+                    feedback: aiParsed.feedback || "",
+                    details: details.map(d => {
+                        const aiDetail = aiParsed.details?.find((ad: any) => ad.questionId === d.questionId);
+                        return {
+                            ...d,
+                            explanation: aiDetail?.explanation || ""
+                        };
+                    })
+                };
             }
         );
 
@@ -78,14 +112,55 @@ export class AssessmentService implements OnModuleInit {
             z.object({
                 userId: z.string(),
                 testId: z.string(),
-                userAnswers: z.any(),
+                userAnswers: z.array(z.object({
+                    questionId: z.string(),
+                    level: z.string(),
+                    userAnswer: z.union([z.string(), z.number()]),
+                    correctAnswer: z.union([z.string(), z.number()]),
+                })),
             }),
             async ({ userId, testId, userAnswers }) => {
+                // Deterministic scoring by level
+                const levels = ['N5', 'N4', 'N3', 'N2', 'N1'];
+                const scoreBreakdown: Record<string, string> = {};
+
+                let totalCorrect = 0;
+                let suggestedLevel = 'N5';
+
+                levels.forEach(level => {
+                    const levelQuestions = userAnswers.filter(q => q.level === level);
+                    if (levelQuestions.length > 0) {
+                        const correct = levelQuestions.filter(q => String(q.userAnswer) === String(q.correctAnswer)).length;
+                        const pct = Math.round((correct / levelQuestions.length) * 100);
+                        scoreBreakdown[level] = `${pct}%`;
+                        totalCorrect += correct;
+
+                        // Simple logic: if pass > 60%, potentially that level
+                        if (pct >= 60) suggestedLevel = level;
+                    }
+                });
+
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('assessment/placement-evaluation.md');
-                const prompt = template({ testId, userAnswers, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+
+                const prompt = template({
+                    testId,
+                    userAnswers,
+                    calculatedResult: { suggestedLevel, scoreBreakdown },
+                    userContext,
+                    timestamp: new Date().toISOString()
+                });
+
+                const aiResponse = await this.fastMcpService.callGemini(prompt);
+                const aiParsed = this.fastMcpService.cleanJsonResponse(aiResponse);
+
+                return {
+                    userId,
+                    assessedLevel: suggestedLevel,
+                    targetLevel: aiParsed.targetLevel || levels[levels.indexOf(suggestedLevel) + 1] || 'N1',
+                    scoreBreakdown,
+                    studyPathRecommendation: aiParsed.studyPathRecommendation || {}
+                };
             }
         );
     }

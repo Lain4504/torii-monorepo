@@ -1,4 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
 import { AgentReadinessProfileResponseSchema } from '@workspace/schemas';
@@ -7,7 +9,10 @@ import { AgentReadinessProfileResponseSchema } from '@workspace/schemas';
 export class AnalyticsService implements OnModuleInit {
     private readonly logger = new Logger(AnalyticsService.name);
 
-    constructor(private readonly fastMcpService: FastMcpService) { }
+    constructor(
+        private readonly fastMcpService: FastMcpService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    ) { }
 
     onModuleInit() {
         this.registerTools();
@@ -76,9 +81,25 @@ export class AnalyticsService implements OnModuleInit {
                 targetLevel: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
             }),
             async ({ userId, targetLevel }) => {
+                // Fetch real metrics from core service via NATS
+                const metrics = await firstValueFrom(
+                    this.natsClient.send({ cmd: 'learning.readinessMetrics' }, { userId })
+                ).catch(err => {
+                    this.logger.warn(`Failed to fetch readiness metrics for user ${userId}: ${err.message}`);
+                    return null;
+                });
+
                 const template = this.fastMcpService.loadPromptTemplate('analytics/readiness-profile.md');
                 const userContext = await this.fastMcpService.getUserContext(userId);
-                const prompt = template({ userId, targetLevel, userContext, timestamp: new Date().toISOString() });
+
+                const prompt = template({
+                    userId,
+                    targetLevel,
+                    metrics,
+                    userContext,
+                    timestamp: new Date().toISOString()
+                });
+
                 return this.fastMcpService.callGeminiWithSchema(prompt, AgentReadinessProfileResponseSchema);
             }
         );

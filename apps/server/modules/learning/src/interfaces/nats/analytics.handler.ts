@@ -61,4 +61,47 @@ export class AnalyticsHandler {
             averageCompletion: Number(completionStats._avg.completionPercentage || 0)
         };
     }
+
+    @MessagePattern({ cmd: 'learning.readinessMetrics' })
+    async getReadinessMetrics({ userId }: { userId: string }) {
+        const [
+            completedLessons,
+            quizStats,
+            examAttempts,
+            gamification
+        ] = await Promise.all([
+            this.prisma.lessonProgress.count({
+                where: {
+                    enrollment: { userId },
+                    status: 'completed'
+                }
+            }),
+            this.prisma.quizAttempt.aggregate({
+                where: { userId, status: 'completed' },
+                _avg: { percentage: true },
+                _count: { _all: true }
+            }),
+            this.prisma.quizAttempt.count({
+                where: {
+                    userId,
+                    quiz: { quizType: { in: ['jlpt_mock', 'exam'] } }
+                }
+            }),
+            this.prisma.userGamification.findUnique({
+                where: { userId },
+                select: { currentStreak: true, totalXp: true, level: true }
+            })
+        ]);
+
+        return {
+            completedLessons,
+            averageScore: Number(quizStats._avg.percentage || 0),
+            attemptedQuizzes: quizStats._count._all,
+            attemptedExams: examAttempts,
+            streak: gamification?.currentStreak || 0,
+            totalXp: gamification?.totalXp || 0,
+            learningLevel: gamification?.level || 1,
+            timestamp: new Date().toISOString()
+        };
+    }
 }

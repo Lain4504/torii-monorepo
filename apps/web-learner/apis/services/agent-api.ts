@@ -1,28 +1,18 @@
 import { apiClient } from '../api-client';
+import {
+    AgentChatResponseDTO,
+    AgentGrammarCheckResponseDTO,
+    AgentTranslateResponseDTO,
+    AgentFlashcardResponseDTO,
+    AgentDrillResponseDTO,
+    AgentConversationSimulationResponseDTO,
+    AgentResourceRecommendationResponseDTO,
+    AgentTestGenerationResponseDTO,
+    AgentTestEvaluationResponseDTO,
+    AgentReadinessProfileResponseDTO
+} from '@workspace/schemas';
 
-// --- Types ---
-
-// Sensei Types
-export interface ChatResponse {
-    message: string;
-    language: string;
-    suggestions: string[];
-}
-
-export interface GrammarCheckResponse {
-    isCorrect: boolean;
-    originalText: string;
-    correctedText: string;
-    errors: Array<{
-        type: string;
-        location: string;
-        issue: string;
-        correction: string;
-        explanation: string;
-    }>;
-    suggestions: string[];
-}
-
+// Non-AI metrics/track types (not yet in shared schemas, keep for now or move to separate DTO if needed)
 export interface TranslateResponse {
     originalText: string;
     translatedText: string;
@@ -143,59 +133,33 @@ export interface ReportResponse {
     generatedAt: string;
 }
 
-export interface ReadinessProfileResponse {
-    userId: string;
-    targetLevel: string;
-    readinessPercentage: number;
-    skillGaps: {
-        vocabulary: number;
-        grammar: number;
-        reading: number;
-        listening: number;
-    };
-    weaknesses: Array<{
-        topic: string;
-        severity: 'low' | 'medium' | 'high';
-        description: string;
-        suggestedReview: string;
-    }>;
-    recommendations: string[];
-    recentPerformance?: {
-        averageScore: number;
-        testsTaken: number;
-        trend: 'improving' | 'stable' | 'declining';
-    };
-    nextSteps: string[];
-}
-
-
 // --- API Client ---
 
 export const agentApi = {
     sensei: {
-        chat: async (message: string, history: any[] = []) => {
-            const response = await apiClient.post<{ success: boolean; data: ChatResponse }>('/api/agents/chat', {
+        chat: async (message: string, history: any[] = []): Promise<AgentChatResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentChatResponseDTO }>('/api/agents/chat', {
                 message,
                 history
             });
             return response.data.data;
         },
-        checkGrammar: async (text: string) => {
-            const response = await apiClient.post<{ success: boolean; data: GrammarCheckResponse }>('/api/agents/grammar-check', {
+        checkGrammar: async (text: string): Promise<AgentGrammarCheckResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentGrammarCheckResponseDTO }>('/api/agents/grammar-check', {
                 text
             });
             return response.data.data;
         },
-        translate: async (text: string, sourceLanguage: string, targetLanguage: string) => {
-            const response = await apiClient.post<{ success: boolean; data: TranslateResponse }>('/api/agents/translate', {
+        translate: async (text: string, sourceLanguage: string, targetLanguage: string): Promise<AgentTranslateResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentTranslateResponseDTO }>('/api/agents/translate', {
                 text,
                 sourceLanguage,
                 targetLanguage
             });
             return response.data.data;
         },
-        createFlashcard: async (topic: string, difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate') => {
-            const response = await apiClient.post<{ success: boolean; data: FlashcardResponse }>('/api/agents/flashcard', {
+        createFlashcard: async (topic: string, difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate'): Promise<AgentFlashcardResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentFlashcardResponseDTO }>('/api/agents/flashcard', {
                 topic,
                 difficulty
             });
@@ -206,8 +170,8 @@ export const agentApi = {
             topic: string,
             difficulty: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
             count: number = 5
-        ) => {
-            const response = await apiClient.post<{ success: boolean; data: DrillResponse }>('/api/agents/drill/generate', {
+        ): Promise<AgentDrillResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentDrillResponseDTO }>('/api/agents/drill/generate', {
                 type,
                 topic,
                 difficulty,
@@ -219,8 +183,8 @@ export const agentApi = {
             scenario: string,
             difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
             turns: number = 4
-        ) => {
-            const response = await apiClient.post<{ success: boolean; data: ConversationSimulationResponse }>('/api/agents/conversation/simulate', {
+        ): Promise<AgentConversationSimulationResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentConversationSimulationResponseDTO }>('/api/agents/conversation/simulate', {
                 scenario,
                 difficulty,
                 turns
@@ -248,8 +212,8 @@ export const agentApi = {
             });
             return response.data.data;
         },
-        recommendResources: async (topic: string, resourceType: string = 'all') => {
-            const response = await apiClient.post<{ success: boolean; data: ResourceRecommendationResponse }>('/api/agents/resources/recommend', {
+        recommendResources: async (topic: string, resourceType: string = 'all'): Promise<AgentResourceRecommendationResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentResourceRecommendationResponseDTO }>('/api/agents/resources/recommend', {
                 topic,
                 resourceType
             });
@@ -257,29 +221,29 @@ export const agentApi = {
         }
     },
     assessment: {
-        generateTest: async (level: string, section: string, questionCount: number = 10) => {
-            const response = await apiClient.post<{ success: boolean; data: TestGenerationResponse }>('/api/agents/test/generate', {
+        generateTest: async (level: string, section: string, questionCount: number = 10): Promise<AgentTestGenerationResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO }>('/api/agents/test/generate', {
                 level,
                 section,
                 questionCount
             });
             return response.data.data;
         },
-        evaluateTest: async (testId: string, answers: any[]) => {
-            const response = await apiClient.post<{ success: boolean; data: TestEvaluationResponse }>('/api/agents/test/evaluate', {
+        evaluateTest: async (testId: string, answers: any[]): Promise<AgentTestEvaluationResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestEvaluationResponseDTO }>('/api/agents/test/evaluate', {
                 testId,
                 answers
             });
             return response.data.data;
         },
-        generatePlacementTest: async (questionCount: number = 15) => {
-            const response = await apiClient.post<{ success: boolean; data: PlacementTestResponse }>('/api/agents/placement/test', {
+        generatePlacementTest: async (questionCount: number = 15): Promise<AgentTestGenerationResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO }>('/api/agents/placement/test', {
                 questionCount
             });
             return response.data.data;
         },
-        evaluatePlacementTest: async (testId: string, userAnswers: any) => {
-            const response = await apiClient.post<{ success: boolean; data: PlacementEvaluationResponse }>('/api/agents/placement/evaluate', {
+        evaluatePlacementTest: async (testId: string, userAnswers: any): Promise<AgentTestEvaluationResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestEvaluationResponseDTO }>('/api/agents/placement/evaluate', {
                 testId,
                 userAnswers
             });
@@ -287,27 +251,27 @@ export const agentApi = {
         }
     },
     analytics: {
-        trackProgress: async (timeframe: string = 'month') => {
+        trackProgress: async (timeframe: string = 'month'): Promise<ProgressTrackResponse> => {
             const response = await apiClient.post<{ success: boolean; data: ProgressTrackResponse }>('/api/agents/progress/track', {
                 timeframe
             });
             return response.data.data;
         },
-        suggestStudyPath: async (targetLevel: string) => {
+        suggestStudyPath: async (targetLevel: string): Promise<StudyPathResponse> => {
             const response = await apiClient.post<{ success: boolean; data: StudyPathResponse }>('/api/agents/path/suggest', {
                 targetLevel
             });
             return response.data.data;
         },
-        generateReport: async (reportType: string = 'comprehensive', timeframe: string = 'month') => {
+        generateReport: async (reportType: string = 'comprehensive', timeframe: string = 'month'): Promise<ReportResponse> => {
             const response = await apiClient.post<{ success: boolean; data: ReportResponse }>('/api/agents/analytics/report', {
                 reportType,
                 timeframe
             });
             return response.data.data;
         },
-        getReadinessProfile: async (targetLevel: string) => {
-            const response = await apiClient.post<{ success: boolean; data: ReadinessProfileResponse }>('/api/agents/analytics/readiness-profile', {
+        getReadinessProfile: async (targetLevel: string): Promise<AgentReadinessProfileResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentReadinessProfileResponseDTO }>('/api/agents/analytics/readiness-profile', {
                 targetLevel
             });
             return response.data.data;

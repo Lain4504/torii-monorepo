@@ -110,11 +110,10 @@ Tóm lại:
 
 Một số hướng refactor/tối giản có thể cân nhắc để Agents Service bám sát nghiệp vụ hơn:
 
-- **1. Chuẩn hoá scoring & analytics về core services**
-  - Di chuyển logic chấm điểm, tính readiness, thống kê tiến độ sang các module Learning/Assessment/Analytics core.
-  - Để Agents Service chỉ trả về:
-    - Giải thích câu sai/đúng (bằng tiếng Nhật + giải thích tiếng Việt).
-    - Gợi ý tài nguyên/bài tập tiếp theo dựa trên metric có sẵn.
+- **1. Scoring & Readiness deterministic**
+  - Chấm điểm (score, đúng/sai) hiện đã được thực hiện bằng **TypeScript code** trong Agents service (không để AI tự quyết định số liệu).
+  - Readiness profile sử dụng số liệu thật từ DB (Prisma) thông qua NATS pattern `learning.readinessMetrics`.
+  - AI chỉ đóng vai trò sinh **giải thích (narrative)**, **gợi ý học tập (recommendations)** và **phân tích điểm yếu (weaknesses)**.
 
 - **2. Hợp nhất các luồng Readiness/Benchmark/Weaknesses**
   - Thiết kế một API duy nhất kiểu `agents.analytics.readinessProfile`:

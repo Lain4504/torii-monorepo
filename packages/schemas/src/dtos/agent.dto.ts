@@ -105,6 +105,37 @@ export const AgentReadinessProfileResponseSchema = z.object({
     nextSteps: z.array(z.string()),
 });
 
+export const AgentTestGenerationResponseSchema = z.object({
+    testId: z.string(),
+    questions: z.array(z.object({
+        id: z.string(),
+        type: z.string(),
+        level: z.string().optional(),
+        question: z.string(),
+        options: z.array(z.string()),
+        correctAnswer: z.union([z.string(), z.number()]),
+        explanation: z.string().optional(),
+    })),
+    estimatedTimeMinutes: z.number().optional(),
+});
+
+export const AgentTestEvaluationResponseSchema = z.object({
+    testId: z.string(),
+    score: z.number().optional(),
+    maxScore: z.number().optional(),
+    percentage: z.number().optional(),
+    feedback: z.string(),
+    details: z.array(z.object({
+        questionId: z.string(),
+        isCorrect: z.boolean().optional(),
+        explanation: z.string(),
+    })),
+    assessedLevel: z.string().optional(),
+    targetLevel: z.string().optional(),
+    scoreBreakdown: z.record(z.string(), z.string()).optional(),
+    studyPathRecommendation: z.any().optional(),
+});
+
 export type AgentGrammarCheckResponseDTO = z.infer<typeof AgentGrammarCheckResponseSchema>;
 export type AgentTranslateResponseDTO = z.infer<typeof AgentTranslateResponseSchema>;
 export type AgentFlashcardResponseDTO = z.infer<typeof AgentFlashcardResponseSchema>;
@@ -113,3 +144,5 @@ export type AgentConversationSimulationResponseDTO = z.infer<typeof AgentConvers
 export type AgentResourceRecommendationResponseDTO = z.infer<typeof AgentResourceRecommendationResponseSchema>;
 export type AgentChatResponseDTO = z.infer<typeof AgentChatResponseSchema>;
 export type AgentReadinessProfileResponseDTO = z.infer<typeof AgentReadinessProfileResponseSchema>;
+export type AgentTestGenerationResponseDTO = z.infer<typeof AgentTestGenerationResponseSchema>;
+export type AgentTestEvaluationResponseDTO = z.infer<typeof AgentTestEvaluationResponseSchema>;

@@ -4,16 +4,17 @@ Provide a comprehensive learner profile and JLPT readiness assessment for user {
 
 ## Context
 - **Target Level**: {{targetLevel}}
-- **User Data**: {{userContext}}
+- **User Activity Metrics (Real Data)**: {{json metrics}}
+- **User Learning Meta-Context**: {{json userContext}}
 - **Current Time**: {{timestamp}}
 
 ## Task
-Analyze the user's learning history, test scores, and activity patterns to:
-1. Estimate overall readiness percentage for {{targetLevel}}.
+Analyze the user's REAL learning metrics and activity history to provide a narrative assessment:
+1. Estimate overall readiness percentage for {{targetLevel}} based on the data.
 2. Identify specific skill gaps in Vocabulary, Grammar, Reading, and Listening.
 3. List specific weaknesses with severity levels.
 4. Provide pedagogical recommendations and next steps for the student.
-5. Summarize recent performance trends.
+5. Summarize recent performance trends based on the metrics.
 
 ## Response Requirements
 You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.

@@ -9,16 +9,16 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 ## A. Scoring, progress, analytics (logic deterministic)
 
 - **A1 – Chấm điểm JLPT test/placement bằng DB (không phụ thuộc AI cho score)**  
-  - Trạng thái: TODO  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Implement scoring trong core Assessment/Learning service (so sánh `userAnswer` vs `correctAnswer`).
-    - Điều chỉnh `agents.assessment.evaluateTest` / `evaluatePlacement` để AI chỉ sinh **feedback + giải thích**, không quyết định điểm.
+    - [x] Implement scoring logic trong `AssessmentService` (so sánh `userAnswer` vs `correctAnswer`).
+    - [x] Cập nhật tool `evaluateTest` / `evaluatePlacement` để AI chỉ sinh **feedback + giải thích**.
 
 - **A2 – Progress & readiness dựa trên số liệu Prisma**  
-  - Trạng thái: TODO  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Viết service tổng hợp `progress` (completedLessons, averageScore, streak…) từ DB.
-    - Thiết kế 1 API readiness/profile (metrics + narrative) thay thế combo `progressBenchmark`, `predictReadiness`, `identifyWeaknesses`.
+    - [x] Viết NATS handler `learning.readinessMetrics` trong core service để tổng hợp dữ liệu thật.
+    - [x] Điều chỉnh `analytics_get_readiness_profile` để fetch metrics này trước khi gọi AI.
 
 ---
 

@@ -27,6 +27,6 @@ The JSON structure MUST strictly follow the `AgentTranslateResponseSchema`:
 ```
 
 Additional Rules:
-- Cultural notes and any descriptive text MUST be in **Vietnamese**.
+- Cultural notes and any descriptive meta-text MUST be in **Vietnamese**.
 - Ensure Japanese text uses appropriate politeness levels based on context.
 - Output ONLY raw JSON. No backticks.
