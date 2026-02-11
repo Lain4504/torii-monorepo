@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="docs: update FEATURES.md to detail Agents Service architecture and user flows">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add implementation checklist for Agents Service to track progress on AI-related tasks">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/agents.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/agents.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/main.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -382,14 +386,6 @@
       <workItem from="1770522195985" duration="5000" />
       <workItem from="1770522531811" duration="63000" />
       <workItem from="1770522694227" duration="28000" />
-    </task>
-    <task id="LOCAL-00778" summary="update nats logic">
-      <option name="closed" value="true" />
-      <created>1770001103292</created>
-      <option name="number" value="00778" />
-      <option name="presentableId" value="LOCAL-00778" />
-      <option name="project" value="LOCAL" />
-      <updated>1770001103292</updated>
     </task>
     <task id="LOCAL-00779" summary="update nats logic">
       <option name="closed" value="true" />
@@ -775,7 +771,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770817607394</updated>
     </task>
-    <option name="localTasksCounter" value="827" />
+    <task id="LOCAL-00827" summary="feat: add implementation checklist for Agents Service to track progress on AI-related tasks">
+      <option name="closed" value="true" />
+      <created>1770818642299</created>
+      <option name="number" value="00827" />
+      <option name="presentableId" value="LOCAL-00827" />
+      <option name="project" value="LOCAL" />
+      <updated>1770818642299</updated>
+    </task>
+    <option name="localTasksCounter" value="828" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -810,7 +814,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="remove unused files" />
     <MESSAGE value="merge" />
     <MESSAGE value="feat: add file management functionality to meet module" />
     <MESSAGE value="feat: add artifacts module and analytics service for handling telemetry data" />
@@ -835,7 +838,8 @@
     <MESSAGE value="refactor: enhance LiveKit module by injecting clients for improved configuration management" />
     <MESSAGE value="refactor: implement AppConfigService for centralized configuration management across services" />
     <MESSAGE value="docs: update FEATURES.md to detail Agents Service architecture and user flows" />
-    <option name="LAST_COMMIT_MESSAGE" value="docs: update FEATURES.md to detail Agents Service architecture and user flows" />
+    <MESSAGE value="feat: add implementation checklist for Agents Service to track progress on AI-related tasks" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add implementation checklist for Agents Service to track progress on AI-related tasks" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

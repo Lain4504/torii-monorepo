@@ -1,10 +1,10 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService, AppConfigService } from '@server/shared';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as Handlebars from 'handlebars';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { FastMCP } from 'fastmcp';
+import { z } from 'zod';
 
 export interface ToolContext {
   userId: string;
@@ -24,9 +24,8 @@ export interface ToolContext {
  * - User Context retrieval (shared)
  */
 @Injectable()
-export class FastMcpService implements OnModuleInit {
+export class FastMcpService {
   private readonly logger = new Logger(FastMcpService.name);
-  private server: FastMCP;
   private toolRegistry = new Map<string, { schema: any; handler: Function }>();
   private genAI: GoogleGenerativeAI;
 
@@ -35,13 +34,6 @@ export class FastMcpService implements OnModuleInit {
     private readonly prisma: PrismaService,
   ) {
     this.registerHandlebarsHelpers();
-
-    // Initialize FastMCP Server
-    this.server = new FastMCP({
-      name: 'Torii Agents',
-      version: '1.0.0',
-      transportType: 'httpStream',
-    } as any);
 
     // Priority: 1. Config (YAML), 2. Environment Variable
     const apiKey = this.appConfig.thirdParty.gemini.apiKey || process.env.GEMINI_API_KEY;
@@ -53,38 +45,12 @@ export class FastMcpService implements OnModuleInit {
     }
   }
 
-  async onModuleInit() {
-    this.logger.log('✅ Integrated AI Service Initialized');
-
-    // Start FastMCP server on internal port 4000
-    // This allows us to proxy requests from the main NestJS app (port 3004) -> FastMCP (port 4000)
-    await this.server.start({
-      transportType: 'httpStream',
-      httpStream: {
-        port: 4000,
-        endpoint: '/sse', // Standard MCP endpoint
-      }
-    } as any);
-  }
-
-  public getApp() {
-    return this.server.getApp();
-  }
-
   // ==================== TOOL REGISTRY ====================
 
   public addTool(name: string, description: string, schema: any, handler: Function) {
     this.logger.debug(`🛠️ Registering Tool: ${name}`);
 
-    // 1. Register with FastMCP (for external MCP clients)
-    this.server.addTool({
-      name,
-      description,
-      parameters: schema,
-      execute: async (args) => handler(args),
-    });
-
-    // 2. Register internally (for NATS execution)
+    // Register internally (for NATS execution)
     this.toolRegistry.set(name, { schema, handler });
   }
 
@@ -135,11 +101,9 @@ export class FastMcpService implements OnModuleInit {
         }
       }
 
-      this.logger.debug(`Template paths tried:\n1. ${buildPath}\n2. ${serviceSourcePath}\n3. ${monorepoSourcePath}\n4. ${localPath}`);
-
       return Handlebars.compile(templateContent);
     } catch (error) {
-      this.logger.error(`Failed to load prompt template: ${templatePath}. CWD: ${process.cwd()}`, error);
+      this.logger.error(`Failed to load prompt template: ${templatePath}`, error);
       throw new Error(`Template not found: ${templatePath}`);
     }
   }

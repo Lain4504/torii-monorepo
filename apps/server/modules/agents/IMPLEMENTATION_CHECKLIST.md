@@ -116,12 +116,12 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 
 ## H. Hạ tầng AI & chi phí
 
-- **H1 – Quyết định về FastMCP HTTP server**  
-  - Trạng thái: TODO  
-  - Việc cần làm:
-    - Chốt xem team có dùng client MCP external không.  
-    - Nếu không: đơn giản hoá `FastMcpService` để chỉ dùng internal tool registry, tắt server HTTP + `/mcp` proxy.  
-    - Nếu có: hoàn thiện SSE, healthcheck, tài liệu sử dụng `/mcp`.
+- **H1 – Quyết định về FastMCP HTTP server**
+  - Trạng thái: DONE
+  - Ghi chú:
+    - Không dùng client MCP external.
+    - `FastMcpService` chỉ còn là tool registry/prompt engine nội bộ (không khởi chạy FastMCP HTTP server).
+    - Đã xoá proxy `/mcp` trong `main.ts` và bỏ MCP controller khỏi `FastMcpModule`/`AgentsModule`, không còn endpoint `/mcp` trong Agents Service.
 
 - **H2 – Caching & tối ưu token**  
   - Trạng thái: TODO  
@@ -136,7 +136,7 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 - **I1 – Rà soát & chuẩn hoá prompt templates**  
   - Trạng thái: TODO  
   - Việc cần làm:
-    - Review toàn bộ template trong `assets/prompts/**` theo guideline JLPT và đa ngôn ngữ (ja + romaji + vi/en).  
+    - Review toàn bộ template trong `assets/prompts/**` theo guideline JLPT, bảo đảm output luôn là tiếng Việt (có thể kèm Japanese + romaji nếu cần, không support tiếng Anh).  
     - Bổ sung ví dụ output rõ ràng trong từng prompt, ensure format JSON consistent.
 
 - **I2 – Tăng cường validation output AI**  
