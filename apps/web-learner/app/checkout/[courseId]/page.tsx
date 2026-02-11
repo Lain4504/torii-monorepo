@@ -14,6 +14,7 @@ import { Loader2, ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2, Gif
 import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/apis/services/course-api'
 import { orderApi } from '@/apis/services/order-api'
+import { enrollmentApi } from '@/apis/services/enrollment-api'
 import { CourseResponseDTO } from '@workspace/schemas'
 import { PaymentMethod, OrderType } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
@@ -44,6 +45,38 @@ export default function CheckoutPage() {
     const [appliedCoupon, setAppliedCoupon] = useState<CouponResponseDTO | null>(null)
     const [couponDiscount, setCouponDiscount] = useState(0)
     const [isCheckingCoupon, setIsCheckingCoupon] = useState(false)
+
+    // Gift Validation State
+    const [recipientStatus, setRecipientStatus] = useState<'idle' | 'checking' | 'enrolled' | 'not_found' | 'available'>('idle')
+
+    // Debounced Recipient Check
+    useEffect(() => {
+        if (!isGift || !recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
+            setRecipientStatus('idle')
+            return
+        }
+
+        const checkRecipient = async () => {
+            try {
+                setRecipientStatus('checking')
+                const result = await enrollmentApi.checkGiftRecipient(recipientEmail, courseId)
+
+                if (result.isEnrolled) {
+                    setRecipientStatus('enrolled')
+                } else if (!result.isRegistered) {
+                    setRecipientStatus('not_found')
+                } else {
+                    setRecipientStatus('available')
+                }
+            } catch (error) {
+                console.error('Check recipient error:', error)
+                setRecipientStatus('idle')
+            }
+        }
+
+        const timer = setTimeout(checkRecipient, 600)
+        return () => clearTimeout(timer)
+    }, [isGift, recipientEmail, courseId])
 
     // PayOS Config State
     const [payOSConfig, setPayOSConfig] = useState<PayOSConfig>({
@@ -133,6 +166,10 @@ export default function CheckoutPage() {
         if (isGift) {
             if (!recipientEmail) {
                 toast.error('Vui lòng nhập email người nhận')
+                return
+            }
+            if (recipientStatus === 'enrolled') {
+                toast.error('Người nhận đã sở hữu khóa học này')
                 return
             }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
@@ -322,6 +359,34 @@ export default function CheckoutPage() {
                                                 value={recipientEmail}
                                                 onChange={(e) => setRecipientEmail(e.target.value)}
                                             />
+                                            {isGift && recipientEmail && recipientStatus !== 'idle' && (
+                                                <div className="mt-1.5 px-1 animate-in fade-in duration-300">
+                                                    {recipientStatus === 'checking' && (
+                                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                                            <span>Đang kiểm tra tài khoản...</span>
+                                                        </div>
+                                                    )}
+                                                    {recipientStatus === 'enrolled' && (
+                                                        <div className="flex items-center gap-1.5 text-xs text-destructive font-medium">
+                                                            <X className="w-3 h-3" />
+                                                            <span>Người nhận đã sở hữu khóa học này</span>
+                                                        </div>
+                                                    )}
+                                                    {recipientStatus === 'available' && (
+                                                        <div className="flex items-center gap-1.5 text-xs text-emerald-500 font-medium">
+                                                            <CheckCircle2 className="w-3 h-3" />
+                                                            <span>Tài khoản hợp lệ. Có thể nhận quà.</span>
+                                                        </div>
+                                                    )}
+                                                    {recipientStatus === 'not_found' && (
+                                                        <div className="flex items-center gap-1.5 text-xs text-blue-500 font-medium">
+                                                            <Sparkles className="w-3 h-3" />
+                                                            <span>Người nhận chưa có tài khoản. Một tài khoản mới sẽ được tạo tự động.</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="space-y-1.5">
                                             <Label className="text-xs font-medium text-muted-foreground">Lời nhắn</Label>
@@ -416,7 +481,7 @@ export default function CheckoutPage() {
 
                                 <Button
                                     onClick={handlePayment}
-                                    disabled={isCreatingLink}
+                                    disabled={isCreatingLink || (isGift && recipientStatus === 'enrolled')}
                                     className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-semibold shadow-sm hover:shadow transition-all"
                                 >
                                     {isCreatingLink ? (

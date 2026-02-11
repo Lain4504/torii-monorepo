@@ -56,6 +56,17 @@ export const enrollmentApi = {
         );
         return response.data.data!.enrollment;
     },
+
+    /**
+     * Check if a gift recipient (by email) is enrolled in a course
+     */
+    async checkGiftRecipient(email: string, courseId: string): Promise<{ isRegistered: boolean; isEnrolled: boolean }> {
+        const response = await apiClient.get<StandardApiResponse<{ isRegistered: boolean; isEnrolled: boolean }>>(
+            '/api/enrollments/check-gift',
+            { params: { email, courseId } }
+        );
+        return response.data.data!;
+    },
 };
 
 
