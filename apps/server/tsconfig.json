@@ -38,6 +38,9 @@
       "@server/agents/*": [
         "./modules/agents/src/*"
       ],
+      "@server/billing/*": [
+        "./modules/billing/src/*"
+      ],
       "@prisma/generated": [
         "./generated/prisma/client"
       ],
