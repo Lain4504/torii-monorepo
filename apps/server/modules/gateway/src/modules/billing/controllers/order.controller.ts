@@ -14,10 +14,10 @@ import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
     errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/orders')
 @UseGuards(GatewayAuthGuard)
@@ -70,13 +70,13 @@ export class OrderController {
     }
 
     @Post()
-    async create(@Body() input: any, @Req() req: Request) {
+    async create(@Body() input: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'billing.order.create' },
-                    { ...input, userId: user.sub, userRole: user.role }
+                    { ...input, userId: requester.sub, userRole: requester.role }
                 )
             );
             return successResponse({ order: result });

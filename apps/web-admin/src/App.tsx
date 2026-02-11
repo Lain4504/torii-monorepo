@@ -20,6 +20,8 @@ import CoursesPage from '@/routes/courses/courses-page.tsx'
 import CourseReviewsPage from '@/routes/courses/course-reviews-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
 import MyCoursesPage from '@/routes/courses/my-courses-page.tsx'
+import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
+import CourseLiveSessionsPage from '@/routes/courses/course-live-sessions-page.tsx'
 
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
@@ -29,8 +31,6 @@ import TransactionsPage from '@/routes/finance/payments-page.tsx'
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
-import QuestionBankPage from '@/routes/question-bank/question-bank-page.tsx'
-import QuestionsPage from '@/routes/questions/questions-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
 
@@ -74,7 +74,9 @@ function App() {
                 <Route path="courses" element={<CoursesPage />} />
                 <Route path="courses/my" element={<MyCoursesPage />} />
                 <Route path="courses/reviews" element={<CourseReviewsPage />} />
+                <Route path="courses/requests" element={<ScheduleRequestsPage />} />
                 <Route path="courses/:id" element={<CourseDetailPage />} />
+                <Route path="courses/:id/live-sessions" element={<CourseLiveSessionsPage />} />
 
                 <Route path="rooms" element={<RoomsPage />} />
 
@@ -90,15 +92,9 @@ function App() {
                   <Route path="blogs" element={<BlogPage />} />
                 </Route>
 
-                {/* Question Bank - Unified entry point */}
-                <Route path="question-bank" element={<QuestionBankPage />}>
-                  <Route index element={<QuestionsPage />} />
-                  <Route path="questions" element={<QuestionsPage />} />
-                  <Route path="pools" element={<QuestionPoolsPage />} />
-                </Route>
-
-                {/* Pool detail page */}
-                <Route path="question-bank/pools/:id/questions" element={<PoolDetailPage />} />
+                {/* Question Bank */}
+                <Route path="question-bank" element={<QuestionPoolsPage />} />
+                <Route path="question-bank/:id" element={<PoolDetailPage />} />
 
                 <Route element={<RoutePermissionGuard permission="coupon.manage" />}>
                   <Route path="coupons" element={<CouponsPage />} />
@@ -112,7 +108,7 @@ function App() {
                 <Route element={<RoutePermissionGuard permission="report.view" />}>
                   <Route path="analytics/revenue" element={<RevenueAnalytics />} />
                   <Route path="analytics/learning" element={<LearningAnalytics />} />
-                <Route path="analytics/users" element={<UserAnalytics />} />
+                  <Route path="analytics/users" element={<UserAnalytics />} />
                 </Route>
 
                 <Route element={<RoutePermissionGuard permission="course.manage" />}>

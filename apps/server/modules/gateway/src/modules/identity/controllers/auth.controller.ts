@@ -16,16 +16,17 @@ import {
     InternalServerErrorException,
     Query,
     Param,
+    Headers,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Response, Request } from 'express';
+import { Request, Response } from 'express';
 import {
     Public,
-    VerifiedOnly,
     successResponse,
     errorResponse,
     AppConfigService,
+    ReqWithRequester,
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
 import {
@@ -110,8 +111,12 @@ export class AuthController {
 
     @Post('forgot-password')
     @HttpCode(HttpStatus.OK)
-    async forgotPassword(@Body() dto: ForgotPasswordDTO, @Req() req: Request) {
-        const platform = dto.platform || req.headers['x-platform'] || 'web';
+    async forgotPassword(
+        @Body() dto: ForgotPasswordDTO,
+        @Req() req: ReqWithRequester,
+        @Headers('x-platform') platformHeader?: string,
+    ) {
+        const platform = dto.platform || platformHeader || req.headers?.['x-platform'] || 'web';
         try {
             await firstValueFrom(
                 this.natsClient.send(
@@ -231,7 +236,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async adminLogin(
         @Body() dto: UserLoginDTO,
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Res({ passthrough: true }) res: Response,
     ) {
         try {
@@ -248,7 +253,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async login(
         @Body() dto: UserLoginDTO,
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Res({ passthrough: true }) res: Response,
     ) {
         try {
@@ -263,7 +268,7 @@ export class AuthController {
 
     private async handleLoginResult(
         result: LoginResponseDTO,
-        req: Request,
+        req: ReqWithRequester,
         res: Response,
     ) {
         if (result.requiresTwoFactor) {
@@ -279,23 +284,13 @@ export class AuthController {
             );
         }
 
-        const { user, accessToken } = result;
+        const { user, accessToken, refreshToken } = result;
 
-        if (!user || !user.id || !accessToken) {
+        if (!user || !user.id || !accessToken || !refreshToken) {
             throw new InternalServerErrorException('Login succeeded but returned invalid user data');
         }
 
-        // Call NATS to create session
-        const refreshToken = await firstValueFrom(
-            this.natsClient.send(
-                { cmd: 'identity.session.create' },
-                {
-                    userId: user.id,
-                },
-            ),
-        );
-
-        const platform = req.headers['x-platform'];
+        const platform = req.headers?.['x-platform'];
         const userData = {
             id: user?.id,
             email: user?.email,
@@ -312,9 +307,7 @@ export class AuthController {
                 user: userData,
             });
         } else {
-            if (accessToken && refreshToken) {
-                this.setAuthCookies(res, accessToken, refreshToken);
-            }
+            this.setAuthCookies(res, accessToken, refreshToken);
             return successResponse({ user: userData });
         }
     }
@@ -325,7 +318,7 @@ export class AuthController {
         @Body('tempToken') tempToken: string,
         @Body('code') code: string,
         @Body('backupCode') backupCode: boolean = false,
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Res({ passthrough: true }) res: Response,
     ) {
         if (!tempToken || !code) {
@@ -386,7 +379,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async googleAuth(
         @Body('idToken') idToken: string,
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Res({ passthrough: true }) res: Response,
     ) {
         if (!idToken) {
@@ -446,18 +439,18 @@ export class AuthController {
     @UseGuards(GatewayAuthGuard)
     @HttpCode(HttpStatus.OK)
     async linkGoogle(
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Body('idToken') idToken: string,
     ) {
         if (!idToken) {
             throw new BadRequestException('Google ID token is required');
         }
-        const user = req.user as any;
+        const requester = req.requester;
         try {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.auth.linkGoogle' },
-                    { userId: user.sub, idToken },
+                    { userId: requester.sub, idToken },
                 ),
             );
             return successResponse(
@@ -475,18 +468,18 @@ export class AuthController {
     @UseGuards(GatewayAuthGuard)
     @HttpCode(HttpStatus.OK)
     async unlinkProvider(
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Query('provider') provider: string,
     ) {
         if (!provider) {
             throw new BadRequestException('Provider is required');
         }
-        const user = req.user as any;
+        const requester = req.requester;
         try {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.auth.unlinkProvider' },
-                    { userId: user.sub, provider },
+                    { userId: requester.sub, provider },
                 ),
             );
             return successResponse(
@@ -502,13 +495,13 @@ export class AuthController {
 
     @Get('linked-providers')
     @UseGuards(GatewayAuthGuard)
-    async getLinkedProviders(@Req() req: Request) {
-        const user = req.user as any;
+    async getLinkedProviders(@Req() req: ReqWithRequester) {
+        const requester = req.requester;
         try {
             const providers = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.auth.getLinkedProviders' },
-                    { userId: user.sub },
+                    { userId: requester.sub },
                 ),
             );
             return successResponse({ providers });
@@ -521,7 +514,7 @@ export class AuthController {
 
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
-    async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    async refresh(@Req() req: ReqWithRequester, @Res({ passthrough: true }) res: Response) {
         const oldRefreshToken = req.cookies?.refresh_token || req.body?.refresh_token;
         if (!oldRefreshToken) {
             throw new UnauthorizedException('No refresh token provided');
@@ -559,10 +552,10 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async logout(
         @Body() dto: LogoutDTO = {} as LogoutDTO,
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Res({ passthrough: true }) res: Response,
     ) {
-        const authHeader = req.headers.authorization;
+        const authHeader = req.headers?.authorization;
         const accessToken = authHeader?.startsWith('Bearer ')
             ? authHeader.split(' ')[1]
             : req.cookies?.access_token || null;
@@ -592,9 +585,9 @@ export class AuthController {
 
     @Get('me')
     @UseGuards(GatewayAuthGuard)
-    async getMe(@Req() req: Request) {
-        const user = req.user as any;
-        if (!user || !user.sub) {
+    async getMe(@Req() req: ReqWithRequester) {
+        const requester = req.requester;
+        if (!requester || !requester.sub) {
             throw new UnauthorizedException('No token provided');
         }
         // In JwtAuthGuard, user is already populated from the token. 
@@ -602,7 +595,7 @@ export class AuthController {
         // Original controller calls authService.getCurrentUser
         try {
             const userData = await firstValueFrom(
-                this.natsClient.send({ cmd: 'identity.auth.me' }, { userId: user.sub }),
+                this.natsClient.send({ cmd: 'identity.auth.me' }, { userId: requester.sub }),
             );
             return successResponse({ user: userData });
         } catch (error) {
@@ -612,13 +605,13 @@ export class AuthController {
 
     @Get('sessions')
     @UseGuards(GatewayAuthGuard)
-    async getSessions(@Req() req: Request) {
-        const user = req.user as any;
+    async getSessions(@Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const refreshToken = req.cookies?.refresh_token;
 
         try {
             const sessions = await firstValueFrom(
-                this.natsClient.send({ cmd: 'identity.session.list' }, user.sub),
+                this.natsClient.send({ cmd: 'identity.session.list' }, requester.sub),
             );
 
             // Hash current refresh token to identify it in the list
@@ -650,8 +643,8 @@ export class AuthController {
 
     @Delete('sessions/other')
     @UseGuards(GatewayAuthGuard)
-    async revokeOtherSessions(@Req() req: Request) {
-        const user = req.user as any;
+    async revokeOtherSessions(@Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const refreshToken = req.cookies?.refresh_token || req.body?.refreshToken;
 
         if (!refreshToken) {
@@ -662,7 +655,7 @@ export class AuthController {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.session.revokeAllOther' },
-                    { userId: user.sub, currentRefreshToken: refreshToken }
+                    { userId: requester.sub, currentRefreshToken: refreshToken }
                 ),
             );
             return successResponse(null, 'Other sessions revoked successfully');
@@ -675,8 +668,8 @@ export class AuthController {
 
     @Delete('sessions/:id')
     @UseGuards(GatewayAuthGuard)
-    async revokeSession(@Req() req: Request, @Param('id') sessionId: string) {
-        const user = req.user as any;
+    async revokeSession(@Req() req: ReqWithRequester, @Param('id') sessionId: string) {
+        const requester = req.requester;
         if (!sessionId) {
             throw new BadRequestException('Session ID is required');
         }
@@ -685,7 +678,7 @@ export class AuthController {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.session.revoke' },
-                    { sessionId, userId: user.sub }
+                    { sessionId, userId: requester.sub }
                 ),
             );
             return successResponse(null, 'Session revoked successfully');
@@ -698,17 +691,16 @@ export class AuthController {
 
     @Patch('me')
     @UseGuards(GatewayAuthGuard)
-    @VerifiedOnly()
     async updateMe(
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Body() dto: { displayName?: string; userMetadata?: Record<string, any> },
     ) {
-        const user = req.user as any;
+        const requester = req.requester;
         try {
             const userData = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.auth.updateMe' },
-                    { userId: user.sub, dto }
+                    { userId: requester.sub, dto }
                 ),
             );
             return successResponse({ user: userData });
@@ -721,20 +713,19 @@ export class AuthController {
 
     @Patch('me/avatar')
     @UseGuards(GatewayAuthGuard)
-    @VerifiedOnly()
     async updateAvatar(
-        @Req() req: Request,
+        @Req() req: ReqWithRequester,
         @Body('fileId') fileId: string,
     ) {
         if (!fileId) {
             throw new BadRequestException('fileId is required');
         }
-        const user = req.user as any;
+        const requester = req.requester;
         try {
             const userData = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.auth.updateAvatar' },
-                    { userId: user.sub, fileId }
+                    { userId: requester.sub, fileId }
                 ),
             );
             return successResponse({ user: userData }, 'Avatar updated successfully');
@@ -747,11 +738,11 @@ export class AuthController {
 
     @Delete('me')
     @UseGuards(GatewayAuthGuard)
-    async deleteMe(@Req() req: Request) {
-        const user = req.user as any;
+    async deleteMe(@Req() req: ReqWithRequester) {
+        const requester = req.requester;
         try {
             await firstValueFrom(
-                this.natsClient.send({ cmd: 'identity.auth.deleteMe' }, { userId: user.sub }),
+                this.natsClient.send({ cmd: 'identity.auth.deleteMe' }, { userId: requester.sub }),
             );
             return successResponse(null, 'User deleted successfully');
         } catch (error: unknown) {

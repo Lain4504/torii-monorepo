@@ -19,21 +19,15 @@ import {
     GatewayAuthGuard,
     PermissionsGuard,
     Permissions,
-    Public,
     successResponse,
     ZodValidationPipe,
+    ReqWithRequester,
 } from '@server/shared';
-import { Request } from 'express';
-import { 
-    Requester, 
-    submitAssignmentDto, 
-    gradeSubmissionDto, 
-    returnSubmissionDto 
+import {
+    submitAssignmentDto,
+    gradeSubmissionDto,
+    returnSubmissionDto
 } from '@workspace/schemas';
-
-interface RequestWithUser extends Request {
-    user: Requester & { email: string };
-}
 
 @Controller('api/submissions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -44,67 +38,40 @@ export class SubmissionController {
         return firstValueFrom(this.natsClient.send({ cmd: `learning.submission.${cmd}` }, payload));
     }
 
-    // Specific routes first to avoid conflicts
+    @Post(':assignmentId')
+    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
+    submit(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+        return this.sendCmd('submit', { assignmentId, ...dto, requester: req.requester });
+    }
+
+    @Post(':assignmentId/draft')
+    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
+    draft(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+        return this.sendCmd('saveDraft', { assignmentId, ...dto, requester: req.requester });
+    }
+
     @Get('my/:assignmentId')
-    @Public()
-    async my(@Param('assignmentId') assignmentId: string, @Req() req: RequestWithUser) {
-        const result = await this.sendCmd('getMySubmission', { assignmentId, userId: req.user.sub });
-        return successResponse({ submission: result });
+    my(@Param('assignmentId') assignmentId: string, @Req() req: ReqWithRequester) {
+        return this.sendCmd('getMySubmission', { assignmentId, userId: req.requester.sub });
     }
 
     @Get('assignment/:assignmentId')
     @Permissions('assignment.grade')
-    async all(@Param('assignmentId') assignmentId: string) {
-        const result = await this.sendCmd('findAll', { assignmentId });
-        return successResponse({ submissions: result });
-    }
-
-    @Post(':assignmentId/draft')
-    @Public()
-    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
-    async draft(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: RequestWithUser) {
-        const result = await this.sendCmd('saveDraft', { assignmentId, ...dto, requester: req.user });
-        return successResponse({ submission: result });
+    all(@Param('assignmentId') assignmentId: string) {
+        return this.sendCmd('findAll', { assignmentId });
     }
 
     @Put(':id/grade')
     @Permissions('assignment.grade')
-    async grade(
-        @Param('id') id: string,
-        @Body(new ZodValidationPipe(gradeSubmissionDto)) dto: any,
-        @Req() req: RequestWithUser
-    ) {
-        const result = await this.sendCmd('grade', { id, ...dto, requester: req.user });
-        return successResponse({ submission: result });
+    @UsePipes(new ZodValidationPipe(gradeSubmissionDto))
+    grade(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+        return this.sendCmd('grade', { id, ...dto, requester: req.requester });
     }
 
-    @Put(':id/return')
+    @Post(':id/return')
     @Permissions('assignment.grade')
-    async return(
-        @Param('id') id: string,
-        @Body(new ZodValidationPipe(returnSubmissionDto)) dto: any,
-        @Req() req: RequestWithUser
-    ) {
-        const result = await this.sendCmd('return', { id, ...dto, requester: req.user });
-        return successResponse({ submission: result });
-    }
-
-    // Generic routes last
-    @Get(':id')
-    @Permissions('assignment.grade')
-    async findOne(@Param('id') id: string) {
-        const result = await this.sendCmd('findOne', { id });
-        return successResponse({ submission: result });
-    }
-
-    @Post(':assignmentId')
-    @Public()
-    async submit(
-        @Param('assignmentId') assignmentId: string,
-        @Body(new ZodValidationPipe(submitAssignmentDto)) dto: any,
-        @Req() req: RequestWithUser
-    ) {
-        const result = await this.sendCmd('submit', { assignmentId, ...dto, requester: req.user });
-        return successResponse({ submission: result });
+    @UsePipes(new ZodValidationPipe(returnSubmissionDto))
+    return(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+        return this.sendCmd('return', { id, ...dto, requester: req.requester });
     }
 }

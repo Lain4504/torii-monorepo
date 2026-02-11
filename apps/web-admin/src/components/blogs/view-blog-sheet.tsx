@@ -38,7 +38,7 @@ export function ViewBlogSheet({
                             </div>
                             <div className="space-y-1">
                                 <SheetTitle className="text-2xl font-bold tracking-tight">
-                                    View <span className="text-primary">Blog</span>
+                                    View <span className="text-primary">Blog Post</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                                     ID: <span className="font-mono text-primary">{blog.id.substring(0, 8)}</span>
@@ -111,7 +111,7 @@ export function ViewBlogSheet({
                             <div className="flex items-center gap-3 pb-2 border-b border-border/20">
                                 <div className="h-px flex-1 bg-border/20" />
                                 <h3 className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/40 text-center">
-                                    Blog Details
+                                    Post Details
                                 </h3>
                                 <div className="h-px flex-1 bg-border/20" />
                             </div>
@@ -177,7 +177,7 @@ export function ViewBlogSheet({
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">Tags</label>
                                     <div className="px-5 py-4 rounded-2xl bg-muted/10 border border-border/20 flex flex-wrap gap-2">
-                                        {blog.tags.map((tag, index) => (
+                                        {blog.tags.map((tag: string, index: number) => (
                                             <Badge key={index} variant="outline" className="uppercase text-[10px] font-black tracking-wider">
                                                 {tag}
                                             </Badge>
@@ -198,37 +198,6 @@ export function ViewBlogSheet({
                                         />
                                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </div>
-                                </div>
-                            )}
-
-                            {/* SEO Metadata */}
-                            {(blog.seoTitle || blog.seoDescription) && (
-                                <div className="space-y-6 pt-6">
-                                    <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                        <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
-                                            SEO Metadata
-                                        </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
-                                    </div>
-
-                                    {blog.seoTitle && (
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">SEO Title</label>
-                                            <div className="h-14 px-5 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold flex items-center">
-                                                {blog.seoTitle}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {blog.seoDescription && (
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground ml-1">SEO Description</label>
-                                            <div className="min-h-[80px] px-5 py-4 rounded-2xl bg-muted/10 border border-border/20 text-sm font-bold flex items-start">
-                                                {blog.seoDescription}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             )}
 

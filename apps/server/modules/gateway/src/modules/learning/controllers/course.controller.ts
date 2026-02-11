@@ -18,21 +18,14 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
-    GlobalExceptionsFilter,
     GatewayAuthGuard,
     PermissionsGuard,
     Permissions,
     successResponse,
     successPaginatedResponse,
-    Public
+    Public,
+    ReqWithRequester,
 } from '@server/shared';
-// Remove GatewayAuthGuard import if unused
-import { Request } from 'express';
-import { UserRole, Requester } from '@workspace/schemas';
-
-interface RequestWithUser extends Request {
-    user: Requester & { email: string };
-}
 
 @Controller('api/courses')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -42,12 +35,12 @@ export class CourseController {
     @Post()
     @Permissions('course.create')
     @HttpCode(HttpStatus.CREATED)
-    async createCourse(@Body() dto: any, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async createCourse(@Body() dto: any, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.create' },
-                { ...dto, instructorId: user.sub, userEmail: user.email }
+                { ...dto, instructorId: requester.sub, userPermissions: requester.permissions }
             )
         );
         return successResponse({ course: result }, 'Course created successfully');
@@ -82,16 +75,17 @@ export class CourseController {
 
     @Get()
     @Public()
-    async getCourses(@Query() query: any, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async getCourses(@Query() query: any, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
 
-        const requester = user as any;
         // Logic:
         // 1. Admin/Staff (with * or course.view_restricted): see everything.
         // 2. Lecturer: only see their assigned courses (instructorId = sub).
         // 3. Learner: see everything but filtered by status (handled by default query).
-        if (requester && requester.role === UserRole.LECTURER) {
-            if (!requester.permissions?.includes('*') && !requester.permissions?.includes('course.view_restricted')) {
+        // Note: system now relies on permissions. If course.view_restricted is missing, limit to self as instructor.
+        if (requester) {
+            const permissions = requester.permissions || [];
+            if (!permissions.includes('*') && !permissions.includes('course.view_restricted') && permissions.includes('course.instructor')) {
                 query.instructorId = requester.sub;
             }
         }
@@ -104,12 +98,12 @@ export class CourseController {
 
     @Get(':id')
     @Public()
-    async getCourse(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async getCourse(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.findOne' },
-                { id, userId: user?.sub }
+                { id, userId: requester?.sub }
             )
         );
         return successResponse({ course: result });
@@ -117,12 +111,12 @@ export class CourseController {
 
     @Get('slug/:slug')
     @Public()
-    async getCourseBySlug(@Param('slug') slug: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async getCourseBySlug(@Param('slug') slug: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.findBySlug' },
-                { slug, userId: user?.sub }
+                { slug, userId: requester?.sub }
             )
         );
         return successResponse({ course: result });
@@ -133,13 +127,13 @@ export class CourseController {
     async updateCourse(
         @Param('id') id: string,
         @Body() dto: any,
-        @Req() req: RequestWithUser
+        @Req() req: ReqWithRequester
     ) {
-        const user = req.user;
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.update' },
-                { id, ...dto, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
+                { id, ...dto, userId: requester.sub, userPermissions: requester.permissions }
             )
         );
         return successResponse({ course: result }, 'Course updated successfully');
@@ -147,31 +141,44 @@ export class CourseController {
 
     @Delete(':id')
     @Permissions('course.delete')
-    async deleteCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async deleteCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.delete' },
-                { id, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
+                { id, userId: requester.sub, userPermissions: requester.permissions }
             )
         );
         return successResponse(null, 'Course deleted successfully');
     }
 
     @Get(':id/enrollment-status')
-    async checkEnrollmentStatus(@Param('id') id: string, @Req() req: Request) {
-        // Placeholder implementation matching original service
-        return successResponse({ isEnrolled: false });
+    async checkEnrollmentStatus(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
+        if (!requester?.sub) {
+            return successResponse({ isEnrolled: false });
+        }
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.enrollment.check' },
+                    { courseId: id, userId: requester.sub },
+                ),
+            );
+            return successResponse(result);
+        } catch {
+            return successResponse({ isEnrolled: false });
+        }
     }
 
     @Get(':id/curriculum')
     @Public()
-    async getCurriculum(@Param('id') id: string, @Req() req: Request) {
-        const user = req.user as any;
+    async getCurriculum(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.getCurriculum' },
-                { id, userId: user?.sub }
+                { id, userId: requester?.sub }
             )
         );
         return successResponse(result);
@@ -179,12 +186,12 @@ export class CourseController {
 
     @Post(':id/unpublish')
     @Permissions('course.publish')
-    async unpublishCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async unpublishCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.unpublish' },
-                { id, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
+                { id, userId: requester.sub, userPermissions: requester.permissions }
             )
         );
         return successResponse({ course: result }, 'Course unpublished successfully');
@@ -192,12 +199,12 @@ export class CourseController {
 
     @Patch(':id/live-config')
     @Permissions('course.update')
-    async updateLiveConfig(@Param('id') id: string, @Body() config: any, @Req() req: RequestWithUser) {
-        // TODO: Ensure lecturer is assigned to this course before allowing update
+    async updateLiveConfig(@Param('id', new ParseUUIDPipe()) id: string, @Body() config: any, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.updateLiveConfig' },
-                { id, config }
+                { id, config, userId: requester.sub, userPermissions: requester.permissions }
             )
         );
         return successResponse({ course: result }, 'Live configuration updated successfully');
@@ -205,12 +212,12 @@ export class CourseController {
 
     @Post(':id/submit-for-review')
     @Permissions('course.update')
-    async submitForReview(@Param('id') id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async submitForReview(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.submitForReview' },
-                { id, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
+                { id, userId: requester.sub, userPermissions: requester.permissions }
             )
         );
         return successResponse({ course: result }, 'Course submitted for review successfully');
@@ -218,12 +225,12 @@ export class CourseController {
 
     @Post(':id/publish')
     @Permissions('course.publish')
-    async publishCourse(@Param('id') id: string, @Req() req: RequestWithUser) {
-        const user = req.user;
+    async publishCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.publish' },
-                { id, userId: user.sub, userRole: user.role, userEmail: user.email, userPermissions: user.permissions }
+                { id, userId: requester.sub, userPermissions: requester.permissions }
             )
         );
         return successResponse({ course: result }, 'Course published successfully');
@@ -234,13 +241,13 @@ export class CourseController {
     async rejectCourse(
         @Param('id') id: string,
         @Body() body: { reason: string },
-        @Req() req: RequestWithUser
+        @Req() req: ReqWithRequester
     ) {
-        const user = req.user;
+        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.reject' },
-                { id, userId: user.sub, userRole: user.role, userEmail: user.email, reason: body.reason, userPermissions: user.permissions }
+                { id, userId: requester.sub, reason: body.reason, userPermissions: requester.permissions }
             )
         );
         return successResponse({ course: result }, 'Course rejected successfully');

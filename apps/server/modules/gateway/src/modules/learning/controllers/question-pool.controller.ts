@@ -16,10 +16,10 @@ import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
     errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/question-pools')
 @UseGuards(GatewayAuthGuard)
@@ -102,13 +102,13 @@ export class QuestionPoolController {
     }
 
     @Post()
-    async create(@Body() dto: any, @Req() req: Request) {
+    async create(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question-pool.create' },
-                    { ...dto, userId: user.sub, userRole: user.role, permissions: user.permissions }
+                    { ...dto, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
                 )
             );
             return successResponse({ pool: result });
@@ -118,13 +118,13 @@ export class QuestionPoolController {
     }
 
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() dto: any, @Req() req: Request) {
+    async update(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question-pool.update' },
-                    { id, ...dto, userId: user.sub, userRole: user.role, permissions: user.permissions }
+                    { id, ...dto, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
                 )
             );
             return successResponse({ pool: result });
@@ -134,13 +134,13 @@ export class QuestionPoolController {
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: string, @Req() req: Request) {
+    async delete(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question-pool.delete' },
-                    { id, userId: user.sub, userRole: user.role, permissions: user.permissions }
+                    { id, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
                 )
             );
             return successResponse(result);

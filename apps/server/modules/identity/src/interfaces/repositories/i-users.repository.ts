@@ -93,6 +93,7 @@ export interface IUsersRepository {
         role: string;
         xp: number;
         level: number;
+        balance: number;
         avatarUrl: string | null;
         userMetadata: Record<string, unknown> | null;
         verifiedAt: Date | null;

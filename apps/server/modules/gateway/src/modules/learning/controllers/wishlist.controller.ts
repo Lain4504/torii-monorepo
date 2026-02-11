@@ -15,10 +15,10 @@ import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
     errorResponse,
-    successPaginatedResponse
+    successPaginatedResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/wishlists')
 @UseGuards(GatewayAuthGuard)
@@ -56,13 +56,13 @@ export class WishlistController {
     }
 
     @Post()
-    async create(@Body() input: any, @Req() req: Request) {
+    async create(@Body() input: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.wishlist.create' },
-                    { ...input, userId: user.sub }
+                    { ...input, userId: requester.sub }
                 )
             );
             return successResponse({ wishlist: result });
@@ -87,13 +87,13 @@ export class WishlistController {
     }
 
     @Post('toggle/:courseId')
-    async toggle(@Param('courseId') courseId: string, @Req() req: Request) {
+    async toggle(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.wishlist.toggle' },
-                    { courseId, userId: user.sub }
+                    { courseId, userId: requester.sub }
                 )
             );
             return successResponse(result);
@@ -103,15 +103,15 @@ export class WishlistController {
     }
 
     @Get('check/:courseId')
-    async checkWishlist(@Param('courseId') courseId: string, @Req() req: Request) {
+    async checkWishlist(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
-            if (!user) return successResponse({ isInWishlist: false });
+            const requester = req.requester;
+            if (!requester) return successResponse({ isInWishlist: false });
 
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.wishlist.check' },
-                    { courseId, userId: user.sub }
+                    { courseId, userId: requester.sub }
                 )
             );
             return successResponse(result);

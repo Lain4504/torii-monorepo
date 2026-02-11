@@ -14,12 +14,13 @@ import {
     TrendingUp,
     ChevronRight,
     Sparkles,
-    Loader2
+    Loader2,
+    Video
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { learningProgressApi, type MyCourseResponse, type LearningStats } from '@/apis/services/learning-progress-api'
-
+import { LiveSessionBlock } from '@/components/courses/live-session-block'
 
 export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
@@ -165,6 +166,11 @@ export default function MyCoursesPage() {
                                     <Award className="w-3 h-3" /> Hoàn thành
                                 </Badge>
                             )}
+                            {course.type === 'live' && (
+                                <Badge className="absolute top-3 left-3 bg-red-500 text-white border-none shadow-sm flex gap-1.5 items-center px-2 py-0.5 text-xs font-bold z-20">
+                                    <Video className="w-3 h-3" /> Live
+                                </Badge>
+                            )}
                             <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/10 z-20">
                                 <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${course.progress}%` }} />
                             </div>
@@ -196,6 +202,12 @@ export default function MyCoursesPage() {
                                     </span>
                                 </div>
                             </div>
+
+                            {course.type === 'live' && (
+                                <div className="rounded-xl border border-border bg-muted/20 p-3">
+                                    <LiveSessionBlock courseId={course.id} compact maxSessions={2} />
+                                </div>
+                            )}
 
                             <Link href={`/courses/${course.slug}/learn`} className="w-full pt-2">
                                 <Button className="w-full rounded-xl h-10 text-xs font-bold hover:bg-primary/90 transition-all shadow-sm">

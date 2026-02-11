@@ -8,7 +8,10 @@
     "deleteOutDir": false,
     "webpack": true,
     "tsConfigPath": "tsconfig.build.json",
-    "plugins": []
+    "plugins": [],
+    "assets": [
+      "**/*.pug"
+    ]
   },
   "projects": {
     "gateway": {

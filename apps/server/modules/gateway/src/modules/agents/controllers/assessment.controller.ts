@@ -9,8 +9,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Request } from 'express';
-import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
+import { successResponse, errorResponse, GatewayAuthGuard, ReqWithRequester } from '@server/shared';
 
 /**
  * Assessment Gateway Handler
@@ -27,9 +26,9 @@ export class AssessmentHandler {
 
     @Post('test/generate')
     @UseGuards(GatewayAuthGuard)
-    async generateTest(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async generateTest(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📝 Test generation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -47,9 +46,9 @@ export class AssessmentHandler {
 
     @Post('test/evaluate')
     @UseGuards(GatewayAuthGuard)
-    async evaluateTest(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async evaluateTest(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`✅ Test evaluation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -67,9 +66,9 @@ export class AssessmentHandler {
 
     @Post('assessment/benchmark')
     @UseGuards(GatewayAuthGuard)
-    async getProgressBenchmark(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async getProgressBenchmark(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📊 Progress benchmark request from user ${userId}`);
             const result = await firstValueFrom(
@@ -87,9 +86,9 @@ export class AssessmentHandler {
 
     @Post('test/schedule')
     @UseGuards(GatewayAuthGuard)
-    async scheduleTest(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async scheduleTest(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📅 Test scheduling request from user ${userId}`);
             const result = await firstValueFrom(
@@ -100,15 +99,16 @@ export class AssessmentHandler {
             );
             return successResponse(result);
         } catch (error: any) {
+            this.logger.error(`Test scheduling failed for user ${userId}`, error.stack);
             return errorResponse(error.message || 'Failed to schedule test');
         }
     }
 
     @Post('placement/test')
     @UseGuards(GatewayAuthGuard)
-    async generatePlacementTest(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async generatePlacementTest(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`🎯 Placement test generation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -126,9 +126,9 @@ export class AssessmentHandler {
 
     @Post('placement/evaluate')
     @UseGuards(GatewayAuthGuard)
-    async evaluatePlacementTest(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async evaluatePlacementTest(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📈 Placement test evaluation request from user ${userId}`);
             const result = await firstValueFrom(

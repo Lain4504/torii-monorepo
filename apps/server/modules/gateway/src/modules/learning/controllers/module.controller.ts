@@ -21,10 +21,9 @@ import {
     successPaginatedResponse,
     Permissions,
     PermissionsGuard,
+    ReqWithRequester,
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
-import { UserRole } from '@workspace/schemas';
 
 @Controller('api/modules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -53,14 +52,14 @@ export class ModuleController {
     @Get('by-course/:courseId')
     async findByCourseId(
         @Param('courseId') courseId: string,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.findByCourseId' },
-                    { courseId, userId: user.sub }
+                    { courseId, userId: requester.sub }
                 )
             );
             return successResponse({ modules: result });
@@ -84,13 +83,13 @@ export class ModuleController {
     @Post()
     @Permissions('module.create')
     @HttpCode(HttpStatus.CREATED)
-    async create(@Body() dto: any, @Req() req: Request) {
+    async create(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.create' },
-                    { ...dto, userId: user.sub }
+                    { ...dto, userId: requester.sub }
                 )
             );
             return successResponse({ module: result }, 'Module created successfully');
@@ -104,14 +103,14 @@ export class ModuleController {
     async reorder(
         @Param('courseId') courseId: string,
         @Body() moduleOrders: { id: string; orderIndex: number }[],
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.reorder' },
-                    { courseId, moduleOrders, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { courseId, moduleOrders, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
                 )
             );
             return successResponse({ modules: result }, 'Modules reordered successfully');
@@ -125,14 +124,14 @@ export class ModuleController {
     async update(
         @Param('id') id: string,
         @Body() dto: any,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.update' },
-                    { id, ...dto, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { id, ...dto, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
                 )
             );
             return successResponse({ module: result }, 'Module updated successfully');
@@ -146,15 +145,15 @@ export class ModuleController {
     async delete(
         @Param('id') id: string,
         @Query('hardDelete') hardDelete: string,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const isHardDelete = hardDelete === 'true';
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.delete' },
-                    { id, userId: user.sub, userRole: user.role, hardDelete: isHardDelete, userPermissions: user.permissions }
+                    { id, userId: requester.sub, userRole: requester.role, hardDelete: isHardDelete, userPermissions: requester.permissions }
                 )
             );
             return successResponse(null, 'Module deleted successfully');

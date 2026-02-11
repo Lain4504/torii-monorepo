@@ -104,7 +104,11 @@ export interface ICourseService {
      * @throws NotFoundException if course not found
      */
     submitForReview(requester: Requester, courseId: string): Promise<CourseResponseDTO>;
-    updateLiveConfig(courseId: string, config: any): Promise<CourseResponseDTO>;
+
+    /**
+     * Update livestream configuration. Caller must have course.publish or be an instructor assigned to the course.
+     */
+    updateLiveConfig(requester: Requester, courseId: string, config: any): Promise<CourseResponseDTO>;
 
     /**
      * Publish a course

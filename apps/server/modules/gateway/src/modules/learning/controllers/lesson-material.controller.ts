@@ -15,10 +15,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/lesson-materials')
 @UseGuards(GatewayAuthGuard)
@@ -28,21 +28,21 @@ export class LessonMaterialController {
     @Post()
     async uploadMaterial(
         @Body() body: { dto: any; fileId: string },
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         const { dto, fileId } = body;
 
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson-material.upload' },
                     {
                         dto,
                         fileId,
-                        userId: user.sub,
-                        userRole: user.role,
-                        userPermissions: user.permissions
+                        userId: requester.sub,
+                        userRole: requester.role,
+                        userPermissions: requester.permissions
                     }
                 )
             );
@@ -71,14 +71,14 @@ export class LessonMaterialController {
     async updateMaterial(
         @Param('id') id: string,
         @Body() dto: any,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson-material.update' },
-                    { id, ...dto, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { id, ...dto, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
                 )
             );
             return successResponse({ material: result }, 'Material updated successfully');
@@ -90,14 +90,14 @@ export class LessonMaterialController {
     @Delete(':id')
     async deleteMaterial(
         @Param('id') id: string,
-        @Req() req: Request
+        @Req() req: ReqWithRequester
     ) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson-material.delete' },
-                    { id, userId: user.sub, userRole: user.role, userPermissions: user.permissions }
+                    { id, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
                 )
             );
             return successResponse(result, 'Material deleted successfully');

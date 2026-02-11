@@ -75,9 +75,15 @@ export class AuthService implements IAuthService {
             }
         }
 
-        // 2. Revoke Refresh Token Session
+        // 2. Revoke Refresh Token Session & Clear Permission Cache
         if (refreshToken) {
             try {
+                // Decode refresh token to get sid
+                const payload = await this.jwtTokenProvider.verifyRefreshToken(refreshToken);
+                if (payload?.sid) {
+                    await this.redis.del(`session:${payload.sid}:permissions`);
+                }
+
                 const tokenHash = this.sessionService.hashTokenPublic(refreshToken);
                 await this.sessionService.revokeSession(tokenHash);
             } catch (error) {
@@ -219,13 +225,17 @@ export class AuthService implements IAuthService {
             };
         }
 
-        // No 2FA - proceed with normal login
+        // Create session
+        const { refreshToken, sessionId } = await this.sessionService.createSession(user.id);
+
         const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
-        const accessToken = await this.jwtTokenProvider.generateToken({
-            sub: user.id,
-            role: user.role as UserRole,
-            permissions,
-        });
+        const accessToken = await this.generateAccessToken(
+            user.id,
+            user.role,
+            sessionId,
+            ['password'],
+            { user_metadata: { displayName: user.displayName } }
+        );
 
         return {
             requiresTwoFactor: false,
@@ -242,6 +252,7 @@ export class AuthService implements IAuthService {
                 permissions,
             },
             accessToken,
+            refreshToken,
         };
     }
 
@@ -318,23 +329,33 @@ export class AuthService implements IAuthService {
             throw new NotFoundException('User not found');
         }
 
-        // Generate access token
-        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
-        const accessToken = await this.jwtTokenProvider.generateToken({
-            sub: user.id,
-            role: user.role as UserRole,
-            permissions,
-        });
+        // Complete login
+        const role = user.role;
+
+        // Create session
+        const { refreshToken, sessionId } = await this.sessionService.createSession(user.id);
+        const accessToken = await this.generateAccessToken(
+            user.id,
+            role,
+            sessionId,
+            ['password', 'totp'],
+            { user_metadata: { displayName: user.displayName } }
+        );
+
+        // Emit activity
 
         // Emit activity
         this.emitLoginActivity(user.id);
+
+        // Get permissions for the user object in the response
+        const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
 
         return {
             user: {
                 id: user.id,
                 email: user.email,
                 displayName: user.displayName,
-                role: user.role as UserRole,
+                role: role as UserRole,
                 xp: (user as any).xp,
                 level: (user as any).level,
                 verifiedAt: user.verifiedAt,
@@ -343,6 +364,7 @@ export class AuthService implements IAuthService {
                 permissions,
             },
             accessToken,
+            refreshToken,
         };
     }
 
@@ -844,13 +866,20 @@ export class AuthService implements IAuthService {
 
             await this.userIdentityRepository.updateLastSignIn(existingIdentity.id);
 
-            // Generate token
             const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
-            const accessToken = await this.jwtTokenProvider.generateToken({
-                sub: user.id,
-                role: user.role as UserRole,
-                permissions,
-            });
+
+            // Create session
+            const { refreshToken, sessionId } = await this.sessionService.createSession(user.id);
+            const accessToken = await this.generateAccessToken(
+                user.id,
+                user.role,
+                sessionId,
+                ['oauth'],
+                {
+                    user_metadata: { displayName: user.displayName },
+                    app_metadata: { provider: 'google' }
+                }
+            );
 
             // Emit activity
             this.emitLoginActivity(user.id);
@@ -869,6 +898,7 @@ export class AuthService implements IAuthService {
                     permissions,
                 },
                 accessToken,
+                refreshToken,
             };
         }
 
@@ -900,11 +930,19 @@ export class AuthService implements IAuthService {
             });
 
             const { permissions } = await this.authorizationService.getUserPermissions(existingUser.id, existingUser.role);
-            const accessToken = await this.jwtTokenProvider.generateToken({
-                sub: existingUser.id,
-                role: existingUser.role as UserRole,
-                permissions,
-            });
+
+            // Create session
+            const { refreshToken, sessionId } = await this.sessionService.createSession(existingUser.id);
+            const accessToken = await this.generateAccessToken(
+                existingUser.id,
+                existingUser.role,
+                sessionId,
+                ['oauth'],
+                {
+                    user_metadata: { displayName: existingUser.displayName },
+                    app_metadata: { provider: 'google' }
+                }
+            );
 
             // Emit activity
             this.emitLoginActivity(existingUser.id);
@@ -917,11 +955,13 @@ export class AuthService implements IAuthService {
                     role: existingUser.role as UserRole,
                     xp: (existingUser as any).xp,
                     level: (existingUser as any).level,
+                    verifiedAt: existingUser.verifiedAt,
                     createdAt: existingUser.createdAt,
                     updatedAt: existingUser.updatedAt,
                     permissions,
                 },
                 accessToken,
+                refreshToken,
             };
         }
 
@@ -949,11 +989,19 @@ export class AuthService implements IAuthService {
         });
 
         const { permissions } = await this.authorizationService.getUserPermissions(newUser.id, newUser.role);
-        const accessToken = await this.jwtTokenProvider.generateToken({
-            sub: newUser.id,
-            role: newUser.role as UserRole,
-            permissions,
-        });
+
+        // Create session
+        const { refreshToken, sessionId } = await this.sessionService.createSession(newUser.id);
+        const accessToken = await this.generateAccessToken(
+            newUser.id,
+            newUser.role,
+            sessionId,
+            ['oauth'],
+            {
+                user_metadata: { displayName: newUser.displayName },
+                app_metadata: { provider: 'google' }
+            }
+        );
 
         // Emit activity
         this.emitLoginActivity(newUser.id);
@@ -972,6 +1020,7 @@ export class AuthService implements IAuthService {
                 permissions,
             },
             accessToken,
+            refreshToken,
         };
     }
 
@@ -1156,12 +1205,35 @@ export class AuthService implements IAuthService {
     /**
      * Generate access token for a user
      */
-    async generateAccessToken(userId: string, role: string): Promise<string> {
-        const { permissions } = await this.authorizationService.getUserPermissions(userId, role);
+    async generateAccessToken(
+        userId: string,
+        role: string,
+        sid?: string,
+        amr: string[] = ['password'],
+        metadata?: { user_metadata?: any; app_metadata?: any }
+    ): Promise<string> {
+        // Centralized caching: If session ID is provided, cache the latest permissions in Redis
+        if (sid) {
+            try {
+                const { permissions } = await this.authorizationService.getUserPermissions(userId, role);
+                await this.redis.set(
+                    `session:${sid}:permissions`,
+                    JSON.stringify(permissions),
+                    'EX',
+                    7 * 24 * 60 * 60 // 7 days matches refresh token expiry
+                );
+            } catch (error) {
+                console.error(`[AuthService] Failed to cache permissions for session ${sid}:`, error);
+                // Continue token generation even if cache fails
+            }
+        }
+
         return this.jwtTokenProvider.generateToken({
             sub: userId,
             role: role as UserRole,
-            permissions,
+            sid,
+            amr,
+            ...metadata,
         });
     }
 

@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 export const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8050',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -82,14 +82,15 @@ const isPublicEndpoint = (url?: string): boolean => {
         '/auth/verify-invite-token',
         '/auth/set-password',
         '/auth/logout',
+        '/auth/refresh', // Refresh itself should be considered "safe" to fail
         '/posts',
         '/comments',
     ];
 
-    // Normalize URL by removing query params and hash for matching
-    const normalizedUrl = url.split(/[?#]/)[0] ?? '';
+    // Normalize URL by removing query params and hash for matching, and trim trailing slash
+    const normalizedUrl = (url.split(/[?#]/)[0] ?? '').replace(/\/$/, '');
 
-    return publicEndpoints.some(endpoint => normalizedUrl.includes(endpoint));
+    return publicEndpoints.some(endpoint => normalizedUrl.endsWith(endpoint));
 };
 
 /**
@@ -120,8 +121,8 @@ const isPublicPage = (): boolean => {
     if (pathname.startsWith('/post')) return true;
     if (pathname.startsWith('/live-classes')) return true;
 
-    // Other public pages
-    return publicPages.some(page => pathname.includes(page));
+    // Match exact public pages or their sub-routes
+    return publicPages.some(page => pathname === page || pathname.startsWith(page + '/'));
 };
 
 /**
@@ -163,22 +164,29 @@ const redirectToLogin = async () => {
     }
 
     isRedirecting = true;
+
+    // Check if we are already on an auth page
+    const pathname = window.location.pathname;
+    const authPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify', '/verify-otp'];
+    const isAlreadyOnAuthPage = authPages.some(page => pathname === page || pathname.startsWith(page + '/'));
+
+    if (isAlreadyOnAuthPage) {
+        isRedirecting = false;
+        return;
+    }
+
     console.warn('Authentication failed - clearing session and redirecting to login');
 
     try {
         // Force clear all local states by calling logout API
+        // We use a separate axios instance or native fetch here to avoid interceptors if needed,
+        // but apiClient should be fine now that we handle logout/login in isPublicEndpoint correctly.
         await apiClient.post('/api/auth/logout').catch(() => { });
     } catch (e) {
         // Ignore
     }
 
-    // Don't redirect if already on public auth page
-    if (isPublicPage()) {
-        isRedirecting = false;
-        return;
-    }
-
-    window.location.href = '/login';
+    window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
 };
 
 // Request interceptor - Add platform header for web
@@ -231,13 +239,11 @@ apiClient.interceptors.response.use(
                 return Promise.reject(error);
             }
 
-            // If we're already on a public page, don't even try to refresh.
-            if (isPublicPage()) {
-                console.log('Already on public page, skipping token refresh for 401 error');
-                return Promise.reject(error);
-            }
+            // Mark request as retried to prevent infinite loops
+            originalRequest._retry = true;
 
             // Check if refresh token exists before attempting refresh
+            // Note: hasRefreshToken() always returns true currently as we can't check HttpOnly cookies
             if (!hasRefreshToken()) {
                 console.log('No refresh token found, skipping token refresh');
                 redirectToLogin();
@@ -258,8 +264,6 @@ apiClient.interceptors.response.use(
                     });
             }
 
-            // Mark request as retried to prevent infinite loops
-            originalRequest._retry = true;
             isRefreshing = true;
 
             try {
@@ -269,21 +273,36 @@ apiClient.interceptors.response.use(
 
                 // Refresh successful
                 console.log('Token refreshed successfully');
-                processQueue(); // Resolve all queued requests
                 isRefreshing = false;
+                processQueue(); // Resolve all queued requests
 
                 // Retry the original request
                 return apiClient(originalRequest);
             } catch (refreshError) {
-                // Refresh failed - clear queue and redirect to login
+                // Refresh failed - clear queue and notify the app
                 console.error('Token refresh failed:', refreshError);
-                processQueue(refreshError);
                 isRefreshing = false;
+                processQueue(refreshError);
 
-                // Only redirect if we're not on a public page
-                if (!isPublicPage()) {
+                // Proactively clear cookies by calling logout
+                // Use a standard fetch or separate instance if needed, but apiClient with its safe public check is fine
+                apiClient.post('/api/auth/logout').catch(() => { });
+
+                // Dispatch event so Redux can reset its state even if we don't redirect
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('auth:expired'));
+                }
+
+                // Determine if we should redirect to login:
+                // 1. If we are on a protected page, ALWAYS redirect on fetch failure
+                // 2. If we are on a public page, only redirect if the request was NOT for a background auth check
+                const url = originalRequest.url || '';
+                const isMeRequest = url.endsWith('/auth/me') || url.endsWith('/me');
+
+                if (!isPublicPage() || !isMeRequest) {
                     redirectToLogin();
                 }
+
                 return Promise.reject(refreshError);
             }
         }

@@ -7,6 +7,7 @@ export interface MyCourseResponse {
     slug: string;
     title: string;
     thumbnailUrl: string | null;
+    type?: 'vod' | 'live';
     instructor: string;
     progress: number;
     totalLessons: number;

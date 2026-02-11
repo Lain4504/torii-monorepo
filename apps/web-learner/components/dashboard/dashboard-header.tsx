@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Sparkles, LogOut, BadgeCheck, Bell, Heart } from 'lucide-react'
+import { Search, Sparkles, LogOut, BadgeCheck, Bell, Heart, Coins } from 'lucide-react'
 import { UserRole } from '@workspace/schemas'
 import { Input } from '@workspace/ui/components/input'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
@@ -71,6 +71,10 @@ export function DashboardHeader() {
 
                 {/* Right: Actions */}
                 <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <div className="hidden md:flex items-center px-3 py-1 bg-yellow-500/10 rounded-full text-yellow-600 dark:text-yellow-500 font-bold text-sm gap-2 border border-yellow-500/20 shadow-sm">
+                        <Coins className="w-4 h-4" />
+                        <span>{((user as any)?.balance || 0).toLocaleString()}</span>
+                    </div>
                     {/* Separate Interactive Tools */}
                     <NotificationsDropdown />
                     <LanguageSwitcher />
@@ -139,6 +143,6 @@ export function DashboardHeader() {
                     </DropdownMenu>
                 </div>
             </div>
-        </header>
+        </header >
     )
 }

@@ -173,7 +173,7 @@ export function PlacementTest() {
                         <Button
                             size="lg"
                             className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20"
-                            onClick={() => handleSelectLevel(result.suggestedLevel)}
+                            onClick={() => handleSelectLevel(result.suggestedLevel ?? 'N5')}
                             asChild
                         >
                             <Link href="/dashboard">

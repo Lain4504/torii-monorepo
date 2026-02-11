@@ -38,6 +38,10 @@ export class NatsRoomService {
         @Inject(forwardRef(() => NatsSystemEventsService)) private readonly natsSystemEventsService: NatsSystemEventsService,
     ) { }
 
+    getNatsConnection() {
+        return this.natsService.getNatsConnection();
+    }
+
     /**
      * GetRoomInfo retrieves room information from NATS KV (Consolidated Bucket)
      */

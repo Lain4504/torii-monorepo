@@ -9,10 +9,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse
+    errorResponse,
+    GatewayAuthGuard,
+    ReqWithRequester,
 } from '@server/shared';
-import { GatewayAuthGuard } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/staff/dashboard')
 @UseGuards(GatewayAuthGuard)
@@ -20,13 +20,13 @@ export class StaffDashboardController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Get()
-    async getDashboardMetrics(@Req() req: Request) {
+    async getDashboardMetrics(@Req() req: ReqWithRequester) {
         try {
-            const user = req.user as any;
+            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.staff-dashboard.getMetrics' },
-                    { userId: user.sub, role: user.role }
+                    { userId: requester.sub, role: requester.role }
                 )
             );
             return successResponse(result);

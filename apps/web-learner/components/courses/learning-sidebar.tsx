@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, Circle, CheckCircle2, PlayCircle, Lock } fro
 import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
 import { cn } from '@workspace/ui/lib/utils'
+import { LiveSessionBlock } from './live-session-block'
 
 interface LearningSidebarProps {
     courseTitle: string
@@ -17,6 +18,9 @@ interface LearningSidebarProps {
     isOpen: boolean
     onToggle: () => void
     onLessonSelect: (lessonId: string) => void
+    /** When true, show live sessions block with "Vào phòng" */
+    courseId?: string
+    isLiveCourse?: boolean
 }
 
 export function LearningSidebar({
@@ -29,7 +33,9 @@ export function LearningSidebar({
     currentLessonId,
     isOpen,
     onToggle,
-    onLessonSelect
+    onLessonSelect,
+    courseId,
+    isLiveCourse,
 }: LearningSidebarProps) {
     const [expandedSections, setExpandedSections] = useState<number[]>([0])
 
@@ -74,6 +80,12 @@ export function LearningSidebar({
                     </p>
                 </div>
             </div>
+
+            {isLiveCourse && courseId && (
+                <div className="p-4 border-b border-border/40">
+                    <LiveSessionBlock courseId={courseId} compact maxSessions={3} />
+                </div>
+            )}
 
             {/* Curriculum List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none">

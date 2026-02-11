@@ -709,12 +709,26 @@ export class InsightsService {
      */
     async onAfterRoomEnded(dbTableId: number | bigint, roomId: string, roomSid: string): Promise<void> {
         try {
+            // Step 1: End all active agent services
             await Promise.allSettled([
                 this.endTranscription(roomId),
                 this.chatEndTranslation(roomId),
                 this.endAITextChat(roomId),
                 this.endAIMeetingSummarization(roomId),
             ]);
+
+            // Step 2: Create all usage artifacts for the room
+            this.logger.log(`Creating usage artifacts for room ${roomId}`);
+            try {
+                await this.artifactsService.createAllRoomUsageArtifacts(
+                    roomId,
+                    roomSid,
+                    Number(dbTableId)
+                );
+                this.logger.log(`Successfully created usage artifacts for room ${roomId}`);
+            } catch (error) {
+                this.logger.error(`Failed to create usage artifacts for room ${roomId}: ${error.message}`);
+            }
         } catch (error) {
             this.logger.error(`Error cleaning up insights for room ${roomId}: ${error.message}`);
         }

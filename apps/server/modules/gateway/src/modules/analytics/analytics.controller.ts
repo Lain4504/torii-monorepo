@@ -8,7 +8,6 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
-import { VerifiedOnly } from '@server/shared';
 
 @Controller('api/analytics')
 export class AnalyticsController {
@@ -20,7 +19,6 @@ export class AnalyticsController {
 
     @Get('overview')
     @UseGuards(GatewayAuthGuard)
-    @VerifiedOnly()
     async getPlatformOverview() {
         try {
             // Fetch stats from multiple services in parallel
@@ -56,7 +54,6 @@ export class AnalyticsController {
 
     @Get('users')
     @UseGuards(GatewayAuthGuard)
-    @VerifiedOnly()
     async getUserAnalytics() {
         try {
             const stats = await firstValueFrom(
@@ -70,7 +67,6 @@ export class AnalyticsController {
 
     @Get('courses')
     @UseGuards(GatewayAuthGuard)
-    @VerifiedOnly()
     async getCourseAnalytics() {
         try {
             const stats = await firstValueFrom(

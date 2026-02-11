@@ -51,7 +51,7 @@ export interface IEnrollmentService {
     /**
      * Delete enrollment by user and course
      */
-    deleteByUserAndCourse(userId: string, courseId: string): Promise<boolean>;
+    deleteByUserAndCourse(userId: string, courseId: string): Promise<EnrollmentResponseDTO>;
 }
 
 

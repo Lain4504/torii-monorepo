@@ -9,8 +9,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Request } from 'express';
-import { successResponse, errorResponse, GatewayAuthGuard } from '@server/shared';
+import { successResponse, errorResponse, GatewayAuthGuard, ReqWithRequester } from '@server/shared';
 
 /**
  * Sensei Gateway Handler
@@ -27,9 +26,9 @@ export class SenseiHandler {
 
     @Post('grammar-check')
     @UseGuards(GatewayAuthGuard)
-    async grammarCheck(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async grammarCheck(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📝 Grammar check request from user ${userId}`);
             const result = await firstValueFrom(
@@ -47,9 +46,9 @@ export class SenseiHandler {
 
     @Post('translate')
     @UseGuards(GatewayAuthGuard)
-    async translate(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async translate(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`🌐 Translation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -67,9 +66,9 @@ export class SenseiHandler {
 
     @Post('flashcard')
     @UseGuards(GatewayAuthGuard)
-    async createFlashcard(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async createFlashcard(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📇 Flashcard creation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -87,9 +86,9 @@ export class SenseiHandler {
 
     @Post('drill/generate')
     @UseGuards(GatewayAuthGuard)
-    async generateDrill(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async generateDrill(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`🎯 Drill generation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -107,9 +106,9 @@ export class SenseiHandler {
 
     @Post('conversation/simulate')
     @UseGuards(GatewayAuthGuard)
-    async simulateConversation(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async simulateConversation(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`💬 Conversation simulation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -127,9 +126,9 @@ export class SenseiHandler {
 
     @Post('resources/recommend')
     @UseGuards(GatewayAuthGuard)
-    async recommendResources(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async recommendResources(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`📚 Resource recommendation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -147,9 +146,9 @@ export class SenseiHandler {
 
     @Post('chat')
     @UseGuards(GatewayAuthGuard)
-    async chat(@Req() req: Request, @Body() body: any) {
-        const user = req.user as any;
-        const userId = user.sub;
+    async chat(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
         try {
             this.logger.log(`💬 Chat request from user ${userId}`);
             const result = await firstValueFrom(
