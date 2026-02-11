@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import {
   CommonResponseSchema,
@@ -21,7 +20,6 @@ import SavedLinks from './savedLinks';
 
 const DisplayExternalLinkModal = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const isActive = useAppSelector(
     (state) =>
       state.session.currentRoom.metadata?.roomFeatures
@@ -60,7 +58,7 @@ const DisplayExternalLinkModal = () => {
       url = new URL(link);
     } catch (e) {
       console.error(e);
-      toast.error(t('external-display-link-display.link-invalid'));
+      toast.error('Liên kết không hợp lệ');
       return;
     }
 
@@ -82,7 +80,7 @@ const DisplayExternalLinkModal = () => {
     }
 
     setIsLoading(true);
-    const id = toast.loading(t('please-wait'), {
+    const id = toast.loading('Vui lòng đợi', {
       type: 'info',
     });
 
@@ -101,7 +99,7 @@ const DisplayExternalLinkModal = () => {
 
     if (!res.status) {
       toast.update(id, {
-        render: t(res.msg),
+        render: res.msg,
         type: 'error',
         isLoading: false,
         autoClose: 1000,
@@ -120,7 +118,7 @@ const DisplayExternalLinkModal = () => {
       <Modal
         show={!isActive}
         onClose={closeStartModal}
-        title={t('external-display-link-display.modal-title')}
+        title="Hiển thị liên kết ngoài"
         customClass="externalDisplayLink"
       >
         <form method="POST" onSubmit={onSubmit}>
@@ -132,36 +130,34 @@ const DisplayExternalLinkModal = () => {
                 className="text-sm font-medium text-foreground"
                 aria-hidden="true"
               >
-                {t('external-display-link-display.send-extra-values')}
+                Gửi thêm giá trị
               </div>
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <Checkbox
                   id="name"
-                  label={t('external-display-link-display.name')}
-                  description={t('external-display-link-display.name-des')}
+                  label="Tên"
+                  description="Tên người tham gia"
                   checked={extraValues.name}
                   onChange={() => handleCheckboxChange('name')}
                 />
                 <Checkbox
                   id="user-id"
-                  label={t('external-display-link-display.user-id')}
-                  description={t('external-display-link-display.user-id-des')}
+                  label="ID người dùng"
+                  description="ID người tham gia"
                   checked={extraValues.userId}
                   onChange={() => handleCheckboxChange('userId')}
                 />
                 <Checkbox
                   id="user-role"
-                  label={t('external-display-link-display.user-role')}
-                  description={t('external-display-link-display.user-role-des')}
+                  label="Vai trò"
+                  description="Vai trò người tham gia"
                   checked={extraValues.role}
                   onChange={() => handleCheckboxChange('role')}
                 />
                 <Checkbox
                   id="meeting-id"
-                  label={t('external-display-link-display.meeting-id')}
-                  description={t(
-                    'external-display-link-display.meeting-id-des',
-                  )}
+                  label="ID cuộc họp"
+                  description="ID cuộc họp hiện tại"
                   checked={extraValues.meetingId}
                   onChange={() => handleCheckboxChange('meetingId')}
                 />
@@ -171,7 +167,7 @@ const DisplayExternalLinkModal = () => {
 
           <div className="mt-8 flex justify-end">
             <ActionButton isLoading={isLoading} disabled={!link}>
-              {t('external-display-link-display.display')}
+              Hiển thị
             </ActionButton>
           </div>
         </form>

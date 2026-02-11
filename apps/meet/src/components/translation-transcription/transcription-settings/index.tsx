@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { InsightsTranscriptionConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
@@ -23,7 +22,6 @@ interface TranscriptionSettingsProps {
 }
 
 const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   // all static values
@@ -71,7 +69,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
       enabledTransSynthesis,
     });
     if (!validation.isValid) {
-      setErrorMsg(t(validation.message!));
+      setErrorMsg(validation.message!);
       return;
     }
     setErrorMsg(undefined);
@@ -93,14 +91,14 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
 
     const res = await enableOrUpdateTranscription(body);
     if (res.status) {
-      toast(t('speech-services.service-ready'), {
+      toast('Dịch vụ đã sẵn sàng', {
         type: 'info',
       });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         type: 'error',
       });
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
       return;
     }
 
@@ -119,14 +117,14 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
     const res = await endTranscription();
 
     if (res.status) {
-      toast(t('speech-services.service-stopped'), {
+      toast('Dịch vụ đã dừng', {
         type: 'info',
       });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         type: 'error',
       });
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
       return;
     }
 
@@ -150,7 +148,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
       <div className="grid">
         <div className="bg-muted/30 border-y border-border -mx-4 px-4 py-4">
           <SettingsSwitch
-            label={t('speech-services.enable-transcription')}
+            label="Kích hoạt phiên dịch lời nói"
             enabled={enabledTranscription}
             onChange={setEnabledTranscription}
             customCss="h-11 border border-border rounded-xl px-4 bg-card shadow-sm"
@@ -169,7 +167,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
             />
             <DefaultSubtitleLangSelector
               isServiceRunning={!!transcriptionFeatures?.isEnabled}
-              label={t('speech-services.default-subtitle-lang-label')}
+              label="Ngôn ngữ phụ đề mặc định"
               selectedSpeechLangs={selectedSpeechLangs}
               selectedTransLangs={selectedTransLangs}
               selectedDefaultSubtitleLang={selectedDefaultSubtitleLang}
@@ -181,7 +179,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
           <>
             <div className="bg-muted/30 border-y border-border -mx-4 px-4 py-4">
               <SettingsSwitch
-                label={t('speech-services.enable-translation')}
+                label="Kích hoạt dịch thuật"
                 enabled={enableTranslation}
                 onChange={setEnableTranslation}
                 customCss="h-11 border border-border rounded-xl px-4 bg-card shadow-sm"
@@ -193,9 +191,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
                 <div className="grid gap-4 py-4 bg-card">
                   <TransLangsSelector
                     isServiceRunning={!!transcriptionFeatures?.isEnabled}
-                    label={t('speech-services.translation-langs-label', {
-                      num: transcriptionFeatures?.maxSelectedTransLangs ?? 2,
-                    })}
+                    label={`Chọn ngôn ngữ dịch tối đa ${transcriptionFeatures?.maxSelectedTransLangs ?? 2} ngôn ngữ`}
                     selectedTransLangs={selectedTransLangs}
                     setSelectedTransLangs={setSelectedTransLangs}
                     setErrorMsg={setErrorMsg}
@@ -208,7 +204,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
                   selectedTransLangs.length > 0 && (
                     <div className="bg-muted/30 border-y border-border -mx-4 px-4 py-4">
                       <SettingsSwitch
-                        label={t('speech-services.enable-trans-synthesis')}
+                        label="Kích hoạt chuyển văn bản thành lời nói (TTS)"
                         enabled={enabledTransSynthesis}
                         onChange={setEnabledTransSynthesis}
                         disabled={transcriptionFeatures?.isEnabled}
@@ -228,7 +224,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
     return (
       <div className="p-4 bg-muted">
         <div className="main-wrap -my-4 text-red-600">
-          {t('insights.feature-disable-while-e2ee-self-key-enabled')}
+          Tính năng này không khả dụng khi đang bật mã hóa đầu cuối với khóa tự nhập
         </div>
       </div>
     );
@@ -244,7 +240,7 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => enableOrUpdateService()}
           >
-            {t('speech-services.enable-service')}
+            Kích hoạt dịch vụ
           </button>
         )}
         {transcriptionFeatures?.isEnabled && (
@@ -253,13 +249,13 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => stopService()}
             >
-              {t('speech-services.stop-service')}
+              Dừng dịch vụ
             </button>
             <button
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => enableOrUpdateService()}
             >
-              {t('speech-services.update-service')}
+              Cập nhật dịch vụ
             </button>
           </>
         )}

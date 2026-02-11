@@ -6,7 +6,6 @@ import {
 
 import { getSupportedLanguages } from './apiConnections';
 import { store } from '../../../store';
-import i18n from '../../../helpers/i18n';
 
 export type SupportedLangs = {
   name: string;
@@ -59,7 +58,7 @@ const getSubtitleLangs = (
   // 4. Prepend the "Select" option and return
   return [
     {
-      name: i18n.t('speech-services.select-one-lang'),
+      name: 'Chọn một ngôn ngữ',
       code: '',
     },
     ...availableLangs,

@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { CommonResponseSchema, RoomEndAPIReqSchema } from '@workspace/protocol';
 import { Button } from '@headlessui/react';
@@ -16,7 +15,6 @@ const EndMeetingButton = () => {
   const [alertText, setAlertText] = useState<string>('');
   const [isBusy, setIsBusy] = useState<boolean>(false);
 
-  const { t } = useTranslation();
   const conn = getNatsConn();
   const { isAdmin, roomId } = useMemo(() => {
     const session = store.getState().session;
@@ -28,9 +26,9 @@ const EndMeetingButton = () => {
 
   function open() {
     if (isAdmin) {
-      setAlertText(t('header.menus.alert.end').toString());
+      setAlertText('Bạn có chắc chắn muốn kết thúc cuộc họp cho tất cả mọi người?');
     } else {
-      setAlertText(t('header.menus.alert.logout').toString());
+      setAlertText('Bạn có chắc chắn muốn rời khỏi cuộc họp?');
     }
 
     setIsOpen(true);
@@ -45,7 +43,7 @@ const EndMeetingButton = () => {
     if (!isAdmin) {
       await conn.endSession('notifications.user-logged-out');
     } else {
-      const id = toast.loading(t('notifications.ending-session'), {
+      const id = toast.loading('Đang kết thúc phiên họp...', {
         type: 'info',
       });
 
@@ -62,7 +60,7 @@ const EndMeetingButton = () => {
       const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
       if (!res.status) {
         toast.update(id, {
-          render: t(res.msg),
+          render: res.msg,
           type: 'error',
           isLoading: false,
           autoClose: 3000,
@@ -73,7 +71,7 @@ const EndMeetingButton = () => {
     }
     setIsBusy(false);
     setIsOpen(false);
-  }, [isBusy, isAdmin, conn, roomId, t]);
+  }, [isBusy, isAdmin, conn, roomId]);
 
   return (
     <>
@@ -82,7 +80,7 @@ const EndMeetingButton = () => {
         className="h-[34px] md:h-10 3xl:h-11 w-[34px] md:w-10 lg:w-auto px-2 lg:px-5 flex items-center justify-center rounded-xl text-sm 3xl:text-base font-medium 3xl:font-semibold text-destructive-foreground bg-destructive transition-all duration-300 hover:bg-destructive/90 shadow-sm cursor-pointer"
       >
         <span className="hidden lg:block">
-          {isAdmin ? t('header.menus.end') : t('header.menus.logout')}
+          {isAdmin ? 'Kết thúc cuộc họp' : 'Rời cuộc họp'}
         </span>
         <span className="block lg:hidden">
           <PhoneOff className="w-4 h-4" />
@@ -93,7 +91,7 @@ const EndMeetingButton = () => {
         show={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={onConfirm}
-        title={t('header.menus.alert.confirm')}
+        title="Xác nhận"
         text={alertText}
       />
     </>

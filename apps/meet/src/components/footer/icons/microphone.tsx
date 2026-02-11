@@ -14,7 +14,6 @@ import {
   ParticipantEvent,
   Track,
 } from 'livekit-client';
-import { useTranslation } from 'react-i18next';
 import { isEmpty } from 'es-toolkit/compat';
 import clsx from 'clsx';
 import {
@@ -48,7 +47,6 @@ import { Mic, MicOff, Plus, X, Lock as LockIcon } from 'lucide-react';
 
 const MicrophoneIcon = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const currentRoom = getMediaServerConnRoom();
   const conn = getNatsConn();
 
@@ -315,15 +313,15 @@ const MicrophoneIcon = () => {
 
   const getTooltipText = () => {
     if (!isActiveMicrophone && !isLocked) {
-      return t('footer.icons.start-microphone-sharing');
+      return 'Bật micrô';
     } else if (!isActiveMicrophone && isLocked) {
-      return t('footer.icons.microphone-locked');
+      return 'Micrô bị khóa';
     }
 
     if (isActiveMicrophone && !isMicMuted) {
-      return t('footer.menus.mute-microphone');
+      return 'Tắt tiếng micrô';
     } else if (isActiveMicrophone && isMicMuted) {
-      return t('footer.menus.unmute-microphone');
+      return 'Bật tiếng micrô';
     }
   };
 
@@ -409,7 +407,7 @@ const MicrophoneIcon = () => {
             <div className="inner w-max bg-secondary rounded-lg shadow-lg px-4 pr-6 py-4 flex items-center gap-2 relative">
               <MicOff className={'h-4 3xl:h-5 w-auto text-destructive'} />
               <p className="text-sm text-foreground">
-                {t('footer.icons.you-are-muted')}
+                Bạn đang bị tắt tiếng
               </p>
               <button
                 className="text-foreground absolute cursor-pointer top-1 right-1"

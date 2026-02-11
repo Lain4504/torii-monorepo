@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   InsightsAITextChatConfigReqSchema,
@@ -21,7 +20,6 @@ const AiTextChatSettings = ({
   setErrorMsg,
   closeModal,
 }: AiTextChatSettingsProps) => {
-  const { t } = useTranslation();
   const aiTextChatFeatures = useAppSelector(
     (state) =>
       state.session.currentRoom.metadata?.roomFeatures?.insightsFeatures
@@ -38,7 +36,7 @@ const AiTextChatSettings = ({
 
   const enableOrUpdateService = useCallback(async () => {
     if (!isAllowedEveryone && allowedUsers.length == 0) {
-      setErrorMsg(t('insights.ai-text-chat.users-required'));
+      setErrorMsg('Vui lòng chọn ít nhất một người dùng');
       return;
     }
     setErrorMsg(undefined);
@@ -59,15 +57,15 @@ const AiTextChatSettings = ({
 
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
     if (!res.status) {
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
       return;
     }
 
-    toast(t('insights.service-started-successfully'), {
+    toast('Dịch vụ đã bắt đầu thành công', {
       type: 'info',
     });
     closeModal();
-  }, [t, setErrorMsg, closeModal, isEnabled, isAllowedEveryone, allowedUsers]);
+  }, [setErrorMsg, closeModal, isEnabled, isAllowedEveryone, allowedUsers]);
 
   const stopService = useCallback(async () => {
     const r = await sendAPIRequest(
@@ -80,15 +78,15 @@ const AiTextChatSettings = ({
 
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
     if (!res.status) {
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
       return;
     }
 
-    toast(t('insights.service-stopped-successfully'), {
+    toast('Dịch vụ đã dừng thành công', {
       type: 'info',
     });
     closeModal();
-  }, [t, setErrorMsg, closeModal]);
+  }, [setErrorMsg, closeModal]);
 
   return (
     <>
@@ -97,7 +95,7 @@ const AiTextChatSettings = ({
           <div className="grid">
             <div className="bg-muted/30 border-y border-border -mx-4 px-4 py-4">
               <SettingsSwitch
-                label={t('insights.ai-text-chat.enable')}
+                label="Bật trò chuyện văn bản AI"
                 enabled={isEnabled}
                 onChange={setIsEnabled}
                 customCss="h-11 border border-border rounded-xl px-4 bg-card shadow-sm"
@@ -107,7 +105,7 @@ const AiTextChatSettings = ({
               <>
                 <div className="bg-muted/30 border-y border-border -mx-4 px-4 py-4">
                   <SettingsSwitch
-                    label={t('insights.ai-text-chat.allow-everyone')}
+                    label="Cho phép mọi người"
                     enabled={isAllowedEveryone}
                     onChange={setIsAllowedEveryone}
                     customCss="h-11 border border-border rounded-xl px-4 bg-card shadow-sm"
@@ -133,7 +131,7 @@ const AiTextChatSettings = ({
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => enableOrUpdateService()}
           >
-            {t('insights.start-service')}
+            Bắt đầu dịch vụ
           </button>
         )}
         {aiTextChatFeatures?.isEnabled && (
@@ -142,13 +140,13 @@ const AiTextChatSettings = ({
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => stopService()}
             >
-              {t('insights.stop-service')}
+              Dừng dịch vụ
             </button>
             <button
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => enableOrUpdateService()}
             >
-              {t('insights.update-service')}
+              Cập nhật dịch vụ
             </button>
           </>
         )}

@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
 import { ClosePollReqSchema } from '@workspace/protocol';
 
@@ -8,7 +7,6 @@ import { useAppDispatch } from '../../../store';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 
 export const useEndPoll = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [closePoll, { data: closePollRes, isLoading }] = useClosePollMutation();
 
@@ -17,20 +15,20 @@ export const useEndPoll = () => {
       if (closePollRes.status) {
         dispatch(
           addUserNotification({
-            message: t('polls.end-poll-success'),
+            message: 'Đã kết thúc bình chọn thành công',
             typeOption: 'info',
           }),
         );
       } else {
         dispatch(
           addUserNotification({
-            message: t(closePollRes.msg),
+            message: closePollRes.msg,
             typeOption: 'error',
           }),
         );
       }
     }
-  }, [closePollRes, dispatch, t]);
+  }, [closePollRes, dispatch]);
 
   const endPoll = (pollId: string) => {
     if (isLoading) {

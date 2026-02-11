@@ -1,5 +1,4 @@
 import React, { Dispatch, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { isEmpty } from 'es-toolkit/compat';
 
 import { getInputMediaDevices } from '../../../helpers/utils';
@@ -17,7 +16,6 @@ const MicSelector = ({
   selectedMicDevice,
   setSelectedMicDevice,
 }: IMicSelectorProps) => {
-  const { t } = useTranslation();
   const [devices, setDevices] = useState<IMediaDevice[]>([]);
 
   useEffect(() => {
@@ -46,7 +44,7 @@ const MicSelector = ({
       <div className="selectMicroPhone">
         <Dropdown
           id="microphone"
-          label={t('footer.modal.select-microphone')}
+          label="Chọn micrô"
           value={selectedMicDevice}
           onChange={setSelectedMicDevice}
           disabled={disabled}

@@ -48,7 +48,6 @@ import HandleWhiteboard from './HandleWhiteboard';
 import HandleChat from './HandleChat';
 import { store } from '../../store';
 import HandleSystemData from './HandleSystemData';
-import i18n from '../i18n';
 import { addToken } from '../../store/slices/sessionSlice';
 import MessageQueue from './MessageQueue';
 import {
@@ -137,15 +136,15 @@ export default class ConnectNats {
   private handleWhiteboard: HandleWhiteboard;
 
   constructor(
-      natsWSUrls: string[],
-      token: string,
-      roomId: string,
-      userId: string,
-      roomStreamName: string,
-      subjects: NatsSubjects,
-      setErrorState: Dispatch<IErrorPageProps>,
-      setRoomConnectionStatusState: Dispatch<roomConnectionStatus>,
-      setCurrentMediaServerConn: Dispatch<IConnectLivekit>,
+    natsWSUrls: string[],
+    token: string,
+    roomId: string,
+    userId: string,
+    roomStreamName: string,
+    subjects: NatsSubjects,
+    setErrorState: Dispatch<IErrorPageProps>,
+    setRoomConnectionStatusState: Dispatch<roomConnectionStatus>,
+    setCurrentMediaServerConn: Dispatch<IConnectLivekit>,
   ) {
     this._natsWSUrls = natsWSUrls;
     this._token = token;
@@ -201,8 +200,8 @@ export default class ConnectNats {
     } catch (e) {
       console.error(e);
       this.setErrorStatus(
-          i18n.t('notifications.nats-error-title'),
-          formatNatsError(e),
+        'Lỗi NATS',
+        formatNatsError(e),
       );
       return;
     }
@@ -228,17 +227,17 @@ export default class ConnectNats {
 
     // request for initial data
     this.sendMessageToSystemWorker(
-        create(NatsMsgClientToServerSchema, {
-          event: NatsMsgClientToServerEvents.REQ_INITIAL_DATA,
-        }),
+      create(NatsMsgClientToServerSchema, {
+        event: NatsMsgClientToServerEvents.REQ_INITIAL_DATA,
+      }),
     );
   };
 
   public endSession = async (msg: string) => {
     // 1. Immediately update UI and stop new messages
     this._setErrorState({
-      title: i18n.t('notifications.room-disconnected-title'),
-      text: i18n.t(msg),
+      title: 'Phòng bị ngắt kết nối',
+      text: msg,
     });
     this.messageQueue.setIsConnected(false);
     this._setRoomConnectionStatusState('disconnected');
@@ -296,7 +295,7 @@ export default class ConnectNats {
         this.statusCheckerInterval = setInterval(() => {
           if (this._nc?.isClosed()) {
             this.messageQueue.setIsConnected(false);
-            this.endSession('notifications.room-disconnected-network-error');
+            this.endSession('Lỗi mạng - Phòng bị ngắt kết nối');
 
             clearInterval(this.statusCheckerInterval);
             this.statusCheckerInterval = undefined;
@@ -326,12 +325,12 @@ export default class ConnectNats {
         case 'reconnecting':
           if (!this.isRoomReconnecting) {
             this.toastIdConnecting = toast.loading(
-                i18n.t('notifications.room-disconnected-reconnecting'),
-                {
-                  type: 'warning',
-                  closeButton: false,
-                  autoClose: false,
-                },
+              'Mất kết nối - Đang kết nối lại',
+              {
+                type: 'warning',
+                closeButton: false,
+                autoClose: false,
+              },
             );
             this.isRoomReconnecting = true;
             startStatusChecker();
@@ -351,7 +350,7 @@ export default class ConnectNats {
           this.isRoomReconnecting = false;
           break;
         case 'slowConsumer':
-          toast(i18n.t('notifications.your-connection-quality-not-good'), {
+          toast('Chất lượng kết nối của bạn không tốt', {
             type: 'warning',
           });
           break;
@@ -370,8 +369,8 @@ export default class ConnectNats {
     }
     const consumerName = `${this._roomId}_${this._userId}`;
     const consumer = await this._js.consumers.get(
-        this._roomStreamName,
-        consumerName,
+      this._roomStreamName,
+      consumerName,
     );
     const sub = await consumer.consume();
 
@@ -411,7 +410,7 @@ export default class ConnectNats {
 
   public sendMessageToSystemWorker = (data: NatsMsgClientToServer) => {
     const subject =
-        this._subjects.systemJsWorker + '.' + this._roomId + '.' + this._userId;
+      this._subjects.systemJsWorker + '.' + this._roomId + '.' + this._userId;
     this.messageQueue.addToQueue({
       subject,
       payload: toBinary(NatsMsgClientToServerSchema, data),
@@ -419,26 +418,26 @@ export default class ConnectNats {
   };
 
   private sendPrivateData(
-      payload: Uint8Array<ArrayBufferLike>,
-      type: PrivateDataDeliveryType,
-      toUserId: string,
-      echoToSender: boolean,
+    payload: Uint8Array<ArrayBufferLike>,
+    type: PrivateDataDeliveryType,
+    toUserId: string,
+    echoToSender: boolean,
   ) {
     const msg = toJsonString(
-        PrivateDataDeliverySchema,
-        create(PrivateDataDeliverySchema, {
-          toUserId,
-          echoToSender,
-          type,
-        }),
+      PrivateDataDeliverySchema,
+      create(PrivateDataDeliverySchema, {
+        toUserId,
+        echoToSender,
+        type,
+      }),
     );
 
     this.sendMessageToSystemWorker(
-        create(NatsMsgClientToServerSchema, {
-          event: NatsMsgClientToServerEvents.REQ_PRIVATE_DATA_DELIVERY,
-          msg,
-          binMsg: payload,
-        }),
+      create(NatsMsgClientToServerSchema, {
+        event: NatsMsgClientToServerEvents.REQ_PRIVATE_DATA_DELIVERY,
+        msg,
+        binMsg: payload,
+      }),
     );
   }
 
@@ -457,10 +456,10 @@ export default class ConnectNats {
       return await encryptDataToUint8Array(payload);
     } catch (e: any) {
       store.dispatch(
-          addUserNotification({
-            message: 'Encryption error: ' + e.message,
-            typeOption: 'error',
-          }),
+        addUserNotification({
+          message: 'Encryption error: ' + e.message,
+          typeOption: 'error',
+        }),
       );
       console.error('Encryption error:' + e.message);
     }
@@ -472,10 +471,10 @@ export default class ConnectNats {
       return await decryptDataFromUint8Array(payload);
     } catch (e: any) {
       store.dispatch(
-          addUserNotification({
-            message: 'Decryption error: ' + e.message,
-            typeOption: 'error',
-          }),
+        addUserNotification({
+          message: 'Decryption error: ' + e.message,
+          typeOption: 'error',
+        }),
       );
       console.error('Decryption error:' + e.message);
     }
@@ -509,9 +508,9 @@ export default class ConnectNats {
     const donors = getChatDonors();
     for (let i = 0; i < donors.length; i++) {
       this.sendDataMessage(
-          DataMsgBodyType.REQ_PUBLIC_CHAT_DATA,
-          '',
-          donors[i].userId,
+        DataMsgBodyType.REQ_PUBLIC_CHAT_DATA,
+        '',
+        donors[i].userId,
       ).then();
     }
 
@@ -540,8 +539,8 @@ export default class ConnectNats {
     // check translation settings
     const state = store.getState();
     const chatTranslationFeatures =
-        state.session.currentRoom?.metadata?.roomFeatures?.insightsFeatures
-            ?.chatTranslationFeatures;
+      state.session.currentRoom?.metadata?.roomFeatures?.insightsFeatures
+        ?.chatTranslationFeatures;
     if (chatTranslationFeatures && chatTranslationFeatures.isEnabled) {
       // we'll get our selected lang
       const selectedChatTransLang = state.roomSettings.selectedChatTransLang;
@@ -581,19 +580,19 @@ export default class ConnectNats {
 
     if (isPrivate) {
       this.sendAnalyticsData(
-          AnalyticsEvents.ANALYTICS_EVENT_USER_PRIVATE_CHAT,
-          AnalyticsEventType.USER,
-          '',
-          '',
-          '1',
+        AnalyticsEvents.ANALYTICS_EVENT_USER_PRIVATE_CHAT,
+        AnalyticsEventType.USER,
+        '',
+        '',
+        '1',
       );
     } else {
       this.sendAnalyticsData(
-          AnalyticsEvents.ANALYTICS_EVENT_USER_PUBLIC_CHAT,
-          AnalyticsEventType.USER,
-          '',
-          '',
-          '1',
+        AnalyticsEvents.ANALYTICS_EVENT_USER_PUBLIC_CHAT,
+        AnalyticsEventType.USER,
+        '',
+        '',
+        '1',
       );
     }
   };
@@ -611,9 +610,9 @@ export default class ConnectNats {
     const donors = getWhiteboardDonors();
     for (let i = 0; i < donors.length; i++) {
       this.sendDataMessage(
-          DataMsgBodyType.REQ_FULL_WHITEBOARD_DATA,
-          '',
-          donors[i].userId,
+        DataMsgBodyType.REQ_FULL_WHITEBOARD_DATA,
+        '',
+        donors[i].userId,
       ).then();
     }
 
@@ -635,9 +634,9 @@ export default class ConnectNats {
   }
 
   public sendWhiteboardData = async (
-      type: DataMsgBodyType,
-      msg: string,
-      to?: string,
+    type: DataMsgBodyType,
+    msg: string,
+    to?: string,
   ) => {
     if (!this._nc) {
       console.error('NATS connection not available to send whiteboard data.');
@@ -676,8 +675,8 @@ export default class ConnectNats {
     const payload = fromBinary(DataChannelMessageSchema, dataToParse);
     // Don't process our own messages or private messages for others.
     if (
-        payload.fromUserId === this._userId ||
-        (payload.toUserId && payload.toUserId !== this._userId)
+      payload.fromUserId === this._userId ||
+      (payload.toUserId && payload.toUserId !== this._userId)
     ) {
       return;
     }
@@ -707,9 +706,9 @@ export default class ConnectNats {
    * sendDataMessage method mostly use to communicate between clients
    */
   public sendDataMessage = async (
-      type: DataMsgBodyType,
-      msg: string,
-      to?: string,
+    type: DataMsgBodyType,
+    msg: string,
+    to?: string,
   ) => {
     if (!this._nc) {
       console.error('NATS connection not available to send data message.');
@@ -745,55 +744,55 @@ export default class ConnectNats {
    */
   private readonly systemEventHandlers: {
     [key in NatsMsgServerToClientEvents]?: (
-        payload: NatsMsgServerToClient,
+      payload: NatsMsgServerToClient,
     ) => void | Promise<void>;
   } = {
-    [NatsMsgServerToClientEvents.RES_INITIAL_DATA]: async (p) => {
-      await this.handleInitialData(p.msg);
-      this._setRoomConnectionStatusState('ready');
-    },
-    [NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA]: async (p) => {
-      await this.handleMediaServerData(p.msg);
-    },
-    [NatsMsgServerToClientEvents.RES_JOINED_USERS_LIST]: (p) =>
+      [NatsMsgServerToClientEvents.RES_INITIAL_DATA]: async (p) => {
+        await this.handleInitialData(p.msg);
+        this._setRoomConnectionStatusState('ready');
+      },
+      [NatsMsgServerToClientEvents.RES_MEDIA_SERVER_DATA]: async (p) => {
+        await this.handleMediaServerData(p.msg);
+      },
+      [NatsMsgServerToClientEvents.RES_JOINED_USERS_LIST]: (p) =>
         this.handleJoinedUsersList(p.msg),
-    [NatsMsgServerToClientEvents.RESP_ONLINE_USERS_LIST]: (p) =>
+      [NatsMsgServerToClientEvents.RESP_ONLINE_USERS_LIST]: (p) =>
         this.handleParticipants.reconcileParticipants(p.msg),
-    [NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE]: (p) =>
+      [NatsMsgServerToClientEvents.ROOM_METADATA_UPDATE]: (p) =>
         this.handleRoomData.updateRoomMetadata(p.msg),
-    [NatsMsgServerToClientEvents.RESP_RENEW_WAJLC_TOKEN]: (p) => {
-      this._token = p.msg.toString();
-      store.dispatch(addToken(this._token));
-    },
-    [NatsMsgServerToClientEvents.SYSTEM_NOTIFICATION]: (p) => {
-      !this._isRecorder && this.handleSystemData.handleNotification(p.msg);
-    },
-    [NatsMsgServerToClientEvents.USER_JOINED]: (p) =>
+      [NatsMsgServerToClientEvents.RESP_RENEW_WAJLC_TOKEN]: (p) => {
+        this._token = p.msg.toString();
+        store.dispatch(addToken(this._token));
+      },
+      [NatsMsgServerToClientEvents.SYSTEM_NOTIFICATION]: (p) => {
+        !this._isRecorder && this.handleSystemData.handleNotification(p.msg);
+      },
+      [NatsMsgServerToClientEvents.USER_JOINED]: (p) =>
         this.handleParticipants.addRemoteParticipant(p.msg),
-    [NatsMsgServerToClientEvents.USER_DISCONNECTED]: (p) =>
+      [NatsMsgServerToClientEvents.USER_DISCONNECTED]: (p) =>
         this.handleParticipants.handleParticipantDisconnected(p.msg),
-    [NatsMsgServerToClientEvents.USER_OFFLINE]: (p) =>
+      [NatsMsgServerToClientEvents.USER_OFFLINE]: (p) =>
         this.handleParticipants.handleParticipantOffline(p.msg),
-    [NatsMsgServerToClientEvents.USER_METADATA_UPDATE]: (p) =>
+      [NatsMsgServerToClientEvents.USER_METADATA_UPDATE]: (p) =>
         this.handleParticipants.handleParticipantMetadataUpdate(p.msg),
-    [NatsMsgServerToClientEvents.SESSION_ENDED]: (p) => this.endSession(p.msg),
-    [NatsMsgServerToClientEvents.POLL_CREATED]: (p) =>
+      [NatsMsgServerToClientEvents.SESSION_ENDED]: (p) => this.endSession(p.msg),
+      [NatsMsgServerToClientEvents.POLL_CREATED]: (p) =>
         this.handleSystemData.handlePoll(p),
-    [NatsMsgServerToClientEvents.POLL_CLOSED]: (p) =>
+      [NatsMsgServerToClientEvents.POLL_CLOSED]: (p) =>
         this.handleSystemData.handlePoll(p),
-    [NatsMsgServerToClientEvents.JOIN_BREAKOUT_ROOM]: (p) =>
+      [NatsMsgServerToClientEvents.JOIN_BREAKOUT_ROOM]: (p) =>
         this.handleSystemData.handleBreakoutRoom(p),
-    [NatsMsgServerToClientEvents.BREAKOUT_ROOM_ENDED]: (p) =>
+      [NatsMsgServerToClientEvents.BREAKOUT_ROOM_ENDED]: (p) =>
         this.handleSystemData.handleBreakoutRoom(p),
-    [NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG]: (p) =>
+      [NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG]: (p) =>
         this.handleSystemData.handleSysChatMsg(p.msg),
-    [NatsMsgServerToClientEvents.TRANSCRIPTION_OUTPUT_TEXT]: (p) =>
+      [NatsMsgServerToClientEvents.TRANSCRIPTION_OUTPUT_TEXT]: (p) =>
         this.handleDataMsg.handleSpeechSubtitleText(p.msg),
-    [NatsMsgServerToClientEvents.RESP_INSIGHTS_AI_TEXT_CHAT]: (p) =>
+      [NatsMsgServerToClientEvents.RESP_INSIGHTS_AI_TEXT_CHAT]: (p) =>
         this.handleSystemData.handleInsightsAITextData(p.msg),
-    [NatsMsgServerToClientEvents.DELIVERY_PRIVATE_DATA]: (p) =>
+      [NatsMsgServerToClientEvents.DELIVERY_PRIVATE_DATA]: (p) =>
         this.handlePrivateDataDelivery(p),
-  };
+    };
 
   /**
    * Handle system events
@@ -808,11 +807,11 @@ export default class ConnectNats {
   }
 
   public sendAnalyticsData = (
-      event_name: AnalyticsEvents,
-      event_type: AnalyticsEventType = AnalyticsEventType.USER,
-      hset_value?: string,
-      event_value_string?: string,
-      event_value_integer?: string,
+    event_name: AnalyticsEvents,
+    event_type: AnalyticsEventType = AnalyticsEventType.USER,
+    hset_value?: string,
+    event_value_string?: string,
+    event_value_integer?: string,
   ) => {
     const analyticsMsg = create(AnalyticsDataMsgSchema, {
       eventType: event_type,
@@ -834,10 +833,10 @@ export default class ConnectNats {
   private startTokenRenewInterval() {
     this.tokenRenewInterval = setInterval(() => {
       this.sendMessageToSystemWorker(
-          create(NatsMsgClientToServerSchema, {
-            event: NatsMsgClientToServerEvents.REQ_RENEW_WAJLC_TOKEN,
-            msg: this._token,
-          }),
+        create(NatsMsgClientToServerSchema, {
+          event: NatsMsgClientToServerEvents.REQ_RENEW_WAJLC_TOKEN,
+          msg: this._token,
+        }),
       );
     }, RENEW_TOKEN_FREQUENT);
   }
@@ -845,9 +844,9 @@ export default class ConnectNats {
   private startPingToServer() {
     const ping = () => {
       this.sendMessageToSystemWorker(
-          create(NatsMsgClientToServerSchema, {
-            event: NatsMsgClientToServerEvents.PING,
-          }),
+        create(NatsMsgClientToServerSchema, {
+          event: NatsMsgClientToServerEvents.PING,
+        }),
       );
     };
     this.pingInterval = setInterval(() => {
@@ -860,9 +859,9 @@ export default class ConnectNats {
   private startUsersSync = () => {
     this.reconciliationInterval = setInterval(() => {
       this.sendMessageToSystemWorker(
-          create(NatsMsgClientToServerSchema, {
-            event: NatsMsgClientToServerEvents.REQ_ONLINE_USERS_LIST,
-          }),
+        create(NatsMsgClientToServerSchema, {
+          event: NatsMsgClientToServerEvents.REQ_ONLINE_USERS_LIST,
+        }),
       );
     }, USERS_SYNC_INTERVAL);
   };
@@ -877,8 +876,8 @@ export default class ConnectNats {
     } catch (e: any) {
       console.error(e);
       this.setErrorStatus(
-          i18n.t('notifications.decode-error-title'),
-          i18n.t('notifications.decode-error-body'),
+        'Lỗi giải mã dữ liệu',
+        'Không thể giải mã phản hồi từ máy chủ',
       );
       return;
     }
@@ -886,8 +885,8 @@ export default class ConnectNats {
     // 2. We'll check if the data is valid.
     if (!data.room || !data.localUser) {
       this.setErrorStatus(
-          i18n.t('notifications.decode-error-title'),
-          i18n.t('notifications.invalid-missing-data'),
+        'Lỗi giải mã dữ liệu',
+        'Dữ liệu không hợp lệ hoặc bị thiếu',
       );
       return;
     }
@@ -901,14 +900,14 @@ export default class ConnectNats {
     // 5. We'll add the local user.
     this._isAdmin = data.localUser.isAdmin;
     const localUser = await this.handleParticipants.addLocalParticipantInfo(
-        data.localUser,
+      data.localUser,
     );
     this._userName = localUser.name;
 
     // 6. We'll initialize the media server class.
     await this.initializeMediaServer(
-        this._currentRoomInfo.metadata?.roomFeatures?.endToEndEncryptionFeatures,
-        data.room.roomSid,
+      this._currentRoomInfo.metadata?.roomFeatures?.endToEndEncryptionFeatures,
+      data.room.roomSid,
     );
   }
 
@@ -921,9 +920,9 @@ export default class ConnectNats {
   public finalizeAppConn = () => {
     // Request for users' list to prepare everything
     this.sendMessageToSystemWorker(
-        create(NatsMsgClientToServerSchema, {
-          event: NatsMsgClientToServerEvents.REQ_JOINED_USERS_LIST,
-        }),
+      create(NatsMsgClientToServerSchema, {
+        event: NatsMsgClientToServerEvents.REQ_JOINED_USERS_LIST,
+      }),
     );
   };
 
@@ -950,9 +949,9 @@ export default class ConnectNats {
   private async onAfterUserReady() {
     // Request for media server connection data
     this.sendMessageToSystemWorker(
-        create(NatsMsgClientToServerSchema, {
-          event: NatsMsgClientToServerEvents.REQ_MEDIA_SERVER_DATA,
-        }),
+      create(NatsMsgClientToServerSchema, {
+        event: NatsMsgClientToServerEvents.REQ_MEDIA_SERVER_DATA,
+      }),
     );
 
     // Restore user data from IndexedDB to maintain state across sessions.
@@ -966,18 +965,18 @@ export default class ConnectNats {
         idbGetAll<ChatMessage>(DB_STORE_NAMES.CHAT_MESSAGES),
         idbGetAll<UserNotification>(DB_STORE_NAMES.USER_NOTIFICATIONS),
         idbGet<string>(
-            DB_STORE_NAMES.USER_SETTINGS,
-            SELECTED_SUBTITLE_LANG_KEY,
+          DB_STORE_NAMES.USER_SETTINGS,
+          SELECTED_SUBTITLE_LANG_KEY,
         ),
         idbGetAll<TextWithInfo>(DB_STORE_NAMES.SPEECH_TO_TEXT_FINAL_TEXTS),
       ]);
 
       if (chatMsgs.length) {
         store.dispatch(
-            addAllChatMessages({
-              messages: chatMsgs,
-              currentUserId: this._userId,
-            }),
+          addAllChatMessages({
+            messages: chatMsgs,
+            currentUserId: this._userId,
+          }),
         );
       }
       if (notifications.length) {
@@ -985,22 +984,22 @@ export default class ConnectNats {
       }
       // Restore speech-to-text data if the feature is enabled.
       const transcriptionFeatures =
-          this._currentRoomInfo?.metadata?.roomFeatures?.insightsFeatures
-              ?.transcriptionFeatures;
+        this._currentRoomInfo?.metadata?.roomFeatures?.insightsFeatures
+          ?.transcriptionFeatures;
       if (
-          transcriptionFeatures?.isEnabled &&
-          speechToTextFinalTexts &&
-          speechToTextFinalTexts.length
+        transcriptionFeatures?.isEnabled &&
+        speechToTextFinalTexts &&
+        speechToTextFinalTexts.length
       ) {
         let subtitleLang = lastSubtitleLang;
         if (!lastSubtitleLang) {
           subtitleLang = transcriptionFeatures.defaultSubtitleLang;
         }
         store.dispatch(
-            setSpeechToTextLastFinalTexts({
-              selectedSubtitleLang: subtitleLang as string,
-              lastFinalTexts: speechToTextFinalTexts,
-            }),
+          setSpeechToTextLastFinalTexts({
+            selectedSubtitleLang: subtitleLang as string,
+            lastFinalTexts: speechToTextFinalTexts,
+          }),
         );
       }
     } catch (e) {
@@ -1032,23 +1031,23 @@ export default class ConnectNats {
       const serverInfo = fromJsonString(MediaServerConnInfoSchema, msg);
       if (this.mediaServerConn) {
         await this.mediaServerConn.initializeConnection(
-            serverInfo.url,
-            serverInfo.token,
+          serverInfo.url,
+          serverInfo.token,
         );
       }
     } catch (e: any) {
       console.error(e);
       this.setErrorStatus(
-          i18n.t('notifications.decode-error-title'),
-          i18n.t('notifications.decode-error-body'),
+        'Lỗi giải mã dữ liệu',
+        'Không thể giải mã phản hồi từ máy chủ',
       );
       return;
     }
   }
 
   private async initializeMediaServer(
-      e2ee: EndToEndEncryptionFeatures | undefined,
-      roomSid: string,
+    e2ee: EndToEndEncryptionFeatures | undefined,
+    roomSid: string,
   ) {
     if (typeof this._mediaServerConn !== 'undefined') {
       return false;
@@ -1058,8 +1057,8 @@ export default class ConnectNats {
     if (e2ee && e2ee.isEnabled) {
       if (!isE2EESupported()) {
         this.setErrorStatus(
-            i18n.t('notifications.e2ee-unsupported-browser-title'),
-            i18n.t('notifications.e2ee-unsupported-browser-msg'),
+          'Trình duyệt không hỗ trợ E2EE',
+          'Trình duyệt của bạn không hỗ trợ mã hóa đầu cuối',
         );
         return false;
       }
@@ -1079,19 +1078,19 @@ export default class ConnectNats {
         this._enableE2EEWhiteboard = e2ee.includedWhiteboard;
       } else {
         this.setErrorStatus(
-            i18n.t('notifications.e2ee-invalid-key-title'),
-            i18n.t('notifications.e2ee-invalid-key-msg'),
+          'Khóa E2EE không hợp lệ',
+          'Không tìm thấy khóa mã hóa hợp lệ',
         );
         return false;
       }
     }
 
     this._mediaServerConn = createLivekitConnection(
-        this._setErrorState,
-        this._setRoomConnectionStatusState,
-        this._userId,
-        this._enableE2EE,
-        encryptionKey,
+      this._setErrorState,
+      this._setRoomConnectionStatusState,
+      this._userId,
+      this._enableE2EE,
+      encryptionKey,
     );
 
     this._setCurrentMediaServerConn(this._mediaServerConn);

@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { MenuItem } from '@headlessui/react';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import {
   CommonResponseSchema,
@@ -32,7 +31,6 @@ const serviceToLockSettingMap: Record<
 };
 
 const LockSettingMenuItem = ({ userId }: ILockSettingMenuItemProps) => {
-  const { t } = useTranslation();
   const [isBusy, setIsBusy] = useState<boolean>(false);
 
   // all static values
@@ -79,18 +77,18 @@ const LockSettingMenuItem = ({ userId }: ILockSettingMenuItemProps) => {
       const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
 
       if (res.status) {
-        toast(t('left-panel.menus.notice.applied-new-setting'), {
+        toast('Đã áp dụng cài đặt mới.', {
           toastId: 'lock-setting-status',
           type: 'info',
         });
       } else {
-        toast(t(res.msg), {
+        toast(res.msg, {
           type: 'error',
         });
       }
       setIsBusy(false);
     },
-    [userId, sid, roomId, t, isBusy, lockSettings],
+    [userId, sid, roomId, isBusy, lockSettings],
   );
 
   const lockableFeatures = [
@@ -98,45 +96,45 @@ const LockSettingMenuItem = ({ userId }: ILockSettingMenuItemProps) => {
       key: 'mic',
       isDisplayed: true,
       isLocked: lockSettings?.lockMicrophone,
-      lockText: t('left-panel.menus.items.lock-microphone'),
-      unlockText: t('left-panel.menus.items.unlock-microphone'),
+      lockText: 'Khóa micrô',
+      unlockText: 'Mở khóa micrô',
     },
     {
       key: 'webcam',
       isDisplayed:
         roomFeatures?.allowWebcams && !roomFeatures?.adminOnlyWebcams,
       isLocked: lockSettings?.lockWebcam,
-      lockText: t('left-panel.menus.items.lock-webcam'),
-      unlockText: t('left-panel.menus.items.unlock-webcam'),
+      lockText: 'Khóa máy ảnh',
+      unlockText: 'Mở khóa máy ảnh',
     },
     {
       key: 'screenShare',
       isDisplayed: roomFeatures?.allowScreenShare,
       isLocked: lockSettings?.lockScreenSharing,
-      lockText: t('left-panel.menus.items.lock-screen-sharing'),
-      unlockText: t('left-panel.menus.items.unlock-screen-sharing'),
+      lockText: 'Khóa chia sẻ màn hình',
+      unlockText: 'Mở khóa chia sẻ màn hình',
     },
     {
       key: 'whiteboard',
       isDisplayed: roomFeatures?.whiteboardFeatures?.isAllow,
       isLocked: lockSettings?.lockWhiteboard,
-      lockText: t('left-panel.menus.items.lock-whiteboard'),
-      unlockText: t('left-panel.menus.items.unlock-whiteboard'),
+      lockText: 'Khóa bảng trắng',
+      unlockText: 'Mở khóa bảng trắng',
     },
 
     {
       key: 'chat',
       isDisplayed: roomFeatures?.chatFeatures?.isAllow,
       isLocked: lockSettings?.lockChat,
-      lockText: t('left-panel.menus.items.lock-chat'),
-      unlockText: t('left-panel.menus.items.unlock-chat'),
+      lockText: 'Khóa trò chuyện',
+      unlockText: 'Mở khóa trò chuyện',
     },
     {
       key: 'sendChatMsg',
       isDisplayed: roomFeatures?.chatFeatures?.isAllow,
       isLocked: lockSettings?.lockChatSendMessage,
-      lockText: t('left-panel.menus.items.lock-send-chat-message'),
-      unlockText: t('left-panel.menus.items.unlock-send-chat-message'),
+      lockText: 'Khóa gửi tin nhắn trò chuyện',
+      unlockText: 'Mở khóa gửi tin nhắn trò chuyện',
     },
     {
       key: 'chatFile',
@@ -144,8 +142,8 @@ const LockSettingMenuItem = ({ userId }: ILockSettingMenuItemProps) => {
         roomFeatures?.chatFeatures?.isAllow &&
         roomFeatures?.chatFeatures?.isAllowFileUpload,
       isLocked: lockSettings?.lockChatFileShare,
-      lockText: t('left-panel.menus.items.lock-send-file'),
-      unlockText: t('left-panel.menus.items.unlock-send-file'),
+      lockText: 'Khóa gửi tệp',
+      unlockText: 'Mở khóa gửi tệp',
     },
   ];
 

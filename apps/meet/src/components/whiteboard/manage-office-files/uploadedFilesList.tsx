@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   GetRoomUploadedFilesReqSchema,
   GetRoomUploadedFilesResSchema,
@@ -30,7 +29,6 @@ const UploadedFilesList = ({
   onSelectOfficeFile,
   selectedOfficeFile,
 }: UploadedFilesListProps) => {
-  const { t } = useTranslation();
   const isFetched = useRef(false);
 
   const whiteboardUploadedOfficeFiles = useAppSelector(
@@ -123,9 +121,7 @@ const UploadedFilesList = ({
                 </div>
               </div>
               <div className="progress-bar flex gap-2 items-center text-xs pt-0.5 text-muted-foreground">
-                {t('whiteboard.total-pages', {
-                  count: file.totalPages,
-                })}
+                Tổng {file.totalPages} trang
               </div>
             </div>
           </div>

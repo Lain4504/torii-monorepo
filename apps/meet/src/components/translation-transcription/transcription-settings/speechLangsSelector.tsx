@@ -1,5 +1,4 @@
 import React, { Dispatch, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
 import { supportedTranscriptionLangs } from '../helpers/supportedLangs';
 
@@ -14,7 +13,6 @@ const SpeechLangsSelector = ({
   selectedSpeechLangs,
   setSelectedSpeechLangs,
 }: SpeechLangsSelectorProps) => {
-  const { t } = useTranslation();
   const [selectOptions, setSelectOptions] = useState<ISelectOption[]>([]);
 
   useEffect(() => {
@@ -24,7 +22,7 @@ const SpeechLangsSelector = ({
   return (
     <Dropdown
       id="speech-lang"
-      label={t('speech-services.speech-langs-label')}
+      label="Chọn ngôn ngữ của người nói"
       value={selectedSpeechLangs}
       onChange={setSelectedSpeechLangs}
       multiple={true}

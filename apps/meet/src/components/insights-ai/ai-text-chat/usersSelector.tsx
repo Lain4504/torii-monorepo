@@ -1,5 +1,4 @@
 import React, { Dispatch, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from '../../../store';
 import { selectBasicParticipants } from '../../../store/slices/participantSlice';
@@ -14,7 +13,6 @@ const UsersSelector = ({
   selectedUsers,
   setSelectedUsers,
 }: UsersSelectorProps) => {
-  const { t } = useTranslation();
   const participants = useAppSelector(selectBasicParticipants);
 
   return useMemo(() => {
@@ -32,7 +30,7 @@ const UsersSelector = ({
       <div className="">
         <Dropdown
           id="allowed-users"
-          label={t('insights.ai-text-chat.allowed-users')}
+          label="Người dùng được phép"
           value={selectedUsers}
           onChange={setSelectedUsers}
           multiple={true}
@@ -40,7 +38,7 @@ const UsersSelector = ({
         />
       </div>
     );
-  }, [participants, selectedUsers, t, setSelectedUsers]);
+  }, [participants, selectedUsers, setSelectedUsers]);
 };
 
 export default UsersSelector;

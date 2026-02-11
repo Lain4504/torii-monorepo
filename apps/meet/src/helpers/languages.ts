@@ -3,9 +3,8 @@ interface Language {
   text: string;
 }
 
-// Support only English and Vietnamese
+// Support only Vietnamese
 const languages: Language[] = [
-  { code: 'en', text: 'English' },
   { code: 'vi', text: 'Tiếng Việt' },
 ];
 

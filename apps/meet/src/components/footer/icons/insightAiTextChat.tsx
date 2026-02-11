@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
@@ -8,7 +7,6 @@ import { Bot } from 'lucide-react';
 
 const InsightsAiTextChatIcon = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const { showTooltip } = useMemo(() => {
     const session = store.getState().session;
     return {
@@ -57,8 +55,8 @@ const InsightsAiTextChatIcon = () => {
       <div className={innerDivClasses}>
         <span className="tooltip">
           {isActiveAiTextChat
-            ? t('footer.icons.hide-ai-chat-panel')
-            : t('footer.icons.show-ai-chat-panel')}
+            ? 'Ẩn bảng chat AI'
+            : 'Hiển thị bảng chat AI'}
         </span>
         <Bot className="h-auto w-4 3xl:w-5" />
       </div>

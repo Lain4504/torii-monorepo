@@ -1,6 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 import {
   Disclosure,
   DisclosureButton,
@@ -14,7 +13,6 @@ interface RespondentsProps {
 }
 
 const Respondents = ({ pollDataWithOption }: RespondentsProps) => {
-  const { t } = useTranslation();
 
   const optionDisclosures = useMemo(() => {
     const elms: Array<ReactElement> = [];
@@ -88,9 +86,7 @@ const Respondents = ({ pollDataWithOption }: RespondentsProps) => {
   return (
     <div className="px-5 py-5">
       <p className="text-sm font-medium text-foreground mb-4">
-        {t('polls.total-responses', {
-          count: pollDataWithOption.totalRespondents,
-        })}
+        Tổng số phản hồi: {pollDataWithOption.totalRespondents}
       </p>
       <div className="relative">
         <div className="wrap grid gap-3">{optionDisclosures}</div>

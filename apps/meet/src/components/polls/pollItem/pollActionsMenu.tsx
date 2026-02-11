@@ -6,7 +6,6 @@ import {
   MenuItems,
   Transition,
 } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
 
 import { MoreHorizontal } from 'lucide-react';
 import { PollDataWithOption, publishPollResultByChat } from '../utils';
@@ -23,7 +22,6 @@ const PollActionsMenu = ({
   setViewDetails,
   pollDataWithOption,
 }: PollActionsMenuProps) => {
-  const { t } = useTranslation();
   const { endPoll, isEndingPoll } = useEndPoll();
   const [isPublishing, setIsPublishing] = useState(false);
 
@@ -62,7 +60,7 @@ const PollActionsMenu = ({
                   className="h-8 cursor-pointer w-full flex items-center hover:bg-muted text-sm gap-2 leading-none font-medium text-foreground px-2 3xl:px-3 rounded-lg transition-colors relative"
                   onClick={() => setViewDetails(true)}
                 >
-                  {t('polls.view-details')}
+                  Xem chi tiết
                 </button>
               </MenuItem>
               <div className="h-px w-full bg-border my-1"></div>
@@ -73,7 +71,7 @@ const PollActionsMenu = ({
                     disabled={isEndingPoll}
                     className="h-8 cursor-pointer w-full flex items-center hover:bg-destructive hover:text-destructive-foreground text-sm gap-2 leading-none font-medium text-destructive px-2 3xl:px-3 rounded-lg transition-colors relative disabled:opacity-50"
                   >
-                    {t('polls.end-poll')}
+                    Kết thúc bình chọn
                   </button>
                 </MenuItem>
               ) : (
@@ -83,7 +81,7 @@ const PollActionsMenu = ({
                     onClick={handlePublish}
                     disabled={isPublishing}
                   >
-                    {t('polls.publish-result')}
+                    Công bố kết quả
                   </button>
                 </MenuItem>
               )}

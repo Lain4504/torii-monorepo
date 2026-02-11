@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   ApproveWaitingUsersReqSchema,
   CommonResponseSchema,
@@ -21,7 +20,6 @@ interface IWaitingParticipantItemProps {
 const WaitingParticipantItem = ({
   participant,
 }: IWaitingParticipantItemProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -43,22 +41,20 @@ const WaitingParticipantItem = ({
     if (res.status) {
       dispatch(
         addUserNotification({
-          message: t('left-panel.menus.notice.user-approved', {
-            name: participant.name,
-          }),
+          message: `Người dùng ${participant.name} đã được chấp thuận`,
           typeOption: 'info',
         }),
       );
     } else {
       dispatch(
         addUserNotification({
-          message: t(res.msg),
+          message: res.msg,
           typeOption: 'error',
         }),
       );
     }
     // No need to set isProcessing(false) as the component will unmount on success.
-  }, [dispatch, participant, t]);
+  }, [dispatch, participant]);
 
   const handleReject = useCallback(
     async (block: boolean) => {
@@ -68,7 +64,7 @@ const WaitingParticipantItem = ({
         sid: session.currentRoom.sid,
         roomId: session.currentRoom.roomId,
         userId: participant.userId,
-        msg: t('notifications.you-have-reject').toString(),
+        msg: 'Bạn đã bị từ chối truy cập vào phòng',
         blockUser: block,
       });
 
@@ -84,20 +80,20 @@ const WaitingParticipantItem = ({
       if (res.status) {
         dispatch(
           addUserNotification({
-            message: t('left-panel.menus.notice.participant-removed'),
+            message: 'Đã xóa người tham gia',
             typeOption: 'info',
           }),
         );
       } else {
         dispatch(
           addUserNotification({
-            message: t(res.msg),
+            message: res.msg,
             typeOption: 'error',
           }),
         );
       }
     },
-    [dispatch, participant, t],
+    [dispatch, participant],
   );
 
   const initials = generateAvatarInitial(participant.name);
@@ -133,19 +129,19 @@ const WaitingParticipantItem = ({
               onClick={handleApprove}
               className="py-1 px-3 flex cursor-pointer items-center justify-center rounded-lg text-xs font-semibold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 shadow-sm"
             >
-              {t('left-panel.approve')}
+              Chấp thuận
             </button>
             <button
               onClick={() => handleReject(false)}
               className="py-1 px-3 flex cursor-pointer items-center justify-center rounded-lg text-xs font-semibold text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-all duration-300 shadow-sm"
             >
-              {t('left-panel.reject')}
+              Từ chối
             </button>
             <button
               onClick={() => handleReject(true)}
               className="py-1 px-3 flex cursor-pointer items-center justify-center rounded-lg text-xs font-semibold text-destructive-foreground bg-destructive border border-destructive/20 hover:bg-destructive/90 transition-all duration-300 shadow-sm"
             >
-              {t('waiting-room.reject-and-block-user')}
+              Từ chối và chặn
             </button>
           </>
         )}

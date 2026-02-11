@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import {
   AnalyticsEvents,
@@ -46,7 +45,6 @@ const FileUploadProgress = ({
   file,
   setDisableUploading,
 }: FileUploadProgressProps) => {
-  const { t } = useTranslation();
   const conn = getNatsConn();
 
   const { roomSid, roomId, userId } = useMemo(() => {
@@ -82,7 +80,7 @@ const FileUploadProgress = ({
       RoomUploadedFileType.WHITEBOARD_CONVERTED_FILE,
       files,
       (result) => convertFile(result.filePath),
-      (isUploading) => setIsWorking(isUploading),
+      (isWorking) => setIsWorking(isWorking),
       (uploadProgress) =>
         setUploadingProgress(Math.round(uploadProgress * 100)),
       (errMsg) => setMessage({ isError: true, msg: errMsg }),
@@ -91,10 +89,10 @@ const FileUploadProgress = ({
   }, [uploadInitiated, file]);
 
   const convertFile = async (filePath: string) => {
-    const id = toast.loading(t('whiteboard.converting'), {
+    const id = toast.loading('Đang chuyển đổi...', {
       type: 'info',
     });
-    setMessage({ isError: false, msg: t('whiteboard.converting') });
+    setMessage({ isError: false, msg: 'Đang chuyển đổi...' });
     setIsWorking(true);
     const body: WhiteboardFileConversionReq = {
       roomSid: roomSid,
@@ -108,10 +106,10 @@ const FileUploadProgress = ({
       body,
     );
     if (!res.status) {
-      setMessage({ isError: true, msg: t(res.msg) });
+      setMessage({ isError: true, msg: res.msg });
       setIsWorking(false);
       toast.update(id, {
-        render: t(res.msg),
+        render: res.msg,
         type: 'error',
         isLoading: false,
         closeButton: true,
@@ -138,12 +136,12 @@ const FileUploadProgress = ({
     );
 
     toast.update(id, {
-      render: t('whiteboard.file-ready'),
+      render: 'Tệp đã sẵn sàng',
       type: 'success',
       isLoading: false,
       autoClose: 1000,
     });
-    setMessage({ isError: false, msg: t('whiteboard.file-ready') });
+    setMessage({ isError: false, msg: 'Tệp đã sẵn sàng' });
     await sleep(1000);
     setRemoveView(true);
     setIsWorking(false);

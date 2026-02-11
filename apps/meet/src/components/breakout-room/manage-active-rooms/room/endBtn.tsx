@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { EndBreakoutRoomReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { toast } from 'react-toastify';
@@ -12,27 +11,26 @@ interface IEndBtnProps {
   setMessage: (message: BreakoutRoomMessage | null) => void;
 }
 const EndBtn = ({ breakoutRoomId, setMessage }: IEndBtnProps) => {
-  const { t } = useTranslation();
   const [endSingleRoom, { isLoading, isSuccess, isError, data, error }] =
     useEndSingleRoomMutation();
 
   useEffect(() => {
     if (isSuccess && data) {
       if (data.status) {
-        toast(t('breakout-room.room-ended'), {
+        toast('Phòng đã kết thúc', {
           type: 'info',
         });
-        setMessage({ text: t('breakout-room.room-ended'), type: 'info' });
+        setMessage({ text: 'Phòng đã kết thúc', type: 'info' });
         setTimeout(() => setMessage(null), 5000);
       } else {
-        setMessage({ text: t(data.msg), type: 'error' });
+        setMessage({ text: data.msg, type: 'error' });
       }
       // success is handled by query cache invalidation, no toast needed.
     } else if (isError) {
-      const msg = (error as any)?.data?.msg ?? 'Unknown error';
-      setMessage({ text: t(msg), type: 'error' });
+      const msg = (error as any)?.data?.msg ?? 'Lỗi không xác định';
+      setMessage({ text: msg, type: 'error' });
     }
-  }, [isSuccess, isError, data, error, t, setMessage]);
+  }, [isSuccess, isError, data, error, setMessage]);
 
   const handleEndRoom = () => {
     // clear previous error
@@ -47,7 +45,7 @@ const EndBtn = ({ breakoutRoomId, setMessage }: IEndBtnProps) => {
         onClick={handleEndRoom}
         disabled={isLoading}
       >
-        {t('breakout-room.end-room')}
+        Kết thúc phòng
       </button>
     </div>
   );

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import {
   CommonResponseSchema,
@@ -22,7 +21,6 @@ import sendAPIRequest from '../../../helpers/api/api-client';
 
 const ExternalMediaPlayerModal = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const isActive = useAppSelector(
     (state) =>
@@ -57,7 +55,7 @@ const ExternalMediaPlayerModal = () => {
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
 
     if (!res.status) {
-      setErrorMsg(t(res.msg));
+      setErrorMsg(res.msg);
     }
 
     setIsLoading(false);
@@ -69,14 +67,14 @@ const ExternalMediaPlayerModal = () => {
   const items = [
     {
       id: 1,
-      title: t('footer.modal.external-media-player-direct-link'),
+      title: 'Liên kết trực tiếp',
       content: (
         <DirectLink setSelectedUrl={setSelectedUrl} selectedUrl={selectedUrl} />
       ),
     },
     {
       id: 2,
-      title: t('footer.modal.external-media-player-upload-file'),
+      title: 'Tải lên tệp',
       content: (
         <Upload setSelectedUrl={setSelectedUrl} isPlayBtnLoading={isLoading} />
       ),
@@ -92,7 +90,7 @@ const ExternalMediaPlayerModal = () => {
       <Modal
         show={!isActive}
         onClose={closeStartModal}
-        title={t('footer.modal.external-media-player-title')}
+        title="Trình phát đa phương tiện"
         customClass="min-h-[30rem]"
       >
         {errorMsg && (
@@ -106,7 +104,7 @@ const ExternalMediaPlayerModal = () => {
             disabled={selectedUrl === ''}
             onClick={handleStartPlayingUrl}
           >
-            {t('footer.modal.external-media-player-play')}
+            Phát
           </ActionButton>
         </div>
       </Modal>

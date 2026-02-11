@@ -1,12 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { store, useAppDispatch, useAppSelector } from '../../store';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 import { useRoomDurationCountdown } from '../../helpers/hooks/useRoomDurationCountdown';
 
 const DurationView = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const isRecorder = store.getState().session.currentUser?.isRecorder;
   const roomDuration = useAppSelector(
@@ -46,14 +43,12 @@ const DurationView = () => {
       case '5:00':
         dispatch(
           addUserNotification({
-            message: t('notifications.room-will-end-in', {
-              minutes: remaining,
-            }),
+            message: `Cuộc họp sẽ kết thúc sau ${remaining}`,
             typeOption: 'warning',
           }),
         );
     }
-  }, [remaining, isRecorder, dispatch, t]);
+  }, [remaining, isRecorder, dispatch]);
 
   return (
     showClock && (

@@ -1,5 +1,4 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { LocalAudioTrack, Track } from 'livekit-client';
 import {
   Button,
@@ -26,7 +25,6 @@ import { getMediaServerConnRoom } from '../../helpers/livekit/utils';
 import { X } from 'lucide-react';
 
 const BreakoutRoomInvitation = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const currentRoom = getMediaServerConnRoom();
 
@@ -37,7 +35,7 @@ const BreakoutRoomInvitation = () => {
     useJoinRoomMutation();
   const [joinLink, setJoinLink] = useState<string>('');
   const [copyText, setCopyText] = useState<string>(
-    t('breakout-room.copy').toString(),
+    'Sao chép',
   );
 
   const closeLocalTracks = useCallback(() => {
@@ -91,11 +89,11 @@ const BreakoutRoomInvitation = () => {
       dispatch(updateReceivedInvitationFor(''));
       closeLocalTracks();
     } else if ((isSuccess && !data?.status) || isError) {
-      const msg = data?.msg ?? (error as any)?.data?.msg ?? 'Error';
-      toast(t(msg), { type: 'error' });
+      const msg = data?.msg ?? (error as any)?.data?.msg ?? 'Lỗi';
+      toast(msg, { type: 'error' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccess, isError, data, error, t]);
+  }, [isSuccess, isError, data, error]);
 
   const closeModal = () => {
     dispatch(updateReceivedInvitationFor(''));
@@ -114,9 +112,9 @@ const BreakoutRoomInvitation = () => {
 
   const copyUrl = () => {
     copy(joinLink);
-    setCopyText(t('breakout-room.copied').toString());
+    setCopyText('Đã sao chép');
     setTimeout(() => {
-      setCopyText(t('breakout-room.copy').toString());
+      setCopyText('Sao chép');
     }, 2000);
   };
 
@@ -146,20 +144,20 @@ const BreakoutRoomInvitation = () => {
                 as="h3"
                 className="flex items-center justify-between text-base font-semibold leading-7 text-foreground mb-2 border-b border-border pb-2"
               >
-                <span>{t('breakout-room.invitation-title')}</span>
+                <span>Mời tham gia phòng nhóm</span>
                 <Button className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" onClick={closeModal}>
                   <X className="w-5 h-5" />
                 </Button>
               </DialogTitle>
               <div className="mt-2">
                 <span className="text-foreground text-sm">
-                  {t('breakout-room.invitation-msg')}
+                  Bạn đã được mời tham gia phòng thảo luận riêng.
                 </span>
 
                 {joinLink !== '' && (
                   <div className="invite-link mt-2">
                     <label className="text-foreground text-sm block mb-1">
-                      {t('breakout-room.join-text-label')}
+                      Liên kết tham gia
                     </label>
                     <div className="wrap flex items-center gap-1">
                       <input
@@ -184,7 +182,7 @@ const BreakoutRoomInvitation = () => {
                     onClick={join}
                     disabled={isLoading}
                   >
-                    {t('breakout-room.join')}
+                    Tham gia
                   </button>
                 </div>
               </div>

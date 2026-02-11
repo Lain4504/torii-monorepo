@@ -1,6 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
 import { debounce } from 'es-toolkit';
 
 import {
@@ -14,7 +13,6 @@ import RangeSlider from '../../helpers/ui/rangeSlider';
 
 const VolumeControl = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const roomVolume = useAppSelector(
     (state) => state.roomSettings.roomAudioVolume,
@@ -101,7 +99,7 @@ const VolumeControl = () => {
               className="volume-popup-wrapper origin-top-right z-10 absolute ltr:right-0 top-6 rtl:left-0 mt-2 w-64 py-5 px-3 rounded-xl shadow-lg bg-popover border-border border"
             >
               <p className="text-sm text-foreground">
-                {t('header.room-audio-volume')}
+                Âm lượng âm thanh phòng
               </p>
               <section className="flex items-center pl-1">
                 <RangeSlider
@@ -124,7 +122,7 @@ const VolumeControl = () => {
                 </div>
               </section>
               <p className="text-sm mt-2 text-foreground">
-                {t('header.room-screen-share-audio-volume')}
+                Âm lượng âm thanh chia sẻ màn hình
               </p>
               <section className="flex items-center pl-1">
                 <RangeSlider

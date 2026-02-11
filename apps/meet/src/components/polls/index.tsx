@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 import Create from './create/index';
 import PollsList from './pollsList';
@@ -9,7 +8,6 @@ import { X } from 'lucide-react';
 import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
 
 const PollsComponent = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const isAdmin = store.getState().session.currentUser?.metadata?.isAdmin;
 
@@ -24,7 +22,7 @@ const PollsComponent = () => {
       <div className="inner-wrapper relative z-20 w-full">
         <div className="top flex items-center h-10 3xl:h-14 px-3 3xl:px-5 border-b border-border">
           <p className="text-sm 3xl:text-base text-foreground font-semibold leading-tight">
-            {t('polls.title')}
+            Bình chọn
           </p>
         </div>
         <PollsList />

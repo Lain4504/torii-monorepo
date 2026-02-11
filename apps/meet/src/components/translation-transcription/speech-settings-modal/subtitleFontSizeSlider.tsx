@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { throttle } from 'es-toolkit/compat';
 
 import { useAppDispatch, useAppSelector } from '../../../store';
@@ -7,7 +6,6 @@ import { updateSubtitleFontSize } from '../../../store/slices/speechServicesSlic
 import RangeSlider from '../../../helpers/ui/rangeSlider';
 
 const SubtitleFontSizeSlider = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const subtitleFontSize = useAppSelector(
     (state) => state.speechServices.subtitleFontSize,
@@ -38,7 +36,7 @@ const SubtitleFontSizeSlider = () => {
           htmlFor="transcription-size"
           className="w-full text-sm font-medium text-foreground ltr:text-left rtl:text-right block"
         >
-          {t('speech-services.subtitle-font-size')}
+          Kích thước phông chữ chú thích
         </label>
         <div className="count text-xs text-foreground font-medium bg-muted border border-border shadow-sm rounded-[7px] py-0.5 px-2">
           {localFontSize}

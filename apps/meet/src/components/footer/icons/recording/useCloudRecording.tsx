@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   CloudRecordingVariants,
   CommonResponseSchema,
@@ -17,7 +16,6 @@ import { DESIGN_CUSTOMIZATION } from '../../../../config';
 const useCloudRecording = (): IUseCloudRecordingReturn => {
   const TYPE_OF_RECORDING = RecordingType.RECORDING_TYPE_CLOUD;
   const [hasError, setHasError] = useState<boolean>(false);
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const { currentRoom, isCloud, e2eeFeatures } = useMemo(() => {
@@ -46,7 +44,8 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
         if (e2eeFeatures?.isEnabled) {
           dispatch(
             addUserNotification({
-              message: t('notifications.media-only-recording-not-support-e2ee'),
+              message:
+                'Chỉ ghi hình đa phương tiện không được hỗ trợ khi bật mã hóa đầu cuối.',
               typeOption: 'info',
             }),
           );
@@ -59,7 +58,8 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
       if (e2eeFeatures?.enabledSelfInsertEncryptionKey) {
         dispatch(
           addUserNotification({
-            message: t('notifications.cloud-recording-not-supported-self-key'),
+            message:
+              'Ghi hình trên đám mây không được hỗ trợ khi sử dụng khóa tự nhập.',
             typeOption: 'info',
           }),
         );
@@ -67,7 +67,10 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
       }
       const customDesign = DESIGN_CUSTOMIZATION;
       if (customDesign) {
-        const designStr = typeof customDesign === 'object' ? JSON.stringify(customDesign) : customDesign;
+        const designStr =
+          typeof customDesign === 'object'
+            ? JSON.stringify(customDesign)
+            : customDesign;
         body.customDesign = (designStr as string).replace(/\s/g, '');
       }
       const r = await sendAPIRequest(
@@ -78,7 +81,7 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
         'arraybuffer',
       );
       const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
-      let msg = 'footer.notice.start-recording-progress';
+      let msg = 'Yêu cầu bắt đầu ghi hình đang được xử lý...';
       if (!res.status) {
         setHasError(true);
         msg = res.msg;
@@ -86,12 +89,12 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
 
       dispatch(
         addUserNotification({
-          message: t(msg),
+          message: msg,
           typeOption: 'info',
         }),
       );
     },
-    [currentRoom, isCloud, e2eeFeatures, dispatch, t],
+    [currentRoom, isCloud, e2eeFeatures, dispatch],
   );
 
   const stopRecording = useCallback(async () => {
@@ -109,7 +112,7 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
         'arraybuffer',
       );
       const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
-      let msg = 'footer.notice.stop-recording-service-in-progress';
+      let msg = 'Yêu cầu dừng dịch vụ ghi hình đang được xử lý...';
 
       if (!res.status) {
         setHasError(true);
@@ -118,12 +121,12 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
 
       dispatch(
         addUserNotification({
-          message: t(msg),
+          message: msg,
           typeOption: 'info',
         }),
       );
     }
-  }, [currentRoom, dispatch, t]);
+  }, [currentRoom, dispatch]);
 
   const resetError = () => {
     if (hasError) {

@@ -8,7 +8,6 @@ import {
 } from '@workspace/protocol';
 import { debounce } from 'es-toolkit';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
-import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, Presentation, Eye } from 'lucide-react';
 
 import { store, useAppDispatch, useAppSelector } from '../../store';
@@ -37,7 +36,6 @@ const FooterUI = ({
   const currentPage = useAppSelector((state) => state.whiteboard.currentPage);
 
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const { currentUser, isAdmin, isRecorder } = useMemo(() => {
     const currentUser = store.getState().session.currentUser;
@@ -107,17 +105,17 @@ const FooterUI = ({
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
 
     if (res.status) {
-      toast(t('left-panel.menus.notice.presenter-changed'), {
+      toast('Người trình bày đã thay đổi', {
         toastId: 'presenter-change-status',
         type: 'info',
       });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         toastId: 'presenter-change-status',
         type: 'error',
       });
     }
-  }, [currentUser, t]);
+  }, [currentUser]);
 
   const renderForAdmin = () => {
     return (
@@ -134,7 +132,7 @@ const FooterUI = ({
         >
           {Array.from({ length: totalPages }, (_, i) => (
             <option key={i} value={i + 1} className="bg-card text-foreground">
-              {t('whiteboard.page', { count: i + 1 })}
+              Trang {i + 1}
             </option>
           ))}
         </select>
@@ -167,17 +165,17 @@ const FooterUI = ({
           onClick={handleFollowPresenter}
           title={
             isFollowing
-              ? t('whiteboard.unfollow-presenter-tooltip')
-              : t('whiteboard.follow-presenter-tooltip')
+              ? 'Ngừng theo dõi người trình bày'
+              : 'Theo dõi người trình bày'
           }
         >
           <Eye
             className={`w-3.5 h-3.5 ltr:mr-1 rtl:ml-1 ${isFollowing ? 'animate-pulse text-primary' : ''
               }`}
           />
-          {isFollowing ? t('whiteboard.unfollow') : t('whiteboard.follow')}
+          {isFollowing ? 'Ngừng theo dõi' : 'Theo dõi'}
         </button>
-        {t('whiteboard.page', { count: currentPage })}
+        Trang {currentPage}
       </div>
     );
   };

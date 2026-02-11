@@ -1,6 +1,5 @@
 import { Room, Track } from 'livekit-client';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useTranslation } from 'react-i18next';
 import {
   NatsMsgClientToServerEvents,
   NatsMsgClientToServerSchema,
@@ -28,7 +27,6 @@ import { getNatsConn } from '../nats';
 
 const useKeyboardShortcuts = (currentRoom?: Room) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   // muteUnmute start (ctrl+option+m)
   const muteUnmute = (currentRoom: Room) => {
@@ -197,9 +195,7 @@ const useKeyboardShortcuts = (currentRoom?: Room) => {
 
     if (!isActiveRaisehand) {
       data.event = NatsMsgClientToServerEvents.REQ_RAISE_HAND;
-      data.msg = t('footer.notice.has-raised-hand', {
-        user: currentRoom.localParticipant.name,
-      }).toString();
+      data.msg = `${currentRoom.localParticipant.name} đã giơ tay`;
     } else {
       data.event = NatsMsgClientToServerEvents.REQ_LOWER_HAND;
     }

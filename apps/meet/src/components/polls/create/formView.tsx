@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
 import { CreatePollReqSchema } from '@workspace/protocol';
 
@@ -21,7 +20,6 @@ interface FormViewProps {
 }
 
 const FormView = ({ setIsOpen }: FormViewProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [question, setQuestion] = useState<string>('');
   const [createPoll, { isLoading, data }] = useCreatePollMutation();
@@ -43,7 +41,7 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
         // On success
         dispatch(
           addUserNotification({
-            message: t('polls.created-successfully'),
+            message: 'Tạo bình chọn thành công',
             typeOption: 'info',
           }),
         );
@@ -52,13 +50,13 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
         // On failure
         dispatch(
           addUserNotification({
-            message: t(data.msg),
+            message: data.msg,
             typeOption: 'error',
           }),
         );
       }
     }
-  }, [data, dispatch, setIsOpen, t]);
+  }, [data, dispatch, setIsOpen]);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,7 +68,7 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
     if (options.some((opt) => opt.text.trim() === '')) {
       dispatch(
         addUserNotification({
-          message: t('polls.fill-all-options'),
+          message: 'Vui lòng điền đầy đủ các lựa chọn',
           typeOption: 'error',
         }),
       );
@@ -88,7 +86,7 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
     <form onSubmit={onSubmit}>
       <div className="question-area border-b border-border pb-6 bg-card">
         <label className="text-sm text-foreground font-medium mb-2 inline-block">
-          {t('polls.enter-question')}
+          Nhập câu hỏi
         </label>
         <input
           type="text"
@@ -96,7 +94,7 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
           value={question}
           required={true}
           onChange={(e) => setQuestion(e.currentTarget.value)}
-          placeholder="Ask a question"
+          placeholder="Nhập câu hỏi tại đây"
           className="default-input"
           autoComplete="off"
         />
@@ -115,14 +113,14 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
           type="button"
           onClick={() => setIsOpen(false)}
         >
-          {t('close')}
+          Đóng
         </button>
         <button
           className="h-10 3xl:h-11 w-full cursor-pointer text-sm 3xl:text-base font-semibold bg-primary hover:bg-primary/90 border border-transparent rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           type="submit"
           disabled={isLoading}
         >
-          {t('polls.create-poll')}
+          Tạo bình chọn
         </button>
       </div>
     </form>

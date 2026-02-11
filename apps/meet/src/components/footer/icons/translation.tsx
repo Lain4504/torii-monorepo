@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import { MessageSquareQuote } from 'lucide-react';
@@ -8,7 +7,6 @@ import { updateDisplaySpeechSettingOptionsModal } from '../../../store/slices/bo
 
 const Translation = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const { showTooltip } = useMemo(() => {
     const session = store.getState().session;
@@ -61,8 +59,8 @@ const Translation = () => {
       <div className={innerDivClasses}>
         <span className="tooltip">
           {isActiveDisplaySpeechSettingOptionsModal
-            ? t('footer.icons.hide-translation-settings')
-            : t('footer.icons.show-translation-settings')}
+            ? 'Ẩn cài đặt dịch'
+            : 'Hiển thị cài đặt dịch'}
         </span>
         <MessageSquareQuote className="h-6 w-auto" />
       </div>

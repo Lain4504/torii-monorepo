@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import {
   CommonResponseSchema,
@@ -15,7 +14,6 @@ import { addUserNotification } from '../../../../../store/slices/roomSettingsSli
 
 const useDisplayExternalLink = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const isActiveDisplayExternalLink = useAppSelector(
     (state) =>
       state.session.currentRoom.metadata?.roomFeatures
@@ -32,7 +30,7 @@ const useDisplayExternalLink = () => {
       if (isActiveExternalMediaPlayer) {
         dispatch(
           addUserNotification({
-            message: t('notifications.need-to-disable-external-media-player'),
+            message: 'Bạn cần tắt trình phát phương tiện bên ngoài trước.',
             typeOption: 'error',
           }),
         );
@@ -45,7 +43,7 @@ const useDisplayExternalLink = () => {
       task: ExternalDisplayLinkTask.STOP_EXTERNAL_LINK,
     });
 
-    const id = toast.loading(t('please-wait'), {
+    const id = toast.loading('Vui lòng đợi...', {
       type: 'info',
     });
 
@@ -60,7 +58,7 @@ const useDisplayExternalLink = () => {
 
     if (!res.status) {
       toast.update(id, {
-        render: t(res.msg),
+        render: res.msg,
         type: 'error',
         isLoading: false,
         autoClose: 3000,
@@ -70,7 +68,7 @@ const useDisplayExternalLink = () => {
       // open modal to let user select new link
       dispatch(updateDisplayExternalLinkRoomModal(true));
     }
-  }, [isActiveDisplayExternalLink, isActiveExternalMediaPlayer, dispatch, t]);
+  }, [isActiveDisplayExternalLink, isActiveExternalMediaPlayer, dispatch]);
 
   return { toggleDisplayExternalLinkModal, isActiveDisplayExternalLink };
 };

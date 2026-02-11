@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   createLocalScreenTracks,
   ScreenShareCaptureOptions,
@@ -18,7 +17,6 @@ import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 const ScrenshareIcon = () => {
   const dispatch = useAppDispatch();
   const currentRoom = getMediaServerConnRoom();
-  const { t } = useTranslation();
 
   const { isAdmin, isScreenShareAllowed, showTooltip } = useMemo(() => {
     const session = store.getState().session;
@@ -96,7 +94,7 @@ const ScrenshareIcon = () => {
       if (sessionScreenSharing.isActive) {
         dispatch(
           addUserNotification({
-            message: t('footer.notice.already-active-screen-sharing'),
+            message: 'Đã có người đang chia sẻ màn hình',
             typeOption: 'error',
           }),
         );
@@ -139,11 +137,11 @@ const ScrenshareIcon = () => {
 
   const text = () => {
     if (isActiveScreenshare) {
-      return t('footer.icons.stop-screen-sharing');
+      return 'Dừng chia sẻ màn hình';
     } else if (!isActiveScreenshare && !isLocked) {
-      return t('footer.icons.start-screen-sharing');
+      return 'Chia sẻ màn hình';
     } else if (isLocked) {
-      return t('footer.icons.screen-sharing-locked');
+      return 'Chia sẻ màn hình bị khóa';
     }
   };
 
