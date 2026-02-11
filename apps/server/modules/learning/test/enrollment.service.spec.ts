@@ -3,7 +3,7 @@ import { EnrollmentService } from '../src/modules/enrollment/enrollment.service'
 import { EnrollmentRepository } from '../src/modules/enrollment/enrollment.repository';
 import { COURSE_REPOSITORY_TOKEN } from '../src/interfaces/repositories';
 import { CERTIFICATE_SERVICE_TOKEN } from '../src/interfaces/services';
-import { EnrollmentStatus } from '@workspace/schemas';
+import { EnrollmentStatus, CourseStatus } from '@workspace/schemas';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { of } from 'rxjs';
 
@@ -72,7 +72,7 @@ describe('EnrollmentService', () => {
                     { completionStatus: EnrollmentStatus.IN_PROGRESS, completionPercentage: 50 },
                 ],
             };
-            
+
             // 9000 seconds = 2.5 hours (total time watched across all lessons)
             mockEnrollmentRepository.countTotalLearningSeconds.mockResolvedValue(9000);
 
@@ -169,7 +169,7 @@ describe('EnrollmentService', () => {
         const mockDate = new Date();
 
         it('should create an enrollment successfully', async () => {
-            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, title: 'Paid Course' });
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, title: 'Paid Course', status: CourseStatus.PUBLISHED });
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
             mockEnrollmentRepository.create.mockResolvedValue({
                 id: 'enr-1',
@@ -200,14 +200,24 @@ describe('EnrollmentService', () => {
             await expect(service.create(userId, input)).rejects.toThrow(NotFoundException);
         });
 
+        it('should throw NotFoundException if course is DRAFT', async () => {
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', status: CourseStatus.DRAFT });
+            await expect(service.create(userId, input)).rejects.toThrow(NotFoundException);
+        });
+
+        it('should throw NotFoundException if course is ARCHIVED', async () => {
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', status: CourseStatus.ARCHIVED });
+            await expect(service.create(userId, input)).rejects.toThrow(NotFoundException);
+        });
+
         it('should throw BadRequestException if already enrolled', async () => {
-            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1' });
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', status: CourseStatus.PUBLISHED });
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({ id: 'existing' });
             await expect(service.create(userId, input)).rejects.toThrow(BadRequestException);
         });
 
         it('should emit event for free course enrollment if finalPrice is 0', async () => {
-            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 0, title: 'Free Course' });
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 0, title: 'Free Course', status: CourseStatus.PUBLISHED });
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
             mockEnrollmentRepository.create.mockResolvedValue({
                 id: 'enr-1',
@@ -238,10 +248,12 @@ describe('EnrollmentService', () => {
             expect(result).toBe(true);
         });
 
-        it('should return false if enrollment is COMPLETED or not found', async () => {
+        it('should return true if enrollment is COMPLETED', async () => {
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({ completionStatus: EnrollmentStatus.COMPLETED });
-            expect(await service.isEnrolled('u1', 'c1')).toBe(false);
+            expect(await service.isEnrolled('u1', 'c1')).toBe(true);
+        });
 
+        it('should return false if enrollment is not found', async () => {
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
             expect(await service.isEnrolled('u1', 'c1')).toBe(false);
         });
@@ -326,7 +338,7 @@ describe('EnrollmentService', () => {
 
             const result = await service.deleteByUserAndCourse('user-1', 'course-1');
 
-            expect(result).toBe(true);
+            expect(result.id).toBe('enr-1');
             expect(enrollmentRepository.delete).toHaveBeenCalledWith('enr-1');
             expect(natsClient.emit).toHaveBeenCalledWith(
                 { cmd: 'identity.audit.log' },
