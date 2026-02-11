@@ -31,12 +31,12 @@ export class SenseiHandler {
   @MessagePattern({ cmd: 'agents.sensei.createFlashcard' })
   async createFlashcard(
     @Payload()
-    data: { topic: string; difficulty?: 'beginner' | 'intermediate' | 'advanced'; userId: string },
+    data: { topic: string; level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'; userId: string },
   ) {
     return this.senseiService.createFlashcard(
       data.userId,
       data.topic,
-      data.difficulty || 'intermediate',
+      data.level || 'N4',
     );
   }
 
@@ -65,7 +65,7 @@ export class SenseiHandler {
     @Payload()
     data: {
       scenario: 'restaurant' | 'shopping' | 'station' | 'office' | 'casual' | 'formal';
-      difficulty?: 'beginner' | 'intermediate' | 'advanced';
+      level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       turns?: number;
       userId: string;
     },
@@ -73,7 +73,7 @@ export class SenseiHandler {
     return this.senseiService.simulateConversation(
       data.userId,
       data.scenario,
-      data.difficulty || 'intermediate',
+      data.level || 'N4',
       data.turns || 4,
     );
   }
@@ -84,6 +84,7 @@ export class SenseiHandler {
     data: {
       topic: string;
       resourceType?: 'article' | 'video' | 'book' | 'app' | 'website' | 'all';
+      level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       userId: string;
     },
   ) {
@@ -91,6 +92,7 @@ export class SenseiHandler {
       data.userId,
       data.topic,
       data.resourceType || 'all',
+      data.level,
     );
   }
 

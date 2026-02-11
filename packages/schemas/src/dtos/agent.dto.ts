@@ -34,10 +34,12 @@ export const AgentFlashcardResponseSchema = z.object({
             reading: z.string().optional(),
         }),
     ),
+    level: z.string().optional(),
 });
 
 export const AgentDrillResponseSchema = z.object({
     topic: z.string(),
+    level: z.string().optional(),
     drills: z.array(
         z.object({
             question: z.string(),
@@ -55,7 +57,7 @@ export const AgentConversationSimulationResponseSchema = z.object({
             speaker: z.string(),
             japanese: z.string(),
             romaji: z.string(),
-            english: z.string(),
+            vietnamese: z.string(),
         }),
     ),
     vocabulary: z.array(z.string()),

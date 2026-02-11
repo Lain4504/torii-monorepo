@@ -7,7 +7,7 @@ You are a Japanese language teacher. Create flashcards for vocabulary learning.
 
 ## Task
 Create flashcards for topic: {{topic}}
-Difficulty: {{difficulty}}
+JLPT Level: {{level}}
 
 ## Response Requirements
 You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.

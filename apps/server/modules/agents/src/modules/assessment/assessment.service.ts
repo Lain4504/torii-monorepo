@@ -3,6 +3,11 @@ import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
 import { PrismaService } from '@server/shared';
 
+import {
+    AgentTestGenerationResponseSchema,
+    AgentTestEvaluationResponseSchema
+} from '@workspace/schemas';
+
 @Injectable()
 export class AssessmentService implements OnModuleInit {
     private readonly logger = new Logger(AssessmentService.name);
@@ -17,6 +22,7 @@ export class AssessmentService implements OnModuleInit {
     }
 
     private registerTools() {
+
         // 1. Generate JLPT Test
         this.fastMcpService.addTool(
             'assessment_generate_test',
@@ -61,11 +67,13 @@ export class AssessmentService implements OnModuleInit {
                         questions: dbQuestions.map(q => ({
                             id: q.id,
                             type: q.questionType,
+                            level: q.jlptLevel,
                             question: q.questionText,
                             options: q.options as string[],
                             correctAnswer: q.correctAnswer,
                             explanation: q.explanation
-                        }))
+                        })),
+                        estimatedTimeMinutes: Math.ceil(questionCount * 1.5)
                     };
                 }
 
@@ -74,8 +82,12 @@ export class AssessmentService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('assessment/jlpt-test-generation.md');
                 const prompt = template({ level, section, questionCount, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentTestGenerationResponseSchema,
+                    { maxRetries: 1 }
+                );
             }
         );
 
@@ -114,8 +126,11 @@ export class AssessmentService implements OnModuleInit {
                     timestamp: new Date().toISOString()
                 });
 
-                const aiResponse = await this.fastMcpService.callGemini(prompt);
-                const aiParsed = this.fastMcpService.cleanJsonResponse(aiResponse);
+                const aiParsed = await this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentTestEvaluationResponseSchema,
+                    { maxRetries: 1 }
+                );
 
                 // Merge: Code scores + AI explanations
                 return {
@@ -177,7 +192,8 @@ export class AssessmentService implements OnModuleInit {
                             options: q.options as string[],
                             correctAnswer: q.correctAnswer,
                             explanation: q.explanation
-                        }))
+                        })),
+                        estimatedTimeMinutes: Math.ceil(questionCount * 1.5)
                     };
                 }
 
@@ -186,8 +202,12 @@ export class AssessmentService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('assessment/placement-test.md');
                 const prompt = template({ questionCount, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+
+                return this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentTestGenerationResponseSchema,
+                    { maxRetries: 1 }
+                );
             }
         );
 
@@ -237,8 +257,11 @@ export class AssessmentService implements OnModuleInit {
                     timestamp: new Date().toISOString()
                 });
 
-                const aiResponse = await this.fastMcpService.callGemini(prompt);
-                const aiParsed = this.fastMcpService.cleanJsonResponse(aiResponse);
+                const aiParsed = await this.fastMcpService.callGeminiWithSchema(
+                    prompt,
+                    AgentTestEvaluationResponseSchema,
+                    { maxRetries: 1 }
+                );
 
                 return {
                     userId,

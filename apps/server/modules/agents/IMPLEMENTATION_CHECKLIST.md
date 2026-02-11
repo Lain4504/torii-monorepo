@@ -53,20 +53,20 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 
 - **C2 – Thiết kế mô hình “Sensei Chat + internal tools”**  
   - Trạng thái: DONE  
-  - Việc cần làm:
-    - [x] Cập nhật `AgentChatResponseSchema` để hỗ trợ field `action`.
-    - [x] Cập nhật prompt `sensei/chat.md` để AI biết cách trigger action khi người dùng yêu cầu bài tập/kiểm tra.
-    - [ ] Quyết định giữ hay gom bớt các endpoint riêng (`/grammar-check`, `/translate`, ...) làm shortcut map về cùng luồng chat.
+  - Quyết định: Sử dụng mô hình **Hybrid (Lai)**.
+    - [x] Giữ các endpoint độc lập cho các màn hình chuyên biệt (Quick Action).
+    - [x] Tích hợp khả năng gọi tool vào `sensei_chat` thông qua field `action`.
+    - [x] Đồng bộ schema `AgentChatResponseSchema` để trả về metadata tool-calling cho frontend.
 
 ---
 
 ## D. Recommend resources & study path gắn dữ liệu thật
 
-- **D1 – Resource recommendation dựa trên catalog thật**  
-  - Trạng thái: TODO  
+- **D1 – Resource recommendation dựa trên catalog thật (Hybrid Search)**  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Thiết kế/query catalog tài nguyên (courses, lessons, quizzes, docs, videos…) từ DB.
-    - Cập nhật tool `recommendResources` để dùng catalog này, AI chỉ sắp xếp/mô tả, không bịa tên/URL.
+    - [x] **[Database]** Thiết kế query tìm `lessons`, `quizzes` theo `topic` và `jlptLevel`.
+    - [x] **[AI]** Cập nhật `recommendResources` tool: input list từ DB → AI rank & viết lời giới thiệu.
 
 - **D2 – Study path dựa trên syllabus JLPT**  
   - Trạng thái: DONE  
@@ -80,16 +80,16 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 ## E. Flashcards & Learning integration
 
 - **E1 – Chuẩn hoá luồng AI → FlashcardService**  
-  - Trạng thái: TODO  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Định nghĩa format chuẩn flashcard từ Agents (furigana, kanji, meanings, wordJlptLevel, tags…).  
-    - Mapping từ output Agents sang DTO `FlashcardCreateDTO`, sử dụng các field `aiGenerated`, `generationMethod`, `generationMetadata`.
+    - [x] Định nghĩa format chuẩn flashcard từ Agents (furigana, kanji, meanings, wordJlptLevel, tags…).  
+    - [x] Mapping từ output Agents sang DTO `FlashcardCreateDTO`, sử dụng các field `aiGenerated`, `generationMethod`, `generationMetadata`.
 
 - **E2 – Mapping difficulty với jlptLevel**  
-  - Trạng thái: TODO  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Thống nhất quy tắc mapping `jlptLevel` của deck → `difficulty` (beginner/intermediate/advanced).  
-    - Cập nhật các nơi frontend đang hardcode difficulty (ví dụ manage deck luôn dùng `intermediate`).
+    - [x] Thống nhất quy tắc mapping `jlptLevel` của deck → `difficulty` (beginner/intermediate/advanced) -> chuyển sang dùng **JLPT Level (N5-N1)**.  
+    - [x] Cập nhật các nơi frontend đang hardcode difficulty (ví dụ manage deck luôn dùng `intermediate`).
 
 ---
 
@@ -168,8 +168,8 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
     - Resource Abstraction: Tạo khái niệm internal resource (ví dụ `jlpt_syllabus`) để load dữ liệu tĩnh từ DB vào context thay vì để AI tự nhớ.
 
 - **D1+ – Hybrid Search cho Resource Recommendation (New)**
-  - Trạng thái: TODO
+  - Trạng thái: DONE
   - Việc cần làm:
-    - Kết hợp tìm kiếm DB (Postgres/Elastic) để lấy danh sách bài học/quiz phù hợp level.
-    - AI chỉ đóng vai trò rank/filter và viết lời giới thiệu (narrative) từ kết quả DB.
+    - [x] Kết hợp tìm kiếm DB (Postgres/Elastic) để lấy danh sách bài học/quiz phù hợp level.
+    - [x] AI chỉ đóng vai trò rank/filter và viết lời giới thiệu (narrative) từ kết quả DB.
 

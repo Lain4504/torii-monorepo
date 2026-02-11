@@ -18,6 +18,7 @@ export interface IFlashcardService {
     updateFlashcard(data: FlashcardUpdateDTO & { userId: string }): Promise<FlashcardResponseDTO>;
     deleteFlashcard(id: string): Promise<void>;
     bulkOperations(data: BulkFlashcardOperationsDTO & { userId: string }): Promise<BulkFlashcardOperationsResponseDTO>;
+    generateFlashcardsFromAI(userId: string, deckId: string, topic: string, level: string): Promise<{ success: boolean; count: number }>;
 }
 
 export const FLASHCARD_SERVICE_TOKEN = Symbol('FLASHCARD_SERVICE_TOKEN');

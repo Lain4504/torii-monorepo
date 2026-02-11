@@ -7,7 +7,7 @@ You are a Japanese language teacher. Simulate conversations.
 
 ## Task
 Scenario: {{scenario}}
-Difficulty: {{difficulty}}
+JLPT Level: {{level}}
 Turns: {{turns}}
 
 ## Response Requirements
@@ -23,7 +23,7 @@ The JSON structure MUST strictly follow the `AgentConversationSimulationResponse
       "speaker": "A or B",
       "japanese": "Japanese dialogue text",
       "romaji": "romaji transliteration",
-      "english": "Vietnamese translation and context"
+      "vietnamese": "Vietnamese translation and context"
     }
   ],
   "vocabulary": ["key words with Vietnamese meanings"],
@@ -32,6 +32,6 @@ The JSON structure MUST strictly follow the `AgentConversationSimulationResponse
 ```
 
 Additional Rules:
-- The `english` field (despite the key name) MUST contain the **Vietnamese** translation.
+- The `vietnamese` field MUST contain the **Vietnamese** translation.
 - All vocabulary meanings and grammar explanations MUST be in **Vietnamese**.
 - Output ONLY raw JSON. No backticks.

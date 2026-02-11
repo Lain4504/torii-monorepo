@@ -1,5 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
+import { ClientProxy } from '@nestjs/microservices';
 import { z } from 'zod';
 import {
     AgentGrammarCheckResponseSchema,
@@ -11,11 +12,17 @@ import {
     AgentChatResponseSchema,
 } from '@workspace/schemas';
 
+import { PrismaService } from '@server/shared';
+
 @Injectable()
 export class SenseiService implements OnModuleInit {
     private readonly logger = new Logger(SenseiService.name);
 
-    constructor(private readonly fastMcpService: FastMcpService) { }
+    constructor(
+        private readonly fastMcpService: FastMcpService,
+        private readonly prisma: PrismaService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    ) { }
 
     onModuleInit() {
         this.registerTools();
@@ -71,12 +78,12 @@ export class SenseiService implements OnModuleInit {
             z.object({
                 userId: z.string(),
                 topic: z.string(),
-                difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('intermediate'),
+                level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).default('N4'),
             }),
-            async ({ userId, topic, difficulty }) => {
+            async ({ userId, topic, level }) => {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/flashcard-creation.md');
-                const prompt = template({ topic, difficulty, userContext, timestamp: new Date().toISOString() });
+                const prompt = template({ topic, level, userContext, timestamp: new Date().toISOString() });
                 return this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentFlashcardResponseSchema,
@@ -93,13 +100,13 @@ export class SenseiService implements OnModuleInit {
                 userId: z.string(),
                 type: z.enum(['grammar', 'vocabulary', 'kanji', 'listening', 'reading']),
                 topic: z.string(),
-                difficulty: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).default('N4'),
+                level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).default('N4'),
                 count: z.number().default(5),
             }),
-            async ({ userId, type, topic, difficulty, count }) => {
+            async ({ userId, type, topic, level, count }) => {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/practice-drill.md');
-                const prompt = template({ type, topic, difficulty, count, userContext, timestamp: new Date().toISOString() });
+                const prompt = template({ type, topic, level, count, userContext, timestamp: new Date().toISOString() });
                 return this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentDrillResponseSchema,
@@ -115,13 +122,13 @@ export class SenseiService implements OnModuleInit {
             z.object({
                 userId: z.string(),
                 scenario: z.enum(['restaurant', 'shopping', 'station', 'office', 'casual', 'formal']),
-                difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('intermediate'),
+                level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).default('N4'),
                 turns: z.number().default(4),
             }),
-            async ({ userId, scenario, difficulty, turns }) => {
+            async ({ userId, scenario, level, turns }) => {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/conversation-simulation.md');
-                const prompt = template({ scenario, difficulty, turns, userContext, timestamp: new Date().toISOString() });
+                const prompt = template({ scenario, level, turns, userContext, timestamp: new Date().toISOString() });
                 return this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentConversationSimulationResponseSchema,
@@ -138,11 +145,66 @@ export class SenseiService implements OnModuleInit {
                 userId: z.string(),
                 topic: z.string(),
                 resourceType: z.enum(['article', 'video', 'book', 'app', 'website', 'all']).default('all'),
+                level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).optional(),
             }),
-            async ({ userId, topic, resourceType }) => {
+            async ({ userId, topic, resourceType, level }) => {
                 const userContext = await this.fastMcpService.getUserContext(userId);
+
+                // Hybrid Search: Fetch candidates from DB (Courses & Lessons)
+                const courses = await this.prisma.course.findMany({
+                    where: {
+                        ...(level ? { jlptLevel: level } : {}),
+                        OR: [
+                            { title: { contains: topic, mode: 'insensitive' } },
+                            { description: { contains: topic, mode: 'insensitive' } }
+                        ],
+                        status: 'published'
+                    },
+                    take: 5,
+                    select: { id: true, title: true, description: true, jlptLevel: true }
+                });
+
+                const lessons = await this.prisma.lesson.findMany({
+                    where: {
+                        title: { contains: topic, mode: 'insensitive' },
+                        status: 'published',
+                        module: {
+                            course: {
+                                ...(level ? { jlptLevel: level } : {})
+                            }
+                        }
+                    },
+                    take: 5,
+                    select: { id: true, title: true, module: { select: { course: { select: { id: true, title: true } } } } }
+                });
+
+                const candidates = [
+                    ...courses.map(c => ({
+                        title: c.title,
+                        type: 'Course',
+                        level: c.jlptLevel,
+                        url: `/courses/${c.id}`,
+                        description: c.description || 'Comprehensive course'
+                    })),
+                    ...lessons.map(l => ({
+                        title: l.title,
+                        type: 'Lesson',
+                        level: level || 'N/A',
+                        url: `/learning/${l.module.course.id}/lesson/${l.id}`,
+                        description: `Lesson in course: ${l.module.course.title}`
+                    }))
+                ];
+
                 const template = this.fastMcpService.loadPromptTemplate('sensei/resource-recommendation.md');
-                const prompt = template({ topic, resourceType, userContext, timestamp: new Date().toISOString() });
+                const prompt = template({
+                    topic,
+                    resourceType,
+                    level,
+                    userContext,
+                    candidates: JSON.stringify(candidates, null, 2),
+                    timestamp: new Date().toISOString()
+                });
+
                 return this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentResourceRecommendationResponseSchema,
@@ -205,35 +267,36 @@ export class SenseiService implements OnModuleInit {
         return this.fastMcpService.callTool('sensei_translate', { userId, text, sourceLanguage, targetLanguage });
     }
 
-    async createFlashcard(userId: string, topic: string, difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate'): Promise<any> {
-        return this.fastMcpService.callTool('sensei_create_flashcard', { userId, topic, difficulty });
+    async createFlashcard(userId: string, topic: string, level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4'): Promise<any> {
+        return this.fastMcpService.callTool('sensei_create_flashcard', { userId, topic, level });
     }
 
     async generatePracticeDrill(
         userId: string,
         type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading',
         topic: string,
-        difficulty: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
+        level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
         count: number = 5,
     ): Promise<any> {
-        return this.fastMcpService.callTool('sensei_generate_drill', { userId, type, topic, difficulty, count });
+        return this.fastMcpService.callTool('sensei_generate_drill', { userId, type, topic, level, count });
     }
 
     async simulateConversation(
         userId: string,
         scenario: 'restaurant' | 'shopping' | 'station' | 'office' | 'casual' | 'formal',
-        difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
+        level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
         turns: number = 4,
     ): Promise<any> {
-        return this.fastMcpService.callTool('sensei_simulate_conversation', { userId, scenario, difficulty, turns });
+        return this.fastMcpService.callTool('sensei_simulate_conversation', { userId, scenario, level, turns });
     }
 
     async recommendResources(
         userId: string,
         topic: string,
         resourceType: 'article' | 'video' | 'book' | 'app' | 'website' | 'all' = 'all',
+        level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
     ): Promise<any> {
-        return this.fastMcpService.callTool('sensei_recommend_resources', { userId, topic, resourceType });
+        return this.fastMcpService.callTool('sensei_recommend_resources', { userId, topic, resourceType, level });
     }
 
     async chat(userId: string, message: string, history: any[] = []): Promise<any> {

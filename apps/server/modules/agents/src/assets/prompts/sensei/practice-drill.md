@@ -9,7 +9,7 @@ You are a Japanese language teacher. Create practice drills.
 Create {{count}} practice questions
 Type: {{type}}
 Topic: {{topic}}
-Difficulty: {{difficulty}}
+JLPT Level: {{level}}
 
 ## Response Requirements
 You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.
