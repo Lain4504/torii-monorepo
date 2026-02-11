@@ -11,7 +11,9 @@ Current Level: {{currentLevel}}
 Target Level: {{targetLevel}}
 
 ## Response Requirements
-You MUST respond with valid JSON only.
+You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.
+
+The JSON structure MUST align with the `StudyPathResponse` used by the frontend:
 
 ```json
 {
@@ -20,16 +22,19 @@ You MUST respond with valid JSON only.
   "targetLevel": "N4",
   "studyPathRecommendation": {
     "roadmap": [
-      { "title": "Hiragana & Katakana", "status": "completed", "description": "Master basics of writing" },
-      { "title": "N5 Vocabulary", "status": "completed", "description": "Essential 800 words" },
-      { "title": "N5 Grammar", "status": "in-progress", "description": "Basic particles and verb conjugations" },
-      { "title": "Kanji Basics", "status": "locked", "description": "First 100 characters" },
-      { "title": "Reading Comprehension", "status": "locked", "description": "Simple texts and dialogues" }
+      {
+        "title": "Roadmap step title (IN VIETNAMESE)",
+        "status": "completed|in-progress|locked",
+        "description": "detailed step description (IN VIETNAMESE)"
+      }
     ],
     "estimatedWeeks": 12,
-    "focusAreas": ["Vocabulary", "Grammar"]
+    "focusAreas": ["area 1 (IN VIETNAMESE)", "area 2 (IN VIETNAMESE)"]
   }
 }
 ```
 
-Remember: Output ONLY valid JSON, no other text!
+Additional Rules:
+- All `title`, `description`, and `focusAreas` MUST be in **Vietnamese**.
+- Ensure the roadmap is realistic and focuses on JLPT success.
+- Output ONLY raw JSON. No backticks.

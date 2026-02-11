@@ -134,22 +134,24 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
 ## I. Prompt & validation
 
 - **I1 – Rà soát & chuẩn hoá prompt templates**  
-  - Trạng thái: TODO  
-  - Việc cần làm:
-    - Review toàn bộ template trong `assets/prompts/**` theo guideline JLPT, bảo đảm output luôn là tiếng Việt (có thể kèm Japanese + romaji nếu cần, không support tiếng Anh).  
-    - Bổ sung ví dụ output rõ ràng trong từng prompt, ensure format JSON consistent.
+  - Trạng thái: DONE
+  - Ghi chú:
+    - Đã rà soát toàn bộ template trong `assets/prompts/**`.
+    - Chuẩn hoá meta-instructions sang tiếng Anh (để LLM hiểu tốt nhất) và output nội dung sang tiếng Việt (cho người dùng).
+    - Tích hợp cấu trúc JSON bám sát Zod schemas.
 
 - **I2 – Tăng cường validation output AI**  
-  - Trạng thái: TODO  
-  - Việc cần làm:
-    - Áp dụng Zod schema cho mọi tool output, xử lý fallback khi `cleanJsovNnResponse` parse lỗi.  
-    - Thiết kế error contract rõ ràng cho frontend (ví dụ: `aiParseError` vs `upstreamError`).
+  - Trạng thái: DONE
+  - Ghi chú:
+    - Đã thay thế `cleanJsonResponse` bằng `callGeminiWithSchema` tích hợp Zod validation.
+    - Xử lý retry logic tự động khi AI sinh sai format JSON hoặc thiếu field.
 
 - **I3 – Structured Output & Retry Loop (New)**
-  - Trạng thái: TODO
-  - Việc cần làm:
-    - Cấu hình Gemini Response Schema / Zod validation layer trong `FastMcpService`.
-    - Implement cơ chế feedback loop: nếu parse lỗi, gửi error message lại cho AI để sửa (max retries = 1-2).
+  - Trạng thái: DONE
+  - Ghi chú:
+    - Đã thêm `callGeminiWithSchema` trong `FastMcpService` sử dụng Zod schema + retry loop.
+    - Đã định nghĩa và chia sẻ schema Sensei qua `@workspace/schemas` (`agent.dto.ts`).
+    - Đã cập nhật `SenseiService` dùng các schema này cho toàn bộ tools (grammar, translate, flashcard, drill, conversation, resources, chat).
 
 - **H3 – Caching & Internal Resources (New)**
   - Trạng thái: TODO

@@ -10,21 +10,25 @@ Topic: {{topic}}
 Resource Type: {{resourceType}}
 
 ## Response Requirements
-You MUST respond with valid JSON only.
+You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.
+
+The JSON structure MUST strictly follow the `AgentResourceRecommendationResponseSchema`:
 
 ```json
 {
+  "topic": "topic name (IN VIETNAMESE)",
   "resources": [
     {
-      "name": "resource name",
-      "type": "book/website/video/app",
-      "description": "what it offers",
-      "difficulty": "beginner/intermediate/advanced",
-      "url": "link if applicable"
+      "title": "resource title",
+      "type": "book/website/video/app/tool",
+      "url": "direct link if known",
+      "description": "short description of why this is useful (IN VIETNAMESE)"
     }
-  ],
-  "studyTips": ["tips for using these resources"]
+  ]
 }
 ```
 
-Remember: Output ONLY valid JSON, no other text!
+Additional Rules:
+- The `description` and `topic` MUST be in **Vietnamese**.
+- Prioritize real resources from the provided context if available.
+- Output ONLY raw JSON. No backticks.

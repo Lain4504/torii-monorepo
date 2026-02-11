@@ -10,26 +10,27 @@ Test ID: {{testId}}
 User Answers: {{json userAnswers}}
 
 ## Response Requirements
-You MUST respond with valid JSON only.
+You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.
+
+The JSON structure MUST align with the `TestEvaluationResponse` used by the frontend:
 
 ```json
 {
-  "testId": "test-123",
+  "testId": "the test id",
   "score": 85,
-  "totalQuestions": 10,
-  "correctAnswers": 8,
-  "feedback": "overall feedback",
-  "questionResults": [
+  "maxScore": 100,
+  "feedback": "overall pedagogical feedback (IN VIETNAMESE)",
+  "details": [
     {
       "questionId": "q1",
       "isCorrect": true,
-      "userAnswer": "a",
-      "correctAnswer": "a",
-      "explanation": "why this is correct/incorrect"
+      "explanation": "pedagogical explanation of the answer (IN VIETNAMESE)"
     }
-  ],
-  "recommendations": ["what to study next"]
+  ]
 }
 ```
 
-Remember: Output ONLY valid JSON, no other text!
+Additional Rules:
+- All `feedback` and `explanation` text MUST be in **Vietnamese**.
+- Focus on helpful, educational feedback that helps the student learn from mistakes.
+- Output ONLY raw JSON. No backticks.

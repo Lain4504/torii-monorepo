@@ -10,20 +10,24 @@ Create flashcards for topic: {{topic}}
 Difficulty: {{difficulty}}
 
 ## Response Requirements
-You MUST respond with valid JSON only.
+You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.
+
+The JSON structure MUST strictly follow the `AgentFlashcardResponseSchema`:
 
 ```json
 {
+  "topic": "the deck topic (IN VIETNAMESE)",
   "flashcards": [
     {
-      "front": "Japanese word/phrase",
-      "back": "meaning and explanation",
-      "reading": "hiragana/katakana reading",
-      "example": "example sentence",
-      "difficulty": "N5/N4/etc"
+      "front": "Japanese word/phrase (Kanji/Kana)",
+      "back": "meaning and pedagogical explanation (IN VIETNAMESE)",
+      "reading": "hiragana/katakana reading"
     }
   ]
 }
 ```
 
-Remember: Output ONLY valid JSON. Do NOT wrap the response in markdown code blocks (```json). Just raw JSON.
+Additional Rules:
+- All meanings and explanations MUST be in **Vietnamese**.
+- Include common usage or simple examples in the `back` field if useful.
+- Output ONLY raw JSON. No backticks.

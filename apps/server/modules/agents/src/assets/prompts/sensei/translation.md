@@ -10,18 +10,23 @@ Translate from {{sourceLanguage}} to {{targetLanguage}}:
 **Text:** {{text}}
 
 ## Response Requirements
-You MUST respond with valid JSON only. No extra text, no markdown, just pure JSON.
+You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.
+
+The JSON structure MUST strictly follow the `AgentTranslateResponseSchema`:
 
 ```json
 {
   "originalText": "input text",
   "translatedText": "translated text",
-  "sourceLanguage": "ja/en/etc",
-  "targetLanguage": "ja/en/etc",
+  "sourceLanguage": "ja/en/vi/etc",
+  "targetLanguage": "ja/en/vi/etc",
   "literalTranslation": "word-by-word if applicable",
-  "culturalNotes": "any cultural context",
-  "alternativeTranslations": ["other possible translations"]
+  "culturalNotes": "any relevant cultural context (EXPLAIN IN VIETNAMESE)",
+  "alternativeTranslations": ["list of other possible translations"]
 }
 ```
 
-Remember: Output ONLY valid JSON. Do NOT wrap the response in markdown code blocks (```json). Just raw JSON.
+Additional Rules:
+- Cultural notes and any descriptive text MUST be in **Vietnamese**.
+- Ensure Japanese text uses appropriate politeness levels based on context.
+- Output ONLY raw JSON. No backticks.
