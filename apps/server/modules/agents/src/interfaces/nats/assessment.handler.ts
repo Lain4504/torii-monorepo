@@ -45,46 +45,6 @@ export class AssessmentHandler {
     );
   }
 
-  @MessagePattern({ cmd: 'agents.assessment.progressBenchmark' })
-  async getProgressBenchmark(
-    @Payload()
-    data: {
-      userId: string;
-      targetLevel?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-      level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    },
-  ) {
-    const level = (data.level || data.targetLevel || 'N5') as 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    return this.assessmentService.getProgressBenchmark(data.userId, level);
-  }
-
-  @MessagePattern({ cmd: 'agents.assessment.scheduleTest' })
-  async scheduleTest(
-    @Payload()
-    data: {
-      userId: string;
-      targetLevel?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-      level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    },
-  ) {
-    const level = (data.level || data.targetLevel || 'N5') as 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    return this.assessmentService.scheduleTest(data.userId, level);
-  }
-
-  @MessagePattern({ cmd: 'agents.assessment.placementTest' })
-  async generatePlacementTest(
-    @Payload()
-    data: {
-      userId: string;
-      questionCount?: number;
-    },
-  ) {
-    return this.assessmentService.generatePlacementTest(
-      data.userId,
-      data.questionCount || 15,
-    );
-  }
-
   @MessagePattern({ cmd: 'agents.assessment.evaluatePlacement' })
   async evaluatePlacementTest(
     @Payload()

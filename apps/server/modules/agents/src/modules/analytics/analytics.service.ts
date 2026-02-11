@@ -49,40 +49,7 @@ export class AnalyticsService implements OnModuleInit {
             }
         );
 
-        // 3. Identify Weaknesses
-        this.fastMcpService.addTool(
-            'analytics_identify_weaknesses',
-            'Identify knowledge gaps and weaknesses',
-            z.object({
-                userId: z.string(),
-            }),
-            async ({ userId }) => {
-                const userContext = await this.fastMcpService.getUserContext(userId);
-                const template = this.fastMcpService.loadPromptTemplate('analytics/weakness-identification.md');
-                const prompt = template({ userId, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
-            }
-        );
-
-        // 4. Predict Readiness
-        this.fastMcpService.addTool(
-            'analytics_predict_readiness',
-            'Predict readiness for specific JLPT level',
-            z.object({
-                userId: z.string(),
-                targetLevel: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
-            }),
-            async ({ userId, targetLevel }) => {
-                const userContext = await this.fastMcpService.getUserContext(userId);
-                const template = this.fastMcpService.loadPromptTemplate('analytics/readiness-prediction.md');
-                const prompt = template({ userId, targetTest: targetLevel, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
-            }
-        );
-
-        // 5. Generate Report
+        // 3. Generate Report
         this.fastMcpService.addTool(
             'analytics_generate_report',
             'Generate comprehensive analytics report',
@@ -100,7 +67,7 @@ export class AnalyticsService implements OnModuleInit {
             }
         );
 
-        // 6. Readiness Profile (Unified)
+        // 4. Readiness Profile (Unified)
         this.fastMcpService.addTool(
             'analytics_get_readiness_profile',
             'Get a comprehensive readiness profile and benchmark',
@@ -129,14 +96,6 @@ export class AnalyticsService implements OnModuleInit {
         timeframe?: string,
     ): Promise<any> {
         return this.fastMcpService.callTool('analytics_suggest_study_path', { userId, targetLevel, timeframe });
-    }
-
-    async identifyWeaknesses(userId: string): Promise<any> {
-        return this.fastMcpService.callTool('analytics_identify_weaknesses', { userId });
-    }
-
-    async predictReadiness(userId: string, targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'): Promise<any> {
-        return this.fastMcpService.callTool('analytics_predict_readiness', { userId, targetLevel });
     }
 
     async generateReport(

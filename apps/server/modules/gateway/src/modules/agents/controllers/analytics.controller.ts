@@ -64,46 +64,6 @@ export class AnalyticsHandler {
         }
     }
 
-    @Post('analytics/weaknesses')
-    @UseGuards(GatewayAuthGuard)
-    async identifyWeaknesses(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            this.logger.log(`🔍 Weakness identification request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.analytics.identifyWeaknesses' },
-                    { userId: userId, ...body }
-                )
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Weakness identification failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to identify weaknesses');
-        }
-    }
-
-    @Post('analytics/readiness')
-    @UseGuards(GatewayAuthGuard)
-    async predictReadiness(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            this.logger.log(`🎯 Readiness prediction request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.analytics.predictReadiness' },
-                    { userId: userId, ...body }
-                )
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Readiness prediction failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to predict readiness');
-        }
-    }
-
     @Post('analytics/report')
     @UseGuards(GatewayAuthGuard)
     async generateReport(@Req() req: ReqWithRequester, @Body() body: any) {

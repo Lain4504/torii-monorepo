@@ -130,9 +130,9 @@ Một số hướng refactor/tối giản có thể cân nhắc để Agents Ser
     - Có thể giữ các màn hình shortcut (Grammar, Translate…) nhưng phía gateway gom về cùng một luồng agent nếu phù hợp.
 
 - **4. Chuẩn hoá và/hoặc loại bỏ các API ít dùng**
-  - `scheduleTest`: hoặc được nối với hệ thống lịch thực (persist), hoặc chuyển thành một phần trong readiness/profile (AI chỉ gợi ý, không thành API riêng).
-  - `predictReadiness`, `generateReport`: cân nhắc gộp logic vào readiness/profile và report UI cụ thể.
-  - Luồng `PlacementTestWizard` cũ: ẩn/loại bỏ để tránh lệch so với API chính.
+  - `scheduleTest`: Đã xoá (legacy). Gợi ý lịch thi nên là một phần của `readinessProfile`.
+  - `predictReadiness`, `identifyWeaknesses`: Đã gộp vào `readinessProfile`.
+  - Luồng `PlacementTestWizard` cũ: Đã xoá, sử dụng luồng `/assessment/placement` (PlacementTest) chuẩn.
 
 - **5. Rà soát nhu cầu MCP**
   - Nếu team không dùng client MCP bên ngoài (IDE, tooling), có thể:
@@ -190,7 +190,7 @@ Mục này mô tả theo **góc nhìn học viên**: UI nào gọi Agents, qua R
 |------|------------------|--------------|------------|--------|
 | **Tạo đề JLPT test** | `/assessment/test` (TestRunner – bước tạo đề) | `POST /api/agents/test/generate` | `agents.assessment.generateTest` | Input `{ level, section, questionCount }`. Đề hoàn toàn do AI sinh từ prompt, chưa dùng question bank thật. |
 | **Làm & chấm bài JLPT test** | `/assessment/test` (TestRunner – nộp bài) | `POST /api/agents/test/evaluate` | `agents.assessment.evaluateTest` | Input `{ testId, answers }`. Payload đã chứa đáp án đúng nhưng vẫn gửi qua AI để chấm + feedback. |
-| **Benchmark/JLPT readiness** | `/assessment` (AssessmentDashboard) | `POST /api/agents/assessment/benchmark` | `agents.assessment.progressBenchmark` | UI hiện tại thường dùng `targetLevel = "N5"`. AI dùng context từ DB + targetLevel để suy ra % readiness, gaps. |
+| **Readiness Profile** | `/assessment`, `/ai-analytics` | `POST /api/agents/analytics/readiness-profile` | `agents.analytics.readinessProfile` | **Mới**. Thống nhất benchmark, readiness, và weaknesses vào một API. |
 | **Placement test (xếp lớp)** | `/assessment/placement` (PlacementTest) | `POST /api/agents/placement/test` | `agents.assessment.placementTest` | Input `{ questionCount }` (mặc định 15). Câu hỏi do AI sinh. |
 | **Chấm placement test** | `/assessment/placement` (PlacementTest) | `POST /api/agents/placement/evaluate` | `agents.assessment.evaluatePlacement` | Input `{ testId, userAnswers }`. Output gồm điểm + `suggestedLevel`, `analysis`. |
 
@@ -208,8 +208,8 @@ Ngoài ra còn tồn tại một luồng placement cũ hơn (`PlacementTestWizar
 |------|------------------|--------------|------------|--------|
 | **Xem tiến độ tổng quan** | `/ai-analytics` (AnalyticsDashboard) | `POST /api/agents/progress/track` | `agents.analytics.trackProgress` | Input `{ timeframe }` (thường là `'month'`). Dữ liệu chuẩn nên đến từ DB (lessonProgress, quizAttempt). |
 | **Gợi ý lộ trình học (study path)** | `/ai-analytics` (AnalyticsDashboard) | `POST /api/agents/path/suggest` | `agents.analytics.suggestStudyPath` | Input `{ targetLevel }` (UI thường hardcode `'N5'`). Output: roadmap tuần, focus areas. |
-| **Xác định điểm yếu** | `/ai-analytics` (AnalyticsDashboard) | `POST /api/agents/analytics/weaknesses` | `agents.analytics.identifyWeaknesses` | Không cần body ngoài `userId`. AI dùng kết quả và tiến độ để chỉ ra topic yếu. |
-| **Predict readiness (ít dùng ở UI)** | (chưa có màn hình riêng, chỉ API) | `POST /api/agents/analytics/readiness` | `agents.analytics.predictReadiness` | Trùng ý với benchmark, có thể gộp. |
+| **Xác định điểm yếu** | `/ai-analytics` | `POST /api/agents/analytics/readiness-profile` | `agents.analytics.readinessProfile` | Đã gộp vào Readiness Profile. |
+| **Predict readiness** | `/ai-analytics` | `POST /api/agents/analytics/readiness-profile` | `agents.analytics.readinessProfile` | Đã gộp vào Readiness Profile. |
 | **Generate report (chưa có UI)** | (chưa có màn hình) | `POST /api/agents/analytics/report` | `agents.analytics.generateReport` | Tạo báo cáo tổng hợp dạng markdown/nội dung chi tiết. |
 
 ---
@@ -249,7 +249,7 @@ Ngoài ra còn tồn tại một luồng placement cũ hơn (`PlacementTestWizar
 | 1 | **Generate JLPT Test** | `assessment_generate_test` | `agents.assessment.generateTest` | `POST /api/agents/test/generate` | **core** (`/assessment/test`) | Tạo đề thi thử JLPT theo level, section. |
 | 2 | **Evaluate Test** | `assessment_evaluate_test` | `agents.assessment.evaluateTest` | `POST /api/agents/test/evaluate` | **core** (`/assessment/test`) | Chấm bài và sinh feedback chi tiết. |
 | 3 | **Progress Benchmark** | `assessment_get_benchmark` | `agents.assessment.progressBenchmark` | `POST /api/agents/assessment/benchmark` | **core** (`/assessment`) | So sánh tiến độ với chuẩn JLPT cho một target level. |
-| 4 | **Schedule Test** | `assessment_schedule_test` | `agents.assessment.scheduleTest` | `POST /api/agents/test/schedule` | **chưa dùng** | Đề xuất lịch thi bằng AI, chưa persist vào DB / calendar. |
+| 4 | **Schedule Test** | - | - | - | **Đã xoá** | Gợi ý lịch thi đã gộp vào Readiness Profile. |
 | 5 | **Placement Test** | `assessment_placement_test` | `agents.assessment.placementTest` | `POST /api/agents/placement/test` | **core** (`/assessment/placement`) | Tạo bài test xếp lớp, câu hỏi từ AI. |
 | 6 | **Evaluate Placement** | `assessment_evaluate_placement` | `agents.assessment.evaluatePlacement` | `POST /api/agents/placement/evaluate` | **core** (`/assessment/placement`) | Chấm placement, đề xuất level và phân tích. |
 

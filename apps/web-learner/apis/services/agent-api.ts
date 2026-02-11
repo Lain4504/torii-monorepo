@@ -111,15 +111,6 @@ export interface PlacementEvaluationResponse extends TestEvaluationResponse {
     analysis?: string;
 }
 
-export interface BenchmarkResponse {
-    level: string;
-    readinessPercentage: number; // 0-100
-    recommendations: string[];
-    skillGaps: { vocabulary: number; grammar: number; reading: number; listening: number };
-    nextScheduledTest?: { date: string; type: string };
-    recentPerformance?: { averageScore: number; testsTaken: number; trend: 'improving' | 'stable' | 'declining' };
-}
-
 // ...
 
 export interface ProgressTrackResponse {
@@ -144,21 +135,6 @@ export interface StudyPathResponse {
         estimatedWeeks: number;
         focusAreas: string[];
     };
-}
-
-export interface WeaknessResponse {
-    weaknesses: Array<{
-        topic: string;
-        severity: 'low' | 'medium' | 'high';
-        description: string;
-        suggestedReview: string;
-    }>;
-}
-
-export interface ReadinessResponse {
-    targetLevel: string;
-    probability: number;
-    warnings: string[];
 }
 
 export interface ReportResponse {
@@ -296,18 +272,6 @@ export const agentApi = {
             });
             return response.data.data;
         },
-        getBenchmark: async (targetLevel: string) => {
-            const response = await apiClient.post<{ success: boolean; data: BenchmarkResponse }>('/api/agents/assessment/benchmark', {
-                targetLevel
-            });
-            return response.data.data;
-        },
-        scheduleTest: async (targetLevel: string) => {
-            const response = await apiClient.post<{ success: boolean; data: any }>('/api/agents/test/schedule', {
-                targetLevel
-            });
-            return response.data.data;
-        },
         generatePlacementTest: async (questionCount: number = 15) => {
             const response = await apiClient.post<{ success: boolean; data: PlacementTestResponse }>('/api/agents/placement/test', {
                 questionCount
@@ -331,16 +295,6 @@ export const agentApi = {
         },
         suggestStudyPath: async (targetLevel: string) => {
             const response = await apiClient.post<{ success: boolean; data: StudyPathResponse }>('/api/agents/path/suggest', {
-                targetLevel
-            });
-            return response.data.data;
-        },
-        identifyWeaknesses: async () => {
-            const response = await apiClient.post<{ success: boolean; data: WeaknessResponse }>('/api/agents/analytics/weaknesses', {});
-            return response.data.data;
-        },
-        predictReadiness: async (targetLevel: string) => {
-            const response = await apiClient.post<{ success: boolean; data: ReadinessResponse }>('/api/agents/analytics/readiness', {
                 targetLevel
             });
             return response.data.data;

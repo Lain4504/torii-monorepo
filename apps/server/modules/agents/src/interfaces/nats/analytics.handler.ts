@@ -41,27 +41,6 @@ export class AnalyticsHandler {
     );
   }
 
-  @MessagePattern({ cmd: 'agents.analytics.identifyWeaknesses' })
-  async identifyWeaknesses(
-    @Payload()
-    data: { userId: string },
-  ) {
-    return this.analyticsService.identifyWeaknesses(data.userId);
-  }
-
-  @MessagePattern({ cmd: 'agents.analytics.predictReadiness' })
-  async predictReadiness(
-    @Payload()
-    data: {
-      userId: string;
-      targetLevel?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-      level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    },
-  ) {
-    const level = (data.level || data.targetLevel || 'N5') as 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-    return this.analyticsService.predictReadiness(data.userId, level);
-  }
-
   @MessagePattern({ cmd: 'agents.analytics.generateReport' })
   async generateReport(
     @Payload()

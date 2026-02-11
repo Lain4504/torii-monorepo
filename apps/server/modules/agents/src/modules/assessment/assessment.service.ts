@@ -54,40 +54,6 @@ export class AssessmentService implements OnModuleInit {
             }
         );
 
-        // 3. Progress Benchmark
-        this.fastMcpService.addTool(
-            'assessment_get_benchmark',
-            'Get learning progress benchmark',
-            z.object({
-                userId: z.string(),
-                targetLevel: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
-            }),
-            async ({ userId, targetLevel }) => {
-                const userContext = await this.fastMcpService.getUserContext(userId);
-                const template = this.fastMcpService.loadPromptTemplate('assessment/progress-benchmark.md');
-                const prompt = template({ userId, targetLevel, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
-            }
-        );
-
-        // 4. Schedule Test
-        this.fastMcpService.addTool(
-            'assessment_schedule_test',
-            'Schedule a future test',
-            z.object({
-                userId: z.string(),
-                targetLevel: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
-            }),
-            async ({ userId, targetLevel }) => {
-                const userContext = await this.fastMcpService.getUserContext(userId);
-                const template = this.fastMcpService.loadPromptTemplate('assessment/test-scheduling.md');
-                const prompt = template({ userId, targetLevel, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
-            }
-        );
-
         // 5. Placement Test
         this.fastMcpService.addTool(
             'assessment_placement_test',
@@ -141,14 +107,6 @@ export class AssessmentService implements OnModuleInit {
         answers: Array<{ questionId: string; userAnswer: string; correctAnswer: string }>,
     ): Promise<any> {
         return this.fastMcpService.callTool('assessment_evaluate_test', { userId, testId, answers });
-    }
-
-    async getProgressBenchmark(userId: string, targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'): Promise<any> {
-        return this.fastMcpService.callTool('assessment_get_benchmark', { userId, targetLevel });
-    }
-
-    async scheduleTest(userId: string, targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'): Promise<any> {
-        return this.fastMcpService.callTool('assessment_schedule_test', { userId, targetLevel });
     }
 
     async generatePlacementTest(userId: string, questionCount: number = 15): Promise<any> {

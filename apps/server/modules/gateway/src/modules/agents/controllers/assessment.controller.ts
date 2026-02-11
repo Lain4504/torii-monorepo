@@ -64,46 +64,6 @@ export class AssessmentHandler {
         }
     }
 
-    @Post('assessment/benchmark')
-    @UseGuards(GatewayAuthGuard)
-    async getProgressBenchmark(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            this.logger.log(`📊 Progress benchmark request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.assessment.progressBenchmark' },
-                    { userId: userId, ...body }
-                )
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Benchmark request failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to get benchmark');
-        }
-    }
-
-    @Post('test/schedule')
-    @UseGuards(GatewayAuthGuard)
-    async scheduleTest(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            this.logger.log(`📅 Test scheduling request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.assessment.scheduleTest' },
-                    { userId: userId, ...body }
-                )
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Test scheduling failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to schedule test');
-        }
-    }
-
     @Post('placement/test')
     @UseGuards(GatewayAuthGuard)
     async generatePlacementTest(@Req() req: ReqWithRequester, @Body() body: any) {
