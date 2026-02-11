@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useTranslation } from '@workspace/i18n';
 import { Button } from '@workspace/ui/components/button';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Loader2, RotateCcw, Zap, Cpu, Lock } from 'lucide-react';
@@ -24,8 +23,6 @@ import { apiClient } from '@/api/api-client.ts';
 import { PageHeader } from '@/components/common/page-header';
 
 export function PermissionsPage() {
-    useTranslation(['admin', 'common']);
-
     // Data fetching
     const { data: roles, isLoading: rolesLoading } = useRoles();
     const { data: permissions, isLoading: permsLoading } = useFetchPermissions();

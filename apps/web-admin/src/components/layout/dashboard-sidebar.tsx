@@ -6,7 +6,6 @@ import {
   LogOut,
   MoreVertical,
 } from "lucide-react"
-import { useTranslation } from "@workspace/i18n"
 
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
@@ -38,7 +37,6 @@ interface SidebarProps {
 }
 
 export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: SidebarProps) {
-  const { t } = useTranslation(['common', 'admin'])
   const location = useLocation()
   const dispatch = useAppDispatch()
   const user = useAppSelector(selectUser)
@@ -48,10 +46,10 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
   const handleLogout = async () => {
     try {
       await dispatch(logout()).unwrap()
-      toast.success(t('messages.logoutSuccess'))
+      toast.success('Đã đăng xuất thành công')
       navigate('/login', { replace: true })
     } catch (error) {
-      toast.error(t('messages.logoutError'))
+      toast.error('Đăng xuất không thành công, nhưng bạn đã được đăng xuất cục bộ')
       navigate('/login', { replace: true })
     }
   }
@@ -90,7 +88,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
         <item.icon className={cn("size-4 shrink-0 transition-colors", isActive && "text-primary", !isActive && "group-hover:text-primary")} />
         {!isCollapsed && (
           <span className="ml-3 truncate">
-            {t(item.titleKey)}
+            {item.titleKey}
           </span>
         )}
         {isActive && !isCollapsed && (
@@ -106,7 +104,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
             <TooltipTrigger asChild>{content}</TooltipTrigger>
           </PermissionWrapper>
           <TooltipContent side="right" className="flex items-center gap-2 font-bold text-[10px] uppercase tracking-widest z-50 bg-background/80 backdrop-blur-xl border-primary/10">
-            {t(item.titleKey)}
+            {item.titleKey}
           </TooltipContent>
         </Tooltip>
       )
@@ -153,7 +151,7 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
             {!isCollapsed && (
               <div className="flex flex-col">
                 <span className="text-lg font-bold tracking-tight text-foreground">Torii <span className="text-primary">Admin</span></span>
-                <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-wider">{t('sidebar.workspace')}</span>
+                <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-wider">Không gian làm việc</span>
               </div>
             )}
           </Link>
@@ -161,9 +159,9 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
 
         {/* Navigation Content */}
         <div className="flex-1 overflow-y-auto py-2 scrollbar-none [&::-webkit-scrollbar]:hidden space-y-4">
-          <NavGroup title={t('sidebar.overview')} items={mainNavItems} />
-          <NavGroup title={t('sidebar.management')} items={managementNavItems} />
-          <NavGroup title={t('sidebar.system')} items={systemNavItems} />
+          <NavGroup title="Học thuật" items={mainNavItems} />
+          <NavGroup title="Vận hành" items={managementNavItems} />
+          <NavGroup title="Hệ thống" items={systemNavItems} />
         </div>
 
         {/* Footer info or stats could go here */}
@@ -184,8 +182,8 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col min-w-0">
-                    <span className="truncate text-[13px] font-semibold text-foreground/80">{user?.displayName || t('sidebar.defaultUser')}</span>
-                    <span className="truncate text-[10px] font-bold text-muted-foreground/40 uppercase tracking-wider">{user?.role || t('sidebar.defaultRole')}</span>
+                    <span className="truncate text-[13px] font-semibold text-foreground/80">{user?.displayName || 'Người quản trị'}</span>
+                    <span className="truncate text-[10px] font-bold text-muted-foreground/40 uppercase tracking-wider">{user?.role || 'Quản trị viên'}</span>
                   </div>
                 </div>
               </>
@@ -207,12 +205,12 @@ export function DashboardSidebar({ className, isCollapsed, toggleCollapse }: Sid
                 <DropdownMenuContent align="end" className="w-56 border border-border shadow-xl bg-background rounded-xl p-1.5">
                   <DropdownMenuItem onClick={toggleCollapse} className="rounded-lg px-3 py-2 text-xs font-semibold cursor-pointer">
                     {isCollapsed ? <PanelLeftOpen className="mr-2 size-4 text-primary" /> : <PanelLeftClose className="mr-2 size-4 text-primary" />}
-                    {isCollapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
+                    {isCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'}
                   </DropdownMenuItem>
                   <div className="h-px bg-border/50 my-1 mx-1.5" />
                   <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive rounded-lg px-3 py-2 text-xs font-semibold cursor-pointer" onClick={handleLogout}>
                     <LogOut className="mr-2 size-4" />
-                    {t('navigation.logout')}
+                    Đăng xuất
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
 import { logout } from '@/store/slices/authSlice'
 import { Button } from '@workspace/ui/components/button'
-import { useTranslation } from '@workspace/i18n'
 import {
     BookOpen,
     Users,
@@ -36,7 +35,6 @@ import {
 } from '@workspace/ui/components/dropdown-menu'
 
 export function Header() {
-    const { t } = useTranslation()
     const dispatch = useAppDispatch()
     const router = useRouter()
     const { user, isAuthenticated } = useAppSelector((state) => state.auth)
@@ -48,21 +46,21 @@ export function Header() {
         setIsLoggingOut(true)
         try {
             await dispatch(logout()).unwrap()
-            toast.success(t('learner.messages.logoutSuccess'))
+            toast.success('Đăng xuất thành công')
             router.push('/')
             router.refresh()
         } catch (error: any) {
-            toast.error(t('learner.messages.logoutFailed'))
+            toast.error('Đăng xuất thất bại')
         } finally {
             setIsLoggingOut(false)
         }
     }
 
     const navigation = [
-        { nameKey: 'learner.header.courses', href: '/courses', icon: BookOpen },
-        { nameKey: 'learner.header.liveClasses', href: '/live-classes', icon: Users },
-        { nameKey: 'learner.header.post', href: '/post', icon: Newspaper },
-        { nameKey: 'learner.header.placementTest', href: '/placement-test', icon: Award },
+        { name: 'Khóa học', href: '/courses', icon: BookOpen },
+        { name: 'Lớp trực tuyến', href: '/live-classes', icon: Users },
+        { name: 'Cộng đồng', href: '/post', icon: Newspaper },
+        { name: 'Test', href: '/placement-test', icon: Award },
     ]
 
     return (
@@ -86,12 +84,12 @@ export function Header() {
                                 const Icon = item.icon
                                 return (
                                     <Link
-                                        key={item.nameKey}
+                                        key={item.name}
                                         href={item.href}
                                         className="px-4 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-2"
                                     >
                                         <Icon className="w-4 h-4 text-muted-foreground" />
-                                        {t(item.nameKey)}
+                                        {item.name}
                                     </Link>
                                 )
                             })}
@@ -118,13 +116,13 @@ export function Header() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => setTheme("light")}>
-                                        {t('learner.header.theme.light')}
+                                        Chế độ Sáng
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setTheme("dark")}>
-                                        {t('learner.header.theme.dark')}
+                                        Chế độ Tối
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setTheme("system")}>
-                                        {t('learner.header.theme.system')}
+                                        Theo Hệ thống
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -150,13 +148,13 @@ export function Header() {
                                     <DropdownMenuItem asChild>
                                         <Link href="/dashboard" className="cursor-pointer">
                                             <LayoutDashboard className="mr-2 h-4 w-4" />
-                                            <span>{t('learner.header.userMenu.dashboard')}</span>
+                                            <span>Tổng quan</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
                                         <Link href="/dashboard/settings" className="cursor-pointer">
                                             <Settings className="mr-2 h-4 w-4" />
-                                            <span>{t('learner.header.userMenu.settings')}</span>
+                                            <span>Cài đặt tài khoản</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
@@ -166,7 +164,7 @@ export function Header() {
                                         className="text-red-500 focus:text-red-500 cursor-pointer"
                                     >
                                         <LogOut className="mr-2 h-4 w-4" />
-                                        <span>{isLoggingOut ? t('learner.header.loggingOut') : t('learner.header.userMenu.logout')}</span>
+                                        <span>{isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -174,12 +172,12 @@ export function Header() {
                             <div className="hidden sm:flex items-center gap-3">
                                 <Link href="/login">
                                     <Button variant="ghost" className="text-sm font-bold">
-                                        {t('learner.header.login')}
+                                        Đăng nhập
                                     </Button>
                                 </Link>
                                 <Link href="/register">
                                     <Button className="font-bold shadow-sm">
-                                        {t('learner.header.registerFree')}
+                                        Đăng ký miễn phí
                                     </Button>
                                 </Link>
                             </div>
@@ -206,13 +204,13 @@ export function Header() {
                             const Icon = item.icon
                             return (
                                 <Link
-                                    key={item.nameKey}
+                                    key={item.name}
                                     href={item.href}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium hover:bg-muted transaction-colors text-foreground/80"
                                 >
                                     <Icon className="w-5 h-5 text-primary" />
-                                    {t(item.nameKey)}
+                                    {item.name}
                                 </Link>
                             )
                         })}
@@ -222,12 +220,12 @@ export function Header() {
                             <>
                                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                                     <Button variant="outline" className="w-full justify-start font-bold">
-                                        {t('learner.header.login')}
+                                        Đăng nhập
                                     </Button>
                                 </Link>
                                 <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
                                     <Button className="w-full justify-start font-bold">
-                                        {t('learner.header.registerFree')}
+                                        Đăng ký miễn phí
                                     </Button>
                                 </Link>
                             </>
