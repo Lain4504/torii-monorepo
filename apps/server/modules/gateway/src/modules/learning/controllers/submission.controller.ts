@@ -39,14 +39,12 @@ export class SubmissionController {
     }
 
     @Post(':assignmentId')
-    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
-    submit(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+    submit(@Param('assignmentId') assignmentId: string, @Body(new ZodValidationPipe(submitAssignmentDto)) dto: any, @Req() req: ReqWithRequester) {
         return this.sendCmd('submit', { assignmentId, ...dto, requester: req.requester });
     }
 
     @Post(':assignmentId/draft')
-    @UsePipes(new ZodValidationPipe(submitAssignmentDto))
-    draft(@Param('assignmentId') assignmentId: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+    draft(@Param('assignmentId') assignmentId: string, @Body(new ZodValidationPipe(submitAssignmentDto)) dto: any, @Req() req: ReqWithRequester) {
         return this.sendCmd('saveDraft', { assignmentId, ...dto, requester: req.requester });
     }
 
@@ -63,15 +61,13 @@ export class SubmissionController {
 
     @Put(':id/grade')
     @Permissions('assignment.grade')
-    @UsePipes(new ZodValidationPipe(gradeSubmissionDto))
-    grade(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+    grade(@Param('id') id: string, @Body(new ZodValidationPipe(gradeSubmissionDto)) dto: any, @Req() req: ReqWithRequester) {
         return this.sendCmd('grade', { id, ...dto, requester: req.requester });
     }
 
     @Post(':id/return')
     @Permissions('assignment.grade')
-    @UsePipes(new ZodValidationPipe(returnSubmissionDto))
-    return(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+    return(@Param('id') id: string, @Body(new ZodValidationPipe(returnSubmissionDto)) dto: any, @Req() req: ReqWithRequester) {
         return this.sendCmd('return', { id, ...dto, requester: req.requester });
     }
 }

@@ -3,12 +3,12 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import type { Submission } from '@prisma/generated';
-import type { 
-  Requester, 
-  SubmitAssignmentDto, 
-  GradeSubmissionDto, 
+import type {
+  Requester,
+  SubmitAssignmentDto,
+  GradeSubmissionDto,
   ReturnSubmissionDto,
-  SubmissionResponseDTO 
+  SubmissionResponseDTO
 } from '@workspace/schemas';
 
 import { SubmissionRepository } from './submission.repository';
@@ -29,7 +29,7 @@ export class SubmissionService {
     private readonly natsClient: ClientProxy,
     @InjectMapper()
     private readonly mapper: Mapper,
-  ) {}
+  ) { }
 
   /**
    * Helper to check permissions
@@ -213,6 +213,19 @@ export class SubmissionService {
       throw new BadRequestException(`Score must be between 0 and ${maxScore}`);
     }
 
+    // BR-05, BR-07: Audit Trail - Save history if already graded
+    if (submission.status === 'GRADED') {
+      await this.submissionRepository.createGradeHistory({
+        submission: { connect: { id: submissionId } },
+        oldScore: submission.score,
+        newScore: dto.score,
+        oldFeedback: submission.feedback,
+        newFeedback: dto.feedback,
+        changedBy: requester.sub,
+        reason: dto.reason || 'Re-grading submission',
+      });
+    }
+
     const graded = await this.submissionRepository.update(submissionId, {
       score: dto.score,
       feedback: dto.feedback,
@@ -306,10 +319,10 @@ export class SubmissionService {
    */
   async getSubmissions(assignmentId: string) {
     const allSubmissions = await this.submissionRepository.findByAssignmentId(assignmentId);
-    
+
     // Group by userId and pick the highest attemptNumber
     const latestSubmissionsMap = new Map<string, Submission>();
-    
+
     for (const sub of allSubmissions) {
       const existing = latestSubmissionsMap.get(sub.userId);
       if (!existing || sub.attemptNumber > existing.attemptNumber) {

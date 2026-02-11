@@ -89,6 +89,14 @@ export class SubmissionProfile extends AutomapperProfile {
           (dest: SubmissionResponseDTO) => dest.updatedAt,
           mapFrom((src: Submission) => src.updatedAt),
         ),
+        forMember(
+          (dest: SubmissionResponseDTO) => dest.gradeHistories,
+          mapFrom((src: any) => src.gradeHistories?.map(h => ({
+            ...h,
+            oldScore: h.oldScore ? Number(h.oldScore) : undefined,
+            newScore: h.newScore ? Number(h.newScore) : undefined,
+          }))),
+        ),
       );
     };
   }
