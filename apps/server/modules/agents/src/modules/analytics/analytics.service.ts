@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
-import { AgentReadinessProfileResponseSchema } from '@workspace/schemas';
+import { AgentReadinessProfileResponseSchema, AgentStudyPathResponseSchema } from '@workspace/schemas';
 
 @Injectable()
 export class AnalyticsService implements OnModuleInit {
@@ -47,10 +47,20 @@ export class AnalyticsService implements OnModuleInit {
             }),
             async ({ userId, targetLevel, timeframe }) => {
                 const userContext = await this.fastMcpService.getUserContext(userId);
+                const syllabus = this.fastMcpService.loadResource('jlpt-syllabus.json');
+                const levelSyllabus = syllabus ? syllabus[targetLevel] : null;
+
                 const template = this.fastMcpService.loadPromptTemplate('analytics/study-path-suggestion.md');
-                const prompt = template({ userId, targetLevel, timeframe, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                const prompt = template({
+                    userId,
+                    targetLevel,
+                    timeframe,
+                    userContext,
+                    syllabus: levelSyllabus,
+                    timestamp: new Date().toISOString()
+                });
+
+                return this.fastMcpService.callGeminiWithSchema(prompt, AgentStudyPathResponseSchema);
             }
         );
 

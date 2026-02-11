@@ -132,6 +132,21 @@ export const AgentTestGenerationResponseSchema = z.object({
     estimatedTimeMinutes: z.number().optional(),
 });
 
+export const AgentStudyPathResponseSchema = z.object({
+    userId: z.string(),
+    currentLevel: z.string().optional(),
+    targetLevel: z.string(),
+    studyPathRecommendation: z.object({
+        roadmap: z.array(z.object({
+            title: z.string(),
+            status: z.enum(['completed', 'in-progress', 'locked']),
+            description: z.string(),
+        })),
+        estimatedWeeks: z.number().optional(),
+        focusAreas: z.array(z.string()),
+    }),
+});
+
 export const AgentTestEvaluationResponseSchema = z.object({
     testId: z.string(),
     score: z.number().optional(),
@@ -157,5 +172,6 @@ export type AgentConversationSimulationResponseDTO = z.infer<typeof AgentConvers
 export type AgentResourceRecommendationResponseDTO = z.infer<typeof AgentResourceRecommendationResponseSchema>;
 export type AgentChatResponseDTO = z.infer<typeof AgentChatResponseSchema>;
 export type AgentReadinessProfileResponseDTO = z.infer<typeof AgentReadinessProfileResponseSchema>;
+export type AgentStudyPathResponseDTO = z.infer<typeof AgentStudyPathResponseSchema>;
 export type AgentTestGenerationResponseDTO = z.infer<typeof AgentTestGenerationResponseSchema>;
 export type AgentTestEvaluationResponseDTO = z.infer<typeof AgentTestEvaluationResponseSchema>;

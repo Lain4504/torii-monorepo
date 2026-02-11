@@ -111,6 +111,35 @@ export class FastMcpService {
     }
   }
 
+  public loadResource(resourcePath: string): any {
+    try {
+      const buildPath = join(process.cwd(), 'dist/modules/agents/src/assets/resources', resourcePath);
+      const serviceSourcePath = join(process.cwd(), 'modules/agents/src/assets/resources', resourcePath);
+      const monorepoSourcePath = join(process.cwd(), 'apps/server/modules/agents/src/assets/resources', resourcePath);
+      const localPath = join(__dirname, '../../assets/resources', resourcePath);
+
+      let content: string;
+      try {
+        content = readFileSync(buildPath, 'utf-8');
+      } catch (e1) {
+        try {
+          content = readFileSync(serviceSourcePath, 'utf-8');
+        } catch (e2) {
+          try {
+            content = readFileSync(monorepoSourcePath, 'utf-8');
+          } catch (e3) {
+            content = readFileSync(localPath, 'utf-8');
+          }
+        }
+      }
+
+      return JSON.parse(content);
+    } catch (error) {
+      this.logger.error(`Failed to load resource: ${resourcePath}`, error);
+      return null;
+    }
+  }
+
   public async callGemini(prompt: string): Promise<string> {
     if (!this.genAI) {
       throw new Error('Gemini API Key is missing');

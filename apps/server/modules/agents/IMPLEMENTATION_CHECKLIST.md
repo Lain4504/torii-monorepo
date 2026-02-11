@@ -69,10 +69,11 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
     - Cập nhật tool `recommendResources` để dùng catalog này, AI chỉ sắp xếp/mô tả, không bịa tên/URL.
 
 - **D2 – Study path dựa trên syllabus JLPT**  
-  - Trạng thái: TODO  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Định nghĩa syllabus JLPT cho mỗi level (topics, grammar points, kanji sets…).
-    - Cập nhật `suggestStudyPath` để dựa vào syllabus + progress thật, AI tạo phần narrative roadmap/focusAreas.
+    - [x] Định nghĩa syllabus JLPT cho mỗi level (topics, grammar points, kanji sets…) trong `jlpt-syllabus.json`.
+    - [x] Cập nhật `suggestStudyPath` để dựa vào syllabus + progress thật qua `loadResource`.
+    - [x] Sử dụng `AgentStudyPathResponseSchema` để đảm bảo output AI chuẩn hóa.
 
 ---
 
