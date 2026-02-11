@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
 // import { FastMcpModule } from './fastmcp/fastmcp.module'; // No longer imported directly if handled by sub-modules, or kept as shared
-import { SenseiHandler } from './interfaces/nats/sensei.handler';
-import { AssessmentHandler } from './interfaces/nats/assessment.handler';
-import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
-import { SenseiModule } from './modules/sensei/sensei.module';
-import { AssessmentModule } from './modules/assessment/assessment.module';
-import { AnalyticsModule } from './modules/analytics/analytics.module';
-import { FastMcpModule } from './fastmcp/fastmcp.module'; // Keep importing for the MCP controller
+import { SenseiHandler, AssessmentHandler, AnalyticsHandler } from '@server/agents/interfaces/nats';
+import { SenseiModule, AssessmentModule, AnalyticsModule } from '@server/agents/modules';
+import { FastMcpModule } from '@server/agents/fastmcp/fastmcp.module'; // Keep importing for the MCP controller
+
 
 /**
  * Agents Module - Main module for AI-powered learning agents
