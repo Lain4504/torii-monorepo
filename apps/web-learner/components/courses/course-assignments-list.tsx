@@ -14,18 +14,26 @@ import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import { useCourseAssignments, type AssignmentResponseDTO } from '@/apis/services/assignment-api';
 import { AssignmentSubmission } from './assignment-submission';
+import { useCourseEnrollment } from '@/hooks/use-course-enrollment';
 
 interface CourseAssignmentsListProps {
   courseId: string;
+  courseSlug: string;
   onAssignmentClick?: (assignmentId: string) => void;
 }
 
 type FilterStatus = 'ALL' | 'PENDING' | 'SUBMITTED' | 'GRADED';
 
-export function CourseAssignmentsList({ courseId, onAssignmentClick }: CourseAssignmentsListProps) {
+export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick }: CourseAssignmentsListProps) {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL');
   const [selectedAssignment, setSelectedAssignment] = useState<AssignmentResponseDTO | null>(null);
-  const { data, isLoading } = useCourseAssignments({ courseId, status: 'PUBLISHED' });
+  const { isEnrolled, isLoadingEnrollment } = useCourseEnrollment(courseId, courseSlug);
+  const { data, isLoading: isLoadingAssignments } = useCourseAssignments({ courseId, status: 'PUBLISHED' });
+
+  // Hide for non-enrolled users
+  if (!isLoadingEnrollment && !isEnrolled) {
+    return null;
+  }
 
   const allAssignments = data?.data || [];
 
@@ -94,7 +102,7 @@ export function CourseAssignmentsList({ courseId, onAssignmentClick }: CourseAss
     };
   };
 
-  if (isLoading) {
+  if (isLoadingEnrollment || isLoadingAssignments) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>

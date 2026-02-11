@@ -100,7 +100,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
                         {/* Assignments */}
                         <div id="assignments" className="animate-in fade-in duration-700">
-                            <CourseAssignmentsList courseId={course.id} />
+                            <CourseAssignmentsList courseId={course.id} courseSlug={course.slug} />
                         </div>
 
                         {/* Instructor */}

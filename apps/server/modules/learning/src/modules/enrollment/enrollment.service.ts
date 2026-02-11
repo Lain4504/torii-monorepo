@@ -248,7 +248,10 @@ export class EnrollmentService implements IEnrollmentService {
     async isEnrolled(userId: string, courseId: string): Promise<boolean> {
         try {
             const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
-            return enrollment !== null && enrollment.completionStatus === EnrollmentStatus.IN_PROGRESS;
+            return enrollment !== null && (
+                enrollment.completionStatus === EnrollmentStatus.IN_PROGRESS ||
+                enrollment.completionStatus === EnrollmentStatus.COMPLETED
+            );
         } catch (error: any) {
             this.logger.error(`Error checking enrollment: ${error.message}`, error.stack);
             return false;
