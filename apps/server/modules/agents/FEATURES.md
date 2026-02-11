@@ -356,10 +356,13 @@ apps/server/modules/agents/
 Dùng cho mọi tool để AI biết ngữ cảnh học viên:
 
 - `userId`
-- `enrolledCourses`: tên khóa học
-- `jlptLevels`: các level JLPT của khóa đang học
-- `aiMetadata`: metadata từ course (nếu có)
-- `recentActivity`: 14 ngày gần nhất – mỗi ngày có số lesson hoàn thành và điểm quiz trung bình
+- `enrolledCourses`: tên khóa học học viên đang tham gia.
+- `jlptLevels`: các level JLPT liên quan đến khóa học.
+- `aiMetadata`: dữ liệu bổ sung từ khóa học.
+- `recentActivity`: 14 ngày gần nhất (số bài học, điểm trung bình).
+- `commonErrors`: danh sách 10-20 câu hỏi người dùng hay sai nhất (từ QuizAttemptDetail).
+- `recentVocabulary`: danh sách từ vựng mới học/ôn tập gần đây (từ FlashcardReview).
+- `stats`: thông tin gamification (Level, Streak, XP hiện tại).
 
 ---
 

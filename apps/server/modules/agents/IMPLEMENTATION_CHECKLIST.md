@@ -30,11 +30,14 @@ Trạng thái gợi ý: `TODO` / `IN_PROGRESS` / `DONE` (có thể cập nhật 
     - Thiết kế schema DB cho question bank JLPT (level, section, answers, explanations, tags).
     - Cập nhật `generateTest` / `placementTest` để lấy câu hỏi từ bank + optional AI cho authoring, không sinh full đề 100% từ model.
 
-- **B2 – Chuẩn hoá luồng placement test**  
-  - Trạng thái: TODO  
+- **B2 – Làm giàu User Context (History, Errors, Vocabulary)**  
+  - Trạng thái: DONE  
   - Việc cần làm:
-    - Gộp/xoá luồng `PlacementTestWizard` cũ (fetch `/api/agents/placement/...`) hoặc map về API chuẩn trong `agentApi`.
-    - Thống nhất `questionCount` (10 vs 15) và response shape (sử dụng `PlacementEvaluationResponse` hiện tại).
+    - [x] Cập nhật `getUserContext` trong `FastMcpService` để lấy:
+      - Top 10 lỗi sai gần nhất từ `QuizAttemptDetail`.
+      - Danh sách từ vựng/flashcards vừa học từ `FlashcardReview`.
+      - Thông tin Gamification (Streak, Level, XP) từ `UserGamification`.
+    - [x] Cập nhật interface `ToolContext` và truyền dữ liệu này vào prompt templates.
 
 ---
 

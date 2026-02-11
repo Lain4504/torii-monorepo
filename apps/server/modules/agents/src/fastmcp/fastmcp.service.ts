@@ -12,6 +12,9 @@ export interface ToolContext {
   jlptLevels?: string[];
   aiMetadata?: any[];
   recentActivity?: { date: string; lessons: number; averageScore: number }[];
+  commonErrors?: any[];
+  recentVocabulary?: any[];
+  stats?: { level: number; streak: number; totalXp: number } | null;
 }
 
 /**
@@ -275,9 +278,51 @@ export class FastMcpService {
           : 0
       })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-      // Limit to last 7 days? Or keep all 30? Context window assumes 30 is fine.
-      // Let's pass the last 14 days to be safe and concise.
+      // Limit to last 14 days
       const conciseActivity = recentActivity.slice(-14);
+
+      // --- NEW DATA FETCHING ---
+
+      // 1. Common Errors (Top 10 recently missed questions)
+      const recentWrongDetails = await this.prisma.quizAttemptDetail.findMany({
+        where: {
+          attempt: { userId },
+          isCorrect: false
+        },
+        include: {
+          question: { select: { questionText: true, category: true, subcategory: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20
+      });
+
+      const commonErrors = recentWrongDetails.map(d => ({
+        question: d.question.questionText,
+        category: d.question.category,
+        subcategory: d.question.subcategory
+      }));
+
+      // 2. Recent Vocabulary (Flashcards reviewed/added)
+      const recentFlashcards = await this.prisma.flashcardReview.findMany({
+        where: { userId },
+        include: {
+          flashcard: { select: { frontText: true, backText: true, kanji: true, furigana: true } }
+        },
+        orderBy: { reviewDate: 'desc' },
+        take: 10
+      });
+
+      const recentVocabulary = recentFlashcards.map(r => ({
+        word: r.flashcard.kanji || r.flashcard.frontText,
+        reading: r.flashcard.furigana,
+        meaning: r.flashcard.backText,
+        quality: r.quality // Review quality (0-4)
+      }));
+
+      // 3. User Gamification (Streak, Level, XP)
+      const gamification = await this.prisma.userGamification.findUnique({
+        where: { userId }
+      });
 
       return {
         userId,
@@ -285,7 +330,14 @@ export class FastMcpService {
         jlptLevels,
         aiMetadata: courseMetadata,
         recentActivity: conciseActivity,
-      } as any; // Cast as any to bypass partial interface for now or update interface
+        commonErrors,
+        recentVocabulary,
+        stats: gamification ? {
+          level: gamification.level,
+          streak: gamification.currentStreak,
+          totalXp: gamification.totalXp
+        } : null
+      };
     } catch (error) {
       this.logger.warn(`Failed to fetch user context: ${error.message}`);
       return { userId };
