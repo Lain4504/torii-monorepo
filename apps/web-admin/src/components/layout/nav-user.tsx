@@ -8,7 +8,6 @@ import {
     ShieldCheck,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { useTranslation } from "@workspace/i18n"
 
 import {
     Avatar,
@@ -46,17 +45,16 @@ export function NavUser({
     }
 }) {
     const { isMobile } = useSidebar()
-    const { t } = useTranslation('common')
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
 
     const handleLogout = async () => {
         try {
             await dispatch(logout()).unwrap()
-            toast.success(t('messages.logoutSuccess'))
+            toast.success('Đã đăng xuất thành công')
             navigate('/login', { replace: true })
         } catch (error) {
-            toast.error(t('messages.logoutError'))
+            toast.error('Đăng xuất không thành công, nhưng bạn đã được đăng xuất cục bộ')
             navigate('/login', { replace: true })
         }
     }
@@ -83,10 +81,10 @@ export function NavUser({
                                 <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-emerald-500 border-2 border-background rounded-full group-data-[collapsible=icon]:size-2 group-data-[collapsible=icon]:border-1" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-medium">{user.displayName || t('sidebar.defaultUser')}</span>
+                                <span className="truncate font-medium">{user.displayName || 'Người quản trị'}</span>
                                 <div className="flex items-center gap-1.5 opacity-60">
                                     <ShieldCheck className="size-3" />
-                                    <span className="truncate text-[10px] font-medium uppercase tracking-wider">{user.role || t('sidebar.defaultRole')}</span>
+                                    <span className="truncate text-[10px] font-medium uppercase tracking-wider">{user.role || 'Quản trị viên'}</span>
                                 </div>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4 opacity-40 group-data-[collapsible=icon]:hidden" />
@@ -116,11 +114,11 @@ export function NavUser({
                         <DropdownMenuGroup className="space-y-1">
                             <DropdownMenuItem className="rounded-xl py-2.5 px-3 cursor-pointer transition-colors focus:bg-primary/5 focus:text-primary">
                                 <BadgeCheck className="size-4 mr-2 text-muted-foreground/60" />
-                                Account
+                                Tài khoản
                             </DropdownMenuItem>
                             <DropdownMenuItem className="rounded-xl py-2.5 px-3 cursor-pointer transition-colors focus:bg-primary/5 focus:text-primary" onClick={() => navigate('/notifications')}>
                                 <Bell className="size-4 mr-2 text-muted-foreground/60" />
-                                Notifications
+                                Thông báo
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator className="bg-border/20" />
@@ -129,7 +127,7 @@ export function NavUser({
                             onClick={handleLogout}
                         >
                             <LogOut className="size-4 mr-2" />
-                            {t('navigation.logout')}
+                            Đăng xuất
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

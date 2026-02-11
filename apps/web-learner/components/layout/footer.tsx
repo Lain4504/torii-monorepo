@@ -3,11 +3,9 @@
 import Link from 'next/link'
 import { Facebook, Youtube, Instagram, Mail, Phone, MapPin, Sparkles, Send } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { useTranslation } from '@workspace/i18n'
 import { Input } from '@workspace/ui/components/input'
 
 export function Footer() {
-    const { t } = useTranslation()
     const currentYear = new Date().getFullYear()
 
     const footerSections = {
