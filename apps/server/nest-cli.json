@@ -81,7 +81,13 @@
       "sourceRoot": "modules/communication/src",
       "compilerOptions": {
         "tsConfigPath": "modules/communication/tsconfig.app.json",
-        "webpack": false
+        "webpack": false,
+        "assets": [
+          {
+            "include": "src/**/*.pug",
+            "watchAssets": true
+          }
+        ]
       }
     },
     "storage": {

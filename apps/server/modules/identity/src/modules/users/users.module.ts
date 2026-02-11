@@ -4,7 +4,6 @@ import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { UserProfile } from '@server/identity/infrastructure/mappings/user.profile';
 import { AuthorizationModule } from '../authorization/authorization.module';
-import { EmailModule } from '@server/identity/infrastructure/email/email.module';
 import { USERS_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
 import { USERS_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 
@@ -13,7 +12,7 @@ import { USERS_SERVICE_TOKEN } from '@server/identity/interfaces/services';
  * Handles user management and profile operations
  */
 @Module({
-    imports: [PrismaModule, NatsClientModule, AuthorizationModule, EmailModule],
+    imports: [PrismaModule, NatsClientModule, AuthorizationModule],
     providers: [
         {
             provide: USERS_REPOSITORY_TOKEN,
