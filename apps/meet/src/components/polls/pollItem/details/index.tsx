@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogTitle,
@@ -30,7 +29,6 @@ const DetailsModal = ({
   refetch,
 }: ViewDetailsProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const { t } = useTranslation();
 
   useEffect(() => {
     refetch();
@@ -65,11 +63,11 @@ const DetailsModal = ({
                   className="text-sm 3xl:text-base font-bold text-foreground flex items-center gap-3"
                 >
                   <span className="uppercase">
-                    {t('polls.poll-num', { index: serialNum })}
+                    Bình chọn #{serialNum}
                   </span>{' '}
                   {!isRunning && (
                     <div className="border border-destructive/20 bg-destructive/10 rounded-full h-[22px] px-2 text-[10px] text-destructive font-bold flex items-center uppercase tracking-wider">
-                      {t('polls.poll-closed')}
+                      Đã đóng
                     </div>
                   )}
                 </DialogTitle>

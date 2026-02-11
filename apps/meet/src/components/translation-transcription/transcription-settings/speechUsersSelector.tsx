@@ -1,6 +1,4 @@
 import React, { Dispatch, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { useAppSelector } from '../../../store';
 import { selectBasicParticipants } from '../../../store/slices/participantSlice';
 import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
@@ -14,7 +12,6 @@ const SpeechUsersSelector = ({
   selectedSpeechUsers,
   setSelectedSpeechUsers,
 }: SpeechUsersSelectorProps) => {
-  const { t } = useTranslation();
   const participants = useAppSelector(selectBasicParticipants);
 
   return useMemo(() => {
@@ -32,7 +29,7 @@ const SpeechUsersSelector = ({
       <div className="">
         <Dropdown
           id="speech-users"
-          label={t('speech-services.speech-users-label')}
+          label="Chọn thành viên để dịch lời thoại"
           value={selectedSpeechUsers}
           onChange={setSelectedSpeechUsers}
           multiple={true}
@@ -40,7 +37,7 @@ const SpeechUsersSelector = ({
         />
       </div>
     );
-  }, [participants, selectedSpeechUsers, t, setSelectedSpeechUsers]);
+  }, [participants, selectedSpeechUsers, setSelectedSpeechUsers]);
 };
 
 export default SpeechUsersSelector;

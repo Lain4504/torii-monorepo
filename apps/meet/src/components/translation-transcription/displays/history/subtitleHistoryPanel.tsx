@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { PopoverPanel } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
 
 import { store, useAppSelector } from '../../../../store';
 import { X, Download, ArrowDown } from 'lucide-react';
@@ -21,7 +20,6 @@ const SubtitleHistoryPanel = ({
   showPopover,
   setShowPopover,
 }: SubtitleHistoryPanelProps) => {
-  const { t } = useTranslation();
   const scrollableContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollDownBtn, setShowScrollDownBtn] = useState(false);
 
@@ -43,12 +41,7 @@ const SubtitleHistoryPanel = ({
     const formattedTime = now.toLocaleTimeString();
     const fileTimestamp = now.toISOString().slice(0, 19).replace(/:/g, '-');
 
-    const header = `${t('speech-services.download-header', {
-      name: roomTitle,
-      lang: selectedSubtitleLang,
-      date: formattedDate,
-      time: formattedTime,
-    })}\n\n--------------------------------------------------\n\n`;
+    const header = `Lịch sử phụ đề - ${roomTitle} (${selectedSubtitleLang}) - ${formattedDate} ${formattedTime}\n\n--------------------------------------------------\n\n`;
 
     const body = lastFinalTexts
       .map((t) => `[${t.time}] ${t.from}:\n${t.text}`)
@@ -70,7 +63,7 @@ const SubtitleHistoryPanel = ({
 
     link.click();
     link.remove();
-  }, [lastFinalTexts, selectedSubtitleLang, t]);
+  }, [lastFinalTexts, selectedSubtitleLang]);
 
   const forceScrollToBottom = useCallback(() => {
     const container = scrollableContainerRef.current;
@@ -133,7 +126,7 @@ const SubtitleHistoryPanel = ({
     >
       <h2 className="relative text-sm font-medium leading-6 text-white px-4 flex items-center h-10 justify-between border-b border-white/15">
         <div className="left">
-          {t('speech-services.subtitle-history-modal-title')}
+          Lịch sử phụ đề
         </div>
         <div className="right flex items-center justify-center gap-3">
           {showScrollDownBtn && (

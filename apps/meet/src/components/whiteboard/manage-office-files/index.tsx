@@ -2,7 +2,6 @@ import React, { useMemo, useRef, useState } from 'react';
 import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { debounce } from 'es-toolkit';
-import { useTranslation } from 'react-i18next';
 
 import { X, Paperclip } from 'lucide-react';
 import { updateCurrentWhiteboardOfficeFileId } from '../../../store/slices/whiteboard';
@@ -29,7 +28,6 @@ const ManageOfficeFilesModal = ({
   onClose,
   showSwitchingWarning,
 }: ManageOfficeFilesModalProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const { allowedFileTypes, maxAllowedFileSize } = useMemo(() => {
@@ -106,7 +104,7 @@ const ManageOfficeFilesModal = ({
               as="h3"
               className="flex items-center justify-between text-base font-semibold leading-7 text-foreground px-4 py-2 border-b border-border"
             >
-              <span>{t('whiteboard.upload-files-title')}</span>
+              <span>Quản lý tệp</span>
               <Button className="cursor-pointer" onClick={() => onClose()}>
                 <X className="w-5 h-5" />
               </Button>
@@ -124,23 +122,21 @@ const ManageOfficeFilesModal = ({
                 />
                 <div className="text-wrap text-sm font-medium text-center cursor-pointer">
                   <p className="text-foreground font-semibold pb-1">
-                    {t('whiteboard.drag-drop-file')}
+                    Kéo và thả tệp vào đây
                   </p>
                   <p className="text-muted-foreground">
-                    {t('whiteboard.max-file-size', {
-                      size: maxAllowedFileSize,
-                    })}
+                    Dung lượng tối đa {maxAllowedFileSize}MB
                   </p>
                   <div className="divider flex justify-center items-center gap-3 py-3">
                     <span className="line inline-block h-[1px] w-20 bg-border"></span>
                     <span className="text-muted-foreground">
-                      {t('whiteboard.or')}
+                      Hoặc
                     </span>
                     <span className="line inline-block h-[1px] w-20 bg-border"></span>
                   </div>
                   <button className="h-9 w-auto m-auto px-4 flex items-center justify-center rounded-lg text-sm font-semibold text-foreground bg-muted hover:bg-muted/80 border border-border transition-all duration-300 shadow-sm cursor-pointer">
                     <Paperclip className="w-3.5 h-3.5 ltr:mr-1.5 rtl:ml-1.5" />
-                    {t('whiteboard.select-file')}
+                    Chọn tệp từ thiết bị
                   </button>
                 </div>
               </div>
@@ -168,7 +164,7 @@ const ManageOfficeFilesModal = ({
                 className="h-9 w-full flex items-center justify-center rounded-lg text-sm font-semibold text-foreground bg-muted hover:bg-muted/80 border border-border transition-all duration-300 shadow-sm cursor-pointer"
                 onClick={() => onClose()}
               >
-                {t('close')}
+                Đóng
               </button>
               <button
                 className="h-9 w-full flex items-center justify-center rounded-lg text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 shadow-sm cursor-pointer disabled:opacity-50"
@@ -178,7 +174,7 @@ const ManageOfficeFilesModal = ({
                 }}
                 disabled={selectedOfficeFile === undefined || disableUploading}
               >
-                {t('whiteboard.add-to-whiteboard')}
+                Thêm vào bảng trắng
               </button>
             </div>
           </DialogPanel>

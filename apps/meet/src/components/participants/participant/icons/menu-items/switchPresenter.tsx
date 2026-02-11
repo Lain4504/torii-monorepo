@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { MenuItem } from '@headlessui/react';
 import { toast } from 'react-toastify';
 import {
@@ -22,7 +21,6 @@ const SwitchPresenterMenuItem = ({ userId }: ISwitchPresenterMenuItemProps) => {
     (state) =>
       participantsSelector.selectById(state, userId)?.metadata.isPresenter,
   );
-  const { t } = useTranslation();
 
   const togglePresenterStatus = async () => {
     const body = create(SwitchPresenterReqSchema, {
@@ -42,12 +40,12 @@ const SwitchPresenterMenuItem = ({ userId }: ISwitchPresenterMenuItemProps) => {
     const res = fromBinary(CommonResponseSchema, new Uint8Array(r));
 
     if (res.status) {
-      toast(t('left-panel.menus.notice.presenter-changed'), {
+      toast('Đã thay đổi trạng thái người thuyết trình thành công.', {
         toastId: 'lock-setting-status',
         type: 'info',
       });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         toastId: 'lock-setting-status',
         type: 'error',
       });
@@ -62,8 +60,8 @@ const SwitchPresenterMenuItem = ({ userId }: ISwitchPresenterMenuItemProps) => {
           onClick={togglePresenterStatus}
         >
           {isPresenter
-            ? t('footer.icons.demote-presenter')
-            : t('footer.icons.promote-presenter')}
+            ? 'Hủy tư cách người thuyết trình'
+            : 'Chỉ định làm người thuyết trình'}
         </button>
       )}
     </MenuItem>

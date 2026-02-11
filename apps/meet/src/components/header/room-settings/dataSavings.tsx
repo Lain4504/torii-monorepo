@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { VideoQuality } from 'livekit-client';
 
 import { useAppDispatch, useAppSelector } from '../../../store';
@@ -15,7 +14,6 @@ import { UserDeviceType } from '../../../store/slices/interfaces/session';
 
 const DataSavings = () => {
     const dispatch = useAppDispatch();
-    const { t } = useTranslation();
     const videoQuality = useAppSelector(
         (state) => state.roomSettings.roomVideoQuality,
     );
@@ -64,11 +62,11 @@ const DataSavings = () => {
     const getVideoQualityText = (quality: VideoQuality) => {
         switch (quality) {
             case VideoQuality.LOW:
-                return t('header.room-settings.low');
+                return 'Thấp';
             case VideoQuality.MEDIUM:
-                return t('header.room-settings.medium');
+                return 'Trung bình';
             case VideoQuality.HIGH:
-                return t('header.room-settings.high');
+                return 'Cao';
             default:
                 return '';
         }
@@ -77,7 +75,7 @@ const DataSavings = () => {
     return (
         <div className="mt-2">
             <Dropdown
-                label={t('header.room-settings.video-quality')}
+                label="Chất lượng video"
                 id="video-quality"
                 value={videoQuality}
                 onChange={(v) => dispatch(updateRoomVideoQuality(v as VideoQuality))}
@@ -93,21 +91,21 @@ const DataSavings = () => {
             />
 
             <SettingsSwitch
-                label={t('header.room-settings.show-screen-share')}
+                label="Hiện chia sẻ màn hình"
                 enabled={activeScreenSharingView}
                 onChange={toggleScreenShareView}
                 customCss="my-4"
             />
 
             <SettingsSwitch
-                label={t('header.room-settings.show-webcams')}
+                label="Hiện máy ảnh"
                 enabled={activateWebcamsView}
                 onChange={toggleWebcamView}
                 customCss="my-4"
             />
             {activateWebcamsView && (
                 <Dropdown
-                    label={t('header.room-settings.max-num-webcam')}
+                    label="Số lượng máy ảnh tối đa"
                     id="max-num-webcam"
                     value={maxNumDisplayWebcams || 24}
                     onChange={(v) => dispatch(updateMaxNumDisplayWebcams(v))}

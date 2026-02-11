@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { InsightsTranscriptionFeatures } from '@workspace/protocol';
 
 import { getSubtitleLangs } from '../helpers/supportedLangs';
@@ -16,7 +15,6 @@ const SubtitleLangSelector = ({
   selectedSubtitleLang,
   setSelectedSubtitleLang,
 }: ISubtitleLangSelectorProps) => {
-  const { t } = useTranslation();
 
   const dropdownOptions: ISelectOption[] = useMemo(() => {
     const langs = getSubtitleLangs(
@@ -36,7 +34,7 @@ const SubtitleLangSelector = ({
     <div className="px-5 pt-4 pb-4">
       <Dropdown
         id="language"
-        label={t('speech-services.subtitle-lang-label')}
+        label="Ngôn ngữ phụ đề"
         value={selectedSubtitleLang}
         onChange={setSelectedSubtitleLang}
         options={dropdownOptions}

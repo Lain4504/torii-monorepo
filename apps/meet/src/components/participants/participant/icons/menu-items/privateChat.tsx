@@ -1,7 +1,5 @@
 import React from 'react';
 import { MenuItem } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
-
 import { useAppDispatch } from '../../../../../store';
 import {
   updateInitiatePrivateChat,
@@ -15,7 +13,6 @@ interface IChatMenuItemProps {
 }
 const PrivateChatMenuItem = ({ name, userId }: IChatMenuItemProps) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const initiatePrivateChat = () => {
     dispatch(setActiveSidePanel('CHAT'));
@@ -35,7 +32,7 @@ const PrivateChatMenuItem = ({ name, userId }: IChatMenuItemProps) => {
             className="min-h-8 cursor-pointer py-0.5 w-full text-sm text-left leading-none font-medium text-foreground px-3 rounded-lg transition-all duration-300 hover:bg-muted"
             onClick={initiatePrivateChat}
           >
-            {t('left-panel.menus.items.private-chat')}
+            Trò chuyện riêng
           </button>
         )}
       </MenuItem>

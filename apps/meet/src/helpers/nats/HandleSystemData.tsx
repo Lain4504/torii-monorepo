@@ -14,7 +14,6 @@ import {
     addUserNotification,
     updatePlayAudioNotification,
 } from '../../store/slices/roomSettingsSlice';
-import i18n from '../i18n';
 import { pollsApi } from '../../store/services/pollsApi';
 import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
 import { breakoutRoomApi } from '../../store/services/breakoutRoomApi';
@@ -38,7 +37,7 @@ export default class HandleSystemData {
             case NatsSystemNotificationTypes.NATS_SYSTEM_NOTIFICATION_INFO:
                 store.dispatch(
                     addUserNotification({
-                        message: i18n.t(nt.msg),
+                        message: nt.msg,
                         typeOption: 'info',
                         newInstance: true,
                     }),
@@ -51,7 +50,7 @@ export default class HandleSystemData {
             case NatsSystemNotificationTypes.NATS_SYSTEM_NOTIFICATION_WARNING:
                 store.dispatch(
                     addUserNotification({
-                        message: i18n.t(nt.msg),
+                        message: nt.msg,
                         typeOption: 'warning',
                         newInstance: true,
                     }),
@@ -63,7 +62,7 @@ export default class HandleSystemData {
             case NatsSystemNotificationTypes.NATS_SYSTEM_NOTIFICATION_ERROR:
                 store.dispatch(
                     addUserNotification({
-                        message: i18n.t(nt.msg),
+                        message: nt.msg,
                         typeOption: 'error',
                         newInstance: true,
                     }),
@@ -80,7 +79,7 @@ export default class HandleSystemData {
             case NatsMsgServerToClientEvents.POLL_CREATED:
                 store.dispatch(
                     addUserNotification({
-                        message: i18n.t('polls.new-poll'),
+                        message: 'Bình chọn mới',
                         typeOption: 'info',
                         notificationCat: 'new-poll-created',
                         autoClose: false,
@@ -121,7 +120,7 @@ export default class HandleSystemData {
                 if (payload.msg !== '') {
                     store.dispatch(
                         addUserNotification({
-                            message: i18n.t('breakout-room.invitation-msg'),
+                            message: 'Lời mời tham gia phòng thảo luận',
                             typeOption: 'info',
                             notificationCat: 'breakout-room-invitation',
                             data: payload.msg,
@@ -156,7 +155,7 @@ export default class HandleSystemData {
         );
         store.dispatch(
             addUserNotification({
-                message: i18n.t('notifications.new-system-message-in-chat'),
+                message: 'Có tin nhắn hệ thống mới trong chat',
                 typeOption: 'info',
                 newInstance: true,
             }),

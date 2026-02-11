@@ -29,7 +29,6 @@ import {
   updateParticipant,
 } from '../../store/slices/participantSlice';
 import { languagesMap } from '../languages';
-import i18n from '../i18n';
 import {
   setActiveSidePanel,
   updateIsActiveRaisehand,
@@ -438,9 +437,7 @@ export default class HandleParticipants {
       store.dispatch(updatePlayAudioNotification(true));
       store.dispatch(
         addUserNotification({
-          message: i18n.t('waiting-room.user-waiting', {
-            name: name,
-          }),
+          message: `${name} đang chờ duyệt vào phòng`,
           typeOption: 'info',
         }),
       );

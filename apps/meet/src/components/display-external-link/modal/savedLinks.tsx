@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { isArray } from 'es-toolkit/compat';
 
 import FormattedInputField from '../../../helpers/ui/formattedInputField';
@@ -15,7 +14,6 @@ interface ISavedLinksProps {
 }
 
 const SavedLinks = ({ link, setLink }: ISavedLinksProps) => {
-  const { t } = useTranslation();
   const [savedLinks, setSavedLinks] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const [newUrlLink, setNewUrlLink] = useState<string>('');
@@ -33,7 +31,7 @@ const SavedLinks = ({ link, setLink }: ISavedLinksProps) => {
 
   const addLink = useCallback(async () => {
     if (!newUrlLink) {
-      setErrorMsg(t('external-display-link-display.url-required'));
+      setErrorMsg('Liên kết là bắt buộc');
       return;
     }
     try {
@@ -41,7 +39,7 @@ const SavedLinks = ({ link, setLink }: ISavedLinksProps) => {
       new URL(newUrlLink);
     } catch (e) {
       console.error(e);
-      setErrorMsg(t('external-display-link-display.link-invalid'));
+      setErrorMsg('Liên kết không hợp lệ');
       return;
     }
     setErrorMsg(undefined);
@@ -58,7 +56,7 @@ const SavedLinks = ({ link, setLink }: ISavedLinksProps) => {
     });
     setLink(newUrlLink);
     setNewUrlLink('');
-  }, [t, setLink, newUrlLink]);
+  }, [setLink, newUrlLink]);
 
   const deleteLink = useCallback(
     async (urlToDelete: string) => {
@@ -90,12 +88,12 @@ const SavedLinks = ({ link, setLink }: ISavedLinksProps) => {
         <div className="flex-auto">
           <FormattedInputField
             id="link"
-            placeholder={t('external-display-link-display.url')}
+            placeholder="Nhập liên kết"
             value={newUrlLink}
             onChange={onLinkChange}
           />
           <div className="text-xs py-2 text-muted-foreground">
-            {t('external-display-link-display.note')}
+            Lưu ý: Chỉ hỗ trợ các liên kết an toàn (https)
           </div>
         </div>
         <button

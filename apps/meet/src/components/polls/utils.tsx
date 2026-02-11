@@ -3,7 +3,6 @@ import { chunk } from 'es-toolkit';
 import ReactDOMServer from 'react-dom/server';
 
 import { getNatsConn } from '../../helpers/nats';
-import i18n from '../../helpers/i18n';
 import { generateAvatarInitial } from '../../helpers/utils';
 
 export interface PollDataWithOption {
@@ -94,9 +93,7 @@ export const publishPollResultByChat = async (
         {pollDataWithOption.question}
       </strong>
       <p style={{ margin: '2px 0' }}>
-        {i18n.t('polls.total-responses', {
-          count: pollDataWithOption.totalRespondents,
-        })}
+        {`Tổng số phản hồi: ${pollDataWithOption.totalRespondents}`}
       </p>
       <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
         {formattedOptions}

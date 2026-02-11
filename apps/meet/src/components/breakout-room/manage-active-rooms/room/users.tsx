@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { BreakoutRoomUser, DataMsgBodyType } from '@workspace/protocol';
 import { chunk } from 'es-toolkit';
 
@@ -17,7 +16,6 @@ const BreakoutRoomUsers = ({
   breakoutRoomId,
   setMessage,
 }: IBreakoutRoomUsersProps) => {
-  const { t } = useTranslation();
 
   const userChunks = useMemo(() => {
     const sortedUsers = [...users].sort(
@@ -34,9 +32,7 @@ const BreakoutRoomUsers = ({
       userId,
     );
     setMessage({
-      text: t('breakout-room.you-pushed-user', {
-        name,
-      }),
+      text: `Bạn đã mời ${name}`,
       type: 'info',
     });
     setTimeout(() => setMessage(null), 5000);
@@ -56,8 +52,8 @@ const BreakoutRoomUsers = ({
                   }`}
                 title={
                   user.joined
-                    ? t('breakout-room.user-joined')
-                    : t('breakout-room.not-joined')
+                    ? "Người dùng đã tham gia"
+                    : "Chưa tham gia"
                 }
               >
                 {generateAvatarInitial(user.name)}
@@ -70,7 +66,7 @@ const BreakoutRoomUsers = ({
                   onClick={() => pushUser(user.name, user.id)}
                   className="ml-auto h-6 px-3 cursor-pointer text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-300 shadow-sm"
                 >
-                  {t('breakout-room.push')}
+                  Mời
                 </button>
               )}
             </li>

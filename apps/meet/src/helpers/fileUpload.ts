@@ -10,7 +10,6 @@ import {
 } from '@workspace/protocol';
 import Resumable from 'resumablejs';
 
-import i18n from './i18n';
 import { store } from '../store';
 import sendAPIRequest from './api/api-client';
 import { addUserNotification } from '../store/slices/roomSettingsSlice';
@@ -24,7 +23,7 @@ export const uploadBase64EncodedFile = async (
   base64EncodedData: string,
   fileType: RoomUploadedFileType,
 ) => {
-  const id = toast.loading(i18n.t('notifications.uploading-file'), {
+  const id = toast.loading('Đang tải lên tệp...', {
     type: 'info',
   });
   const parts = base64EncodedData.split('base64,');
@@ -53,7 +52,7 @@ export const uploadBase64EncodedFile = async (
   }
 
   toast.update(id, {
-    render: i18n.t('right-panel.file-upload-success'),
+    render: 'Tải lên tệp thành công',
     type: 'success',
     isLoading: false,
     autoClose: 1000,
@@ -154,8 +153,8 @@ class ResumableUploader {
     if (res.status && res.filePath && res.fileName) {
       this.args.onSuccess(res);
     } else {
-      this.args.onError?.(i18n.t(res.msg));
-      toast(i18n.t(res.msg), { type: 'error' });
+      this.args.onError?.(res.msg);
+      toast(res.msg, { type: 'error' });
     }
   };
 
@@ -163,14 +162,14 @@ class ResumableUploader {
     this.cleanUp();
     try {
       const res = JSON.parse(message);
-      const msg = i18n.t(res.msg);
+      const msg = res.msg;
       store.dispatch(
         addUserNotification({ message: msg, typeOption: 'error' }),
       );
       this.args.onError?.(msg);
     } catch (e) {
       console.error(e);
-      const msg = i18n.t('right-panel.file-upload-default-error');
+      const msg = 'Đã xảy ra lỗi khi tải lên tệp';
       store.dispatch(
         addUserNotification({ message: msg, typeOption: 'error' }),
       );
@@ -180,7 +179,7 @@ class ResumableUploader {
 
   private onUploadStart = () => {
     this.toastId = toast(
-      i18n.t('right-panel.uploading-file', { fileName: this.fileName }),
+      `Đang tải lên: ${this.fileName}`,
       {
         closeButton: false,
         progress: 0,
@@ -195,18 +194,14 @@ class ResumableUploader {
   };
 
   private onFileTypeError = (file: any) => {
-    const msg = i18n.t('notifications.file-type-not-allow', {
-      filetype: file.type,
-    });
+    const msg = `Định dạng tệp không được hỗ trợ: ${file.type}`;
     this.args.onError?.(msg);
     store.dispatch(addUserNotification({ message: msg, typeOption: 'error' }));
     this.cleanUp(false); // Don't dismiss toast as it was never shown
   };
 
   private onMaxFileSizeError = () => {
-    const msg = i18n.t('notifications.max-file-size-exceeds', {
-      size: this.args.maxFileSize,
-    });
+    const msg = `Dung lượng tệp vượt quá giới hạn cho phép (${this.args.maxFileSize}MB)`;
     this.args.onError?.(msg);
     store.dispatch(addUserNotification({ message: msg, typeOption: 'error' }));
     this.cleanUp(false); // Don't dismiss toast as it was never shown
@@ -222,7 +217,7 @@ class ResumableUploader {
 
   public start = () => {
     if (isUploadingFile) {
-      const msg = i18n.t('notifications.please-wait-other-task-to-finish');
+      const msg = 'Vui lòng đợi tác vụ khác hoàn thành';
       this.args.onError?.(msg);
       store.dispatch(
         addUserNotification({ message: msg, typeOption: 'warning' }),

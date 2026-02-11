@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { getInputMediaDevices } from '../../../helpers/utils';
 import { addAudioDevices } from '../../../store/slices/roomSettingsSlice';
@@ -17,7 +16,6 @@ const MicrophoneModal = ({
   show,
   onCloseMicrophoneModal,
 }: MicrophoneModalProps) => {
-  const { t } = useTranslation();
   const [selectedMic, setSelectMic] = useState<string>('');
   const [devices, setDevices] = useState<Array<{ id: string; label: string }>>(
     [],
@@ -46,10 +44,10 @@ const MicrophoneModal = ({
     <Modal
       show={show}
       onClose={() => selectOrClose(true)}
-      title={t('footer.modal.select-microphone')}
+      title="Chọn micro"
       renderButtons={() => (
         <ActionButton onClick={() => selectOrClose(false)}>
-          {t('share')}
+          Chia sẻ
         </ActionButton>
       )}
       customBodyClass="microphone-modal !overflow-[initial]"

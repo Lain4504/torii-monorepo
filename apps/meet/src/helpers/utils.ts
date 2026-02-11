@@ -1,12 +1,11 @@
 import { AudioPresets, ScreenSharePresets, VideoPresets } from 'livekit-client';
 import { errors } from '@nats-io/nats-core';
 
-import i18n from './i18n';
 import { store } from '../store';
 import { participantsSelector } from '../store/slices/participantSlice';
 import { IParticipant } from '../store/slices/interfaces/participant';
 import { IMediaDevice } from '../store/slices/interfaces/roomSettings';
-import {DEFAULT_AUDIO_PRESET, DEFAULT_SCREEN_SHARE_RESOLUTION, DEFAULT_WEBCAM_RESOLUTION} from "../config";
+import { DEFAULT_AUDIO_PRESET, DEFAULT_SCREEN_SHARE_RESOLUTION, DEFAULT_WEBCAM_RESOLUTION } from "../config";
 
 export type inputMediaDeviceKind = 'audio' | 'video' | 'both';
 
@@ -188,16 +187,12 @@ export const getAccessToken = () => {
 };
 
 export const formatNatsError = (err: any) => {
-  let msg = i18n.t('notifications.nats-error-request-failed').toString();
+  let msg = 'Yêu cầu thất bại';
 
   if (err instanceof errors.NoRespondersError) {
-    msg = i18n.t('notifications.nats-error-no-response', {
-      error: `${err.name}: ${err.message}`,
-    });
+    msg = `Không có phản hồi: ${err.name}: ${err.message}`;
   } else if (err instanceof errors.TimeoutError) {
-    msg = i18n.t('notifications.nats-error-timeout', {
-      error: `${err.name}: ${err.message}`,
-    });
+    msg = `Hết thời gian chờ: ${err.name}: ${err.message}`;
   } else if (err instanceof Error) {
     msg = err.name + ': ' + msg;
     if (err.message !== '') {
@@ -214,12 +209,12 @@ export const formatNatsError = (err: any) => {
 export const getWhiteboardDonors = (): IParticipant[] => {
   const s = store.getState();
   return participantsSelector
-      .selectAll(s)
-      .filter(
-          (participant) =>
-              participant.userId !== s.session.currentUser?.userId &&
-              participant.metadata.isPresenter,
-      );
+    .selectAll(s)
+    .filter(
+      (participant) =>
+        participant.userId !== s.session.currentUser?.userId &&
+        participant.metadata.isPresenter,
+    );
 };
 
 /**
@@ -279,7 +274,7 @@ export const generateAvatarInitial = (name: string) => {
   if (/\d/.test(trimmedName)) {
     const firstChar = trimmedName[0] || '';
     const lastChar =
-        trimmedName.length > 1 ? trimmedName[trimmedName.length - 1] : '';
+      trimmedName.length > 1 ? trimmedName[trimmedName.length - 1] : '';
     return `${firstChar}${lastChar}`.toLocaleUpperCase();
   }
 

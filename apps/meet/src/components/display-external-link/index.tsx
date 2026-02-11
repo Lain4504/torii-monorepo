@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from '../../store';
 import { Loader2 } from 'lucide-react';
 
 const DisplayExternalLink = () => {
-  const { t } = useTranslation();
   const link = useAppSelector(
     (state) =>
       state.session.currentRoom.metadata?.roomFeatures
@@ -45,7 +43,7 @@ const DisplayExternalLink = () => {
         width="100%"
         src={link}
         onLoad={onLoad}
-        title={t('external-display-link-display.iframe-title')}
+        title="Liên kết ngoài"
         sandbox="allow-scripts allow-same-origin"
         allow="fullscreen"
         className={!loaded ? 'hidden' : 'block'}

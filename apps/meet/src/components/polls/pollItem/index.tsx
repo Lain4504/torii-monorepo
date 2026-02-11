@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { PollInfo } from '@workspace/protocol';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -24,7 +23,6 @@ interface PollItemProps {
 }
 
 const PollItem = ({ item, serialNum }: PollItemProps) => {
-  const { t } = useTranslation();
   const isAdmin = useMemo(
     () => !!store.getState().session.currentUser?.metadata?.isAdmin,
     [],
@@ -154,13 +152,11 @@ const PollItem = ({ item, serialNum }: PollItemProps) => {
       <div className="head min-h-11 flex items-center justify-between w-full px-4 text-xs font-semibold uppercase text-muted-foreground tracking-wider gap-3">
         <div className="left flex items-center gap-3">
           <span className="uppercase">
-            {t('polls.poll-num', {
-              index: serialNum,
-            })}
+            Bình chọn #{serialNum}
           </span>
           {!item.isRunning && (
             <div className="border border-destructive/20 bg-destructive/10 rounded-full h-[22px] px-2 text-[10px] text-destructive font-bold flex items-center">
-              {t('polls.poll-closed')}
+              Đã đóng
             </div>
           )}
         </div>
@@ -230,9 +226,7 @@ const PollItem = ({ item, serialNum }: PollItemProps) => {
         <div className="bottom-wrap flex items-center justify-between gap-3 mt-4">
           {canViewTotal() && (
             <div className="total-vote text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {t('polls.total-responses', {
-                count: pollDataWithOption?.totalRespondents ?? 0,
-              })}
+              Tổng số phản hồi: {pollDataWithOption?.totalRespondents ?? 0}
             </div>
           )}
           {isAdmin && (
@@ -242,7 +236,7 @@ const PollItem = ({ item, serialNum }: PollItemProps) => {
                 onClick={() => setViewDetails(true)}
                 className="h-8 px-3 bg-muted hover:bg-muted/80 rounded-lg text-xs font-bold text-foreground transition-all duration-300 cursor-pointer uppercase tracking-tight"
               >
-                {t('polls.view-details')}
+                Xem chi tiết
               </button>
               {viewDetails && pollDataWithOption && (
                 <DetailsModal

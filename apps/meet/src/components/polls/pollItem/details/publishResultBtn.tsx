@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { PollDataWithOption, publishPollResultByChat } from '../../utils';
 import ActionButton from '../../../../helpers/ui/actionButton';
@@ -13,7 +12,6 @@ const PublishResultBtn = ({
   pollDataWithOption,
   onCloseViewDetails,
 }: PublishResultBtnProps) => {
-  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
   const publishByChat = () => {
@@ -30,7 +28,7 @@ const PublishResultBtn = ({
       buttonType="button"
       custom="w-44"
     >
-      {t('polls.publish-result')}
+      Công bố kết quả
     </ActionButton>
   );
 };

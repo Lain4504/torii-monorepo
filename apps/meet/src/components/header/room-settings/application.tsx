@@ -1,6 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
     updateAllowPlayAudioNotification,
@@ -11,7 +9,6 @@ import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
 import Dropdown from '../../../helpers/ui/dropdown';
 
 const ApplicationSettings = () => {
-    const { t, i18n } = useTranslation();
     const dispatch = useAppDispatch();
 
     const theme = useAppSelector((state) => state.roomSettings.theme);
@@ -32,15 +29,14 @@ const ApplicationSettings = () => {
 
     return (
         <div className="s">
-
             <SettingsSwitch
-                label={t('header.room-settings.enable-dark-theme')}
+                label="Bật chủ đề tối"
                 enabled={theme === 'dark'}
                 onChange={toggleTheme}
                 customCss="my-4"
             />
             <SettingsSwitch
-                label={t('header.room-settings.focus-active-speaker-webcam')}
+                label="Tập trung vào máy ảnh người đang nói"
                 enabled={!!focusActiveSpeakerWebcam}
                 customCss="my-4"
                 onChange={() =>
@@ -48,7 +44,7 @@ const ApplicationSettings = () => {
                 }
             />
             <SettingsSwitch
-                label={t('header.room-settings.allow-audio-notification')}
+                label="Cho phép thông báo âm thanh"
                 enabled={allowPlayAudioNotification}
                 onChange={toggleAudioNotification}
                 customCss="my-4"

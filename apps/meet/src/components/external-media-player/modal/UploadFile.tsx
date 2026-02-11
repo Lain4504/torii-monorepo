@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
 import { uploadResumableFile } from '../../../helpers/fileUpload';
@@ -16,7 +15,6 @@ const UploadFile = ({
   onAfterFileUploaded,
   onFileSelectedForUpload,
 }: IUploadFileProps) => {
-  const { t } = useTranslation();
   const [file, setFile] = useState<File | undefined>();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadingProgress, setUploadingProgress] = useState<number>(0);
@@ -58,9 +56,7 @@ const UploadFile = ({
       {!file ? (
         <>
           <div className="absolute -bottom-7 text-sm font-medium text-foreground">
-            {t('footer.modal.external-media-player-upload-supported-files', {
-              files: allowedFileTypes.map((type) => '.' + type).join(', '),
-            })}
+            Hỗ trợ các định dạng: {allowedFileTypes.map((type) => '.' + type).join(', ')}
           </div>
           <input
             type="file"
@@ -74,7 +70,7 @@ const UploadFile = ({
             htmlFor="media-file"
             className="w-full h-full py-7 px-5 border border-dashed border-Blue cursor-pointer rounded-sm focus:shadow-input-focus flex items-center justify-center text-center text-foreground"
           >
-            {t('footer.modal.external-media-player-select-file')}
+            Chọn tệp
           </label>
         </>
       ) : (

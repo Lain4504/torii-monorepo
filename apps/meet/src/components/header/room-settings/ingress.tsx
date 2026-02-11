@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import {
   CreateIngressReqSchema,
@@ -15,7 +14,6 @@ import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
 import FormattedInputField from '../../../helpers/ui/formattedInputField';
 
 const Ingress = () => {
-  const { t } = useTranslation();
   const [name, setName] = useState<string>('broadcaster');
   const [ingressType, setIngressType] = useState<IngressInput>(
     IngressInput.RTMP_INPUT,
@@ -29,7 +27,7 @@ const Ingress = () => {
 
   const handleSubmit = useCallback(async () => {
     if (!ingressFeatures?.isAllow) {
-      toast(t('ingress-features.feature-not-allow'), { type: 'error' });
+      toast('Tính năng này không được phép.', { type: 'error' });
       return;
     }
     setIsLoading(true);
@@ -49,20 +47,20 @@ const Ingress = () => {
     );
     const res = fromBinary(CreateIngressResSchema, new Uint8Array(r));
     if (!res.status) {
-      toast(t(res.msg), {
+      toast(res.msg, {
         type: 'error',
       });
     }
 
     setIsLoading(false);
-  }, [ingressFeatures, session.currentRoom, ingressType, name, t]);
+  }, [ingressFeatures, session.currentRoom, ingressType, name]);
 
   const getIngressTypeText = (type: number) => {
     switch (type) {
       case IngressInput.RTMP_INPUT:
-        return t('ingress-features.ingress-type-rtmp');
+        return 'RTMP';
       case IngressInput.WHIP_INPUT:
-        return t('ingress-features.ingress-type-whip');
+        return 'WHIP';
       default:
         return '';
     }
@@ -72,7 +70,7 @@ const Ingress = () => {
     return (
       <form method="POST" onSubmit={(e) => e.preventDefault()}>
         <Dropdown
-          label={t('ingress-features.ingress-type')}
+          label="Loại luồng vào"
           id="ingress-type"
           value={ingressType}
           onChange={setIngressType}
@@ -87,7 +85,7 @@ const Ingress = () => {
           direction="horizontal"
         />
         <FormattedInputField
-          label={t('ingress-features.join-as-name')}
+          label="Tham gia với tên"
           id="name"
           value={name}
           onChange={(e) => setName(e.currentTarget.value)}
@@ -104,7 +102,7 @@ const Ingress = () => {
                 className="inline h-5 w-5 animate-spin text-white"
               />
             ) : (
-              t('ingress-features.gen-link')
+              'Tạo liên kết'
             )}
           </button>
         </div>
@@ -116,7 +114,7 @@ const Ingress = () => {
     return (
       <>
         <FormattedInputField
-          label={t('ingress-features.ingress-type')}
+          label="Loại luồng vào"
           id="ingress_type"
           value={getIngressTypeText(
             ingressFeatures?.inputType ?? IngressInput.RTMP_INPUT,
@@ -124,13 +122,13 @@ const Ingress = () => {
           readOnly={true}
         />
         <FormattedInputField
-          label={t('ingress-features.stream-url')}
+          label="Đường dẫn luồng"
           id="url"
           value={ingressFeatures?.url}
           readOnly={true}
         />
         <FormattedInputField
-          label={t('ingress-features.stream-key')}
+          label="Khóa luồng"
           id="stream_key"
           value={ingressFeatures?.streamKey}
           readOnly={true}

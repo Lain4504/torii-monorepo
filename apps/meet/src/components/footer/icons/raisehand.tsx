@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   NatsMsgClientToServerEvents,
   NatsMsgClientToServerSchema,
@@ -12,7 +11,6 @@ import { getNatsConn } from '../../../helpers/nats';
 import { Hand } from 'lucide-react';
 
 const RaiseHandIcon = () => {
-  const { t } = useTranslation();
   const conn = getNatsConn();
 
   const { showTooltip, allowRaiseHand } = useMemo(() => {
@@ -33,15 +31,13 @@ const RaiseHandIcon = () => {
 
     if (!isActiveRaisehand) {
       data.event = NatsMsgClientToServerEvents.REQ_RAISE_HAND;
-      data.msg = t('footer.notice.has-raised-hand', {
-        user: conn.userName,
-      }).toString();
+      data.msg = `${conn.userName} đã giơ tay`;
     } else {
       data.event = NatsMsgClientToServerEvents.REQ_LOWER_HAND;
     }
 
     conn.sendMessageToSystemWorker(data);
-  }, [isActiveRaisehand, conn, t]);
+  }, [isActiveRaisehand, conn]);
 
   if (!allowRaiseHand) {
     return null;
@@ -69,8 +65,8 @@ const RaiseHandIcon = () => {
       <div className={innerDivClasses}>
         <span className="tooltip">
           {isActiveRaisehand
-            ? t('footer.icons.lower-hand')
-            : t('footer.icons.raise-hand')}
+            ? 'Hạ tay'
+            : 'Giơ tay'}
         </span>
         <Hand className={'h-4 md:h-5 w-auto'} />
       </div>

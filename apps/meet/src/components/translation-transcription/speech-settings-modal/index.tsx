@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   InsightsTranscriptionFeatures,
   InsightsUserSessionAction,
@@ -32,7 +31,6 @@ const SpeechSettingsModal = ({
   enabledSpeechSynthesis,
   setEnabledSpeechSynthesis,
 }: SpeechSettingsModalProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const currentUser = store.getState().session.currentUser;
   const mediaServerConn = getMediaServerConnRoom();
@@ -99,11 +97,11 @@ const SpeechSettingsModal = ({
       selectedSpeechLang,
     );
     if (res.status) {
-      toast(t('notifications.request-submitted-wait'), {
+      toast('Chúng tôi đã nhận được yêu cầu của bạn, vui lòng đợi', {
         type: 'info',
       });
     } else {
-      toast(t(res.msg), {
+      toast(res.msg, {
         type: 'error',
       });
       return;
@@ -113,7 +111,6 @@ const SpeechSettingsModal = ({
     onCloseModal();
   }, [
     onCloseModal,
-    t,
     isServiceActive,
     allowTranscriptionStorage,
     selectedSpeechLang,
@@ -123,7 +120,7 @@ const SpeechSettingsModal = ({
     <Modal
       show={isActiveDisplayOptionsModal}
       onClose={onCloseModal}
-      title={t('speech-services.start-modal-title')}
+      title="Cài đặt Dịch vụ giọng nói"
       customClass="showSpeechSettingPopup overflow-hidden"
     >
       <div className="-mx-4">
@@ -148,7 +145,7 @@ const SpeechSettingsModal = ({
         {!transcriptionFeatures.isEnabledSpeechSynthesis && (
           <div className="bg-muted/30 border-y border-border -mx-4 px-8 py-4">
             <SettingsSwitch
-              label={t('speech-services.enable-speech-synthesis')}
+              label="Bật tính năng tổng hợp giọng nói"
               enabled={enabledSpeechSynthesis}
               onChange={setEnabledSpeechSynthesis}
               customCss="h-11 border border-border rounded-xl px-4 bg-card shadow-sm"
@@ -162,7 +159,7 @@ const SpeechSettingsModal = ({
         !readyToStart &&
         !isServiceActive ? (
         <div className="text-xs text-destructive pt-4 -mx-4 px-8">
-          {t('speech-services.mic-not-ready-warning')}
+          Vui lòng bật micrô của bạn trước để bắt đầu sử dụng dịch vụ này.
         </div>
       ) : null}
 
@@ -174,8 +171,8 @@ const SpeechSettingsModal = ({
             onClick={startOrStopService}
           >
             {canShowSpeechSetting && isServiceActive
-              ? t('speech-services.stop-service')
-              : t('speech-services.start-service')}
+              ? "Dừng dịch vụ"
+              : "Bắt đầu dịch vụ"}
           </button>
         </div>
       )}

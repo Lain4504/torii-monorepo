@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { LocalTrack, Track } from 'livekit-client';
 
@@ -22,7 +21,6 @@ import useVirtualBackground from './webcam/useVirtualBackground';
 const WebcamIcon = () => {
   const dispatch = useAppDispatch();
   const currentRoom = getMediaServerConnRoom();
-  const { t } = useTranslation();
 
   const { showTooltip, isAdmin, defaultLock, isWebcamAllowed } = useMemo(() => {
     const session = store.getState().session;
@@ -201,11 +199,11 @@ const WebcamIcon = () => {
 
   const getTooltipText = () => {
     if (!isActiveWebcam && !isWebcamLock) {
-      return t('footer.icons.start-webcam');
+      return 'Bật webcam';
     } else if (!isActiveWebcam && isWebcamLock) {
-      return t('footer.icons.webcam-locked');
+      return 'Webcam bị khóa';
     } else if (isActiveWebcam) {
-      return t('footer.icons.turn-off-webcam');
+      return 'Tắt webcam';
     }
   };
 

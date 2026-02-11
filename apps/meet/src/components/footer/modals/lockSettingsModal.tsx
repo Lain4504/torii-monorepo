@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
-import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   UpdateUserLockSettingsReqSchema,
@@ -15,7 +14,6 @@ import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
 
 const LockSettingsModal = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const [isBusy, setIsBusy] = useState<boolean>(false);
   const { roomSid, roomId } = useMemo(() => {
     const session = store.getState().session;
@@ -57,7 +55,7 @@ const LockSettingsModal = () => {
       if (res.status) {
         dispatch(
           addUserNotification({
-            message: t('footer.notice.applied-settings'),
+            message: 'Đã áp dụng cài đặt',
             typeOption: 'info',
           }),
         );
@@ -73,7 +71,7 @@ const LockSettingsModal = () => {
       setIsBusy(false);
     },
     // oxlint-disable-next-line exhaustive-deps
-    [isBusy, t, dispatch],
+    [isBusy, dispatch],
   );
 
   const closeModal = () => {
@@ -82,42 +80,42 @@ const LockSettingsModal = () => {
 
   const lockOptions = [
     {
-      label: t('footer.modal.lock-microphone'),
+      label: 'Khóa micro',
       checked: roomLockSettings?.lockMicrophone ?? false,
       service: 'mic',
     },
     {
-      label: t('footer.modal.lock-webcams'),
+      label: 'Khóa webcam',
       checked: roomLockSettings?.lockWebcam ?? false,
       service: 'webcam',
     },
     {
-      label: t('footer.modal.lock-screen-sharing'),
+      label: 'Khóa chia sẻ màn hình',
       checked: roomLockSettings?.lockScreenSharing ?? false,
       service: 'screenShare',
     },
     {
-      label: t('footer.modal.lock-whiteboard'),
+      label: 'Khóa bảng trắng',
       checked: roomLockSettings?.lockWhiteboard ?? false,
       service: 'whiteboard',
     },
     {
-      label: t('footer.modal.lock-chat'),
+      label: 'Khóa chat',
       checked: roomLockSettings?.lockChat ?? false,
       service: 'chat',
     },
     {
-      label: t('footer.modal.lock-send-message'),
+      label: 'Khóa gửi tin nhắn',
       checked: roomLockSettings?.lockChatSendMessage ?? false,
       service: 'sendChatMsg',
     },
     {
-      label: t('footer.modal.lock-chat-file-share'),
+      label: 'Khóa chia sẻ tệp tin',
       checked: roomLockSettings?.lockChatFileShare ?? false,
       service: 'chatFile',
     },
     {
-      label: t('footer.modal.lock-private-chat'),
+      label: 'Khóa chat riêng tư',
       checked: roomLockSettings?.lockPrivateChat ?? false,
       service: 'privateChat',
     },
@@ -127,7 +125,7 @@ const LockSettingsModal = () => {
     <Modal
       show={true}
       onClose={closeModal}
-      title={t('footer.modal.lock-settings-title')}
+      title="Cài đặt khóa phòng"
     >
       {lockOptions.map((option, i) => (
         <SettingsSwitch

@@ -1,6 +1,5 @@
 import React from 'react';
 import { MenuItem, MenuItems } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch } from '../../store';
 import {
@@ -17,7 +16,6 @@ interface IHeaderMenusProps {
 
 const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   return (
     <MenuItems
@@ -34,7 +32,7 @@ const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
           onClick={() => dispatch(updateShowRoomSettingsModal(true))}
         >
           <Settings className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
-          {t('header.menus.settings')}
+          Cài đặt
         </button>
       </MenuItem>
 
@@ -44,7 +42,7 @@ const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
           onClick={() => dispatch(updateShowKeyboardShortcutsModal(true))}
         >
           <Keyboard className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
-          {t('header.menus.keyboard-shortcuts')}
+          Phím tắt
         </button>
       </MenuItem>
 
@@ -54,7 +52,7 @@ const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
           onClick={() => onOpenAlert('logout')}
         >
           <LogOut className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
-          {t('header.menus.logout')}
+          Rời khỏi họp
         </button>
       </MenuItem>
     </MenuItems>

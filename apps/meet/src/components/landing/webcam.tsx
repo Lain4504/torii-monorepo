@@ -1,7 +1,5 @@
 import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
-
 import { Video, Check, Plus, ChevronUp } from 'lucide-react';
 import { updateShowVideoShareModal } from '../../store/slices/bottomIconsActivitySlice';
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -25,7 +23,6 @@ const WebcamIcon = ({
   selectedVideoDevice,
 }: WebcamIconProps) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const showVideoShareModal = useAppSelector(
     (state) => state.bottomIconsActivity.showVideoShareModal,
@@ -81,7 +78,7 @@ const WebcamIcon = ({
                 >
                   <div className="menu origin-top-right z-10 absolute ltr:left-auto md:ltr:left-0 ltr:-right-16 md:rtl:right-0 bottom-12 border border-border bg-popover shadow-lg rounded-xl overflow-hidden p-2 w-max">
                     <div className="title h-9 w-full flex items-center text-xs leading-none text-muted-foreground px-2 uppercase">
-                      {t('landing.webcam-menu-title')}
+                      Chọn máy ảnh
                     </div>
                     {videoDevices.map((device, i) => (
                       <div className="" role="none" key={`${device.id}-${i}`}>
@@ -104,7 +101,7 @@ const WebcamIcon = ({
                     ))}
                     <div className="divider w-[calc(100%+16px)] relative -left-2 h-px bg-border mt-2"></div>
                     <div className="title h-9 w-full flex items-center text-xs leading-none text-muted-foreground px-2 uppercase">
-                      {t('landing.background-filter-title')}
+                      Hiệu ứng nền
                     </div>
                     <p
                       className="min-h-9 w-full flex items-center text-sm gap-2 leading-none font-medium text-foreground px-2 rounded-lg transition-all duration-300 hover:bg-muted cursor-pointer"
@@ -114,7 +111,7 @@ const WebcamIcon = ({
                         )
                       }
                     >
-                      {t('landing.config-background-btn')}
+                      Cấu hình nền & bộ lọc
                     </p>
                   </div>
                 </Transition>

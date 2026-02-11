@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 
@@ -13,7 +12,6 @@ interface IJoinBtnProps {
 }
 
 const JoinBtn = ({ breakoutRoomId, setMessage }: IJoinBtnProps) => {
-  const { t } = useTranslation();
   const [joinRoom, { isLoading, isSuccess, isError, data, error }] =
     useJoinRoomMutation();
 
@@ -30,13 +28,13 @@ const JoinBtn = ({ breakoutRoomId, setMessage }: IJoinBtnProps) => {
         searchParams.toString();
 
       if (!window.open(url, '_blank')) {
-        setMessage({ text: t('breakout-room.open-tab-error'), type: 'error' });
+        setMessage({ text: 'Trình duyệt đã chặn mở tab mới', type: 'error' });
       }
     } else if ((isSuccess && !data?.status) || isError) {
-      const msg = data?.msg ?? (error as any)?.data?.msg ?? 'Error';
-      setMessage({ text: t(msg), type: 'error' });
+      const msg = data?.msg ?? (error as any)?.data?.msg ?? 'Lỗi';
+      setMessage({ text: msg, type: 'error' });
     }
-  }, [isSuccess, isError, data, error, t, setMessage]);
+  }, [isSuccess, isError, data, error, setMessage]);
 
   const handleJoin = useCallback(() => {
     // clear previous error
@@ -56,7 +54,7 @@ const JoinBtn = ({ breakoutRoomId, setMessage }: IJoinBtnProps) => {
         onClick={handleJoin}
         disabled={isLoading}
       >
-        {t('breakout-room.join')}
+        Tham gia
       </button>
     </div>
   );

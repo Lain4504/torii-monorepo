@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   CommonResponseSchema,
   UpdateWaitingRoomMessageReqSchema,
@@ -11,7 +10,6 @@ import sendAPIRequest from '../../helpers/api/api-client';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 
 const UpdateRoomMessage = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const waitingRoomMessage = useAppSelector(
     (state) =>
@@ -40,14 +38,14 @@ const UpdateRoomMessage = () => {
     if (res.status) {
       dispatch(
         addUserNotification({
-          message: t('waiting-room.updated-msg'),
+          message: 'Đã cập nhật tin nhắn phòng chờ',
           typeOption: 'info',
         }),
       );
     } else {
       dispatch(
         addUserNotification({
-          message: t(res.msg),
+          message: res.msg,
           typeOption: 'error',
         }),
       );
@@ -57,7 +55,7 @@ const UpdateRoomMessage = () => {
   return (
     <div className="text-right">
       <p className="block text-sm font-medium text-foreground text-left mb-2">
-        {t('waiting-room.update-waiting-message')}
+        Cập nhật tin nhắn phòng chờ
       </p>
       <textarea
         value={message}
@@ -68,7 +66,7 @@ const UpdateRoomMessage = () => {
         onClick={updateRoomMsg}
         className="h-9 ml-auto cursor-pointer mt-2 px-5 text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm"
       >
-        {t('waiting-room.update-msg')}
+        Cập nhật
       </button>
     </div>
   );

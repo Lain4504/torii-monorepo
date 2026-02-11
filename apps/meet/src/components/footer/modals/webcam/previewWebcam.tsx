@@ -1,6 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { SourcePlayback } from '../../../virtual-background/helpers/sourceHelper';
 import { BackgroundConfig } from '../../../virtual-background/helpers/backgroundHelper';
 import VideoBox from './videoBox';
@@ -14,7 +12,6 @@ interface IPreviewWebcamProps {
 }
 
 const PreviewWebcam = ({ deviceId }: IPreviewWebcamProps) => {
-  const { t } = useTranslation();
   const [sourcePlayback, setSourcePlayback] = useState<SourcePlayback>();
   const [show, setShow] = useState<boolean>(false);
   const [previousDeviceId, setPreviousDeviceId] = useState<string>();
@@ -89,7 +86,10 @@ const PreviewWebcam = ({ deviceId }: IPreviewWebcamProps) => {
       <div className="w-full overflow-hidden rounded-lg relative bg-black min-h-64 3xl:min-h-80">
         {deviceId !== '' ? (
           <div
-            className={`${virtualBackground.type !== 'none' ? 'absolute top-0 left-0 h-1 w-1 opacity-0' : 'w-full h-64 3xl:h-80'}`}
+            className={`${virtualBackground.type !== 'none'
+              ? 'absolute top-0 left-0 h-1 w-1 opacity-0'
+              : 'w-full h-64 3xl:h-80'
+              }`}
           >
             <VideoBox
               deviceId={deviceId}
@@ -113,7 +113,7 @@ const PreviewWebcam = ({ deviceId }: IPreviewWebcamProps) => {
       {displayVB() ? (
         <>
           <div className="title text-xs md:text-sm leading-none text-muted-foreground px-1 md:px-3 uppercase pt-5 3x:pt-8 pb-5">
-            {t('footer.modal.chose-virtual-bg')}
+            Chọn nền ảo
           </div>
           <BackgroundItems onSelect={onSelectBg} />{' '}
         </>

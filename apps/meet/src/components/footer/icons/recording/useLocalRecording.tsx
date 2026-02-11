@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { LocalTrackPublication, ParticipantEvent, Track } from 'livekit-client';
 import { DataMsgBodyType } from '@workspace/protocol';
 
@@ -36,7 +35,6 @@ const useLocalRecording = (): IUseLocalRecordingReturn => {
     audio: true,
   };
   const session = store.getState().session;
-  const { t } = useTranslation();
 
   useEffect(() => {
     const onTrackPublished = (track: LocalTrackPublication) => {
@@ -90,7 +88,7 @@ const useLocalRecording = (): IUseLocalRecordingReturn => {
       setCaptureStream(captureStream);
       startRecorder(captureStream);
     } catch (e) {
-      const err = `Error: ${e}`;
+      const err = `Lỗi: ${e}`;
       dispatch(
         addUserNotification({
           message: err,
@@ -239,14 +237,10 @@ const useLocalRecording = (): IUseLocalRecordingReturn => {
   };
 
   const broadcastNotification = (start = true) => {
-    let msg = t('notifications.local-recording-ended', {
-      name: session.currentUser?.name,
-    });
+    let msg = `Ghi hình cục bộ đã kết thúc bởi ${session.currentUser?.name}`;
 
     if (start) {
-      msg = t('notifications.local-recording-started', {
-        name: session.currentUser?.name,
-      });
+      msg = `Ghi hình cục bộ đã được bắt đầu bởi ${session.currentUser?.name}`;
     }
     conn.sendDataMessage(DataMsgBodyType.INFO, msg);
   };

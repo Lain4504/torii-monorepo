@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
@@ -9,7 +8,6 @@ import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySli
 
 const ParticipantIcon = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const { showTooltip } = useMemo(() => {
     const session = store.getState().session;
     return {
@@ -49,8 +47,8 @@ const ParticipantIcon = () => {
       <div className={innerDivClasses}>
         <span className="tooltip">
           {isActiveParticipantsPanel
-            ? t('footer.icons.hide-users-list')
-            : t('footer.icons.show-users-list')}
+            ? 'Ẩn danh sách người tham gia'
+            : 'Hiển thị danh sách người tham gia'}
         </span>
         <Users className="w-auto h-4 md:h-5 3xl:h-6" />
         {!isActiveParticipantsPanel && (

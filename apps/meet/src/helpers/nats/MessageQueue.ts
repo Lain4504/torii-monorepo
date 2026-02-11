@@ -4,7 +4,6 @@ import { errors } from '@nats-io/nats-core';
 import { formatNatsError } from '../utils';
 import { store } from '../../store';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import i18n from '../i18n';
 
 const WAITING = 'WAITING',
   PROCESSING = 'PROCESSING';
@@ -97,9 +96,7 @@ export default class MessageQueue {
             const msg = formatNatsError(e);
             store.dispatch(
               addUserNotification({
-                message: i18n.t('notifications.queue-holding-messages', {
-                  error: msg,
-                }),
+                message: `Đang giữ hàng đợi tin nhắn do lỗi kết nối: ${msg}`,
                 typeOption: 'warning',
               }),
             );
@@ -119,9 +116,7 @@ export default class MessageQueue {
           );
           store.dispatch(
             addUserNotification({
-              message: i18n.t('notifications.queue-discarded-message', {
-                error: e.message,
-              }),
+              message: `Đã hủy bỏ tin nhắn không hợp lệ: ${e.message}`,
               typeOption: 'error',
             }),
           );

@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Listbox,
   ListboxButton,
@@ -19,7 +18,6 @@ import {
 } from '../../store/slices/roomSettingsSlice';
 import { X, Check, MessageSquareDot } from 'lucide-react';
 import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
-import i18n from '../../helpers/i18n';
 import ChatTranslation from './chatTranslation';
 
 interface IChatOption {
@@ -57,7 +55,7 @@ const selectChatTabsData = createSelector(
       if (k === 'public') {
         options.push({
           id: 'public',
-          title: i18n.t('left-panel.public-chat'),
+          title: 'Trò chuyện công khai',
           hasUnread: unreadMsgFrom.includes('public'),
         });
       } else {
@@ -78,7 +76,7 @@ const selectChatTabsData = createSelector(
     });
 
     const selected = options.find((o) => o.id === selectedChatOption);
-    const selectedTitle = selected?.title ?? i18n.t('left-panel.public-chat');
+    const selectedTitle = selected?.title ?? 'Trò chuyện công khai';
 
     return {
       chatOptions: options,
@@ -90,7 +88,6 @@ const selectChatTabsData = createSelector(
 );
 
 const ChatTabs = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const { chatOptions, selectedChatOption, selectedTitle, hasUnreadMessages } =
@@ -116,8 +113,8 @@ const ChatTabs = () => {
         <div className="left flex items-center gap-3">
           <p className="text-sm text-foreground 3xl:font-medium leading-tight">
             {selectedChatOption === 'public'
-              ? t('left-panel.public-chat')
-              : t('left-panel.private-chat')}
+              ? 'Trò chuyện công khai'
+              : 'Trò chuyện riêng tư'}
           </p>
           <ChatTranslation />
         </div>
@@ -165,7 +162,7 @@ const ChatTabs = () => {
           >
             <ListboxOptions className="absolute max-h-60 w-[calc(100%-8px)] left-1 border border-border bg-popover shadow-lg rounded-xl overflow-hidden p-2">
               <div className="title h-8 w-full flex items-center text-xs leading-none text-muted-foreground px-3 uppercase">
-                {t('left-panel.select-chat-conversation-title')}
+                Chọn một cuộc trò chuyện
               </div>
               {chatOptions.map((option) => (
                 <ListboxOption

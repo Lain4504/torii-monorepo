@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
@@ -8,7 +7,6 @@ import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySli
 
 const ChatIcon = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const { showTooltip } = useMemo(() => {
     const session = store.getState().session;
     return {
@@ -49,8 +47,8 @@ const ChatIcon = () => {
       <div className={innerDivClasses}>
         <span className="tooltip">
           {isActiveChatPanel
-            ? t('footer.icons.hide-chat-panel')
-            : t('footer.icons.show-chat-panel')}
+            ? 'Ẩn bảng chat'
+            : 'Hiển thị bảng chat'}
         </span>
         <MessageSquare className="w-auto h-4 md:h-5 3xl:h-6" />
         {!isActiveChatPanel && totalUnreadChatMsgs > 0 && (

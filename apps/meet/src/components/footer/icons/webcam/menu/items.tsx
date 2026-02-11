@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { MenuItem, MenuItems } from '@headlessui/react';
 import { Room, Track } from 'livekit-client';
-import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch, useAppSelector } from '../../../../../store';
 import { updateSelectedVideoDevice } from '../../../../../store/slices/roomSettingsSlice';
@@ -21,7 +20,6 @@ const WebcamMenuItems = ({
   currentRoom,
 }: IWebcamMenuItemsProps) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const videoDevices = useAppSelector(
     (state) => state.roomSettings.videoDevices,
@@ -66,20 +64,22 @@ const WebcamMenuItems = ({
       className="menu origin-top-right z-10 absolute ltr:-left-8 md:ltr:left-0 rtl:right-0 bottom-12 border border-border bg-popover shadow-lg rounded-2xl overflow-hidden p-2 w-max"
     >
       <div className="title h-8 w-full flex items-center text-xs leading-none text-muted-foreground px-3 uppercase">
-        {t('footer.icons.select-webcam')}
+        Chọn máy ảnh
       </div>
       {videoDevices.map((device) => (
         <MenuItem key={device.id}>
           {() => (
             <p
-              className={`${selectedVideoDevice === device.id
-                ? 'bg-muted'
-                : ''
+              className={`${selectedVideoDevice === device.id ? 'bg-muted' : ''
                 } h-8 w-full flex items-center justify-between text-sm gap-2 leading-none font-medium text-foreground px-2 rounded-lg transition-all duration-300 hover:bg-muted`}
               onClick={() => handleDeviceChange(device.id)}
             >
               {device.label}
-              {selectedVideoDevice === device.id ? <Check className="w-4 h-4 text-primary" /> : ''}
+              {selectedVideoDevice === device.id ? (
+                <Check className="w-4 h-4 text-primary" />
+              ) : (
+                ''
+              )}
             </p>
           )}
         </MenuItem>
@@ -93,7 +93,7 @@ const WebcamMenuItems = ({
               onClick={toggleWebcam}
             >
               <VideoOff className={'h-4 w-auto'} />
-              {t('footer.icons.turn-off-webcam')}
+              Tắt máy ảnh
             </p>
           )}
         </MenuItem>
@@ -106,7 +106,7 @@ const WebcamMenuItems = ({
               onClick={leaveWebcam}
             >
               <LogOut className="w-4 h-4 transition ease-in" />
-              {t('footer.menus.leave-webcam')}
+              Rời khỏi máy ảnh
             </p>
           )}
         </MenuItem>

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
 import copy from 'copy-text-to-clipboard';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
@@ -20,13 +19,10 @@ const NewBreakoutRoom = ({
   receivedInvitationFor,
   createdAt,
 }: NewBreakoutRoomProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [joinRoom, { isLoading, data }] = useJoinRoomMutation();
   const [joinLink, setJoinLink] = useState<string>('');
-  const [copyText, setCopyText] = useState<string>(
-    t('breakout-room.copy').toString(),
-  );
+  const [copyText, setCopyText] = useState<string>('Sao chép');
   const userId = useMemo(
     () => store.getState().session.currentUser?.userId,
     [],
@@ -37,7 +33,7 @@ const NewBreakoutRoom = ({
       if (!data.status) {
         dispatch(
           addUserNotification({
-            message: t(data.msg),
+            message: data.msg,
             typeOption: 'error',
             newInstance: true,
           }),
@@ -73,7 +69,7 @@ const NewBreakoutRoom = ({
     if (!receivedInvitationFor) {
       dispatch(
         addUserNotification({
-          message: t('breakout-room.user-joined'),
+          message: 'Người dùng đã tham gia phòng theo nhóm.',
           typeOption: 'error',
           newInstance: true,
         }),
@@ -86,15 +82,15 @@ const NewBreakoutRoom = ({
         userId: userId,
       }),
     );
-  }, [receivedInvitationFor, userId, joinRoom, dispatch, t]);
+  }, [receivedInvitationFor, userId, joinRoom, dispatch]);
 
   const copyUrl = useCallback(() => {
     copy(joinLink);
-    setCopyText(t('breakout-room.copied').toString());
+    setCopyText('Đã sao chép');
     setTimeout(() => {
-      setCopyText(t('breakout-room.copy').toString());
+      setCopyText('Sao chép');
     }, 1000);
-  }, [joinLink, t]);
+  }, [joinLink]);
 
   const formatDate = (timeStamp?: number) => {
     const date = new Date(timeStamp ?? 0);
@@ -111,11 +107,11 @@ const NewBreakoutRoom = ({
         <LayoutGrid className="w-[15px]" />
       </div>
       <div className="text flex-1 text-foreground text-sm">
-        <p>{t('breakout-room.invitation-msg')}</p>
+        <p>Bạn được mời tham gia phòng theo nhóm.</p>
         {joinLink !== '' && (
           <div className="invite-link mt-2">
             <label className="text-foreground text-sm block mb-1">
-              {t('breakout-room.join-text-label')}
+              Liên kết tham gia
             </label>
             <div className="flex gap-2 items-center">
               <input
@@ -141,7 +137,7 @@ const NewBreakoutRoom = ({
               isLoading={isLoading}
               custom="h-7 w-auto px-3 !text-xs !rounded-lg"
             >
-              {t('breakout-room.join')}
+              Tham gia
             </ActionButton>
           </div>
         </div>

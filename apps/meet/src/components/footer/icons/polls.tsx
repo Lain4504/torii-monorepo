@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '../../../store';
@@ -8,7 +7,6 @@ import { BarChart2 } from 'lucide-react';
 
 const PollsIcon = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   const showTooltip = useMemo(
     () => store.getState().session.userDeviceType === 'desktop',
     [],
@@ -60,8 +58,8 @@ const PollsIcon = () => {
       <div className={innerDivClasses}>
         <span className="tooltip">
           {isActivePollsPanel
-            ? t('footer.icons.hide-polls-panel')
-            : t('footer.icons.show-polls-panel')}
+            ? 'Ẩn bảng bình chọn'
+            : 'Hiển thị bảng bình chọn'}
         </span>
         <BarChart2 className="w-auto h-4 3xl:h-5" />
       </div>

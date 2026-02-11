@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { store, useAppDispatch, useAppSelector } from '../../store';
 import Modal from '../../helpers/ui/modal';
@@ -10,7 +9,6 @@ import MeetingSummarization from './meeting-summarization/settings';
 
 const InsightsAiSettingsModal = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
   // static values
   const { aiFeatures } = useMemo(() => {
     const insightsFeatures =
@@ -47,7 +45,7 @@ const InsightsAiSettingsModal = () => {
     if (aiFeatures?.aiTextChatFeatures?.isAllow) {
       tabItems.push({
         id: 1,
-        title: t('insights.tab-ai-text-chat-title'),
+        title: 'Trò chuyện văn bản AI',
         content: (
           <AiTextChatSettings
             setErrorMsg={setErrorMsg}
@@ -59,7 +57,7 @@ const InsightsAiSettingsModal = () => {
     if (aiFeatures?.meetingSummarizationFeatures?.isAllow) {
       tabItems.push({
         id: 2,
-        title: t('insights.tab-meeting-summarization-title'),
+        title: 'Tóm tắt cuộc họp',
         content: (
           <MeetingSummarization
             setErrorMsg={setErrorMsg}
@@ -69,7 +67,7 @@ const InsightsAiSettingsModal = () => {
       });
     }
     setTabItems(tabItems);
-  }, [t, setErrorMsg, closeModal]);
+  }, [setErrorMsg, closeModal]);
 
   if (!aiFeatures?.isAllow) {
     return null;
@@ -80,7 +78,7 @@ const InsightsAiSettingsModal = () => {
       <Modal
         show={showAISettingsModal}
         onClose={closeModal}
-        title={t('insights.setting-modal-title')}
+        title='Cài đặt Insights AI'
         maxWidth="max-w-2xl showAISettingsModal"
       >
         <div className="-mx-4">

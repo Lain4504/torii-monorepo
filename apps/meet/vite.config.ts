@@ -22,7 +22,7 @@ export default defineConfig({
       '~': resolve(__dirname, 'src'),
     },
     // Deduplicate React to avoid multiple instances
-    dedupe: ['react', 'react-dom', 'react-i18next', 'i18next'],
+    dedupe: ['react', 'react-dom'],
   },
   server: {
     port: 5180,
@@ -105,7 +105,6 @@ const vendorChunkMap: Record<string, string[]> = {
     'react-draggable',
     'react-player',
     '@headlessui',
-    'i18next',
   ],
   wajlc: ['@bufbuild', 'axios', '@nats-io', 'redux'],
 };
@@ -148,7 +147,6 @@ function getStaticFilesToCopy(): ViteStaticCopyOptions {
           'assets/audio',
           'assets/backgrounds',
           'assets/imgs',
-          'assets/locales',
           'assets/models',
         ].filter(Boolean),
         dest: 'assets/',

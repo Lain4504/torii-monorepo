@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ChatMessage } from '@workspace/protocol';
 
 import { formatDate } from '../../utils';
@@ -24,11 +23,10 @@ SystemMessage.displayName = 'SystemMessage';
 
 export const MyMessage = memo(
   ({ message, sentAt }: { message: string; sentAt: string }) => {
-    const { t } = useTranslation();
     return (
       <div className="content me w-[calc(100%-36px)] 3xl:w-[calc(100%-48px)] ml-auto">
         <div className="name min-h-5 flex items-center text-xs 3xl:text-sm text-foreground font-medium pb-1.5 capitalize justify-between">
-          <p>{t('right-panel.you')}</p>
+          <p>Bạn</p>
           <p className="time text-xs text-muted-foreground">
             {formatDate(sentAt)}
           </p>

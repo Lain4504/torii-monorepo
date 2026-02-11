@@ -1,7 +1,5 @@
 import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
-
 import { Check, Plus, ChevronUp, Mic } from 'lucide-react';
 import { IMediaDevice } from '../../store/slices/interfaces/roomSettings';
 import { inputMediaDeviceKind } from '../../helpers/utils';
@@ -21,8 +19,6 @@ const MicrophoneIcon = ({
   enableMediaDevices,
   disableMic,
 }: MicrophoneIconProps) => {
-  const { t } = useTranslation();
-
   return (
     <div className="microphone-wrap relative cursor-pointer shadow-sm border border-border rounded-xl h-11 min-w-11 flex items-center justify-center transition-all duration-300 hover:bg-muted text-foreground">
       <div
@@ -64,7 +60,7 @@ const MicrophoneIcon = ({
                 >
                   <div className="menu origin-top-right z-10 absolute ltr:-left-32 md:ltr:left-0 rtl:right-0 bottom-12 border border-border bg-popover shadow-lg rounded-xl overflow-hidden p-2 w-max">
                     <div className="title h-9 w-full flex items-center text-xs leading-none text-muted-foreground px-2 uppercase">
-                      {t('landing.mic-menu-title')}
+                      Chọn micrô
                     </div>
                     {audioDevices.map((device, i) => (
                       <div

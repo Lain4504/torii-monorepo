@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import sanitizeHtml from 'sanitize-html';
-import { useTranslation } from 'react-i18next';
 import { isEmpty } from 'es-toolkit/compat';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
@@ -25,7 +24,6 @@ const urlRegex =
 const TextBoxArea = () => {
   const dispatch = useAppDispatch();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const { t } = useTranslation();
   const conn = getNatsConn();
   // Values that are static for the session
   const { isAdmin, chatFeatures } = useMemo(() => {
@@ -172,7 +170,7 @@ const TextBoxArea = () => {
             (result) => {
               dispatch(
                 addUserNotification({
-                  message: t('right-panel.file-upload-success'),
+                  message: 'Tệp được tải lên thành công',
                   typeOption: 'success',
                 }),
               );
@@ -181,12 +179,12 @@ const TextBoxArea = () => {
         }
       }
     },
-    [isFileSendingLocked, isMsgSendingLocked, chatFeatures, dispatch, t],
+    [isFileSendingLocked, isMsgSendingLocked, chatFeatures, dispatch],
   );
 
   const placeholderText = isSendingMsg
-    ? t('right-panel.sending-message')
-    : t('right-panel.chat-box-placeholder');
+    ? 'Vui lòng đợi, đang gửi...'
+    : 'Gửi tin nhắn, dán hình ảnh hoặc thả file tại đây (Dòng mới: Shift + Enter)';
 
   return (
     <div className="flex items-center justify-between border border-border rounded-xl p-1.5 w-full">

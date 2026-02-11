@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { isArray } from 'es-toolkit/compat';
 import ReactPlayer from 'react-player';
 
@@ -14,7 +13,6 @@ interface DirectLinkProps {
 const EXTERNAL_MEDIA_PLAYER_PLAYBACK_URLS = 'externalMediaPlayerPlaybackUrls';
 
 const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
-  const { t } = useTranslation();
   const [playbackUrls, setPlaybackUrls] = useState<string[]>([]);
 
   const [playBackUrl, setPlayBackUrl] = useState<string>('');
@@ -33,11 +31,11 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
 
   const addPlaybackUrl = useCallback(async () => {
     if (!playBackUrl) {
-      setErrorMsg(t('footer.notice.external-media-player-url-required'));
+      setErrorMsg('URL trình phát đa phương tiện là bắt buộc');
       return;
     }
     if (!ReactPlayer.canPlay?.(playBackUrl)) {
-      setErrorMsg(t('footer.notice.external-media-player-url-invalid'));
+      setErrorMsg('URL trình phát đa phương tiện không hợp lệ');
       return;
     }
     setErrorMsg(undefined);
@@ -54,7 +52,7 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
     });
     setPlayBackUrl('');
     setSelectedUrl(playBackUrl);
-  }, [t, playBackUrl, setSelectedUrl]);
+  }, [playBackUrl, setSelectedUrl]);
 
   const deletePlaybackUrl = useCallback(
     async (urlToDelete: string) => {
@@ -79,7 +77,7 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
         <div className="flex-auto">
           <FormattedInputField
             id="stream-key"
-            placeholder={t('footer.modal.external-media-player-url')}
+            placeholder="Nhập URL trình phát đa phương tiện"
             value={playBackUrl}
             onChange={(e) => setPlayBackUrl(e.currentTarget.value)}
           />

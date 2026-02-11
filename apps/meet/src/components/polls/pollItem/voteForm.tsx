@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useTranslation } from 'react-i18next';
 import { create } from '@bufbuild/protobuf';
 import {
   DataMsgBodyType,
@@ -28,7 +27,6 @@ interface PollFormProps {
 }
 
 const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [selectedOption, setSelectedOption] = useState<number>();
   const conn = getNatsConn();
@@ -82,8 +80,8 @@ const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
   useEffect(() => {
     if (addReqResponse) {
       const message = addReqResponse.status
-        ? t('polls.response-added')
-        : t(addReqResponse.msg);
+        ? 'Đã thêm phản hồi'
+        : addReqResponse.msg;
       const typeOption = addReqResponse.status ? 'info' : 'error';
 
       dispatch(
@@ -182,7 +180,7 @@ const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
             className="h-9 px-5 cursor-pointer flex items-center justify-center rounded-lg text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 shadow-sm"
             type="submit"
           >
-            {t('polls.submit')}
+            Gửi
           </button>
         </div>
       )}

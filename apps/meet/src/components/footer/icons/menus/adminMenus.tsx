@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import FooterMenuItem from './menuItem';
 import { store, useAppDispatch, useAppSelector } from '../../../../store';
@@ -20,7 +19,6 @@ import { BarChart2, LayoutGrid, Bot, Radio, Play, MonitorPlay, NotebookPen, Capt
 
 const AdminMenus = () => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
 
   const isActiveRtmpBroadcasting = useAppSelector(
     (state) => state.session.isActiveRtmpBroadcasting,
@@ -71,7 +69,7 @@ const AdminMenus = () => {
           <FooterMenuItem
             onClick={openInsightsAISettingsModal}
             icon={<Bot className="w-6" />}
-            text={t('footer.menus.ai-settings')}
+            text="Cài đặt AI"
           />
         )}
       {roomFeatures?.allowRtmp && (
@@ -81,8 +79,8 @@ const AdminMenus = () => {
           icon={<Radio />}
           text={
             isActiveRtmpBroadcasting
-              ? t('footer.icons.stop-rtmp-broadcasting')
-              : t('footer.icons.start-rtmp-broadcasting')
+              ? 'Dừng phát trực tiếp RTMP'
+              : 'Bắt đầu phát trực tiếp RTMP'
           }
         />
       )}
@@ -91,7 +89,7 @@ const AdminMenus = () => {
           <FooterMenuItem
             onClick={openSpeechServiceSettingsModal}
             icon={<Captions className="w-6" />}
-            text={t('footer.menus.speech-to-text-settings')}
+            text="Cài đặt chuyển giọng nói thành văn bản"
           />
         )}
       <div className="divider h-1 w-[110%] bg-muted -ml-3 my-0.5"></div>
@@ -102,8 +100,8 @@ const AdminMenus = () => {
           icon={<BarChart2 className="w-6" />}
           text={
             isActivePoll
-              ? t('footer.menus.disable-polls')
-              : t('footer.menus.enable-polls')
+              ? 'Tắt bình chọn'
+              : 'Bật bình chọn'
           }
         />
       )}
@@ -114,8 +112,8 @@ const AdminMenus = () => {
           icon={<Play />}
           text={
             isActiveExternalMediaPlayer
-              ? t('footer.menus.stop-external-media-player')
-              : t('footer.menus.start-external-media-player')
+              ? 'Dừng trình phát đa phương tiện bên ngoài'
+              : 'Bắt đầu trình phát đa phương tiện bên ngoài'
           }
         />
       )}
@@ -126,8 +124,8 @@ const AdminMenus = () => {
           icon={<MonitorPlay />}
           text={
             isActiveDisplayExternalLink
-              ? t('footer.menus.stop-display-external-link')
-              : t('footer.menus.start-display-external-link')
+              ? 'Dừng hiển thị liên kết bên ngoài'
+              : 'Bắt đầu hiển thị liên kết bên ngoài'
           }
         />
       )}
@@ -136,25 +134,25 @@ const AdminMenus = () => {
       <FooterMenuItem
         onClick={muteAllUsers}
         icon={<MicOff className="w-5 h-5" />}
-        text={t('footer.menus.mute-all-users')}
+        text="Tắt micro tất cả người dùng"
       />
       <FooterMenuItem
         onClick={openLockSettingsModal}
         icon={<LockIcon className="w-5 h-5" />}
-        text={t('footer.menus.room-lock-settings')}
+        text="Cài đặt khóa phòng"
       />
       {roomFeatures?.waitingRoomFeatures?.isActive && (
         <FooterMenuItem
           onClick={openManageWaitingRoomModal}
           icon={<UserPlus className="w-5 h-5" />}
-          text={t('footer.menus.manage-waiting-room')}
+          text="Quản lý phòng chờ"
         />
       )}
       {roomFeatures?.breakoutRoomFeatures?.isAllow && (
         <FooterMenuItem
           onClick={openManageBreakoutRoomModal}
           icon={<LayoutGrid className="w-6 h-auto" />}
-          text={t('footer.menus.manage-breakout-room')}
+          text="Quản lý phòng thảo luận nhóm"
         />
       )}
     </>

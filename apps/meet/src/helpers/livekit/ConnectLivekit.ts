@@ -42,27 +42,25 @@ import {
 import HandleMediaTracks from './HandleMediaTracks';
 import { IErrorPageProps } from '../../components/extra-pages/Error';
 import { CurrentConnectionEvents, IConnectLivekit } from './types';
-import i18n from '../i18n';
 import { IScreenSharing } from '../../store/slices/interfaces/session';
 import { getNatsConn } from '../nats';
 import { roomConnectionStatus } from '../../components/app/helper';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 import { activeSpeakersSelector } from '../../store/slices/activeSpeakersSlice';
-import {toWajlcUserId} from '../utils';
-import {ENABLE_DYNACAST, ENABLE_SIMULCAST, STOP_MIC_TRACK_ON_MUTE, VIDEO_CODEC} from "../../config";
+import { toWajlcUserId } from '../utils';
+import { ENABLE_DYNACAST, ENABLE_SIMULCAST, STOP_MIC_TRACK_ON_MUTE, VIDEO_CODEC } from "../../config";
 
 export default class ConnectLivekit
-    extends EventEmitter
-    implements IConnectLivekit
-{
+  extends EventEmitter
+  implements IConnectLivekit {
   private _audioSubscribersMap = new Map<string, RemoteParticipant>();
   private _videoSubscribersMap = new Map<
-      string,
-      Participant | LocalParticipant | RemoteParticipant
+    string,
+    Participant | LocalParticipant | RemoteParticipant
   >();
   private _screenShareTracksMap = new Map<
-      string,
-      Array<LocalTrackPublication | RemoteTrackPublication>
+    string,
+    Array<LocalTrackPublication | RemoteTrackPublication>
   >();
 
   private readonly _errorState: Dispatch<IErrorPageProps>;
@@ -78,11 +76,11 @@ export default class ConnectLivekit
   private wasNormalDisconnected: boolean = false;
 
   constructor(
-      errorState: Dispatch<IErrorPageProps>,
-      roomConnectionStatusState: Dispatch<roomConnectionStatus>,
-      localUserId: string,
-      enabledE2EE: boolean,
-      encryptionKey?: string,
+    errorState: Dispatch<IErrorPageProps>,
+    roomConnectionStatusState: Dispatch<roomConnectionStatus>,
+    localUserId: string,
+    enabledE2EE: boolean,
+    encryptionKey?: string,
   ) {
     super();
     this.localUserId = localUserId;
@@ -142,8 +140,8 @@ export default class ConnectLivekit
   private configureRoom() {
     let videoCodec = VIDEO_CODEC;
     if (
-        (videoCodec === 'vp9' && !supportsVP9()) ||
-        (videoCodec === 'av1' && !supportsAV1())
+      (videoCodec === 'vp9' && !supportsVP9()) ||
+      (videoCodec === 'av1' && !supportsAV1())
     ) {
       videoCodec = 'vp8';
     }
@@ -179,12 +177,12 @@ export default class ConnectLivekit
 
     room.on(RoomEvent.Reconnecting, () => {
       this.toastIdConnecting = toast.loading(
-          i18n.t('notifications.media-server-disconnected-reconnecting'),
-          {
-            type: 'warning',
-            closeButton: false,
-            autoClose: false,
-          },
+        'Máy chủ truyền thông mất kết nối - Đang kết nối lại',
+        {
+          type: 'warning',
+          closeButton: false,
+          autoClose: false,
+        },
       );
     });
     room.on(RoomEvent.Connected, () => {
@@ -203,33 +201,33 @@ export default class ConnectLivekit
     room.on(RoomEvent.MediaDevicesError, this.mediaDevicesError);
 
     room.on(
-        RoomEvent.LocalTrackPublished,
-        this.handleMediaTracks.localTrackPublished,
+      RoomEvent.LocalTrackPublished,
+      this.handleMediaTracks.localTrackPublished,
     );
     room.on(
-        RoomEvent.LocalTrackUnpublished,
-        this.handleMediaTracks.localTrackUnpublished,
+      RoomEvent.LocalTrackUnpublished,
+      this.handleMediaTracks.localTrackUnpublished,
     );
     room.on(RoomEvent.TrackSubscribed, this.handleMediaTracks.trackSubscribed);
     room.on(
-        RoomEvent.TrackUnpublished,
-        this.handleMediaTracks.trackUnsubscribed,
+      RoomEvent.TrackUnpublished,
+      this.handleMediaTracks.trackUnsubscribed,
     );
     room.on(
-        RoomEvent.TrackSubscriptionFailed,
-        this.handleMediaTracks.trackSubscriptionFailed,
+      RoomEvent.TrackSubscriptionFailed,
+      this.handleMediaTracks.trackSubscriptionFailed,
     );
     room.on(RoomEvent.TrackMuted, this.handleMediaTracks.trackMuted);
     room.on(RoomEvent.TrackUnmuted, this.handleMediaTracks.trackUnmuted);
     room.on(
-        RoomEvent.TrackStreamStateChanged,
-        this.handleMediaTracks.trackStreamStateChanged,
+      RoomEvent.TrackStreamStateChanged,
+      this.handleMediaTracks.trackStreamStateChanged,
     );
 
     // for individual local user events
     room.localParticipant.on(
-        'connectionQualityChanged',
-        this.localUserConnectionQualityChanged,
+      'connectionQualityChanged',
+      this.localUserConnectionQualityChanged,
     );
 
     return room;
@@ -241,20 +239,20 @@ export default class ConnectLivekit
       participant.getTrackPublications().forEach((track) => {
         if (track.isSubscribed) {
           if (
-              track.source === Track.Source.ScreenShare ||
-              track.source === Track.Source.ScreenShareAudio
+            track.source === Track.Source.ScreenShare ||
+            track.source === Track.Source.ScreenShareAudio
           ) {
             store.dispatch(
-                updateParticipant({
-                  id: participant.identity,
-                  changes: {
-                    screenShareTrack: 1,
-                  },
-                }),
+              updateParticipant({
+                id: participant.identity,
+                changes: {
+                  screenShareTrack: 1,
+                },
+              }),
             );
             this.addScreenShareTrack(
-                participant.identity,
-                track as RemoteTrackPublication,
+              participant.identity,
+              track as RemoteTrackPublication,
             );
           } else if (track.source === Track.Source.Camera) {
             this.addVideoSubscriber(participant);
@@ -302,34 +300,32 @@ export default class ConnectLivekit
     this.closeLocalTracks();
 
     this._errorState({
-      title: i18n.t('notifications.room-disconnected-title'),
+      title: 'Phòng bị ngắt kết nối',
       text: this.getDisconnectErrorReasonText(reason),
     });
   };
 
   private getDisconnectErrorReasonText(reason?: DisconnectReason) {
-    let msg = i18n.t('notifications.room-disconnected-default', {
-      reason: reason ? reason.toString() : 'UNKNOWN_REASON',
-    });
+    let msg = `Ngắt kết nối phòng (Lý do: ${reason ? reason.toString() : 'KHÔNG XÁC ĐỊNH'})`;
 
     switch (reason) {
       case DisconnectReason.CLIENT_INITIATED:
-        msg = i18n.t('notifications.room-disconnected-client-initiated');
+        msg = 'Ngắt kết nối bởi người dùng';
         break;
       case DisconnectReason.DUPLICATE_IDENTITY:
-        msg = i18n.t('notifications.room-disconnected-duplicate-entry');
+        msg = 'Tài khoản đang đăng nhập ở nơi khác';
         break;
       case DisconnectReason.SERVER_SHUTDOWN:
-        msg = i18n.t('notifications.room-disconnected-server-shutdown');
+        msg = 'Máy chủ đã tắt';
         break;
       case DisconnectReason.PARTICIPANT_REMOVED:
-        msg = i18n.t('notifications.room-disconnected-participant-removed');
+        msg = 'Người tham gia đã bị xóa';
         break;
       case DisconnectReason.ROOM_DELETED:
-        msg = i18n.t('notifications.room-disconnected-room-ended');
+        msg = 'Phòng họp đã kết thúc';
         break;
       case DisconnectReason.STATE_MISMATCH:
-        msg = i18n.t('notifications.room-disconnected-state-mismatch');
+        msg = 'Trạng thái không khớp';
         break;
     }
 
@@ -342,52 +338,52 @@ export default class ConnectLivekit
   };
 
   private localUserConnectionQualityChanged = async (
-      connectionQuality: ConnectionQuality,
+    connectionQuality: ConnectionQuality,
   ) => {
     store.dispatch(
-        updateParticipant({
-          id: this.localUserId,
-          changes: {
-            connectionQuality: connectionQuality,
-          },
-        }),
+      updateParticipant({
+        id: this.localUserId,
+        changes: {
+          connectionQuality: connectionQuality,
+        },
+      }),
     );
 
     if (
-        connectionQuality === ConnectionQuality.Poor ||
-        connectionQuality === ConnectionQuality.Lost
+      connectionQuality === ConnectionQuality.Poor ||
+      connectionQuality === ConnectionQuality.Lost
     ) {
-      let msg = i18n.t('notifications.your-connection-quality-not-good');
+      let msg = 'Chất lượng kết nối của bạn không tốt';
       if (connectionQuality === ConnectionQuality.Lost) {
-        msg = i18n.t('notifications.your-connection-quality-lost');
+        msg = 'Mất kết nối hoàn toàn';
       }
       store.dispatch(
-          addUserNotification({
-            message: msg,
-            typeOption: 'error',
-          }),
+        addUserNotification({
+          message: msg,
+          typeOption: 'error',
+        }),
       );
     }
 
     const conn = getNatsConn();
     if (conn) {
       conn.sendAnalyticsData(
-          AnalyticsEvents.ANALYTICS_EVENT_USER_CONNECTION_QUALITY,
-          AnalyticsEventType.USER,
-          connectionQuality.toString(),
+        AnalyticsEvents.ANALYTICS_EVENT_USER_CONNECTION_QUALITY,
+        AnalyticsEventType.USER,
+        connectionQuality.toString(),
       );
       conn
-          .sendDataMessage(
-              DataMsgBodyType.USER_CONNECTION_QUALITY_CHANGE,
-              connectionQuality,
-          )
-          .then();
+        .sendDataMessage(
+          DataMsgBodyType.USER_CONNECTION_QUALITY_CHANGE,
+          connectionQuality,
+        )
+        .then();
     }
   };
 
   public addScreenShareTrack = (
-      userId: string,
-      track: LocalTrackPublication | RemoteTrackPublication,
+    userId: string,
+    track: LocalTrackPublication | RemoteTrackPublication,
   ) => {
     const existUser = participantsSelector.selectById(store.getState(), userId);
     if (!existUser || !existUser.isOnline) {
@@ -435,7 +431,7 @@ export default class ConnectLivekit
   }
 
   public addAudioSubscriber = (
-      participant: Participant | LocalParticipant | RemoteParticipant,
+    participant: Participant | LocalParticipant | RemoteParticipant,
   ) => {
     if (!participant.audioTrackPublications.size) {
       return;
@@ -451,8 +447,8 @@ export default class ConnectLivekit
     }
 
     this._audioSubscribersMap.set(
-        participant.identity,
-        participant as RemoteParticipant,
+      participant.identity,
+      participant as RemoteParticipant,
     );
     this.syncAudioSubscribers();
   };
@@ -474,14 +470,14 @@ export default class ConnectLivekit
   }
 
   public addVideoSubscriber = (
-      participant: Participant | LocalParticipant | RemoteParticipant,
+    participant: Participant | LocalParticipant | RemoteParticipant,
   ) => {
     if (!participant.videoTrackPublications.size) {
       return;
     }
     const existUser = participantsSelector.selectById(
-        store.getState(),
-        participant.identity,
+      store.getState(),
+      participant.identity,
     );
     if (!existUser || !existUser.isOnline) {
       return;

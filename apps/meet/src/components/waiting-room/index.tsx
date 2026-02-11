@@ -1,6 +1,4 @@
-import React from 'react';
 import { createSelector } from '@reduxjs/toolkit';
-import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch, useAppSelector } from '../../store';
 import { updateShowManageWaitingRoomModal } from '../../store/slices/bottomIconsActivitySlice';
@@ -16,7 +14,6 @@ const selectWaitingParticipants = createSelector(
 );
 
 const ManageWaitingRoom = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const waitingParticipants = useAppSelector(selectWaitingParticipants);
 
@@ -28,7 +25,7 @@ const ManageWaitingRoom = () => {
     <Modal
       show={true}
       onClose={closeModal}
-      title={t('waiting-room.modal-title')}
+      title="Quản lý phòng chờ"
       customClass="showManageWaitingRoomModal overflow-hidden"
       maxWidth="max-w-xl"
     >
@@ -40,7 +37,7 @@ const ManageWaitingRoom = () => {
         </>
       ) : (
         <p className="text-foreground">
-          {t('waiting-room.no-pending-user')}
+          Không có yêu cầu tham gia nào đang chờ
         </p>
       )}
     </Modal>
