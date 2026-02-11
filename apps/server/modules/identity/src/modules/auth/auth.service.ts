@@ -5,9 +5,9 @@ import Redis from 'ioredis';
 import * as argon2 from 'argon2';
 import { JwtTokenProvider, REDIS_CLIENT, BlacklistService, AppConfigService } from '@server/shared';
 import type { IUsersRepository, IUserIdentityRepository } from '@server/identity/interfaces/repositories';
-import type { IAuthService, ISessionService, IGoogleAuthService, IAuthorizationService, ITwoFactorAuthService, IEmailService } from '@server/identity/interfaces/services';
+import type { IAuthService, ISessionService, IGoogleAuthService, IAuthorizationService, ITwoFactorAuthService } from '@server/identity/interfaces/services';
 import { USERS_REPOSITORY_TOKEN, USER_IDENTITY_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
-import { SESSION_SERVICE_TOKEN, GOOGLE_AUTH_SERVICE_TOKEN, AUTHORIZATION_SERVICE_TOKEN, TWO_FACTOR_AUTH_SERVICE_TOKEN, EMAIL_SERVICE_TOKEN } from '@server/identity/interfaces/services';
+import { SESSION_SERVICE_TOKEN, GOOGLE_AUTH_SERVICE_TOKEN, AUTHORIZATION_SERVICE_TOKEN, TWO_FACTOR_AUTH_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 
 import { UserRole } from '@workspace/schemas';
 import type {
@@ -44,7 +44,6 @@ export class AuthService implements IAuthService {
         @Inject(GOOGLE_AUTH_SERVICE_TOKEN) private readonly googleAuthService: IGoogleAuthService,
         @Inject(USER_IDENTITY_REPOSITORY_TOKEN) private readonly userIdentityRepository: IUserIdentityRepository,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
-        @Inject(EMAIL_SERVICE_TOKEN) private readonly emailService: IEmailService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         private readonly blacklistService: BlacklistService,
     ) { }
@@ -129,20 +128,19 @@ export class AuthService implements IAuthService {
         // Generate Verification token or OTP
         if (dto.platform === 'mobile') {
             const otp = await this.generateOTP(user.email, 'registration');
-            await this.emailService.sendOTPEmail(
-                user.email,
-                user.displayName,
-                otp,
-                'registration'
-            );
+            this.natsClient.emit({ cmd: 'send_email' }, {
+                type: 'otp',
+                to: user.email,
+                data: { displayName: user.displayName, otp, otpType: 'registration' }
+            });
         } else {
             const verificationToken = await this.generateVerificationToken(user.email);
             const verificationUrl = `${this.appConfig.identity.frontendUrl}/verify?token=${verificationToken}`;
-            await this.emailService.sendVerificationEmail(
-                user.email,
-                user.displayName,
-                verificationUrl
-            );
+            this.natsClient.emit({ cmd: 'send_email' }, {
+                type: 'verification',
+                to: user.email,
+                data: { displayName: user.displayName, verificationUrl }
+            });
         }
 
         return {
@@ -462,11 +460,11 @@ export class AuthService implements IAuthService {
 
         // Send verification email
         const verificationUrl = `${this.appConfig.identity.frontendUrl}/verify?token=${verificationToken}`;
-        await this.emailService.sendVerificationEmail(
-            email,
-            user.displayName,
-            verificationUrl
-        );
+        this.natsClient.emit({ cmd: 'send_email' }, {
+            type: 'verification',
+            to: email,
+            data: { displayName: user.displayName, verificationUrl }
+        });
 
         // Increment rate limit counter
         if (attemptsCount === 0) {
@@ -514,12 +512,11 @@ export class AuthService implements IAuthService {
 
         if (platform === 'mobile') {
             const otp = await this.generateOTP(email, 'reset-password');
-            await this.emailService.sendOTPEmail(
-                email,
-                user.displayName,
-                otp,
-                'reset-password'
-            );
+            this.natsClient.emit({ cmd: 'send_email' }, {
+                type: 'otp',
+                to: email,
+                data: { displayName: user.displayName, otp, otpType: 'reset-password' }
+            });
         } else {
             // Generate reset token (valid for 1 hour)
             const crypto = await import('crypto');
@@ -530,11 +527,11 @@ export class AuthService implements IAuthService {
 
             // Send password reset email
             const resetUrl = `${this.appConfig.identity.frontendUrl}/reset-password?token=${resetToken}`;
-            await this.emailService.sendPasswordResetEmail(
-                email,
-                user.displayName,
-                resetUrl
-            );
+            this.natsClient.emit({ cmd: 'send_email' }, {
+                type: 'password_reset',
+                to: email,
+                data: { displayName: user.displayName, resetUrl }
+            });
         }
 
         // Increment rate limit counter
@@ -618,12 +615,11 @@ export class AuthService implements IAuthService {
         }
 
         const otp = await this.generateOTP(email, type);
-        await this.emailService.sendOTPEmail(
-            email,
-            user.displayName,
-            otp,
-            type
-        );
+        this.natsClient.emit({ cmd: 'send_email' }, {
+            type: 'otp',
+            to: email,
+            data: { displayName: user.displayName, otp, otpType: type }
+        });
 
         // Increment rate limit counter
         if (attemptsCount === 0) {
@@ -680,10 +676,11 @@ export class AuthService implements IAuthService {
         await this.redis.del(`reset-token:${token}`);
 
         // Send password reset confirmation email
-        await this.emailService.sendPasswordResetConfirmationEmail(
-            email,
-            user.displayName
-        );
+        this.natsClient.emit({ cmd: 'send_email' }, {
+            type: 'password_reset_confirmation',
+            to: email,
+            data: { displayName: user.displayName }
+        });
     }
 
     /**
@@ -1196,10 +1193,11 @@ export class AuthService implements IAuthService {
         await this.redis.del(`invite-token:${token}`);
 
         // Send welcome email
-        await this.emailService.sendWelcomeEmail(
-            user.email,
-            user.displayName
-        );
+        this.natsClient.emit({ cmd: 'send_email' }, {
+            type: 'welcome',
+            to: user.email,
+            data: { displayName: user.displayName }
+        });
     }
 
     /**
