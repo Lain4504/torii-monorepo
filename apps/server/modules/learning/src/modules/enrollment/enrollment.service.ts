@@ -8,6 +8,7 @@ import {
     type EnrollmentResponseDTO,
     type PaginatedResponseDTO,
     EnrollmentStatus,
+    CourseStatus,
 } from '@workspace/schemas';
 import type { IEnrollmentService, ICertificateService } from '../../interfaces/services';
 import { CERTIFICATE_SERVICE_TOKEN } from '../../interfaces/services';
@@ -174,6 +175,11 @@ export class EnrollmentService implements IEnrollmentService {
         // Check if course exists
         const course = await this.courseRepository.findById(input.courseId);
         if (!course) {
+            throw new NotFoundException('Course not found');
+        }
+
+        // Check if course is published
+        if (course.status !== CourseStatus.PUBLISHED) {
             throw new NotFoundException('Course not found');
         }
 
