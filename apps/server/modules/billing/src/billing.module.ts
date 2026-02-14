@@ -6,15 +6,10 @@ import { pojos } from '@automapper/pojos';
 import { PrismaModule, SharedModule, GlobalRpcExceptionFilter, NatsClientModule } from '@server/shared';
 
 // Billing Modules
-import { OrderModule } from './modules/payment/order.module';
-import { CouponModule } from './modules/coupon/coupon.module';
-import { UserBalanceModule } from './modules/user-balance/user-balance.module';
+import { OrderModule, CouponModule, UserBalanceModule } from '@server/billing/modules';
 
 // Handlers
-import { OrderHandler } from './interfaces/nats/order.handler';
-import { CouponHandler } from './interfaces/nats/coupon.handler';
-import { AnalyticsHandler } from './interfaces/nats/analytics.handler';
-import { UserBalanceHandler } from './interfaces/nats/user-balance.handler';
+import { OrderHandler, CouponHandler, AnalyticsHandler, UserBalanceHandler } from '@server/billing/interfaces/nats';
 
 @Module({
     imports: [
