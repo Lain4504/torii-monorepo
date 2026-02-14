@@ -2,12 +2,12 @@ import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule, SharedModule, NatsClientModule } from '@server/shared';
 import { CertificateService } from './certificate.service';
 import { CertificateRepository } from './certificate.repository';
-import { CertificateProfile } from '../../infrastructure/mappings/certificate.profile';
+import { CertificateProfile } from '@server/learning/infrastructure/mappings/certificate.profile';
 
 import { 
     CERTIFICATE_SERVICE_TOKEN, 
     CERTIFICATE_REPOSITORY_TOKEN 
-} from '../../interfaces';
+} from '@server/learning/interfaces';
 import { EnrollmentModule } from '../enrollment/enrollment.module';
 import { CourseModule } from '../course/course.module';
 
@@ -39,3 +39,4 @@ import { CourseModule } from '../course/course.module';
     exports: [CERTIFICATE_SERVICE_TOKEN, CERTIFICATE_REPOSITORY_TOKEN],
 })
 export class CertificateModule { }
+

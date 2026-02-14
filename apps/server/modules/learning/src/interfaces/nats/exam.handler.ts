@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { EXAM_SERVICE_TOKEN, IExamService } from '../../interfaces/services/i-exam.service';
+import { EXAM_SERVICE_TOKEN, IExamService } from '@server/learning/interfaces/services/i-exam.service';
 import { ExamQueryDTO, ExamCreateDTO, ExamUpdateDTO, ExamSessionAnswersDTO, ExamSessionQueryDTO } from '@workspace/schemas';
 
 @Controller()
@@ -105,3 +105,4 @@ export class ExamHandler {
         return this.examService.getQuizAttempts(data.id, data.query);
     }
 }
+

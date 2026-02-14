@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { LiveSession, Prisma } from '@prisma/generated';
-import type { ILiveSessionRepository } from '../../interfaces/repositories';
+import type { ILiveSessionRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Live Session Repository
@@ -64,3 +64,4 @@ export class LiveSessionRepository implements ILiveSessionRepository {
         });
     }
 }
+

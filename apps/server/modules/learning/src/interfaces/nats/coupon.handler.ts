@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { COUPON_SERVICE_TOKEN, ICouponService } from '../../interfaces/services';
+import { COUPON_SERVICE_TOKEN, ICouponService } from '@server/learning/interfaces/services';
 import {
     CouponCreateDTO,
     CouponUpdateDTO,
@@ -72,3 +72,4 @@ export class CouponHandler {
         return this.couponService.getAvailableCoupons(data.courseId);
     }
 }
+

@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ReviewService } from '../../modules/review/review.service';
+import { ReviewService } from '@server/learning/modules/review/review.service';
 import { ReviewCreateDTO } from '@workspace/schemas';
 
 @Controller()
@@ -41,3 +41,4 @@ export class ReviewHandler {
         return this.reviewService.findOne(data.id);
     }
 }
+

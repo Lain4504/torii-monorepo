@@ -6,11 +6,11 @@ import { FlashcardReviewService } from './flashcard-review.service';
 import { FlashcardReviewSessionService } from './flashcard-review-session.service';
 import { FlashcardRepository } from './flashcard.repository';
 import { FlashcardReviewRepository } from './flashcard-review.repository';
-import { FLASHCARD_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard.repository';
-import { FLASHCARD_SERVICE_TOKEN } from '../../interfaces/services/i-flashcard.service';
-import { FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-review.repository';
-import { FLASHCARD_REVIEW_SERVICE_TOKEN } from '../../interfaces/services/i-flashcard-review.service';
-import { FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '../../interfaces/services/i-flashcard-review-session.service';
+import { FLASHCARD_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard.repository';
+import { FLASHCARD_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard.service';
+import { FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
+import { FLASHCARD_REVIEW_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-review.service';
+import { FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-review-session.service';
 import { FlashcardDeckModule } from '../flashcard-deck/flashcard-deck.module';
 
 @Module({
@@ -49,3 +49,4 @@ import { FlashcardDeckModule } from '../flashcard-deck/flashcard-deck.module';
     ],
 })
 export class FlashcardModule { }
+

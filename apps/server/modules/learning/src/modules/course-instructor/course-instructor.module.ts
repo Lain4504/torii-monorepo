@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
 import { CourseInstructorService } from './course-instructor.service';
 import { CourseInstructorRepository } from './course-instructor.repository';
-import { COURSE_INSTRUCTOR_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { COURSE_INSTRUCTOR_SERVICE_TOKEN } from '../../interfaces/services';
+import { COURSE_INSTRUCTOR_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { COURSE_INSTRUCTOR_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
  * Course Instructor Feature Module
@@ -24,3 +24,4 @@ import { COURSE_INSTRUCTOR_SERVICE_TOKEN } from '../../interfaces/services';
     exports: [COURSE_INSTRUCTOR_SERVICE_TOKEN, COURSE_INSTRUCTOR_REPOSITORY_TOKEN],
 })
 export class CourseInstructorModule { }
+

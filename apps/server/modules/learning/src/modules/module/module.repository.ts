@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Module as CourseModule, Prisma } from '@prisma/generated';
-import type { IModuleRepository } from '../../interfaces/repositories';
+import type { IModuleRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Module Repository
@@ -130,3 +130,4 @@ export class ModuleRepository implements IModuleRepository {
         return result._max.orderIndex ?? 0;
     }
 }
+

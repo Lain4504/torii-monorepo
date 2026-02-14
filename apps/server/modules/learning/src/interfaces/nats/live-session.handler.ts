@@ -1,6 +1,6 @@
 import { Controller, Inject, Logger } from '@nestjs/common';
 import { MessagePattern, Payload, EventPattern } from '@nestjs/microservices';
-import { LIVE_SESSION_SERVICE_TOKEN, ILiveSessionService } from '../../interfaces/services';
+import { LIVE_SESSION_SERVICE_TOKEN, ILiveSessionService } from '@server/learning/interfaces/services';
 import { LiveSessionBulkCreateDTO, LiveSessionCreateDTO, LiveSessionUpdateDTO, Requester, LiveSessionStatus } from '@workspace/schemas';
 
 @Controller()
@@ -97,3 +97,4 @@ export class LiveSessionHandler {
         return this.liveSessionService.joinSession(requester, id);
     }
 }
+

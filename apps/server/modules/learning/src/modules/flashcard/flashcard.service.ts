@@ -12,9 +12,9 @@ import type {
     BulkFlashcardOperationsDTO,
     BulkFlashcardOperationsResponseDTO,
 } from "@workspace/schemas";
-import { IFlashcardRepository, FLASHCARD_REPOSITORY_TOKEN } from "../../interfaces/repositories/i-flashcard.repository";
-import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from "../../interfaces/repositories/i-flashcard-deck.repository";
-import { IFlashcardService } from "../../interfaces/services/i-flashcard.service";
+import { IFlashcardRepository, FLASHCARD_REPOSITORY_TOKEN } from "@server/learning/interfaces/repositories/i-flashcard.repository";
+import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from "@server/learning/interfaces/repositories/i-flashcard-deck.repository";
+import { IFlashcardService } from "@server/learning/interfaces/services/i-flashcard.service";
 
 /**
  * Helper function to convert difficulty string to FlashcardDifficulty enum
@@ -465,3 +465,4 @@ export class FlashcardService implements IFlashcardService {
         };
     }
 }
+

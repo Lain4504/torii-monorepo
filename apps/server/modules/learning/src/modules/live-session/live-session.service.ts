@@ -40,13 +40,13 @@ import {
 } from '@workspace/protocol';
 import { lastValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
-import { ILiveSessionService } from '../../interfaces/services/i-live-session.service';
+import { ILiveSessionService } from '@server/learning/interfaces/services/i-live-session.service';
 import {
     ILiveSessionRepository,
     LIVE_SESSION_REPOSITORY_TOKEN,
     COURSE_REPOSITORY_TOKEN,
     ICourseRepository,
-} from '../../interfaces/repositories';
+} from '@server/learning/interfaces/repositories';
 import { PrismaService } from '@server/shared';
 
 @Injectable()
@@ -423,3 +423,4 @@ export class LiveSessionService implements ILiveSessionService {
         }
     }
 }
+

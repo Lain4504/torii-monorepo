@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FeedService } from '../../modules/feed/feed.service';
+import { FeedService } from '@server/learning/modules/feed/feed.service';
 import { FeedCreateDTO, FeedUpdateDTO, FeedQueryDTO } from '@workspace/schemas';
 
 @Controller()
@@ -32,3 +32,4 @@ export class FeedHandler {
         return this.feedService.deleteFeed(data.id, data.userId);
     }
 }
+

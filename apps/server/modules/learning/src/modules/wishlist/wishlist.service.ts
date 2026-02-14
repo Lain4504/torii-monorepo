@@ -5,7 +5,7 @@ import {
   type WishlistResponseDTO,
   type PaginatedResponseDTO,
 } from '@workspace/schemas';
-import type { IWishlistService } from '../../interfaces/services';
+import type { IWishlistService } from '@server/learning/interfaces/services';
 import { WishlistRepository } from './wishlist.repository';
 import type { Prisma } from '@prisma/generated';
 
@@ -197,3 +197,4 @@ export class WishlistService implements IWishlistService {
     }
   }
 }
+

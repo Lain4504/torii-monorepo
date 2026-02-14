@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Review, Prisma } from '@prisma/generated';
-import type { IReviewRepository, ReviewWithRelations } from '../../interfaces/repositories';
+import type { IReviewRepository, ReviewWithRelations } from '@server/learning/interfaces/repositories';
 
 /**
  * Review Repository

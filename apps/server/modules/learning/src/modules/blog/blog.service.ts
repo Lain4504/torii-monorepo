@@ -11,7 +11,7 @@ import type {
   BlogResponseDTO,
 } from '@workspace/schemas';
 import type { Blog, Prisma } from '@prisma/generated';
-import type { IBlogService } from '../../interfaces/services';
+import type { IBlogService } from '@server/learning/interfaces/services';
 import { BlogRepository } from './blog.repository';
 
 /**
@@ -295,3 +295,4 @@ export class BlogService implements IBlogService {
     return { success: true };
   }
 }
+

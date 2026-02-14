@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Comment, Prisma } from '@prisma/generated';
-import type { ICommentRepository } from '../../interfaces/repositories';
+import type { ICommentRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Comment Repository
@@ -178,5 +178,6 @@ export class CommentRepository implements ICommentRepository {
 
 
 }
+
 
 

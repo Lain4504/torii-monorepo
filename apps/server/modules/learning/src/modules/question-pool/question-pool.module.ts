@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
 import { QuestionPoolService } from './question-pool.service';
 import { QuestionPoolRepository } from './question-pool.repository';
-import { QUESTION_POOL_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-question-pool.repository';
-import { QUESTION_POOL_SERVICE_TOKEN } from '../../interfaces/services/i-question-pool.service';
+import { QUESTION_POOL_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-question-pool.repository';
+import { QUESTION_POOL_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-question-pool.service';
 
 /**
  * Question Pool Feature Module
@@ -24,4 +24,5 @@ import { QUESTION_POOL_SERVICE_TOKEN } from '../../interfaces/services/i-questio
     exports: [QUESTION_POOL_SERVICE_TOKEN, QUESTION_POOL_REPOSITORY_TOKEN],
 })
 export class QuestionPoolModule { }
+
 

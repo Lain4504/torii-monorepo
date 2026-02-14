@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Coupon, Prisma } from '@prisma/generated';
-import type { ICouponRepository } from '../../interfaces/repositories';
+import type { ICouponRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Coupon Repository
@@ -209,3 +209,4 @@ export class CouponRepository implements ICouponRepository {
         });
     }
 }
+

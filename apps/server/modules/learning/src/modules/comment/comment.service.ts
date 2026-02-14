@@ -15,7 +15,7 @@ import type {
 // Assuming CommentTargetType is in schemas or we compare with strings.
 import { CommentTargetType } from '@workspace/schemas/src/models/comment.model';
 import type { Comment, Prisma } from '@prisma/generated';
-import type { ICommentService } from '../../interfaces/services';
+import type { ICommentService } from '@server/learning/interfaces/services';
 import { CommentRepository } from './comment.repository';
 import { BlogRepository } from '../blog/blog.repository';
 
@@ -423,3 +423,4 @@ export class CommentService implements ICommentService {
     return { isLiked: !existingLike, likeCount };
   }
 }
+

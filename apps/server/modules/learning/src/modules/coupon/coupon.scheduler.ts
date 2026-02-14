@@ -1,8 +1,8 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CouponStatus } from '@workspace/schemas';
-import type { ICouponRepository } from '../../interfaces/repositories';
-import { COUPON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ICouponRepository } from '@server/learning/interfaces/repositories';
+import { COUPON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 
 /**
  * Coupon Scheduler
@@ -60,3 +60,4 @@ export class CouponScheduler {
         }
     }
 }
+

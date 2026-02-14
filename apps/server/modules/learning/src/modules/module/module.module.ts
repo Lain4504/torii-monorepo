@@ -2,8 +2,8 @@ import { Module, forwardRef } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
 import { ModuleService } from './module.service';
 import { ModuleRepository } from './module.repository';
-import { MODULE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { MODULE_SERVICE_TOKEN } from '../../interfaces/services';
+import { MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { MODULE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { CourseModule } from '../course/course.module';
 
 /**
@@ -28,3 +28,4 @@ import { CourseModule } from '../course/course.module';
   exports: [MODULE_SERVICE_TOKEN, MODULE_REPOSITORY_TOKEN],
 })
 export class ModuleModule { }
+

@@ -6,8 +6,8 @@ import {
     ICourseRepository, COURSE_REPOSITORY_TOKEN,
     ILessonRepository, LESSON_REPOSITORY_TOKEN,
     IModuleRepository, MODULE_REPOSITORY_TOKEN
-} from '../../interfaces/repositories';
-import { ILearningProgressService, ICertificateService, CERTIFICATE_SERVICE_TOKEN } from '../../interfaces/services';
+} from '@server/learning/interfaces/repositories';
+import { ILearningProgressService, ICertificateService, CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { EnrollmentStatus, UserActivityEvent } from '@workspace/schemas';
 
 
@@ -298,3 +298,4 @@ export class LearningProgressService implements ILearningProgressService {
         }));
     }
 }
+
