@@ -1,7 +1,7 @@
 import { Controller, Logger, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { CouponService } from '@server/billing/modules/coupon/coupon.service';
+import { CouponService } from '../../modules/coupon/coupon.service';
 import { CouponValidateRequestDTO } from '@workspace/schemas';
 
 @Controller()

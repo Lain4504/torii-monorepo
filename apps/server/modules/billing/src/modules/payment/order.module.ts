@@ -4,8 +4,8 @@ import { OrderService } from './order.service';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
 import { PaymentCron } from './payment.cron';
-import { ORDER_SERVICE_TOKEN, ORDER_REPOSITORY_TOKEN } from '@server/billing/interfaces';
-import { CouponModule } from '@server/billing/modules/coupon/coupon.module';
+import { ORDER_SERVICE_TOKEN, ORDER_REPOSITORY_TOKEN } from '../../interfaces';
+import { CouponModule } from '../coupon/coupon.module';
 
 /**
  * Order Module (Handling Orders and Payments)

@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { UserBalanceService } from '@server/billing/modules/user-balance/user-balance.service';
+import { UserBalanceService } from '../../modules/user-balance/user-balance.service';
 
 @Controller()
 export class UserBalanceHandler {

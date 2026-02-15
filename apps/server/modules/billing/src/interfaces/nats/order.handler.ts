@@ -1,9 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { ORDER_SERVICE_TOKEN, IOrderService } from '@server/billing/interfaces/services';
+import { ORDER_SERVICE_TOKEN, IOrderService } from '../../interfaces/services';
 import { OrderCreateDTO, OrderQueryDTO, OrderConfirmDTO, PaymentQueryDTO } from '@workspace/schemas';
-import { PayOSService } from '@server/billing/modules/payment/payos.service';
+import { PayOSService } from '../../modules/payment/payos.service';
 
 @Controller()
 export class OrderHandler {
