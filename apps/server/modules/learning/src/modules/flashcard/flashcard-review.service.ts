@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
-import { SrsAlgorithmService, type SrsCalculationResult } from './srs-algorithm.service';
+import { SrsAlgorithmService, type SrsCalculationResult } from '@server/learning/modules/flashcard/srs-algorithm.service';
 import {
   SubmitReviewDTO,
   FlashcardReviewResponseDTO,
@@ -13,10 +13,10 @@ import {
   FlashcardState,
   UserActivityEvent,
 } from '@workspace/schemas';
-import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-review.repository';
-import { IFlashcardRepository, FLASHCARD_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard.repository';
-import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-deck.repository';
-import type { IFlashcardReviewService } from '../../interfaces/services/i-flashcard-review.service';
+import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
+import { IFlashcardRepository, FLASHCARD_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard.repository';
+import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-deck.repository';
+import type { IFlashcardReviewService } from '@server/learning/interfaces/services/i-flashcard-review.service';
 
 @Injectable()
 export class FlashcardReviewService implements IFlashcardReviewService {
@@ -389,3 +389,4 @@ export class FlashcardReviewService implements IFlashcardReviewService {
     }
   }
 }
+

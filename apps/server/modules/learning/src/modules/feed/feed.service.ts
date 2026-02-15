@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { PrismaService } from '@server/shared';
-import { FeedRepository } from './feed.repository';
+import { FeedRepository } from '@server/learning/modules/feed/feed.repository';
 import {
     FeedCreateDTO,
     FeedQueryDTO,

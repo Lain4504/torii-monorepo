@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { LESSON_MATERIAL_SERVICE_TOKEN, ILessonMaterialService } from '../../interfaces/services';
+import { LESSON_MATERIAL_SERVICE_TOKEN, ILessonMaterialService } from '@server/learning/interfaces/services';
 import { LessonMaterialCreateDTO, LessonMaterialUpdateDTO } from '@workspace/schemas';
 
 @Controller()
@@ -46,3 +46,4 @@ export class LessonMaterialHandler {
         return this.lessonMaterialService.deleteMaterial(requester, id);
     }
 }
+

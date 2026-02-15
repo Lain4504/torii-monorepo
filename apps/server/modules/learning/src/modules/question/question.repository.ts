@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Question, Prisma } from '@prisma/generated';
-import type { IQuestionRepository } from '../../interfaces/repositories/i-question.repository';
+import type { IQuestionRepository } from '@server/learning/interfaces/repositories/i-question.repository';
 
 /**
  * Question Repository
@@ -151,4 +151,5 @@ export class QuestionRepository implements IQuestionRepository {
         });
     }
 }
+
 

@@ -1,22 +1,22 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule, SharedModule, NatsClientModule } from '@server/shared';
-import { CertificateService } from './certificate.service';
-import { CertificateRepository } from './certificate.repository';
-import { CertificateProfile } from '../../infrastructure/mappings/certificate.profile';
+import { CertificateService } from '@server/learning/modules/certificate/certificate.service';
+import { CertificateRepository } from '@server/learning/modules/certificate/certificate.repository';
+import { CertificateProfile } from '@server/learning/infrastructure/mappings/certificate.profile';
 
-import { 
-    CERTIFICATE_SERVICE_TOKEN, 
-    CERTIFICATE_REPOSITORY_TOKEN 
-} from '../../interfaces';
-import { EnrollmentModule } from '../enrollment/enrollment.module';
-import { CourseModule } from '../course/course.module';
+import {
+    CERTIFICATE_SERVICE_TOKEN,
+    CERTIFICATE_REPOSITORY_TOKEN
+} from '@server/learning/interfaces';
+import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
+import { CourseModule } from '@server/learning/modules/course/course.module';
 
 /**
  * Certificate Module
  */
 @Module({
     imports: [
-        PrismaModule, 
+        PrismaModule,
         SharedModule,
         NatsClientModule,
         forwardRef(() => EnrollmentModule),
@@ -39,3 +39,4 @@ import { CourseModule } from '../course/course.module';
     exports: [CERTIFICATE_SERVICE_TOKEN, CERTIFICATE_REPOSITORY_TOKEN],
 })
 export class CertificateModule { }
+

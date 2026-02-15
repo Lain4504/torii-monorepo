@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { MODULE_SERVICE_TOKEN, IModuleService } from '../../interfaces/services';
+import { MODULE_SERVICE_TOKEN, IModuleService } from '@server/learning/interfaces/services';
 import { ModuleCreateDTO, ModuleUpdateDTO } from '@workspace/schemas';
 
 @Controller()
@@ -53,3 +53,4 @@ export class ModuleHandler {
         return this.moduleService.reorder(requester, courseId, moduleOrders);
     }
 }
+

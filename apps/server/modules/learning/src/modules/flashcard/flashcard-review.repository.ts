@@ -6,7 +6,7 @@ import type {
     FlashcardUserProgress,
     Prisma
 } from '@prisma/generated';
-import type { IFlashcardReviewRepository } from '../../interfaces/repositories/i-flashcard-review.repository';
+import type { IFlashcardReviewRepository } from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
 
 @Injectable()
 export class FlashcardReviewRepository implements IFlashcardReviewRepository {
@@ -90,3 +90,4 @@ export class FlashcardReviewRepository implements IFlashcardReviewRepository {
         return this.prisma.flashcardReviewSession.count({ where });
     }
 }
+

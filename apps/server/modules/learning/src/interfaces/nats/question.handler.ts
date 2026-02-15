@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { QUESTION_SERVICE_TOKEN, IQuestionService } from '../../interfaces/services/i-question.service';
+import { QUESTION_SERVICE_TOKEN, IQuestionService } from '@server/learning/interfaces/services/i-question.service';
 import { QuestionCreateDTO, QuestionUpdateDTO, QuestionQueryDTO } from '@workspace/schemas';
 
 @Controller()
@@ -111,3 +111,4 @@ export class QuestionHandler {
         return this.questionService.sendForReview(requester, id);
     }
 }
+

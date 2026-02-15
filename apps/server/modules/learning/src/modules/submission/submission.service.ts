@@ -11,8 +11,8 @@ import type {
   SubmissionResponseDTO
 } from '@workspace/schemas';
 
-import { SubmissionRepository } from './submission.repository';
-import { AssignmentRepository } from '../assignment/assignment.repository';
+import { SubmissionRepository } from '@server/learning/modules/submission/submission.repository';
+import { AssignmentRepository } from '@server/learning/modules/assignment/assignment.repository';
 
 /**
  * Submission Service  

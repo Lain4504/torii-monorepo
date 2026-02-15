@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LessonService } from '../src/modules/lesson/lesson.service';
-import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '../src/interfaces/repositories';
-import { COURSE_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '../src/interfaces/services';
+import { LessonService } from '@server/learning/modules/lesson/lesson.service';
+import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { COURSE_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UserRole } from '@workspace/schemas';
 

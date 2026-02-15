@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AssignmentService } from '../../modules/assignment/assignment.service';
+import { AssignmentService } from '@server/learning/modules/assignment/assignment.service';
 
 @Controller()
 export class AssignmentHandler {
@@ -44,3 +44,4 @@ export class AssignmentHandler {
     return this.assignmentService.delete(requester, id);
   }
 }
+

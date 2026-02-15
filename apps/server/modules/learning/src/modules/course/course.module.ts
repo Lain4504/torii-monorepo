@@ -1,13 +1,13 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
-import { CourseService } from './course.service';
-import { CourseRepository } from './course.repository';
-import { CourseProfile } from '../../infrastructure/mappings/course.profile';
-import { ModuleModule } from '../module/module.module';
-import { LessonModule } from '../lesson/lesson.module';
-import { EnrollmentModule } from '../enrollment/enrollment.module';
-import { COURSE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
+import { CourseService } from '@server/learning/modules/course/course.service';
+import { CourseRepository } from '@server/learning/modules/course/course.repository';
+import { CourseProfile } from '@server/learning/infrastructure/mappings/course.profile';
+import { ModuleModule } from '@server/learning/modules/module/module.module';
+import { LessonModule } from '@server/learning/modules/lesson/lesson.module';
+import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
+import { COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { COURSE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
  * Course Feature Module
@@ -34,3 +34,4 @@ import { COURSE_SERVICE_TOKEN } from '../../interfaces/services';
   exports: [COURSE_SERVICE_TOKEN, COURSE_REPOSITORY_TOKEN],
 })
 export class CourseModule { }
+

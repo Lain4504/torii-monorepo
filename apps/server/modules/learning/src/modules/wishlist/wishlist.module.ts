@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '@server/shared';
-import { WishlistService } from './wishlist.service';
-import { WishlistRepository } from './wishlist.repository';
+import { WishlistService } from '@server/learning/modules/wishlist/wishlist.service';
+import { WishlistRepository } from '@server/learning/modules/wishlist/wishlist.repository';
 
 /**
  * Wishlist Feature Module

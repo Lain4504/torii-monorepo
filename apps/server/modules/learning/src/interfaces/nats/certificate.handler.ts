@@ -1,7 +1,7 @@
 import { Controller, UsePipes } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { CERTIFICATE_SERVICE_TOKEN, ICertificateService } from '../../interfaces/services';
+import { CERTIFICATE_SERVICE_TOKEN, ICertificateService } from '@server/learning/interfaces/services';
 import { 
     CertificateQueryDTO, 
     certificateQueryDTOSchema,
@@ -43,3 +43,4 @@ export class CertificateHandler {
         return this.certificateService.issueCertificate(data.userId, data.courseId, data.enrollmentId);
     }
 }
+

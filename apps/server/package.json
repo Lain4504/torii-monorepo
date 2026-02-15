@@ -168,8 +168,10 @@
     "moduleNameMapper": {
       "^@server/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",
       "^@server/identity(|/.*)$": "<rootDir>/modules/identity/src/$1",
+      "^@server/learning(|/.*)$": "<rootDir>/modules/learning/src/$1",
       "^@server/gamification(|/.*)$": "<rootDir>/modules/gamification/src/$1",
       "^@server/agents(|/.*)$": "<rootDir>/modules/agents/src/$1",
+      "^@server/billing(|/.*)$": "<rootDir>/modules/billing/src/$1",
       "^@server/proto(|/.*)$": "<rootDir>/libs/proto/src/$1",
       "^@prisma/generated$": "<rootDir>/generated/prisma/client",
       "^@prisma/generated/(.*)$": "<rootDir>/generated/prisma/$1",

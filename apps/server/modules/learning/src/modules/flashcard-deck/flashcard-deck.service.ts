@@ -8,8 +8,8 @@ import type {
   FlashcardDeckResponseDTO,
   PaginatedResponseDTO,
 } from '@workspace/schemas';
-import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-deck.repository';
-import type { IFlashcardDeckService } from '../../interfaces/services/i-flashcard-deck.service';
+import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-deck.repository';
+import type { IFlashcardDeckService } from '@server/learning/interfaces/services/i-flashcard-deck.service';
 import { PrismaService } from '@server/shared';
 
 @Injectable()
@@ -240,3 +240,4 @@ export class FlashcardDeckService implements IFlashcardDeckService {
     }
   }
 }
+
