@@ -5,7 +5,7 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import type { RoomMetadata } from '@workspace/protocol';
+
 import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
