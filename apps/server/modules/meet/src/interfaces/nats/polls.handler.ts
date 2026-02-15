@@ -6,7 +6,7 @@
 
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { PollsService } from '../../modules/polls/polls.service';
+import { PollsService } from '@server/meet/modules/polls/polls.service';
 import type {
     ActivatePollsReq,
     CreatePollReq,

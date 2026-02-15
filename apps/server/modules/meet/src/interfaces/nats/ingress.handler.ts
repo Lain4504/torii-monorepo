@@ -4,7 +4,7 @@
 
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { IngressService } from '../../modules/ingress/ingress.service';
+import { IngressService } from '@server/meet/modules/ingress/ingress.service';
 import { create } from '@bufbuild/protobuf';
 import { CreateIngressReq, CommonResponseSchema } from '@workspace/protocol';
 

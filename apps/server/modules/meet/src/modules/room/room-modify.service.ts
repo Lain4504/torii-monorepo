@@ -7,9 +7,9 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import type { ChangeVisibilityRes } from '@workspace/protocol';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
-import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/interfaces/nats/nats-room-events.service';
+import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 
 /**
  * RoomModifyService handles room modification operations

@@ -23,11 +23,11 @@ import {
     AnalyticsStatus,
 } from '@workspace/protocol';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { RedisSpeechToTextService } from '../../infrastructure/redis/redis-speech-to-text.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
-import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
-import { AnalyticsService } from '../analytics/analytics.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { RedisSpeechToTextService } from '@server/meet/infrastructure/redis/redis-speech-to-text.service';
+import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { WebhookNotifierService } from '@server/meet/infrastructure/webhook/webhook-notifier.service';
+import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import { AppConfigService } from '@server/shared';
 
 @Injectable()

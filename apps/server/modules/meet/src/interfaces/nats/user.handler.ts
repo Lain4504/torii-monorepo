@@ -6,7 +6,7 @@
 
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { RoomUserService } from '../../modules/room/room-user.service';
+import { RoomUserService } from '@server/meet/modules/room/room-user.service';
 
 /**
  * UserHandler - NATS Message Handler for User Operations
