@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsUserService } from '../../interfaces/nats/nats-user.service';
-import { RoomEndService } from '../room/room-end.service';
-import { RoomInfoService } from '../room/room-info.service';
-import { RoomDurationService } from '../room/room-duration.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsUserService } from '@server/meet/interfaces/nats/nats-user.service';
+import { RoomEndService } from '@server/meet/modules/room/room-end.service';
+import { RoomInfoService } from '@server/meet/modules/room/room-info.service';
+import { RoomDurationService } from '@server/meet/modules/room/room-duration.service';
 import { create } from '@bufbuild/protobuf';
 import { RoomEndReqSchema } from '@workspace/protocol';
 

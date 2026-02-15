@@ -1,14 +1,13 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { SharedModule } from '@server/shared';
-import { RedisAnalyticsService } from '../../infrastructure/redis/redis-analytics.service';
-import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
-import { ArtifactsModule } from '../artifacts/artifacts.module';
-
-import { NatsModule } from '../../interfaces/nats/nats.module';
-import { LiveKitModule } from '../../infrastructure/livekit/livekit.module';
-import { WajlcAuthModule } from '../auth/wajlc-auth.module';
-import { WebhookModule } from '../../infrastructure/webhook/webhook.module';
+import { RedisAnalyticsService } from '@server/meet/infrastructure/redis/redis-analytics.service';
+import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
+import { ArtifactsModule } from '@server/meet/modules/artifacts/artifacts.module';
+import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
+import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.module';
+import { WajlcAuthModule } from '@server/meet/modules/auth/wajlc-auth.module';
+import { WebhookModule } from '@server/meet/infrastructure/webhook/webhook.module';
 
 @Module({
     imports: [

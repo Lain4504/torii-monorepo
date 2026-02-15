@@ -1,0 +1,4 @@
+apps/server/modules/meet/src/interfaces/nats/nats-system-events.service.ts
+apps/server/modules/meet/src/interfaces/nats/nats-user.service.ts
+apps/server/modules/meet/src/modules/analytics/analytics.module.ts
+apps/server/modules/meet/src/modules/breakout/breakout.module.ts

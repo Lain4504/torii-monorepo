@@ -6,7 +6,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { create } from '@bufbuild/protobuf';
 import { CommonResponseSchema } from '@workspace/protocol';
-import { InsightsService } from '../../modules/insights/insights.service';
+import { InsightsService } from '@server/meet/modules/insights/insights.service';
 
 @Controller()
 export class InsightsHandler {

@@ -6,7 +6,7 @@
 
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { WebhookService } from '../../infrastructure/webhook/webhook.service';
+import { WebhookService } from '@server/meet/infrastructure/webhook/webhook.service';
 
 /**
  * WebhookHandler processes LiveKit webhook events received via NATS

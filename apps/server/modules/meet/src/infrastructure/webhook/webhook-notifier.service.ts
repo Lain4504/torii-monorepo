@@ -2,8 +2,8 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/commo
 import { PrismaService, AppConfigService } from '@server/shared';
 import { WebhookNotifier } from '@server/shared';
 import type { CommonNotifyEvent } from '@workspace/protocol';
-import { NatsService } from '../../interfaces/nats/nats.service';
-import { RedisWebhookService, WEBHOOK_CLEANUP_SUBJECT, WebhookData } from '../redis/redis-webhook.service';
+import { NatsService } from '@server/meet/interfaces/nats/nats.service';
+import { RedisWebhookService, WEBHOOK_CLEANUP_SUBJECT, WebhookData } from '@server/meet/infrastructure/redis/redis-webhook.service';
 
 /**
  * WebhookNotifierService manages webhook notifications for room events

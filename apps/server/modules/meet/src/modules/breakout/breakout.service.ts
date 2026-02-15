@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
 import {
   CreateBreakoutRoomsReq,
   BreakoutRoom,
@@ -17,28 +17,28 @@ import {
   RoomCreateFeaturesSchema,
   BreakoutRoomFeaturesSchema,
 } from '@workspace/protocol';
-import { RoomCreateService } from '../room/room-create.service';
-import { RoomEndService } from '../room/room-end.service';
-import { RoomUserService } from '../room/room-user.service';
+import { RoomCreateService } from '@server/meet/modules/room/room-create.service';
+import { RoomEndService } from '@server/meet/modules/room/room-end.service';
+import { RoomUserService } from '@server/meet/modules/room/room-user.service';
 import {
   create,
   fromJsonString,
 } from '@bufbuild/protobuf';
-import { RoomDurationService } from '../room/room-duration.service';
-import { NatsService } from '../../interfaces/nats/nats.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
+import { RoomDurationService } from '@server/meet/modules/room/room-duration.service';
+import { NatsService } from '@server/meet/interfaces/nats/nats.service';
+import { NatsRoomEventsService } from '@server/meet/interfaces/nats/nats-room-events.service';
 import {
   NatsUserService,
   USER_STATUS_ONLINE,
-} from '../../interfaces/nats/nats-user.service';
-import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
-import { AnalyticsService } from '../analytics/analytics.service';
+} from '@server/meet/interfaces/nats/nats-user.service';
+import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
+import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import {
   AnalyticsDataMsgSchema,
   AnalyticsEventType,
   AnalyticsEvents,
 } from '@workspace/protocol';
-import { RedisBreakoutService } from '../../infrastructure/redis/redis-breakout.service';
+import { RedisBreakoutService } from '@server/meet/infrastructure/redis/redis-breakout.service';
 
 const BREAKOUT_ROOM_FORMAT = '%s-%s';
 

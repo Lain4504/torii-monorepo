@@ -6,7 +6,7 @@
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService, AppConfigService } from '@server/shared';
-import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
+import { WebhookNotifierService } from '@server/meet/infrastructure/webhook/webhook-notifier.service';
 import {
     RoomArtifactMetadata,
     RoomArtifactType,
@@ -26,9 +26,9 @@ import * as fs from 'fs/promises';
 import { create, toJson, fromJson } from '@bufbuild/protobuf';
 import { generateTokenForDownloadRecording } from '@server/shared';
 import * as jwt from 'jsonwebtoken';
-import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
-import { NatsService } from '../../interfaces/nats/nats.service';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
+import { RedisInsightsService } from '@server/meet/infrastructure/redis/redis-insights.service';
+import { NatsService } from '@server/meet/interfaces/nats/nats.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
 import {
     AnalyticsEvents,
     AnalyticsEventType,

@@ -7,14 +7,14 @@ import { WebhookNotifierService } from './webhook-notifier.service';
 import { WebhookService } from './webhook.service';
 import { WebhookController } from './webhook.controller';
 import { SharedModule } from '@server/shared';
-import { RedisRoomService } from '../redis/redis-room.service';
-import { AnalyticsModule } from '../../modules/analytics/analytics.module';
-import { RoomModule } from '../../modules/room/room.module';
-import { SpeechToTextModule } from '../../modules/speech-to-text/speech-to-text.module';
-import { NatsModule } from '../../interfaces/nats/nats.module';
-import { LiveKitModule } from '../livekit/livekit.module';
-import { WajlcAuthModule } from '../../modules/auth/wajlc-auth.module';
-import { BreakoutModule } from '../../modules/breakout/breakout.module';
+import { RedisRoomService } from '@server/meet/infrastructure/redis/redis-room.service';
+import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
+import { RoomModule } from '@server/meet/modules/room/room.module';
+import { SpeechToTextModule } from '@server/meet/modules/speech-to-text/speech-to-text.module';
+import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
+import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.module';
+import { WajlcAuthModule } from '@server/meet/modules/auth/wajlc-auth.module';
+import { BreakoutModule } from '@server/meet/modules/breakout/breakout.module';
 
 @Module({
     imports: [

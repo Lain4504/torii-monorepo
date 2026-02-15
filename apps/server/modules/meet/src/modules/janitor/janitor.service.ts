@@ -2,7 +2,7 @@ import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } fro
 import { JanitorRoomService } from './janitor-room.service';
 import { JanitorUserService } from './janitor-user.service';
 import { JanitorFilesystemService } from './janitor-filesystem.service';
-import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
+import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
 
 @Injectable()
 export class JanitorService implements OnApplicationBootstrap, OnApplicationShutdown {

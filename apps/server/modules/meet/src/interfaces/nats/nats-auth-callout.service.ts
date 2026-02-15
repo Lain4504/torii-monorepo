@@ -6,9 +6,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NatsContext } from '@nestjs/microservices';
 import * as nkeys from 'nkeys.js';
-import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
-import { NatsConsumerService } from './nats-consumer.service';
-import { NatsUserInfoService } from './nats-user-info.service';
+import { WajlcAuthService } from '@server/meet/modules/auth/wajlc-auth.service';
+import { NatsConsumerService } from '@server/meet/interfaces/nats/nats-consumer.service';
+import { NatsUserInfoService } from '@server/meet/interfaces/nats/nats-user-info.service';
 import * as crypto from 'crypto';
 import { AppConfigService } from '@server/shared';
 
