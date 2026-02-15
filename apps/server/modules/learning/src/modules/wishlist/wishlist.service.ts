@@ -6,7 +6,7 @@ import {
   type PaginatedResponseDTO,
 } from '@workspace/schemas';
 import type { IWishlistService } from '@server/learning/interfaces/services';
-import { WishlistRepository } from './wishlist.repository';
+import { WishlistRepository } from '@server/learning/modules/wishlist/wishlist.repository';
 import type { Prisma } from '@prisma/generated';
 
 /**
@@ -159,7 +159,7 @@ export class WishlistService implements IWishlistService {
   async toggle(userId: string, courseId: string): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }> {
     try {
       const existing = await this.wishlistRepository.findByUserAndCourse(userId, courseId);
-      
+
       if (existing) {
         // Remove from wishlist
         await this.wishlistRepository.delete(existing.id);

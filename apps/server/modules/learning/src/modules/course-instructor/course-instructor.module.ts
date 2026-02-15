@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
-import { CourseInstructorService } from './course-instructor.service';
-import { CourseInstructorRepository } from './course-instructor.repository';
+import { CourseInstructorService } from '@server/learning/modules/course-instructor/course-instructor.service';
+import { CourseInstructorRepository } from '@server/learning/modules/course-instructor/course-instructor.repository';
 import { COURSE_INSTRUCTOR_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { COURSE_INSTRUCTOR_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 

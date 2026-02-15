@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule, NatsClientModule } from '@server/shared';
-import { BlogService } from './blog.service';
-import { BlogRepository } from './blog.repository';
+import { BlogService } from '@server/learning/modules/blog/blog.service';
+import { BlogRepository } from '@server/learning/modules/blog/blog.repository';
 import { BlogProfile } from '@server/learning/infrastructure/mappings/blog.profile';
-import { BlogAnalyticsService } from './blog-analytics.service';
-import { BlogAnalyticsScheduler } from './blog-analytics.scheduler';
+import { BlogAnalyticsService } from '@server/learning/modules/blog/blog-analytics.service';
+import { BlogAnalyticsScheduler } from '@server/learning/modules/blog/blog-analytics.scheduler';
 
 /**
  * Blog Feature Module

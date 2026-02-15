@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TeachingScheduleService } from './teaching-schedule.service';
+import { TeachingScheduleService } from '@server/learning/modules/teaching-schedule/teaching-schedule.service';
 
 @Module({
     providers: [

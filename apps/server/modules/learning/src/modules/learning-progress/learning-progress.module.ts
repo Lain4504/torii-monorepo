@@ -1,13 +1,13 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule, NatsClientModule } from '@server/shared';
-import { LearningProgressController } from './learning-progress.controller';
-import { LearningProgressService } from './learning-progress.service';
-import { LearningProgressRepository } from './learning-progress.repository';
-import { EnrollmentRepository } from '../enrollment/enrollment.repository';
-import { CourseRepository } from '../course/course.repository';
-import { LessonRepository } from '../lesson/lesson.repository';
-import { ModuleRepository } from '../module/module.repository';
-import { CertificateModule } from '../certificate/certificate.module';
+import { LearningProgressController } from '@server/learning/modules/learning-progress/learning-progress.controller';
+import { LearningProgressService } from '@server/learning/modules/learning-progress/learning-progress.service';
+import { LearningProgressRepository } from '@server/learning/modules/learning-progress/learning-progress.repository';
+import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
+import { CourseRepository } from '@server/learning/modules/course/course.repository';
+import { LessonRepository } from '@server/learning/modules/lesson/lesson.repository';
+import { ModuleRepository } from '@server/learning/modules/module/module.repository';
+import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';
 
 import { LEARNING_PROGRESS_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import {
@@ -20,7 +20,7 @@ import {
 
 @Module({
     imports: [
-        PrismaModule, 
+        PrismaModule,
         NatsClientModule,
         forwardRef(() => CertificateModule)
     ],

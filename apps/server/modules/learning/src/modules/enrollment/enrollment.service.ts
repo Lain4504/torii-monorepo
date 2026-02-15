@@ -12,7 +12,7 @@ import {
 } from '@workspace/schemas';
 import type { IEnrollmentService, ICertificateService } from '@server/learning/interfaces/services';
 import { CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
-import { EnrollmentRepository } from './enrollment.repository';
+import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
 import { ICourseRepository, COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
 

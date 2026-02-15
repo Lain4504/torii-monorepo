@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BlogService } from '../src/modules/blog/blog.service';
-import { BlogRepository } from '../src/modules/blog/blog.repository';
+import { BlogService } from '@server/learning/modules/blog/blog.service';
+import { BlogRepository } from '@server/learning/modules/blog/blog.repository';
 import { PrismaService, REDIS_CLIENT } from '@server/shared';
 import { getMapperToken } from '@automapper/nestjs';
 import { BlogStatus } from '@workspace/schemas';

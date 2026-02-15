@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
-import { FlashcardDeckService } from './flashcard-deck.service';
-import { FlashcardDeckRepository } from './flashcard-deck.repository';
+import { FlashcardDeckService } from '@server/learning/modules/flashcard-deck/flashcard-deck.service';
+import { FlashcardDeckRepository } from '@server/learning/modules/flashcard-deck/flashcard-deck.repository';
 import { FLASHCARD_DECK_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-deck.repository';
 import { FLASHCARD_DECK_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-deck.service';
 

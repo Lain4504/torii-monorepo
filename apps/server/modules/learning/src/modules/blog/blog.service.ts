@@ -12,7 +12,7 @@ import type {
 } from '@workspace/schemas';
 import type { Blog, Prisma } from '@prisma/generated';
 import type { IBlogService } from '@server/learning/interfaces/services';
-import { BlogRepository } from './blog.repository';
+import { BlogRepository } from '@server/learning/modules/blog/blog.repository';
 
 /**
  * Blog Service

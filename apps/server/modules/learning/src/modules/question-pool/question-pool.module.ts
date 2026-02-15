@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
-import { QuestionPoolService } from './question-pool.service';
-import { QuestionPoolRepository } from './question-pool.repository';
+import { QuestionPoolService } from '@server/learning/modules/question-pool/question-pool.service';
+import { QuestionPoolRepository } from '@server/learning/modules/question-pool/question-pool.repository';
 import { QUESTION_POOL_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-question-pool.repository';
 import { QUESTION_POOL_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-question-pool.service';
 

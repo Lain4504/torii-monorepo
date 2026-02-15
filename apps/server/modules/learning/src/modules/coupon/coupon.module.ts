@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
-import { CouponService } from './coupon.service';
-import { CouponRepository } from './coupon.repository';
-import { CouponScheduler } from './coupon.scheduler';
+import { CouponService } from '@server/learning/modules/coupon/coupon.service';
+import { CouponRepository } from '@server/learning/modules/coupon/coupon.repository';
+import { CouponScheduler } from '@server/learning/modules/coupon/coupon.scheduler';
 import { CouponProfile } from '@server/learning/infrastructure/mappings/coupon.profile';
 import { COUPON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { COUPON_SERVICE_TOKEN } from '@server/learning/interfaces/services';

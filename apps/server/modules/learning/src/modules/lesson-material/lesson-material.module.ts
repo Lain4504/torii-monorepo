@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { NatsClientModule, SharedStorageModule } from '@server/shared';
-import { LessonMaterialService } from './lesson-material.service';
-import { LessonMaterialRepository } from './lesson-material.repository';
+import { LessonMaterialService } from '@server/learning/modules/lesson-material/lesson-material.service';
+import { LessonMaterialRepository } from '@server/learning/modules/lesson-material/lesson-material.repository';
 import { LESSON_MATERIAL_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { LESSON_MATERIAL_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 

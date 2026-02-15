@@ -1,12 +1,12 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
-import { LessonService } from './lesson.service';
-import { LessonRepository } from './lesson.repository';
+import { LessonService } from '@server/learning/modules/lesson/lesson.service';
+import { LessonRepository } from '@server/learning/modules/lesson/lesson.repository';
 import { LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { LESSON_SERVICE_TOKEN } from '@server/learning/interfaces/services';
-import { CourseModule } from '../course/course.module';
-import { ModuleModule } from '../module/module.module';
-import { EnrollmentModule } from '../enrollment/enrollment.module';
+import { CourseModule } from '@server/learning/modules/course/course.module';
+import { ModuleModule } from '@server/learning/modules/module/module.module';
+import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
 
 /**
  * Lesson Feature Module

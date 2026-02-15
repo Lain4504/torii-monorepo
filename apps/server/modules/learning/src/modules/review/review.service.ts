@@ -7,7 +7,7 @@ import {
   type PaginatedReviewResponseDTO,
   type RatingDistributionDTO,
 } from '@workspace/schemas';
-import { ReviewRepository } from './review.repository';
+import { ReviewRepository } from '@server/learning/modules/review/review.repository';
 import type { IReviewService } from '@server/learning/interfaces/services';
 
 @Injectable()

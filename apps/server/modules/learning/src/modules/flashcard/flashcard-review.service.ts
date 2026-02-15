@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
-import { SrsAlgorithmService, type SrsCalculationResult } from './srs-algorithm.service';
+import { SrsAlgorithmService, type SrsCalculationResult } from '@server/learning/modules/flashcard/srs-algorithm.service';
 import {
   SubmitReviewDTO,
   FlashcardReviewResponseDTO,

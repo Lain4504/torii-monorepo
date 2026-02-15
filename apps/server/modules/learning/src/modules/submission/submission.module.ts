@@ -1,8 +1,8 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
-import { SubmissionService } from './submission.service';
-import { SubmissionRepository } from './submission.repository';
-import { AssignmentModule } from '../assignment/assignment.module';
+import { SubmissionService } from '@server/learning/modules/submission/submission.service';
+import { SubmissionRepository } from '@server/learning/modules/submission/submission.repository';
+import { AssignmentModule } from '@server/learning/modules/assignment/assignment.module';
 import { SubmissionProfile } from '@server/learning/infrastructure/mappings/submission.profile';
 
 /**
@@ -21,5 +21,5 @@ import { SubmissionProfile } from '@server/learning/infrastructure/mappings/subm
   ],
   exports: [SubmissionService, SubmissionRepository],
 })
-export class SubmissionModule {}
+export class SubmissionModule { }
 

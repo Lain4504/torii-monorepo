@@ -2,7 +2,7 @@ import { Injectable, Logger, Inject } from "@nestjs/common";
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from "@server/shared";
 import { FlashcardDifficulty, FlashcardGenerationMethod } from "@workspace/schemas";
-import { SrsAlgorithmService } from './srs-algorithm.service';
+import { SrsAlgorithmService } from '@server/learning/modules/flashcard/srs-algorithm.service';
 import type {
     FlashcardCreateDTO,
     FlashcardUpdateDTO,
