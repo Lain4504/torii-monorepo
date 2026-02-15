@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '@server/shared';
-import { FeedRepository } from './feed.repository';
-import { FeedService } from './feed.service';
+import { FeedRepository } from '@server/learning/modules/feed/feed.repository';
+import { FeedService } from '@server/learning/modules/feed/feed.service';
 
 @Module({
     imports: [PrismaModule],

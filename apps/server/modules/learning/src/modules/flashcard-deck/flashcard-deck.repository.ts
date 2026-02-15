@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { FlashcardDeck, Prisma } from '@prisma/generated';
-import type { IFlashcardDeckRepository } from '../../interfaces/repositories/i-flashcard-deck.repository';
+import type { IFlashcardDeckRepository } from '@server/learning/interfaces/repositories/i-flashcard-deck.repository';
 
 @Injectable()
 export class FlashcardDeckRepository implements IFlashcardDeckRepository {
@@ -56,3 +56,4 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
         });
     }
 }
+

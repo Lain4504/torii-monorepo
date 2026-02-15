@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EnrollmentService } from '../src/modules/enrollment/enrollment.service';
-import { EnrollmentRepository } from '../src/modules/enrollment/enrollment.repository';
-import { COURSE_REPOSITORY_TOKEN } from '../src/interfaces/repositories';
-import { CERTIFICATE_SERVICE_TOKEN } from '../src/interfaces/services';
+import { EnrollmentService } from '@server/learning/modules/enrollment/enrollment.service';
+import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
+import { COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { EnrollmentStatus, CourseStatus } from '@workspace/schemas';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { of } from 'rxjs';

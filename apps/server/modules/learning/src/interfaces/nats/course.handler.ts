@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { COURSE_SERVICE_TOKEN, ICourseService } from '../../interfaces/services';
+import { COURSE_SERVICE_TOKEN, ICourseService } from '@server/learning/interfaces/services';
 import { CourseCreateDTO, CourseUpdateDTO, Requester } from '@workspace/schemas';
 
 @Controller()

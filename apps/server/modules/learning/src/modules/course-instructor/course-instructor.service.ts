@@ -10,9 +10,9 @@ import type {
     Requester,
 } from '@workspace/schemas';
 
-import type { ICourseInstructorService } from '../../interfaces/services';
-import type { ICourseInstructorRepository } from '../../interfaces/repositories';
-import { COURSE_INSTRUCTOR_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ICourseInstructorService } from '@server/learning/interfaces/services';
+import type { ICourseInstructorRepository } from '@server/learning/interfaces/repositories';
+import { COURSE_INSTRUCTOR_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 
 /**
  * Course Instructor Service
@@ -236,3 +236,4 @@ export class CourseInstructorService implements ICourseInstructorService {
         }
     }
 }
+

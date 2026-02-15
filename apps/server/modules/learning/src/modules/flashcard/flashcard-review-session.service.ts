@@ -5,8 +5,8 @@ import {
   ReviewSessionResponseDTO,
   StartReviewSessionDTO,
 } from '@workspace/schemas';
-import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-review.repository';
-import type { IFlashcardReviewSessionService } from '../../interfaces/services/i-flashcard-review-session.service';
+import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
+import type { IFlashcardReviewSessionService } from '@server/learning/interfaces/services/i-flashcard-review-session.service';
 
 @Injectable()
 export class FlashcardReviewSessionService implements IFlashcardReviewSessionService {
@@ -209,3 +209,4 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
     };
   }
 }
+

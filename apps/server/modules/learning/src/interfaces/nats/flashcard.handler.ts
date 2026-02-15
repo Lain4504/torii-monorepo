@@ -6,7 +6,7 @@ import {
     FlashcardQueryDTO,
     BulkFlashcardOperationsDTO
 } from '@workspace/schemas';
-import { IFlashcardService, FLASHCARD_SERVICE_TOKEN } from '../services/i-flashcard.service';
+import { IFlashcardService, FLASHCARD_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard.service';
 
 @Controller()
 export class FlashcardHandler {

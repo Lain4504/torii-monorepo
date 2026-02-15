@@ -18,9 +18,9 @@ import type {
     CouponSearchRequestDTO,
 } from '@workspace/schemas';
 
-import type { ICouponService } from '../../interfaces/services';
-import type { ICouponRepository } from '../../interfaces/repositories';
-import { COUPON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ICouponService } from '@server/learning/interfaces/services';
+import type { ICouponRepository } from '@server/learning/interfaces/repositories';
+import { COUPON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 
 /**
  * Coupon Service
@@ -673,3 +673,4 @@ export class CouponService implements ICouponService {
         }
     }
 }
+

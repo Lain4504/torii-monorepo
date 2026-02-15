@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
 import { SharedModule, NatsClientModule } from '@server/shared';
-import { FlashcardService } from './flashcard.service';
-import { SrsAlgorithmService } from './srs-algorithm.service';
-import { FlashcardReviewService } from './flashcard-review.service';
-import { FlashcardReviewSessionService } from './flashcard-review-session.service';
-import { FlashcardRepository } from './flashcard.repository';
-import { FlashcardReviewRepository } from './flashcard-review.repository';
-import { FLASHCARD_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard.repository';
-import { FLASHCARD_SERVICE_TOKEN } from '../../interfaces/services/i-flashcard.service';
-import { FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-review.repository';
-import { FLASHCARD_REVIEW_SERVICE_TOKEN } from '../../interfaces/services/i-flashcard-review.service';
-import { FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '../../interfaces/services/i-flashcard-review-session.service';
-import { FlashcardDeckModule } from '../flashcard-deck/flashcard-deck.module';
+import { FlashcardService } from '@server/learning/modules/flashcard/flashcard.service';
+import { SrsAlgorithmService } from '@server/learning/modules/flashcard/srs-algorithm.service';
+import { FlashcardReviewService } from '@server/learning/modules/flashcard/flashcard-review.service';
+import { FlashcardReviewSessionService } from '@server/learning/modules/flashcard/flashcard-review-session.service';
+import { FlashcardRepository } from '@server/learning/modules/flashcard/flashcard.repository';
+import { FlashcardReviewRepository } from '@server/learning/modules/flashcard/flashcard-review.repository';
+import { FLASHCARD_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard.repository';
+import { FLASHCARD_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard.service';
+import { FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
+import { FLASHCARD_REVIEW_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-review.service';
+import { FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-review-session.service';
+import { FlashcardDeckModule } from '@server/learning/modules/flashcard-deck/flashcard-deck.module';
 
 @Module({
     imports: [SharedModule, FlashcardDeckModule, NatsClientModule],
@@ -49,3 +49,4 @@ import { FlashcardDeckModule } from '../flashcard-deck/flashcard-deck.module';
     ],
 })
 export class FlashcardModule { }
+

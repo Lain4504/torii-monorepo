@@ -161,7 +161,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {activeWorkspace.navItems.map((group) => (
                     <NavMain
                         key={group.labelKey}
-                        labelKey={group.labelKey}
+                        label={group.labelKey}
                         items={group.items as any}
                     />
                 ))}

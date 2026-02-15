@@ -18,9 +18,9 @@ import {
     type Requester,
     UserActivityEvent,
 } from '@workspace/schemas';
-import type { IExamRepository } from '../../interfaces/repositories/i-exam.repository';
-import { EXAM_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-exam.repository';
-import type { IExamService } from '../../interfaces/services/i-exam.service';
+import type { IExamRepository } from '@server/learning/interfaces/repositories/i-exam.repository';
+import { EXAM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-exam.repository';
+import type { IExamService } from '@server/learning/interfaces/services/i-exam.service';
 import { PrismaService } from '@server/shared';
 
 @Injectable()
@@ -1371,5 +1371,6 @@ export class ExamService implements IExamService {
         }
     }
 }
+
 
 

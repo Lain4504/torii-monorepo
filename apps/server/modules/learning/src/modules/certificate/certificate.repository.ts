@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Certificate, Prisma } from '@prisma/generated';
-import type { ICertificateRepository } from '../../interfaces/repositories';
+import type { ICertificateRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Certificate Repository
@@ -96,3 +96,4 @@ export class CertificateRepository implements ICertificateRepository {
         });
     }
 }
+

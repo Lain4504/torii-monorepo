@@ -11,9 +11,9 @@ import type {
     Requester,
 } from '@workspace/schemas';
 
-import type { ILessonMaterialService } from '../../interfaces/services';
-import type { ILessonMaterialRepository } from '../../interfaces/repositories';
-import { LESSON_MATERIAL_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ILessonMaterialService } from '@server/learning/interfaces/services';
+import type { ILessonMaterialRepository } from '@server/learning/interfaces/repositories';
+import { LESSON_MATERIAL_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 
 /**
  * Lesson Material Service
@@ -236,3 +236,4 @@ export class LessonMaterialService implements ILessonMaterialService {
         }
     }
 }
+

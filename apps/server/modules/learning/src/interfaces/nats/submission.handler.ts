@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { SubmissionService } from '../../modules/submission/submission.service';
+import { SubmissionService } from '@server/learning/modules/submission/submission.service';
 
 @Controller()
 export class SubmissionHandler {
@@ -44,3 +44,4 @@ export class SubmissionHandler {
     return this.submissionService.getSubmissions(assignmentId);
   }
 }
+

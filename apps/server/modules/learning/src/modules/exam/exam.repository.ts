@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Quiz, QuizAttempt, Prisma } from '@prisma/generated';
-import type { IExamRepository } from '../../interfaces/repositories/i-exam.repository';
+import type { IExamRepository } from '@server/learning/interfaces/repositories/i-exam.repository';
 
 /**
  * Exam Repository
@@ -203,4 +203,5 @@ export class ExamRepository implements IExamRepository {
         });
     }
 }
+
 

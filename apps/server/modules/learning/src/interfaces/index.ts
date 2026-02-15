@@ -1,3 +1,5 @@
 
-export * from './repositories';
-export * from './services';
+export * from '@server/learning/interfaces/repositories';
+export * from '@server/learning/interfaces/services';
+
+

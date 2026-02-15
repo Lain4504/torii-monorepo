@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, UseGuards, Request, Inject, Param } from '@nestjs/common';
 import { GatewayAuthGuard, successResponse } from '@server/shared';
-import { ILearningProgressService, LEARNING_PROGRESS_SERVICE_TOKEN } from '../../interfaces/services';
+import { ILearningProgressService, LEARNING_PROGRESS_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 @Controller('learning-progress')
 @UseGuards(GatewayAuthGuard)
@@ -45,3 +45,4 @@ export class LearningProgressController {
         return successResponse({ history: result });
     }
 }
+

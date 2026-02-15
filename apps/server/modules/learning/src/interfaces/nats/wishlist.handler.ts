@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { WishlistService } from '../../modules/wishlist/wishlist.service';
+import { WishlistService } from '@server/learning/modules/wishlist/wishlist.service';
 import { WishlistCreateDTO, WishlistQueryDTO } from '@workspace/schemas';
 
 @Controller()
@@ -43,3 +43,4 @@ export class WishlistHandler {
         return { isInWishlist };
     }
 }
+

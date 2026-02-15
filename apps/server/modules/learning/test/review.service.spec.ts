@@ -1,7 +1,7 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { ReviewService } from '../src/modules/review/review.service';
-import { ReviewRepository } from '../src/modules/review/review.repository';
+import { ReviewService } from '@server/learning/modules/review/review.service';
+import { ReviewRepository } from '@server/learning/modules/review/review.repository';
 import { RpcException } from '@nestjs/microservices';
 import type { ReviewCreateDTO, ReviewQueryDTO } from '@workspace/schemas';
 

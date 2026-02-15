@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { WishlistService } from '../src/modules/wishlist/wishlist.service';
-import { WishlistRepository } from '../src/modules/wishlist/wishlist.repository';
+import { WishlistService } from '@server/learning/modules/wishlist/wishlist.service';
+import { WishlistRepository } from '@server/learning/modules/wishlist/wishlist.repository';
 import type { WishlistCreateDTO, WishlistQueryDTO } from '@workspace/schemas';
 
 describe('WishlistService', () => {
