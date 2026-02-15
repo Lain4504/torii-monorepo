@@ -135,9 +135,11 @@ export class FastMcpService implements OnModuleInit {
         }
       }
 
+      this.logger.debug(`Template paths tried:\n1. ${buildPath}\n2. ${serviceSourcePath}\n3. ${monorepoSourcePath}\n4. ${localPath}`);
+
       return Handlebars.compile(templateContent);
     } catch (error) {
-      this.logger.error(`Failed to load prompt template: ${templatePath}`, error);
+      this.logger.error(`Failed to load prompt template: ${templatePath}. CWD: ${process.cwd()}`, error);
       throw new Error(`Template not found: ${templatePath}`);
     }
   }

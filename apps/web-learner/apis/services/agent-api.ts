@@ -63,6 +63,14 @@ export interface ConversationSimulationResponse {
     grammarPoints: string[];
 }
 
+export interface RoleplayResponse {
+    response: string;
+    romaji?: string;
+    english?: string;
+    feedback?: string | null;
+    isFinished: boolean;
+}
+
 export interface ResourceRecommendationResponse {
     topic: string;
     resources: Array<{
@@ -215,6 +223,27 @@ export const agentApi = {
                 scenario,
                 difficulty,
                 turns
+            });
+            return response.data.data;
+        },
+        roleplay: async (
+            topic: string,
+            message: string,
+            history: any[] = [],
+            isFinal: boolean = false
+        ) => {
+            const response = await apiClient.post<{ success: boolean; data: RoleplayResponse }>('/api/agents/roleplay', {
+                topic,
+                message,
+                history,
+                isFinal
+            });
+            return response.data.data;
+        },
+        tts: async (text: string, voice?: string) => {
+            const response = await apiClient.post<{ success: boolean; data: { url: string } }>('/api/agents/tts', {
+                text,
+                voice
             });
             return response.data.data;
         },

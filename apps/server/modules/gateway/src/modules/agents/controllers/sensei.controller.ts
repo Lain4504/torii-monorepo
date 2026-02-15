@@ -6,6 +6,10 @@ import {
     Req,
     UseGuards,
     Logger,
+    BadRequestException,
+    InternalServerErrorException,
+    HttpException,
+    HttpStatus,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -161,6 +165,44 @@ export class SenseiHandler {
         } catch (error: any) {
             this.logger.error(`Chat failed for user ${userId}`, error.stack);
             return errorResponse(error.message || 'Failed to chat');
+        }
+    }
+
+    @Post('roleplay')
+    @UseGuards(GatewayAuthGuard)
+    async roleplay(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
+        try {
+            this.logger.log(`🎭 Roleplay request from user ${userId}`);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.sensei.roleplay' },
+                    { userId, ...body }
+                )
+            );
+            return successResponse(result);
+
+        } catch (error: any) {
+            this.logger.error(`Roleplay failed`, error.stack);
+            return errorResponse(error.message || 'Failed to process roleplay');
+        }
+    }
+
+    @Post('tts')
+    @UseGuards(GatewayAuthGuard)
+    async tts(@Req() req: ReqWithRequester, @Body() body: { text: string; voice?: string }) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.sensei.tts' },
+                    { text: body.text, voice: body.voice }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`TTS generation failed`, error.stack);
+            return errorResponse(error.message || 'Failed to generate TTS');
         }
     }
 }

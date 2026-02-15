@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SenseiService } from '@server/agents/modules';
+import { TTSService } from '@server/agents/modules/sensei/tts.service';
 
 
 /**
@@ -9,7 +10,10 @@ import { SenseiService } from '@server/agents/modules';
  */
 @Controller()
 export class SenseiHandler {
-  constructor(private readonly senseiService: SenseiService) { }
+  constructor(
+    private readonly senseiService: SenseiService,
+    private readonly ttsService: TTSService,
+  ) { }
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; userId: string }) {
@@ -104,5 +108,41 @@ export class SenseiHandler {
       data.message,
       data.history || [],
     );
+  }
+
+  @MessagePattern({ cmd: 'agents.sensei.roleplay' })
+  async roleplay(
+    @Payload()
+    data: {
+      userId: string;
+      topic: string;
+      message: string;
+      history: any[];
+      isFinal?: boolean;
+    },
+  ) {
+    return this.senseiService.roleplay(
+      data.userId,
+      data.topic,
+      data.message,
+      data.history || [],
+      data.isFinal || false,
+    );
+  }
+
+  @MessagePattern({ cmd: 'agents.sensei.tts' })
+  async tts(@Payload() data: { text: string; voice?: string }) {
+    console.log(`[SenseiHandler] Received TTS request for: ${data.text.substring(0, 20)}... (Voice: ${data.voice || 'Default'})`);
+    try {
+      // google-tts-api might throw if text is too long (200 chars).
+      // For roleplay responses, they can be long.
+      // We should handle that, but for now let's just try getAudioBase64.
+      const url = await this.ttsService.getAudioBase64(data.text, data.voice);
+      console.log(`[SenseiHandler] Generated audio base64 (length: ${url.length})`);
+      return { url };
+    } catch (e) {
+      console.error(`[SenseiHandler] TTS failed:`, e);
+      throw e;
+    }
   }
 }
