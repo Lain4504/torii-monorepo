@@ -3,10 +3,10 @@ import { RecordingService } from './recording.service';
 import { RecordingInfoService } from './recording-info.service';
 import { RecordingNatsController } from './recording.nats.controller';
 import { SharedModule } from '@server/shared';
-import { RoomModule } from '../room/room.module';
-import { ArtifactsModule } from '../artifacts/artifacts.module';
-import { AnalyticsModule } from '../analytics/analytics.module';
-import { WebhookModule } from '../../infrastructure/webhook/webhook.module';
+import { RoomModule } from '@server/meet/modules/room/room.module';
+import { ArtifactsModule } from '@server/meet/modules/artifacts/artifacts.module';
+import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
+import { WebhookModule } from '@server/meet/infrastructure/webhook/webhook.module';
 
 @Module({
     imports: [

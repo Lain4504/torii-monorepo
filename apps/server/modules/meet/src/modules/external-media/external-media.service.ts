@@ -1,15 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsUserService } from '../../interfaces/nats/nats-user.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
-import { NatsService } from '../../interfaces/nats/nats.service';
-import { AnalyticsService } from '../analytics/analytics.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsUserService } from '@server/meet/interfaces/nats/nats-user.service';
+import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { NatsService } from '@server/meet/interfaces/nats/nats.service';
+import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import {
     ExternalMediaPlayerReq,
     ExternalMediaPlayerTask,
-    DataMsgBodyType,
     NatsMsgServerToClientEvents,
-    AnalyticsDataMsg,
     AnalyticsEventType,
     AnalyticsEvents,
     AnalyticsStatus,

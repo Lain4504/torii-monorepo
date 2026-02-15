@@ -7,7 +7,6 @@ import { CourseAssignmentsList } from "@/components/courses/course-assignments-l
 import { CheckCircle2, Sparkles, BookOpen, GraduationCap } from "lucide-react"
 import { courseApi } from "@/apis/services/course-api"
 import { notFound } from "next/navigation"
-import { cn } from "@workspace/ui/lib/utils"
 
 interface CourseDetailPageProps {
     params: Promise<{ slug: string }>

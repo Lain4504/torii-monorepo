@@ -5,7 +5,6 @@ import * as Handlebars from 'handlebars';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { FastMCP } from 'fastmcp';
-import { z } from 'zod';
 
 export interface ToolContext {
   userId: string;

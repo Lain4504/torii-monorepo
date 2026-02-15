@@ -11,7 +11,7 @@ import {
     type CertificateQueryDTO, 
     type CertificatePaginatedResponse 
 } from '@workspace/schemas';
-import type { ICertificateService } from '../../interfaces/services';
+import type { ICertificateService } from '@server/learning/interfaces/services';
 import { 
     ICertificateRepository, 
     CERTIFICATE_REPOSITORY_TOKEN,
@@ -19,7 +19,7 @@ import {
     ENROLLMENT_REPOSITORY_TOKEN,
     ICourseRepository,
     COURSE_REPOSITORY_TOKEN 
-} from '../../interfaces/repositories';
+} from '@server/learning/interfaces/repositories';
 import { SharedStorageService } from '@server/shared';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -333,3 +333,4 @@ export class CertificateService implements ICertificateService {
         return { valid: true, certificate: this.toCertificateDto(cert) };
     }
 }
+

@@ -16,9 +16,9 @@ import type {
     PaginatedResponseDTO,
     Requester,
 } from '@workspace/schemas';
-import type { IQuestionPoolService } from '../../interfaces/services/i-question-pool.service';
-import type { IQuestionPoolRepository } from '../../interfaces/repositories/i-question-pool.repository';
-import { QUESTION_POOL_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-question-pool.repository';
+import type { IQuestionPoolService } from '@server/learning/interfaces/services/i-question-pool.service';
+import type { IQuestionPoolRepository } from '@server/learning/interfaces/repositories/i-question-pool.repository';
+import { QUESTION_POOL_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-question-pool.repository';
 
 /**
  * Question Pool Service
@@ -246,4 +246,5 @@ export class QuestionPoolService implements IQuestionPoolService {
         return pools.map((p) => this.toQuestionPoolDto(p));
     }
 }
+
 

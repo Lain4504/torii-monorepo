@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { VerificationContent } from '@/components/auth/verification-content';
 import { Spinner } from '@workspace/ui/components/spinner';
 import Link from 'next/link';
-import { CheckCircle2, Shield, Mail } from 'lucide-react';
+import { Shield, Mail } from 'lucide-react';
 
 export default function VerifyPage() {
     return (

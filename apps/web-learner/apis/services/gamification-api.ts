@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
-import type { StandardApiResponse, UserAchievementDto, StreakStatusDto, LeaderboardDto, LeaderboardUserDto, UserGamificationDto } from '@workspace/schemas';
+import type { StandardApiResponse, UserAchievementDto, StreakStatusDto, LeaderboardDto, UserGamificationDto } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useEffect, useRef } from 'react';
 

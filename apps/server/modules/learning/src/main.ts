@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
-import { LearningModule } from './learning.module';
+import { LearningModule } from '@server/learning/learning.module';
 
 async function bootstrap() {
   console.log('🚀 Learning Service starting...');

@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { CheckCircle2, XCircle, Sparkles, ArrowRight, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useTimeout } from '@workspace/ui/hooks/use-timeout';
 import { useAppDispatch } from '@/hooks/hooks';
 import { fetchProfile } from '@/store/slices/authSlice';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { useVerifyEmail } from '@/apis/services/auth-api';
-import { cn } from '@workspace/ui/lib/utils';
 
 export function VerificationContent() {
     const searchParams = useSearchParams();

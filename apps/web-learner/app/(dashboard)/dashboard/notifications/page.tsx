@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Bell, Search, Filter, Check, Trash2, Sparkles, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical } from 'lucide-react'
+import { Bell, Search, Check, Trash2, Sparkles, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import { Card } from '@workspace/ui/components/card'

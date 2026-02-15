@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { COURSE_INSTRUCTOR_SERVICE_TOKEN, ICourseInstructorService } from '../../interfaces/services';
+import { COURSE_INSTRUCTOR_SERVICE_TOKEN, ICourseInstructorService } from '@server/learning/interfaces/services';
 import { CourseInstructorAssignDTO, CourseInstructorUpdateDTO } from '@workspace/schemas';
 
 @Controller()
@@ -40,3 +40,4 @@ export class CourseInstructorHandler {
         return this.courseInstructorService.unassignLecturer(requester, id);
     }
 }
+

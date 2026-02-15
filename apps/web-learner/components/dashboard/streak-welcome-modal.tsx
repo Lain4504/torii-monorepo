@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useStreak, useRecordActivity, useMarkToastShown } from '@/apis/services/gamification-api';
 import { Dialog, DialogContent, DialogTitle } from '@workspace/ui/components/dialog';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Flame, Snowflake, Sparkles, Trophy, Target, Calendar as CalendarIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Flame, Snowflake, Sparkles, Trophy, Target, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 

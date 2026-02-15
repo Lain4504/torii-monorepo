@@ -15,9 +15,10 @@ import { CourseAssignmentsList } from './course-assignments-list'
 interface LessonContentProps {
     description: string;
     courseId?: string;
+    courseSlug?: string;
 }
 
-export function LessonContent({ description, courseId }: LessonContentProps) {
+export function LessonContent({ description, courseId, courseSlug }: LessonContentProps) {
     return (
         <Tabs defaultValue="content" className="w-full">
             <TabsList className="bg-muted/20 border-none w-auto inline-flex h-auto p-1.5 gap-2 rounded-full">
@@ -95,8 +96,8 @@ export function LessonContent({ description, courseId }: LessonContentProps) {
             </TabsContent>
 
             <TabsContent value="assignments" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
-                {courseId ? (
-                    <CourseAssignmentsList courseId={courseId} />
+                {courseId && courseSlug ? (
+                    <CourseAssignmentsList courseId={courseId} courseSlug={courseSlug} />
                 ) : (
                     <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 rounded-[3rem] border border-border/10 bg-muted/5">
                         <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center shadow-2xl border border-border/10">

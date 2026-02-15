@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, SlidersHorizontal, User, Tag as TagIcon, Sparkles } from 'lucide-react'
+import { Search, SlidersHorizontal, Tag as TagIcon, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Input } from '@workspace/ui/components/input'
 import { Button } from '@workspace/ui/components/button'

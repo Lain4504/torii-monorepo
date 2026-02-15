@@ -3,10 +3,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { generateSlug } from '@server/shared';
-import { Course, CourseStatus as PrismaCourseStatus, Prisma } from '@prisma/generated';
+import { Course, CourseStatus as PrismaCourseStatus } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
-import { UserRole, CourseStatus } from '@workspace/schemas';
+import { CourseStatus } from '@workspace/schemas';
 import type {
   CourseCreateDTO,
   CourseUpdateDTO,
@@ -16,10 +16,10 @@ import type {
   Requester,
 } from '@workspace/schemas';
 
-import type { ICourseService, IEnrollmentService } from '../../interfaces/services';
-import type { ICourseRepository, IModuleRepository, ILessonRepository } from '../../interfaces/repositories';
-import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
+import type { ICourseService, IEnrollmentService } from '@server/learning/interfaces/services';
+import type { ICourseRepository, IModuleRepository, ILessonRepository } from '@server/learning/interfaces/repositories';
+import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
  * Course Service
@@ -827,3 +827,4 @@ export class CourseService implements ICourseService {
   }
 
 }
+

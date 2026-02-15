@@ -1,6 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { LEARNING_PROGRESS_SERVICE_TOKEN, ILearningProgressService } from '../../interfaces/services';
+import { LEARNING_PROGRESS_SERVICE_TOKEN, ILearningProgressService } from '@server/learning/interfaces/services';
 
 @Controller()
 export class LearningProgressHandler {
@@ -33,3 +33,4 @@ export class LearningProgressHandler {
         return this.service.getLearningHistory(data.userId);
     }
 }
+

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { RegisterForm } from "@/components/auth/register-form"
-import { Users, Sparkles, Trophy, Rocket, ChevronLeft, ShieldCheck, Globe } from 'lucide-react'
-import { cn } from "@workspace/ui/lib/utils"
+import { Users, Trophy, Rocket, ChevronLeft, Globe } from 'lucide-react'
 
 export default function RegisterPage() {
     return (

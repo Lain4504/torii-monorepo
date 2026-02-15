@@ -41,6 +41,18 @@
       "@server/billing/*": [
         "./modules/billing/src/*"
       ],
+      "@server/meet/*": [
+        "./modules/meet/src/*"
+      ],
+      "@server/learning/*": [
+        "./modules/learning/src/*"
+      ],
+      "@server/communication/*": [
+        "./modules/communication/src/*"
+      ],
+      "@server/storage/*": [
+        "./modules/storage/src/*"
+      ],
       "@prisma/generated": [
         "./generated/prisma/client"
       ],

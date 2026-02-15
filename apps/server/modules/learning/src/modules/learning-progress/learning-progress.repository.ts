@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { LessonProgress, Prisma } from '@prisma/generated';
-import { ILearningProgressRepository } from '../../interfaces/repositories';
+import { ILearningProgressRepository } from '@server/learning/interfaces/repositories';
 
 @Injectable()
 export class LearningProgressRepository implements ILearningProgressRepository {
@@ -111,3 +111,4 @@ export class LearningProgressRepository implements ILearningProgressRepository {
         });
     }
 }
+

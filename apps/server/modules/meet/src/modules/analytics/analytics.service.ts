@@ -5,7 +5,6 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import { create, toJsonString, fromJsonString } from '@bufbuild/protobuf';
 import {
@@ -25,13 +24,13 @@ import {
     CommonNotifyEvent,
     RoomArtifactMetadataSchema,
 } from '@workspace/protocol';
-import { RedisAnalyticsService } from '../../infrastructure/redis/redis-analytics.service';
-import { NatsService } from '../../interfaces/nats/nats.service';
+import { RedisAnalyticsService } from '@server/meet/infrastructure/redis/redis-analytics.service';
+import { NatsService } from '@server/meet/interfaces/nats/nats.service';
 import { PrismaService, AppConfigService } from '@server/shared';
-import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { ArtifactsService } from '../artifacts/artifacts.service';
-import { WebhookNotifierService } from '../../infrastructure/webhook/webhook-notifier.service';
+import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { ArtifactsService } from '@server/meet/modules/artifacts/artifacts.service';
+import { WebhookNotifierService } from '@server/meet/infrastructure/webhook/webhook-notifier.service';
 
 @Injectable()
 export class AnalyticsService {

@@ -13,11 +13,10 @@ import {
     TWO_FACTOR_AUTH_SERVICE_TOKEN,
     EMAIL_SERVICE_TOKEN,
 } from '../src/interfaces/services';
-import { ClientProxy } from '@nestjs/microservices';
-import { UnauthorizedException, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { UserRole } from '@workspace/schemas';
-import { of } from 'rxjs';
+
 
 // Mock argon2
 jest.mock('argon2');

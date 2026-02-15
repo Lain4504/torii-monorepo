@@ -2,7 +2,6 @@ import { Injectable, Logger, Inject, NotFoundException, BadRequestException, For
 import { ClientProxy } from '@nestjs/microservices';
 import type { Lesson } from '@prisma/generated';
 
-import { UserRole } from '@workspace/schemas';
 import type {
   LessonCreateDTO,
   LessonUpdateDTO,
@@ -12,10 +11,10 @@ import type {
   Requester,
 } from '@workspace/schemas';
 
-import type { ILessonService, ICourseService, IEnrollmentService } from '../../interfaces/services';
-import type { ILessonRepository, IModuleRepository } from '../../interfaces/repositories';
-import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { COURSE_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '../../interfaces/services';
+import type { ILessonService, ICourseService, IEnrollmentService } from '@server/learning/interfaces/services';
+import type { ILessonRepository, IModuleRepository } from '@server/learning/interfaces/repositories';
+import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { COURSE_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
  * Lesson Service
@@ -424,3 +423,4 @@ export class LessonService implements ILessonService {
     }
   }
 }
+

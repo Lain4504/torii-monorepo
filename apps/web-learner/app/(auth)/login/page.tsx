@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { LoginForm } from "@/components/auth/login-form"
 import { Video, Brain, GraduationCap, Sparkles, ChevronLeft, ShieldCheck } from 'lucide-react'
-import { cn } from "@workspace/ui/lib/utils"
 
 export default function LoginPage() {
     return (

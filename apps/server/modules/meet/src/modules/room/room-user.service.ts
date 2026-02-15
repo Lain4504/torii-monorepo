@@ -5,19 +5,19 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { RoomInfoService } from './room-info.service';
-import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
-import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
-import { NatsUserService } from '../../interfaces/nats/nats-user.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
-import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
+import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
+import { NatsUserInfoService } from '@server/meet/interfaces/nats/nats-user-info.service';
+import { NatsUserService } from '@server/meet/interfaces/nats/nats-user.service';
+import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import { SwitchPresenterTask, NatsMsgServerToClientEvents, TrackSource, ParticipantInfo_State, LockSettingsSchema } from '@workspace/protocol';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
-import { WajlcAuthService } from '../auth/wajlc-auth.service';
-import { AnalyticsService } from '../analytics/analytics.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/interfaces/nats/nats-room-events.service';
+import { WajlcAuthService } from '@server/meet/modules/auth/wajlc-auth.service';
+import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import { AnalyticsDataMsgSchema, AnalyticsEventType, AnalyticsEvents } from '@workspace/protocol';
 
 /**

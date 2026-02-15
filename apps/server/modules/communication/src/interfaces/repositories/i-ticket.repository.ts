@@ -1,4 +1,4 @@
-import { Ticket, TicketQueryDTO, CreateTicketDTO, UpdateTicketStatusDTO } from '@workspace/schemas';
+import { Ticket, TicketQueryDTO, CreateTicketDTO } from '@workspace/schemas';
 
 export interface ITicketRepository {
     create(data: CreateTicketDTO & { userId: string }): Promise<Ticket>;

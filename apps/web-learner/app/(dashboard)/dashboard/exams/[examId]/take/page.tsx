@@ -19,12 +19,10 @@ import {
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
     AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { toast } from "@workspace/ui/components/sonner"
-import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { AlertCircle } from "lucide-react"
 
 // Type helper for resume data (schema includes these fields but types may not be updated)
 type ExamSessionStartResponseWithResume = ExamSessionStartResponseDTO & {

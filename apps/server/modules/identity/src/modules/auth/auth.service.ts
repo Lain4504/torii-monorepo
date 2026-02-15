@@ -16,14 +16,12 @@ import type {
     UserResponseDTO,
     AuthResponseDTO as AuthResponse,
     LoginResponseDTO as LoginResponse,
-    AuthResultDTO as AuthResult,
     VerifyOTPDTO,
     ResendOTPDTO,
     ForgotPasswordDTO,
     GoogleUserInfo,
     AppMetadata,
     UserMetadata,
-    TokenPayload,
     UserActivityEvent,
 } from '@workspace/schemas';
 import type { User, Prisma } from '@prisma/generated';

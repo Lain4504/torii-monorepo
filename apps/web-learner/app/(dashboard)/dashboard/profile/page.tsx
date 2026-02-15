@@ -11,7 +11,6 @@ import { Progress } from '@workspace/ui/components/progress'
 import { cn } from '@workspace/ui/lib/utils'
 import {
     Camera,
-    Save,
     MapPin,
     Award,
     BookOpen,
@@ -31,7 +30,7 @@ import { profileApi, type UpdateProfileDTO } from '@/apis/services/profile-api'
 import { UserRole } from '@workspace/schemas'
 import { useAvatarUrl } from '@/hooks/useAvatarUrl'
 import { learningProgressApi } from '@/apis/services/learning-progress-api'
-import { gamificationApi, useAchievements } from '@/apis/services/gamification-api'
+import { useAchievements } from '@/apis/services/gamification-api'
 import { fetchProfile } from '@/store/slices/authSlice'
 import { toast } from 'sonner'
 import { PageLoading } from '@workspace/ui/components/page-loading'

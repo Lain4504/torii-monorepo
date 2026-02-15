@@ -4,7 +4,6 @@ import { StorageService } from '../src/modules/storage/storage.service';
 import { SharedStorageService } from '@server/shared/storage/shared-storage.service';
 import { STORAGE_REPOSITORY_TOKEN } from '../src/interfaces/repositories/i-storage.repository';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 
 // Mock uuid
 jest.mock('uuid', () => ({

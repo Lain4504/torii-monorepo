@@ -1,13 +1,13 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { PollsService } from './polls.service';
 import { SharedModule } from '@server/shared';
-import { RedisPollService } from '../../infrastructure/redis/redis-poll.service';
-import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
+import { RedisPollService } from '@server/meet/infrastructure/redis/redis-poll.service';
+import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
 
-import { AnalyticsModule } from '../analytics/analytics.module';
-import { NatsModule } from '../../interfaces/nats/nats.module';
-import { LiveKitModule } from '../../infrastructure/livekit/livekit.module';
-import { WajlcAuthModule } from '../auth/wajlc-auth.module';
+import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
+import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
+import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.module';
+import { WajlcAuthModule } from '@server/meet/modules/auth/wajlc-auth.module';
 
 @Module({
     imports: [

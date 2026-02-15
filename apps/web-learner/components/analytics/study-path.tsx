@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle2, Circle, ArrowDown } from "lucide-react"
+import { CheckCircle2, Circle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { cn } from "@workspace/ui/lib/utils"
 

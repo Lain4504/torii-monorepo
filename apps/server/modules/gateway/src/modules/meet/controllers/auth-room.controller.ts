@@ -23,7 +23,6 @@ import { create } from '@bufbuild/protobuf';
 import {
     GenerateTokenReq,
     GenerateTokenReqSchema,
-    GenerateTokenRes,
     GenerateTokenResSchema,
 } from '@workspace/protocol';
 import {

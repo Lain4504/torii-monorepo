@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Facebook, Youtube, Instagram, Mail, Phone, MapPin, Sparkles, Send } from 'lucide-react'
+import { Facebook, Youtube, Instagram, Mail, MapPin, Sparkles } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 

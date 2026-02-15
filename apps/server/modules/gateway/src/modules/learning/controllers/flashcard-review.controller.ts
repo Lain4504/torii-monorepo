@@ -15,7 +15,6 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
-    errorResponse,
     GatewayAuthGuard,
     ReqWithRequester,
 } from '@server/shared';

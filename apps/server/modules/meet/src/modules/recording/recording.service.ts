@@ -1,27 +1,25 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsService } from '../../interfaces/nats/nats.service';
-import { RoomInfoService } from '../room/room-info.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsService } from '@server/meet/interfaces/nats/nats.service';
+import { RoomInfoService } from '@server/meet/modules/room/room-info.service';
 import {
-    RoomMetadataSchema,
     RecordingReq,
     WajlcToRecorderSchema,
     RecordingTasks,
     CommonResponseSchema,
     RecorderToWajlc,
-    RecordingTasksSchema,
     AnalyticsEvents,
     AnalyticsEventType,
     AnalyticsDataMsgSchema,
     AnalyticsStatus,
 } from '@workspace/protocol';
 import { create, toBinary, fromBinary } from '@bufbuild/protobuf';
-import { ArtifactsService } from '../artifacts/artifacts.service';
-import { AnalyticsService } from '../analytics/analytics.service';
-import { WebhookService } from '../../infrastructure/webhook/webhook.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
-import { RoomUserService } from '../room/room-user.service';
+import { ArtifactsService } from '@server/meet/modules/artifacts/artifacts.service';
+import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
+import { WebhookService } from '@server/meet/infrastructure/webhook/webhook.service';
+import { NatsRoomEventsService } from '@server/meet/interfaces/nats/nats-room-events.service';
+import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { RoomUserService } from '@server/meet/modules/room/room-user.service';
 
 import { AppConfigService } from '@server/shared';
 

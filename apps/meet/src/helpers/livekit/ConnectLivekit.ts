@@ -16,7 +16,6 @@ import {
   supportsAV1,
   supportsVP9,
   Track,
-  VideoCodec,
   VideoPresets,
 } from 'livekit-client';
 import { EventEmitter } from 'eventemitter3';

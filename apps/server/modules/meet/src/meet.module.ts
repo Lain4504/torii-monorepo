@@ -28,7 +28,7 @@ import { IngressHandler } from './interfaces/nats/ingress.handler';
 import { InsightsHandler } from './interfaces/nats/insights.handler';
 import { SpeechToTextHandler } from './interfaces/nats/speech-to-text.handler';
 
-import { SharedModule, GlobalRpcExceptionFilter, loadConfig } from '@server/shared';
+import { SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 
 @Module({
   imports: [

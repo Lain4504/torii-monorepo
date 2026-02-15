@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { FlashcardDeckCreateDTO, FlashcardDeckUpdateDTO, FlashcardDeckQueryDTO } from '@workspace/schemas';
-import { IFlashcardDeckService, FLASHCARD_DECK_SERVICE_TOKEN } from '../services/i-flashcard-deck.service';
+import { IFlashcardDeckService, FLASHCARD_DECK_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-deck.service';
 
 @Controller()
 export class FlashcardDeckHandler {

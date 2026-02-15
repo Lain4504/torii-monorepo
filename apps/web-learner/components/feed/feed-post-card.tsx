@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
-import { Heart, MessageCircle, Share2, MoreVertical, Trash2, Flag, UserPlus, UserCheck, Edit2 } from 'lucide-react'
+import { Heart, MessageCircle, MoreVertical, Trash2, Flag, Edit2 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@workspace/ui/components/avatar'
 import { Badge } from '@workspace/ui/components/badge'

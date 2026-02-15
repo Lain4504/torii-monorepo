@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { flashcardApi } from '@/apis/services/flashcard-api'
@@ -24,10 +24,7 @@ import {
     Trash2,
     Edit,
     FileUp,
-    Download,
     MoreVertical,
-    CheckCircle2,
-    XCircle,
     Info,
     Sparkles
 } from 'lucide-react'
@@ -39,7 +36,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@workspace/ui/components/dialog'
 import {
     DropdownMenu,

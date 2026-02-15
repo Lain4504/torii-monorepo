@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule, NatsClientModule } from '@server/shared';
-import { CommentService } from './comment.service';
-import { CommentRepository } from './comment.repository';
-import { CommentProfile } from '../../infrastructure/mappings/comment.profile';
-import { BlogRepository } from '../blog/blog.repository';
-import { BlogProfile } from '../../infrastructure/mappings/blog.profile';
+import { CommentService } from '@server/learning/modules/comment/comment.service';
+import { CommentRepository } from '@server/learning/modules/comment/comment.repository';
+import { CommentProfile } from '@server/learning/infrastructure/mappings/comment.profile';
+import { BlogRepository } from '@server/learning/modules/blog/blog.repository';
+import { BlogProfile } from '@server/learning/infrastructure/mappings/blog.profile';
 
 /**
  * Comment Feature Module
@@ -17,3 +17,4 @@ import { BlogProfile } from '../../infrastructure/mappings/blog.profile';
     exports: [CommentService],
 })
 export class CommentModule { }
+

@@ -4,7 +4,7 @@
  * Handles livekit ingress creation requests
  */
 
-import { Controller, Post, Body, Req, Res, UseGuards, HttpStatus, Inject } from '@nestjs/common';
+import { Controller, Post, Body, Req, Res, UseGuards, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Response, Request } from 'express';
 import { firstValueFrom } from 'rxjs';

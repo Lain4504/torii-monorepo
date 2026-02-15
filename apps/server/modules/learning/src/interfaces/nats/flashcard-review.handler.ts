@@ -3,11 +3,10 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
     SubmitReviewDTO,
     GetCardsDueDTO,
-    StartReviewSessionDTO,
-    CompleteReviewSessionDTO
+    StartReviewSessionDTO
 } from '@workspace/schemas';
-import { IFlashcardReviewService, FLASHCARD_REVIEW_SERVICE_TOKEN } from '../services/i-flashcard-review.service';
-import { IFlashcardReviewSessionService, FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '../services/i-flashcard-review-session.service';
+import { IFlashcardReviewService, FLASHCARD_REVIEW_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-review.service';
+import { IFlashcardReviewSessionService, FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-review-session.service';
 
 @Controller()
 export class FlashcardReviewHandler {

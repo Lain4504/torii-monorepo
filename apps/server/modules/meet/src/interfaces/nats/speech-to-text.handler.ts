@@ -2,7 +2,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { create } from '@bufbuild/protobuf';
 import { CommonResponseSchema } from '@workspace/protocol';
-import { SpeechToTextService } from '../../modules/speech-to-text/speech-to-text.service';
+import { SpeechToTextService } from '@server/meet/modules/speech-to-text/speech-to-text.service';
 
 @Controller()
 export class SpeechToTextHandler {
