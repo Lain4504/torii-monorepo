@@ -2,6 +2,34 @@
 
 The Cortex module is the AI-powered brain of the Torii platform, providing intelligent tutoring, assessment, and analytics for Japanese language learning. It integrates multiple specialized agents to deliver personalized, adaptive learning experiences focused on JLPT preparation and foundational language skills.
 
+## Prerequisites
+
+### Python Setup for TTS (Text-to-Speech)
+
+The Sensei Agent uses Microsoft Azure Neural TTS voices (Nanami & Keita) via the `edge-tts` Python package. You need to set up a Python virtual environment:
+
+```bash
+# Navigate to server directory
+cd apps/server
+
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate virtual environment
+# On Linux/Mac:
+source .venv/bin/activate
+# On Windows:
+# .venv\Scripts\activate
+
+# Install edge-tts
+pip install edge-tts
+
+# Verify installation
+edge-tts --version
+```
+
+**Note**: The virtual environment must be created at `apps/server/.venv` as this path is hardcoded in the TTS service.
+
 ## Agents
 
 ### Sensei Agent

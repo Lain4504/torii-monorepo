@@ -22,7 +22,7 @@ export function SenseiLayout({ children }: { children: React.ReactNode }) {
                         <SidebarTrigger />
                         <span className="text-sm font-semibold text-foreground">AI Sensei</span>
                     </header>
-                    <div className="flex-1 overflow-auto h-[calc(100vh-3.5rem)] relative p-4 md:p-6 lg:p-8">
+                    <div className="h-[calc(100vh-3.5rem)] overflow-hidden relative">
                         {children}
                     </div>
                 </SidebarInset>

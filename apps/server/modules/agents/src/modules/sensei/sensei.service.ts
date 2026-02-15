@@ -141,6 +141,28 @@ export class SenseiService implements OnModuleInit {
                 return this.fastMcpService.cleanJsonResponse(response);
             }
         );
+
+        // 8. Roleplay
+        this.fastMcpService.addTool(
+            'sensei_roleplay',
+            'Roleplay with Sensei on a specific topic',
+            z.object({
+                userId: z.string(),
+                topic: z.string(),
+                message: z.string(),
+                history: z.array(z.any()).default([]),
+                isFinal: z.boolean().optional().default(false),
+            }),
+            async ({ userId, topic, message, history, isFinal }) => {
+                const userContext = await this.fastMcpService.getUserContext(userId);
+                const template = this.fastMcpService.loadPromptTemplate('sensei/roleplay.md');
+                // Calculate turns based on history length (each interaction is 2 turns: user + ai)
+                // Actually history usually contains previous messages.
+                const prompt = template({ topic, message, history, isFinal, userContext, timestamp: new Date().toISOString() });
+                const response = await this.fastMcpService.callGemini(prompt);
+                return this.fastMcpService.cleanJsonResponse(response);
+            }
+        );
     }
 
     // --- Public Methods (Delegate to Tools) ---
@@ -186,5 +208,9 @@ export class SenseiService implements OnModuleInit {
 
     async chat(userId: string, message: string, history: any[] = []): Promise<any> {
         return this.fastMcpService.callTool('sensei_chat', { userId, message, history });
+    }
+
+    async roleplay(userId: string, topic: string, message: string, history: any[] = [], isFinal: boolean = false): Promise<any> {
+        return this.fastMcpService.callTool('sensei_roleplay', { userId, topic, message, history, isFinal });
     }
 }
