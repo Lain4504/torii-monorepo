@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from "@workspace/ui/lib/utils"
-import { Button } from "@workspace/ui/components/button"
 import { Flag } from "lucide-react"
 
 interface QuestionNavigatorProps {

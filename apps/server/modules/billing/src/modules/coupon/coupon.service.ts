@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, BadRequestException, ConflictException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, Inject, BadRequestException, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { CouponRepository } from './coupon.repository';
 import {
     CouponStatus,

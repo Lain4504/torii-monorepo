@@ -7,9 +7,7 @@ import { AnalyticsService } from '../analytics/analytics.service';
 import {
     ExternalMediaPlayerReq,
     ExternalMediaPlayerTask,
-    DataMsgBodyType,
     NatsMsgServerToClientEvents,
-    AnalyticsDataMsg,
     AnalyticsEventType,
     AnalyticsEvents,
     AnalyticsStatus,

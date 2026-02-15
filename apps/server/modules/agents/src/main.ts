@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
 import { AgentsModule } from '@server/agents/agents.module';
-import { FastMcpService } from '@server/agents/fastmcp/fastmcp.service';
 
 
 async function bootstrap() {

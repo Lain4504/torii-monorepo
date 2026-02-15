@@ -1,12 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { Send, Bot, User, Sparkles } from "lucide-react"
+import { Send, Bot, User } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
-import { cn } from "@workspace/ui/lib/utils"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { agentApi, ChatResponse } from "@/apis/services/agent-api"
 
 interface Message {

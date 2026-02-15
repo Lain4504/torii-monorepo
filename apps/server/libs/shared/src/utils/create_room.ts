@@ -25,8 +25,6 @@ import {
     InsightsAITextChatFeaturesSchema,
     InsightsAIMeetingSummarizationFeaturesSchema,
     SharedNotePadFeaturesSchema,
-    CopyrightConf,
-    CopyrightConfSchema,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { generateSecureRandomString, generateRandomString } from './common';

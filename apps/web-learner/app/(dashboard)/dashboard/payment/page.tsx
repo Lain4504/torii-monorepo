@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react'
-import { Badge } from '@workspace/ui/components/badge'
 import {
     CheckCircle2,
     Clock,
@@ -38,9 +37,7 @@ import { cn } from '@workspace/ui/lib/utils'
 import { useOrders, useOrder } from '@/apis/services/order-api'
 import { ComponentLoading } from '@workspace/ui/components/component-loading'
 import { Separator } from '@workspace/ui/components/separator'
-import { OrderStatus } from '@workspace/schemas'
 import { formatDateTime, isWithinGracePeriod } from '@/utils/time-utils'
-import { useRouter } from 'next/navigation'
 import {
     Table,
     TableBody,

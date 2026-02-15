@@ -16,7 +16,6 @@ import {
     Sun,
     Menu,
     X,
-    ChevronDown,
     LayoutDashboard,
     Coins,
 } from 'lucide-react'
@@ -24,7 +23,6 @@ import { useState } from 'react'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { toast } from '@workspace/ui/components/sonner'
-import { cn } from '@workspace/ui/lib/utils'
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
 import {
     DropdownMenu,

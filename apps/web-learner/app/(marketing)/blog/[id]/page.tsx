@@ -15,7 +15,7 @@ import {
     BreadcrumbSeparator,
 } from '@workspace/ui/components/breadcrumb'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { Loader2, Calendar, User, Eye, Share2, Heart, Bookmark, Clock, List, ChevronRight, MessageCircle } from 'lucide-react'
+import { Calendar, Eye, Share2, Heart, Bookmark, Clock, List, ChevronRight, MessageCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import Link from 'next/link'

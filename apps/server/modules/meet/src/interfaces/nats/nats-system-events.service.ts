@@ -7,19 +7,15 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import type { JetStreamClient } from 'nats';
 import { v4 as uuidv4 } from 'uuid';
-import { create, toBinary, toJsonString, fromJsonString } from '@bufbuild/protobuf';
+import { create, toBinary, fromJsonString } from '@bufbuild/protobuf';
 import {
-    NatsMsgServerToClient,
     NatsMsgServerToClientSchema,
     NatsMsgServerToClientEvents,
-    NatsSystemNotification,
     NatsSystemNotificationSchema,
     NatsSystemNotificationTypes,
-    NatsInitialData,
     NatsInitialDataSchema,
     MediaServerConnInfo,
     MediaServerConnInfoSchema,
-    DataChannelMessage,
     DataChannelMessageSchema,
     DataMsgBodyType,
     ChatMessage,
@@ -27,7 +23,7 @@ import {
     NatsMsgClientToServer,
     PrivateDataDeliverySchema,
 } from '@workspace/protocol';
-import { fromBinary } from '@bufbuild/protobuf';
+
 import { NatsUserInfoService } from './nats-user-info.service';
 import { NatsRoomService } from './nats-room.service';
 import { LiveKitService } from '../../infrastructure/livekit/livekit.service';

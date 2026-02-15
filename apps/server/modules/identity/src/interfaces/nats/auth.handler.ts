@@ -8,7 +8,6 @@ import type {
     VerifyOTPDTO,
     ResendOTPDTO,
     ForgotPasswordDTO,
-    LogoutDTO,
 } from '@workspace/schemas';
 
 @Controller()

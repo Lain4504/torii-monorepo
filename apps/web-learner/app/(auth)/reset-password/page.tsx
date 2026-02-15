@@ -5,7 +5,6 @@ import { Lock, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ResetPasswordForm } from "@/components/auth/reset-password-form"
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { cn } from "@workspace/ui/lib/utils"
 
 export default function ResetPasswordPage() {
     return (

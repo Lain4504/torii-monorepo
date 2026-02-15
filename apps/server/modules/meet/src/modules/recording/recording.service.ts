@@ -3,13 +3,11 @@ import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
 import { NatsService } from '../../interfaces/nats/nats.service';
 import { RoomInfoService } from '../room/room-info.service';
 import {
-    RoomMetadataSchema,
     RecordingReq,
     WajlcToRecorderSchema,
     RecordingTasks,
     CommonResponseSchema,
     RecorderToWajlc,
-    RecordingTasksSchema,
     AnalyticsEvents,
     AnalyticsEventType,
     AnalyticsDataMsgSchema,

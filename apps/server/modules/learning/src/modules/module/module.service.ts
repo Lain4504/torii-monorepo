@@ -2,7 +2,6 @@ import { Injectable, Logger, Inject, NotFoundException, BadRequestException, For
 import { ClientProxy } from '@nestjs/microservices';
 import type { Module as CourseModule } from '@prisma/generated';
 
-import { UserRole } from '@workspace/schemas';
 import type {
   ModuleCreateDTO,
   ModuleUpdateDTO,

@@ -1,15 +1,14 @@
 'use client'
 
 import { useState } from 'react';
-import { Shield, Smartphone, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Shield, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
-import { Card, CardContent } from '@workspace/ui/components/card';
+
 import { use2FAStatus } from '@/apis/services/two-factor-auth-api';
 import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+
 
 export function SecurityTab() {
     const { data: status, isLoading } = use2FAStatus();

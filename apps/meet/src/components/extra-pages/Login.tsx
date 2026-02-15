@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { create, toBinary } from '@bufbuild/protobuf';
-import { CreateRoomResSchema, IsRoomActiveResSchema, GenerateTokenResSchema } from '@workspace/protocol';
 import { getDefaultRoomInfo } from '../../helpers/roomConfig';
 import { SERVER_URL } from '../../config';
 

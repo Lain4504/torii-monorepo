@@ -9,8 +9,7 @@ import {
     UploadedFileResSchema,
     UploadBase64EncodedDataReq,
     UploadBase64EncodedDataResSchema,
-    ChatMessageSchema,
-    NatsMsgServerToClientEvents
+    ChatMessageSchema
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import * as fs from 'fs';

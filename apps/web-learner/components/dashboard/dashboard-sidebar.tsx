@@ -12,7 +12,6 @@ import {
     CreditCard,
     User,
     Settings,
-    GraduationCap,
     TrendingUp,
     ChevronRight,
     BrainCircuit,

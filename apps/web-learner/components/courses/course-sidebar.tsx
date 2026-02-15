@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { Badge } from '@workspace/ui/components/badge'
 import { BookOpen, Clock, Globe, Award, Heart, Sparkles, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import type { CourseResponseDTO } from '@workspace/schemas'

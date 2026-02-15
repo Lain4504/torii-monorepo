@@ -4,16 +4,11 @@
 
 import {
     LtiClaims,
-    LtiClaimsSchema,
-    LtiCustomParameters,
     LtiCustomParametersSchema,
-    LtiCustomDesign,
     LtiCustomDesignSchema,
     CreateRoomReq,
     CreateRoomReqSchema,
-    RoomMetadata,
     RoomMetadataSchema,
-    RoomCreateFeatures,
     RoomCreateFeaturesSchema,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';

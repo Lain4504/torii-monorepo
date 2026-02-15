@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { BookCheck, GraduationCap, Clock, BarChart3, ArrowRight, Loader2, Calendar } from "lucide-react"
+import { BookCheck, GraduationCap, Clock, BarChart3, ArrowRight, Calendar } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@workspace/ui/components/card"
 import { Progress } from "@workspace/ui/components/progress"

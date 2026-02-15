@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { Prisma } from '@prisma/generated';
-import { CouponStatus } from '@workspace/schemas';
 
 @Injectable()
 export class CouponRepository {

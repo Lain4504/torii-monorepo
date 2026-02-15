@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { FeedService } from '../../modules/feed/feed.service';
-import { FeedCreateDTO, FeedUpdateDTO, FeedQueryDTO } from '@workspace/schemas';
+import { FeedCreateDTO, FeedQueryDTO } from '@workspace/schemas';
 
 @Controller()
 export class FeedHandler {

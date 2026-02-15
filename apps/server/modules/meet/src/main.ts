@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
-import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
 import { MeetModule } from './meet.module';
 

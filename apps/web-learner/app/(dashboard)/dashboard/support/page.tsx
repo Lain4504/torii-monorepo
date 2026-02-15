@@ -9,9 +9,7 @@ import {
     CheckCircle2,
     XCircle,
     AlertCircle,
-    MoreHorizontal,
     Search,
-    LifeBuoy,
     HelpCircle,
     History,
     FileText,
@@ -39,7 +37,6 @@ import { cn } from '@workspace/ui/lib/utils';
 import { useTickets, useCreateTicket, useTicket } from '@/apis/services/ticket-api';
 import { useEnrollments } from '@/apis/services/enrollment-api';
 import { ComponentLoading } from '@workspace/ui/components/component-loading';
-import { Separator } from '@workspace/ui/components/separator';
 import { TicketType, TicketStatus } from '@workspace/schemas';
 import { toast } from 'sonner';
 import {

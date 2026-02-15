@@ -18,9 +18,7 @@ import {
     NatsKvUserInfo,
     NatsKvUserInfoSchema,
     NatsUserMetadataUpdateSchema,
-    NatsUserMetadataUpdate,
 } from '@workspace/protocol';
-import { toJsonString } from '@bufbuild/protobuf';
 import { NatsService } from './nats.service';
 import { NatsConsumerService } from './nats-consumer.service';
 import { NatsRoomService, ROOM_STATUS_ENDED } from './nats-room.service';

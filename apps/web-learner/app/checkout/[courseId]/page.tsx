@@ -10,7 +10,7 @@ import { Switch } from '@workspace/ui/components/switch'
 import { Input } from '@workspace/ui/components/input'
 import { Label } from '@workspace/ui/components/label'
 import { Textarea } from '@workspace/ui/components/textarea'
-import { Loader2, ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2, Gift, Mail, MessageSquare, TicketPercent, Tag, ArrowRight, Star, Sparkles, BookOpen, Users } from 'lucide-react'
+import { Loader2, ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2, Gift, TicketPercent, ArrowRight, Sparkles, BookOpen, Users } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/apis/services/course-api'
 import { orderApi } from '@/apis/services/order-api'
@@ -22,7 +22,7 @@ import { usePayOS, PayOSConfig } from '@payos/payos-checkout'
 import { couponApi } from '@/apis/services/coupon-api'
 import { CouponResponseDTO } from '@workspace/schemas'
 import Image from 'next/image'
-import { cn } from '@workspace/ui/lib/utils'
+
 
 export default function CheckoutPage() {
     const params = useParams()

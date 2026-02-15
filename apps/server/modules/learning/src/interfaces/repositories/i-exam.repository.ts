@@ -1,4 +1,4 @@
-import type { Quiz, QuizAttempt, QuizAttemptDetail, Prisma } from '@prisma/generated';
+import type { Quiz, QuizAttempt, Prisma } from '@prisma/generated';
 
 /**
  * Exam Repository Interface

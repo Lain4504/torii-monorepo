@@ -7,12 +7,9 @@ import {
     Param,
     Query,
     Body,
-    UsePipes,
     UseGuards,
     Req,
     Inject,
-    HttpException,
-    HttpStatus,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';

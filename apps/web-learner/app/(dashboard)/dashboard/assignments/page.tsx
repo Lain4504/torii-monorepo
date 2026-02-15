@@ -1,4 +1,4 @@
-import { CourseAssignmentsList } from '@/components/courses/course-assignments-list';
+
 
 export default function AssignmentsPage() {
   return (

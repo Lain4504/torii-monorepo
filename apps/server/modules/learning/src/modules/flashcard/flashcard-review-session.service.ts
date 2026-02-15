@@ -4,7 +4,6 @@ import { PrismaService } from '@server/shared';
 import {
   ReviewSessionResponseDTO,
   StartReviewSessionDTO,
-  PaginatedResponseDTO,
 } from '@workspace/schemas';
 import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-flashcard-review.repository';
 import type { IFlashcardReviewSessionService } from '../../interfaces/services/i-flashcard-review-session.service';
