@@ -13,7 +13,7 @@ import {
 import {
     verifyWebhookRequest
 } from '@server/shared/utils/webhook_verify';
-import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
+import { NatsUserInfoService } from '@server/meet/interfaces/nats/nats-user-info.service';
 import * as jwt from 'jsonwebtoken';
 import { AppConfigService } from '@server/shared';
 

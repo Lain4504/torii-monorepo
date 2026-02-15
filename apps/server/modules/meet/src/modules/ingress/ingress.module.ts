@@ -4,9 +4,9 @@
 
 import { Module, forwardRef } from '@nestjs/common';
 import { IngressService } from './ingress.service';
-import { LiveKitModule } from '../../infrastructure/livekit/livekit.module';
-import { AnalyticsModule } from '../analytics/analytics.module';
-import { NatsModule } from '../../interfaces/nats/nats.module';
+import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.module';
+import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
+import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
 
 @Module({
     imports: [

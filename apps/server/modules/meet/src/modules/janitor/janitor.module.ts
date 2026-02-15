@@ -3,10 +3,10 @@ import { JanitorService } from './janitor.service';
 import { JanitorRoomService } from './janitor-room.service';
 import { JanitorUserService } from './janitor-user.service';
 import { JanitorFilesystemService } from './janitor-filesystem.service';
-import { NatsModule } from '../../interfaces/nats/nats.module';
-import { RoomModule } from '../room/room.module';
-import { RedisModule } from '../../infrastructure/redis/redis.module';
-import { LiveKitModule } from '../../infrastructure/livekit/livekit.module';
+import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
+import { RoomModule } from '@server/meet/modules/room/room.module';
+import { RedisModule } from '@server/meet/infrastructure/redis/redis.module';
+import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.module';
 import { PrismaModule } from '@server/shared';
 
 @Module({

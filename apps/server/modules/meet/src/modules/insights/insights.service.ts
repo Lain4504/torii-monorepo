@@ -28,12 +28,12 @@ import {
     NatsMsgServerToClientEvents,
     InsightsAITextChatContentSchema,
 } from '@workspace/protocol';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
-import { NatsUserService } from '../../interfaces/nats/nats-user.service';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { RedisInsightsService } from '../../infrastructure/redis/redis-insights.service';
-import { ArtifactsService } from '../artifacts/artifacts.service';
-import { AnalyticsService } from '../analytics/analytics.service';
+import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { NatsUserService } from '@server/meet/interfaces/nats/nats-user.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { RedisInsightsService } from '@server/meet/infrastructure/redis/redis-insights.service';
+import { ArtifactsService } from '@server/meet/modules/artifacts/artifacts.service';
+import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import { v4 as uuidv4 } from 'uuid';
 import { InsightsTaskPayload, InsightsServiceType, InsightsTaskType, AgentTaskResponse } from './insights.types';
 import { AppConfigService } from '@server/shared';

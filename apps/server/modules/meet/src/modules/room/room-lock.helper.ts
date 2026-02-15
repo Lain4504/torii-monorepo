@@ -5,7 +5,7 @@
  */
 
 import { Logger } from '@nestjs/common';
-import { RedisLockService } from '../../infrastructure/redis/redis-lock.service';
+import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
 
 // Constants
 const DEFAULT_ROOM_CREATION_MAX_WAIT_TIME = 15 * 1000; // 15 seconds in ms

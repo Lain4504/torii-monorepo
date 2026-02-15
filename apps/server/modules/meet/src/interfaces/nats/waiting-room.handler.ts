@@ -6,7 +6,7 @@
 
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { WaitingRoomService } from '../../modules/waiting-room/waiting-room.service';
+import { WaitingRoomService } from '@server/meet/modules/waiting-room/waiting-room.service';
 import type {
     ApproveWaitingUsersReq,
     UpdateWaitingRoomMessageReq,

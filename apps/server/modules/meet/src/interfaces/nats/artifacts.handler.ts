@@ -6,7 +6,7 @@
 
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ArtifactsService } from '../../modules/artifacts/artifacts.service';
+import { ArtifactsService } from '@server/meet/modules/artifacts/artifacts.service';
 import {
     FetchArtifactsReq,
     ArtifactInfoReq,

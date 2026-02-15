@@ -6,10 +6,10 @@
 
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { RoomCreateService } from '../../modules/room/room-create.service';
-import { RoomInfoService } from '../../modules/room/room-info.service';
-import { RoomModifyService } from '../../modules/room/room-modify.service';
-import { RoomEndService } from '../../modules/room/room-end.service';
+import { RoomCreateService } from '@server/meet/modules/room/room-create.service';
+import { RoomInfoService } from '@server/meet/modules/room/room-info.service';
+import { RoomModifyService } from '@server/meet/modules/room/room-modify.service';
+import { RoomEndService } from '@server/meet/modules/room/room-end.service';
 import type {
     CreateRoomReq,
     GetActiveRoomInfoReq,

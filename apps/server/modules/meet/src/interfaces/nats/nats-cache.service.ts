@@ -9,7 +9,7 @@ import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import type { NatsKvRoomInfo, RoomUploadedFileMetadata } from '@workspace/protocol';
 import { NatsKvRoomInfoSchema, RoomUploadedFileMetadataSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
-import { NatsService } from './nats.service';
+import { NatsService } from '@server/meet/interfaces/nats/nats.service';
 
 /**
  * Recorder Info (Standalone structure, not a proto message)
