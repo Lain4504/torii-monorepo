@@ -13,7 +13,6 @@ import {
     Award,
     TrendingUp,
     ChevronRight,
-    Sparkles,
     Loader2,
     Video
 } from 'lucide-react'

@@ -13,7 +13,7 @@ import {
 import { Response, Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { create, fromBinary } from '@bufbuild/protobuf';
+import { create } from '@bufbuild/protobuf';
 import {
     CreateBreakoutRoomsReq,
     CreateBreakoutRoomsReqSchema,
@@ -29,7 +29,6 @@ import {
 } from '@workspace/protocol';
 import {
     sendProtobufResponse,
-    sendCommonProtobufResponse,
     parseAndValidateRequest,
     JwtAuthGuard,
 } from '@server/shared';

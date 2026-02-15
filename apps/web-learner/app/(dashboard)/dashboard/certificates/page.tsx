@@ -3,7 +3,7 @@
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { Award, Download, Share2, Calendar, CheckCircle2, FileText, Loader2 } from 'lucide-react'
+import { Award, Download, Share2, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import { useCertificates } from '@/apis/services/certificate-api'
 import { Skeleton } from '@workspace/ui/components/skeleton'

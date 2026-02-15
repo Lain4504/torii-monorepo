@@ -11,7 +11,6 @@ import type {
     IsRoomActiveRes,
     GetActiveRoomInfoReq,
     ActiveRoomWithParticipant,
-    ActiveRoomInfo,
     FetchPastRoomsReq,
     FetchPastRoomsResult,
     PastRoomInfo,

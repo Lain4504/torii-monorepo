@@ -3,10 +3,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { generateSlug } from '@server/shared';
-import { Course, CourseStatus as PrismaCourseStatus, Prisma } from '@prisma/generated';
+import { Course, CourseStatus as PrismaCourseStatus } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
-import { UserRole, CourseStatus } from '@workspace/schemas';
+import { CourseStatus } from '@workspace/schemas';
 import type {
   CourseCreateDTO,
   CourseUpdateDTO,

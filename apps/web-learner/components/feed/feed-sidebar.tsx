@@ -1,6 +1,6 @@
-'use client'
+    'use client'
 
-import { Search, User, Heart, MessageCircle, Star, History, ThumbsUp, Flame, LayoutList } from 'lucide-react'
+import { Search, User, Heart, MessageCircle, History, Flame, LayoutList } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'

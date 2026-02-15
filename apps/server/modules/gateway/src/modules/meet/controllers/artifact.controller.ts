@@ -21,7 +21,6 @@ import { create } from '@bufbuild/protobuf';
 import {
     FetchArtifactsReq,
     FetchArtifactsReqSchema,
-    FetchArtifactsRes,
     FetchArtifactsResSchema,
     ArtifactInfoReq,
     ArtifactInfoReqSchema,
@@ -29,7 +28,6 @@ import {
     DeleteArtifactReqSchema,
     GetArtifactDownloadTokenReq,
     GetArtifactDownloadTokenReqSchema,
-    GetArtifactDownloadTokenRes,
     GetArtifactDownloadTokenResSchema,
 } from '@workspace/protocol';
 import {

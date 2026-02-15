@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { Award, CheckCircle2, Share2, Download, Sparkles, Home, BookOpen, ArrowRight } from 'lucide-react'
+import { Award, CheckCircle2, Download, Home, BookOpen } from 'lucide-react'
 import { courseApi } from '@/apis/services/course-api'
 
 export default function CourseCompletionPage() {

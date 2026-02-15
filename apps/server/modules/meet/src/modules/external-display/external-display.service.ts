@@ -7,16 +7,13 @@ import { AnalyticsService } from '@server/meet/modules/analytics/analytics.servi
 import {
     ExternalDisplayLinkReq,
     ExternalDisplayLinkTask,
-    DataMsgBodyType,
     NatsMsgServerToClientEvents,
-    AnalyticsDataMsg,
+    AnalyticsDataMsgSchema,
     AnalyticsEventType,
     AnalyticsEvents,
     AnalyticsStatus,
-    ExternalDisplayLinkReqSchema,
-    AnalyticsDataMsgSchema,
 } from '@workspace/protocol';
-import { create, toJsonString } from '@bufbuild/protobuf';
+import { create } from '@bufbuild/protobuf';
 
 @Injectable()
 export class ExternalDisplayService {

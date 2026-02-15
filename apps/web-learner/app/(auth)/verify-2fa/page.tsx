@@ -10,10 +10,8 @@ import { Input } from '@workspace/ui/components/input';
 import { toast } from '@workspace/ui/components/sonner';
 import { Smartphone, ArrowLeft, Loader2, Key } from 'lucide-react';
 import { authApi } from '@/apis/services/auth-api';
-import type { StandardApiResponse } from '@workspace/schemas';
 import { useAppDispatch } from '@/hooks/hooks';
 import { checkAuth } from '@/store/slices/authSlice';
-import Link from 'next/link';
 
 const verifyCodeSchema = z.object({
     code: z.string().min(1, 'Code is required'),

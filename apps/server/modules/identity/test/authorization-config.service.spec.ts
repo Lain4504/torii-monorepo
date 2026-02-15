@@ -2,9 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthorizationConfigService, RoleDefinition, PermissionDefinition } from '@server/identity/modules/authorization/authorization-config.service';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as yaml from 'js-yaml';
-import { Logger } from '@nestjs/common';
 
 // Mock fs and js-yaml
 jest.mock('fs');

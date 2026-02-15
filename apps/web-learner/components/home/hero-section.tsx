@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, Play, Sparkles, Video, Brain, CheckCircle2, Star, Users, BookOpen } from 'lucide-react'
+import { ArrowRight, Play, Brain, CheckCircle2, Star, Users, BookOpen } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import Link from 'next/link'
 import { motion } from 'framer-motion'

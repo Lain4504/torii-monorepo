@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Request } from 'express';
 import {
     successResponse,
     errorResponse,

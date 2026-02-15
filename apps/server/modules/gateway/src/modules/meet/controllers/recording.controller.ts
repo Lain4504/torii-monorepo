@@ -21,7 +21,6 @@ import { create } from '@bufbuild/protobuf';
 import {
     FetchRecordingsReq,
     FetchRecordingsReqSchema,
-    FetchRecordingsRes,
     FetchRecordingsResSchema,
     RecordingInfoReq,
     RecordingInfoReqSchema,
@@ -31,7 +30,6 @@ import {
     DeleteRecordingReqSchema,
     GetDownloadTokenReq,
     GetDownloadTokenReqSchema,
-    GetDownloadTokenRes,
     GetDownloadTokenResSchema,
 } from '@workspace/protocol';
 import {

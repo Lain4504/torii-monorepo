@@ -2,8 +2,6 @@
 
 import {
     ArrowLeft,
-    ChevronLeft,
-    ChevronRight,
     CheckCircle2,
     Layout,
 } from 'lucide-react'

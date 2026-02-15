@@ -7,19 +7,15 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import type { JetStreamClient } from 'nats';
 import { v4 as uuidv4 } from 'uuid';
-import { create, toBinary, toJsonString, fromJsonString } from '@bufbuild/protobuf';
+import { create, toBinary, fromJsonString } from '@bufbuild/protobuf';
 import {
-    NatsMsgServerToClient,
     NatsMsgServerToClientSchema,
     NatsMsgServerToClientEvents,
-    NatsSystemNotification,
     NatsSystemNotificationSchema,
     NatsSystemNotificationTypes,
-    NatsInitialData,
     NatsInitialDataSchema,
     MediaServerConnInfo,
     MediaServerConnInfoSchema,
-    DataChannelMessage,
     DataChannelMessageSchema,
     DataMsgBodyType,
     ChatMessage,
@@ -27,12 +23,21 @@ import {
     NatsMsgClientToServer,
     PrivateDataDeliverySchema,
 } from '@workspace/protocol';
+<<<<<<< HEAD
+
+import { NatsUserInfoService } from './nats-user-info.service';
+import { NatsRoomService } from './nats-room.service';
+import { LiveKitService } from '../../infrastructure/livekit/livekit.service';
+import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
+import { NatsUserService, USER_STATUS_ONLINE } from './nats-user.service';
+=======
 import { fromBinary } from '@bufbuild/protobuf';
 import { NatsUserInfoService } from '@server/meet/interfaces/nats/nats-user-info.service';
 import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 import { WajlcAuthService } from '@server/meet/modules/auth/wajlc-auth.service';
 import { NatsUserService, USER_STATUS_ONLINE } from '@server/meet/interfaces/nats/nats-user.service';
+>>>>>>> origin/main
 
 import { NatsService } from '@server/meet/interfaces/nats/nats.service';
 import { AppConfigService } from '@server/shared';

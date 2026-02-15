@@ -4,7 +4,6 @@ import {
     examSessionSchema,
     ExamType,
     ExamStatus,
-    ExamSectionType,
     examSectionSchema,
     ExamSessionStatus,
     QuestionJlptLevel,

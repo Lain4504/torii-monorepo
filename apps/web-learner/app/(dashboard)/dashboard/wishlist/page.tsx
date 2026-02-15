@@ -7,17 +7,13 @@ import {
     PlayCircle,
     BookOpen,
     Clock,
-    Award,
-    ChevronRight,
-    Sparkles,
     Loader2,
     Heart,
     Trash2,
-    ShoppingCart
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { wishlistApi, type WishlistItem } from '@/apis/services/wishlist-api'
+import { wishlistApi } from '@/apis/services/wishlist-api'
 import { courseApi } from '@/apis/services/course-api'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'

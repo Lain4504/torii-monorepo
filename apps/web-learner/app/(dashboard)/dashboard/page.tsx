@@ -14,8 +14,6 @@ import {
     ArrowRight,
     ChevronRight,
     Target,
-    Bot,
-    Sparkles
 } from 'lucide-react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
@@ -23,8 +21,7 @@ import { learningProgressApi, useMyCourses } from '@/apis/services/learning-prog
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
 import { useLeaderboard } from '@/apis/services/gamification-api'
 import { LeaderboardPreview } from '@/components/dashboard/leaderboard'
-import { Trophy, Star, Flame, Award as AwardIcon } from 'lucide-react'
-import { cn } from '@workspace/ui/lib/utils'
+import { Star } from 'lucide-react'
 
 import { PageLoading } from '@workspace/ui/components/page-loading'
 

@@ -1,11 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { Drama, Scroll, Sparkles, User, Mic, Play, RefreshCw, Clapperboard } from "lucide-react"
+import { Drama, RefreshCw, Clapperboard } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { agentApi, ConversationSimulationResponse } from "@/apis/services/agent-api"
 
 export function RoleplayStudio() {

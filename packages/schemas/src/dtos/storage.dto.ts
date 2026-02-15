@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { FileStatus } from '../models/storage.model';
 
 export const storagePresignedUrlRequestDTOSchema = z.object({
     filename: z.string().min(1),

@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { Star, ThumbsUp, MessageSquare, Plus, Search, Sparkles, ChevronRight, X } from 'lucide-react'
-import { Progress } from '@workspace/ui/components/progress'
+import { Star, ThumbsUp, MessageSquare, Plus, Search, ChevronRight, X } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog'

@@ -9,9 +9,8 @@ import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Mail, Send, CheckCircle2, Sparkles, MessageSquare } from 'lucide-react'
+import { Mail, Send, CheckCircle2 } from 'lucide-react'
 import { useForgotPassword } from '@/apis/services/auth-api'
-import { cn } from '@workspace/ui/lib/utils'
 
 const forgotPasswordSchema = z.object({
     email: z.string().email('Email không hợp lệ'),

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Search, Filter, Inbox, Sparkles, SlidersHorizontal, ChevronRight } from "lucide-react"
+import { Search, Filter, Inbox, Sparkles, SlidersHorizontal } from "lucide-react"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 
 import { ExamStats } from "@/components/exams/exam-stats"

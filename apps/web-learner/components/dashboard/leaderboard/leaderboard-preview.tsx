@@ -1,7 +1,6 @@
 'use client'
 
 import { Star, ArrowRight, Trophy } from 'lucide-react'
-import { Button } from '@workspace/ui/components/button'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 import type { LeaderboardDto } from '@workspace/schemas'

@@ -11,7 +11,6 @@ import type {
     CreateRoomReq,
     ActiveRoomInfo,
     RoomMetadata,
-    CopyrightConf,
 } from '@workspace/protocol';
 import {
     ActiveRoomInfoSchema,

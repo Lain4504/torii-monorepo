@@ -6,7 +6,6 @@ import {
     updateTheme,
 } from '../../../store/slices/roomSettingsSlice';
 import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import Dropdown from '../../../helpers/ui/dropdown';
 
 const ApplicationSettings = () => {
     const dispatch = useAppDispatch();

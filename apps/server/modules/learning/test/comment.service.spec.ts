@@ -12,7 +12,6 @@ import type {
     CommentCreateDTO,
     CommentUpdateDTO,
     CommentQueryDTO,
-    CommentResponseDTO
 } from '@workspace/schemas';
 
 describe('CommentService', () => {

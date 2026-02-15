@@ -1,7 +1,6 @@
 import type {
     ReviewSessionResponseDTO,
     StartReviewSessionDTO,
-    PaginatedResponseDTO,
 } from '@workspace/schemas';
 
 /**

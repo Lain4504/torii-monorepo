@@ -1,6 +1,5 @@
 import {
     Injectable,
-    InternalServerErrorException,
     NotFoundException,
     BadRequestException,
     ForbiddenException,

@@ -3,13 +3,11 @@ import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service'
 import { NatsService } from '@server/meet/interfaces/nats/nats.service';
 import { RoomInfoService } from '@server/meet/modules/room/room-info.service';
 import {
-    RoomMetadataSchema,
     RecordingReq,
     WajlcToRecorderSchema,
     RecordingTasks,
     CommonResponseSchema,
     RecorderToWajlc,
-    RecordingTasksSchema,
     AnalyticsEvents,
     AnalyticsEventType,
     AnalyticsDataMsgSchema,

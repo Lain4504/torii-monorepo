@@ -11,7 +11,6 @@ import {
     Sparkles,
     Loader2,
 } from 'lucide-react'
-import { PageLoading } from '@workspace/ui/components/page-loading'
 import { cn } from '@workspace/ui/lib/utils'
 import { courseApi } from '@/apis/services/course-api'
 import type { CourseResponseDTO } from '@workspace/schemas'

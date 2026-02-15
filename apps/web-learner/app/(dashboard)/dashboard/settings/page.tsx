@@ -1,11 +1,11 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
+
 import { Button } from '@workspace/ui/components/button'
 import { Label } from '@workspace/ui/components/label'
 import { Switch } from '@workspace/ui/components/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
-import { Bell, Shield, Globe, Lock, Trash2, ChevronRight, User, Settings, Clock } from 'lucide-react'
+import { Bell, Globe, Trash2, Settings, Clock } from 'lucide-react'
 import { SecurityTab } from '@/components/settings/security-tab'
 import { SessionsManagement } from '@/components/settings/sessions-management'
 

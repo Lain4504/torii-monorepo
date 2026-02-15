@@ -12,7 +12,7 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select"
 import { agentApi, ResourceRecommendationResponse } from "@/apis/services/agent-api"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 
 export function ResourceRecommender() {

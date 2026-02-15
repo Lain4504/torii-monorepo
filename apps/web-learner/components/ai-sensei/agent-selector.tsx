@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Bot, Sparkles, Languages, History, MessagesSquare, LayoutDashboard, Layers, Dumbbell, Library } from "lucide-react"
+import { Bot, Sparkles, Languages, History, MessagesSquare, LayoutDashboard, Dumbbell, Library } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
