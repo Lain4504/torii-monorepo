@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Order, Payment, Prisma } from '@prisma/generated';
-import type { IOrderRepository } from '../../interfaces/repositories';
+import type { IOrderRepository } from '@server/billing/interfaces/repositories';
 
 /**
  * Order Repository

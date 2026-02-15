@@ -12,10 +12,10 @@ import {
     OrderType,
     PaymentMethod,
 } from '@workspace/schemas';
-import type { IOrderService } from '../../interfaces/services';
+import type { IOrderService } from '@server/billing/interfaces/services';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
-import { CouponService } from '../coupon/coupon.service';
+import { CouponService } from '@server/billing/modules/coupon/coupon.service';
 import type { Prisma } from '@prisma/generated';
 import { lastValueFrom } from 'rxjs';
 import { AppConfigService } from '@server/shared';
