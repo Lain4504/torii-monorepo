@@ -16,6 +16,7 @@ import {
     Target,
 } from 'lucide-react'
 import Link from 'next/link'
+import { cn } from '@workspace/ui/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import { learningProgressApi, useMyCourses } from '@/apis/services/learning-progress-api'
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
@@ -24,10 +25,13 @@ import { LeaderboardPreview } from '@/components/dashboard/leaderboard'
 import { Star } from 'lucide-react'
 
 import { PageLoading } from '@workspace/ui/components/page-loading'
+import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
+import { useState } from 'react'
 
 export default function DashboardPage() {
     const { user, status: authStatus } = useAppSelector((state) => state.auth)
     const { data: courses, isLoading: coursesLoading } = useMyCourses()
+    const [expiredCourse, setExpiredCourse] = useState<{ title: string, slug: string } | null>(null)
     const { data: statsData, isLoading: statsLoading } = useQuery({
         queryKey: ['learning-stats'],
         queryFn: learningProgressApi.getStats
@@ -189,10 +193,23 @@ export default function DashboardPage() {
                             </div>
 
                             <div className="grid gap-4">
-                                {recentCourses.map((course, idx) => (
-                                    <Link key={course.id} href={`/courses/${course.slug}/learn`}>
+                                {recentCourses.map((course, idx) => {
+                                    const isExpired = course.expiresAt && new Date(course.expiresAt) < new Date();
+                                    
+                                    return (
                                         <Card
-                                            className="rounded-2xl border border-border bg-card hover:border-primary/50 transition-all duration-300 group cursor-pointer overflow-hidden shadow-sm hover:shadow-md"
+                                            key={course.id}
+                                            className={cn(
+                                                "rounded-2xl border border-border bg-card transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md",
+                                                isExpired ? "opacity-90 border-destructive/20" : "hover:border-primary/50 cursor-pointer"
+                                            )}
+                                            onClick={() => {
+                                                if (isExpired) {
+                                                    setExpiredCourse({ title: course.title, slug: course.slug })
+                                                } else {
+                                                    window.location.href = `/courses/${course.slug}/learn`;
+                                                }
+                                            }}
                                         >
                                             <CardContent className="p-4 sm:p-6">
                                                 <div className="flex flex-col sm:flex-row sm:items-center gap-6">
@@ -202,6 +219,13 @@ export default function DashboardPage() {
                                                         ) : (
                                                             <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
                                                                 <BookOpen className="w-8 h-8" />
+                                                            </div>
+                                                        )}
+                                                        {isExpired && (
+                                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+                                                                <span className="bg-destructive text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                                                    <Clock className="w-3 h-3" /> Hết hạn
+                                                                </span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -215,21 +239,26 @@ export default function DashboardPage() {
                                                         <div className="space-y-2">
                                                             <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
                                                                 <span>Tiến độ</span>
-                                                                <span className="text-primary">{course.progress}%</span>
+                                                                <span className={isExpired ? "text-destructive" : "text-primary"}>
+                                                                    {isExpired ? 'Đã hết hạn' : `${course.progress}%`}
+                                                                </span>
                                                             </div>
-                                                            <Progress value={course.progress} className="h-1.5 bg-muted" />
+                                                            <Progress value={course.progress} className={cn("h-1.5 bg-muted", isExpired && "[&>div]:bg-muted-foreground")} />
                                                         </div>
                                                     </div>
                                                     <div className="flex shrink-0">
-                                                        <Button size="icon" variant="ghost" className="rounded-xl w-10 h-10 hover:bg-primary hover:text-white transition-colors">
-                                                            <ChevronRight className="w-5 h-5" />
+                                                        <Button size="icon" variant="ghost" className={cn(
+                                                            "rounded-xl w-10 h-10 transition-colors",
+                                                            isExpired ? "hover:bg-destructive hover:text-white" : "hover:bg-primary hover:text-white"
+                                                        )}>
+                                                            {isExpired ? <ArrowRight className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                                                         </Button>
                                                     </div>
                                                 </div>
                                             </CardContent>
                                         </Card>
-                                    </Link>
-                                ))}
+                                    );
+                                })}
                                 {recentCourses.length === 0 && (
                                     <div className="p-8 rounded-2xl border border-border bg-card text-center shadow-sm">
                                         <p className="text-muted-foreground font-medium text-sm">Bạn chưa tham gia khóa học nào.</p>
@@ -303,6 +332,12 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+            <CourseExpirationModal
+                isOpen={!!expiredCourse}
+                onClose={() => setExpiredCourse(null)}
+                courseTitle={expiredCourse?.title || ''}
+                courseSlug={expiredCourse?.slug || ''}
+            />
         </>
     )
 }

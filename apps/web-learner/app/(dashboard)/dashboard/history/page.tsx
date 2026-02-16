@@ -1,8 +1,9 @@
 'use client'
 
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { Clock, ChevronRight, Calendar, BookOpen } from 'lucide-react'
+import { Clock, ChevronRight, Calendar, BookOpen, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { cn } from '@workspace/ui/lib/utils'
 
 import { useLearningHistory } from '../../../../apis/services/learning-progress-api'
 import { Button } from '@workspace/ui/components/button'
@@ -23,7 +24,8 @@ export default function HistoryPage() {
         lessonTitle: item.lessonTitle,
         timestamp: format(new Date(item.timestamp), "d MMM, yyyy HH:mm", { locale: vi }),
         duration: formatDuration(item.duration),
-        slug: item.slug
+        slug: item.slug,
+        isExpired: item.expiresAt && new Date(item.expiresAt) < new Date()
     })) || []
 
     if (isLoading) {
@@ -82,9 +84,19 @@ export default function HistoryPage() {
                                                 {item.duration}
                                             </span>
                                         </div>
-                                        <Link href={`/courses/${item.slug}/learn`}>
-                                            <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-all">
-                                                <ChevronRight className="w-5 h-5" />
+                                        <Link 
+                                            href={item.isExpired ? `/courses/${item.slug}` : `/courses/${item.slug}/learn`}
+                                            onClick={() => {
+                                                if (item.isExpired) {
+                                                    // Redirection handled by href, just let it through to the course info page
+                                                }
+                                            }}
+                                        >
+                                            <Button variant="ghost" size="icon" className={cn(
+                                                "rounded-full w-9 h-9 hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-all",
+                                                item.isExpired && "text-destructive"
+                                            )}>
+                                                {item.isExpired ? <ArrowRight className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                                             </Button>
                                         </Link>
                                     </div>

@@ -143,6 +143,7 @@ export class EnrollmentService implements IEnrollmentService {
             isGift: e.isGift || false,
             giftMessage: e.giftMessage || undefined,
             senderId: e.senderId || undefined,
+            expiresAt: e.expiresAt || undefined,
             createdAt: e.createdAt,
             updatedAt: e.updatedAt,
         };
@@ -245,12 +246,23 @@ export class EnrollmentService implements IEnrollmentService {
 
         // Check if already enrolled
         const existing = await this.enrollmentRepository.findByUserAndCourse(userId, input.courseId);
+        
+        // If already enrolled and NOT expired, block
         if (existing) {
             if (existing.completionStatus === EnrollmentStatus.PENDING_PAYMENT) {
                 this.logger.log(`Found existing pending enrollment ${existing.id} for user ${userId} and course ${input.courseId}`);
                 return this.toEnrollmentDto(existing);
             }
-            throw new BadRequestException('Already enrolled in this course');
+
+            const isExpired = existing.expiresAt && existing.expiresAt < new Date();
+            const isMarkedExpired = existing.completionStatus === EnrollmentStatus.EXPIRED;
+            
+            if (!isExpired && !isMarkedExpired) {
+                throw new BadRequestException('Already enrolled in this course');
+            }
+            
+            // If it IS expired, we allow "renewal" by updating the existing record below
+            this.logger.log(`Renewing enrollment ${existing.id} for user ${userId} and course ${input.courseId}`);
         }
 
         try {
@@ -259,23 +271,44 @@ export class EnrollmentService implements IEnrollmentService {
             if (!course) {
                 throw new NotFoundException('Course not found');
             }
+            const expiresAt = course.durationWeeks
+                ? new Date(Date.now() + course.durationWeeks * 7 * 24 * 60 * 60 * 1000)
+                : undefined;
             const finalPrice = course.discountPrice ? Number(course.discountPrice) : Number(course.price);
 
-            const created = await this.enrollmentRepository.create({
-                user: { connect: { id: userId } },
-                course: { connect: { id: input.courseId } },
-                enrollmentDate: new Date(),
-                lastAccessedAt: new Date(),
-                completionStatus: finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS,
-                completionPercentage: 0,
-                finalPrice,
-                isGift: (input as any).isGift || false,
-                giftMessage: (input as any).giftMessage,
-                sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
-            });
+            let result;
+            const completionStatus = finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS;
+
+            if (existing) {
+                // Renewal logic: Update existing record
+                result = await this.enrollmentRepository.update(existing.id, {
+                    enrollmentDate: new Date(),
+                    lastAccessedAt: new Date(),
+                    completionStatus,
+                    // Keep existing progress or reset if it was 100? 
+                    // Usually keep for "Gia hạn để tiếp tục"
+                    expiresAt,
+                    finalPrice,
+                });
+            } else {
+                // New enrollment logic
+                result = await this.enrollmentRepository.create({
+                    user: { connect: { id: userId } },
+                    course: { connect: { id: input.courseId } },
+                    enrollmentDate: new Date(),
+                    lastAccessedAt: new Date(),
+                    completionStatus,
+                    completionPercentage: 0,
+                    finalPrice,
+                    isGift: (input as any).isGift || false,
+                    giftMessage: (input as any).giftMessage,
+                    sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
+                    expiresAt,
+                });
+            }
 
             // If it's a free enrollment (finalPrice is 0) or explicitly active, emit success event for notification/email
-            if (created.completionStatus === EnrollmentStatus.IN_PROGRESS) {
+            if (result.completionStatus === EnrollmentStatus.IN_PROGRESS) {
                 try {
                     this.logger.log(`Fetching user ${userId} for enrollment notification`);
                     const response = await lastValueFrom(
@@ -292,19 +325,16 @@ export class EnrollmentService implements IEnrollmentService {
                             userName: user.displayName || user.email || 'User',
                             courseId: course.id,
                             courseName: course.title,
-                            enrollmentId: created.id,
+                            enrollmentId: result.id,
                         });
-                        this.logger.log(`course_enrollment_success event emitted for free course ${course.id}`);
-                    } else {
-                        this.logger.warn(`Could not find user email for enrollment notification: userId=${userId}, foundUser=${!!user}`);
+                        this.logger.log(`course_enrollment_success event emitted for ${existing ? 'renewal' : 'new enrollment'} of course ${course.id}`);
                     }
                 } catch (error: any) {
-                    this.logger.error(`Failed to emit free enrollment success event: ${error.message}`);
+                    this.logger.error(`Failed to emit enrollment success event: ${error.message}`);
                 }
-
             }
 
-            return this.toEnrollmentDto(created);
+            return this.toEnrollmentDto(result);
         } catch (error: any) {
             this.logger.error(`Error creating enrollment: ${error.message}`, error.stack);
             throw error;
@@ -318,7 +348,15 @@ export class EnrollmentService implements IEnrollmentService {
     async isEnrolled(userId: string, courseId: string): Promise<boolean> {
         try {
             const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
-            return enrollment !== null && (
+            
+            if (!enrollment) return false;
+
+            // Reactive Check: Check for expiration regardless of recorded status
+            if (enrollment.expiresAt && enrollment.expiresAt < new Date()) {
+                return false;
+            }
+
+            return (
                 enrollment.completionStatus === EnrollmentStatus.IN_PROGRESS ||
                 enrollment.completionStatus === EnrollmentStatus.COMPLETED
             );

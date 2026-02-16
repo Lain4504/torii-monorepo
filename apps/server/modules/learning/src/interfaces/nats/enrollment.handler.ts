@@ -22,9 +22,13 @@ export class EnrollmentHandler {
 
     @MessagePattern({ cmd: 'learning.enrollment.check' })
     async checkEnrollment(@Payload() data: { userId: string, courseId: string }) {
-        const enrollment = await this.enrollmentService.findByUserAndCourse(data.userId, data.courseId);
+        const [isEnrolled, enrollment] = await Promise.all([
+            this.enrollmentService.isEnrolled(data.userId, data.courseId),
+            this.enrollmentService.findByUserAndCourse(data.userId, data.courseId),
+        ]);
+        
         return {
-            isEnrolled: enrollment !== null && (enrollment.completionStatus === 'in_progress' || enrollment.completionStatus === 'completed'),
+            isEnrolled,
             enrollment: enrollment || undefined,
         };
     }
