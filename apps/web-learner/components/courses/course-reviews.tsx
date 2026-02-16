@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { Star, ThumbsUp, MessageSquare, Plus, Search, ChevronRight, X } from 'lucide-react'
+import { Star, ThumbsUp, MessageSquare, Plus, Search, ChevronRight, X, Sparkles } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog'
@@ -10,6 +10,7 @@ import { Textarea } from '@workspace/ui/components/textarea'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/apis/services/review-api'
 import { useAppSelector } from '@/hooks/hooks'
+import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { toast } from '@workspace/ui/components/sonner'
 import { cn } from '@workspace/ui/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
@@ -33,6 +34,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
     const user = useAppSelector((state) => state.auth.user)
 
+    const { isEnrolled, isLoadingEnrollment } = useCourseEnrollment(course.id, course.slug)
     const userReview = reviews.find((r) => r.userId === user?.id)
 
     useEffect(() => {
@@ -247,49 +249,64 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                     {/* Content */}
                     <div className="space-y-8 pt-8 border-t border-border">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            {isAuthenticated && !userReview && (
-                                <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
-                                    <DialogTrigger asChild>
-                                        <Button className="w-full md:w-auto h-11 px-6 rounded-xl font-bold">
-                                            <Plus className="mr-2 h-4 w-4" />
-                                            Viết đánh giá
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-lg rounded-2xl">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-xl font-bold">Đánh giá khóa học</DialogTitle>
-                                            <DialogDescription>
-                                                Chia sẻ trải nghiệm của bạn để giúp đỡ các học viên khác.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="space-y-6 py-4">
-                                            <div className="flex flex-col items-center gap-4">
-                                                <label className="text-sm font-medium text-muted-foreground">Mức độ hài lòng của bạn</label>
-                                                <div className="flex gap-2">
-                                                    {renderStars(newRating, true, 8)}
-                                                </div>
-                                                <span className="text-sm font-medium text-primary h-5">
-                                                    {newRating > 0 ? ['Rất kém', 'Cần cải thiện', 'Tốt', 'Rất tốt', 'Tuyệt vời'][newRating - 1] : ''}
-                                                </span>
-                                            </div>
-                                            <div className="space-y-3">
-                                                <label className="text-sm font-medium text-foreground">Nhận xét chi tiết</label>
-                                                <Textarea
-                                                    value={newComment}
-                                                    onChange={(e) => setNewComment(e.target.value)}
-                                                    placeholder="Chia sẻ cảm nhận của bạn về học liệu, giảng viên hoặc trải nghiệm..."
-                                                    className="min-h-[120px] rounded-xl resize-none text-sm"
-                                                />
-                                            </div>
+                            {isAuthenticated && (
+                                <>
+                                    {isLoadingEnrollment ? (
+                                        <div className="h-11 w-32 bg-muted animate-pulse rounded-xl" />
+                                    ) : isEnrolled ? (
+                                        !userReview && (
+                                            <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
+                                                <DialogTrigger asChild>
+                                                    <Button className="w-full md:w-auto h-11 px-6 rounded-xl font-bold">
+                                                        <Plus className="mr-2 h-4 w-4" />
+                                                        Viết đánh giá
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent className="sm:max-w-lg rounded-2xl">
+                                                    <DialogHeader>
+                                                        <DialogTitle className="text-xl font-bold">Đánh giá khóa học</DialogTitle>
+                                                        <DialogDescription>
+                                                            Chia sẻ trải nghiệm của bạn để giúp đỡ các học viên khác.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="space-y-6 py-4">
+                                                        <div className="flex flex-col items-center gap-4">
+                                                            <label className="text-sm font-medium text-muted-foreground">Mức độ hài lòng của bạn</label>
+                                                            <div className="flex gap-2">
+                                                                {renderStars(newRating, true, 8)}
+                                                            </div>
+                                                            <span className="text-sm font-medium text-primary h-5">
+                                                                {newRating > 0 ? ['Rất kém', 'Cần cải thiện', 'Tốt', 'Rất tốt', 'Tuyệt vời'][newRating - 1] : ''}
+                                                            </span>
+                                                        </div>
+                                                        <div className="space-y-3">
+                                                            <label className="text-sm font-medium text-foreground">Nhận xét chi tiết</label>
+                                                            <Textarea
+                                                                value={newComment}
+                                                                onChange={(e) => setNewComment(e.target.value)}
+                                                                placeholder="Chia sẻ cảm nhận của bạn về học liệu, giảng viên hoặc trải nghiệm..."
+                                                                className="min-h-[120px] rounded-xl resize-none text-sm"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <DialogFooter>
+                                                        <Button variant="ghost" onClick={() => setShowReviewForm(false)} className="rounded-xl font-bold">Hủy</Button>
+                                                        <Button onClick={handleSubmitReview} disabled={submitting || newRating === 0} className="rounded-xl font-bold">
+                                                            {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
+                                        )
+                                    ) : (
+                                        <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-center gap-3 animate-in fade-in slide-in-from-left-2 duration-500">
+                                            <Sparkles className="w-4 h-4 text-primary" />
+                                            <p className="text-sm font-medium text-primary">
+                                                Đăng ký khóa học để chia sẻ đánh giá của bạn
+                                            </p>
                                         </div>
-                                        <DialogFooter>
-                                            <Button variant="ghost" onClick={() => setShowReviewForm(false)} className="rounded-xl font-bold">Hủy</Button>
-                                            <Button onClick={handleSubmitReview} disabled={submitting || newRating === 0} className="rounded-xl font-bold">
-                                                {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
-                                            </Button>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </Dialog>
+                                    )}
+                                </>
                             )}
                         </div>
 

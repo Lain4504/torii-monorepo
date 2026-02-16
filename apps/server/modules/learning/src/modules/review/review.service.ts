@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import {
   type ReviewCreateDTO,
@@ -9,12 +9,18 @@ import {
 } from '@workspace/schemas';
 import { ReviewRepository } from '@server/learning/modules/review/review.repository';
 import type { IReviewService } from '@server/learning/interfaces/services';
+import type { IEnrollmentRepository } from '@server/learning/interfaces/repositories';
+import { ENROLLMENT_REPOSITORY_TOKEN } from '@server/learning/interfaces';
 
 @Injectable()
 export class ReviewService implements IReviewService {
   private readonly logger = new Logger(ReviewService.name);
 
-  constructor(private readonly reviewRepository: ReviewRepository) { }
+  constructor(
+    private readonly reviewRepository: ReviewRepository,
+    @Inject(ENROLLMENT_REPOSITORY_TOKEN)
+    private readonly enrollmentRepository: IEnrollmentRepository,
+  ) { }
 
   /**
    * Map Review entity to ReviewResponseDTO
@@ -204,6 +210,22 @@ export class ReviewService implements IReviewService {
         throw new RpcException({
           status: 404,
           message: `Course with id ${courseId} not found`,
+        });
+      }
+
+      // Check if user is enrolled in the course
+      const enrollment = await this.enrollmentRepository.findByUserAndCourse(
+        userId,
+        courseId,
+      );
+
+      if (!enrollment) {
+        this.logger.warn(
+          `User ${userId} attempted to review course ${courseId} without enrollment`,
+        );
+        throw new RpcException({
+          status: 403,
+          message: 'You must be enrolled in this course to leave a review',
         });
       }
 
