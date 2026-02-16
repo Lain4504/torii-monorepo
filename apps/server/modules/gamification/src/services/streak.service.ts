@@ -3,7 +3,6 @@ import { PrismaService, REDIS_CLIENT } from '@server/shared';
 import Redis from 'ioredis';
 import {
     StreakStatusDto,
-    RecordActivityDto,
     UserGamificationDto,
 } from '@workspace/schemas';
 import { ActivityService } from '@server/gamification/services';

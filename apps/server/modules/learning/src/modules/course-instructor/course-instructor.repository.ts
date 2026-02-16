@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { CourseInstructor, Prisma } from '@prisma/generated';
-import type { ICourseInstructorRepository } from '../../interfaces/repositories';
+import type { ICourseInstructorRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Course Instructor Repository
@@ -167,3 +167,4 @@ export class CourseInstructorRepository implements ICourseInstructorRepository {
         return result.length;
     }
 }
+

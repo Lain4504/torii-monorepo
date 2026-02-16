@@ -2,7 +2,6 @@ import { Injectable, Logger, Inject, NotFoundException, BadRequestException, For
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@server/shared';
-import type { LessonMaterial } from '@prisma/generated';
 import { v4 as uuidv4 } from 'uuid';
 
 import type {
@@ -11,11 +10,10 @@ import type {
     LessonMaterialUpdateDTO,
     Requester,
 } from '@workspace/schemas';
-import { ALLOWED_MIME_TYPES, isAllowedMimeType, getErrorMessage, UserRole } from '@workspace/schemas';
 
-import type { ILessonMaterialService } from '../../interfaces/services';
-import type { ILessonMaterialRepository } from '../../interfaces/repositories';
-import { LESSON_MATERIAL_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ILessonMaterialService } from '@server/learning/interfaces/services';
+import type { ILessonMaterialRepository } from '@server/learning/interfaces/repositories';
+import { LESSON_MATERIAL_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 
 /**
  * Lesson Material Service
@@ -238,3 +236,4 @@ export class LessonMaterialService implements ILessonMaterialService {
         }
     }
 }
+

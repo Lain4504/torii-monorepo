@@ -7,11 +7,7 @@ import {
     Param,
     UseGuards,
     Inject,
-    HttpCode,
-    HttpStatus,
     Req,
-    ParseUUIDPipe,
-    UsePipes,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -19,7 +15,6 @@ import {
     GatewayAuthGuard,
     PermissionsGuard,
     Permissions,
-    successResponse,
     ZodValidationPipe,
     ReqWithRequester,
 } from '@server/shared';

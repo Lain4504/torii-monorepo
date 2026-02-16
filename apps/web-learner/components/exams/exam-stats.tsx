@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@workspace/ui/components/card"
-import { Trophy, Clock, Target, CheckCircle, Sparkles } from "lucide-react"
+import { Trophy, Clock, Target, CheckCircle } from "lucide-react"
 
 export function ExamStats() {
     const stats = [

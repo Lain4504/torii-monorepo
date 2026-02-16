@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Languages, ArrowRightLeft, Loader2, Copy, Sparkles, MoveRight } from "lucide-react"
+import { Languages, ArrowRightLeft, Loader2, Copy, Sparkles } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { agentApi, TranslateResponse } from "@/apis/services/agent-api"

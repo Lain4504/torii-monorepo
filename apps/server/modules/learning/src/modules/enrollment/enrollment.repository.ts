@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Enrollment, Prisma } from '@prisma/generated';
-import type { IEnrollmentRepository } from '../../interfaces/repositories';
+import type { IEnrollmentRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Enrollment Repository
@@ -111,4 +111,5 @@ export class EnrollmentRepository implements IEnrollmentRepository {
         return result._sum.watchedDuration || 0;
     }
 }
+
 

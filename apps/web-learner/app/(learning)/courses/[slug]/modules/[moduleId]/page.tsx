@@ -5,9 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
-import { Progress } from '@workspace/ui/components/progress'
 import { Badge } from '@workspace/ui/components/badge'
-import { ArrowLeft, Play, Clock, CheckCircle2, Circle } from 'lucide-react'
+import { ArrowLeft, Play, Clock, Circle } from 'lucide-react'
 import { courseApi } from '@/apis/services/course-api'
 
 export default function ModulePage() {

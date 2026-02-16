@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { Clock, PlayCircle, ChevronRight, Calendar, BookOpen, History } from 'lucide-react'
+import { Clock, ChevronRight, Calendar, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 
 import { useLearningHistory } from '../../../../apis/services/learning-progress-api'

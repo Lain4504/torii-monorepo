@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
-import { Progress } from "@workspace/ui/components/progress"
 import { Clock, FileText, ArrowRight, RotateCcw, Sparkles } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 

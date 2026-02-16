@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { ENROLLMENT_SERVICE_TOKEN, IEnrollmentService } from '../../interfaces/services';
+import { ENROLLMENT_SERVICE_TOKEN, IEnrollmentService } from '@server/learning/interfaces/services';
 import { EnrollmentCreateDTO, EnrollmentQueryDTO } from '@workspace/schemas';
 
 @Controller()
@@ -55,3 +55,4 @@ export class EnrollmentHandler {
         return this.enrollmentService.deleteByUserAndCourse(data.userId, data.courseId);
     }   
 }
+

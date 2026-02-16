@@ -20,9 +20,8 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import {
-    Public,
     successResponse,
     errorResponse,
     AppConfigService,
@@ -30,7 +29,6 @@ import {
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
 import {
-    logoutDTOSchema,
     UserRegistrationDTO,
     UserLoginDTO,
     VerifyOTPDTO,

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/interfaces/nats/nats-room-events.service';
+import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
 import {
     RoomUploadedFileType,
     RoomUploadedFileMetadataSchema,
@@ -9,8 +9,7 @@ import {
     UploadedFileResSchema,
     UploadBase64EncodedDataReq,
     UploadBase64EncodedDataResSchema,
-    ChatMessageSchema,
-    NatsMsgServerToClientEvents
+    ChatMessageSchema
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import * as fs from 'fs';

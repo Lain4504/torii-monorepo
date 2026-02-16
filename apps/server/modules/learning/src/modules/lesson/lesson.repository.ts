@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Lesson, Prisma } from '@prisma/generated';
-import type { ILessonRepository } from '../../interfaces/repositories';
+import type { ILessonRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Lesson Repository
@@ -159,3 +159,4 @@ export class LessonRepository implements ILessonRepository {
         });
     }
 }
+

@@ -2,8 +2,6 @@ import { z } from 'zod';
 import { 
     FlashcardDifficulty, 
     flashcardSchema,
-    FlashcardGenerationMethod,
-    JapanesePartOfSpeech,
 } from '../models/flashcard.model';
 
 export const flashcardCreateDTOSchema = flashcardSchema.pick({

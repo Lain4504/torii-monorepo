@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Wishlist, Prisma } from '@prisma/generated';
-import type { IWishlistRepository } from '../../interfaces/repositories';
+import type { IWishlistRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Wishlist Repository
@@ -78,4 +78,5 @@ export class WishlistRepository implements IWishlistRepository {
         });
     }
 }
+
 

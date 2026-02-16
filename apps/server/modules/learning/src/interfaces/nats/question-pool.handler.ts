@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { QUESTION_POOL_SERVICE_TOKEN, IQuestionPoolService } from '../../interfaces/services/i-question-pool.service';
+import { QUESTION_POOL_SERVICE_TOKEN, IQuestionPoolService } from '@server/learning/interfaces/services/i-question-pool.service';
 import { QuestionPoolCreateDTO, QuestionPoolUpdateDTO, QuestionPoolQueryDTO } from '@workspace/schemas';
 
 @Controller()
@@ -57,3 +57,4 @@ export class QuestionPoolHandler {
         return this.questionPoolService.delete(requester, id);
     }
 }
+

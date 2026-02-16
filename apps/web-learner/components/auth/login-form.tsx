@@ -11,10 +11,9 @@ import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Eye, EyeOff, Mail, Lock, LogIn, Sparkles } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { cn } from '@workspace/ui/lib/utils'
 import { useGoogleAuth } from '@/apis/services/auth-api'
 
 export function LoginForm() {

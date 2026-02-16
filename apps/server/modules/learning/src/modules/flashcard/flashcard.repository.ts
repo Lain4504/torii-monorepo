@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Flashcard, Prisma } from '@prisma/generated';
-import type { IFlashcardRepository } from '../../interfaces/repositories/i-flashcard.repository';
+import type { IFlashcardRepository } from '@server/learning/interfaces/repositories/i-flashcard.repository';
 
 @Injectable()
 export class FlashcardRepository implements IFlashcardRepository {
@@ -59,3 +59,4 @@ export class FlashcardRepository implements IFlashcardRepository {
         return this.prisma.flashcard.deleteMany({ where });
     }
 }
+

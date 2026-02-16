@@ -8,7 +8,6 @@ import { Badge } from '@workspace/ui/components/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import {
     Calendar,
-    Clock,
     ArrowRight,
     ArrowLeft,
     Star,
@@ -19,8 +18,6 @@ import {
     Loader2,
     Video,
 } from 'lucide-react'
-import { PageLoading } from '@workspace/ui/components/page-loading'
-import { cn } from '@workspace/ui/lib/utils'
 import { courseApi } from '@/apis/services/course-api'
 import { liveSessionApi } from '@/apis/services/live-session-api'
 import type { CourseResponseDTO } from '@workspace/schemas'

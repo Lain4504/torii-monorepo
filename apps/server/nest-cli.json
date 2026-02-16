@@ -61,7 +61,13 @@
       "sourceRoot": "modules/agents/src",
       "compilerOptions": {
         "tsConfigPath": "modules/agents/tsconfig.app.json",
-        "webpack": false
+        "webpack": false,
+        "assets": [
+          {
+            "include": "src/assets/**/*.md",
+            "watchAssets": true
+          }
+        ]
       }
     },
     "gamification": {

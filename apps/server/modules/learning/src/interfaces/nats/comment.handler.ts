@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CommentService } from '../../modules/comment/comment.service';
+import { CommentService } from '@server/learning/modules/comment/comment.service';
 import { CommentCreateDTO, CommentUpdateDTO, CommentQueryDTO } from '@workspace/schemas';
 
 @Controller()
@@ -50,3 +50,4 @@ export class CommentHandler {
 
 
 }
+

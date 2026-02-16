@@ -7,16 +7,12 @@ import {
   type CreateAssignmentDto,
   type UpdateAssignmentDto,
   type QueryAssignmentsDto,
-  type SubmitAssignmentDto,
-  type GradeSubmissionDto,
-  type ReturnSubmissionDto,
-  AssignmentStatus,
   type Requester,
   type AssignmentResponseDTO,
 } from '@workspace/schemas';
 
-import { AssignmentRepository } from './assignment.repository';
-import { SubmissionRepository } from '../submission/submission.repository';
+import { AssignmentRepository } from '@server/learning/modules/assignment/assignment.repository';
+import { SubmissionRepository } from '@server/learning/modules/submission/submission.repository';
 
 /**
  * Assignment Service
@@ -33,7 +29,7 @@ export class AssignmentService {
     private readonly natsClient: ClientProxy,
     @InjectMapper()
     private readonly mapper: Mapper,
-  ) {}
+  ) { }
 
 
   /**

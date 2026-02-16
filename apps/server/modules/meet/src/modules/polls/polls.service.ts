@@ -19,11 +19,11 @@ import {
     AnalyticsEvents,
     AnalyticsDataMsg,
 } from '@workspace/protocol';
-import { RedisPollService } from '../../infrastructure/redis/redis-poll.service';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
-import { NatsSystemEventsService } from '../../interfaces/nats/nats-system-events.service';
-import { AnalyticsService } from '../analytics/analytics.service';
+import { RedisPollService } from '@server/meet/infrastructure/redis/redis-poll.service';
+import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/interfaces/nats/nats-room-events.service';
+import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 
 @Injectable()
 export class PollsService {

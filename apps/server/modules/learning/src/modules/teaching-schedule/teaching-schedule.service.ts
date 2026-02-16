@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import {
     TeachingScheduleCreateDTO,
@@ -8,7 +8,7 @@ import {
     Requester
 } from '@workspace/schemas';
 import { v4 as uuidv4 } from 'uuid';
-import { ITeachingScheduleService } from '../../interfaces/services/i-teaching-schedule.service';
+import { ITeachingScheduleService } from '@server/learning/interfaces/services/i-teaching-schedule.service';
 
 @Injectable()
 export class TeachingScheduleService implements ITeachingScheduleService {
@@ -303,3 +303,4 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         };
     }
 }
+

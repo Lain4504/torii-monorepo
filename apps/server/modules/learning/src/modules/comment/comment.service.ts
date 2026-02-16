@@ -11,13 +11,11 @@ import type {
   CommentResponseDTO,
   CommentPaginatedResponse,
 } from '@workspace/schemas';
-// Import CommentTargetType from schemas or just use string checking if Prisma types aren't regenerated yet.
 // Assuming CommentTargetType is in schemas or we compare with strings.
-import { CommentTargetType } from '@workspace/schemas/src/models/comment.model';
 import type { Comment, Prisma } from '@prisma/generated';
-import type { ICommentService } from '../../interfaces/services';
-import { CommentRepository } from './comment.repository';
-import { BlogRepository } from '../blog/blog.repository';
+import type { ICommentService } from '@server/learning/interfaces/services';
+import { CommentRepository } from '@server/learning/modules/comment/comment.repository';
+import { BlogRepository } from '@server/learning/modules/blog/blog.repository';
 
 /**
  * Comment Service
@@ -423,3 +421,4 @@ export class CommentService implements ICommentService {
     return { isLiked: !existingLike, likeCount };
   }
 }
+

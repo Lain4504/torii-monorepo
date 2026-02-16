@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Timer, Play, Square, RotateCcw } from "lucide-react";
 
 // ============================================================================
 

@@ -11,7 +11,6 @@ import {
     FetchRecordingsResultSchema,
     RecordingInfoSchema,
     RecordingInfoResSchema,
-    PastRoomInfo
 } from '@workspace/protocol';
 import { create, fromJson } from '@bufbuild/protobuf';
 

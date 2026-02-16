@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CourseService } from '../src/modules/course/course.service';
-import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '../src/interfaces/repositories';
-import { ENROLLMENT_SERVICE_TOKEN } from '../src/interfaces/services';
+import { CourseService } from '@server/learning/modules/course/course.service';
+import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { getMapperToken } from '@automapper/nestjs';
-import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { UserRole } from '@workspace/schemas';
 
 describe('CourseService', () => {

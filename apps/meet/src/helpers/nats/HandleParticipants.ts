@@ -28,7 +28,6 @@ import {
   removeParticipant,
   updateParticipant,
 } from '../../store/slices/participantSlice';
-import { languagesMap } from '../languages';
 import {
   setActiveSidePanel,
   updateIsActiveRaisehand,

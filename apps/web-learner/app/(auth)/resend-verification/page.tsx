@@ -3,7 +3,6 @@
 import { RefreshCcw, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ResendVerificationForm } from "@/components/auth/resend-verification-form"
-import { cn } from "@workspace/ui/lib/utils"
 
 export default function ResendVerificationPage() {
     return (

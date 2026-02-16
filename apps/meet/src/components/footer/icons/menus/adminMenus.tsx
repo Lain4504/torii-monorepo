@@ -15,7 +15,7 @@ import {
   updateShowManageWaitingRoomModal,
   updateShowRtmpModal,
 } from '../../../../store/slices/bottomIconsActivitySlice';
-import { BarChart2, LayoutGrid, Bot, Radio, Play, MonitorPlay, NotebookPen, Captions, Lock as LockIcon, MicOff, UserPlus } from 'lucide-react';
+import { BarChart2, LayoutGrid, Bot, Radio, Play, MonitorPlay, Captions, Lock as LockIcon, MicOff, UserPlus } from 'lucide-react';
 
 const AdminMenus = () => {
   const dispatch = useAppDispatch();

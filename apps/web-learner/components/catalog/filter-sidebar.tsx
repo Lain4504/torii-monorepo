@@ -2,7 +2,6 @@
 
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Label } from "@workspace/ui/components/label"
-import { Button } from "@workspace/ui/components/button"
 import { Filter, X } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 

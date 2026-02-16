@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, CheckCircle2, ArrowRight, Shield, Clock } from 'lucide-react';
+import { Mail, ArrowRight, Shield, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@workspace/ui/components/button';
 

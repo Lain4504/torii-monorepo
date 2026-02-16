@@ -286,6 +286,9 @@ importers:
       '@prisma/client':
         specifier: ^7.1.0
         version: 7.3.0(prisma@7.3.0(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@seepine/edge-tts':
+        specifier: ^1.4.0
+        version: 1.4.0
       '@types/cookie-parser':
         specifier: ^1.4.10
         version: 1.4.10(@types/express@5.0.6)
@@ -331,6 +334,9 @@ importers:
       google-protobuf:
         specifier: ^3.21.4
         version: 3.21.4
+      google-tts-api:
+        specifier: ^2.0.2
+        version: 2.0.2
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -450,13 +456,13 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0
       eslint:
-        specifier: ^9.18.0
+        specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
       eslint-config-prettier:
-        specifier: ^10.0.1
+        specifier: ^10.1.8
         version: 10.1.8(eslint@9.39.2(jiti@2.6.1))
       eslint-plugin-prettier:
-        specifier: ^5.2.2
+        specifier: ^5.5.5
         version: 5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)
       globals:
         specifier: ^16.0.0
@@ -521,9 +527,6 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@workspace/i18n':
-        specifier: workspace:*
-        version: link:../../packages/i18n
       '@workspace/protocol':
         specifier: workspace:*
         version: link:../../packages/protocol
@@ -630,9 +633,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.12
         version: 5.90.20(react@19.2.1)
-      '@workspace/i18n':
-        specifier: workspace:*
-        version: link:../../packages/i18n
       '@workspace/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -722,8 +722,8 @@ importers:
         specifier: ^9.32.0
         version: 9.39.2(jiti@2.6.1)
       eslint-config-prettier:
-        specifier: ^9.1.2
-        version: 9.1.2(eslint@9.39.2(jiti@2.6.1))
+        specifier: ^10.1.8
+        version: 10.1.8(eslint@9.39.2(jiti@2.6.1))
       eslint-plugin-only-warn:
         specifier: ^1.1.0
         version: 1.1.0
@@ -745,31 +745,6 @@ importers:
       typescript-eslint:
         specifier: ^8.39.0
         version: 8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
-
-  packages/i18n:
-    dependencies:
-      i18next:
-        specifier: ^25.5.0
-        version: 25.7.3(typescript@5.9.3)
-      i18next-browser-languagedetector:
-        specifier: ^8.1.0
-        version: 8.2.0
-      react:
-        specifier: ^18.0.0 || ^19.0.0
-        version: 19.2.1
-      react-i18next:
-        specifier: ^16.3.3
-        version: 16.5.0(i18next@25.7.3(typescript@5.9.3))(react@19.2.1)(typescript@5.9.3)
-    devDependencies:
-      '@types/react':
-        specifier: ^19.2.5
-        version: 19.2.7
-      '@workspace/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
 
   packages/protocol:
     dependencies:
@@ -912,9 +887,6 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.15.3
         version: 3.18.0
-      '@workspace/i18n':
-        specifier: workspace:*
-        version: link:../i18n
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -4146,6 +4118,9 @@ packages:
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
+  '@seepine/edge-tts@1.4.0':
+    resolution: {integrity: sha512-yCJqo3wvapJ5TXyGpyYZGYbZf3+32l9Vn9iaBKvTcWBsJcPL+g/TWw74dImaFcr1vsGQRajvr4tf6zsiPj6nIQ==}
+
   '@sinclair/typebox@0.34.48':
     resolution: {integrity: sha512-kKJTNuK3AQOrgjjotVxMrCn1sUJwM76wMszfq1kdU4uYVJjvEWuFQ6HgvLt4Xz3fSmZlTOxJ/Ie13KnIcWQXFA==}
 
@@ -5526,6 +5501,9 @@ packages:
     peerDependencies:
       axios: 0.x || 1.x
 
+  axios@0.21.4:
+    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
+
   axios@1.13.2:
     resolution: {integrity: sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==}
 
@@ -6641,12 +6619,6 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-config-prettier@9.1.2:
-    resolution: {integrity: sha512-iI1f+D2ViGn+uvv5HuHVUamg8ll4tN+JRHGc6IJi4TP9Kl976C57fzPXgseXNs8v0iA8aSJpHsTWjDb9QJamGQ==}
-    hasBin: true
-    peerDependencies:
-      eslint: '>=7.0.0'
-
   eslint-plugin-only-warn@1.1.0:
     resolution: {integrity: sha512-2tktqUAT+Q3hCAU0iSf4xAN1k9zOpjK5WO8104mB0rT/dGhOa09582HN5HlbxNbPRZ0THV7nLGvzugcNOSjzfA==}
     engines: {node: '>=6'}
@@ -7142,7 +7114,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@14.0.0:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
@@ -7177,6 +7149,9 @@ packages:
 
   google-protobuf@3.21.4:
     resolution: {integrity: sha512-MnG7N936zcKTco4Jd2PX2U96Kf9PxygAPKBug+74LHzmHXmceN16MmRcdgZv+DGef/S9YvQAfRsNCn4cjf9yyQ==}
+
+  google-tts-api@2.0.2:
+    resolution: {integrity: sha512-MkQYbBJEdom8hJpfEVDfD3tpBtkz0X59C+FNsoRhbnCiFjZRnzyurGQ5OrAr3xkigII56/jmk0JNwZsp450G+Q==}
 
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
@@ -7836,6 +7811,9 @@ packages:
       react:
         optional: true
 
+  js-sha256@0.11.1:
+    resolution: {integrity: sha512-o6WSo/LUvY2uC4j7mO50a2ms7E/EAdbP0swigLV+nzHKTTaYnaLIWJ02VdXrsJX0vGedDESQnLsOekr94ryfjg==}
+
   js-stringify@1.0.2:
     resolution: {integrity: sha512-rtS5ATOo2Q5k1G+DADISilDA6lv79zIiwFd6CcjuIxGKLFm5C+RLImRscVap9k55i+MOZwgliw+NejvkLuGD5g==}
 
@@ -7915,6 +7893,7 @@ packages:
   keygrip@1.1.0:
     resolution: {integrity: sha512-iYSchDJ+liQ8iwbSI2QqsQOvqv58eJCEanyJPJi+Khyu8smkcKSFUCbPwzFcL7YVtZ6eONjqRX/38caJ7QjRAQ==}
     engines: {node: '>= 0.6'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -10775,6 +10754,18 @@ packages:
   write-file-atomic@5.0.1:
     resolution: {integrity: sha512-+QU2zd6OTD8XWIJCbffaiQeH9U73qIqafo1x6V1snCWYGJf6cVE0cDR4D8xRzcEnfI21IFrUPzPGtcPf8AC+Rw==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+
+  ws@8.13.0:
+    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
 
   ws@8.19.0:
     resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
@@ -14416,6 +14407,16 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
+  '@seepine/edge-tts@1.4.0':
+    dependencies:
+      https-proxy-agent: 7.0.6
+      js-sha256: 0.11.1
+      ws: 8.13.0
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
   '@sinclair/typebox@0.34.48': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
@@ -16093,6 +16094,12 @@ snapshots:
       axios: 1.13.2(debug@4.4.3)
       is-retry-allowed: 2.2.0
 
+  axios@0.21.4:
+    dependencies:
+      follow-redirects: 1.15.11(debug@4.4.3)
+    transitivePeerDependencies:
+      - debug
+
   axios@1.13.2(debug@4.4.3):
     dependencies:
       follow-redirects: 1.15.11(debug@4.4.3)
@@ -17341,10 +17348,6 @@ snapshots:
     dependencies:
       eslint: 9.39.2(jiti@2.6.1)
 
-  eslint-config-prettier@9.1.2(eslint@9.39.2(jiti@2.6.1)):
-    dependencies:
-      eslint: 9.39.2(jiti@2.6.1)
-
   eslint-plugin-only-warn@1.1.0: {}
 
   eslint-plugin-prettier@5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4):
@@ -18072,6 +18075,12 @@ snapshots:
 
   google-protobuf@3.21.4: {}
 
+  google-tts-api@2.0.2:
+    dependencies:
+      axios: 0.21.4
+    transitivePeerDependencies:
+      - debug
+
   gopd@1.2.0: {}
 
   graceful-fs@4.2.11: {}
@@ -18238,12 +18247,6 @@ snapshots:
       '@babel/runtime': 7.28.6
     optionalDependencies:
       typescript: 5.7.3
-
-  i18next@25.7.3(typescript@5.9.3):
-    dependencies:
-      '@babel/runtime': 7.28.6
-    optionalDependencies:
-      typescript: 5.9.3
 
   iconv-lite@0.4.24:
     dependencies:
@@ -18930,6 +18933,8 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.7
       react: 19.2.1
+
+  js-sha256@0.11.1: {}
 
   js-stringify@1.0.2: {}
 
@@ -20712,16 +20717,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.3
 
-  react-i18next@16.5.0(i18next@25.7.3(typescript@5.9.3))(react@19.2.1)(typescript@5.9.3):
-    dependencies:
-      '@babel/runtime': 7.28.6
-      html-parse-stringify: 3.0.1
-      i18next: 25.7.3(typescript@5.9.3)
-      react: 19.2.1
-      use-sync-external-store: 1.6.0(react@19.2.1)
-    optionalDependencies:
-      typescript: 5.9.3
-
   react-is@16.13.1: {}
 
   react-is@18.3.1: {}
@@ -22325,6 +22320,8 @@ snapshots:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
+
+  ws@8.13.0: {}
 
   ws@8.19.0: {}
 

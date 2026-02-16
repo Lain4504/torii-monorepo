@@ -2,7 +2,6 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { flashcardApi } from '@/apis/services/flashcard-api'
-import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'
 import { Input } from '@workspace/ui/components/input'
@@ -19,7 +18,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value'
 import {

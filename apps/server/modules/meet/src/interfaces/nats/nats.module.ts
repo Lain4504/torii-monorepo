@@ -16,10 +16,10 @@ import { NatsUserInfoService } from './nats-user-info.service';
 import { NatsAuthCalloutService } from './nats-auth-callout.service';
 import { NatsConsumerService } from './nats-consumer.service';
 import { NatsController } from './nats.controller';
-import { AnalyticsModule } from '../../modules/analytics/analytics.module';
-import { LiveKitModule } from '../../infrastructure/livekit/livekit.module';
-import { WajlcAuthModule } from '../../modules/auth/wajlc-auth.module';
-import { RoomModule } from '../../modules/room/room.module';
+import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
+import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.module';
+import { WajlcAuthModule } from '@server/meet/modules/auth/wajlc-auth.module';
+import { RoomModule } from '@server/meet/modules/room/room.module';
 
 @Global()
 @Module({

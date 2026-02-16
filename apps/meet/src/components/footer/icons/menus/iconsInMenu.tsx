@@ -7,7 +7,7 @@ import {
   updateDisplaySpeechSettingOptionsModal,
   updateIsActiveWhiteboard,
 } from '../../../../store/slices/bottomIconsActivitySlice';
-import { BarChart2, PenTool, NotebookPen, Captions } from 'lucide-react';
+import { BarChart2, PenTool, Captions } from 'lucide-react';
 
 const IconsInMenu = () => {
   const dispatch = useAppDispatch();

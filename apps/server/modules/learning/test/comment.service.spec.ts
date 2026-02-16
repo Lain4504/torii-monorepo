@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CommentService } from '../src/modules/comment/comment.service';
-import { CommentRepository } from '../src/modules/comment/comment.repository';
-import { BlogRepository } from '../src/modules/blog/blog.repository';
+import { CommentService } from '@server/learning/modules/comment/comment.service';
+import { CommentRepository } from '@server/learning/modules/comment/comment.repository';
+import { BlogRepository } from '@server/learning/modules/blog/blog.repository';
 import { PrismaService } from '@server/shared';
 import { getMapperToken } from '@automapper/nestjs';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
@@ -12,7 +12,6 @@ import type {
     CommentCreateDTO,
     CommentUpdateDTO,
     CommentQueryDTO,
-    CommentResponseDTO
 } from '@workspace/schemas';
 
 describe('CommentService', () => {

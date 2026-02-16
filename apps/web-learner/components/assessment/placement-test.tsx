@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ArrowRight, CheckCircle2, Loader2, Sparkles, AlertCircle } from "lucide-react"
+import { ArrowRight, Loader2, Sparkles } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"

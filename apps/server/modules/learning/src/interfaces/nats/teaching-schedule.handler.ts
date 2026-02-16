@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { TeachingScheduleService } from '../../modules/teaching-schedule/teaching-schedule.service';
+import { TeachingScheduleService } from '@server/learning/modules/teaching-schedule/teaching-schedule.service';
 import {
     TeachingScheduleCreateDTO,
     ScheduleRequestCreateDTO,
@@ -53,3 +53,4 @@ export class TeachingScheduleHandler {
         return this.scheduleService.handleRequest(data.requester, data.requestId, data.action);
     }
 }
+

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Blog, Prisma } from '@prisma/generated';
-import type { IBlogRepository } from '../../interfaces/repositories';
+import type { IBlogRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Blog Repository
@@ -110,3 +110,4 @@ export class BlogRepository implements IBlogRepository {
 
 
 }
+

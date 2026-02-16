@@ -3,7 +3,6 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { firstValueFrom } from 'rxjs';
-import type { Coupon } from '@prisma/generated';
 import { UserRole, CouponStatus, CouponDiscountType } from '@workspace/schemas';
 import type {
     CouponResponseDTO,
@@ -14,15 +13,14 @@ import type {
     CouponCalculateDiscountRequestDTO,
     CouponCalculateDiscountResponseDTO,
     CouponStatisticsDTO,
-    PaginationOptionsDTO,
     PaginatedResponseDTO,
     Requester,
     CouponSearchRequestDTO,
 } from '@workspace/schemas';
 
-import type { ICouponService } from '../../interfaces/services';
-import type { ICouponRepository } from '../../interfaces/repositories';
-import { COUPON_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import type { ICouponService } from '@server/learning/interfaces/services';
+import type { ICouponRepository } from '@server/learning/interfaces/repositories';
+import { COUPON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 
 /**
  * Coupon Service
@@ -675,3 +673,4 @@ export class CouponService implements ICouponService {
         }
     }
 }
+

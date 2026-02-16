@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Course, Prisma } from '@prisma/generated';
-import type { ICourseRepository } from '../../interfaces/repositories';
+import type { ICourseRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Course Repository
@@ -198,3 +198,4 @@ export class CourseRepository implements ICourseRepository {
         }).filter(item => item.user); // Filter out if user not found
     }
 }
+

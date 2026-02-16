@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { BlogService } from '../../modules/blog/blog.service';
+import { BlogService } from '@server/learning/modules/blog/blog.service';
 import { BlogCreateDTO, BlogUpdateDTO, BlogQueryDTO } from '@workspace/schemas';
 
 @Controller()
@@ -49,3 +49,4 @@ export class BlogHandler {
 
 
 }
+
