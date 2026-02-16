@@ -19,7 +19,7 @@ export function formatDateTime(date: Date | string | number | undefined | null, 
         // Convert to Vietnam time (UTC+7) representation
         const vnDate = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }))
         return format(vnDate, formatStr, { locale: vi })
-    } catch (e) {
+    } catch {
         return "--"
     }
 }
@@ -31,7 +31,7 @@ export function formatDate(date: Date | string | number | undefined | null, form
         // Convert to Vietnam time (UTC+7) representation
         const vnDate = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }))
         return format(vnDate, formatStr, { locale: vi })
-    } catch (e) {
+    } catch {
         return "--"
     }
 }

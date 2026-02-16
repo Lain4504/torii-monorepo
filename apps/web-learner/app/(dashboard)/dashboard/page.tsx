@@ -189,7 +189,7 @@ export default function DashboardPage() {
                             </div>
 
                             <div className="grid gap-4">
-                                {recentCourses.map((course, idx) => (
+                                {recentCourses.map((course) => (
                                     <Link key={course.id} href={`/courses/${course.slug}/learn`}>
                                         <Card
                                             className="rounded-2xl border border-border bg-card hover:border-primary/50 transition-all duration-300 group cursor-pointer overflow-hidden shadow-sm hover:shadow-md"

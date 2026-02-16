@@ -765,7 +765,9 @@ export default class ConnectNats {
         store.dispatch(addToken(this._token));
       },
       [NatsMsgServerToClientEvents.SYSTEM_NOTIFICATION]: (p) => {
-        !this._isRecorder && this.handleSystemData.handleNotification(p.msg);
+        if (!this._isRecorder) {
+          this.handleSystemData.handleNotification(p.msg);
+        }
       },
       [NatsMsgServerToClientEvents.USER_JOINED]: (p) =>
         this.handleParticipants.addRemoteParticipant(p.msg),

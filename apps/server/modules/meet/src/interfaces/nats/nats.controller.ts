@@ -118,7 +118,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                     this.logger.log('NATS JetStream connection ready');
                     return;
                 }
-            } catch (error) {
+            } catch {
                 // Connection not ready yet
             }
 
@@ -307,7 +307,7 @@ export class NatsController implements OnModuleInit, OnModuleDestroy {
                 if (err.message?.includes("consumer already exists") || err.api_error?.err_code === 10148) {
                     // Consumer exists, try to update it
                     // Update config excludes durable_name as it is passed as argument
-                    const { durable_name, ...updateConfig } = consumerConfig;
+                    const { durable_name: _durable_name, ...updateConfig } = consumerConfig;
                     await jsm.consumers.update(sysJsWorker, `${PREFIX}${sysJsWorker}`, updateConfig);
                 } else {
                     throw err;

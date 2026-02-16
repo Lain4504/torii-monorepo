@@ -40,7 +40,7 @@ import {
 } from '@workspace/protocol';
 import { RedisBreakoutService } from '@server/meet/infrastructure/redis/redis-breakout.service';
 
-const BREAKOUT_ROOM_FORMAT = '%s-%s';
+
 
 @Injectable()
 export class BreakoutService {

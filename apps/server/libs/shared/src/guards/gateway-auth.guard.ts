@@ -45,7 +45,7 @@ export class GatewayAuthGuard implements CanActivate {
                         }
                         request['requester'] = payload;
                     }
-                } catch (e) {
+                } catch {
                     // Ignore error for public routes
                 }
             }

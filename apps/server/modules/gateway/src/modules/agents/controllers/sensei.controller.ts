@@ -6,10 +6,7 @@ import {
     Req,
     UseGuards,
     Logger,
-    BadRequestException,
-    InternalServerErrorException,
-    HttpException,
-    HttpStatus,
+
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';

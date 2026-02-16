@@ -11,7 +11,7 @@ import { Observable, throwError } from 'rxjs';
 export class GlobalRpcExceptionFilter implements RpcExceptionFilter<any> {
     private readonly logger = new Logger(GlobalRpcExceptionFilter.name);
 
-    catch(exception: any, host: ArgumentsHost): Observable<any> {
+    catch(exception: any, _host: ArgumentsHost): Observable<any> {
         let errorData: any = {
             message: 'Internal server error',
             status: 500,

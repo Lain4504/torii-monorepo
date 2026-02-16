@@ -200,7 +200,7 @@ export class PollsService {
             try {
                 const info: PollInfo = JSON.parse(pi);
                 polls.push(info);
-            } catch (err) {
+            } catch {
                 continue;
             }
         }
@@ -304,7 +304,7 @@ export class PollsService {
                 if (info.isRunning) {
                     totalRunning++;
                 }
-            } catch (err) {
+            } catch {
                 continue;
             }
         }

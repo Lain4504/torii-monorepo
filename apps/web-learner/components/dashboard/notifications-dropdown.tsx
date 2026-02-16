@@ -57,8 +57,8 @@ function mapNotificationToUI(notification: NotificationResponseDTO): UINotificat
 
 export function NotificationsDropdown() {
     // Fetch latest notifications (limit to 10 for dropdown)
-    const { data: notificationsData, isLoading, error } = useNotifications({ limit: 10, page: 1 });
-    const { data: unreadCountData, error: unreadError } = useUnreadNotificationsCount();
+    const { data: notificationsData, isLoading } = useNotifications({ limit: 10, page: 1 });
+    const { data: unreadCountData } = useUnreadNotificationsCount();
     const markAsReadMutation = useMarkNotificationAsRead();
     const markAllAsReadMutation = useMarkAllNotificationsAsRead();
 

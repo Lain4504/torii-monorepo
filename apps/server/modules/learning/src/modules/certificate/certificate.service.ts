@@ -6,19 +6,19 @@ import * as QRCode from 'qrcode';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import type { Certificate } from '@prisma/generated';
-import { 
-    type CertificateResponseDTO, 
-    type CertificateQueryDTO, 
-    type CertificatePaginatedResponse 
+import {
+    type CertificateResponseDTO,
+    type CertificateQueryDTO,
+    type CertificatePaginatedResponse
 } from '@workspace/schemas';
 import type { ICertificateService } from '@server/learning/interfaces/services';
-import { 
-    ICertificateRepository, 
+import {
+    ICertificateRepository,
     CERTIFICATE_REPOSITORY_TOKEN,
     IEnrollmentRepository,
     ENROLLMENT_REPOSITORY_TOKEN,
     ICourseRepository,
-    COURSE_REPOSITORY_TOKEN 
+    COURSE_REPOSITORY_TOKEN
 } from '@server/learning/interfaces/repositories';
 import { SharedStorageService } from '@server/shared';
 import { v4 as uuidv4 } from 'uuid';
@@ -37,7 +37,7 @@ export class CertificateService implements ICertificateService {
         private readonly storageService: SharedStorageService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         @InjectMapper() private readonly mapper: Mapper,
-    ) {}
+    ) { }
 
     private toCertificateDto(c: Certificate): CertificateResponseDTO {
         return this.mapper.map<Certificate, CertificateResponseDTO>(c, 'Certificate', 'CertificateResponseDTO');
@@ -110,7 +110,7 @@ export class CertificateService implements ICertificateService {
                     this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: userId })
                 );
                 userName = userResponse?.user?.displayName || userResponse?.user?.email || 'Learner';
-            } catch (error) {
+            } catch {
                 this.logger.warn(`Could not fetch user info for certificate: ${userId}`);
             }
 
@@ -129,7 +129,7 @@ export class CertificateService implements ICertificateService {
             const gold = rgb(0.8, 0.6, 0.0);      // Gold accent
             const navy = rgb(0.1, 0.2, 0.4);      // Navy blue
             const lightGold = rgb(0.95, 0.92, 0.85); // Light cream background
-            
+
             // Background with subtle cream color
             page.drawRectangle({
                 x: 0, y: 0, width, height,
@@ -253,7 +253,7 @@ export class CertificateService implements ICertificateService {
             // Signature lines
             const sigY = 140;
             const sigLineWidth = 150;
-            
+
             // Left signature - Instructor
             page.drawLine({
                 start: { x: 120, y: sigY },

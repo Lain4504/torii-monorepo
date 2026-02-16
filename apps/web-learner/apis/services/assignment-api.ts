@@ -129,7 +129,7 @@ export const assignmentApi = {
   /**
    * Download assignment attachment file
    */
-  downloadAttachment: async (url: string, filename: string): Promise<void> => {
+  downloadAttachment: async (url: string): Promise<void> => {
     try {
       // For external URLs (S3, MinIO, etc.), open directly in new tab
       // Browser will handle download based on Content-Disposition header
@@ -195,7 +195,7 @@ export function useMySubmission(assignmentId: string) {
  */
 export function useSubmitAssignment() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ assignmentId, dto }: { assignmentId: string; dto: SubmitAssignmentDto }) =>
       assignmentApi.submitAssignment(assignmentId, dto),
@@ -216,7 +216,7 @@ export function useSubmitAssignment() {
  */
 export function useSaveDraft() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ assignmentId, dto }: { assignmentId: string; dto: SubmitAssignmentDto }) =>
       assignmentApi.saveDraft(assignmentId, dto),

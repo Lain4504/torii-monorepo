@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
@@ -11,7 +11,7 @@ import { courseApi } from '@/apis/services/course-api'
 
 export default function CourseCompletionPage() {
     const params = useParams()
-    const router = useRouter()
+
     const slug = params.slug as string
     const [course, setCourse] = useState<any>(null)
     const [loading, setLoading] = useState(true)

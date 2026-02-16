@@ -20,7 +20,6 @@ describe('CommentService', () => {
     let blogRepository: any;
     let prisma: any;
     let mapper: any;
-    let natsClient: any;
 
     const USER_ID = '00000000-0000-0000-0000-000000000001';
     const BLOG_ID = '00000000-0000-0000-0000-000000000002';
@@ -109,7 +108,6 @@ describe('CommentService', () => {
         blogRepository = module.get(BlogRepository);
         prisma = module.get(PrismaService);
         mapper = module.get(getMapperToken());
-        natsClient = module.get('NATS_SERVICE');
 
         // Default mapper implementation
         mapper.map.mockReturnValue(mockDTO);

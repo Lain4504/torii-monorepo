@@ -468,7 +468,7 @@ export class OrderService implements IOrderService {
                 transactionId,
                 gatewayTransactionId: input.gatewayTransactionId,
                 completedAt: new Date(),
-                metadata: input.metadata ? { ...(order.metadata as Record<string, any> || {}), ...input.metadata } : (order.metadata as any) || {},
+                metadata: input.metadata ? { ...(order.metadata as Record<string, any>), ...input.metadata } : (order.metadata as any) || {},
             });
 
             const metadata = order.metadata as Record<string, any>;

@@ -254,7 +254,7 @@ export class ArtifactsService {
                 fileContent += `<v ${chunk.name}>${chunk.text}\n\n`;
 
                 previousEndTime = elapsedTime;
-            } catch (e) { }
+            } catch { }
         });
 
         if (fileContent.length <= 40) return undefined;
@@ -420,7 +420,7 @@ export class ArtifactsService {
     }
 
     private async handleAnalyticsEvent(roomId: string, eventName: AnalyticsEvents, eventValueInteger: bigint): Promise<void> {
-        const event = create(AnalyticsDataMsgSchema, {
+        const _event = create(AnalyticsDataMsgSchema, {
             eventType: AnalyticsEventType.ROOM,
             eventName: eventName,
             roomId: roomId,

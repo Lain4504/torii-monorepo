@@ -111,7 +111,7 @@ export class NatsStreamService {
             const jsm = this.natsService.getJetStreamManager();
             await jsm.consumers.delete(streamName, consumerName);
             this.logger.debug(`Deleted consumer ${consumerName} from stream ${streamName}`);
-        } catch (error) {
+        } catch {
             // Ignore if consumer doesn't exist
             this.logger.debug(`Consumer ${consumerName} not found in stream ${streamName}`);
         }

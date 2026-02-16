@@ -86,7 +86,7 @@ export const checkAuth = createAsyncThunk(
             }
 
             return rejectWithValue('Not authenticated');
-        } catch (error: unknown) {
+        } catch {
             // Don't show error for auth check - it's expected to fail if not logged in
             return rejectWithValue('Not authenticated');
         }

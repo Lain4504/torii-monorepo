@@ -29,7 +29,6 @@ import {
     RemoveParticipantReqSchema,
     SwitchPresenterReq,
     SwitchPresenterReqSchema,
-    VerifyTokenReq,
     VerifyTokenReqSchema,
     IsRoomActiveReqSchema,
     VerifyTokenResSchema,
@@ -71,9 +70,8 @@ export class UserRoomSettingController {
         const requestedUserId = (req as any).requestedUserId as string;
 
         // Parse protobuf request
-        let request: VerifyTokenReq;
         try {
-            request = fromBinary(VerifyTokenReqSchema, bodyBuffer);
+            fromBinary(VerifyTokenReqSchema, bodyBuffer);
         } catch (error) {
             sendCommonProtobufResponse(
                 res,
@@ -296,7 +294,7 @@ export class UserRoomSettingController {
                 sendCommonProtobufResponse(res, false, "room isn't running");
                 return;
             }
-        } catch (error) {
+        } catch {
             sendCommonProtobufResponse(res, false, "room isn't running");
             return;
         }
@@ -381,7 +379,7 @@ export class UserRoomSettingController {
                 sendCommonProtobufResponse(res, false, "room isn't running");
                 return;
             }
-        } catch (error) {
+        } catch {
             sendCommonProtobufResponse(res, false, "room isn't running");
             return;
         }
@@ -472,7 +470,7 @@ export class UserRoomSettingController {
                 sendCommonProtobufResponse(res, false, "room isn't running");
                 return;
             }
-        } catch (error) {
+        } catch {
             sendCommonProtobufResponse(res, false, "room isn't running");
             return;
         }

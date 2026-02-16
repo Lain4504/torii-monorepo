@@ -14,11 +14,11 @@ interface MultiFileUploadProps {
     maxFiles?: number;
 }
 
-export function MultiFileUpload({ 
-    onUploadChange, 
-    accept = '*', 
-    label = 'Tải lên tài liệu', 
-    currentUrls = [], 
+export function MultiFileUpload({
+    onUploadChange,
+    accept = '*',
+    label = 'Tải lên tài liệu',
+    currentUrls = [],
     disabled,
     maxFiles = 5
 }: MultiFileUploadProps) {
@@ -43,7 +43,7 @@ export function MultiFileUpload({
             for (const file of filesArray) {
                 // Check if already uploaded (basic check by name, though URLs might differ)
                 // In a real app, we might want to check for duplicates more robustly
-                
+
                 const response = await storageApi.uploadFile(file, 'assignments');
                 newUrls.push(response.fileUrl);
             }
@@ -104,8 +104,8 @@ export function MultiFileUpload({
                     isDragging ? "border-primary bg-primary/5 shadow-inner" : "border-border/20 hover:border-primary/50 hover:bg-muted/10",
                     (disabled || isUploading || urls.length >= maxFiles) && "opacity-50 cursor-not-allowed"
                 )}
-                onClick={() => !disabled && !isUploading && urls.length < maxFiles && fileInputRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); !disabled && !isUploading && setIsDragging(true); }}
+                onClick={() => { if (!disabled && !isUploading && urls.length < maxFiles) fileInputRef.current?.click(); }}
+                onDragOver={(e) => { e.preventDefault(); if (!disabled && !isUploading) setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
             >
@@ -118,7 +118,7 @@ export function MultiFileUpload({
                     onChange={handleFileChange}
                     disabled={disabled || isUploading || urls.length >= maxFiles}
                 />
-                
+
                 <div className={cn(
                     "p-4 rounded-2xl transition-all",
                     isDragging ? "bg-primary/20 scale-110" : "bg-primary/10 group-hover:bg-primary/20"

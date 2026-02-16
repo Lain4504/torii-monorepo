@@ -78,7 +78,7 @@ export class StorageService implements IStorageService {
             if (key.startsWith('http')) {
                 key = this.sharedStorage.extractKeyFromUrl(key);
             }
-        } catch (e) {
+        } catch {
             this.logger.warn(`Could not extract key from ${key}, assuming it is the key`);
         }
 
@@ -114,7 +114,7 @@ export class StorageService implements IStorageService {
             if (key.startsWith('http')) {
                 key = this.sharedStorage.extractKeyFromUrl(key);
             }
-        } catch (e) {
+        } catch {
             this.logger.warn(`Could not extract key from ${key}, assuming it is the key`);
         }
 
@@ -143,7 +143,7 @@ export class StorageService implements IStorageService {
             if (key.startsWith('http')) {
                 key = this.sharedStorage.extractKeyFromUrl(key);
             }
-        } catch (e) { }
+        } catch { }
 
         const signedUrl = await this.sharedStorage.getPresignedUrl({
             key,

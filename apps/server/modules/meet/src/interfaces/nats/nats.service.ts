@@ -25,7 +25,6 @@ const ROOM_INFO_KEY_PREFIX = 'info_';
 const USER_KEY_PREFIX = 'user_';
 const USER_KEY_FIELD_PREFIX = '-FIELD_';
 const FILE_KEY_PREFIX = 'file_';
-const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 @Injectable()
 export class NatsService implements OnModuleInit, OnModuleDestroy {
@@ -187,7 +186,7 @@ export class NatsService implements OnModuleInit, OnModuleDestroy {
         try {
             const val = await kv.get(key);
             return val ? new TextDecoder().decode(val.value) : '';
-        } catch (error) {
+        } catch {
             return '';
         }
     }

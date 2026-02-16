@@ -20,21 +20,29 @@ export const useMainAreaCustomCSS = ({
   return useMemo(() => {
     const css: Array<string> = [];
 
-    isActiveScreenSharingView && hasScreenShareSubscribers
-      ? css.push('showScreenShare fullWidthMainArea')
-      : css.push('hideScreenShare');
+    if (isActiveScreenSharingView && hasScreenShareSubscribers) {
+      css.push('showScreenShare fullWidthMainArea');
+    } else {
+      css.push('hideScreenShare');
+    }
 
-    isActiveWhiteboard
-      ? css.push('showWhiteboard fullWidthMainArea')
-      : css.push('hideWhiteboard');
+    if (isActiveWhiteboard) {
+      css.push('showWhiteboard fullWidthMainArea');
+    } else {
+      css.push('hideWhiteboard');
+    }
 
-    isActiveExternalMediaPlayer
-      ? css.push('showExternalMediaPlayer fullWidthMainArea')
-      : css.push('hideExternalMediaPlayer');
+    if (isActiveExternalMediaPlayer) {
+      css.push('showExternalMediaPlayer fullWidthMainArea');
+    } else {
+      css.push('hideExternalMediaPlayer');
+    }
 
-    isActiveDisplayExternalLink
-      ? css.push('showDisplayExternalLink fullWidthMainArea')
-      : css.push('hideDisplayExternalLink');
+    if (isActiveDisplayExternalLink) {
+      css.push('showDisplayExternalLink fullWidthMainArea');
+    } else {
+      css.push('hideDisplayExternalLink');
+    }
 
     if (isRecorder) {
       css.push('isRecorder');

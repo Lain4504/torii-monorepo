@@ -27,7 +27,7 @@ jest.mock('jsonwebtoken');
 
 describe('WajlcAuthService', () => {
     let service: WajlcAuthService;
-    let natsUserInfoService: NatsUserInfoService;
+
 
     const mockAppConfigService = {
         security: {
@@ -62,7 +62,7 @@ describe('WajlcAuthService', () => {
         }).compile();
 
         service = module.get<WajlcAuthService>(WajlcAuthService);
-        natsUserInfoService = module.get<NatsUserInfoService>(NatsUserInfoService);
+
     });
 
     afterEach(() => {

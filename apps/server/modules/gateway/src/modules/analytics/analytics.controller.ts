@@ -60,7 +60,7 @@ export class AnalyticsController {
                 this.natsClient.send({ cmd: 'identity.analytics.users' }, {})
             );
             return successResponse(stats);
-        } catch (error: any) {
+        } catch {
             return errorResponse('Failed to fetch user analytics');
         }
     }
@@ -73,7 +73,7 @@ export class AnalyticsController {
                 this.natsClient.send({ cmd: 'learning.analytics.courses' }, {})
             );
             return successResponse(stats);
-        } catch (error: any) {
+        } catch {
             return errorResponse('Failed to fetch course analytics');
         }
     }

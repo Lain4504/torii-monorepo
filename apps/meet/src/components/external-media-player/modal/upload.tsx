@@ -34,7 +34,7 @@ const Upload = ({ setSelectedUrl, isPlayBtnLoading }: UploadProps) => {
         fileType: RoomUploadedFileType.EXTERNAL_MEDIA_PLAYER_FILE,
       },
     );
-    const targetUrl = SERVER_URL + '/api/fileUpload';
+
     setNewlyUploadedFile(newFile);
     // select the newly uploaded file.
     setSelectedFile(newFile);

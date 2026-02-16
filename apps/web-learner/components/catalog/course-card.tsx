@@ -24,7 +24,7 @@ export function CourseCard(props: CourseCardProps) {
         price = 0,
         originalPrice = 0,
         totalLessons = 0,
-        totalHours = 0,
+
         isLive = false,
         className,
     } = props;

@@ -80,7 +80,7 @@ export class NatsAuthCalloutService {
     async handleAuthCallout(
         rawData: Buffer | string | any,
         xKey: string | undefined,
-        context: NatsContext,
+        _context: NatsContext,
     ): Promise<Buffer> {
         let data: Buffer;
 

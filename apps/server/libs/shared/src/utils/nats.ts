@@ -53,7 +53,7 @@ export function nkeyOptionFromSeedText(seedText: string): string {
  * @param seed - NKey seed text
  * @returns Signature bytes (placeholder - use nats.js built-in)
  */
-export function sigHandler(nonce: Uint8Array, seed: string): Uint8Array {
+export function sigHandler(_nonce: Uint8Array, _seed: string): Uint8Array {
     throw new Error('sigHandler is not needed - use nats.js built-in NKey authentication');
 }
 

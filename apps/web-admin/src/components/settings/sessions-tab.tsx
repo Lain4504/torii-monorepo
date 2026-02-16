@@ -15,7 +15,7 @@ export function SessionsTab() {
         try {
             await revokeMutation.mutateAsync(id);
             toast.success('Đã đăng xuất phiên này');
-        } catch (error) {
+        } catch {
             toast.error('Không thể đăng xuất phiên này');
         }
     };
@@ -24,7 +24,7 @@ export function SessionsTab() {
         try {
             await revokeOtherMutation.mutateAsync();
             toast.success('Đã đăng xuất khỏi tất cả các thiết bị khác');
-        } catch (error) {
+        } catch {
             toast.error('Không thể thực hiện yêu cầu');
         }
     };

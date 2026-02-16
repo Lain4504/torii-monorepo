@@ -94,7 +94,7 @@ export class FlashcardDeckController {
     async deleteDeck(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
-            const result = await firstValueFrom(
+            await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.flashcard-deck.delete' },
                     { id, userId: requester.sub }

@@ -1,5 +1,3 @@
-/**
- * Infrastructure Layer Exports
- * Export all infrastructure services
- */
+// Export all infrastructure services
+export { };
 

@@ -8,10 +8,10 @@ import { UserRole } from '@workspace/schemas';
 describe('LessonService', () => {
     let service: LessonService;
     let lessonRepository: any;
-    let moduleRepository: any;
-    let courseService: any;
-    let enrollmentService: any;
-    let natsClient: any;
+    let _moduleRepository: any;
+    let _courseService: any;
+    let _enrollmentService: any;
+    let _natsClient: any;
 
     const mockLessonRepository = {
         create: jest.fn(),
@@ -58,10 +58,10 @@ describe('LessonService', () => {
 
         service = module.get<LessonService>(LessonService);
         lessonRepository = module.get(LESSON_REPOSITORY_TOKEN);
-        moduleRepository = module.get(MODULE_REPOSITORY_TOKEN);
-        courseService = module.get(COURSE_SERVICE_TOKEN);
-        enrollmentService = module.get(ENROLLMENT_SERVICE_TOKEN);
-        natsClient = module.get('NATS_SERVICE');
+        _moduleRepository = module.get(MODULE_REPOSITORY_TOKEN);
+        _courseService = module.get(COURSE_SERVICE_TOKEN);
+        _enrollmentService = module.get(ENROLLMENT_SERVICE_TOKEN);
+        _natsClient = module.get('NATS_SERVICE');
 
         jest.clearAllMocks();
     });

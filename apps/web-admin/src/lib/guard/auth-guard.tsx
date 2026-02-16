@@ -40,7 +40,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
                     }
                     setHasVerified(true);
                 }
-            } catch (error) {
+            } catch {
                 // Not authenticated
                 navigate('/login', { replace: true });
             }

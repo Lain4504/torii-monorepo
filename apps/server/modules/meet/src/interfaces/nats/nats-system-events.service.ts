@@ -23,7 +23,7 @@ import {
     NatsMsgClientToServer,
     PrivateDataDeliverySchema,
 } from '@workspace/protocol';
-import { fromBinary } from '@bufbuild/protobuf';
+
 import { NatsUserInfoService } from '@server/meet/interfaces/nats/nats-user-info.service';
 import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
@@ -92,7 +92,7 @@ export class NatsSystemEventsService {
         } else if (typeof data === 'object' && data !== null) {
             // Treat objects as JSON, but explicitly remove $typeName if present
             // (common in Protobuf messages which should have been serialized by caller)
-            const { $typeName, ...cleanData } = data as any;
+            const { $typeName: _$typeName, ...cleanData } = data as any;
             msg = JSON.stringify(cleanData);
         } else {
             msg = JSON.stringify(data);
@@ -137,7 +137,7 @@ export class NatsSystemEventsService {
         } else if (data instanceof Uint8Array) {
             msg = new TextDecoder().decode(data);
         } else if (typeof data === 'object' && data !== null) {
-            const { $typeName, ...cleanData } = data as any;
+            const { $typeName: _$typeName, ...cleanData } = data as any;
             msg = JSON.stringify(cleanData);
         } else {
             msg = JSON.stringify(data);
@@ -239,7 +239,7 @@ export class NatsSystemEventsService {
         msg: string, // JSON string or simple string
         fromUserId: string = 'system',
         toUserId?: string,
-        isAdmin: boolean = false, // if true, can be just from 'system'
+        _isAdmin: boolean = false, // if true, can be just from 'system'
     ): Promise<void> {
         const payload = create(DataChannelMessageSchema, {
             id: uuidv4(),

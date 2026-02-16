@@ -33,7 +33,7 @@ async function bootstrap() {
   // --- MOUNT FASTMCP (Managed by FastMcpService) ---
   // We proxy /mcp/* -> http://localhost:4000/*
 
-  app.use('/mcp', (req, res, next) => {
+  app.use('/mcp', (req, res, _next) => {
     const http = require('http');
     const originalUrl = req.originalUrl.replace('/mcp', '') || '/';
 

@@ -182,7 +182,7 @@ const redirectToLogin = async () => {
         // We use a separate axios instance or native fetch here to avoid interceptors if needed,
         // but apiClient should be fine now that we handle logout/login in isPublicEndpoint correctly.
         await apiClient.post('/api/auth/logout').catch(() => { });
-    } catch (e) {
+    } catch {
         // Ignore
     }
 

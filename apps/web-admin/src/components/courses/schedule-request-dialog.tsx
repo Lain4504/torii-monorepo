@@ -101,7 +101,7 @@ export function ScheduleRequestDialog({
             toast.success('Đã gửi yêu cầu thay đổi lịch dạy. Vui lòng chờ quản trị viên phê duyệt.');
             onOpenChange(false);
             form.reset();
-        } catch (error) {
+        } catch {
             toast.error('Có lỗi xảy ra khi gửi yêu cầu');
         }
     };

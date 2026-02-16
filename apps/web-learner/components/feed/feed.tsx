@@ -103,7 +103,7 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
         try {
             const res = await feedApi.toggleLike(id)
             setPosts(prev => prev.map(p => p.id === id ? { ...p, isLiked: res.isLiked, likes: res.likeCount } : p))
-        } catch (error) {
+        } catch {
             toast.error('Có lỗi xảy ra', { description: 'Không thể like bài viết' })
         }
     }

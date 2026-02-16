@@ -82,7 +82,6 @@ export class BlogAnalyticsService {
 
       // Filter blogs: only process blogs that were published before or on the target date
       // (Don't send notification for blogs published in the future)
-      const targetDate = new Date(dateString + 'T23:59:59Z');
 
       const validBlogs = allPublishedBlogs.filter(blog => {
         if (!blog.publishedAt) return false;

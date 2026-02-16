@@ -30,7 +30,6 @@ describe('AuthService', () => {
     let authorizationService: any;
     let emailService: any;
     let redis: any;
-    let natsClient: any;
     let blacklistService: any;
 
     const mockUser = {
@@ -151,7 +150,6 @@ describe('AuthService', () => {
         authorizationService = module.get(AUTHORIZATION_SERVICE_TOKEN);
         emailService = module.get(EMAIL_SERVICE_TOKEN);
         redis = module.get('REDIS_CLIENT');
-        natsClient = module.get('NATS_SERVICE');
         blacklistService = module.get(BlacklistService);
     });
 

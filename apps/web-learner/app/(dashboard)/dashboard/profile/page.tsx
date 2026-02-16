@@ -90,7 +90,7 @@ export default function ProfilePage() {
     // Update profile mutation
     const updateProfileMutation = useMutation({
         mutationFn: (data: UpdateProfileDTO) => profileApi.updateProfile(data),
-        onSuccess: async (updatedUser) => {
+        onSuccess: async (_updatedUser) => {
             // Update Redux store by fetching fresh profile
             await dispatch(fetchProfile())
             queryClient.invalidateQueries({ queryKey: ['profile'] })

@@ -96,7 +96,7 @@ export class SpeechToTextService {
     /**
      * GenerateAzureToken generates a token for a user
      */
-    async generateAzureToken(roomId: string, userId: string, r: GenerateAzureTokenReq): Promise<CommonResponse> {
+    async generateAzureToken(roomId: string, userId: string, _r: GenerateAzureTokenReq): Promise<CommonResponse> {
         const check = await this.redisSpeechService.azureKeyRequestedTask(roomId, userId, 'check');
         if (check === 'exist') {
             throw new Error('speech-services.already-received-token');

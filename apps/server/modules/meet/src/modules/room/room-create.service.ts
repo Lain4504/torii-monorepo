@@ -370,7 +370,7 @@ export class RoomCreateService {
             await this.natsRoomEvents.updateAndBroadcastRoomMetadata(roomId, metadata);
 
             this.logger.log(`Preloaded whiteboard file processed successfully`);
-        } catch (error) {
+        } catch {
             this.logger.warn(`Preloaded whiteboard file failed, notification skipped`);
         }
     }

@@ -122,7 +122,7 @@ export function PlacementTestWizard() {
                 } else {
                     throw new Error('Invalid evaluation response')
                 }
-            } catch (error) {
+            } catch {
                 toast.error("Error evaluating test", {
                     description: "We saved your answers but couldn't generate the results right now."
                 })

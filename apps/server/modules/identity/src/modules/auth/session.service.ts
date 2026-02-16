@@ -85,7 +85,7 @@ export class SessionService implements ISessionService {
             }
 
             return payload;
-        } catch (error) {
+        } catch {
             return null;
         }
     }

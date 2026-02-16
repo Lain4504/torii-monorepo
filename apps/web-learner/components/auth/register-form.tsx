@@ -89,7 +89,7 @@ export function RegisterForm() {
 
     const onSubmit = async (data: RegisterFormData) => {
         try {
-            const { confirmPassword, ...registrationData } = data
+            const { confirmPassword: _, ...registrationData } = data
 
             const resultAction = await dispatch(registerAction({
                 ...registrationData,

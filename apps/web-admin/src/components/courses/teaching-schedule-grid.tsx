@@ -41,7 +41,7 @@ export function TeachingScheduleGrid({ courseId }: TeachingScheduleGridProps) {
         try {
             await removeMutation.mutateAsync(id);
             toast.success('Đã xóa lịch dạy cố định và các buổi học chưa diễn ra');
-        } catch (error) {
+        } catch {
             toast.error('Có lỗi xảy ra khi xóa lịch dạy');
         }
     };

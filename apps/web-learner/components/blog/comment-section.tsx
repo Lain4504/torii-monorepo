@@ -458,7 +458,7 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
             setSubmitting(true)
             await onSubmit(text)
             setText('')
-        } catch (error) {
+        } catch {
             // Error handling handled by parent usually
         } finally {
             setSubmitting(false)

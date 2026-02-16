@@ -51,7 +51,7 @@ import { Card } from '@workspace/ui/components/card';
 
 export default function SupportPage() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, _setCurrentPage] = useState(1);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);

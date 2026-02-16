@@ -58,7 +58,7 @@ export function VerificationContent() {
                     setStatus('error');
                     setMessage(data.message || 'Link xác thực không hợp lệ hoặc đã hết hạn');
                 }
-            } catch (error) {
+            } catch {
                 setStatus('error');
                 setMessage('Đã xảy ra lỗi khi xác thực. Vui lòng thử lại.');
             }

@@ -123,13 +123,13 @@ export class FastMcpService implements OnModuleInit {
       let templateContent: string;
       try {
         templateContent = readFileSync(buildPath, 'utf-8');
-      } catch (e1) {
+      } catch {
         try {
           templateContent = readFileSync(serviceSourcePath, 'utf-8');
-        } catch (e2) {
+        } catch {
           try {
             templateContent = readFileSync(monorepoSourcePath, 'utf-8');
-          } catch (e3) {
+          } catch {
             templateContent = readFileSync(localPath, 'utf-8');
           }
         }

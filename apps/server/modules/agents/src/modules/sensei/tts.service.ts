@@ -57,7 +57,7 @@ export class TTSService {
             // Cleanup temp file
             try {
                 await fs.unlink(tempFile);
-            } catch (e) {
+            } catch {
                 // Ignore cleanup errors
             }
         }

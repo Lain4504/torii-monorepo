@@ -15,7 +15,7 @@ interface PodiumCardProps {
 export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps) {
     const isFirst = rank === 1
     const isSecond = rank === 2
-    const isThird = rank === 3
+
 
     return (
         <div className={cn(

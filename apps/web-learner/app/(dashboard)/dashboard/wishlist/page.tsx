@@ -74,7 +74,7 @@ export default function WishlistPage() {
             await wishlistApi.removeFromWishlist(wishlistId)
             setCourses(prev => prev.filter(c => c.wishlistId !== wishlistId))
             toast.success("Đã xóa khỏi danh sách yêu thích")
-        } catch (error) {
+        } catch {
             toast.error("Không thể xóa sản phẩm")
         }
     }

@@ -160,7 +160,7 @@ export class NatsCacheService implements OnModuleDestroy {
             this.logger.log(`NATS unified KV watcher for room stopped: ${roomId}`);
             try {
                 watcher.stop();
-            } catch (e) { }
+            } catch { }
             this.cleanRoomCache(roomId);
         }
     }
@@ -204,7 +204,7 @@ export class NatsCacheService implements OnModuleDestroy {
             if (store) {
                 store.set(fileId, create(RoomUploadedFileMetadataSchema, metadata));
             }
-        } catch (error) {
+        } catch {
             this.logger.warn(`Failed to parse file metadata for ${fileId} in room ${roomId}`);
         }
     }
@@ -650,7 +650,7 @@ export class NatsCacheService implements OnModuleDestroy {
     /**
      * @deprecated Use addRoomWatcher for consolidated bucket
      */
-    addUserInfoWatcher(kv: any, bucket: string, roomId: string, userId: string): void {
+    addUserInfoWatcher(kv: any, bucket: string, roomId: string, _userId: string): void {
         this.addRoomWatcher(kv, bucket, roomId);
     }
 

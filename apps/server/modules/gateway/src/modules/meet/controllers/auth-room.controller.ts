@@ -120,7 +120,7 @@ export class AuthRoomController {
                 );
                 return;
             }
-        } catch (error) {
+        } catch {
             sendCommonProtoJsonResponse(
                 res,
                 false,

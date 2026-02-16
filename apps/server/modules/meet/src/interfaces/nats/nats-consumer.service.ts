@@ -68,7 +68,7 @@ export class NatsConsumerService {
         try {
             await this.streamService.deleteConsumer(streamName, durableName);
             this.logger.log(`Deleted consumer ${durableName} from stream ${streamName}`);
-        } catch (error) {
+        } catch {
             // Ignore errors during deletion
         }
     }

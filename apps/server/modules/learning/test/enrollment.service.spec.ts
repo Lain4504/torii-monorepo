@@ -10,7 +10,7 @@ import { of } from 'rxjs';
 describe('EnrollmentService', () => {
     let service: EnrollmentService;
     let enrollmentRepository: any;
-    let courseRepository: any;
+
     let certificateService: any;
     let natsClient: any;
 
@@ -51,7 +51,7 @@ describe('EnrollmentService', () => {
 
         service = module.get<EnrollmentService>(EnrollmentService);
         enrollmentRepository = module.get(EnrollmentRepository);
-        courseRepository = module.get(COURSE_REPOSITORY_TOKEN);
+
         certificateService = module.get(CERTIFICATE_SERVICE_TOKEN);
         natsClient = module.get('NATS_SERVICE');
 

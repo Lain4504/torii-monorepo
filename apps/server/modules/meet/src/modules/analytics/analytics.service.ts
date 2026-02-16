@@ -123,7 +123,7 @@ export class AnalyticsService {
     /**
      * handleFirstTimeUserJoined records a user's information the first time they join
      */
-    private async handleFirstTimeUserJoined(d: AnalyticsDataMsg, key: string): Promise<void> {
+    private async handleFirstTimeUserJoined(d: AnalyticsDataMsg, _key: string): Promise<void> {
         if (!d.userId) return;
 
         let umeta: any = {};

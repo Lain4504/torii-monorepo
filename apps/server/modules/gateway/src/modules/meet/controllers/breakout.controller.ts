@@ -70,7 +70,7 @@ export class BreakoutController {
                     if (str.startsWith('{')) {
                         body = JSON.parse(str);
                     }
-                } catch (e) { }
+                } catch { }
             }
             const request = parseAndValidateRequest<CreateBreakoutRoomsReq>(body, CreateBreakoutRoomsReqSchema);
             this.logger.log(`Content-Type: ${req.headers['content-type']}`);

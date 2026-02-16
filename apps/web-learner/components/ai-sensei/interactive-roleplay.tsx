@@ -1,11 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Send, User, Sparkles, RefreshCcw, CheckCircle, AlertCircle, Mic, MicOff, Volume2, VolumeX, Settings, Play } from "lucide-react"
+import { Send, Sparkles, RefreshCcw, CheckCircle, AlertCircle, Mic, MicOff, Volume2, VolumeX, Settings, Play } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
     Dialog,
     DialogContent,
@@ -45,7 +43,8 @@ export function InteractiveRoleplay() {
 
     // Voice State
     const [isListening, setIsListening] = React.useState(false)
-    const [isSpeaking, setIsSpeaking] = React.useState(false)
+    const [_isSpeaking, setIsSpeaking] = React.useState(false)
+
     const [autoPlay, setAutoPlay] = React.useState(true) // Auto-play AI responses
     const recognitionRef = React.useRef<any>(null)
     const [voiceError, setVoiceError] = React.useState<string | null>(null)
@@ -55,8 +54,10 @@ export function InteractiveRoleplay() {
     // TTS Voice Management
     const [availableVoices, setAvailableVoices] = React.useState<SpeechSynthesisVoice[]>([])
     const [selectedVoiceURI, setSelectedVoiceURI] = React.useState<string>("")
-    const [voiceRate, setVoiceRate] = React.useState(1.0)
-    const [voicePitch, setVoicePitch] = React.useState(1.0)
+    // const [voiceRate, setVoiceRate] = React.useState(1.0)
+    // const [voicePitch, setVoicePitch] = React.useState(1.0)
+    const voiceRate = 1.0;
+    const voicePitch = 1.0;
     const [showSettings, setShowSettings] = React.useState(false)
     const audioRef = React.useRef<HTMLAudioElement | null>(null) // Track backend audio instance
     const ttsRequestId = React.useRef<number>(0) // Track TTS requests to prevent race conditions
@@ -136,7 +137,7 @@ export function InteractiveRoleplay() {
                 try {
                     recognitionRef.current.abort()
                     recognitionRef.current = null
-                } catch (e) {
+                } catch {
                     // Ignore errors during cleanup
                 }
             }

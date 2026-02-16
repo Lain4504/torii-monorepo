@@ -9,7 +9,7 @@ describe('FeedService', () => {
     let service: FeedService;
     let feedRepository: any;
     let prismaService: any;
-    let mapper: any;
+
 
     const mockFeedRepository = {
         create: jest.fn(),
@@ -46,7 +46,7 @@ describe('FeedService', () => {
         service = module.get<FeedService>(FeedService);
         feedRepository = module.get(FeedRepository);
         prismaService = module.get(PrismaService);
-        mapper = module.get(getMapperToken());
+
 
         jest.clearAllMocks();
     });

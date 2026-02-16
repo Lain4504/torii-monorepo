@@ -62,7 +62,7 @@ export class JanitorFilesystemService {
                             await fs.access(jsonPath);
                             await fs.unlink(jsonPath);
                             this.logger.warn(`Deleting associated JSON file: ${jsonPath}`);
-                        } catch (e) {
+                        } catch {
                             // ignore if json doesn't exist
                         }
                     }

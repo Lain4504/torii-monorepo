@@ -19,7 +19,7 @@ import {
     NatsKvUserInfoSchema,
     NatsUserMetadataUpdateSchema,
 } from '@workspace/protocol';
-import { toJsonString } from '@bufbuild/protobuf';
+
 import { NatsService } from '@server/meet/interfaces/nats/nats.service';
 import { NatsConsumerService } from '@server/meet/interfaces/nats/nats-consumer.service';
 import { NatsRoomService, ROOM_STATUS_ENDED } from '@server/meet/interfaces/nats/nats-room.service';
@@ -58,7 +58,7 @@ export class NatsUserService {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             return await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'status'));
-        } catch (error) {
+        } catch {
             return '';
         }
     }
@@ -106,7 +106,7 @@ export class NatsUserService {
             if (!info.userId) return null;
 
             return info;
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -145,7 +145,7 @@ export class NatsUserService {
                 }
             }
             return userIds;
-        } catch (error) {
+        } catch {
             return [];
         }
     }
@@ -177,7 +177,7 @@ export class NatsUserService {
                 }
             }
             return Array.from(userIds);
-        } catch (error) {
+        } catch {
             return [];
         }
     }
@@ -224,7 +224,7 @@ export class NatsUserService {
 
             if (!metadataStr) return null;
             return this.natsService.unmarshalUserMetadata(metadataStr);
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -252,7 +252,7 @@ export class NatsUserService {
             const kv = await js.views.kv(bucket);
             const val = await this.natsService.getStringValue(kv, this.natsService.formatUserKey(userId, 'last_ping_at'));
             return parseInt(val, 10) || 0;
-        } catch (error) {
+        } catch {
             return 0;
         }
     }
@@ -271,7 +271,7 @@ export class NatsUserService {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             return await this.natsService.getBoolValue(kv, this.natsService.formatUserKey(userId, 'is_presenter'));
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -291,7 +291,7 @@ export class NatsUserService {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             return await this.natsService.getBoolValue(kv, this.natsService.formatUserKey(userId, 'is_blacklisted'));
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -305,7 +305,7 @@ export class NatsUserService {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             return await kv.get(this.natsService.formatUserKey(userId, key));
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -538,7 +538,7 @@ export class NatsUserService {
             const kv = await js.views.kv(bucket);
             const now = Date.now().toString();
             await kv.put(this.natsService.formatUserKey(userId, 'last_ping_at'), new TextEncoder().encode(now));
-        } catch (error) { }
+        } catch { }
     }
 
     /**
@@ -601,7 +601,7 @@ export class NatsUserService {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             await kv.put(this.natsService.formatUserKey(userId, key), new TextEncoder().encode(value));
-        } catch (error) { }
+        } catch { }
     }
 
     /**
@@ -614,7 +614,7 @@ export class NatsUserService {
             const js = this.natsService.getJetStream();
             const kv = await js.views.kv(bucket);
             await kv.put(this.natsService.formatUserKey(userId, 'is_blacklisted'), new TextEncoder().encode('true'));
-        } catch (error) { }
+        } catch { }
     }
 
 
@@ -733,7 +733,7 @@ export class NatsUserService {
         // Silently remove from LiveKit
         try {
             await this.livekitService.removeParticipant(roomId, userId);
-        } catch (error) {
+        } catch {
             // Ignore errors if participant already removed
         }
 

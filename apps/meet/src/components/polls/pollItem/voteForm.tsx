@@ -116,11 +116,7 @@ const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
     const elms: Array<ReactElement> = [];
     for (const key in pollDataWithOption.options) {
       const o = pollDataWithOption.options[key];
-      // Determine bar color based on percentage
-      let barColor = 'rgba(0, 161, 242, 0.1)'; // default light blue
-      if (o.responsesPercentage >= 50) {
-        barColor = 'rgba(0, 161, 242, 0.2)'; // green for high percentages
-      }
+
       elms.push(
         <div
           key={`option-${pollDataWithOption.pollId}-${o.id}`}

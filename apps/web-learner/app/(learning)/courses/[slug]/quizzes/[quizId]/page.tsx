@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
@@ -9,7 +9,7 @@ import { ArrowLeft } from 'lucide-react'
 
 export default function TakeCourseQuizPage() {
     const params = useParams()
-    const router = useRouter()
+
     const slug = params.slug as string
     const quizId = params.quizId as string
     const [loading, setLoading] = useState(true)

@@ -20,7 +20,7 @@ export function LoginForm() {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { status, error, isAuthenticated } = useAppSelector((state) => state.auth)
+    const { status, error } = useAppSelector((state) => state.auth)
     const isLoading = status === 'loading'
     const [showPassword, setShowPassword] = useState(false)
     const googleAuthMutation = useGoogleAuth()

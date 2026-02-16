@@ -54,7 +54,7 @@ export default function MyCoursesPage() {
             toast.success('Đã gửi yêu cầu kiểm duyệt', {
                 description: `Khóa học "${course.title}" đang chờ quản trị viên phê duyệt.`,
             });
-        } catch (error) {
+        } catch {
             toast.error('Gửi yêu cầu thất bại');
         }
     };

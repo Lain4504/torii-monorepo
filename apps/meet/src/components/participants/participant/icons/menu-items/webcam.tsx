@@ -22,7 +22,7 @@ const WebcamMenuItem = ({ userId }: IWebcamMenuItemProps) => {
   const roomFeatures = session.currentRoom.metadata?.roomFeatures;
   const conn = getNatsConn();
 
-  const { text, task, translatedTask } = useMemo(() => {
+  const { text, translatedTask } = useMemo(() => {
     if (!videoTracks) {
       return {
         text: 'Yêu cầu chia sẻ máy ảnh',

@@ -40,7 +40,7 @@ interface FeedPostCardProps {
     onPostUpdated?: (updatedPost: FeedResponseDTO) => void
 }
 
-export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onPostUpdated }: FeedPostCardProps) {
+export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow: _onFollow, onPostUpdated }: FeedPostCardProps) {
     const { user } = useAppSelector(state => state.auth)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showEditDialog, setShowEditDialog] = useState(false)

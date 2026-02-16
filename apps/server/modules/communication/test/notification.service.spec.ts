@@ -7,7 +7,7 @@ import { NotificationType } from '@workspace/schemas';
 import type {
     NotificationCreateDTO,
     NotificationQueryDTO,
-    NotificationResponseDTO
+
 } from '@workspace/schemas';
 
 describe('NotificationService', () => {
@@ -33,17 +33,7 @@ describe('NotificationService', () => {
         updatedAt: new Date(),
     };
 
-    const mockResponseDTO: NotificationResponseDTO = {
-        id: NOTIFICATION_ID,
-        userId: USER_ID,
-        title: 'Test Notification',
-        message: 'Test Message',
-        notificationType: NotificationType.SYSTEM,
-        metadata: { key: 'value' },
-        isRead: false,
-        sentVia: ['in_app'],
-        createdAt: new Date(),
-    };
+
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({

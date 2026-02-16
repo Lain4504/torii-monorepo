@@ -117,11 +117,10 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
   };
 
   const handleDownloadAttachment = async (url: string) => {
-    const filename = url.split('/').pop() || 'attachment';
     try {
-      await assignmentApi.downloadAttachment(url, filename);
+      await assignmentApi.downloadAttachment(url);
       toast.success('Đã tải xuống file');
-    } catch (error) {
+    } catch {
       toast.error('Lỗi khi tải file');
     }
   };
@@ -180,7 +179,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
       {/* Header Section */}
       <div className="relative p-10 rounded-[2.5rem] bg-gradient-to-br from-primary/5 via-primary/0 to-background border border-primary/10 overflow-hidden group">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 transition-colors group-hover:bg-primary/10" />
-        
+
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="w-16 h-16 rounded-2xl bg-background flex items-center justify-center border border-border/40 shadow-xl group-hover:scale-110 transition-transform duration-500">
@@ -226,8 +225,8 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
             {dueDate && (
               <div className={cn(
                 "flex items-center gap-2 px-5 py-2.5 rounded-full border shadow-sm transition-all",
-                isOverdue 
-                  ? "bg-rose-500/10 border-rose-500/20" 
+                isOverdue
+                  ? "bg-rose-500/10 border-rose-500/20"
                   : "bg-muted/10 border-border/20"
               )}>
                 <Calendar className={cn("w-3.5 h-3.5", isOverdue ? "text-rose-500" : "text-muted-foreground")} />
@@ -256,9 +255,9 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
             </h3>
           </div>
           <div className="prose prose-sm dark:prose-invert max-w-none relative z-10">
-            <div 
-              dangerouslySetInnerHTML={{ __html: assignment.instructions }} 
-              className="text-foreground/80 leading-relaxed font-medium italic" 
+            <div
+              dangerouslySetInnerHTML={{ __html: assignment.instructions }}
+              className="text-foreground/80 leading-relaxed font-medium italic"
             />
           </div>
         </div>
@@ -333,72 +332,72 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
             <label className="text-[10px] font-black text-foreground uppercase tracking-[0.15em]">
               Tải lên file đính kèm {(assignment.type === 'FILE' || assignment.type === 'BOTH') && <span className="text-red-600">*</span>}
             </label>
-              <input
-                type="file"
-                id="file-upload"
-                multiple={assignment.maxFiles ? assignment.maxFiles > 1 : true}
-                accept={assignment.allowedFileTypes?.join(',')}
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={isSubmitted || uploadingFiles}
-              />
-              <label
-                htmlFor="file-upload"
-                className={cn(
-                  "block p-10 rounded-2xl border-2 border-dashed border-border/30 bg-muted/5 hover:bg-muted/10 hover:border-primary/40 transition-all cursor-pointer group",
-                  (isSubmitted || uploadingFiles) && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                <div className="flex flex-col items-center gap-4 text-center">
-                  <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center border border-border/30 group-hover:border-primary/40 group-hover:bg-primary/5 transition-all">
-                    <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground mb-1">
-                      {uploadingFiles ? 'Đang tải lên...' : 'Nhấn để chọn file'}
-                    </p>
-                    <p className="text-xs text-muted-foreground font-medium">
-                      {assignment.allowedFileTypes?.join(', ') || 'Tất cả định dạng'}
-                      {assignment.maxFileSize && ` • Tối đa ${assignment.maxFileSize / 1024 / 1024}MB`}
-                    </p>
-                  </div>
-                </div>
-              </label>
-
-              {/* Uploaded Files List */}
-              {fileUrls.length > 0 && (
-                <div className="space-y-2">
-                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em]">
-                    File đã tải lên ({fileUrls.length})
-                  </p>
-                  {fileUrls.filter(url => url).map((url, index) => {
-                    const filename = url.split('/').pop() || `File ${index + 1}`;
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-4 rounded-xl bg-background border border-border/30 hover:border-primary/30 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-                            <FileText className="w-5 h-5 text-primary" />
-                          </div>
-                          <span className="text-sm font-semibold text-foreground">{filename}</span>
-                        </div>
-                        {!isSubmitted && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveFile(index)}
-                            className="h-9 w-9 p-0 rounded-xl hover:bg-red-500/10 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+            <input
+              type="file"
+              id="file-upload"
+              multiple={assignment.maxFiles ? assignment.maxFiles > 1 : true}
+              accept={assignment.allowedFileTypes?.join(',')}
+              onChange={handleFileUpload}
+              className="hidden"
+              disabled={isSubmitted || uploadingFiles}
+            />
+            <label
+              htmlFor="file-upload"
+              className={cn(
+                "block p-10 rounded-2xl border-2 border-dashed border-border/30 bg-muted/5 hover:bg-muted/10 hover:border-primary/40 transition-all cursor-pointer group",
+                (isSubmitted || uploadingFiles) && "opacity-50 cursor-not-allowed"
               )}
+            >
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center border border-border/30 group-hover:border-primary/40 group-hover:bg-primary/5 transition-all">
+                  <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-foreground mb-1">
+                    {uploadingFiles ? 'Đang tải lên...' : 'Nhấn để chọn file'}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    {assignment.allowedFileTypes?.join(', ') || 'Tất cả định dạng'}
+                    {assignment.maxFileSize && ` • Tối đa ${assignment.maxFileSize / 1024 / 1024}MB`}
+                  </p>
+                </div>
+              </div>
+            </label>
+
+            {/* Uploaded Files List */}
+            {fileUrls.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em]">
+                  File đã tải lên ({fileUrls.length})
+                </p>
+                {fileUrls.filter(url => url).map((url, index) => {
+                  const filename = url.split('/').pop() || `File ${index + 1}`;
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 rounded-xl bg-background border border-border/30 hover:border-primary/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+                          <FileText className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">{filename}</span>
+                      </div>
+                      {!isSubmitted && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveFile(index)}
+                          className="h-9 w-9 p-0 rounded-xl hover:bg-red-500/10 hover:text-red-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -411,7 +410,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
               <Send className="w-4 h-4 mr-3" />
               Nộp bài tập ngay
             </Button>
-            
+
             <Button
               variant="outline"
               onClick={handleSaveDraft}
@@ -431,7 +430,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
           <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity">
             <CheckCircle2 className="w-32 h-32 text-green-500" />
           </div>
-          
+
           <div className="relative space-y-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -440,12 +439,12 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                   Kết quả chấm điểm
                 </h3>
               </div>
-              
+
               {assignment.passingScore && (
                 <div className={cn(
                   "flex items-center gap-2 px-5 py-2 rounded-full border shadow-sm",
-                  submission.score! >= assignment.passingScore 
-                    ? "bg-green-500/10 border-green-500/20 text-green-600" 
+                  submission.score! >= assignment.passingScore
+                    ? "bg-green-500/10 border-green-500/20 text-green-600"
                     : "bg-rose-500/10 border-rose-500/20 text-rose-600"
                 )}>
                   {submission.score! >= assignment.passingScore ? (
@@ -470,9 +469,9 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                   <span className="text-xl font-bold text-muted-foreground/40 mb-1">/{assignment.maxScore}</span>
                 </div>
               </div>
-              
+
               <div className="h-12 w-px bg-border/20" />
-              
+
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Trạng thái</p>
                 <p className="text-xl font-black text-foreground italic uppercase tracking-tight leading-none">
@@ -510,7 +509,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                 Nội dung bài làm
               </h3>
             </div>
-            
+
             {submission.submittedAt && (
               <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-background border border-border/40 shadow-sm">
                 <Clock className="w-3 h-3 text-muted-foreground" />

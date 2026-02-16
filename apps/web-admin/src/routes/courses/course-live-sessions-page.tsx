@@ -70,7 +70,7 @@ export default function CourseLiveSessionsPage() {
         try {
             await deleteMutation.mutateAsync({ id: sessionId, courseId: course.id });
             toast.success('Đã xóa buổi học');
-        } catch (error) {
+        } catch {
             toast.error('Không thể xóa buổi học');
         }
     };
@@ -79,7 +79,7 @@ export default function CourseLiveSessionsPage() {
         try {
             await startMutation.mutateAsync(sessionId);
             toast.success('Đã bắt đầu buổi học');
-        } catch (error) {
+        } catch {
             toast.error('Không thể bắt đầu buổi học');
         }
     };
@@ -88,7 +88,7 @@ export default function CourseLiveSessionsPage() {
         try {
             await endMutation.mutateAsync(sessionId);
             toast.info('Đã kết thúc buổi học');
-        } catch (error) {
+        } catch {
             toast.error('Không thể kết thúc buổi học');
         }
     };

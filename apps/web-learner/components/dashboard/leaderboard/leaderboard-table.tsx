@@ -24,7 +24,7 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                 <div className="col-span-2 md:col-span-1 text-right">Xu hướng</div>
             </div>
             <div className="divide-y divide-border/50">
-                {users.map((item, idx) => (
+                {users.map((item) => (
                     <div
                         key={item.id}
                         className={cn(

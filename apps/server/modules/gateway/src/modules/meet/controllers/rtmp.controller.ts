@@ -136,7 +136,7 @@ export class RtmpController {
                     else if (wireType === 5) offset += 4; // 32-bit
                     else break; // Unknown or group, stop
                 }
-            } catch (e) {
+            } catch {
                 break; // Stop parsing on error
             }
         }

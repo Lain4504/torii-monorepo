@@ -184,7 +184,7 @@ export class CourseService implements ICourseService {
         levels,
         priceMin,
         priceMax,
-        ratingMin
+        ratingMin: _ratingMin
       } = options;
 
       // Ensure page and limit are numbers for Prisma
@@ -486,7 +486,6 @@ export class CourseService implements ICourseService {
    * Delete course
    */
   async delete(requester: Requester, courseId: string, hardDelete = false): Promise<{ message: string }> {
-    const permission = hardDelete ? 'course.delete' : 'course.delete'; // Both use same for now, or could use course.hard_delete if defined
     if (!this.hasPermission(requester, 'course.delete')) {
       throw new ForbiddenException('You do not have permission to delete courses');
     }

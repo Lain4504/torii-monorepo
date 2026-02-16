@@ -1,4 +1,4 @@
-    'use client'
+'use client'
 
 import { Search, User, Heart, MessageCircle, History, Flame, LayoutList } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
@@ -17,7 +17,7 @@ interface FeedSidebarProps {
     onSearch?: (query: string) => void
 }
 
-export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSidebarProps) {
+export function FeedSidebar({ activeCategory: _activeCategory, onSortChange, onSearch }: FeedSidebarProps) {
     const { user } = useAppSelector(state => state.auth)
     const pathname = usePathname()
     const isProfilePage = pathname.startsWith('/user/')

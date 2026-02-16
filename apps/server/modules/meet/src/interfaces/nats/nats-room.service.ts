@@ -154,7 +154,7 @@ export class NatsRoomService {
 
             if (!metadataStr) return null;
             return this.natsService.unmarshalRoomMetadata(metadataStr);
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -421,7 +421,7 @@ export class NatsRoomService {
             }
 
             return JSON.parse(new TextDecoder().decode(entry.value));
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -452,13 +452,13 @@ export class NatsRoomService {
                         try {
                             const fileId = k.substring(prefix.length);
                             result[fileId] = JSON.parse(new TextDecoder().decode(entry.value));
-                        } catch (e) { }
+                        } catch { }
                     }
                 }
             }
 
             return result;
-        } catch (error) {
+        } catch {
             return result;
         }
     }
@@ -481,7 +481,7 @@ export class NatsRoomService {
                     await kv.purge(k).catch(() => { });
                 }
             }
-        } catch (error) { }
+        } catch { }
     }
 
     // ============================================================================
@@ -499,7 +499,7 @@ export class NatsRoomService {
         try {
             const entry = await kv.get(key);
             return entry?.value ? new TextDecoder().decode(entry.value) : '';
-        } catch (error) {
+        } catch {
             return '';
         }
     }
@@ -511,7 +511,7 @@ export class NatsRoomService {
         try {
             const entry = await kv.get(key);
             return entry?.value ? new TextDecoder().decode(entry.value) : '0';
-        } catch (error) {
+        } catch {
             return '0';
         }
     }

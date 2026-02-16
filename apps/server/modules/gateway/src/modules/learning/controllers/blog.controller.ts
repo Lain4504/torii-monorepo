@@ -93,7 +93,7 @@ export class BlogController {
     }
 
     @Post()
-    async createPost(@Body() dto: any, @Req() req: ReqWithRequester) {
+    async createPost(@Body() dto: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

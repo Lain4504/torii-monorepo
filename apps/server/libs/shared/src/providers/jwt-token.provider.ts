@@ -71,7 +71,7 @@ export class JwtTokenProvider {
                 audience: this.appConfig.security.jwt.audience || 'torii-client',
             }) as TokenPayload;
             return decoded;
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -87,7 +87,7 @@ export class JwtTokenProvider {
                 audience: this.appConfig.security.jwt.audience || 'torii-client',
             }) as RefreshTokenPayload;
             return decoded;
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -112,7 +112,7 @@ export class JwtTokenProvider {
                 return null;
             }
             return decoded;
-        } catch (error) {
+        } catch {
             return null;
         }
     }

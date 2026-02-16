@@ -36,7 +36,7 @@ export function DashboardHeader() {
             await dispatch(logout()).unwrap()
             toast.success("Đăng xuất thành công")
             router.push('/login')
-        } catch (error) {
+        } catch {
             toast.error("Lỗi khi đăng xuất")
             router.push('/login')
         }

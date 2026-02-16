@@ -61,7 +61,7 @@ function ResetPasswordFormContent() {
     const strengthScore = Object.values(passwordStrength).filter(Boolean).length
 
     const { mutateAsync: verifyToken } = useVerifyResetToken()
-    const { mutateAsync: resetPassword, isPending: isResetting } = useResetPassword()
+    const { mutateAsync: resetPassword } = useResetPassword()
 
     useEffect(() => {
         const verify = async () => {
@@ -74,7 +74,7 @@ function ResetPasswordFormContent() {
             try {
                 const data = await verifyToken(token)
                 setTokenValid(data.success)
-            } catch (error) {
+            } catch {
                 setTokenValid(false)
             } finally {
                 setVerifyingToken(false)

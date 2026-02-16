@@ -10,7 +10,7 @@ export const formatDateTime = (date: string | Date) => {
     if (!date) return 'N/A';
     try {
         return format(new Date(date), 'HH:mm dd/MM/yyyy', { locale: vi });
-    } catch (error) {
+    } catch {
         return 'N/A';
     }
 };
@@ -26,7 +26,7 @@ export const isWithinGracePeriod = (createdAt: string | Date, minutes: number = 
     try {
         const expirationTime = addMinutes(new Date(createdAt), minutes);
         return isAfter(expirationTime, new Date());
-    } catch (error) {
+    } catch {
         return false;
     }
 };
@@ -43,7 +43,7 @@ export const getRemainingSeconds = (createdAt: string | Date, minutes: number = 
         const expirationTime = addMinutes(new Date(createdAt), minutes);
         const seconds = differenceInSeconds(expirationTime, new Date());
         return Math.max(0, seconds);
-    } catch (error) {
+    } catch {
         return 0;
     }
 };

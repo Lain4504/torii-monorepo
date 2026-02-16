@@ -689,7 +689,7 @@ export class ExamService implements IExamService {
             // Shuffle within each section and update order
             questions = [];
             let globalOrder = 1;
-            questionsBySection.forEach((sectionQuestions, sectionType) => {
+            questionsBySection.forEach((sectionQuestions, _sectionType) => {
                 // Shuffle the array
                 const shuffled = this.shuffleArray([...sectionQuestions]);
                 // Update order numbers

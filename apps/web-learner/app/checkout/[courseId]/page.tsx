@@ -91,11 +91,11 @@ export default function CheckoutPage() {
                 router.push(`/checkout/return?status=PAID&orderCode=${event.orderCode}`)
             }
         },
-        onCancel: (event: any) => {
+        onCancel: () => {
             toast.error('Đã hủy thanh toán')
             setIsDialogOpen(false)
         },
-        onExit: (event: any) => {
+        onExit: () => {
             setIsDialogOpen(false)
         }
     })
@@ -122,7 +122,7 @@ export default function CheckoutPage() {
             setIsLoading(true)
             const data = await courseApi.getCourseById(courseId)
             setCourse(data)
-        } catch (error) {
+        } catch {
             toast.error('Không thể tải thông tin khóa học')
             router.push('/courses')
         } finally {

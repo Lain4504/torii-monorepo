@@ -145,7 +145,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
             await removeMutation.mutateAsync(scheduleId);
             toast.success('Đã xóa lịch cố định');
             refetch();
-        } catch (error) {
+        } catch {
             toast.error('Không thể xóa lịch dạy');
         }
     };

@@ -25,7 +25,7 @@ export default function ScheduleRequestsPage() {
         try {
             await handleMutation.mutateAsync({ id, action });
             toast.success(action === 'approve' ? 'Đã phê duyệt yêu cầu' : 'Đã từ chối yêu cầu');
-        } catch (error) {
+        } catch {
             toast.error('Có lỗi xảy ra khi xử lý yêu cầu');
         }
     };

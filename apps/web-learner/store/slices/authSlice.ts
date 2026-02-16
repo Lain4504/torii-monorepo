@@ -79,7 +79,7 @@ export const register = createAsyncThunk(
 
 export const logout = createAsyncThunk(
     'auth/logout',
-    async (_, { rejectWithValue }) => {
+    async () => {
         try {
             await apiClient.post('/api/auth/logout');
             return;
@@ -106,7 +106,7 @@ export const checkAuth = createAsyncThunk(
             }
 
             return rejectWithValue('Not authenticated');
-        } catch (error: unknown) {
+        } catch {
             // Don't show error for auth check - it's expected to fail if not logged in
             return rejectWithValue('Not authenticated');
         }

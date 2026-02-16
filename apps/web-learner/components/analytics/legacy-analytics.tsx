@@ -30,7 +30,7 @@ export function LegacyAnalytics() {
 
                 // Create last 7 days chart data
                 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-                const today = new Date().getDay()
+
                 const data = []
                 for (let i = 6; i >= 0; i--) {
                     const d = new Date()

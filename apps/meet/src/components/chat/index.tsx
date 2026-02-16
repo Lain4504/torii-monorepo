@@ -85,7 +85,7 @@ const ChatComponent = () => {
           chatFeatures?.maxFileSize,
           RoomUploadedFileType.CHAT_FILE,
           files,
-          (result) => {
+          (_result) => {
             dispatch(
               addUserNotification({
                 message: 'Tệp được tải lên thành công',

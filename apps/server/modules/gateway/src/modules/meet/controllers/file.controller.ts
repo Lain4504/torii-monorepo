@@ -263,7 +263,7 @@ export class FileController {
                 // For now, let's try JSON if it's a buffer and not matched elsewhere.
                 try {
                     data = JSON.parse(body.toString());
-                } catch (e) {
+                } catch {
                     data = body;
                 }
             }

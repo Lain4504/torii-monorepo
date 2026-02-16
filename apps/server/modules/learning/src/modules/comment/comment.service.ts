@@ -161,7 +161,7 @@ export class CommentService implements ICommentService {
           where: { id: dto.entityId },
           data: { commentCount: { increment: 1 } }
         });
-      } catch (e) {
+      } catch {
         // Ignore
       }
     }
@@ -340,7 +340,7 @@ export class CommentService implements ICommentService {
           where: { id: entityId },
           data: { commentCount: { decrement: 1 } }
         });
-      } catch (e) {
+      } catch {
         // Ignore
       }
     }

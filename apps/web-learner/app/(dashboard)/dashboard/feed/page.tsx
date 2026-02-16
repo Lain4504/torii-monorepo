@@ -6,8 +6,8 @@ import { FeedSidebar } from '@/components/feed/feed-sidebar'
 
 export default function FeedPage() {
     const [activeTab, setActiveTab] = useState('ALL')
-    const [followedTags, setFollowedTags] = useState<string[]>([])
-    const [showFollowingSelector, setShowFollowingSelector] = useState(false)
+    const [followedTags] = useState<string[]>([])
+    const [_showFollowingSelector, setShowFollowingSelector] = useState(false)
     const [sortBy, setSortBy] = useState<'likes' | 'comments' | undefined>(undefined)
     const [selectedTag, setSelectedTag] = useState<string | undefined>(undefined)
     const [searchQuery, setSearchQuery] = useState<string>('')

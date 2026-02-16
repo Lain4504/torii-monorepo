@@ -13,7 +13,7 @@ export default function UserProfilePage() {
     const params = useParams()
     const userId = params.id as string
     const [user, setUser] = useState<UserResponseDTO | null>(null)
-    const [loading, setLoading] = useState(true)
+    const [_loading, setLoading] = useState(true)
     const [totalBlogs, setTotalBlogs] = useState(0)
     const [sortBy, setSortBy] = useState<'likes' | 'comments' | undefined>(undefined)
 

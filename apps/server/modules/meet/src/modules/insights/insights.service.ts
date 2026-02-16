@@ -462,7 +462,7 @@ export class InsightsService {
         return create(CommonResponseSchema, { status: true, msg: 'success' });
     }
 
-    private async buildHistoryWithUserPrompt(roomId: string, userId: string, prompt: string, metadata: any): Promise<InsightsAITextChatContent[]> {
+    private async buildHistoryWithUserPrompt(roomId: string, userId: string, prompt: string, _metadata: any): Promise<InsightsAITextChatContent[]> {
         const history: InsightsAITextChatContent[] = [];
 
         // 1. Get summary
@@ -495,7 +495,7 @@ export class InsightsService {
         return history;
     }
 
-    private async checkAndSummarize(roomId: string, userId: string, metadata: any): Promise<void> {
+    private async checkAndSummarize(roomId: string, userId: string, _metadata: any): Promise<void> {
         const contextWindow = 5; // default
         const length = await this.redisInsightsService.getAITextChatContextLength(roomId, userId);
 

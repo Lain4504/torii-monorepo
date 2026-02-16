@@ -10,7 +10,6 @@ jest.mock('google-auth-library');
 
 describe('GoogleAuthService', () => {
     let service: GoogleAuthService;
-    let appConfigService: AppConfigService;
     let mockOAuthClient: any;
 
     const mockAppConfigService = {
@@ -43,7 +42,6 @@ describe('GoogleAuthService', () => {
         }).compile();
 
         service = module.get<GoogleAuthService>(GoogleAuthService);
-        appConfigService = module.get<AppConfigService>(AppConfigService);
     });
 
     it('should be defined', () => {

@@ -48,7 +48,7 @@ export default function RoomsPage() {
     try {
       await endRoomMutation.mutateAsync(roomId);
       toast.success('Đã kết thúc phòng học');
-    } catch (error) {
+    } catch {
       toast.error('Không thể kết thúc phòng học');
     }
   };

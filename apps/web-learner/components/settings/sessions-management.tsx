@@ -26,7 +26,7 @@ export function SessionsManagement() {
             await revokeMutation.mutateAsync(selectedSessionId);
             toast.success('Đã đăng xuất khỏi thiết bị này');
             setSelectedSessionId(null);
-        } catch (error) {
+        } catch {
             toast.error('Không thể đăng xuất phiên này');
         }
     };
@@ -36,7 +36,7 @@ export function SessionsManagement() {
             await revokeOtherMutation.mutateAsync();
             toast.success('Đã đăng xuất khỏi tất cả các thiết bị khác');
             setIsRevokeOtherOpen(false);
-        } catch (error) {
+        } catch {
             toast.error('Không thể thực hiện yêu cầu');
         }
     };

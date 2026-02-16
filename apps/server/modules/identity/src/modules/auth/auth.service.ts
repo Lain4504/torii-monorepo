@@ -67,7 +67,7 @@ export class AuthService implements IAuthService {
                     const ttl = exp && exp > now ? exp - now : 60;
                     await this.blacklistService.blacklist(decoded.jti, ttl);
                 }
-            } catch (error) {
+            } catch {
                 // Ignore decode errors - token might be malformed
             }
         }
@@ -83,7 +83,7 @@ export class AuthService implements IAuthService {
 
                 const tokenHash = this.sessionService.hashTokenPublic(refreshToken);
                 await this.sessionService.revokeSession(tokenHash);
-            } catch (error) {
+            } catch {
                 // Ignore errors - token might be invalid
             }
         }
@@ -121,7 +121,7 @@ export class AuthService implements IAuthService {
         });
 
         // Exclude password from response
-        const { password, ...user } = fullUser;
+        const { password: _password, ...user } = fullUser;
 
         // Generate Verification token or OTP
         if (dto.platform === 'mobile') {
@@ -708,7 +708,7 @@ export class AuthService implements IAuthService {
         const fullUser = await this.usersRepository.update(userId, updateData);
 
         // Exclude password
-        const { password, ...user } = fullUser;
+        const { password: _password, ...user } = fullUser;
 
         // Get permissions
         const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
@@ -796,7 +796,7 @@ export class AuthService implements IAuthService {
             avatarUrl: fileAsset.fileUrl,
         });
 
-        const { password, ...user } = fullUser;
+        const { password: _password, ...user } = fullUser;
         const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
 
         // Ensure proper mapping of userMetadata and avatarUrl

@@ -269,7 +269,7 @@ export class RoomInfoService {
                 if (analytics) {
                     room.analyticsFileId = analytics.artifactId;
                 }
-            } catch (error) {
+            } catch {
                 // Silently ignore analytics fetch errors
             }
 

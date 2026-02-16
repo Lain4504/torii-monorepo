@@ -158,10 +158,7 @@ describe('StorageService', () => {
 
         it('should handle extraction errors gracefully and use URL as key', async () => {
             const dto = { fileId: 'mock-uuid-1234' };
-            const fileAsset = {
-                id: 'mock-uuid-1234',
-                fileUrl: 'invalid-url',
-            };
+
             // extractKeyFromUrl won't be called because URL doesn't start with http, or if it does, it might throw
             // The service logic: checks if startsWith 'http', calls extractKeyFromUrl.
             // Let's force it to throw inside the try-catch block by making it start with http

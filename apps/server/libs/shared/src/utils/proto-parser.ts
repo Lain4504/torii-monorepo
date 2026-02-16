@@ -33,7 +33,7 @@ export function parseAndValidateRequest<T>(data: any, schema: any): T {
  * @param msg - Protobuf message to validate
  * @param schema - Protobuf message schema (for potential validation rules)
  */
-export function validateRequest(msg: any, schema?: any): void {
+export function validateRequest(msg: any, _schema?: any): void {
     // TODO: Implement protovalidate equivalent when needed
     // TypeScript could use: @bufbuild/protoplugin-validate or custom validation
 
@@ -89,7 +89,7 @@ export function parseProtoRequest<T>(body: any, schema: any): T {
                 const jsonStr = buffer.toString('utf8');
                 const jsonObj = JSON.parse(jsonStr);
                 return fromJson(schema, jsonObj, unmarshalOpts) as T;
-            } catch (jsonError) {
+            } catch {
                 // Both failed - provide helpful error
                 throw new BadRequestException(
                     `Invalid request format. Not valid protobuf binary or JSON. ` +

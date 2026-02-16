@@ -53,7 +53,7 @@ export function NavUser({
             await dispatch(logout()).unwrap()
             toast.success('Đã đăng xuất thành công')
             navigate('/login', { replace: true })
-        } catch (error) {
+        } catch {
             toast.error('Đăng xuất không thành công, nhưng bạn đã được đăng xuất cục bộ')
             navigate('/login', { replace: true })
         }

@@ -51,18 +51,6 @@ const accountNav = [
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
 ]
 
-// Mock data
-const continueLearning = [
-    {
-        id: 1,
-        slug: 'tieng-nhat-n5-co-ban',
-        title: 'Tiếng Nhật N5 - Cơ bản',
-        progress: 65,
-        nextLesson: 'Bài 12: Ngữ pháp',
-        href: '/courses/tieng-nhat-n5-co-ban/learn',
-    },
-]
-
 interface NavItem {
     name: string
     href: string

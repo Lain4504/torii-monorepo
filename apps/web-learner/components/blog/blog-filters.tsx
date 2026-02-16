@@ -19,7 +19,7 @@ interface PostFiltersProps {
     onSortChange: (sort: string) => void
 }
 
-export function PostFilters({ onSearch, onTagChange, onAuthorChange, onSortChange }: PostFiltersProps) {
+export function PostFilters({ onSearch, onTagChange, onSortChange }: PostFiltersProps) {
     const [searchValue, setSearchValue] = useState('')
 
     const handleSearchSubmit = (e: React.FormEvent) => {

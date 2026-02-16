@@ -47,7 +47,7 @@ export function Header() {
             toast.success('Đăng xuất thành công')
             router.push('/')
             router.refresh()
-        } catch (error: any) {
+        } catch {
             toast.error('Đăng xuất thất bại')
         } finally {
             setIsLoggingOut(false)

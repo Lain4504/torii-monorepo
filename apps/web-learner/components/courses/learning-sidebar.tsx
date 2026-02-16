@@ -24,7 +24,7 @@ interface LearningSidebarProps {
 }
 
 export function LearningSidebar({
-    courseTitle,
+    courseTitle: _courseTitle,
     curriculum,
     progress,
     completedLessons,

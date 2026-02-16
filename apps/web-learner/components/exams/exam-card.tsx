@@ -33,7 +33,7 @@ export function ExamCard({
     score,
     maxScore = 180,
     progress = 0,
-    lastAttemptDate,
+    lastAttemptDate: _lastAttemptDate,
     sessionId,
 }: ExamCardProps) {
     const router = useRouter()

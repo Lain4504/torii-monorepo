@@ -10,7 +10,7 @@ import { agentApi, BenchmarkResponse } from "@/apis/services/agent-api"
 
 export function AssessmentDashboard() {
     const [benchmark, setBenchmark] = React.useState<BenchmarkResponse | null>(null)
-    const [isLoading, setIsLoading] = React.useState(false)
+
 
     React.useEffect(() => {
         const fetchBenchmark = async () => {

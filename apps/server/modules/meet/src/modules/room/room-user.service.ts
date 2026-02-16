@@ -124,8 +124,8 @@ export class RoomUserService {
             }
 
             // Step 6: Handle user ID generation and duplicate user checks
-            const RECORDER_BOT = 'RECORDER_BOT';
-            const RTMP_BOT = 'RTMP_BOT';
+            // const RECORDER_BOT = 'RECORDER_BOT';
+            // const RTMP_BOT = 'RTMP_BOT';
 
             if (meta.roomFeatures?.autoGenUserId) {
                 // Auto-generate user ID (except for bots)
@@ -246,7 +246,7 @@ export class RoomUserService {
                     this.logger.log(`User is now offline, status: ${status}`);
                     return;
                 }
-            } catch (error) {
+            } catch {
                 // Error (e.g., key not found) implies user is gone
                 this.logger.log('User is offline (key not found)');
                 return;

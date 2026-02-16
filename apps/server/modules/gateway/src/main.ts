@@ -1,5 +1,5 @@
 import { GlobalExceptionsFilter, loadConfig } from '@server/shared';
-import { NestFactory, HttpAdapterHost } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { GatewayModule } from './gateway.module';
 import * as bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
@@ -46,7 +46,7 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  const httpAdapter = app.get(HttpAdapterHost);
+
   app.useGlobalFilters(new GlobalExceptionsFilter());
 
   await app.listen(config.server.port);

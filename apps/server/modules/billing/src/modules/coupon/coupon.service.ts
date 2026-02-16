@@ -55,7 +55,7 @@ export class CouponService {
             return { isValid: false, message: 'You have reached the usage limit for this coupon' };
         }
 
-        const { finalPrice, discountAmount } = this.calculateDiscount(orderAmount, coupon);
+        const { discountAmount } = this.calculateDiscount(orderAmount, coupon);
 
         return {
             isValid: true,
@@ -106,8 +106,6 @@ export class CouponService {
                 discountAmount: validation.discountAmount || 0
             };
 
-        } catch (error) {
-            throw error;
         } finally {
             // Release lock
             await this.redisClient.del(lockKey);

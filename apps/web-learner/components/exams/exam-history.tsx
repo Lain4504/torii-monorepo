@@ -55,13 +55,8 @@ export function ExamHistory() {
         })
     }
 
-    const formatTime = (minutes: number | undefined) => {
-        if (!minutes) return '-'
-        if (minutes < 60) return `${minutes} phút`
-        const hours = Math.floor(minutes / 60)
-        const mins = minutes % 60
-        return mins > 0 ? `${hours}h ${mins} phút` : `${hours}h`
-    }
+
+
 
     const handleViewDetails = (session: ExamSessionWithExamResponseDTO) => {
         if (session.exam?.id) {

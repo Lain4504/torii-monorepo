@@ -243,7 +243,7 @@ export function setCreateRoomDefaultValues(
             try {
                 const randomKey = generateSecureRandomString(32);
                 rf.endToEndEncryptionFeatures.encryptionKey = randomKey;
-            } catch (err) {
+            } catch {
                 const randomKey = generateRandomString(32);
                 rf.endToEndEncryptionFeatures.encryptionKey = randomKey;
             }

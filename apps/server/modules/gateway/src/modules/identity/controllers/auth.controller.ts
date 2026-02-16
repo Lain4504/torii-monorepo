@@ -237,14 +237,10 @@ export class AuthController {
         @Req() req: ReqWithRequester,
         @Res({ passthrough: true }) res: Response,
     ) {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'identity.auth.adminLogin' }, dto),
-            );
-            return await this.handleLoginResult(result, req, res);
-        } catch (error: any) {
-            throw error;
-        }
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'identity.auth.adminLogin' }, dto),
+        );
+        return await this.handleLoginResult(result, req, res);
     }
 
     @Post('login')
@@ -254,14 +250,10 @@ export class AuthController {
         @Req() req: ReqWithRequester,
         @Res({ passthrough: true }) res: Response,
     ) {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'identity.auth.login' }, dto),
-            );
-            return await this.handleLoginResult(result, req, res);
-        } catch (error: any) {
-            throw error;
-        }
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'identity.auth.login' }, dto),
+        );
+        return await this.handleLoginResult(result, req, res);
     }
 
     private async handleLoginResult(
@@ -521,7 +513,7 @@ export class AuthController {
         try {
             // New NATS call to handle refresh in one go (improving over 3 separate calls in original)
             // But to keep consistency with services, let's call dedicated refresh handler
-            const { user, accessToken, refreshToken } = await firstValueFrom(
+            const { accessToken, refreshToken } = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.auth.refreshToken' },
                     {
@@ -596,7 +588,7 @@ export class AuthController {
                 this.natsClient.send({ cmd: 'identity.auth.me' }, { userId: requester.sub }),
             );
             return successResponse({ user: userData });
-        } catch (error) {
+        } catch {
             throw new UnauthorizedException('Failed to get user');
         }
     }

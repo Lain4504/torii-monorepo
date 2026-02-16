@@ -33,7 +33,7 @@ type ExamSessionStartResponseWithResume = ExamSessionStartResponseDTO & {
 }
 
 // Transform API question to component Question format
-function transformQuestion(apiQuestion: any, index: number): Question {
+function transformQuestion(apiQuestion: any, _index: number): Question {
     const options = apiQuestion.options ? Object.entries(apiQuestion.options).map(([key, value]) => ({
         id: key,
         label: value as string,

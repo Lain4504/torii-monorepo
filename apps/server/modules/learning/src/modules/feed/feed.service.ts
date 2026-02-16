@@ -88,7 +88,7 @@ export class FeedService {
         } else if (query.sortBy) {
             try {
                 orderBy[query.sortBy as keyof Prisma.FeedOrderByWithRelationInput] = query.sortOrder || 'desc';
-            } catch (e) {
+            } catch {
                 orderBy.createdAt = 'desc';
             }
         } else {
@@ -148,14 +148,14 @@ export class FeedService {
             });
             try {
                 await this.feedRepository.update(id, { likeCount: { decrement: 1 } });
-            } catch (e) { }
+            } catch { }
         } else {
             await this.prisma.feedUserLike.create({
                 data: { feedId: id, userId }
             });
             try {
                 await this.feedRepository.update(id, { likeCount: { increment: 1 } });
-            } catch (e) { }
+            } catch { }
         }
 
         const likeCount = await this.prisma.feedUserLike.count({ where: { feedId: id } });

@@ -31,7 +31,7 @@ export default function LiveClassesPage() {
                 setError(null)
                 const data = await courseApi.getByType('live')
                 if (!cancelled) setCourses(data ?? [])
-            } catch (e) {
+            } catch {
                 if (!cancelled) setError('Không thể tải danh sách lớp học trực tuyến.')
             } finally {
                 if (!cancelled) setLoading(false)

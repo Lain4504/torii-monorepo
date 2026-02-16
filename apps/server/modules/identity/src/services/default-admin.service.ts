@@ -44,7 +44,7 @@ export class DefaultAdminService implements OnModuleInit {
             const hashedPassword = await argon2.hash(adminPassword);
 
             // Create the default admin user
-            const admin = await this.prisma.user.create({
+            await this.prisma.user.create({
                 data: {
                     email: adminEmail,
                     password: hashedPassword,

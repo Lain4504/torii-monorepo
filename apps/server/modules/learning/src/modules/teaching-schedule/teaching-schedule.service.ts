@@ -265,7 +265,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         return start1 < end2 && start2 < end1;
     }
 
-    private hasPermission(requester: Requester, permission: string): boolean {
+    private hasPermission(requester: Requester, _permission: string): boolean {
         // This should use an ACL service, but for now we follow the pattern in LiveSessionService
         return requester.role === 'admin' || requester.role === 'staff' || requester.role === 'lecturer';
     }

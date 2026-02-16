@@ -146,7 +146,7 @@ const redirectToLogin = async () => {
         // Force clear all local states by calling logout API
         // This will have the backend clear cookies even if user is on login page
         await apiClient.post('/api/auth/logout').catch(() => { });
-    } catch (e) {
+    } catch {
         // Ignore
     }
 

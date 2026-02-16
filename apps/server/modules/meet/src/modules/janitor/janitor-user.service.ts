@@ -93,7 +93,7 @@ export class JanitorUserService {
             try {
                 // removeParticipant is not async in some SDK versions, but let's await just in case
                 await this.livekitService.removeParticipant(roomId, userId);
-            } catch (error) {
+            } catch {
                 // ignore error
             }
         }

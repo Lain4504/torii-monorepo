@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { flashcardApi } from '@/apis/services/flashcard-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Button } from '@workspace/ui/components/button'
@@ -18,12 +18,11 @@ interface FlashcardStudyProps {
 
 export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
     const router = useRouter()
-    const queryClient = useQueryClient()
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isFlipped, setIsFlipped] = useState(false)
     const [sessionStartTime] = useState(Date.now())
     const [cardStartTime, setCardStartTime] = useState(Date.now())
-    const [completedCount, setCompletedCount] = useState(0)
+    const [_completedCount, setCompletedCount] = useState(0)
 
     // 1. Start Session
     const { data: session, isLoading: isStartingSession } = useQuery({

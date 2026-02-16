@@ -56,7 +56,7 @@ const useClientCustomization = () => {
     } else {
       try {
         designCustomParams = JSON.parse(customDesign);
-      } catch (e) {
+      } catch {
         return;
       }
     }
