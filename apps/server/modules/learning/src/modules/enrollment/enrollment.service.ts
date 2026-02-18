@@ -34,6 +34,66 @@ export class EnrollmentService implements IEnrollmentService {
         private readonly natsClient: ClientProxy,
     ) { }
 
+    /**
+     * Activate enrollment (switch from PENDING_PAYMENT to IN_PROGRESS)
+     */
+    async activateEnrollment(enrollmentId: string): Promise<EnrollmentResponseDTO> {
+        const enrollment = await this.enrollmentRepository.findById(enrollmentId);
+        if (!enrollment) {
+            throw new NotFoundException('Enrollment not found');
+        }
+
+        if (enrollment.completionStatus !== EnrollmentStatus.PENDING_PAYMENT) {
+            return this.toEnrollmentDto(enrollment);
+        }
+
+        try {
+            const updated = await this.enrollmentRepository.update(enrollmentId, {
+                completionStatus: EnrollmentStatus.IN_PROGRESS,
+            });
+
+            const course = await this.courseRepository.findById(enrollment.courseId);
+
+            // Audit Log
+            await this.logAudit({
+                action: 'enrollment.activate',
+                entity: 'enrollment',
+                entityId: enrollment.id,
+                userId: enrollment.userId,
+                description: `Activated enrollment ${enrollment.id}`,
+                oldValues: { completionStatus: EnrollmentStatus.PENDING_PAYMENT },
+                newValues: { completionStatus: EnrollmentStatus.IN_PROGRESS },
+            });
+
+            // Fetch User
+            try {
+                const response = await lastValueFrom(
+                    this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: enrollment.userId })
+                );
+                const user = response?.user;
+
+                if (user && user.email && course) {
+                    this.natsClient.emit({ cmd: 'course_enrollment_success' }, {
+                        userId: enrollment.userId,
+                        userEmail: user.email,
+                        userName: user.displayName || user.email || 'User',
+                        courseId: course.id,
+                        courseName: course.title,
+                        enrollmentId: enrollment.id,
+                    });
+                }
+            } catch (error: any) {
+                this.logger.error(`Failed to emit activation event: ${error.message}`);
+            }
+
+            return this.toEnrollmentDto(updated);
+
+        } catch (error: any) {
+            this.logger.error(`Error activating enrollment: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
+
 
     /**
      * Get learning stats for a user
@@ -186,6 +246,10 @@ export class EnrollmentService implements IEnrollmentService {
         // Check if already enrolled
         const existing = await this.enrollmentRepository.findByUserAndCourse(userId, input.courseId);
         if (existing) {
+            if (existing.completionStatus === EnrollmentStatus.PENDING_PAYMENT) {
+                this.logger.log(`Found existing pending enrollment ${existing.id} for user ${userId} and course ${input.courseId}`);
+                return this.toEnrollmentDto(existing);
+            }
             throw new BadRequestException('Already enrolled in this course');
         }
 
@@ -202,7 +266,7 @@ export class EnrollmentService implements IEnrollmentService {
                 course: { connect: { id: input.courseId } },
                 enrollmentDate: new Date(),
                 lastAccessedAt: new Date(),
-                completionStatus: EnrollmentStatus.IN_PROGRESS,
+                completionStatus: (input as any).status || (finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS),
                 completionPercentage: 0,
                 finalPrice,
                 isGift: (input as any).isGift || false,
@@ -210,8 +274,8 @@ export class EnrollmentService implements IEnrollmentService {
                 sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
             });
 
-            // If it's a free enrollment (finalPrice is 0), emit success event for notification/email
-            if (finalPrice === 0) {
+            // If it's a free enrollment (finalPrice is 0) or explicitly active, emit success event for notification/email
+            if (created.completionStatus === EnrollmentStatus.IN_PROGRESS) {
                 try {
                     this.logger.log(`Fetching user ${userId} for enrollment notification`);
                     const response = await lastValueFrom(

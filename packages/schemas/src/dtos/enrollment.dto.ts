@@ -11,6 +11,7 @@ export const enrollmentCreateDTOSchema = z.object({
     isGift: z.boolean().optional(),
     giftMessage: z.string().optional(),
     senderId: z.string().uuid().optional(),
+    status: z.nativeEnum(EnrollmentStatus).optional(),
 });
 
 export type EnrollmentCreateDTO = z.infer<typeof enrollmentCreateDTOSchema>;

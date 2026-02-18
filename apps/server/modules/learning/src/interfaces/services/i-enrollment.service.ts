@@ -52,6 +52,11 @@ export interface IEnrollmentService {
      * Delete enrollment by user and course
      */
     deleteByUserAndCourse(userId: string, courseId: string): Promise<EnrollmentResponseDTO>;
+
+    /**
+     * Activate enrollment (switch from PENDING_PAYMENT to IN_PROGRESS)
+     */
+    activateEnrollment(enrollmentId: string): Promise<EnrollmentResponseDTO>;
 }
 
 

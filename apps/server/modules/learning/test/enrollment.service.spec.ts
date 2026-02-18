@@ -168,7 +168,7 @@ describe('EnrollmentService', () => {
         const input = { courseId: 'course-1' };
         const mockDate = new Date();
 
-        it('should create an enrollment successfully', async () => {
+        it('should create a PENDING_PAYMENT enrollment for paid course', async () => {
             mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, title: 'Paid Course', status: CourseStatus.PUBLISHED });
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
             mockEnrollmentRepository.create.mockResolvedValue({
@@ -177,7 +177,7 @@ describe('EnrollmentService', () => {
                 courseId: 'course-1',
                 finalPrice: 100,
                 enrollmentDate: mockDate,
-                completionStatus: EnrollmentStatus.IN_PROGRESS,
+                completionStatus: EnrollmentStatus.PENDING_PAYMENT,
                 completionPercentage: 0,
                 createdAt: mockDate,
                 updatedAt: mockDate
@@ -186,9 +186,26 @@ describe('EnrollmentService', () => {
             const result = await service.create(userId, input);
 
             expect(result.id).toBe('enr-1');
-            expect(enrollmentRepository.create).toHaveBeenCalled();
-            // Should not emit course_enrollment_success because it's not a free course (price > 0)
+            expect(result.completionStatus).toBe(EnrollmentStatus.PENDING_PAYMENT);
+            expect(enrollmentRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+                completionStatus: EnrollmentStatus.PENDING_PAYMENT
+            }));
+            // Should not emit course_enrollment_success for pending payment
             expect(natsClient.emit).not.toHaveBeenCalledWith({ cmd: 'course_enrollment_success' }, expect.any(Object));
+        });
+
+        it('should return existing PENDING_PAYMENT enrollment if exists', async () => {
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, status: CourseStatus.PUBLISHED });
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({
+                id: 'enr-pending',
+                completionStatus: EnrollmentStatus.PENDING_PAYMENT
+            });
+
+            const result = await service.create(userId, input);
+            expect(result.id).toBe('enr-pending');
+            // Should verify that create was NOT called again? Or it just returns.
+            // In implementation: if (existing) return toDto(existing)
+            expect(enrollmentRepository.create).not.toHaveBeenCalled();
         });
 
         it('should throw BadRequestException if courseId is missing', async () => {
@@ -210,9 +227,9 @@ describe('EnrollmentService', () => {
             await expect(service.create(userId, input)).rejects.toThrow(NotFoundException);
         });
 
-        it('should throw BadRequestException if already enrolled', async () => {
+        it('should throw BadRequestException if already enrolled (ACTIVE)', async () => {
             mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', status: CourseStatus.PUBLISHED });
-            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({ id: 'existing' });
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({ id: 'existing', completionStatus: EnrollmentStatus.IN_PROGRESS });
             await expect(service.create(userId, input)).rejects.toThrow(BadRequestException);
         });
 
@@ -238,6 +255,56 @@ describe('EnrollmentService', () => {
                 { cmd: 'course_enrollment_success' },
                 expect.objectContaining({ userEmail: 'test@example.com', courseName: 'Free Course' })
             );
+        });
+    });
+
+    describe('activateEnrollment', () => {
+        const mockDate = new Date();
+        it('should activate a pending enrollment successfully', async () => {
+            const pendingEnrollment = {
+                id: 'enr-1',
+                userId: 'user-1',
+                courseId: 'course-1',
+                completionStatus: EnrollmentStatus.PENDING_PAYMENT,
+                finalPrice: 100
+            };
+            const activeEnrollment = { ...pendingEnrollment, completionStatus: EnrollmentStatus.IN_PROGRESS };
+
+            mockEnrollmentRepository.findById.mockResolvedValue(pendingEnrollment);
+            mockEnrollmentRepository.update.mockResolvedValue(activeEnrollment);
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', title: 'Test Course' });
+            mockNatsClient.send.mockReturnValue(of({ user: { email: 'test@example.com' } }));
+
+            const result = await service.activateEnrollment('enr-1');
+
+            expect(result.completionStatus).toBe(EnrollmentStatus.IN_PROGRESS);
+            expect(enrollmentRepository.update).toHaveBeenCalledWith('enr-1', {
+                completionStatus: EnrollmentStatus.IN_PROGRESS,
+            });
+            expect(natsClient.emit).toHaveBeenCalledWith(
+                { cmd: 'course_enrollment_success' },
+                expect.any(Object)
+            );
+        });
+
+        it('should return existing enrollment if already active', async () => {
+            const activeEnrollment = {
+                id: 'enr-1',
+                userId: 'user-1',
+                courseId: 'course-1',
+                completionStatus: EnrollmentStatus.IN_PROGRESS,
+                finalPrice: 100
+            };
+            mockEnrollmentRepository.findById.mockResolvedValue(activeEnrollment);
+
+            const result = await service.activateEnrollment('enr-1');
+            expect(result.completionStatus).toBe(EnrollmentStatus.IN_PROGRESS);
+            expect(enrollmentRepository.update).not.toHaveBeenCalled();
+        });
+
+        it('should throw NotFoundException if enrollment not found', async () => {
+            mockEnrollmentRepository.findById.mockResolvedValue(null);
+            await expect(service.activateEnrollment('invalid-id')).rejects.toThrow(NotFoundException);
         });
     });
 
