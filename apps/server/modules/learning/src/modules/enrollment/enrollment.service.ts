@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 
@@ -197,6 +197,12 @@ export class EnrollmentService implements IEnrollmentService {
             }
             const finalPrice = course.discountPrice ? Number(course.discountPrice) : Number(course.price);
 
+            // Payment Verification Check
+            if (finalPrice > 0 && !input.isPaymentVerified) {
+                this.logger.warn(`Attempt to enroll in paid course ${input.courseId} without payment verification. User: ${userId}`);
+                throw new ForbiddenException('Payment required for this course');
+            }
+
             const created = await this.enrollmentRepository.create({
                 user: { connect: { id: userId } },
                 course: { connect: { id: input.courseId } },
@@ -208,6 +214,7 @@ export class EnrollmentService implements IEnrollmentService {
                 isGift: (input as any).isGift || false,
                 giftMessage: (input as any).giftMessage,
                 sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
+                order: input.orderId ? { connect: { id: input.orderId } } : undefined,
             });
 
             // If it's a free enrollment (finalPrice is 0), emit success event for notification/email

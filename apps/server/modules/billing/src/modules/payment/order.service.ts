@@ -493,6 +493,8 @@ export class OrderService implements IOrderService {
                         isGift: isGift,
                         giftMessage: metadata.giftMessage,
                         senderId: isGift ? order.userId : undefined,
+                        orderId: orderId,
+                        isPaymentVerified: true,
                     };
 
                     const enrollment = await lastValueFrom(

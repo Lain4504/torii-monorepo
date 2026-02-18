@@ -116,10 +116,20 @@ export class EnrollmentController {
     async create(@Body() input: any, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
+            // Sanitize payload to prevent users from bypassing payment check
+            // Do NOT include isPaymentVerified or orderId from the body
+            const payload = {
+                courseId: input.courseId,
+                isGift: input.isGift,
+                giftMessage: input.giftMessage,
+                senderId: input.senderId,
+                userId: requester.sub
+            };
+
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.create' },
-                    { ...input, userId: requester.sub }
+                    payload
                 )
             );
             return successResponse({ enrollment: result });

@@ -4,7 +4,7 @@ import { EnrollmentRepository } from '@server/learning/modules/enrollment/enroll
 import { COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { EnrollmentStatus, CourseStatus } from '@workspace/schemas';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { of } from 'rxjs';
 
 describe('EnrollmentService', () => {
@@ -183,7 +183,7 @@ describe('EnrollmentService', () => {
                 updatedAt: mockDate
             });
 
-            const result = await service.create(userId, input);
+            const result = await service.create(userId, { ...input, isPaymentVerified: true });
 
             expect(result.id).toBe('enr-1');
             expect(enrollmentRepository.create).toHaveBeenCalled();
@@ -238,6 +238,36 @@ describe('EnrollmentService', () => {
                 { cmd: 'course_enrollment_success' },
                 expect.objectContaining({ userEmail: 'test@example.com', courseName: 'Free Course' })
             );
+        });
+
+        it('should throw ForbiddenException if creating paid enrollment without payment verification', async () => {
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, title: 'Paid Course', status: CourseStatus.PUBLISHED });
+            // By default input does not have isPaymentVerified
+            await expect(service.create(userId, input)).rejects.toThrow(ForbiddenException);
+        });
+
+        it('should create paid enrollment if payment verification is provided', async () => {
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, title: 'Paid Course', status: CourseStatus.PUBLISHED });
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
+            mockEnrollmentRepository.create.mockResolvedValue({
+                id: 'enr-paid-verified',
+                userId,
+                courseId: 'course-1',
+                finalPrice: 100,
+                enrollmentDate: mockDate,
+                completionStatus: EnrollmentStatus.IN_PROGRESS,
+                completionPercentage: 0,
+                createdAt: mockDate,
+                updatedAt: mockDate
+            });
+
+            const verifiedInput = { ...input, isPaymentVerified: true, orderId: 'order-123' };
+            const result = await service.create(userId, verifiedInput);
+
+            expect(result.id).toBe('enr-paid-verified');
+            expect(enrollmentRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+                order: { connect: { id: 'order-123' } }
+            }));
         });
     });
 
