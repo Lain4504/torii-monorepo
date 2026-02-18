@@ -911,6 +911,21 @@ export class ExamService implements IExamService {
             });
 
             this.logger.log(`Exam ${quiz.id} created by ${requester.sub}`);
+
+            // Trigger stats recalculation for associated course via NATS
+            if (quiz.courseId) {
+                this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: quiz.courseId });
+            } else if (quiz.lessonId) {
+                // If linked to a lesson, find its course
+                const lesson = await this.prisma.lesson.findUnique({
+                    where: { id: quiz.lessonId },
+                    include: { module: true }
+                });
+                if (lesson?.module?.courseId) {
+                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: lesson.module.courseId });
+                }
+            }
+
             return this.toExamDto(quiz);
         } catch (error: any) {
             this.logger.error(`Error creating exam: ${error.message}`, error.stack);
@@ -951,6 +966,39 @@ export class ExamService implements IExamService {
             const updated = await this.examRepository.update(examId, updateData);
 
             this.logger.log(`Exam ${examId} updated by ${requester.sub}`);
+
+            // Recalculate stats for both OLD and NEW associations via NATS if status or association changed
+            const statusChanged = dto.status !== undefined && dto.status !== (existingQuiz as any).status;
+            const associationChanged = ((dto as any).courseId !== undefined && (dto as any).courseId !== (existingQuiz as any).courseId) ||
+                                       ((dto as any).lessonId !== undefined && (dto as any).lessonId !== (existingQuiz as any).lessonId);
+
+            if (statusChanged || associationChanged) {
+                // Get all affected courses
+                const affectedCourses = new Set<string>();
+                
+                const getCourseIds = async (quiz: any) => {
+                    if (quiz.courseId) return [quiz.courseId];
+                    if (quiz.lessonId) {
+                        const lesson = await this.prisma.lesson.findUnique({
+                            where: { id: quiz.lessonId },
+                            include: { module: true }
+                        });
+                        return lesson?.module?.courseId ? [lesson.module.courseId] : [];
+                    }
+                    return [];
+                };
+
+                const oldIds = await getCourseIds(existingQuiz);
+                const newIds = await getCourseIds(updated);
+
+                oldIds.forEach(id => affectedCourses.add(id));
+                newIds.forEach(id => affectedCourses.add(id));
+
+                for (const courseId of affectedCourses) {
+                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId });
+                }
+            }
+
             return this.toExamDto(updated);
         } catch (error: any) {
             this.logger.error(`Error updating exam ${examId}: ${error.message}`, error.stack);
@@ -975,6 +1023,19 @@ export class ExamService implements IExamService {
             await this.examRepository.delete(examId);
 
             this.logger.log(`Exam ${examId} deleted by ${requester.sub}`);
+
+            // Trigger stats recalculation via NATS
+            if ((quiz as any).courseId) {
+                this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: (quiz as any).courseId });
+            } else if ((quiz as any).lessonId) {
+                const lesson = await this.prisma.lesson.findUnique({
+                    where: { id: (quiz as any).lessonId },
+                    include: { module: true }
+                });
+                if (lesson?.module?.courseId) {
+                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: lesson.module.courseId });
+                }
+            }
         } catch (error: any) {
             this.logger.error(`Error deleting exam ${examId}: ${error.message}`, error.stack);
             throw error;

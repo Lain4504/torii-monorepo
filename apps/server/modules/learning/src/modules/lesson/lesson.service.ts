@@ -72,7 +72,7 @@ export class LessonService implements ILessonService {
     try {
       const module = await this.moduleRepository.findById(moduleId);
       if (module) {
-        await this.courseService.recalculateStats(module.courseId);
+        this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: module.courseId });
       }
     } catch (error) {
       this.logger.error('Failed to trigger stats update from LessonService', error);
