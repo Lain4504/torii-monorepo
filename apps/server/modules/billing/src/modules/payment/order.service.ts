@@ -351,95 +351,119 @@ export class OrderService implements IOrderService {
                 couponDiscount: couponDiscount,
             };
 
-            try {
-                const created = await this.orderRepository.create({
-                    user: { connect: { id: userId } },
-                    amount,
-                    currency: 'VND',
-                    paymentMethod: input.paymentMethod || 'mock',
-                    paymentGateway: input.paymentGateway || 'mock',
-                    status: OrderStatus.PENDING,
-                    orderType: input.orderType || OrderType.COURSE_PURCHASE,
-                    description: input.description || undefined,
-                    enrollmentId: undefined,
-                    coupon: couponId ? { connect: { id: couponId } } : undefined,
-                    metadata,
-                });
-
-                // If PayOS payment method, create payment link
-                if (input.paymentMethod === PaymentMethod.PAYOS) {
-                    try {
-                        const orderCode = Number(Date.now().toString().slice(-10));
-                        const description = `Torii ${orderCode}`;
-                        const frontendUrl = this.appConfig.identity.frontendUrl;
-                        const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
-                        const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
-
-                        const paymentLinkData = await this.payOSService.createPaymentLink({
-                            orderCode: orderCode,
-                            amount: Number(created.amount),
-                            description: description,
-                            cancelUrl: cancelUrl,
-                            returnUrl: returnUrl,
-                        });
-
-                        // Update order with transaction info
-                        await this.orderRepository.update(created.id, {
-                            transactionId: orderCode.toString(),
-                            gatewayTransactionId: orderCode.toString(),
-                            metadata: {
-                                ...(created.metadata as any),
-                                checkoutUrl: paymentLinkData.checkoutUrl,
-                                paymentLinkId: paymentLinkData.paymentLinkId,
-                                payOsOrderCode: orderCode,
-                            }
-                        });
-
-                        this.logger.log(`Created PayOS payment link for order ${created.id}: ${paymentLinkData.checkoutUrl}`);
-
-                        return {
-                            ...this.toOrderDto(created),
-                            transactionId: orderCode.toString(),
-                            metadata: {
-                                ...(created.metadata as any),
-                                checkoutUrl: paymentLinkData.checkoutUrl,
-                                paymentLinkId: paymentLinkData.paymentLinkId,
-                            },
-                            paymentMethod: PaymentMethod.PAYOS,
-                        };
-                    } catch (error: any) {
-                        this.logger.error(`Failed to create PayOS payment link: ${error.message}`);
-                        // If payment link creation fails, also rollback coupon!
-                        if (couponId) {
-                            await this.couponService.releaseCoupon(couponId);
-                        }
-                        // Also delete the created order? Or mark as failed?
-                        // For now mark as failed is safer than delete
-                        await this.orderRepository.update(created.id, {
-                            status: OrderStatus.FAILED,
-                            failedAt: new Date(),
-                            metadata: {
-                                ...(created.metadata as any),
-                                failureReason: `PayOS Init Error: ${error.message}`
-                            }
-                        });
-
-                        throw new BadRequestException(`Failed to initialize payment gateway: ${error.message}`);
-                    }
+            // Create Enrollment in PENDING_PAYMENT status
+            let enrollmentId: string | undefined;
+            if (input.orderType === OrderType.COURSE_PURCHASE && courseId && !input.metadata?.isGift) {
+                try {
+                    const enrollment = await lastValueFrom(
+                        this.natsClient.send({ cmd: 'learning.enrollment.create' }, {
+                            userId,
+                            courseId,
+                            status: 'pending_payment', // Use string literal to avoid import issue if enum not updated in context
+                            finalPrice: amount
+                        })
+                    );
+                    enrollmentId = enrollment?.id;
+                    this.logger.log(`Created pending enrollment ${enrollmentId} for order`);
+                } catch (e: any) {
+                    this.logger.error(`Failed to create pending enrollment: ${e.message}`);
+                    // Should we block order creation? strict consistency says yes.
+                    throw new BadRequestException(`Failed to initialize enrollment: ${e.message}`);
                 }
-
-                return this.toOrderDto(created);
-
-            } catch (dbError: any) {
-                // DB Creation failed
-                if (couponId) {
-                    await this.couponService.releaseCoupon(couponId);
-                }
-                throw dbError;
             }
-        } catch (error: any) {
-            this.logger.error(`Error creating order: ${error.message}`, error.stack);
-            throw error;
+
+            const created = await this.orderRepository.create({
+                user: { connect: { id: userId } },
+                amount,
+                currency: 'VND',
+                paymentMethod: input.paymentMethod || 'mock',
+                paymentGateway: input.paymentGateway || 'mock',
+                status: OrderStatus.PENDING,
+                orderType: input.orderType || OrderType.COURSE_PURCHASE,
+                description: input.description || undefined,
+                enrollmentId: enrollmentId,
+                coupon: couponId ? { connect: { id: couponId } } : undefined,
+                metadata,
+            });
+
+            // Update enrollment with orderId if it exists
+            if (enrollmentId) {
+                this.natsClient.emit({ cmd: 'learning.enrollment.updateOrderId' }, {
+                    id: enrollmentId,
+                    orderId: created.id
+                });
+            }
+
+            // If PayOS payment method, create payment link
+            if (input.paymentMethod === PaymentMethod.PAYOS) {
+                try {
+                    const orderCode = Number(Date.now().toString().slice(-10));
+                    const description = `Torii ${orderCode}`;
+                    const frontendUrl = this.appConfig.identity.frontendUrl;
+                    const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
+                    const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
+
+                    const paymentLinkData = await this.payOSService.createPaymentLink({
+                        orderCode: orderCode,
+                        amount: Number(created.amount),
+                        description: description,
+                        cancelUrl: cancelUrl,
+                        returnUrl: returnUrl,
+                    });
+
+                    // Update order with transaction info
+                    await this.orderRepository.update(created.id, {
+                        transactionId: orderCode.toString(),
+                        gatewayTransactionId: orderCode.toString(),
+                        metadata: {
+                            ...(created.metadata as any),
+                            checkoutUrl: paymentLinkData.checkoutUrl,
+                            paymentLinkId: paymentLinkData.paymentLinkId,
+                            payOsOrderCode: orderCode,
+                        }
+                    });
+
+                    this.logger.log(`Created PayOS payment link for order ${created.id}: ${paymentLinkData.checkoutUrl}`);
+
+                    return {
+                        ...this.toOrderDto(created),
+                        transactionId: orderCode.toString(),
+                        metadata: {
+                            ...(created.metadata as any),
+                            checkoutUrl: paymentLinkData.checkoutUrl,
+                            paymentLinkId: paymentLinkData.paymentLinkId,
+                        },
+                        paymentMethod: PaymentMethod.PAYOS,
+                    };
+                } catch (error: any) {
+                    this.logger.error(`Failed to create PayOS payment link: ${error.message}`);
+                    // If payment link creation fails, also rollback coupon!
+                    if (couponId) {
+                        await this.couponService.releaseCoupon(couponId);
+                    }
+                    // Also delete the created order? Or mark as failed?
+                    // For now mark as failed is safer than delete
+                    await this.orderRepository.update(created.id, {
+                        status: OrderStatus.FAILED,
+                        failedAt: new Date(),
+                        metadata: {
+                            ...(created.metadata as any),
+                            failureReason: `PayOS Init Error: ${error.message}`
+                        }
+                    });
+
+                    throw new BadRequestException(`Failed to initialize payment gateway: ${error.message}`);
+                }
+            }
+
+            return this.toOrderDto(created);
+
+        } catch (dbError: any) {
+            // DB Creation failed
+            if (couponId) {
+                await this.couponService.releaseCoupon(couponId);
+            }
+            throw dbError;
         }
     }
 
@@ -480,43 +504,66 @@ export class OrderService implements IOrderService {
 
                     if (isGift && !targetUserId) {
                         this.logger.error(`Gift order ${orderId} missing recipientId in metadata`);
-                        // Fallback to buyer or fail? Fail is safer for gifts to avoid wrong assignment
-                        // But let's try to recover via email if possible, or just fail. 
-                        // Since we validated in create, it should be there.
                         throw new BadRequestException('Gift order missing recipient information');
                     }
 
-                    // Create enrollment via NATS
-                    const enrollmentPayload = {
-                        userId: targetUserId,
-                        courseId: metadata.courseId,
-                        isGift: isGift,
-                        giftMessage: metadata.giftMessage,
-                        senderId: isGift ? order.userId : undefined,
-                    };
+                    let enrollmentId: string | undefined;
 
-                    const enrollment = await lastValueFrom(
-                        this.natsClient.send({ cmd: 'learning.enrollment.create' }, enrollmentPayload)
-                    );
+                    if (isGift) {
+                        // Gift Flow: Always create new enrollment (Active)
+                        const enrollmentPayload = {
+                            userId: targetUserId,
+                            courseId: metadata.courseId,
+                            isGift: isGift,
+                            giftMessage: metadata.giftMessage,
+                            senderId: isGift ? order.userId : undefined,
+                            status: 'in_progress'
+                        };
 
-                    if (!enrollment) {
-                        throw new Error('Enrollment service returned empty response');
+                        const enrollment = await lastValueFrom(
+                            this.natsClient.send({ cmd: 'learning.enrollment.create' }, enrollmentPayload)
+                        );
+                        enrollmentId = enrollment?.id;
+
+                        this.logger.log(`Gift enrollment created for user ${targetUserId} and course ${metadata.courseId}`);
+                    } else {
+                        // Regular Flow: Activate existing enrollment
+                        enrollmentId = order.enrollmentId;
+
+                        if (!enrollmentId) {
+                            // Backward compatibility: create if missing
+                            this.logger.warn(`Order ${orderId} missing enrollmentId, attempting to create/find...`);
+                            const enrollmentPayload = {
+                                userId: targetUserId,
+                                courseId: metadata.courseId,
+                                status: 'in_progress'
+                            };
+                            const enrollment = await lastValueFrom(
+                                this.natsClient.send({ cmd: 'learning.enrollment.create' }, enrollmentPayload)
+                            );
+                            enrollmentId = enrollment?.id;
+                        } else {
+                            // Activate existing
+                            await lastValueFrom(
+                                this.natsClient.send({ cmd: 'learning.enrollment.activate' }, { enrollmentId })
+                            );
+                            this.logger.log(`Activated enrollment ${enrollmentId} for order ${orderId}`);
+                        }
                     }
 
-                    // Update enrollment with orderId via NATS
-                    await lastValueFrom(
-                        this.natsClient.send({ cmd: 'learning.enrollment.updateOrderId' }, {
-                            id: enrollment.id,
-                            orderId: orderId,
-                        })
-                    );
-
-                    // Update order with enrollmentId
-                    await this.orderRepository.update(orderId, {
-                        enrollmentId: enrollment.id,
-                    });
-
-                    this.logger.log(`Enrollment created automatically for user ${order.userId} and course ${metadata.courseId}`);
+                    // Update order with enrollmentId if we resolved/created it
+                    if (enrollmentId && enrollmentId !== order.enrollmentId) {
+                        await this.orderRepository.update(orderId, {
+                            enrollmentId: enrollmentId,
+                        });
+                        // Update enrollment with orderId
+                        await lastValueFrom(
+                            this.natsClient.send({ cmd: 'learning.enrollment.updateOrderId' }, {
+                                id: enrollmentId,
+                                orderId: orderId,
+                            })
+                        );
+                    }
 
                     // Emit order_payment_success event
                     try {
@@ -551,7 +598,7 @@ export class OrderService implements IOrderService {
                                         courseId: course.id,
                                         courseName: course.title,
                                         giftMessage: metadata.giftMessage,
-                                        enrollmentId: enrollment.id,
+                                        enrollmentId: enrollmentId,
                                     });
                                     this.logger.log(`course_gift_received event emitted for recipient ${recipientUser.email}`);
                                 }
@@ -561,7 +608,7 @@ export class OrderService implements IOrderService {
                         this.logger.error(`Failed to emit payment success event: ${eventError.message}`);
                     }
                 } catch (enrollError: any) {
-                    this.logger.warn(`Failed to create enrollment after payment: ${enrollError.message}`);
+                    this.logger.warn(`Failed to create/activate enrollment after payment: ${enrollError.message}`);
                 }
             }
 

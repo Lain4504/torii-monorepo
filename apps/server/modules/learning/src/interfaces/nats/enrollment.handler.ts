@@ -35,6 +35,11 @@ export class EnrollmentHandler {
         return this.enrollmentService.create(userId, input);
     }
 
+    @MessagePattern({ cmd: 'learning.enrollment.activate' })
+    async activate(@Payload() data: { enrollmentId: string }) {
+        return this.enrollmentService.activateEnrollment(data.enrollmentId);
+    }
+
     @MessagePattern({ cmd: 'learning.enrollment.updateProgress' })
     async updateProgress(@Payload() data: { id: string, completionPercentage: number }) {
         return this.enrollmentService.updateProgress(data.id, data.completionPercentage);
@@ -53,6 +58,6 @@ export class EnrollmentHandler {
     @MessagePattern({ cmd: 'learning.enrollment.delete' })
     async delete(@Payload() data: { userId: string, courseId: string }) {
         return this.enrollmentService.deleteByUserAndCourse(data.userId, data.courseId);
-    }   
+    }
 }
 
