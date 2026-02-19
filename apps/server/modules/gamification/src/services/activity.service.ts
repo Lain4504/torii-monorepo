@@ -7,6 +7,7 @@ import {
 } from '@workspace/schemas';
 import { StreakService } from '@server/gamification/services';
 import { AchievementService } from '@server/gamification/services';
+import { GamificationTransactionType } from '@prisma/generated';
 
 const XP_REWARDS: Record<string, number> = {
     LESSON_COMPLETE: 50,
@@ -83,7 +84,7 @@ export class ActivityService {
 
         // Update User XP and Level
         if (xpGain > 0) {
-            await this.updateXP(userId, xpGain);
+            await this.updateXP(userId, xpGain, activityType);
         }
 
         // Update streak
@@ -161,6 +162,42 @@ export class ActivityService {
         return activities.map((a) => a.date);
     }
 
+    /**
+     * Get gamification history with pagination
+     */
+    async getHistory(userId: string, query: { page?: any, limit?: any, type?: any }) {
+        const page = parseInt(query.page as string || '1', 10) || 1;
+        const limit = parseInt(query.limit as string || '10', 10) || 10;
+        const { type } = query;
+        const skip = (page - 1) * limit;
+
+        const where: any = {
+            userId,
+        };
+
+        if (type) {
+            where.type = type;
+        }
+
+        const [data, total] = await Promise.all([
+            this.prisma.gamificationHistory.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limit,
+            }),
+            this.prisma.gamificationHistory.count({ where }),
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
+
     // ========================================
     // Helper Methods
     // ========================================
@@ -178,7 +215,7 @@ export class ActivityService {
     /**
      * Update user XP and level in UserGamification
      */
-    private async updateXP(userId: string, xpGain: number) {
+    private async updateXP(userId: string, xpGain: number, activityType?: ActivityType) {
         try {
             // Use an upsert for UserGamification to be safe
             const gamification = await this.prisma.userGamification.upsert({
@@ -194,6 +231,17 @@ export class ActivityService {
                     totalXp: { increment: xpGain },
                     currentXp: { increment: xpGain },
                     points: { increment: xpGain }, // Added points
+                }
+            });
+
+            // Log gamification history for points
+            await this.prisma.gamificationHistory.create({
+                data: {
+                    userId,
+                    amount: xpGain,
+                    type: GamificationTransactionType.EARN,
+                    activityType: activityType as any,
+                    description: `Earned ${xpGain} points from ${activityType || 'activity'}`,
                 }
             });
 

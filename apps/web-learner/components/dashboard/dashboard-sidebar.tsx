@@ -18,6 +18,8 @@ import {
     Bot,
     FileQuestion,
     BarChart3,
+    Wallet,
+    Receipt,
 } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { Progress } from '@workspace/ui/components/progress'
@@ -47,7 +49,8 @@ const progressNav = [
 // Nhóm tài khoản - ưu tiên thấp hơn
 const accountNav = [
     { name: 'Hồ sơ', href: '/dashboard/profile', icon: User },
-    { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: CreditCard },
+    { name: 'Ví & Điểm thưởng', href: '/dashboard/wallet', icon: Wallet },
+    { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: Receipt },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
 ]
 
