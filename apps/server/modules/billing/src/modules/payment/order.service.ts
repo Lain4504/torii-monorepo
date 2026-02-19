@@ -59,6 +59,24 @@ export class OrderService implements IOrderService {
 
             if (count > 0) {
                 this.logger.log(`Auto-cancelled ${count} pending orders`);
+                // Find those orders to clean up enrollments
+                const expiredOrders = await this.orderRepository.findMany({
+                    where: {
+                        status: OrderStatus.TIMED_OUT,
+                        updatedAt: { gte: thirtyMinutesAgo } // Approximate
+                    },
+                    take: count,
+                    skip: 0
+                });
+
+                for (const order of expiredOrders) {
+                    if (order.enrollmentId && (order.metadata as any)?.courseId) {
+                        this.natsClient.send({ cmd: 'learning.enrollment.delete' }, {
+                            userId: order.userId,
+                            courseId: (order.metadata as any).courseId
+                        }).subscribe(); // Fire and forget but using standard pattern
+                    }
+                }
             }
         } catch (error: any) {
             this.logger.error(`Error in auto-cancel orders logic: ${error.message}`, error.stack);
@@ -528,7 +546,7 @@ export class OrderService implements IOrderService {
                         this.logger.log(`Gift enrollment created for user ${targetUserId} and course ${metadata.courseId}`);
                     } else {
                         // Regular Flow: Activate existing enrollment
-                        enrollmentId = order.enrollmentId;
+                        enrollmentId = order.enrollmentId || undefined;
 
                         if (!enrollmentId) {
                             // Backward compatibility: create if missing
@@ -723,5 +741,117 @@ export class OrderService implements IOrderService {
             this.logger.error(`Error handling webhook: ${error.message}`, error.stack);
             return { success: false, error: error.message };
         }
+    }
+    /**
+     * Cancel an order
+     */
+    async cancel(id: string, userId: string, userRole: string): Promise<OrderResponseDTO> {
+        const order = await this.orderRepository.findById(id);
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        // Only owner or admin can cancel
+        if (order.userId !== userId && userRole !== 'admin') {
+            throw new BadRequestException('You do not have permission to cancel this order');
+        }
+
+        // Only pending orders can be cancelled manually
+        if (order.status !== OrderStatus.PENDING) {
+            throw new BadRequestException(`Cannot cancel order in ${order.status} status`);
+        }
+
+        const updated = await this.orderRepository.update(id, {
+            status: OrderStatus.CANCELLED,
+            metadata: {
+                ...(order.metadata as Record<string, any>),
+                cancelledBy: userId,
+                cancelledAt: new Date().toISOString()
+            }
+        });
+
+        // Clean up enrollment if any
+        const courseId = (order.metadata as any)?.courseId;
+        if (order.enrollmentId && courseId) {
+            this.natsClient.send({ cmd: 'learning.enrollment.delete' }, {
+                userId: order.userId,
+                courseId: courseId
+            }).subscribe();
+        }
+
+        // Release coupon if any
+        if (order.couponId) {
+            await this.couponService.releaseCoupon(order.couponId);
+        }
+
+        // Notify other modules via NATS
+        this.natsClient.emit({ cmd: 'billing.order.cancelled' }, {
+            orderId: id,
+            userId: order.userId,
+            enrollmentId: order.enrollmentId
+        });
+
+        return this.toOrderDto(updated);
+    }
+
+    /**
+     * Refund an order (Admin only/System only)
+     */
+    async refund(id: string, reason?: string): Promise<OrderResponseDTO> {
+        const order = await this.orderRepository.findById(id);
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        if (order.status !== OrderStatus.COMPLETED) {
+            throw new BadRequestException('Only completed orders can be refunded');
+        }
+
+        const updated = await this.orderRepository.update(id, {
+            status: OrderStatus.REFUNDED as any,
+            metadata: {
+                ...(order.metadata as Record<string, any>),
+                refundedAt: new Date().toISOString(),
+                refundReason: reason
+            }
+        });
+
+        const metadata = order.metadata as Record<string, any>;
+        const courseId = metadata?.courseId;
+
+        // 1. Thu hồi quyền truy cập (Un-enroll)
+        if (courseId) {
+            try {
+                const deletedEnrollment = await lastValueFrom(
+                    this.natsClient.send({ cmd: 'learning.enrollment.delete' }, {
+                        userId: order.userId,
+                        courseId: courseId
+                    })
+                );
+
+                // 2. Hoàn tiền nếu là giao dịch có phí
+                if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
+                    await lastValueFrom(
+                        this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
+                            userId: order.userId,
+                            amount: Math.round(Number(deletedEnrollment.finalPrice)),
+                            reason: `Hoàn tiền đơn hàng #${order.id}. ${reason || ''}`
+                        })
+                    );
+                }
+            } catch (error: any) {
+                this.logger.error(`Failed to process un-enrollment/refund logic properly: ${error.message}`);
+                // We still proceed since order status is already updated
+            }
+        }
+
+        // 3. Thông báo qua NATS
+        this.natsClient.emit({ cmd: 'billing.order.refunded' }, {
+            orderId: id,
+            userId: order.userId,
+            reason
+        });
+
+        return this.toOrderDto(updated);
     }
 }
