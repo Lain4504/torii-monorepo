@@ -21,19 +21,82 @@ import { Button } from '@workspace/ui/components/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Badge } from '@workspace/ui/components/badge'
 import { cn } from '@workspace/ui/lib/utils'
-import { useBalanceHistory } from '@/apis/services/order-api'
+import { useBalanceHistory, orderApi } from '@/apis/services/order-api'
 import { useGamificationHistory } from '@/apis/services/gamification-api'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { useAppSelector } from '@/hooks/hooks'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@workspace/ui/components/dialog'
+import { Label } from '@workspace/ui/components/label'
+import { Input } from '@workspace/ui/components/input'
+import { toast } from '@workspace/ui/components/sonner'
+import { OrderType, PaymentMethod } from '@workspace/schemas'
 
 export default function WalletPage() {
     const { user } = useAppSelector((state) => state.auth)
     const [balancePage, setBalancePage] = useState(1)
     const [pointsPage, setPointsPage] = useState(1)
+    const [isTopUpOpen, setIsTopUpOpen] = useState(false)
+    const [topUpAmount, setTopUpAmount] = useState('50000')
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const router = useRouter()
+    const searchParams = useSearchParams()
 
-    const { data: balanceData, isLoading: balanceLoading } = useBalanceHistory({ page: balancePage, limit: 10 })
+    useEffect(() => {
+        const status = searchParams.get('status')
+        if (status === 'success') {
+            toast.success('Nạp tiền thành công! Số dư sẽ được cập nhật trong giây lát.')
+            router.replace('/dashboard/wallet')
+        } else if (status === 'cancel') {
+            toast.error('Giao dịch đã bị hủy.')
+            router.replace('/dashboard/wallet')
+        }
+    }, [searchParams, router])
+
+    const { data: balanceData, isLoading: balanceLoading, refetch: refetchBalanceHistory } = useBalanceHistory({ page: balancePage, limit: 10 })
     const { data: pointsData, isLoading: pointsLoading } = useGamificationHistory({ page: pointsPage, limit: 10 })
+
+    const handleTopUp = async () => {
+        const amount = parseInt(topUpAmount, 10)
+        if (isNaN(amount) || amount < 10000) {
+            toast.error('Số tiền nạp tối thiểu là 10.000đ')
+            return
+        }
+
+        try {
+            setIsSubmitting(true)
+            const order = await orderApi.createOrder({
+                amount: amount,
+                orderType: OrderType.TOP_UP,
+                paymentMethod: PaymentMethod.PAYOS,
+                description: `Nạp ${amount.toLocaleString()} Coins vào ví Torii`,
+                metadata: {
+                    returnUrl: window.location.origin + '/dashboard/wallet?status=success',
+                    cancelUrl: window.location.origin + '/dashboard/wallet?status=cancel',
+                }
+            })
+
+            if (order.metadata?.checkoutUrl) {
+                window.location.href = order.metadata.checkoutUrl
+            } else {
+                toast.success('Đơn hàng đã được tạo. Vui lòng kiểm tra lịch sử thanh toán.')
+                setIsTopUpOpen(false)
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Lỗi khi tạo đơn hàng nạp tiền')
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-5xl animate-in fade-in duration-500">
@@ -56,7 +119,10 @@ export default function WalletPage() {
                             </h2>
                         </div>
                         <div className="mt-8 flex gap-3">
-                            <Button className="bg-white text-orange-600 hover:bg-orange-50 font-bold rounded-xl px-6">
+                            <Button
+                                className="bg-white text-orange-600 hover:bg-orange-50 font-bold rounded-xl px-6"
+                                onClick={() => setIsTopUpOpen(true)}
+                            >
                                 <Zap className="w-4 h-4 mr-2" /> Nạp thêm
                             </Button>
                         </div>
@@ -263,6 +329,87 @@ export default function WalletPage() {
                     </TabsContent>
                 </Tabs>
             </div>
+
+            {/* Top Up Dialog */}
+            <Dialog open={isTopUpOpen} onOpenChange={setIsTopUpOpen}>
+                <DialogContent className="sm:max-w-[425px] rounded-[2rem] gap-6">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                            <div className="p-2 rounded-xl bg-orange-100 text-orange-600">
+                                <Coins className="w-5 h-5" />
+                            </div>
+                            Nạp tiền vào ví
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground font-medium pt-2">
+                            Nạp Coins để mở khóa các khóa học Premium và dịch vụ hỗ trợ học tập. 1đ = 1 Coin.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-6 py-4">
+                        <div className="grid gap-3">
+                            <Label htmlFor="amount" className="font-bold text-sm text-foreground/70 uppercase tracking-widest ml-1">Số tiền muốn nạp (VNĐ)</Label>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-muted-foreground group-focus-within:text-primary transition-colors">đ</div>
+                                <Input
+                                    id="amount"
+                                    type="number"
+                                    value={topUpAmount}
+                                    onChange={(e) => setTopUpAmount(e.target.value)}
+                                    className="pl-10 h-14 bg-muted/50 border-2 border-transparent focus:border-primary rounded-2xl text-xl font-bold transition-all"
+                                    placeholder="50,000"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            {['20000', '50000', '100000', '200000', '500000', '1000000'].map((amount) => (
+                                <Button
+                                    key={amount}
+                                    variant="outline"
+                                    className={cn(
+                                        "h-12 rounded-xl font-bold transition-all border-2",
+                                        topUpAmount === amount ? "border-primary bg-primary/5 text-primary" : "border-transparent hover:border-primary/20"
+                                    )}
+                                    onClick={() => setTopUpAmount(amount)}
+                                >
+                                    {parseInt(amount).toLocaleString()}đ
+                                </Button>
+                            ))}
+                        </div>
+
+                        <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 space-y-2">
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-orange-800/70 font-medium">Bạn sẽ nhận được:</span>
+                                <span className="text-orange-800 font-black text-lg">{(parseInt(topUpAmount) || 0).toLocaleString()} <span className="text-xs uppercase opacity-70">Coins</span></span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-orange-800/50 font-medium">Phương thức:</span>
+                                <span className="text-orange-800/70 font-bold uppercase tracking-tighter flex items-center gap-1">
+                                    Cổng PayOS (Ngân hàng/QR)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            type="submit"
+                            className="w-full h-14 rounded-2xl font-bold text-lg bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-600/20"
+                            onClick={handleTopUp}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                    Đang chuyển hướng...
+                                </div>
+                            ) : (
+                                "Xác nhận nạp tiền"
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
