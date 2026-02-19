@@ -528,7 +528,7 @@ export class OrderService implements IOrderService {
                         this.logger.log(`Gift enrollment created for user ${targetUserId} and course ${metadata.courseId}`);
                     } else {
                         // Regular Flow: Activate existing enrollment
-                        enrollmentId = order.enrollmentId;
+                        enrollmentId = order.enrollmentId ?? undefined;
 
                         if (!enrollmentId) {
                             // Backward compatibility: create if missing

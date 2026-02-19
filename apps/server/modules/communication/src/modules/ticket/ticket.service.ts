@@ -13,6 +13,7 @@ import {
 } from '@workspace/schemas';
 import { ITicketService, INotificationService, NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
 import { ITicketRepository, TICKET_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class TicketService implements ITicketService {
@@ -25,6 +26,7 @@ export class TicketService implements ITicketService {
         private readonly notificationService: INotificationService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
+        private readonly emailService: EmailService,
     ) { }
 
     /**
@@ -167,6 +169,40 @@ export class TicketService implements ITicketService {
                     }
 
                     this.logger.log(`Refund approved and enrollment deleted for User ${userId}, Course ${courseId}.`);
+
+                    // Send Email Notification
+                    try {
+                        this.logger.log(`Fetching user and course details for refund email (UserId: ${userId}, CourseId: ${courseId})`);
+                        const [userResult, courseResult] = await Promise.all([
+                            firstValueFrom(this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: userId })),
+                            firstValueFrom(this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId }))
+                        ]).catch(err => {
+                            this.logger.error(`Failed to fetch user/course details via NATS: ${err.message}`);
+                            return [null, null];
+                        });
+
+                        if (userResult?.user?.email) {
+                            this.logger.log(`Directly calling EmailService for refund email to: ${userResult.user.email}`);
+                            await this.emailService.sendEmail({
+                                type: 'refund_status',
+                                to: userResult.user.email,
+                                data: {
+                                    displayName: userResult.user.displayName || userResult.user.username || 'Học viên',
+                                    courseName: courseResult?.title || 'Khóa học',
+                                    amount: Math.round(Number(deletedEnrollment?.finalPrice || 0)),
+                                    currency: 'Coin',
+                                    ticketId: ticket.id,
+                                    reason: dto.response,
+                                    status: 'APPROVED'
+                                }
+                            });
+                            this.logger.log(`Refund email processed by EmailService for: ${userResult.user.email}`);
+                        } else {
+                            this.logger.warn(`Could not send refund email: User email not found. UserResult: ${JSON.stringify(userResult)}`);
+                        }
+                    } catch (emailError) {
+                        this.logger.error(`Failed to trigger refund email: ${emailError.message}`, emailError.stack);
+                    }
                 } catch (error) {
                     if (error instanceof BadRequestException) throw error;
                     this.logger.error(`Error processing refund cancellation: ${error.message}`);

@@ -398,6 +398,7 @@ export class EnrollmentService implements IEnrollmentService {
 
             // Log Audit
             await this.logAudit({
+                userId,
                 action: 'enrollment.delete',
                 entity: 'enrollment',
                 entityId: enrollment.id,
