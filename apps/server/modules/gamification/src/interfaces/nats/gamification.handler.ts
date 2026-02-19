@@ -13,6 +13,7 @@ import {
     AchievementService,
     ActivityService,
     LeaderboardService,
+    RedemptionService,
 } from '@server/gamification/services';
 
 @Controller()
@@ -24,6 +25,7 @@ export class GamificationHandler {
         private readonly achievementService: AchievementService,
         private readonly activityService: ActivityService,
         private readonly leaderboardService: LeaderboardService,
+        private readonly redemptionService: RedemptionService,
     ) { }
 
     /**
@@ -106,5 +108,18 @@ export class GamificationHandler {
         this.logger.log(`Getting gamification history for user: ${data.userId}`);
         const { userId, ...query } = data;
         return this.activityService.getHistory(userId, query);
+    }
+    @MessagePattern('gamification.getAvailableRewards')
+    async getAvailableRewards() {
+        return this.redemptionService.getAvailableRewards();
+    }
+
+    /**
+     * Redeem points for a reward
+     */
+    @MessagePattern('gamification.redeemPoints')
+    async redeemPoints(@Payload() data: { userId: string, dealId: string }) {
+        this.logger.log(`Redeeming points for user: ${data.userId}, deal: ${data.dealId}`);
+        return this.redemptionService.redeemPoints(data.userId, data.dealId);
     }
 }

@@ -577,6 +577,7 @@ model User {
 
   // Coupon Relations
   createdCoupons  Coupon[]         @relation("CouponCreator")
+  redeemedCoupons Coupon[]         @relation("RedeemedCoupon")
 
   // Teaching Schedule Relations
   teachingSchedules TeachingSchedule[]           @relation("LecturerSchedules")
@@ -1665,6 +1666,23 @@ model UserAchievement {
   @@map("user_achievements")
 }
 
+// Point Redemption Rewards (Deals)
+model PointReward {
+  id            String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String              @db.VarChar(100)
+  description   String?             @db.Text
+  points        Int
+  discountType  CouponDiscountType  @map("discount_type")
+  discountValue Decimal             @map("discount_value") @db.Decimal(10, 2)
+  validDuration Int?                @default(30) @map("valid_duration") // days
+  isActive      Boolean             @default(true) @map("is_active")
+  
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @default(now()) @updatedAt @map("updated_at")
+
+  @@map("point_rewards")
+}
+
 // ============================================
 // Coupon Models
 // ============================================
@@ -1709,6 +1727,7 @@ model Coupon {
   status                CouponStatus        @default(active)
   
   // Ownership
+  userId                String?             @map("user_id") @db.Uuid
   createdBy             String?             @map("created_by") @db.Uuid
   createdAt             DateTime            @default(now()) @map("created_at")
   updatedAt             DateTime            @default(now()) @updatedAt @map("updated_at")
@@ -1717,9 +1736,11 @@ model Coupon {
   // Relations
   orders                Order[]
   creator               User?               @relation("CouponCreator", fields: [createdBy], references: [id])
+  user                  User?               @relation("RedeemedCoupon", fields: [userId], references: [id])
   
   @@index([code])
   @@index([status])
+  @@index([userId])
   @@index([validFrom, validUntil])
   @@index([deletedAt])
   @@map("coupons")

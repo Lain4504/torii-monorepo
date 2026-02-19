@@ -44,4 +44,24 @@ export class CouponHandler {
             throw error;
         }
     }
+
+    @MessagePattern({ cmd: 'billing.coupon.createRedeemed' })
+    async createRedeemed(@Payload() data: {
+        userId: string;
+        name: string;
+        discountType: any;
+        discountValue: number;
+        maxDiscountAmount?: number;
+        minOrderAmount?: number;
+        validDurationDays?: number;
+    }) {
+        this.logger.log(`[CouponHandler] Creating redeemed coupon for user: ${data.userId}`);
+        try {
+            const coupon = await this.couponService.createRedeemedCoupon(data);
+            return coupon;
+        } catch (error: any) {
+            this.logger.error(`[CouponHandler] Failed to create redeemed coupon: ${error.message}`);
+            throw error;
+        }
+    }
 }

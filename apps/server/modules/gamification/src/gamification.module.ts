@@ -11,6 +11,7 @@ import {
     AchievementService,
     ActivityService,
     LeaderboardService,
+    RedemptionService,
 } from '@server/gamification/services';
 
 // Jobs
@@ -32,6 +33,7 @@ import { StreakCheckJob } from '@server/gamification/jobs/streak-check.job';
         AchievementService,
         ActivityService,
         LeaderboardService,
+        RedemptionService,
         StreakCheckJob,
     ],
 })
