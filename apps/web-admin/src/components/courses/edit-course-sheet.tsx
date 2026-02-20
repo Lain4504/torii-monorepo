@@ -446,11 +446,16 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
+                                                    min="0"
+                                                    max="26"
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                    placeholder="ví dụ: 8"
+                                                    placeholder="Tối đa 26 tuần (6 tháng)"
                                                     className="h-11 px-4 rounded-xl border-border bg-background hover:bg-muted/5 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                                     aria-invalid={fieldState.invalid}
                                                 />
+                                                <p className="text-[10px] text-muted-foreground/60 mt-1 ml-1 px-1">
+                                                    Thời lượng nội dung chương trình học.
+                                                </p>
                                                 <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                             </Field>
                                         )}
@@ -474,9 +479,18 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     max="6"
                                                     {...field}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                    placeholder="1-6 tháng (để trống = trọn đời)"
+                                                    placeholder="1-6 tháng (mặc định 6)"
                                                     className="h-11 px-4 rounded-xl border-border bg-background hover:bg-muted/5 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                                 />
+                                                <p className="text-[10px] text-muted-foreground/60 mt-1 ml-1 px-1 leading-relaxed">
+                                                    Hạn truy cập cho học viên. Mặc định là 6 tháng. <br/>
+                                                    Học viên cần gia hạn nếu muốn xem lại sau thời gian này.
+                                                </p>
+                                                {watch('durationWeeks') && watch('expirationMonths') && (watch('expirationMonths') as any) < Math.ceil((watch('durationWeeks') || 0) / 4) && (
+                                                    <p className="text-[10px] text-amber-500 font-medium mt-1 ml-1 animate-pulse">
+                                                         Cảnh báo: Thời gian truy cập ngắn hơn thời lượng nội dung!
+                                                    </p>
+                                                )}
                                                 <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                             </Field>
                                         )}

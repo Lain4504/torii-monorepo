@@ -265,6 +265,13 @@ export class EnrollmentService implements IEnrollmentService {
             this.logger.log(`Renewing enrollment ${existing.id} for user ${userId} and course ${input.courseId}`);
         }
 
+        // Validation: For Live courses, check registration deadline
+        if (course.type === 'live' && course.registrationClosedAt) {
+            if (new Date() > new Date(course.registrationClosedAt)) {
+                throw new BadRequestException('Registration for this course is closed');
+            }
+        }
+
         try {
             const expiresAt = this.computeEnrollmentExpiry(course);
             const finalPrice = course.discountPrice ? Number(course.discountPrice) : Number(course.price);
@@ -279,7 +286,7 @@ export class EnrollmentService implements IEnrollmentService {
                     lastAccessedAt: new Date(),
                     completionStatus,
                     // Keep existing progress or reset if it was 100? 
-                    // Usually keep for "Gia hạn để tiếp tục"
+                    // Usually keep for Gia hạn để tiếp tục
                     expiresAt,
                     finalPrice,
                 });
@@ -498,14 +505,11 @@ export class EnrollmentService implements IEnrollmentService {
             return course.expiresAt ? new Date(course.expiresAt) : undefined;
         }
 
-        // VOD: expires N months from enrollment date
-        if (course.expirationMonths) {
-            const expiry = new Date(now);
-            expiry.setMonth(expiry.getMonth() + course.expirationMonths);
-            return expiry;
-        }
-
-        return undefined; // no expirationMonths = lifetime access
+        // VOD: expires N months from enrollment date (default 6 months if not specified)
+        const months = course.expirationMonths || 6;
+        const expiry = new Date(now);
+        expiry.setMonth(expiry.getMonth() + months);
+        return expiry;
     }
 }
 

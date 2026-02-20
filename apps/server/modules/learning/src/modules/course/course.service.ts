@@ -356,6 +356,16 @@ export class CourseService implements ICourseService {
         throw new BadRequestException('Paid courses must have a price greater than 0');
       }
 
+      // Validation: Course durationWeeks must be at most 26 (6 months)
+      if (data.durationWeeks && data.durationWeeks > 26) {
+        throw new BadRequestException('Course duration cannot exceed 26 weeks (6 months)');
+      }
+
+      // Validation: Course expirationMonths must be at most 6
+      if (data.expirationMonths && data.expirationMonths > 6) {
+        throw new BadRequestException('Course expiration duration cannot exceed 6 months');
+      }
+
       // Validation: Live courses must have registrationClosedAt and expiresAt
       if (data.type === 'live') {
         if (!data.registrationClosedAt) {
@@ -450,6 +460,18 @@ export class CourseService implements ICourseService {
 
       if (!finalIsFree && finalPrice <= 0) {
         throw new BadRequestException('Paid courses must have a price greater than 0');
+      }
+
+      // Validation: Course durationWeeks must be at most 26 (6 months)
+      const finalDurationWeeks = dto.durationWeeks !== undefined ? dto.durationWeeks : existing.durationWeeks;
+      if (finalDurationWeeks && finalDurationWeeks > 26) {
+        throw new BadRequestException('Course duration cannot exceed 26 weeks (6 months)');
+      }
+
+      // Validation: Course expirationMonths must be at most 6
+      const finalExpirationMonths = (dto as any).expirationMonths !== undefined ? (dto as any).expirationMonths : (existing as any).expirationMonths;
+      if (finalExpirationMonths && finalExpirationMonths > 6) {
+        throw new BadRequestException('Course expiration duration cannot exceed 6 months');
       }
 
       // Validation: Live course duration must be at most 6 months
