@@ -554,7 +554,7 @@ export class OrderService implements IOrderService {
                         }
                     } else {
                         // Regular Flow: Activate existing enrollment
-                        enrollmentId = order.enrollmentId || undefined;
+                        enrollmentId = order.enrollmentId ?? undefined;
 
                         if (!enrollmentId) {
                             // Backward compatibility: create if missing
