@@ -25,6 +25,8 @@ import { cn } from '@workspace/ui/lib/utils'
 import { Progress } from '@workspace/ui/components/progress'
 import { useMyCourses } from '../../apis/services/learning-progress-api'
 import { DailyCheckInCard } from './daily-check-in-card'
+import { useState } from 'react'
+import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
 
 
 // Nhóm học tập - ưu tiên cao nhất
@@ -149,9 +151,11 @@ function NavGroup({ title, items, pathname, className, isCollapsed }: NavGroupPr
 
 function ContinueLearningSection() {
     const { data: courses, isLoading } = useMyCourses();
+    const [showExpiredModal, setShowExpiredModal] = useState(false)
 
     // Get the most recently accessed course (first item since API sorts by lastAccessed desc)
     const activeCourse = courses?.[0];
+    const isExpired = activeCourse?.expiresAt && new Date(activeCourse.expiresAt) < new Date();
 
     if (isLoading || !activeCourse) return null
 
@@ -161,27 +165,45 @@ function ContinueLearningSection() {
                 Đang học
             </h3>
             <div className="space-y-3">
-                <Link
-                    href={`/courses/${activeCourse.slug}/learn`}
-                    className="group block p-5 rounded-[2rem] bg-background/40 hover:bg-background/60 backdrop-blur-3xl transition-all duration-300 cursor-pointer border border-border/10 hover:border-primary/20 shadow-sm hover:shadow-xl hover:shadow-primary/5"
+                <div
+                    onClick={() => {
+                        if (isExpired) {
+                            setShowExpiredModal(true)
+                        } else {
+                            window.location.href = `/courses/${activeCourse.slug}/learn`
+                        }
+                    }}
+                    className={cn(
+                        "group block p-5 rounded-[2rem] bg-background/40 hover:bg-background/60 backdrop-blur-3xl transition-all duration-300 cursor-pointer border border-border/10 hover:border-primary/20 shadow-sm hover:shadow-xl hover:shadow-primary/5",
+                        isExpired && "border-destructive/20 bg-destructive/5"
+                    )}
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">
                         <h4 className="text-sm font-sans font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic">
                             {activeCourse.title}
                         </h4>
-                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
+                        <div className={cn(
+                            "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all",
+                            isExpired ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white"
+                        )}>
                             <PlayCircle className="w-4 h-4" />
                         </div>
                     </div>
                     <div className="space-y-2.5">
                         <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                            <span>Tiến độ</span>
+                            <span>{isExpired ? 'Hết hạn' : 'Tiến độ'}</span>
                             <span>{activeCourse.progress}%</span>
                         </div>
-                        <Progress value={activeCourse.progress} className="h-1 bg-primary/5" />
+                        <Progress value={activeCourse.progress} className={cn("h-1", isExpired ? "bg-muted [&>div]:bg-muted-foreground" : "bg-primary/5")} />
                     </div>
-                </Link>
+                </div>
             </div>
+            <CourseExpirationModal
+                isOpen={showExpiredModal}
+                onClose={() => setShowExpiredModal(false)}
+                courseTitle={activeCourse.title}
+                courseSlug={activeCourse.slug}
+            />
         </div>
     )
 }

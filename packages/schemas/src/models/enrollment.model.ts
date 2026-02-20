@@ -4,7 +4,8 @@ export enum EnrollmentStatus {
     PENDING_PAYMENT = 'pending_payment',
     IN_PROGRESS = 'in_progress',
     COMPLETED = 'completed',
-    DROPPED = 'dropped'
+    DROPPED = 'dropped',
+    EXPIRED = 'expired',
 }
 
 export const enrollmentSchema = z.object({
@@ -15,6 +16,7 @@ export const enrollmentSchema = z.object({
     completionStatus: z.nativeEnum(EnrollmentStatus).default(EnrollmentStatus.IN_PROGRESS),
     completionPercentage: z.number().min(0).max(100).default(0),
     lastAccessedAt: z.date().optional(),
+    expiresAt: z.date().optional(),
     completedAt: z.date().optional(),
     paymentId: z.string().uuid().optional(),
     couponAppliedId: z.string().uuid().optional(),
