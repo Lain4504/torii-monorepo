@@ -12,12 +12,18 @@ export class UserBalanceHandler {
     }
 
     @MessagePattern({ cmd: 'billing.user_balance.add' })
-    async addBalance(@Payload() data: { userId: string, amount: number, reason: string }) {
-        return this.userBalanceService.addBalance(data.userId, data.amount, data.reason);
+    async addBalance(@Payload() data: { userId: string, amount: number, reason: string, type?: any, metadata?: any }) {
+        return this.userBalanceService.addBalance(data.userId, data.amount, data.reason, data.type, data.metadata);
     }
 
     @MessagePattern({ cmd: 'billing.user_balance.deduct' })
-    async deductBalance(@Payload() data: { userId: string, amount: number, reason: string }) {
-        return this.userBalanceService.deductBalance(data.userId, data.amount, data.reason);
+    async deductBalance(@Payload() data: { userId: string, amount: number, reason: string, type?: any, metadata?: any }) {
+        return this.userBalanceService.deductBalance(data.userId, data.amount, data.reason, data.type, data.metadata);
+    }
+
+    @MessagePattern({ cmd: 'billing.user_balance.getHistory' })
+    async getHistory(@Payload() data: { userId: string, page: number, limit: number, type?: any }) {
+        const { userId, ...query } = data;
+        return this.userBalanceService.getHistory(userId, query);
     }
 }

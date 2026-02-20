@@ -61,6 +61,7 @@ export * from './dtos/ticket.dto';
 export * from './dtos/feed.dto';
 export * from './dtos/assignment.dto';
 export * from './dtos/certificate.dto';
+export * from './dtos/balance.dto';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';
