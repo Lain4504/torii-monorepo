@@ -35,8 +35,12 @@ model Course {
   previewVideoUrl  String?      @map("preview_video_url") @db.Text
   price            Decimal      @default(0.00) @db.Decimal(10, 2)
   discountPrice    Decimal?     @map("discount_price") @db.Decimal(10, 2)
-  liveConfig       Json?        @map("live_config")
-  durationWeeks    Int?         @map("duration_weeks")
+  liveConfig             Json?        @map("live_config")
+  durationWeeks         Int?         @map("duration_weeks")            // Thời lượng nội dung khóa học (hiển thị cho học viên)
+  expirationMonths      Int?         @map("expiration_months")         // 1-6 months: thời hạn truy cập sau khi enroll
+  startDate             DateTime?    @map("start_date")                 // WebRTC: ngày khai giảng
+  expiresAt             DateTime?    @map("expires_at")                 // WebRTC: ngày kết thúc khoá học
+  registrationClosedAt  DateTime?    @map("registration_closed_at")     // WebRTC: hạn chót đăng ký
   totalLessons     Int          @default(0) @map("total_lessons")
   totalQuizzes     Int          @default(0) @map("total_quizzes")
   totalStudents    Int          @default(0) @map("total_students")
@@ -1398,6 +1402,7 @@ model Enrollment {
   isGift               Boolean   @default(false) @map("is_gift")
   giftMessage          String?   @map("gift_message") @db.Text
   senderId             String?   @map("sender_id") @db.Uuid
+  expiresAt            DateTime? @map("expires_at")
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
 
@@ -1414,6 +1419,7 @@ model Enrollment {
   @@index([courseId])
   @@index([completionStatus])
   @@index([enrollmentDate])
+  @@index([expiresAt])
   @@map("enrollments")
 }
 

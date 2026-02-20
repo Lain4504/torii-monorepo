@@ -111,6 +111,49 @@ describe('CourseService', () => {
                 .rejects.toThrow(BadRequestException);
         });
 
+        it('should throw BadRequestException if durationWeeks exceeds 26 weeks', async () => {
+            const invalidDto = { ...dto, durationWeeks: 27 };
+
+            try {
+                await service.create(requester as any, invalidDto as any);
+                fail('Should have thrown');
+            } catch (e) {
+                expect(e).toBeInstanceOf(BadRequestException);
+                expect(e.message).toContain('Course duration cannot exceed 26 weeks');
+            }
+        });
+
+        it('should throw BadRequestException if Live course exceeds 6 months duration', async () => {
+            const startDate = new Date();
+            const longExpiry = new Date(startDate);
+            longExpiry.setMonth(longExpiry.getMonth() + 7); // 7 months > 6 months
+            
+            const liveDto = {
+                title: 'Test Course',
+                type: 'live',
+                price: 500000,
+                isFree: false,
+                startDate: startDate,
+                expiresAt: longExpiry,
+                registrationClosedAt: new Date()
+            };
+
+            await expect(service.create(requester as any, liveDto as any))
+                .rejects.toThrow(BadRequestException);
+        });
+
+        it('should throw BadRequestException if expirationMonths exceeds 6', async () => {
+            const invalidDto = { ...dto, expirationMonths: 7 };
+
+            try {
+                await service.create(requester as any, invalidDto as any);
+                fail('Should have thrown');
+            } catch (e) {
+                expect(e).toBeInstanceOf(BadRequestException);
+                expect(e.message).toContain('Course expiration duration cannot exceed 6 months');
+            }
+        });
+
         it('should generate unique slug (handling duplicates)', async () => {
             mockCourseRepository.slugExists.mockResolvedValueOnce(true);
             mockCourseRepository.create.mockResolvedValue({ id: 'course-1', title: 'Test', slug: 'test-slug' });
@@ -177,6 +220,38 @@ describe('CourseService', () => {
             await expect(service.update(requester as any, 'course-1', updateDto))
                 .rejects.toThrow(ForbiddenException);
         });
+
+        it('should throw BadRequestException if updated durationWeeks exceeds 26 weeks', async () => {
+            const requester = { sub: 'admin-1', role: UserRole.ADMIN, permissions: ['course.update', 'course.publish'] };
+            const existing = { id: 'course-1', title: 'Old Title', durationWeeks: 10 };
+            const invalidUpdateDto = { durationWeeks: 30 };
+
+            mockCourseRepository.findById.mockResolvedValue(existing);
+
+            try {
+                await service.update(requester as any, 'course-1', invalidUpdateDto as any);
+                fail('Should have thrown');
+            } catch (e) {
+                expect(e).toBeInstanceOf(BadRequestException);
+                expect(e.message).toContain('Course duration cannot exceed 26 weeks');
+            }
+        });
+
+        it('should throw BadRequestException if updated expirationMonths exceeds 6', async () => {
+            const requester = { sub: 'admin-1', role: UserRole.ADMIN, permissions: ['course.update', 'course.publish'] };
+            const existing = { id: 'course-1', title: 'Old Title' };
+            const invalidUpdateDto = { expirationMonths: 8 };
+
+            mockCourseRepository.findById.mockResolvedValue(existing);
+
+            try {
+                await service.update(requester as any, 'course-1', invalidUpdateDto as any);
+                fail('Should have thrown');
+            } catch (e) {
+                expect(e).toBeInstanceOf(BadRequestException);
+                expect(e.message).toContain('Course expiration duration cannot exceed 6 months');
+            }
+        });
     });
 
     describe('getCurriculum', () => {
@@ -213,7 +288,7 @@ describe('CourseService', () => {
             mockCourseRepository.findById.mockResolvedValue({ id: courseId });
             mockModuleRepository.findByCourseId.mockResolvedValue([{ id: 'mod-1' }]);
             mockLessonRepository.findByModuleId.mockResolvedValue([
-                { id: 'les-1', videoUrl: 'preview.mp4', isPreview: true }
+                { id: 'les-1', videoUrl: 'preview.mp4', isPreview: true, isUnlocked: true }
             ]);
             mockEnrollmentService.isEnrolled.mockResolvedValue(false);
 

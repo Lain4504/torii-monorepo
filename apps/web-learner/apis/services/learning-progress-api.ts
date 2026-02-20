@@ -13,6 +13,7 @@ export interface MyCourseResponse {
     totalLessons: number;
     completedLessons: number;
     lastAccessed: string | null;
+    expiresAt: string | null;
     status: string;
 }
 
@@ -34,6 +35,7 @@ export interface HistoryItem {
     slug: string;
     lessonId: string;
     courseId: string;
+    expiresAt: string | null;
 }
 
 export const learningProgressApi = {

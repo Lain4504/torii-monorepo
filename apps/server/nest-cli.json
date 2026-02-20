@@ -9,9 +9,7 @@
     "webpack": true,
     "tsConfigPath": "tsconfig.build.json",
     "plugins": [],
-    "assets": [
-      "**/*.pug"
-    ]
+    "assets": []
   },
   "projects": {
     "gateway": {
@@ -90,7 +88,7 @@
         "webpack": false,
         "assets": [
           {
-            "include": "src/**/*.pug",
+            "include": "src/modules/email/templates/pug/**/*.pug",
             "watchAssets": true
           }
         ]

@@ -103,6 +103,7 @@ export class LearningProgressService implements ILearningProgressService {
                 totalLessons: totalLessons,
                 completedLessons: completedLessons,
                 lastAccessed: e.lastAccessedAt ? e.lastAccessedAt.toISOString() : null,
+                expiresAt: e.expiresAt ? e.expiresAt.toISOString() : null,
                 status: e.completionStatus,
             };
         }));
@@ -131,6 +132,11 @@ export class LearningProgressService implements ILearningProgressService {
 
         if (!enrollment) {
             throw new BadRequestException('User is not enrolled in this course');
+        }
+
+        // Reactive Check: Block progress tracking if expired
+        if (enrollment.expiresAt && enrollment.expiresAt < new Date()) {
+            throw new BadRequestException('Course access has expired');
         }
 
         // 3. Determine completion
@@ -294,7 +300,8 @@ export class LearningProgressService implements ILearningProgressService {
             duration: item.watchedDuration, // In seconds
             slug: item.enrollment.course.slug,
             lessonId: item.lessonId,
-            courseId: item.enrollment.course.id
+            courseId: item.enrollment.course.id,
+            expiresAt: item.enrollment.expiresAt ? item.enrollment.expiresAt.toISOString() : null
         }));
     }
 }

@@ -20,6 +20,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     const {
         isInWishlist,
         isEnrolled,
+        isExpired,
         enrollment,
         isLoadingWishlist,
         isLoadingEnrollment,
@@ -99,14 +100,24 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                     <div className="space-y-3">
                         {isEnrolled ? (
                             <div className="flex flex-col gap-3">
-                                <Button
-                                    className="w-full h-12 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer active:scale-[0.98] transition-all"
-                                    onClick={() => router.push(`/courses/${course.slug}/learn`)}
-                                >
-                                    Tiếp tục học tập
-                                </Button>
+                                {isExpired ? (
+                                    <Button
+                                        className="w-full h-12 rounded-xl text-sm font-bold bg-destructive hover:bg-destructive/90 shadow-lg shadow-destructive/20 cursor-pointer active:scale-[0.98] transition-all"
+                                        onClick={handlePurchase}
+                                        disabled={isEnrolling || isLoadingEnrollment}
+                                    >
+                                        Gia hạn khóa học
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        className="w-full h-12 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer active:scale-[0.98] transition-all"
+                                        onClick={() => router.push(`/courses/${course.slug}/learn`)}
+                                    >
+                                        Tiếp tục học tập
+                                    </Button>
+                                )}
 
-                                {enrollment && enrollment.completionPercentage >= 100 && (
+                                {enrollment && enrollment.completionPercentage >= 100 && !isExpired && (
                                     <Button
                                         asChild
                                         variant="outline"
@@ -155,8 +166,15 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                         <ul className="space-y-3">
                             {[
                                 { icon: BookOpen, text: `${course.totalLessons} bài giảng chi tiết` },
-                                { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : 'Thời gian học không giới hạn' },
-                                { icon: Globe, text: 'Truy cập trọn đời' },
+                                { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : (course.durationWeeks ? `Thời lượng: ${course.durationWeeks} tuần` : 'Thời gian học không giới hạn') },
+                                { 
+                                    icon: Globe, 
+                                    text: isEnrolled && enrollment?.expiresAt 
+                                        ? `Hết hạn: ${new Date(enrollment.expiresAt).toLocaleDateString('vi-VN')}` 
+                                        : course.type === 'live'
+                                            ? ((course as any).expiresAt ? `Kết thúc: ${new Date((course as any).expiresAt).toLocaleDateString('vi-VN')}` : 'Xem lịch học')
+                                            : ((course as any).expirationMonths ? `Truy cập trong ${(course as any).expirationMonths} tháng` : 'Truy cập trọn đời')
+                                },
                                 { icon: Award, text: 'Chứng chỉ hoàn thành Torii' },
                             ].map((item, idx) => (
                                 <li key={idx} className="flex items-center gap-3">

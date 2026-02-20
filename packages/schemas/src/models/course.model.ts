@@ -47,7 +47,11 @@ export const courseSchema = z.object({
     price: z.number().min(0),
     discountPrice: z.number().min(0).optional(),
     liveConfig: z.record(z.any()).optional().nullable(), // JSONB
-    durationWeeks: z.number().min(0).optional(),
+    durationWeeks: z.number().min(0).optional(),         // Thời lượng nội dung khóa học (hiển thị)
+    expirationMonths: z.number().int().min(1).max(6).optional(), // 1-6 tháng: thời hạn truy cập
+    startDate: z.date().optional(),              // WebRTC: ngày khai giảng
+    expiresAt: z.date().optional(),              // WebRTC: ngày kết thúc khoá học
+    registrationClosedAt: z.date().optional(),   // WebRTC: hạn chót đăng ký
     totalLessons: z.number().default(0),
     totalQuizzes: z.number().default(0),
     totalStudents: z.number().default(0),

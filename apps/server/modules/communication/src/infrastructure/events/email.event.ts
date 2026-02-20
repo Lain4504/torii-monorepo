@@ -10,7 +10,8 @@ export type EmailType =
     | 'invite'
     | '2fa_code'
     | 'order_success'
-    | 'course_enrollment';
+    | 'course_enrollment'
+    | 'refund_status';
 
 /**
  * Send Email Event
@@ -44,5 +45,18 @@ export interface EnrollmentSuccessEmailData {
     isGift?: boolean;
     senderName?: string;
     giftMessage?: string;
+}
+
+/**
+ * Refund Email Data
+ */
+export interface RefundEmailData {
+    displayName: string;
+    courseName: string;
+    amount: number;
+    currency: string;
+    ticketId: string;
+    reason?: string;
+    status: 'APPROVED' | 'REJECTED';
 }
 

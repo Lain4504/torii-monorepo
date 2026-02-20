@@ -111,7 +111,7 @@ describe('EnrollmentService', () => {
                 userId: 'user-1',
                 courseId: 'course-1',
                 enrollmentDate: mockDate,
-                completionStatus: EnrollmentStatus.IN_PROGRESS,
+                completionStatus: (EnrollmentStatus as any).IN_PROGRESS,
                 completionPercentage: 0,
                 finalPrice: 0,
                 createdAt: mockDate,
@@ -146,7 +146,7 @@ describe('EnrollmentService', () => {
                 userId: 'user-1',
                 courseId: 'course-1',
                 enrollmentDate: mockDate,
-                completionStatus: EnrollmentStatus.IN_PROGRESS,
+                completionStatus: (EnrollmentStatus as any).IN_PROGRESS,
                 completionPercentage: 0,
                 finalPrice: 0,
                 createdAt: mockDate,
@@ -177,7 +177,7 @@ describe('EnrollmentService', () => {
                 courseId: 'course-1',
                 finalPrice: 100,
                 enrollmentDate: mockDate,
-                completionStatus: EnrollmentStatus.PENDING_PAYMENT,
+                completionStatus: (EnrollmentStatus as any).PENDING_PAYMENT,
                 completionPercentage: 0,
                 createdAt: mockDate,
                 updatedAt: mockDate
@@ -188,7 +188,7 @@ describe('EnrollmentService', () => {
             expect(result.id).toBe('enr-1');
             expect(result.completionStatus).toBe(EnrollmentStatus.PENDING_PAYMENT);
             expect(enrollmentRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-                completionStatus: EnrollmentStatus.PENDING_PAYMENT
+                completionStatus: (EnrollmentStatus as any).PENDING_PAYMENT
             }));
             // Should not emit course_enrollment_success for pending payment
             expect(natsClient.emit).not.toHaveBeenCalledWith({ cmd: 'course_enrollment_success' }, expect.any(Object));
@@ -214,7 +214,7 @@ describe('EnrollmentService', () => {
 
             expect(result.completionStatus).toBe(EnrollmentStatus.PENDING_PAYMENT);
             expect(enrollmentRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-                completionStatus: EnrollmentStatus.PENDING_PAYMENT
+                completionStatus: (EnrollmentStatus as any).PENDING_PAYMENT
             }));
         });
 
@@ -222,7 +222,7 @@ describe('EnrollmentService', () => {
             mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, status: CourseStatus.PUBLISHED });
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({
                 id: 'enr-pending',
-                completionStatus: EnrollmentStatus.PENDING_PAYMENT
+                completionStatus: (EnrollmentStatus as any).PENDING_PAYMENT
             });
 
             const result = await service.create(userId, input);
@@ -251,6 +251,38 @@ describe('EnrollmentService', () => {
             await expect(service.create(userId, input)).rejects.toThrow(NotFoundException);
         });
 
+        it('should default to 6-month expiration for VOD courses if expirationMonths is not set', async () => {
+            const fixedDate = new Date('2024-01-01T00:00:00Z');
+            jest.useFakeTimers().setSystemTime(fixedDate);
+
+            mockCourseRepository.findById.mockResolvedValue({ 
+                id: 'course-1', 
+                type: 'vod', 
+                price: 0, 
+                status: (CourseStatus as any).PUBLISHED 
+            });
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
+            
+            const expectedExpiry = new Date(fixedDate);
+            expectedExpiry.setMonth(expectedExpiry.getMonth() + 6);
+
+            mockEnrollmentRepository.create.mockResolvedValue({
+                id: 'enr-vod',
+                userId,
+                courseId: 'course-1',
+                expiresAt: expectedExpiry,
+                completionStatus: (EnrollmentStatus as any).IN_PROGRESS
+            });
+
+            await service.create(userId, input);
+
+            expect(enrollmentRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+                expiresAt: expectedExpiry
+            }));
+
+            jest.useRealTimers();
+        });
+
         it('should throw BadRequestException if already enrolled (ACTIVE)', async () => {
             mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', status: CourseStatus.PUBLISHED });
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({ id: 'existing', completionStatus: EnrollmentStatus.IN_PROGRESS });
@@ -266,7 +298,7 @@ describe('EnrollmentService', () => {
                 courseId: 'course-1',
                 finalPrice: 0,
                 enrollmentDate: mockDate,
-                completionStatus: EnrollmentStatus.IN_PROGRESS,
+                completionStatus: (EnrollmentStatus as any).IN_PROGRESS,
                 completionPercentage: 0,
                 createdAt: mockDate,
                 updatedAt: mockDate
@@ -279,6 +311,77 @@ describe('EnrollmentService', () => {
                 { cmd: 'course_enrollment_success' },
                 expect.objectContaining({ userEmail: 'test@example.com', courseName: 'Free Course' })
             );
+        });
+
+        it('should calculate expiresAt for VOD course with expirationMonths', async () => {
+            const vodCourse = { 
+                id: 'course-1', 
+                type: 'vod', 
+                expirationMonths: 6, 
+                price: 0, 
+                status: CourseStatus.PUBLISHED 
+            };
+            mockCourseRepository.findById.mockResolvedValue(vodCourse);
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
+            mockNatsClient.send.mockReturnValue(of({ user: { email: 'test@example.com' } }));
+            mockEnrollmentRepository.create.mockImplementation((data) => Promise.resolve({ id: 'enr-1', ...data }));
+
+            const result = await service.create(userId, input);
+
+            expect((result as any).expiresAt).toBeDefined();
+            const expectedExpiry = new Date();
+            expectedExpiry.setMonth(expectedExpiry.getMonth() + 6);
+            // Check if dates are close enough (within 5 seconds to be safe)
+            expect(Math.abs(new Date((result as any).expiresAt).getTime() - expectedExpiry.getTime())).toBeLessThan(5000);
+        });
+
+        it('should throw BadRequestException for Live course past registration deadline', async () => {
+            const pastDate = new Date();
+            pastDate.setDate(pastDate.getDate() - 1);
+            const liveCourse = { 
+                id: 'course-1', 
+                type: 'live', 
+                registrationClosedAt: pastDate, 
+                status: CourseStatus.PUBLISHED 
+            };
+            mockCourseRepository.findById.mockResolvedValue(liveCourse);
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
+
+            await expect(service.create(userId, input)).rejects.toThrow(BadRequestException);
+            await expect(service.create(userId, input)).rejects.toThrow('Registration for this course is closed');
+        });
+
+        it('should allow renewal of an EXPIRED enrollment', async () => {
+            const expiredEnrollment = {
+                id: 'enr-old',
+                userId,
+                courseId: 'course-1',
+                completionStatus: EnrollmentStatus.EXPIRED as any,
+                expiresAt: new Date(Date.now() - 1000)
+            };
+            const course = { id: 'course-1', price: 0, status: CourseStatus.PUBLISHED };
+            
+            mockCourseRepository.findById.mockResolvedValue(course);
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(expiredEnrollment);
+            mockEnrollmentRepository.update.mockResolvedValue({ 
+                id: 'enr-old', 
+                completionStatus: 'in_progress',
+                userId,
+                courseId: 'course-1',
+                enrollmentDate: new Date(),
+                completionPercentage: 0,
+                lastAccessedAt: new Date(),
+                expiresAt: new Date(),
+                finalPrice: 0
+            });
+            mockNatsClient.send.mockReturnValue(of({ user: { email: 'test@example.com' } }));
+
+            const result = await service.create(userId, input);
+
+            expect(result.id).toBe('enr-old'); // Should update existing
+            expect(result.completionStatus).toBe('in_progress');
+            expect(enrollmentRepository.update).toHaveBeenCalled();
+            expect(enrollmentRepository.create).not.toHaveBeenCalled();
         });
     });
 
@@ -301,7 +404,7 @@ describe('EnrollmentService', () => {
 
             const result = await service.activateEnrollment('enr-1');
 
-            expect(result.completionStatus).toBe(EnrollmentStatus.IN_PROGRESS);
+            expect(result.completionStatus).toBe((EnrollmentStatus as any).IN_PROGRESS);
             expect(enrollmentRepository.update).toHaveBeenCalledWith('enr-1', {
                 completionStatus: EnrollmentStatus.IN_PROGRESS,
             });
@@ -322,7 +425,7 @@ describe('EnrollmentService', () => {
             mockEnrollmentRepository.findById.mockResolvedValue(activeEnrollment);
 
             const result = await service.activateEnrollment('enr-1');
-            expect(result.completionStatus).toBe(EnrollmentStatus.IN_PROGRESS);
+            expect(result.completionStatus).toBe((EnrollmentStatus as any).IN_PROGRESS);
             expect(enrollmentRepository.update).not.toHaveBeenCalled();
         });
 
@@ -347,6 +450,16 @@ describe('EnrollmentService', () => {
         it('should return false if enrollment is not found', async () => {
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
             expect(await service.isEnrolled('u1', 'c1')).toBe(false);
+        });
+
+        it('should return false if enrollment has expired (real-time check)', async () => {
+            const expiredDate = new Date(Date.now() - 1000);
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({ 
+                completionStatus: EnrollmentStatus.IN_PROGRESS as any,
+                expiresAt: expiredDate
+            });
+            const result = await service.isEnrolled('u1', 'c1');
+            expect(result).toBe(false);
         });
     });
 
@@ -422,7 +535,7 @@ describe('EnrollmentService', () => {
                 id: 'enr-1',
                 userId: 'user-1',
                 courseId: 'course-1',
-                completionStatus: EnrollmentStatus.IN_PROGRESS
+                completionStatus: (EnrollmentStatus as any).IN_PROGRESS
             };
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(enrollment);
             mockEnrollmentRepository.delete.mockResolvedValue(undefined);
