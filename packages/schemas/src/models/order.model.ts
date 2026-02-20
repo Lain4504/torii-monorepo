@@ -59,6 +59,8 @@ export const orderSchema = z.object({
     updatedAt: z.date(),
     checkoutUrl: z.string().optional(),
     qrCode: z.string().optional(),
+    courseName: z.string().optional(),
+    courseThumbnail: z.string().optional(),
 });
 
 export type Order = z.infer<typeof orderSchema>;

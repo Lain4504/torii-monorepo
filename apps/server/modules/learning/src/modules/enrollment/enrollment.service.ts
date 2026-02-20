@@ -266,7 +266,7 @@ export class EnrollmentService implements IEnrollmentService {
                 course: { connect: { id: input.courseId } },
                 enrollmentDate: new Date(),
                 lastAccessedAt: new Date(),
-                completionStatus: (input as any).status || (finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS),
+                completionStatus: finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS,
                 completionPercentage: 0,
                 finalPrice,
                 isGift: (input as any).isGift || false,

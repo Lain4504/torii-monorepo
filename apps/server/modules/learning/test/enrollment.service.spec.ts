@@ -194,6 +194,30 @@ describe('EnrollmentService', () => {
             expect(natsClient.emit).not.toHaveBeenCalledWith({ cmd: 'course_enrollment_success' }, expect.any(Object));
         });
 
+        it('should force PENDING_PAYMENT even if input status is IN_PROGRESS for paid course', async () => {
+            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, title: 'Paid Course', status: CourseStatus.PUBLISHED });
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
+            mockEnrollmentRepository.create.mockResolvedValue({
+                id: 'enr-1',
+                userId,
+                courseId: 'course-1',
+                finalPrice: 100,
+                enrollmentDate: mockDate,
+                completionStatus: EnrollmentStatus.PENDING_PAYMENT, // Repository should return what strict logic dictated
+                completionPercentage: 0,
+                createdAt: mockDate,
+                updatedAt: mockDate
+            });
+
+            const inputWithStatus = { ...input, status: EnrollmentStatus.IN_PROGRESS };
+            const result = await service.create(userId, inputWithStatus);
+
+            expect(result.completionStatus).toBe(EnrollmentStatus.PENDING_PAYMENT);
+            expect(enrollmentRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+                completionStatus: EnrollmentStatus.PENDING_PAYMENT
+            }));
+        });
+
         it('should return existing PENDING_PAYMENT enrollment if exists', async () => {
             mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', price: 100, status: CourseStatus.PUBLISHED });
             mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({

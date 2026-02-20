@@ -46,6 +46,7 @@ export class CourseController {
         return successResponse({ course: result }, 'Course created successfully');
     }
 
+    /*
     @Get('categories')
     @Public()
     async getCategories() {
@@ -54,6 +55,7 @@ export class CourseController {
         );
         return successResponse({ categories: result });
     }
+    */
 
     @Get('advanced-search')
     @Public()

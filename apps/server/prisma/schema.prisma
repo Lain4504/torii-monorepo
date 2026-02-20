@@ -586,16 +586,75 @@ model User {
   feeds           Feed[]
   feedLikes       FeedUserLike[]
   commentLikes    CommentLike[]
-
   // Ticket Relations
   tickets         Ticket[]         @relation("UserTickets")
   handledTickets  Ticket[]         @relation("HandlerTickets")
+
+  // History Relations
+  balanceTransactions   BalanceTransaction[]
+  gamificationHistories GamificationHistory[]
 
   @@index([email])
   @@index([role])
   @@map("users")
 }
 
+// ============================================
+// Balance & Gamification History Models
+// ============================================
+
+enum BalanceTransactionType {
+  TOP_UP        // Nạp tiền vào tài khoản
+  REFUND        // Hoàn tiền từ ticket/order
+  PURCHASE      // Dùng coin mua khóa học/dịch vụ
+  REWARD        // Thưởng từ hệ thống
+  BONUS         // Bonus từ sự kiện
+  OTHER         // Khác
+}
+
+model BalanceTransaction {
+  id          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String                 @map("user_id") @db.Uuid
+  amount      Int                    // Số tiền biến động (dùng Int vì UserBalance dùng Int)
+  type        BalanceTransactionType
+  description String?                @db.Text
+  metadata    Json?                  @default("{}") // Lưu trữ orderId, ticketId, v.v.
+  createdAt   DateTime               @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("balance_transactions")
+}
+
+enum GamificationTransactionType {
+  EARN          // Nhận điểm từ hoạt động học tập
+  REDEEM        // Đổi điểm lấy coupon/quà
+  BONUS         // Điểm thưởng bonus
+  EXPIRATION    // Điểm hết hạn
+  OTHER         // Khác
+}
+
+model GamificationHistory {
+  id           String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String                      @map("user_id") @db.Uuid
+  amount       Int                         // Số điểm biến động
+  type         GamificationTransactionType
+  activityType ActivityType?               @map("activity_type")
+  description  String?                     @db.Text
+  metadata     Json?                       @default("{}") // Lưu trữ achievementId, v.v.
+  createdAt    DateTime                    @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([activityType])
+  @@index([createdAt])
+  @@map("gamification_histories")
+}
 
 
 // User Identity Model - For OAuth providers (email, google, etc.)
@@ -1327,7 +1386,7 @@ model Enrollment {
   userId               String    @map("user_id") @db.Uuid
   courseId             String    @map("course_id") @db.Uuid
   enrollmentDate       DateTime  @default(now()) @map("enrollment_date")
-  completionStatus     String    @default("in_progress") @map("completion_status") @db.VarChar(20) // in_progress, completed, dropped
+  completionStatus     String    @default("in_progress") @map("completion_status") @db.VarChar(20) // pending_payment, in_progress, completed, dropped
   completionPercentage Decimal   @default(0.00) @map("completion_percentage") @db.Decimal(5, 2)
   lastAccessedAt       DateTime? @map("last_accessed_at")
   completedAt          DateTime? @map("completed_at")
@@ -1362,6 +1421,7 @@ enum OrderStatus {
   processing
   completed
   failed
+  refunded
   cancelled
   timed_out
 }

@@ -97,4 +97,14 @@ export class GamificationHandler {
         await this.streakService.markStreakToastShown(data.userId);
         return { success: true };
     }
+
+    /**
+     * Get gamification history (points)
+     */
+    @MessagePattern('gamification.getHistory')
+    async getHistory(@Payload() data: { userId: string, page: number, limit: number, type?: any }) {
+        this.logger.log(`Getting gamification history for user: ${data.userId}`);
+        const { userId, ...query } = data;
+        return this.activityService.getHistory(userId, query);
+    }
 }

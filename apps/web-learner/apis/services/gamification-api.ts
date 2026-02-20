@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
-import type { StandardApiResponse, UserAchievementDto, StreakStatusDto, LeaderboardDto, UserGamificationDto } from '@workspace/schemas';
+import type {
+    StandardApiResponse,
+    UserAchievementDto,
+    StreakStatusDto,
+    LeaderboardDto,
+    UserGamificationDto,
+    GamificationHistoryPaginatedResponse
+} from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useEffect, useRef } from 'react';
 
@@ -66,6 +73,22 @@ export const gamificationApi = {
             return response.data.data;
         }
         throw new Error(response.data.message || 'Failed to fetch leaderboard');
+    },
+
+    /**
+     * Get gamification history (points)
+     */
+    async getHistory(params: { page?: number; limit?: number; type?: string } = {}): Promise<GamificationHistoryPaginatedResponse> {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.limit) queryParams.append('limit', params.limit.toString());
+        if (params.type) queryParams.append('type', params.type);
+
+        const response = await apiClient.get<StandardApiResponse<GamificationHistoryPaginatedResponse>>(`/api/gamification/history?${queryParams.toString()}`);
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to fetch gamification history');
     },
 };
 
@@ -214,6 +237,17 @@ export function useGamificationProfile() {
     return useQuery({
         queryKey: ['gamification-profile'],
         queryFn: gamificationApi.getGamificationProfile,
+        staleTime: 30000,
+    });
+}
+
+/**
+ * Hook: Get gamification history
+ */
+export function useGamificationHistory(params: { page?: number; limit?: number; type?: string } = {}) {
+    return useQuery({
+        queryKey: ['gamification-history', params],
+        queryFn: () => gamificationApi.getHistory(params),
         staleTime: 30000,
     });
 }

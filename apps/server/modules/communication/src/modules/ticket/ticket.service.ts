@@ -9,7 +9,8 @@ import {
     PaginatedResponseDTO,
     TicketType,
     TicketStatus,
-    NotificationType
+    NotificationType,
+    OrderStatus
 } from '@workspace/schemas';
 import { ITicketService, INotificationService, NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
 import { ITicketRepository, TICKET_REPOSITORY_TOKEN } from '../../interfaces/repositories';
@@ -143,28 +144,16 @@ export class TicketService implements ITicketService {
                         throw new BadRequestException('Khóa học này đã quá thời hạn 14 ngày để hoàn tiền.');
                     }
 
-                    // Logic: Delete Enrollment and get its data
-                    const deletedEnrollment = await firstValueFrom(
-                        this.natsClient.send({ cmd: 'learning.enrollment.delete' }, { userId, courseId })
-                    );
-
-                    if (!deletedEnrollment) {
-                        this.logger.warn(`Enrollment deletion returned no data for User ${userId}, Course ${courseId}`);
-                    } else if (deletedEnrollment.finalPrice > 0) {
-                        // Refund balance
-                        await firstValueFrom(
-                            this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
-                                userId,
-                                amount: Math.round(Number(deletedEnrollment.finalPrice)),
-                                reason: `Hoàn tiền khóa học (Ticket #${ticket.id})`
-                            })
+                    // Find order associated with this course and user
+                    let orderId = (ticket.metadata as any)?.orderId;
+                    if (!orderId) {
+                        const orders = await firstValueFrom(
+                            this.natsClient.send({ cmd: 'billing.order.findAll' }, { userId, status: OrderStatus.COMPLETED })
                         );
-
-                        // Optionally update response if not provided
-                        if (!dto.response) {
-                            dto.response = `Đã hoàn trả ${deletedEnrollment.finalPrice} vào số dư cho khóa học của bạn.`;
-                        } else {
-                            dto.response = `${dto.response} (Đã hoàn trả ${deletedEnrollment.finalPrice} vào số dư)`.trim();
+                        // Find the one with matching courseId in metadata
+                        const matchingOrder = orders.data?.find((o: any) => o.metadata?.courseId === courseId);
+                        if (matchingOrder) {
+                            orderId = matchingOrder.id;
                         }
                     }
 

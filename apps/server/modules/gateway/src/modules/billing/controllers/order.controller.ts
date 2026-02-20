@@ -8,6 +8,7 @@ import {
     UseGuards,
     Req,
     Inject,
+    Logger,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -22,6 +23,7 @@ import {
 @Controller('api/orders')
 @UseGuards(GatewayAuthGuard)
 export class OrderController {
+    private readonly logger = new Logger(OrderController.name);
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Get()
@@ -69,6 +71,39 @@ export class OrderController {
         }
     }
 
+    @Get('wallet/balance-history')
+    async getBalanceHistory(@Req() req: ReqWithRequester, @Query() query: any) {
+        try {
+            const requester = req.requester;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.user_balance.getHistory' },
+                    { ...query, userId: requester.sub }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to fetch balance history for user ${req.requester?.sub}`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch balance history');
+        }
+    }
+
+    @Get('wallet/balance')
+    async getBalance(@Req() req: ReqWithRequester) {
+        try {
+            const requester = req.requester;
+            const balance = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.user_balance.get' },
+                    { userId: requester.sub }
+                )
+            );
+            return successResponse({ balance });
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch balance');
+        }
+    }
+
     @Post()
     async create(@Body() input: any, @Req() req: ReqWithRequester) {
         try {
@@ -97,6 +132,22 @@ export class OrderController {
             return successResponse({ order: result });
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to confirm order');
+        }
+    }
+
+    @Post(':id/cancel')
+    async cancel(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        try {
+            const requester = req.requester;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.order.cancel' },
+                    { id, userId: requester.sub, userRole: requester.role }
+                )
+            );
+            return successResponse({ order: result });
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to cancel order');
         }
     }
 }

@@ -167,3 +167,46 @@ export const StreakUpdatedEventSchema = z.object({
 });
 
 export type StreakUpdatedEvent = z.infer<typeof StreakUpdatedEventSchema>;
+
+// ========================================
+// History DTOs
+// ========================================
+
+export enum GamificationTransactionType {
+    EARN = 'EARN',
+    REDEEM = 'REDEEM',
+    BONUS = 'BONUS',
+    EXPIRATION = 'EXPIRATION',
+    OTHER = 'OTHER',
+}
+
+export const gamificationHistorySchema = z.object({
+    id: z.string().uuid(),
+    userId: z.string().uuid(),
+    amount: z.number().int(),
+    type: z.nativeEnum(GamificationTransactionType),
+    activityType: ActivityTypeSchema.nullable(),
+    description: z.string().nullable(),
+    metadata: z.record(z.any()).default({}),
+    createdAt: z.date(),
+});
+
+export type GamificationHistoryDto = z.infer<typeof gamificationHistorySchema>;
+
+export const gamificationHistoryQuerySchema = z.object({
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).default(10),
+    type: z.nativeEnum(GamificationTransactionType).optional(),
+});
+
+export type GamificationHistoryQuery = z.infer<typeof gamificationHistoryQuerySchema>;
+
+export const gamificationHistoryPaginatedResponseSchema = z.object({
+    data: z.array(gamificationHistorySchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+});
+
+export type GamificationHistoryPaginatedResponse = z.infer<typeof gamificationHistoryPaginatedResponseSchema>;

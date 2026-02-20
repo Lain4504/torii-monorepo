@@ -117,4 +117,22 @@ export class GamificationController {
             return errorResponse(error.message || 'Failed to mark toast as shown');
         }
     }
+
+    @Get('history')
+    async getHistory(@Req() req: ReqWithRequester) {
+        const user = req.requester;
+        const query = req.query;
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.getHistory', {
+                    userId: user.sub,
+                    ...query
+                })
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to get gamification history for user ${user?.sub}`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch gamification history');
+        }
+    }
 }

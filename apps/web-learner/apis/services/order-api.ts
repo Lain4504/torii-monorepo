@@ -6,7 +6,8 @@ import type {
     OrderQueryDTO,
     OrderConfirmDTO,
     StandardApiResponse,
-    PaginatedApiResponse
+    PaginatedApiResponse,
+    BalanceTransactionPaginatedResponse
 } from '@workspace/schemas';
 
 export const orderApi = {
@@ -53,6 +54,30 @@ export const orderApi = {
 
         return response.data.data!.order;
     },
+
+    /**
+     * Get user balance transaction history (internal coins)
+     */
+    async getBalanceHistory(params: { page?: number; limit?: number; type?: string } = {}): Promise<BalanceTransactionPaginatedResponse> {
+        const response = await apiClient.get<StandardApiResponse<BalanceTransactionPaginatedResponse>>('/api/orders/wallet/balance-history', {
+            params,
+        });
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to fetch balance history');
+    },
+
+    /**
+     * Get current user balance
+     */
+    async getBalance(): Promise<number> {
+        const response = await apiClient.get<StandardApiResponse<{ balance: number }>>('/api/orders/wallet/balance');
+        if (response.data.success && response.data.data) {
+            return response.data.data.balance;
+        }
+        return 0;
+    }
 };
 
 /**
@@ -73,6 +98,28 @@ export function useOrder(id: string) {
         queryKey: ['orders', id],
         queryFn: () => orderApi.getOrder(id),
         enabled: !!id,
+    });
+}
+
+/**
+ * Hook: Get balance history
+ */
+export function useBalanceHistory(params: { page?: number; limit?: number; type?: string } = {}) {
+    return useQuery({
+        queryKey: ['balance-history', params],
+        queryFn: () => orderApi.getBalanceHistory(params),
+        staleTime: 30000,
+    });
+}
+
+/**
+ * Hook: Get current balance
+ */
+export function useBalance() {
+    return useQuery({
+        queryKey: ['user-balance'],
+        queryFn: () => orderApi.getBalance(),
+        staleTime: 60000,
     });
 }
 
