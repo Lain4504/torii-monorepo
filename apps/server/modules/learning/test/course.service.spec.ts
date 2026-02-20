@@ -288,7 +288,7 @@ describe('CourseService', () => {
             mockCourseRepository.findById.mockResolvedValue({ id: courseId });
             mockModuleRepository.findByCourseId.mockResolvedValue([{ id: 'mod-1' }]);
             mockLessonRepository.findByModuleId.mockResolvedValue([
-                { id: 'les-1', videoUrl: 'preview.mp4', isPreview: true }
+                { id: 'les-1', videoUrl: 'preview.mp4', isPreview: true, isUnlocked: true }
             ]);
             mockEnrollmentService.isEnrolled.mockResolvedValue(false);
 

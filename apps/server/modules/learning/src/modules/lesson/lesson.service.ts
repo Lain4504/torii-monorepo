@@ -172,26 +172,31 @@ export class LessonService implements ILessonService {
 
     const dto = this.toLessonResponseDTO(lesson);
 
-    // Protection logic for video content
-    if (dto.contentType === 'video' && dto.videoUrl && !dto.isPreview) {
-      let isAuthorized = false;
+    // Protection logic for content access
+    let isEnrolled = false;
 
-      if (userId) {
-        try {
-          // Check if user is enrolled
-          const module = await this.moduleRepository.findById(lesson.moduleId);
-          if (module) {
-            isAuthorized = await this.enrollmentService.isEnrolled(userId, module.courseId);
-          }
-        } catch (error) {
-          this.logger.warn(`Failed to check enrollment for user ${userId} on lesson ${lessonId}`, error);
+    if (userId && !lesson.isPreview) {
+      try {
+        const module = await this.moduleRepository.findById(lesson.moduleId);
+        if (module) {
+          isEnrolled = await this.enrollmentService.isEnrolled(userId, module.courseId);
         }
+      } catch (error) {
+        this.logger.warn(`Failed to check enrollment for user ${userId} on lesson ${lessonId}`, error);
       }
+    }
 
-      // If not authorized, hide the video URL
-      if (!isAuthorized) {
-        dto.videoUrl = undefined;
-      }
+    // Accessible if (preview OR enrolled) AND marked unlocked in DB
+    const isAuthorized = (lesson.isPreview || isEnrolled) && lesson.isUnlocked;
+
+    // Synchronize isUnlocked with actual access status
+    dto.isUnlocked = isAuthorized;
+
+    // If not authorized, hide protected content (videoUrl, articleContent, aiMetadata)
+    if (!isAuthorized) {
+      dto.videoUrl = undefined;
+      dto.articleContent = undefined;
+      dto.aiMetadata = undefined;
     }
 
     return dto;

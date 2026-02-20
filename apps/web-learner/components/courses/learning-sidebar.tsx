@@ -123,7 +123,7 @@ export function LearningSidebar({
                             <div className="space-y-1">
                                 {module.lessons?.map((lesson: any, lessonIndex: number) => {
                                     const isActive = lesson.id === currentLessonId
-                                    const isLocked = lesson.locked // Mock field
+                                    const isLocked = !lesson.isUnlocked
 
                                     return (
                                         <button

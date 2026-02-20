@@ -824,18 +824,18 @@ export class CourseService implements ICourseService {
           order: module.orderIndex,
           durationMinutes: module.durationMinutes || undefined,
           lessons: lessons.map((lesson) => {
-            // Unauthorized users should not see videoUrl for non-preview lessons
-            const showVideoUrl = lesson.isPreview || isEnrolled;
+            // Unlocked if (preview OR enrolled) AND marked unlocked in DB
+            const isAccessible = (lesson.isPreview || isEnrolled) && lesson.isUnlocked;
 
             return {
               id: lesson.id,
               title: lesson.title,
               contentType: lesson.contentType,
               videoDuration: lesson.videoDuration || undefined,
-              videoUrl: showVideoUrl ? (lesson.videoUrl || undefined) : undefined,
+              videoUrl: isAccessible ? (lesson.videoUrl || undefined) : undefined,
               order: lesson.orderIndex,
               isPreview: lesson.isPreview,
-              isUnlocked: lesson.isUnlocked,
+              isUnlocked: isAccessible,
             };
           }),
         };
