@@ -517,7 +517,7 @@ export class OrderService implements IOrderService {
                             isGift: isGift,
                             giftMessage: metadata.giftMessage,
                             senderId: isGift ? order.userId : undefined,
-                            status: 'in_progress'
+                            // status: 'in_progress' - REMOVED: EnrollmentService will force pending_payment for paid courses
                         };
 
                         const enrollment = await lastValueFrom(
@@ -525,10 +525,18 @@ export class OrderService implements IOrderService {
                         );
                         enrollmentId = enrollment?.id;
 
-                        this.logger.log(`Gift enrollment created for user ${targetUserId} and course ${metadata.courseId}`);
+                        this.logger.log(`Gift enrollment created for user ${targetUserId} and course ${metadata.courseId} (ID: ${enrollment?.id})`);
+
+                        // Activate the gift enrollment immediately (since payment is confirmed)
+                        if (enrollmentId) {
+                            await lastValueFrom(
+                                this.natsClient.send({ cmd: 'learning.enrollment.activate' }, { enrollmentId })
+                            );
+                            this.logger.log(`Activated gift enrollment ${enrollmentId}`);
+                        }
                     } else {
                         // Regular Flow: Activate existing enrollment
-                        enrollmentId = order.enrollmentId;
+                        enrollmentId = order.enrollmentId || undefined;
 
                         if (!enrollmentId) {
                             // Backward compatibility: create if missing
