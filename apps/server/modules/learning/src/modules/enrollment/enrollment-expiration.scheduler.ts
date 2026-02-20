@@ -22,11 +22,10 @@ export class EnrollmentExpirationScheduler {
 
     /**
      * Daily job to mark old enrollments as EXPIRED
-     * Runs at midnight in HCM timezone
+     * Runs at midnight (UTC)
      */
     @Cron('0 0 * * *', {
         name: 'auto-expire-enrollments',
-        timeZone: 'Asia/Ho_Chi_Minh',
     })
     async handleAutoExpireEnrollments() {
         this.logger.log('🕒 Enrollment Expiration cronjob triggered (00:00 daily)');

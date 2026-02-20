@@ -70,6 +70,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
     });
 
     const isFree = watch('isFree', course?.isFree ?? false);
+    const courseType = watch('type', course?.type ?? 'vod');
 
     // Reset form when course changes
     useEffect(() => {
@@ -87,6 +88,10 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                 isFree: course.isFree ?? false,
                 learningOutcomes: Array.isArray(course.learningOutcomes) ? course.learningOutcomes : [],
                 requirements: Array.isArray(course.requirements) ? course.requirements : [],
+                expirationMonths: (course as any).expirationMonths ?? undefined,
+                startDate: (course as any).startDate ?? undefined,
+                expiresAt: (course as any).expiresAt ?? undefined,
+                registrationClosedAt: (course as any).registrationClosedAt ?? undefined,
             });
             setThumbnailFile(null);
             setVideoFile(null);
@@ -451,6 +456,95 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         )}
                                     />
                                 </div>
+
+                                {/* VOD: Thời hạn truy cập */}
+                                {courseType === 'vod' && (
+                                    <Controller
+                                        control={control}
+                                        name={'expirationMonths' as any}
+                                        render={({ field, fieldState }) => (
+                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name} className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                    Thời Hạn Truy Cập (Tháng)
+                                                </FieldLabel>
+                                                <Input
+                                                    id={field.name}
+                                                    type="number"
+                                                    min="1"
+                                                    max="6"
+                                                    {...field}
+                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                    placeholder="1-6 tháng (để trống = trọn đời)"
+                                                    className="h-11 px-4 rounded-xl border-border bg-background hover:bg-muted/5 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
+                                                />
+                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
+                                            </Field>
+                                        )}
+                                    />
+                                )}
+
+                                {/* WebRTC: Lịch học */}
+                                {courseType === 'live' && (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3 pb-1 border-b border-border/40">
+                                            <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">Lịch Học</h3>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <Controller
+                                                control={control}
+                                                name={'startDate' as any}
+                                                render={({ field }) => (
+                                                    <Field className="space-y-2">
+                                                        <FieldLabel htmlFor={field.name} className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                            Ngày Khai Giảng
+                                                        </FieldLabel>
+                                                        <Input
+                                                            id={field.name}
+                                                            type="datetime-local"
+                                                            {...field}
+                                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                        />
+                                                    </Field>
+                                                )}
+                                            />
+                                            <Controller
+                                                control={control}
+                                                name={'expiresAt' as any}
+                                                render={({ field }) => (
+                                                    <Field className="space-y-2">
+                                                        <FieldLabel htmlFor={field.name} className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                            Ngày Kết Thúc Khóa Học
+                                                        </FieldLabel>
+                                                        <Input
+                                                            id={field.name}
+                                                            type="datetime-local"
+                                                            {...field}
+                                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                        />
+                                                    </Field>
+                                                )}
+                                            />
+                                        </div>
+                                        <Controller
+                                            control={control}
+                                            name={'registrationClosedAt' as any}
+                                            render={({ field, fieldState }) => (
+                                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                    <FieldLabel htmlFor={field.name} className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                        Hạn Đăng Ký <span className="text-rose-500">*</span>
+                                                    </FieldLabel>
+                                                    <Input
+                                                        id={field.name}
+                                                        type="datetime-local"
+                                                        {...field}
+                                                        className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                    />
+                                                    <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
+                                                </Field>
+                                            )}
+                                        />
+                                    </div>
+                                )}
 
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">

@@ -266,14 +266,7 @@ export class EnrollmentService implements IEnrollmentService {
         }
 
         try {
-            // Get course to determine final price
-            const course = await this.courseRepository.findById(input.courseId);
-            if (!course) {
-                throw new NotFoundException('Course not found');
-            }
-            const expiresAt = course.durationWeeks
-                ? new Date(Date.now() + course.durationWeeks * 7 * 24 * 60 * 60 * 1000)
-                : undefined;
+            const expiresAt = this.computeEnrollmentExpiry(course);
             const finalPrice = course.discountPrice ? Number(course.discountPrice) : Number(course.price);
 
             let result;
@@ -477,5 +470,43 @@ export class EnrollmentService implements IEnrollmentService {
             this.logger.error(`Failed to log audit for ${data.action}`, error);
         }
     }
+
+    /**
+     * Compute enrollment expiry based on course type:
+     *
+     * VOD:     enrollment.expiresAt = enrollmentDate + expirationMonths
+     *          (expirationMonths set on Course, max 6)
+     *
+     * WebRTC:  enrollment.expiresAt = course.expiresAt (fixed course end date)
+     *          + registrationClosedAt is REQUIRED — enrollment blocked past this date
+     */
+    private computeEnrollmentExpiry(course: any): Date | undefined {
+        const now = new Date();
+
+        if (course.type === 'live') {
+            // Gate: registrationClosedAt is required for live courses
+            if (!course.registrationClosedAt) {
+                throw new BadRequestException('This live course is not open for registration (missing registration deadline)');
+            }
+
+            // Gate: block enrollment past registration deadline
+            if (now > new Date(course.registrationClosedAt)) {
+                throw new BadRequestException('Registration for this course is closed');
+            }
+
+            // WebRTC: enrollment access expires when the course itself expires
+            return course.expiresAt ? new Date(course.expiresAt) : undefined;
+        }
+
+        // VOD: expires N months from enrollment date
+        if (course.expirationMonths) {
+            const expiry = new Date(now);
+            expiry.setMonth(expiry.getMonth() + course.expirationMonths);
+            return expiry;
+        }
+
+        return undefined; // no expirationMonths = lifetime access
+    }
 }
+
 

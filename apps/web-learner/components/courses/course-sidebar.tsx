@@ -166,12 +166,14 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                         <ul className="space-y-3">
                             {[
                                 { icon: BookOpen, text: `${course.totalLessons} bài giảng chi tiết` },
-                                { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : (course.durationWeeks ? `Thời hạn học tập: ${course.durationWeeks} tuần` : 'Thời gian học không giới hạn') },
+                                { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : (course.durationWeeks ? `Thời lượng: ${course.durationWeeks} tuần` : 'Thời gian học không giới hạn') },
                                 { 
                                     icon: Globe, 
                                     text: isEnrolled && enrollment?.expiresAt 
                                         ? `Hết hạn: ${new Date(enrollment.expiresAt).toLocaleDateString('vi-VN')}` 
-                                        : (course.durationWeeks ? `Truy cập trong ${course.durationWeeks} tuần` : 'Truy cập trọn đời') 
+                                        : course.type === 'live'
+                                            ? ((course as any).expiresAt ? `Kết thúc: ${new Date((course as any).expiresAt).toLocaleDateString('vi-VN')}` : 'Xem lịch học')
+                                            : ((course as any).expirationMonths ? `Truy cập trong ${(course as any).expirationMonths} tháng` : 'Truy cập trọn đời')
                                 },
                                 { icon: Award, text: 'Chứng chỉ hoàn thành Torii' },
                             ].map((item, idx) => (
