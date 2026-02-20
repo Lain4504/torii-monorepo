@@ -59,6 +59,7 @@ export class CouponHandler {
         validDurationDays?: number;
     }) {
         this.logger.log(`[CouponHandler] Creating redeemed coupon for user: ${data.userId}`);
+        console.log('🔴 CouponHandler.createRedeemed CALLED', data);
         try {
             const coupon = await this.couponService.createRedeemedCoupon(data);
             return coupon;
