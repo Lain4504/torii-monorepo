@@ -6,6 +6,7 @@ import { Badge } from '@workspace/ui/components/badge'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Gift, Star, Ticket, ArrowRight, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react'
 import { useGamificationProfile, useRewards, useRedeemPoints } from '@/apis/services/gamification-api'
+import { useMyCoupons } from '@/apis/services/coupon-api'
 import { toast } from 'sonner'
 import { useState } from 'react'
 import {
@@ -20,6 +21,7 @@ import {
 export default function RewardsPage() {
     const { data: profile, isLoading: profileLoading } = useGamificationProfile()
     const { data: rewards, isLoading: rewardsLoading } = useRewards()
+    const { data: coupons } = useMyCoupons(profile?.userId)
     const redeemMutation = useRedeemPoints()
 
     const [selectedDeal, setSelectedDeal] = useState<any>(null)
@@ -86,6 +88,18 @@ export default function RewardsPage() {
                             </div>
                             <CardTitle className="text-xl">{reward.name}</CardTitle>
                             <CardDescription>{reward.description}</CardDescription>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {reward.minOrderAmount && (
+                                    <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
+                                        Đơn tối thiểu: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(reward.minOrderAmount)}
+                                    </Badge>
+                                )}
+                                {reward.maxDiscountAmount && (
+                                    <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
+                                        Giảm tối đa: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(reward.maxDiscountAmount)}
+                                    </Badge>
+                                )}
+                            </div>
                         </CardHeader>
 
                         <CardContent>
@@ -110,7 +124,7 @@ export default function RewardsPage() {
                 ))}
             </div>
 
-            {/* Redeemed History / My Coupons Section - Placeholder for now */}
+            {/* My Coupons Section */}
             <div className="pt-10 border-t border-border">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
@@ -119,28 +133,38 @@ export default function RewardsPage() {
                     </h2>
                 </div>
 
-                {redeemedCoupon ? (
-                    <div className="bg-card border-2 border-dashed border-primary/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 animate-in zoom-in-95 duration-500">
-                        <div className="flex items-center gap-4">
-                            <div className="size-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                <CheckCircle2 className="size-8 text-primary" />
+                {coupons && coupons.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {coupons.map((coupon: any) => (
+                            <div key={coupon.id} className="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-center gap-4 w-full">
+                                    <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                        <CheckCircle2 className="size-6 text-primary" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-lg font-black text-primary tracking-widest truncate">{coupon.code}</h3>
+                                            {!coupon.userId && <Badge variant="secondary" className="text-[10px]">Công khai</Badge>}
+                                        </div>
+                                        <p className="text-sm font-medium text-foreground truncate">{coupon.name}</p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                            Hạn dùng: {new Date(coupon.validUntil).toLocaleDateString('vi-VN')}
+                                            {coupon.maxDiscountAmount && ` • Giảm tối đa ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(coupon.maxDiscountAmount))}`}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button variant="outline" size="sm" className="rounded-lg font-bold shrink-0" onClick={() => {
+                                    navigator.clipboard.writeText(coupon.code)
+                                    toast.success('Đã sao chép mã!')
+                                }}>
+                                    Sao chép
+                                </Button>
                             </div>
-                            <div>
-                                <p className="text-sm font-bold text-muted-foreground">Mã của bạn vừa đổi:</p>
-                                <h3 className="text-2xl font-black text-primary tracking-widest">{redeemedCoupon.code}</h3>
-                                <p className="text-xs text-muted-foreground mt-1">Hạn dùng: {new Date(redeemedCoupon.validUntil).toLocaleDateString('vi-VN')}</p>
-                            </div>
-                        </div>
-                        <Button variant="outline" className="rounded-xl font-bold" onClick={() => {
-                            navigator.clipboard.writeText(redeemedCoupon.code)
-                            toast.success('Đã sao chép mã!')
-                        }}>
-                            Sao chép mã
-                        </Button>
+                        ))}
                     </div>
                 ) : (
                     <div className="bg-muted/30 rounded-2xl p-10 text-center border-2 border-dashed border-border">
-                        <p className="text-muted-foreground font-medium">Bạn chưa đổi mã giảm giá nào. Hãy tích lũy điểm và đổi quà nhé!</p>
+                        <p className="text-muted-foreground font-medium">Bạn chưa có mã giảm giá nào. Hãy tích lũy điểm và đổi quà nhé!</p>
                     </div>
                 )}
             </div>

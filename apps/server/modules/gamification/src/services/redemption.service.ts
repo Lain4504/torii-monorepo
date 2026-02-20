@@ -44,14 +44,17 @@ export class RedemptionService {
         this.logger.log(`User ${userId} redeemed ${reward.points} points for reward ${rewardId}`);
 
         // Request Billing to create a personal coupon
+        this.logger.log(`Requesting coupon creation for user ${userId} via NATS: billing.coupon.createRedeemed`);
         try {
             const coupon = await lastValueFrom(
-                this.natsClient.send({ cmd: 'billing.coupon.createRedeemed' }, {
+                this.natsClient.send('billing.coupon.createRedeemed', {
                     userId,
                     name: reward.name,
                     discountType: reward.discountType,
                     discountValue: Number(reward.discountValue),
-                    validDurationDays: reward.validDuration || 30
+                    validDurationDays: reward.validDuration || 30,
+                    maxDiscountAmount: reward.maxDiscountAmount ? Number(reward.maxDiscountAmount) : null,
+                    minOrderAmount: reward.minOrderAmount ? Number(reward.minOrderAmount) : null
                 })
             );
 
@@ -92,6 +95,8 @@ export class RedemptionService {
             points: r.points,
             type: r.discountType === 'percentage' ? 'percentage' : 'fixed',
             discountValue: Number(r.discountValue),
+            maxDiscountAmount: r.maxDiscountAmount ? Number(r.maxDiscountAmount) : null,
+            minOrderAmount: r.minOrderAmount ? Number(r.minOrderAmount) : null,
             validDuration: r.validDuration
         }));
     }

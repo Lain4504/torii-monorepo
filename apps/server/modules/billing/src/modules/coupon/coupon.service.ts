@@ -179,11 +179,42 @@ export class CouponService {
             minOrderAmount: data.minOrderAmount,
             validFrom: now,
             validUntil,
-            userId: data.userId,
+            user: { connect: { id: data.userId } },
             userUsageLimit: 1,
             usageLimit: 1,
             status: CouponStatus.ACTIVE,
         });
+    }
+
+    async getCouponsForUser(userId: string) {
+        const coupons = await this.couponRepository.findCouponsForUser(userId);
+
+        // Filter public coupons where user reached limit
+        const availableCoupons: any[] = [];
+        for (const coupon of coupons) {
+            // For personal coupons, they are already filtered by userId in repo
+            if (coupon.userId === userId) {
+                availableCoupons.push(coupon);
+                continue;
+            }
+
+            // For public coupons, check usage limit
+            if (coupon.userUsageLimit) {
+                const usage = await this.couponRepository.checkUserUsage(userId, coupon.id);
+                if (usage >= coupon.userUsageLimit) {
+                    continue;
+                }
+            }
+
+            // Also check global usage limit
+            if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+                continue;
+            }
+
+            availableCoupons.push(coupon);
+        }
+
+        return availableCoupons;
     }
 
     private generateRandomCode(): string {

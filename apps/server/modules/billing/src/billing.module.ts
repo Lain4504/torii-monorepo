@@ -6,10 +6,10 @@ import { pojos } from '@automapper/pojos';
 import { PrismaModule, SharedModule, GlobalRpcExceptionFilter, NatsClientModule } from '@server/shared';
 
 // Billing Modules
-import { OrderModule, CouponModule, UserBalanceModule } from '@server/billing/modules';
+import { OrderModule, CouponModule, UserBalanceModule } from './modules';
 
 // Handlers
-import { OrderHandler, CouponHandler, AnalyticsHandler, UserBalanceHandler } from '@server/billing/interfaces/nats';
+import { OrderHandler, CouponHandler, AnalyticsHandler, UserBalanceHandler } from './interfaces/nats';
 
 @Module({
     imports: [

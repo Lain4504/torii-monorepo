@@ -328,6 +328,9 @@ export function useRedeemPoints() {
             queryClient.invalidateQueries({
                 queryKey: ['streak'],
             });
+            queryClient.invalidateQueries({ queryKey: ['gamification-profile'] });
+            queryClient.invalidateQueries({ queryKey: ['streak'] });
+            queryClient.invalidateQueries({ queryKey: ['my-coupons'] });
         },
     });
 }

@@ -1674,6 +1674,8 @@ model PointReward {
   points        Int
   discountType  CouponDiscountType  @map("discount_type")
   discountValue Decimal             @map("discount_value") @db.Decimal(10, 2)
+  maxDiscountAmount Decimal?        @map("max_discount_amount") @db.Decimal(10, 2)
+  minOrderAmount    Decimal?        @map("min_order_amount") @db.Decimal(10, 2)
   validDuration Int?                @default(30) @map("valid_duration") // days
   isActive      Boolean             @default(true) @map("is_active")
   
