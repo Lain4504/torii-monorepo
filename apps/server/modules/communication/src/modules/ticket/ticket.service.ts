@@ -157,7 +157,34 @@ export class TicketService implements ITicketService {
                         }
                     }
 
-                    this.logger.log(`Refund approved and enrollment deleted for User ${userId}, Course ${courseId}.`);
+                    this.logger.log(`Refund approved: Cancelling enrollment for User ${userId}, Course ${courseId}.`);
+
+                    // 1. Delete enrollment and get the final price paid
+                    const deletedEnrollment = await firstValueFrom(
+                        this.natsClient.send({ cmd: 'learning.enrollment.delete' }, { userId, courseId })
+                    );
+
+                    // 2. Refund balance if applicable
+                    if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
+                        const refundUserId = deletedEnrollment.senderId || userId;
+                        this.logger.log(`Refunding ${deletedEnrollment.finalPrice} coins to User ${refundUserId} (Original student: ${userId})`);
+                        await firstValueFrom(
+                            this.natsClient.send(
+                                { cmd: 'billing.user_balance.add' },
+                                {
+                                    userId: refundUserId,
+                                    amount: deletedEnrollment.finalPrice,
+                                    reason: `Hoàn tiền khóa học - Ticket #${ticket.id}`,
+                                    metadata: { ticketId: ticket.id, courseId, originalStudentId: userId }
+                                }
+                            )
+                        ).catch(err => {
+                            this.logger.error(`Failed to refund coins via NATS: ${err.message}`);
+                            // We continue because enrollment is already deleted, but this is a critical failure
+                        });
+                    }
+
+                    this.logger.log(`Refund processed for User ${userId}, Course ${courseId}. Deleted Enrollment ID: ${deletedEnrollment?.id}`);
 
                     // Send Email Notification
                     try {

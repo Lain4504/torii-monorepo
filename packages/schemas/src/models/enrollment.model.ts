@@ -4,8 +4,7 @@ export enum EnrollmentStatus {
     PENDING_PAYMENT = 'pending_payment',
     IN_PROGRESS = 'in_progress',
     COMPLETED = 'completed',
-    DROPPED = 'dropped',
-    PENDING_PAYMENT = 'pending_payment',
+    DROPPED = 'dropped'
 }
 
 export const enrollmentSchema = z.object({
