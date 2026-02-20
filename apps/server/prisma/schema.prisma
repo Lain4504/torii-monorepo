@@ -1327,7 +1327,7 @@ model Enrollment {
   userId               String    @map("user_id") @db.Uuid
   courseId             String    @map("course_id") @db.Uuid
   enrollmentDate       DateTime  @default(now()) @map("enrollment_date")
-  completionStatus     String    @default("in_progress") @map("completion_status") @db.VarChar(20) // in_progress, completed, dropped
+  completionStatus     String    @default("in_progress") @map("completion_status") @db.VarChar(20) // pending_payment, in_progress, completed, dropped
   completionPercentage Decimal   @default(0.00) @map("completion_percentage") @db.Decimal(5, 2)
   lastAccessedAt       DateTime? @map("last_accessed_at")
   completedAt          DateTime? @map("completed_at")
@@ -1362,6 +1362,7 @@ enum OrderStatus {
   processing
   completed
   failed
+  refunded
   cancelled
   timed_out
 }

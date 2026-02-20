@@ -99,4 +99,20 @@ export class OrderController {
             return errorResponse(error.message || 'Failed to confirm order');
         }
     }
+
+    @Post(':id/cancel')
+    async cancel(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        try {
+            const requester = req.requester;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.order.cancel' },
+                    { id, userId: requester.sub, userRole: requester.role }
+                )
+            );
+            return successResponse({ order: result });
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to cancel order');
+        }
+    }
 }

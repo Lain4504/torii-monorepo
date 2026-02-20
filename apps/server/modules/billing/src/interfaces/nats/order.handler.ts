@@ -46,4 +46,14 @@ export class OrderHandler {
         // Handle the webhook in OrderService
         return this.orderService.handleWebhook(verifiedData);
     }
+
+    @MessagePattern({ cmd: 'billing.order.cancel' })
+    async cancel(@Payload() data: { id: string, userId: string, userRole: string }) {
+        return this.orderService.cancel(data.id, data.userId, data.userRole);
+    }
+
+    @MessagePattern({ cmd: 'billing.order.refund' })
+    async refund(@Payload() data: { id: string, reason?: string }) {
+        return this.orderService.refund(data.id, data.reason);
+    }
 }

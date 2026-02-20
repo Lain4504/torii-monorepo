@@ -42,4 +42,14 @@ export interface IOrderService {
      * Handle Payment Webhook (e.g. PayOS)
      */
     handleWebhook(webhookData: any, authHeader?: string): Promise<any>;
+
+    /**
+     * Cancel an order
+     */
+    cancel(id: string, userId: string, userRole: string): Promise<OrderResponseDTO>;
+
+    /**
+     * Refund an order
+     */
+    refund(id: string, reason?: string): Promise<OrderResponseDTO>;
 }
