@@ -366,8 +366,18 @@ export class LiveSessionService implements ILiveSessionService {
                         courseId: session.courseId,
                     },
                 },
+                include: { course: true },
             });
             if (enrollment) {
+                // Block if enrollment has expired
+                if (enrollment.expiresAt && enrollment.expiresAt < new Date()) {
+                    throw new ForbiddenException('Your enrollment has expired');
+                }
+                // Block if course hasn't started yet
+                const course = enrollment.course as any;
+                if (course?.startDate && new Date() < new Date(course.startDate)) {
+                    throw new ForbiddenException('This course has not started yet');
+                }
                 hasAccess = true;
             }
         }

@@ -68,6 +68,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
     });
 
     const isFree = watch('isFree');
+    const courseType = watch('type');
 
     const handleClose = () => {
         if (!uploading) {
@@ -330,12 +331,87 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             id="durationWeeks"
                                             type="number"
                                             min="0"
+                                            max="26"
                                             {...register('durationWeeks', { valueAsNumber: true })}
-                                            placeholder="ví dụ: 8"
+                                            placeholder="Tối đa 26 tuần (6 tháng)"
                                             className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all font-mono"
                                         />
+                                        <p className="text-[10px] text-muted-foreground/60 mt-1.5 ml-1">
+                                            Thời lượng nội dung chương trình học.
+                                        </p>
                                     </Field>
                                 </div>
+
+                                {/* VOD: Thời hạn truy cập */}
+                                {courseType === 'vod' && (
+                                    <Field>
+                                        <FieldLabel htmlFor="expirationMonths" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                            Thời Hạn Truy Cập (Tháng)
+                                        </FieldLabel>
+                                        <Input
+                                            id="expirationMonths"
+                                            type="number"
+                                            min="1"
+                                            max="6"
+                                            {...register('expirationMonths' as any, { valueAsNumber: true })}
+                                            placeholder="1-6 tháng (mặc định 6)"
+                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all font-mono"
+                                        />
+                                        <p className="text-[10px] text-muted-foreground/60 mt-1.5 ml-1 leading-relaxed">
+                                            Hạn truy cập mặc định cho mô hình "Mua cả khóa". <br/>
+                                            Học viên cần gia hạn nếu muốn xem lại sau thời gian này.
+                                        </p>
+                                        {watch('durationWeeks') && watch('expirationMonths') && (watch('expirationMonths') as any) < Math.ceil((watch('durationWeeks') || 0) / 4) && (
+                                            <p className="text-[10px] text-amber-500 font-medium mt-1 ml-1 animate-pulse">
+                                                ⚠️ Cảnh báo: Thời gian truy cập ngắn hơn thời lượng nội dung!
+                                            </p>
+                                        )}
+                                    </Field>
+                                )}
+
+                                {/* WebRTC: Ngày khai giảng, kết thúc, hạn đăng ký */}
+                                {courseType === 'live' && (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3 pb-1 border-b border-border/40">
+                                            <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">Lịch Học</h3>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <Field>
+                                                <FieldLabel htmlFor="startDate" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                    Ngày Khai Giảng
+                                                </FieldLabel>
+                                                <Input
+                                                    id="startDate"
+                                                    type="datetime-local"
+                                                    {...register('startDate' as any)}
+                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                />
+                                            </Field>
+                                            <Field>
+                                                <FieldLabel htmlFor="expiresAt" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                    Ngày Kết Thúc Khóa Học
+                                                </FieldLabel>
+                                                <Input
+                                                    id="expiresAt"
+                                                    type="datetime-local"
+                                                    {...register('expiresAt' as any)}
+                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                />
+                                            </Field>
+                                        </div>
+                                        <Field>
+                                            <FieldLabel htmlFor="registrationClosedAt" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                Hạn Đăng Ký <span className="text-rose-500">*</span>
+                                            </FieldLabel>
+                                            <Input
+                                                id="registrationClosedAt"
+                                                type="datetime-local"
+                                                {...register('registrationClosedAt' as any)}
+                                                className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                            />
+                                        </Field>
+                                    </div>
+                                )}
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>

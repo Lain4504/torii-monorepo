@@ -340,6 +340,9 @@ export class CourseService implements ICourseService {
         discountPrice: dto.discountPrice || null,
         liveConfig: dto.liveConfig || null,
         durationWeeks: dto.durationWeeks || null,
+        expirationMonths: (dto as any).expirationMonths || null,
+        startDate: (dto as any).startDate || null,
+        registrationClosedAt: (dto as any).registrationClosedAt || null,
         isFree: dto.isFree ?? false,
         tags: dto.tags || [],
         learningOutcomes: dto.learningOutcomes || [],
@@ -351,6 +354,33 @@ export class CourseService implements ICourseService {
       // Validation: Paid courses must have price > 0
       if (!data.isFree && data.price <= 0) {
         throw new BadRequestException('Paid courses must have a price greater than 0');
+      }
+
+      // Validation: Course durationWeeks must be at most 26 (6 months)
+      if (data.durationWeeks && data.durationWeeks > 26) {
+        throw new BadRequestException('Course duration cannot exceed 26 weeks (6 months)');
+      }
+
+      // Validation: Course expirationMonths must be at most 6
+      if (data.expirationMonths && data.expirationMonths > 6) {
+        throw new BadRequestException('Course expiration duration cannot exceed 6 months');
+      }
+
+      // Validation: Live courses must have registrationClosedAt and expiresAt
+      if (data.type === 'live') {
+        if (!data.registrationClosedAt) {
+          throw new BadRequestException('Live courses must have a registration deadline (registrationClosedAt)');
+        }
+        if (!data.expiresAt) {
+          throw new BadRequestException('Live courses must have an end date (expiresAt)');
+        }
+        // Validation: course duration must be at most 6 months
+        const anchor = data.startDate ? new Date(data.startDate) : new Date();
+        const maxExpiry = new Date(anchor);
+        maxExpiry.setMonth(maxExpiry.getMonth() + 6);
+        if (new Date(data.expiresAt) > maxExpiry) {
+          throw new BadRequestException('Live course duration cannot exceed 6 months from the start date');
+        }
       }
 
       const course = await this.courseRepository.create(data);
@@ -416,6 +446,9 @@ export class CourseService implements ICourseService {
       if (dto.discountPrice !== undefined) updateData.discountPrice = dto.discountPrice;
       if (dto.liveConfig !== undefined) updateData.liveConfig = dto.liveConfig;
       if (dto.durationWeeks !== undefined) updateData.durationWeeks = dto.durationWeeks;
+      if ((dto as any).expirationMonths !== undefined) updateData.expirationMonths = (dto as any).expirationMonths;
+      if ((dto as any).startDate !== undefined) updateData.startDate = (dto as any).startDate;
+      if ((dto as any).registrationClosedAt !== undefined) updateData.registrationClosedAt = (dto as any).registrationClosedAt;
       if (dto.isFree !== undefined) updateData.isFree = dto.isFree;
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
@@ -427,6 +460,30 @@ export class CourseService implements ICourseService {
 
       if (!finalIsFree && finalPrice <= 0) {
         throw new BadRequestException('Paid courses must have a price greater than 0');
+      }
+
+      // Validation: Course durationWeeks must be at most 26 (6 months)
+      const finalDurationWeeks = dto.durationWeeks !== undefined ? dto.durationWeeks : existing.durationWeeks;
+      if (finalDurationWeeks && finalDurationWeeks > 26) {
+        throw new BadRequestException('Course duration cannot exceed 26 weeks (6 months)');
+      }
+
+      // Validation: Course expirationMonths must be at most 6
+      const finalExpirationMonths = (dto as any).expirationMonths !== undefined ? (dto as any).expirationMonths : (existing as any).expirationMonths;
+      if (finalExpirationMonths && finalExpirationMonths > 6) {
+        throw new BadRequestException('Course expiration duration cannot exceed 6 months');
+      }
+
+      // Validation: Live course duration must be at most 6 months
+      const finalType = updateData.type ?? existing.type;
+      if (finalType === 'live' && updateData.expiresAt) {
+        const finalStartDate = updateData.startDate ?? (existing as any).startDate;
+        const anchor = finalStartDate ? new Date(finalStartDate) : new Date();
+        const maxExpiry = new Date(anchor);
+        maxExpiry.setMonth(maxExpiry.getMonth() + 6);
+        if (new Date(updateData.expiresAt) > maxExpiry) {
+          throw new BadRequestException('Live course duration cannot exceed 6 months from the start date');
+        }
       }
 
       let isPublishing = false;
