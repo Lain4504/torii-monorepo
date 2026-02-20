@@ -1,7 +1,7 @@
 import { Controller, Logger, Inject } from '@nestjs/common';
 import { MessagePattern, Payload, ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { CouponService } from '@server/billing/modules/coupon/coupon.service';
+import { CouponService } from '../../modules/coupon/coupon.service';
 import { CouponValidateRequestDTO } from '@workspace/schemas';
 
 @Controller()
@@ -11,7 +11,9 @@ export class CouponHandler {
     constructor(
         private readonly couponService: CouponService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-    ) { }
+    ) {
+        this.logger.log('🔥 CouponHandler initialized with string pattern listener');
+    }
 
     @MessagePattern({ cmd: 'billing.coupon.validate' })
     async validate(@Payload() data: CouponValidateRequestDTO) {
@@ -41,6 +43,28 @@ export class CouponHandler {
             return result;
         } catch (error: any) {
             this.logger.error(`[CouponHandler] Validation error: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
+
+
+    @MessagePattern({ cmd: 'billing.coupon.createRedeemed' })
+    async createRedeemed(@Payload() data: {
+        userId: string;
+        name: string;
+        discountType: any;
+        discountValue: number;
+        maxDiscountAmount?: number;
+        minOrderAmount?: number;
+        validDurationDays?: number;
+    }) {
+        this.logger.log(`[CouponHandler] Creating redeemed coupon for user: ${data.userId}`);
+        console.log('🔴 CouponHandler.createRedeemed CALLED', data);
+        try {
+            const coupon = await this.couponService.createRedeemedCoupon(data);
+            return coupon;
+        } catch (error: any) {
+            this.logger.error(`[CouponHandler] Failed to create redeemed coupon: ${error.message}`);
             throw error;
         }
     }

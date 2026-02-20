@@ -76,21 +76,68 @@ export const gamificationApi = {
     },
 
     /**
+    /**
      * Get gamification history (points)
      */
-    async getHistory(params: { page?: number; limit?: number; type?: string } = {}): Promise<GamificationHistoryPaginatedResponse> {
+    async getHistory(
+        params: { page?: number; limit?: number; type?: string } = {}
+    ): Promise<GamificationHistoryPaginatedResponse> {
         const queryParams = new URLSearchParams();
+
         if (params.page) queryParams.append('page', params.page.toString());
         if (params.limit) queryParams.append('limit', params.limit.toString());
         if (params.type) queryParams.append('type', params.type);
 
-        const response = await apiClient.get<StandardApiResponse<GamificationHistoryPaginatedResponse>>(`/api/gamification/history?${queryParams.toString()}`);
+        const response =
+            await apiClient.get<
+                StandardApiResponse<GamificationHistoryPaginatedResponse>
+            >(`/api/gamification/history?${queryParams.toString()}`);
+
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
-        throw new Error(response.data.message || 'Failed to fetch gamification history');
+
+        throw new Error(
+            response.data.message || 'Failed to fetch gamification history'
+        );
     },
-};
+
+    /**
+     * Get available point redemption rewards
+     */
+    async getRewards(): Promise<any[]> {
+        const response =
+            await apiClient.get<StandardApiResponse<any[]>>(
+                '/api/gamification/rewards'
+            );
+
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+
+        throw new Error(
+            response.data.message || 'Failed to fetch rewards'
+        );
+    },
+
+    /**
+     * Redeem points for a reward
+     */
+    async redeemPoints(dealId: string): Promise<any> {
+        const response =
+            await apiClient.post<StandardApiResponse<any>>(
+                '/api/gamification/redeem',
+                { dealId }
+            );
+
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+
+        throw new Error(
+            response.data.message || 'Failed to redeem points'
+        );
+    },};
 
 /**
  * Hook: Get leaderboard
@@ -242,12 +289,49 @@ export function useGamificationProfile() {
 }
 
 /**
+/**
  * Hook: Get gamification history
  */
-export function useGamificationHistory(params: { page?: number; limit?: number; type?: string } = {}) {
+export function useGamificationHistory(
+    params: { page?: number; limit?: number; type?: string } = {}
+) {
     return useQuery({
         queryKey: ['gamification-history', params],
         queryFn: () => gamificationApi.getHistory(params),
         staleTime: 30000,
     });
 }
+
+/**
+ * Hook: Get available rewards
+ */
+export function useRewards() {
+    return useQuery({
+        queryKey: ['gamification-rewards'],
+        queryFn: gamificationApi.getRewards,
+    });
+}
+
+/**
+ * Hook: Redeem points for a reward
+ */
+export function useRedeemPoints() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (dealId: string) =>
+            gamificationApi.redeemPoints(dealId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['gamification-profile'],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ['streak'],
+            });
+            queryClient.invalidateQueries({ queryKey: ['gamification-profile'] });
+            queryClient.invalidateQueries({ queryKey: ['streak'] });
+            queryClient.invalidateQueries({ queryKey: ['my-coupons'] });
+        },
+    });
+}
+

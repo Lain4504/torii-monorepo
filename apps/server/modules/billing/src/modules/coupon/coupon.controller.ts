@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { CouponService } from './coupon.service';
 import {
     type CouponValidateRequestDTO,
@@ -42,5 +42,13 @@ export class CouponController {
 
         // Actually, let's use a dummy amount for validation unrelated to min-spend if amount is 0.
         return this.couponService.validateCoupon(body.code, body.userId || '', 0);
+    }
+
+    @Get('my-coupons')
+    async getCoupons(@Query('userId') userId: string) {
+        if (!userId) {
+            return [];
+        }
+        return this.couponService.getCouponsForUser(userId);
     }
 }

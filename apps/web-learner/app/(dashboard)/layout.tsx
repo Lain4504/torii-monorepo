@@ -1,5 +1,6 @@
 'use client'
 
+import * as React from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -15,18 +16,22 @@ export default function DashboardLayout({
     const { isAuthenticated, status } = useAppSelector((state) => state.auth)
     const [hasMounted, setHasMounted] = useState(false)
     const router = useRouter()
+    const [mounted, setMounted] = React.useState(false)
 
     useEffect(() => {
-        setHasMounted(true)
+
+        setMounted(true)
     }, [])
 
     useEffect(() => {
-        if (hasMounted && status === 'succeeded' && !isAuthenticated) {
+        if (mounted && status === 'succeeded' && !isAuthenticated) {
             router.push('/login')
         }
-    }, [isAuthenticated, status, router, hasMounted])
+    }, [isAuthenticated, status, router, mounted])
 
-    if (!hasMounted || status === 'loading') {
+    // Delay rendering logic until after hydration to avoid mismatch
+    if (!mounted || status === 'loading') {
+
         return (
             <div className="flex items-center justify-center min-h-screen bg-background">
                 <div className="flex flex-col items-center gap-4 animate-in fade-in duration-700">

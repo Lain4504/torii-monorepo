@@ -69,4 +69,27 @@ export class CouponRepository {
 
         return count;
     }
+
+    async findCouponsForUser(userId: string) {
+        const now = new Date();
+        return this.prisma.coupon.findMany({
+            where: {
+                OR: [
+                    // Personal Coupons
+                    {
+                        userId: userId,
+                        status: 'active',
+                    },
+                    // Public Coupons (Active & Valid)
+                    {
+                        userId: null,
+                        status: 'active',
+                        validFrom: { lte: now },
+                        validUntil: { gte: now },
+                    }
+                ]
+            },
+            orderBy: { validUntil: 'asc' }
+        });
+    }
 }

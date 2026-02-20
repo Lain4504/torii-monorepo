@@ -131,8 +131,49 @@ export class GamificationController {
             );
             return successResponse(result);
         } catch (error: any) {
-            this.logger.error(`Failed to get gamification history for user ${user?.sub}`, error.stack);
-            return errorResponse(error.message || 'Failed to fetch gamification history');
+            this.logger.error(
+                `Failed to get gamification history for user ${user?.sub}`,
+                error.stack,
+            );
+            return errorResponse(
+                error.message || 'Failed to fetch gamification history',
+            );
+        }
+    }
+
+    @Get('rewards')
+    async getAvailableRewards(@Req() req: ReqWithRequester) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.getAvailableRewards', {})
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to get available rewards`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch rewards');
+        }
+    }
+
+    @Post('redeem')
+    async redeemPoints(@Req() req: ReqWithRequester) {
+        const user = req.requester;
+        const { dealId } = req.body;
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send('gamification.redeemPoints', {
+                    userId: user.sub,
+                    dealId
+                })
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(
+                `Failed to redeem points for user ${user?.sub}`,
+                error.stack,
+            );
+            return errorResponse(
+                error.message || 'Failed to redeem points',
+            );
         }
     }
 }
