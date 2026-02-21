@@ -175,7 +175,7 @@ export function QuestionFormSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-2xl border-l border-border bg-background p-0 flex flex-col h-full shadow-2xl">
+            <SheetContent className="w-full sm:w-[900px] !max-w-[900px] border-l border-border bg-background p-0 flex flex-col h-full shadow-2xl">
                 <SheetHeader className="p-8 border-b border-border bg-muted/5 space-y-2">
                     <SheetTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-3">
                         {isEdit ? <Target className="size-6 text-primary opacity-40" /> : <Plus className="size-6 text-primary opacity-40" />}
@@ -374,8 +374,7 @@ export function QuestionFormSheet({
                                         variant="outline"
                                         size="sm"
                                         onClick={addOption}
-                                        className="h-8 rounded-lg border-primary/20 bg-primary/5 text-primary text-[10px] font-bold uppercase hover:bg-primary/10"
-                                    >
+                                        className="h-8 rounded-lg border-primary/20 bg-primary/5 text-primary text-[10px] font-bold uppercase hover:bg-primary/10">
                                         <Plus className="size-3 mr-1.5" />
                                         Add
                                     </Button>
@@ -399,8 +398,7 @@ export function QuestionFormSheet({
                                                 size="icon"
                                                 disabled={optionKeys.length <= 2}
                                                 onClick={() => removeOption(key)}
-                                                className="size-11 text-destructive hover:bg-destructive/10 rounded-xl shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
+                                                className="size-11 text-destructive hover:bg-destructive/10 rounded-xl shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <X className="size-4" />
                                             </Button>
                                         </div>
@@ -462,15 +460,13 @@ export function QuestionFormSheet({
                         type="button"
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
-                        className="rounded-xl h-12 px-8 font-bold text-xs uppercase tracking-widest text-muted-foreground hover:bg-muted"
-                    >
+                        className="rounded-xl h-12 px-8 font-bold text-xs uppercase tracking-widest text-muted-foreground hover:bg-muted">
                         Hủy bỏ
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
                         disabled={isLoading}
-                        className="rounded-xl h-12 px-10 shadow-lg shadow-primary/20 bg-primary text-white font-bold text-xs uppercase tracking-[0.15em] transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    >
+                        className="rounded-xl h-12 px-10 shadow-lg shadow-primary/20 bg-primary text-white font-bold text-xs uppercase tracking-[0.15em] transition-all hover:scale-[1.02] active:scale-[0.98]">
                         {isLoading ? (
                             <>
                                 <Loader2 className="mr-2 size-4 animate-spin" />

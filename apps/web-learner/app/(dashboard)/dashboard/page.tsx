@@ -81,26 +81,6 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="px-5 py-3 rounded-2xl bg-amber-50 border border-amber-100 flex flex-col gap-2 min-w-[180px] shadow-sm">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-lg bg-amber-200 flex items-center justify-center">
-                                        <Star className="w-3.5 h-3.5 text-amber-700 fill-amber-700" />
-                                    </div>
-                                    <p className="text-[10px] font-black text-amber-700 uppercase tracking-wider">Cấp độ {user?.level || 1}</p>
-                                </div>
-                                <p className="text-xs font-black text-amber-900">{user?.xp || 0} XP</p>
-                            </div>
-                            <div className="w-full h-1.5 bg-amber-200/50 rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-amber-500 rounded-full transition-all duration-1000"
-                                    style={{ width: `${((user?.xp || 0) % 1000) / 10}%` }}
-                                />
-                            </div>
-                            <p className="text-[9px] font-bold text-amber-600 text-right">Còn {1000 - ((user?.xp || 0) % 1000)} XP đến cấp tiếp theo</p>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Stats Grid - Minimal Style */}

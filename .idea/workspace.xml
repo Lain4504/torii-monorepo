@@ -4,44 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: add ServiceUnavailablePage and NotImplementedPage components, update routing and error handling across pages">
-      <change afterPath="$PROJECT_DIR$/apps/web-learner/public/mascot.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/create-assignment-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/create-assignment-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/edit-assignment-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/edit-assignment-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/coupons-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/coupons-table.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/create-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/create-blog-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/edit-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/edit-blog-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/view-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/view-blog-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/coupons-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/coupons-columns.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-audit-log-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-audit-log-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/manage-instructors-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/manage-instructors-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/publish-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/publish-course-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/reject-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/reject-course-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/schedule-request-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/schedule-request-dialog.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/teaching-schedule-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/teaching-schedule-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/nav-user.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/nav-user.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/notifications-dropdown.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/notifications-dropdown.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/team-switcher.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/team-switcher.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/create-lesson-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/create-lesson-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/edit-lesson-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/edit-lesson-sheet.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/create-module-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/create-module-sheet.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/edit-module-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/edit-module-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/question-pools/pools-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/question-pools/pools-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/reviews/reviews-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/reviews/reviews-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/tickets-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/tickets-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/learning-analytics.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/learning-analytics.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/reports-page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/revenue-analytics.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/revenue-analytics.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/user-analytics.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/user-analytics.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/audit/audit-logs-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/audit/audit-logs-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/forgot-password-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/forgot-password-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/two-factor-verify-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/two-factor-verify-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/course-categories-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/course-categories-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/cta-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/cta-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/features-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/features-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/how-it-works-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/how-it-works-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/testimonials-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/testimonials-section.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/combobox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/combobox.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/context-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/context-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/dropdown-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/dropdown-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/menubar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/menubar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/questions/questions-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/questions/questions-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/tickets-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/tickets-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-columns.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -426,22 +408,6 @@
       <workItem from="1771674736995" duration="351000" />
       <workItem from="1771676906109" duration="338000" />
     </task>
-    <task id="LOCAL-00791" summary="fix bug">
-      <option name="closed" value="true" />
-      <created>1770010066613</created>
-      <option name="number" value="00791" />
-      <option name="presentableId" value="LOCAL-00791" />
-      <option name="project" value="LOCAL" />
-      <updated>1770010066613</updated>
-    </task>
-    <task id="LOCAL-00792" summary="fix bug">
-      <option name="closed" value="true" />
-      <created>1770016727488</created>
-      <option name="number" value="00792" />
-      <option name="presentableId" value="LOCAL-00792" />
-      <option name="project" value="LOCAL" />
-      <updated>1770016727488</updated>
-    </task>
     <task id="LOCAL-00793" summary="fix bug#2">
       <option name="closed" value="true" />
       <created>1770018645527</created>
@@ -818,7 +784,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771685880773</updated>
     </task>
-    <option name="localTasksCounter" value="840" />
+    <task id="LOCAL-00840" summary="refactor: update container widths and improve layout consistency across multiple sections">
+      <option name="closed" value="true" />
+      <created>1771687963435</created>
+      <option name="number" value="00840" />
+      <option name="presentableId" value="LOCAL-00840" />
+      <option name="project" value="LOCAL" />
+      <updated>1771687963437</updated>
+    </task>
+    <task id="LOCAL-00841" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
+      <option name="closed" value="true" />
+      <created>1771689574854</created>
+      <option name="number" value="00841" />
+      <option name="presentableId" value="LOCAL-00841" />
+      <option name="project" value="LOCAL" />
+      <updated>1771689574854</updated>
+    </task>
+    <option name="localTasksCounter" value="842" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -853,8 +835,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="optimize logic" />
-    <MESSAGE value="update proto file" />
     <MESSAGE value="update nats logic" />
     <MESSAGE value="update meet client logic" />
     <MESSAGE value="fix bug" />
@@ -878,7 +858,9 @@
     <MESSAGE value="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency" />
     <MESSAGE value="refactor: add AspectRatio and DirectionProvider components, update styles and structure for consistency" />
     <MESSAGE value="refactor: add ServiceUnavailablePage and NotImplementedPage components, update routing and error handling across pages" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: add ServiceUnavailablePage and NotImplementedPage components, update routing and error handling across pages" />
+    <MESSAGE value="refactor: update container widths and improve layout consistency across multiple sections" />
+    <MESSAGE value="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

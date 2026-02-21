@@ -10,7 +10,7 @@ import {
     CalendarCheck2,
     Edit,
     Trash,
-    MoreHorizontal,
+    MoreVertical,
     PlayCircle,
     StopCircle,
     Settings,
@@ -331,7 +331,7 @@ export default function CourseDetailPage() {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                                    <MoreHorizontal className="size-4" />
+                                                                    <MoreVertical className="size-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
@@ -376,7 +376,7 @@ export default function CourseDetailPage() {
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
                                                                     <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                                        <MoreHorizontal className="size-4" />
+                                                                        <MoreVertical className="size-4" />
                                                                     </Button>
                                                                 </DropdownMenuTrigger>
                                                                 <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
@@ -503,7 +503,7 @@ export default function CourseDetailPage() {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                                    <MoreHorizontal className="size-4" />
+                                                                    <MoreVertical className="size-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">

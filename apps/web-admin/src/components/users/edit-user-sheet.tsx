@@ -70,7 +70,7 @@ export function EditUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-[600px] p-0 flex flex-col">
+            <SheetContent className="w-full sm:w-[600px] !max-w-[600px] p-0 flex flex-col">
                 <SheetHeader className="px-6 py-6 border-b">
                     <div className="flex items-center gap-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
@@ -168,14 +168,12 @@ export function EditUserSheet({
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
-                            disabled={updateUser.isPending}
-                        >
+                            disabled={updateUser.isPending}>
                             Hủy bỏ
                         </Button>
                         <Button
                             type="submit"
-                            disabled={updateUser.isPending}
-                        >
+                            disabled={updateUser.isPending}>
                             {updateUser.isPending ? (
                                 <>
                                     <Loader2 className="size-4 animate-spin mr-2" />

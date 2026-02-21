@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
-    Eye,
+    MoreVertical,
     CheckCircle2,
     XCircle,
     Clock,
@@ -108,7 +108,7 @@ export const getTicketsColumns = ({ onView, page = 1, limit = 10 }: TicketsColum
                     className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
                     onClick={() => onView(row.original)}
                 >
-                    <Eye className="size-4" />
+                    <MoreVertical className="size-4" />
                 </Button>
             </div>
         ),

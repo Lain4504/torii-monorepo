@@ -145,7 +145,7 @@ export function EditAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[800px] h-full flex flex-col gap-0 p-0 overflow-hidden">
+      <SheetContent className="w-full sm:w-[800px] !max-w-[800px] h-full flex flex-col gap-0 p-0 overflow-hidden">
         <SheetHeader className="p-6 border-b shrink-0">
           <SheetTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
             Chỉnh sửa <span className="text-primary not-italic">Bài Tập</span>
@@ -427,15 +427,13 @@ export function EditAssignmentSheet({
                     type="button"
                     variant="outline"
                     onClick={() => onOpenChange(false)}
-                    className="rounded-xl font-sans font-bold italic text-xs uppercase"
-                  >
+                    className="rounded-xl font-sans font-bold italic text-xs uppercase">
                     Hủy
                   </Button>
                   <Button
                     type="submit"
                     disabled={updateMutation.isPending}
-                    className="rounded-xl font-sans font-bold italic text-xs uppercase bg-primary text-primary-foreground"
-                  >
+                    className="rounded-xl font-sans font-bold italic text-xs uppercase bg-primary text-primary-foreground">
                     {updateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <Save className="mr-2 h-4 w-4" />
                     Lưu thay đổi

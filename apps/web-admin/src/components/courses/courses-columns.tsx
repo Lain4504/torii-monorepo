@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
-import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, Zap, Target, Layers, History, Video } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, MoreVertical, Target, Layers, History, Video } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -212,7 +212,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/10 data-[state=open]:text-primary"
                             >
                                 <span className="sr-only">Mở menu</span>
-                                <Zap className="h-4 w-4 opacity-50 group-hover:opacity-100" />
+                                <MoreVertical className="h-4 w-4 opacity-50 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent

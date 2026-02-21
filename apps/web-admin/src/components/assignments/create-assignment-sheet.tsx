@@ -138,7 +138,7 @@ export function CreateAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[800px] h-full flex flex-col gap-0 p-0 overflow-hidden">
+      <SheetContent className="w-full sm:w-[800px] !max-w-[800px] h-full flex flex-col gap-0 p-0 overflow-hidden">
         <SheetHeader className="p-6 border-b shrink-0">
           <SheetTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
             Tạo <span className="text-primary not-italic">Bài Tập Mới</span>
@@ -415,15 +415,13 @@ export function CreateAssignmentSheet({
                     type="button"
                     variant="outline"
                     onClick={() => onOpenChange(false)}
-                    className="rounded-xl font-sans font-bold italic text-xs uppercase"
-                  >
+                    className="rounded-xl font-sans font-bold italic text-xs uppercase">
                     Hủy
                   </Button>
                   <Button
                     type="submit"
                     disabled={createMutation.isPending}
-                    className="rounded-xl font-sans font-bold italic text-xs uppercase"
-                  >
+                    className="rounded-xl font-sans font-bold italic text-xs uppercase">
                     {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Tạo bài tập
                   </Button>

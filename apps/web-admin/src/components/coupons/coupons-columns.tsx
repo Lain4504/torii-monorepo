@@ -1,15 +1,15 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import { CouponDiscountType, type CouponResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { 
-    ArrowUpDown, 
-    Pencil, 
-    Trash, 
-    Tag, 
+import {
+    ArrowUpDown,
+    Pencil,
+    Trash,
+    Tag,
     Calendar,
     Percent,
     DollarSign,
-    Users
+    Users, MoreVertical
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -210,11 +210,7 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
                                 className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/10 data-[state=open]:text-primary"
                             >
                                 <span className="sr-only">Mở menu</span>
-                                <div className="flex items-center justify-center">
-                                    <div className="size-1 rounded-full bg-foreground/50 mx-[1px]" />
-                                    <div className="size-1 rounded-full bg-foreground/50 mx-[1px]" />
-                                    <div className="size-1 rounded-full bg-foreground/50 mx-[1px]" />
-                                </div>
+                                <MoreVertical className="h-4 w-4 opacity-50 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent

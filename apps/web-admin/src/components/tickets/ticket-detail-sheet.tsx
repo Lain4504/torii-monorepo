@@ -176,21 +176,19 @@ export function TicketDetailSheet({
                 </div>
 
                 {(ticket.status === TicketStatus.PENDING || ticket.status === TicketStatus.PROCESSING) && (
-                    <SheetFooter className="p-8 bg-muted/5 border-t border-border/5 grid grid-cols-2 gap-4">
+                    <SheetFooter>
                         <Button
                             variant="outline"
-                            className="h-14 rounded-2xl border-red-500/20 text-red-600 font-black uppercase tracking-[2px] text-[10px] hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-300 group"
+                            
                             onClick={() => handleUpdateStatus(TicketStatus.REJECTED)}
-                            disabled={updateStatusMutation.isPending}
-                        >
+                            disabled={updateStatusMutation.isPending}>
                             <XCircle className="size-4 mr-2 group-hover:scale-110 transition-transform" />
                             Từ chối
                         </Button>
                         <Button
-                            className="h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[2px] text-[10px] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 group"
+                            
                             onClick={() => handleUpdateStatus(TicketStatus.APPROVED)}
-                            disabled={updateStatusMutation.isPending}
-                        >
+                            disabled={updateStatusMutation.isPending}>
                             <CheckCircle2 className="size-4 mr-2 group-hover:scale-110 transition-transform" />
                             Chấp nhận {isRefund && 'Hoàn tiền'}
                         </Button>

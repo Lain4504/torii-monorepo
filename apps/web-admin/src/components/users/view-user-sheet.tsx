@@ -43,7 +43,7 @@ export function ViewUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[500px] flex flex-col p-0">
+            <SheetContent className="w-full sm:w-[500px] !max-w-[500px] flex flex-col p-0">
                 <SheetHeader className="px-6 py-6 border-b">
                     <div className="flex items-center gap-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">

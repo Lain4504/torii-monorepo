@@ -176,7 +176,7 @@ export function CreateUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>
-            <SheetContent className="sm:max-w-[550px] p-0 flex flex-col">
+            <SheetContent className="w-full sm:w-[550px] !max-w-[550px] p-0 flex flex-col">
                 {/* Header */}
                 <SheetHeader className="px-6 py-6 border-b">
                     <div className="flex items-center gap-4">
@@ -326,8 +326,7 @@ export function CreateUserSheet({
                                             variant="ghost"
                                             size="sm"
                                             onClick={handleBackToRoles}
-                                            className="h-8 px-0 text-muted-foreground hover:text-foreground"
-                                        >
+                                            className="h-8 px-0 text-muted-foreground hover:text-foreground">
                                             <ArrowLeft className="size-3.5 mr-2" />
                                             Quay lại vai trò chính
                                         </Button>
@@ -387,8 +386,7 @@ export function CreateUserSheet({
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={() => handleOpenChange(false)}
-                                >
+                                    onClick={() => handleOpenChange(false)}>
                                     Hủy
                                 </Button>
                                 <Button
@@ -398,8 +396,7 @@ export function CreateUserSheet({
                                         e.stopPropagation();
                                         handleNextToRole();
                                     }}
-                                    disabled={!detailsValid}
-                                >
+                                    disabled={!detailsValid}>
                                     Tiếp tục
                                     <ChevronRight className="ml-2 size-3.5" />
                                 </Button>
@@ -410,14 +407,12 @@ export function CreateUserSheet({
                                     type="button"
                                     variant="ghost"
                                     onClick={handleBackToDetails}
-                                    disabled={createInternalUser.isPending}
-                                >
+                                    disabled={createInternalUser.isPending}>
                                     Quay lại
                                 </Button>
                                 <Button
                                     type="submit"
-                                    disabled={createInternalUser.isPending}
-                                >
+                                    disabled={createInternalUser.isPending}>
                                     {createInternalUser.isPending ? (
                                         <>
                                             <Loader2 className="mr-2 size-3.5 animate-spin" />

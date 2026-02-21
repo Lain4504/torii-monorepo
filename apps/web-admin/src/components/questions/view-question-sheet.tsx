@@ -1,10 +1,10 @@
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+} from '@workspace/ui/components/sheet';
 import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
 import type { QuestionResponseDTO } from '@workspace/schemas';
@@ -27,17 +27,17 @@ export function ViewQuestionDialog({
     if (!question) return null;
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent showCloseButton={false} className="max-w-3xl border-border bg-background rounded-xl p-0 max-h-[90vh] flex flex-col overflow-hidden">
-                <DialogHeader className="p-6 border-b border-border bg-muted/5 flex-shrink-0">
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent showCloseButton={false} className="w-full sm:w-[800px] !max-w-[800px] border-l border-border/50 bg-background p-0 h-full flex flex-col shadow-2xl">
+                <SheetHeader className="p-6 border-b border-border bg-muted/5 flex-shrink-0">
                     <div className="flex items-start justify-between">
                         <div className="space-y-1">
-                            <DialogTitle className="text-xl font-bold">
+                            <SheetTitle>
                                 Chi tiết câu hỏi
-                            </DialogTitle>
-                            <DialogDescription className="text-xs font-medium text-muted-foreground flex items-center gap-2 mt-1">
+                            </SheetTitle>
+                            <SheetDescription>
                                 <span className="px-1.5 py-0.5 bg-muted rounded font-mono text-[10px]">ID: {question.id}</span>
-                            </DialogDescription>
+                            </SheetDescription>
                         </div>
                         <Button
                             variant="ghost"
@@ -48,7 +48,7 @@ export function ViewQuestionDialog({
                             <X className="h-4 w-4" />
                         </Button>
                     </div>
-                </DialogHeader>
+                </SheetHeader>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     {/* Status Bar */}
@@ -223,7 +223,7 @@ export function ViewQuestionDialog({
                         </div>
                     )}
                 </div>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

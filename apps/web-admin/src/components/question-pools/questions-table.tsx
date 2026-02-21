@@ -10,7 +10,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@workspace/ui/components/dropdown-menu';
-import { MoreHorizontal, Pencil, Trash, Eye, Inbox } from 'lucide-react';
+import { MoreVertical, Pencil, Trash, Eye, Inbox } from 'lucide-react';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -119,7 +119,7 @@ export function QuestionsTable({
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="size-8 rounded-lg hover:bg-muted opacity-40 group-hover:opacity-100 transition-opacity">
-                                        <MoreHorizontal className="size-4" />
+                                        <MoreVertical className="size-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl min-w-[160px] p-1.5">

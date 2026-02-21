@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+    SheetFooter,
+} from '@workspace/ui/components/sheet';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
@@ -17,27 +17,25 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Save, Info } from 'lucide-react';
+import { Loader2, Plus, Info } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useUpdateQuestionPool } from '@/api/services/question-pools.ts';
+import { useCreateQuestionPool } from '@/api/services/question-pools.ts';
 import { useCourses } from '@/api/services/courses.ts';
 import {
     QuestionJlptLevel,
-    questionPoolUpdateDTOSchema,
-    type QuestionPoolResponseDTO,
+    questionPoolCreateDTOSchema,
 } from '@workspace/schemas';
 import type { z } from 'zod';
 
-type UpdateQuestionPoolFormData = z.input<typeof questionPoolUpdateDTOSchema>;
+type CreateQuestionPoolFormData = z.input<typeof questionPoolCreateDTOSchema>;
 
-interface EditQuestionPoolDialogProps {
+interface CreateQuestionPoolDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    pool: QuestionPoolResponseDTO | null;
 }
 
-export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestionPoolDialogProps) {
-    const updatePool = useUpdateQuestionPool();
+export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionPoolDialogProps) {
+    const createPool = useCreateQuestionPool();
     const { data: coursesData } = useCourses({ page: 1, limit: 100 });
 
     const {
@@ -45,8 +43,8 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
         handleSubmit,
         reset,
         watch,
-    } = useForm<UpdateQuestionPoolFormData>({
-        resolver: zodResolver(questionPoolUpdateDTOSchema),
+    } = useForm<CreateQuestionPoolFormData>({
+        resolver: zodResolver(questionPoolCreateDTOSchema),
         defaultValues: {
             name: '',
             description: '',
@@ -59,47 +57,30 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
     const selectedCourseId = watch('courseId');
     const selectedCourse = coursesData?.data?.find(c => c.id === selectedCourseId);
 
-    useEffect(() => {
-        if (pool) {
-            reset({
-                name: pool.name,
-                description: pool.description || '',
-                courseId: pool.courseId || undefined,
-                lessonId: pool.lessonId || undefined,
-                jlptLevel: pool.jlptLevel as QuestionJlptLevel || undefined,
-            });
-        }
-    }, [pool, reset]);
-
-    const onSubmit = async (data: UpdateQuestionPoolFormData) => {
-        if (!pool) return;
-
+    const onSubmit = async (data: CreateQuestionPoolFormData) => {
         try {
-            await updatePool.mutateAsync({ id: pool.id, pool: data });
+            await createPool.mutateAsync(data);
             toast.success('Thành công', {
-                description: 'Đã cập nhật thông tin kho đề câu hỏi.'
+                description: 'Đã tạo kho đề câu hỏi mới vào hệ thống.'
             });
+            reset();
             onOpenChange(false);
         } catch (error: any) {
             toast.error('Thất bại', {
-                description: error.response?.data?.message || 'Không thể cập nhật kho đề lúc này.'
+                description: error.response?.data?.message || 'Không thể tạo kho đề mới lúc này.'
             });
         }
     };
 
-    if (!pool) return null;
-
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl border-border bg-background rounded-xl p-0 max-h-[90vh] overflow-hidden flex flex-col">
-                <DialogHeader className="p-6 border-b border-border bg-muted/5">
-                    <DialogTitle className="text-xl font-bold">
-                        Chỉnh sửa Kho đề
-                    </DialogTitle>
-                    <DialogDescription className="text-sm text-muted-foreground mt-1">
-                        Cập nhật các thông tin và thuộc tính liên kết của kho đề.
-                    </DialogDescription>
-                </DialogHeader>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+                <SheetHeader>
+                    <SheetTitle>Tạo Kho đề mới</SheetTitle>
+                    <SheetDescription>
+                        Thiết lập các thông tin cơ bản cho kho lưu trữ câu hỏi.
+                    </SheetDescription>
+                </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto flex-1">
                     <div className="p-6 space-y-6">
@@ -111,7 +92,7 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                     <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Tên Kho đề *</FieldLabel>
                                     <Input
                                         {...field}
-                                        placeholder="Nhập tên kho đề..."
+                                        placeholder="Ví dụ: Từ vựng N5 - Bài 1"
                                         className="h-10 rounded-xl bg-background border-border hover:border-primary/50 transition-all text-sm"
                                     />
                                     {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
@@ -127,7 +108,7 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                     <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Mô tả tóm tắt</FieldLabel>
                                     <Textarea
                                         {...field}
-                                        placeholder="Nhập mô tả cho kho đề..."
+                                        placeholder="Nhập mô tả ngắn gọn về kho đề này..."
                                         className="min-h-[100px] rounded-xl bg-background border-border hover:border-primary/50 transition-all text-sm resize-none"
                                     />
                                     {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
@@ -189,38 +170,40 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                             <div className="p-3 bg-primary/5 rounded-xl border border-primary/10 flex items-start gap-3">
                                 <Info className="size-4 text-primary mt-0.5" />
                                 <div className="space-y-0.5">
-                                    <p className="text-xs font-bold text-primary uppercase tracking-wider">Khóa học hiện tại</p>
+                                    <p className="text-xs font-bold text-primary uppercase tracking-wider">Thông tin khóa học</p>
                                     <p className="text-sm text-foreground font-medium">{selectedCourse.title}</p>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <div className="p-6 border-t border-border bg-muted/5 flex justify-end gap-3 shrink-0">
+                    <SheetFooter>
                         <Button
                             type="button"
                             variant="outline"
-                            className="rounded-xl h-10 px-6 font-semibold"
-                            onClick={() => onOpenChange(false)}
+                            onClick={() => {
+                                reset();
+                                onOpenChange(false);
+                            }}
                         >
                             Hủy
                         </Button>
-                        <Button type="submit" disabled={updatePool.isPending} className="rounded-xl h-10 px-8 font-semibold shadow-sm">
-                            {updatePool.isPending ? (
+                        <Button type="submit" disabled={createPool.isPending}>
+                            {createPool.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Đang lưu...
+                                    Đang tạo...
                                 </>
                             ) : (
                                 <>
-                                    <Save className="mr-2 h-4 w-4" />
-                                    Lưu thay đổi
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Khởi tạo kho đề
                                 </>
                             )}
                         </Button>
-                    </div>
+                    </SheetFooter>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

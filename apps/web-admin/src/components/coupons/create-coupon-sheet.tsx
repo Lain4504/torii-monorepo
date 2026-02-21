@@ -30,7 +30,7 @@ interface CreateCouponSheetProps {
 
 export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps) {
     const createMutation = useCreateCoupon();
-    
+
     // Default validUntil = 30 days from now
     const defaultValidUntil = new Date();
     defaultValidUntil.setDate(defaultValidUntil.getDate() + 30);
@@ -96,7 +96,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:max-w-[600px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background space-y-0">
+            <SheetContent className="w-full sm:w-[600px] !max-w-[600px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background space-y-0">
                 <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5">
                     <div className="relative flex items-center gap-4">
                         <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
@@ -145,7 +145,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                         {errors.name && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.name.message}</FieldError>}
                                     </Field>
                                 </div>
-                                
+
                                 <Field>
                                     <FieldLabel htmlFor="description" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
                                         Mô Tả
@@ -223,7 +223,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                         <p className="text-[10px] text-muted-foreground mt-1.5 ml-1">Để trống nếu không giới hạn số tiền giảm.</p>
                                     </Field>
                                 )}
-                                
+
                                 <Field>
                                     <FieldLabel htmlFor="minOrderAmount" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
                                         Đơn Hàng Tối Thiểu (VND)
@@ -280,7 +280,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                 <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">
                                     Thời Gian Hiệu Lực
                                 </h3>
-                                
+
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
                                         <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
@@ -316,22 +316,18 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-8 py-6 bg-background border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
+                    <SheetFooter>
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={handleClose}
-                            disabled={createMutation.isPending}
-                            className="rounded-xl h-11 px-6 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 hover:text-foreground hover:bg-muted/10 group transition-all"
-                        >
+                            disabled={createMutation.isPending}>
                             <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
                             Hủy Bỏ
                         </Button>
                         <Button
                             type="submit"
-                            disabled={createMutation.isPending || !isDirty}
-                            className="rounded-xl h-11 px-8 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
-                        >
+                            disabled={createMutation.isPending || !isDirty}>
                             {createMutation.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

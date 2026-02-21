@@ -3,7 +3,7 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 
-import { ArrowUpDown, Pencil, Trash, UserCircle, Mail, Clock, ShieldIcon } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, UserCircle, Mail, Clock, MoreVertical } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -219,7 +219,7 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                                 className="h-8 w-8 p-0 rounded-md border-transparent hover:bg-muted transition-all"
                             >
                                 <span className="sr-only">Menu thao tác</span>
-                                <ShieldIcon className="h-4 w-4 text-muted-foreground" />
+                                <MoreVertical className="h-4 w-4 text-muted-foreground" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent

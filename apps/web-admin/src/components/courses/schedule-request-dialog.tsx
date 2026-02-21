@@ -108,7 +108,7 @@ export function ScheduleRequestDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] rounded-[2rem] border-none shadow-2xl">
+            <DialogContent className="w-[95vw] sm:w-[500px] !max-w-[500px] rounded-[2rem] border-none shadow-2xl">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-sans font-black italic uppercase tracking-tight text-primary">
                         Yêu Cầu Thay Đổi Lịch

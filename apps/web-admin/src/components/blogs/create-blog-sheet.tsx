@@ -168,12 +168,12 @@ export function CreateBlogSheet({
             };
 
             await createBlog.mutateAsync(dto);
-            toast.success('Article Initialized', {
-                description: 'Blog structure established. Content can now be published.',
+            toast.success('Đã tạo bài viết', {
+                description: 'Cấu trúc bài viết đã được tạo. Giờ có thể xuất bản nội dung.',
             });
             handleClose();
         } catch (error: any) {
-            toast.error('Initialization Failed', {
+            toast.error('Tạo bài viết thất bại', {
                 description: error.response?.data?.error || error.message,
             });
         } finally {
@@ -192,7 +192,7 @@ export function CreateBlogSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
                 <SheetHeader className="px-6 py-6 border-b border-border">
                     <div className="flex items-center gap-4">
                         <div className="p-3 rounded-xl bg-primary/10 text-primary">
@@ -346,7 +346,7 @@ export function CreateBlogSheet({
                                                 id={field.name}
                                                 {...field}
                                                 value={field.value || ''}
-                                                placeholder="Blog, News, Tutorial (ngăn cách bởi dấu phẩy)"
+                                                placeholder="Ví dụ: Blog, Tin tức, Hướng dẫn (ngăn cách bởi dấu phẩy)"
                                                 className="h-10"
                                                 aria-invalid={fieldState.invalid}
                                             />
@@ -384,8 +384,7 @@ export function CreateBlogSheet({
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={removeCoverImage}
-                                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                >
+                                                    className="text-destructive hover:text-destructive hover:bg-destructive/10">
                                                     <X className="h-4 w-4" />
                                                 </Button>
                                             )}
@@ -395,7 +394,7 @@ export function CreateBlogSheet({
                                             <div className="relative rounded-lg overflow-hidden border border-border/50 aspect-video w-full max-w-sm">
                                                 <img
                                                     src={coverImagePreview || ''}
-                                                    alt="Preview"
+                                                    alt="Bản xem trước"
                                                     className="w-full h-full object-cover"
                                                 />
                                             </div>
@@ -407,21 +406,17 @@ export function CreateBlogSheet({
                     </ScrollArea>
 
                     {/* Footer */}
-                    <SheetFooter className="px-6 py-4 bg-background border-t border-border flex flex-row items-center justify-between gap-4">
+                    <SheetFooter>
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={handleClose}
-                            disabled={uploading}
-                            className="h-10 px-6"
-                        >
+                            disabled={uploading}>
                             Hủy bỏ
                         </Button>
                         <Button
                             type="submit"
-                            disabled={uploading || createBlog.isPending}
-                            className="h-10 px-8 bg-primary text-primary-foreground font-semibold shadow-sm hover:translate-y-0"
-                        >
+                            disabled={uploading || createBlog.isPending}>
                             {uploading || createBlog.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

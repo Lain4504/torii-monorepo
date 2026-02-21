@@ -4,13 +4,13 @@ import { useReviews, useReview } from '@/api/services/reviews';
 import { Button } from '@workspace/ui/components/button';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+} from '@workspace/ui/components/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 import { formatDateTime } from '@/lib/format-utils';
 import { Loader2, Star, Info } from 'lucide-react';
@@ -99,16 +99,16 @@ export default function CourseReviewsPage() {
             </div>
 
             {/* Detail View Dialog */}
-            <Dialog open={viewDialogOpen} onOpenChange={handleOpenChange}>
-                <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                        <DialogTitle>Chi tiết đánh giá</DialogTitle>
-                        <DialogDescription>
+            <Sheet open={viewDialogOpen} onOpenChange={handleOpenChange}>
+                <SheetContent className="w-full sm:w-[500px] !max-w-[500px] border-l border-border/50 shadow-2xl bg-background p-0 h-full flex flex-col">
+                    <SheetHeader className="p-6 border-b border-border/10 shrink-0">
+                        <SheetTitle>Chi tiết đánh giá</SheetTitle>
+                        <SheetDescription>
                             Xem nội dung đầy đủ của đánh giá
-                        </DialogDescription>
-                    </DialogHeader>
+                        </SheetDescription>
+                    </SheetHeader>
 
-                    <div className="py-2">
+                    <div className="p-6 flex-1 overflow-y-auto">
                         {isLoadingDetail ? (
                             <div className="flex flex-col items-center justify-center py-10 gap-2">
                                 <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
@@ -178,13 +178,13 @@ export default function CourseReviewsPage() {
                         )}
                     </div>
 
-                    <DialogFooter>
+                    <SheetFooter className="p-6 border-t border-border/10 shrink-0 bg-muted/5">
                         <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
                             Đóng
                         </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

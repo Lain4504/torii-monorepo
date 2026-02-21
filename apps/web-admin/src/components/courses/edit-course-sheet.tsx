@@ -21,7 +21,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { BookOpen, Users, Calendar, Save, Film, X, ImageIcon } from 'lucide-react';
+import { Users, Calendar, Save, Film, X, ImageIcon } from 'lucide-react';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { courseUpdateDTOSchema, type CourseUpdateDTO, JlptLevel } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
@@ -170,21 +170,14 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
-                <SheetHeader className="px-8 py-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
-                    <div className="relative flex items-center justify-between z-10">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
-                                <BookOpen className="h-6 w-6" />
-                            </div>
-                            <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase">
-                                    Chỉnh Sửa Khóa Học
-                                </SheetTitle>
-                                <SheetDescription className="text-xs font-medium text-muted-foreground/60 leading-relaxed">
-                                    Cập nhật thông tin chi tiết và cấu hình khóa học.
-                                </SheetDescription>
-                            </div>
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+                <SheetHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <SheetTitle>Chỉnh Sửa Khóa Học</SheetTitle>
+                            <SheetDescription>
+                                Cập nhật thông tin chi tiết và cấu hình khóa học.
+                            </SheetDescription>
                         </div>
                         <Badge
                             variant="secondary"
@@ -252,7 +245,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                 id={field.name}
                                                 {...field}
                                                 placeholder="Nhập tên khóa học..."
-                                                className="h-11 px-4 rounded-xl border-border bg-background hover:bg-muted/5 focus-visible:ring-primary/20 transition-all font-semibold text-sm"
+                                                className="mt-1"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
@@ -272,7 +265,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                 id={field.name}
                                                 {...field}
                                                 placeholder="Nhập mô tả chi tiết khóa học..."
-                                                className="min-h-[120px] rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
+                                                className="mt-1 resize-none"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
@@ -296,7 +289,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     disabled={isFree}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="0.00"
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
+                                                    className="mt-1 font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
                                                     aria-invalid={fieldState.invalid}
                                                 />
                                                 <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
@@ -313,7 +306,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     Trình Độ JLPT
                                                 </FieldLabel>
                                                 <Select value={field.value || ''} onValueChange={field.onChange}>
-                                                    <SelectTrigger id={field.name} className="h-11 px-4 rounded-xl border-border bg-background hover:bg-muted/5 focus:ring-primary/20 transition-all font-medium text-sm" aria-invalid={fieldState.invalid}>
+                                                    <SelectTrigger id={field.name} className="mt-1" aria-invalid={fieldState.invalid}>
                                                         <SelectValue placeholder="Chọn Trình Độ" />
                                                     </SelectTrigger>
                                                     <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
@@ -340,7 +333,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                 id={field.name}
                                                 {...field}
                                                 placeholder="Tóm tắt ngắn gọn hiển thị trên thẻ..."
-                                                className="min-h-[80px] rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
+                                                className="mt-1 resize-none"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
@@ -358,7 +351,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     Loại Khóa Học
                                                 </FieldLabel>
                                                 <Select value={field.value || ''} onValueChange={field.onChange}>
-                                                    <SelectTrigger id={field.name} className="h-11 px-4 rounded-xl border-border bg-background hover:bg-muted/5 focus:ring-primary/20 transition-all font-medium text-sm" aria-invalid={fieldState.invalid}>
+                                                    <SelectTrigger id={field.name} className="mt-1" aria-invalid={fieldState.invalid}>
                                                         <SelectValue placeholder="Chọn loại khóa học" />
                                                     </SelectTrigger>
                                                     <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
@@ -379,7 +372,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                 <FieldLabel htmlFor="isFree" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
                                                     Giá Cả
                                                 </FieldLabel>
-                                                <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all"
+                                                <div className="flex items-center gap-3 mt-1 cursor-pointer"
                                                     onClick={() => {
                                                         const newValue = !field.value;
                                                         field.onChange(newValue);
@@ -399,7 +392,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                                 setValue('discountPrice', 0);
                                                             }
                                                         }}
-                                                        className="h-4 w-4 rounded border-border/60 text-primary focus:ring-primary/20 cursor-pointer accent-primary"
+                                                        className="mt-1 h-4 w-4 rounded border-border/60 text-primary focus:ring-primary/20 cursor-pointer accent-primary"
                                                     />
                                                     <span className="text-xs font-medium text-foreground/80">
                                                         Truy cập mở / Khóa học miễn phí
@@ -426,7 +419,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     disabled={isFree}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="0.00"
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
+                                                    className="mt-1 font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
                                                     aria-invalid={fieldState.invalid}
                                                 />
                                                 <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
@@ -450,7 +443,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     max="26"
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="Tối đa 26 tuần (6 tháng)"
-                                                    className="h-11 px-4 rounded-xl border-border bg-background hover:bg-muted/5 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
+                                                    className="mt-1 font-mono"
                                                     aria-invalid={fieldState.invalid}
                                                 />
                                                 <p className="text-[10px] text-muted-foreground/60 mt-1 ml-1 px-1">
@@ -480,15 +473,15 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     {...field}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                                                     placeholder="1-6 tháng (mặc định 6)"
-                                                    className="h-11 px-4 rounded-xl border-border bg-background hover:bg-muted/5 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
+                                                    className="mt-1 font-mono"
                                                 />
                                                 <p className="text-[10px] text-muted-foreground/60 mt-1 ml-1 px-1 leading-relaxed">
-                                                    Hạn truy cập cho học viên. Mặc định là 6 tháng. <br/>
+                                                    Hạn truy cập cho học viên. Mặc định là 6 tháng. <br />
                                                     Học viên cần gia hạn nếu muốn xem lại sau thời gian này.
                                                 </p>
                                                 {watch('durationWeeks') && watch('expirationMonths') && (watch('expirationMonths') as any) < Math.ceil((watch('durationWeeks') || 0) / 4) && (
                                                     <p className="text-[10px] text-amber-500 font-medium mt-1 ml-1 animate-pulse">
-                                                         Cảnh báo: Thời gian truy cập ngắn hơn thời lượng nội dung!
+                                                        Cảnh báo: Thời gian truy cập ngắn hơn thời lượng nội dung!
                                                     </p>
                                                 )}
                                                 <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
@@ -516,7 +509,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                             id={field.name}
                                                             type="datetime-local"
                                                             {...field}
-                                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                            className="mt-1"
                                                         />
                                                     </Field>
                                                 )}
@@ -533,7 +526,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                             id={field.name}
                                                             type="datetime-local"
                                                             {...field}
-                                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                            className="mt-1"
                                                         />
                                                     </Field>
                                                 )}
@@ -551,7 +544,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         id={field.name}
                                                         type="datetime-local"
                                                         {...field}
-                                                        className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                        className="mt-1"
                                                     />
                                                     <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
                                                 </Field>
@@ -589,7 +582,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         )
                                                     }
                                                     placeholder="ví dụ: JLPT, Ngữ pháp, Sơ cấp (phân cách bằng dấu phẩy)"
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all"
+                                                    className="mt-1"
                                                 />
                                             </Field>
                                         )}
@@ -616,7 +609,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     }
                                                     placeholder="Nhập mỗi mục tiêu một dòng..."
                                                     rows={4}
-                                                    className="rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
+                                                    className="mt-1 resize-none"
                                                 />
                                             </Field>
                                         )}
@@ -643,7 +636,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     }
                                                     placeholder="Nhập mỗi yêu cầu một dòng..."
                                                     rows={4}
-                                                    className="rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
+                                                    className="mt-1 resize-none"
                                                 />
                                             </Field>
                                         )}
@@ -672,7 +665,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         type="file"
                                                         accept="image/*"
                                                         onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                                                        className="h-11 px-4 pt-2 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-xs font-medium file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
+                                                        className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
                                                     />
                                                     <ImageIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
                                                 </div>
@@ -682,8 +675,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => setThumbnailFile(null)}
-                                                        className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10"
-                                                    >
+                                                        className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
                                                         <X className="h-4 w-4" />
                                                     </Button>
                                                 )}
@@ -714,7 +706,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         type="file"
                                                         accept="video/*"
                                                         onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                                                        className="h-11 px-4 pt-2 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-xs font-medium file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
+                                                        className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
                                                     />
                                                     <Film className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
                                                 </div>
@@ -724,8 +716,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => setVideoFile(null)}
-                                                        className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10"
-                                                    >
+                                                        className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
                                                         <X className="h-4 w-4" />
                                                     </Button>
                                                 )}
@@ -753,21 +744,18 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="flex-shrink-0 px-8 py-6 border-t border-border/10 bg-background flex flex-row items-center justify-between gap-4 relative z-20">
+                    <SheetFooter>
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
-                            className="flex-1 rounded-xl h-11 bg-background border border-border text-[10px] font-bold uppercase tracking-wider hover:bg-muted/5 transition-all text-muted-foreground/80 hover:text-foreground"
-                        >
+                            className="flex-1 rounded-xl h-11 bg-background border border-border text-[10px] font-bold uppercase tracking-wider hover:bg-muted/5 transition-all text-muted-foreground/80 hover:text-foreground">
                             <X className="mr-2 h-3.5 w-3.5" />
                             Hủy Bỏ
                         </Button>
                         <Button
                             type="submit"
-                            disabled={uploading || (!isDirty && !thumbnailFile && !videoFile)}
-                            className="flex-1 rounded-xl h-11 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
-                        >
+                            disabled={uploading || (!isDirty && !thumbnailFile && !videoFile)}>
                             {uploading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

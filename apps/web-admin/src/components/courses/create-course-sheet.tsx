@@ -20,7 +20,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Image as ImageIcon, Film, BookOpen, X, UploadCloud } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Film, X, UploadCloud } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
@@ -162,21 +162,12 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background space-y-0">
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5">
-                    <div className="relative flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
-                            <BookOpen className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase">
-                                Tạo Khóa Học Mới
-                            </SheetTitle>
-                            <SheetDescription className="text-xs font-medium text-muted-foreground/60">
-                                Nhập thông tin chi tiết khóa học và chương trình giảng dạy bên dưới.
-                            </SheetDescription>
-                        </div>
-                    </div>
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background space-y-0">
+                <SheetHeader>
+                    <SheetTitle>Tạo Khóa Học Mới</SheetTitle>
+                    <SheetDescription>
+                        Nhập thông tin chi tiết khóa học và chương trình giảng dạy bên dưới.
+                    </SheetDescription>
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative">
@@ -201,7 +192,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                         id="title"
                                         {...register('title')}
                                         placeholder="Nhập tên khóa học..."
-                                        className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-semibold placeholder:text-muted-foreground/30 transition-all"
+                                        className="mt-1"
                                     />
                                     {errors.title && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.title.message}</FieldError>}
                                 </Field>
@@ -215,7 +206,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                         {...register('description')}
                                         placeholder="Nhập mô tả chi tiết khóa học..."
                                         rows={4}
-                                        className="rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
+                                        className="mt-1 resize-none"
                                     />
                                     {errors.description && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.description.message}</FieldError>}
                                 </Field>
@@ -233,7 +224,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             {...register('price', { valueAsNumber: true })}
                                             disabled={isFree}
                                             placeholder="0.00"
-                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
+                                            className="mt-1 font-mono tracking-tight"
                                         />
                                         {errors.price && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.price.message}</FieldError>}
                                     </Field>
@@ -247,7 +238,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             control={control}
                                             render={({ field }) => (
                                                 <Select value={field.value || ''} onValueChange={field.onChange}>
-                                                    <SelectTrigger id="jlptLevel" className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus:ring-primary/20 text-sm font-medium transition-all">
+                                                    <SelectTrigger id="jlptLevel" className="mt-1">
                                                         <SelectValue placeholder="Chọn Trình Độ" />
                                                     </SelectTrigger>
                                                     <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
@@ -274,7 +265,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             {...register('shortDescription')}
                                             placeholder="Tóm tắt ngắn gọn hiển thị trên thẻ..."
                                             rows={3}
-                                            className="rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
+                                            className="mt-1 resize-none"
                                         />
                                         {errors.shortDescription && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.shortDescription.message}</FieldError>}
                                     </Field>
@@ -318,7 +309,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             {...register('discountPrice', { valueAsNumber: true })}
                                             disabled={isFree}
                                             placeholder="0.00"
-                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-bold placeholder:text-muted-foreground/30 transition-all font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
+                                            className="mt-1 font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
                                         />
                                         {errors.discountPrice && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.discountPrice.message}</FieldError>}
                                     </Field>
@@ -334,7 +325,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             max="26"
                                             {...register('durationWeeks', { valueAsNumber: true })}
                                             placeholder="Tối đa 26 tuần (6 tháng)"
-                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all font-mono"
+                                            className="mt-1 font-mono"
                                         />
                                         <p className="text-[10px] text-muted-foreground/60 mt-1.5 ml-1">
                                             Thời lượng nội dung chương trình học.
@@ -355,10 +346,10 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             max="6"
                                             {...register('expirationMonths' as any, { valueAsNumber: true })}
                                             placeholder="1-6 tháng (mặc định 6)"
-                                            className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all font-mono"
+                                            className="mt-1 font-mono"
                                         />
                                         <p className="text-[10px] text-muted-foreground/60 mt-1.5 ml-1 leading-relaxed">
-                                            Hạn truy cập mặc định cho mô hình "Mua cả khóa". <br/>
+                                            Hạn truy cập mặc định cho mô hình "Mua cả khóa". <br />
                                             Học viên cần gia hạn nếu muốn xem lại sau thời gian này.
                                         </p>
                                         {watch('durationWeeks') && watch('expirationMonths') && (watch('expirationMonths') as any) < Math.ceil((watch('durationWeeks') || 0) / 4) && (
@@ -395,7 +386,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     id="expiresAt"
                                                     type="datetime-local"
                                                     {...register('expiresAt' as any)}
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                    className="mt-1"
                                                 />
                                             </Field>
                                         </div>
@@ -407,7 +398,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                 id="registrationClosedAt"
                                                 type="datetime-local"
                                                 {...register('registrationClosedAt' as any)}
-                                                className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                className="mt-1"
                                             />
                                         </Field>
                                     </div>
@@ -442,7 +433,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                                 setValue('discountPrice', 0);
                                                             }
                                                         }}
-                                                        className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
+                                                        className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
                                                     />
                                                     <span className="text-xs font-medium text-foreground/80">
                                                         Truy cập mở / Khóa học miễn phí
@@ -482,7 +473,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                         )
                                                     }
                                                     placeholder="ví dụ: JLPT, Ngữ pháp, Sơ cấp (phân cách bằng dấu phẩy)"
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all"
+                                                    className="mt-1"
                                                 />
                                             </Field>
                                         )}
@@ -509,7 +500,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     }
                                                     placeholder="Nhập mỗi mục tiêu một dòng..."
                                                     rows={4}
-                                                    className="rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
+                                                    className="mt-1 resize-none"
                                                 />
                                             </Field>
                                         )}
@@ -536,7 +527,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     }
                                                     placeholder="Nhập mỗi yêu cầu một dòng..."
                                                     rows={4}
-                                                    className="rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium placeholder:text-muted-foreground/30 transition-all resize-none p-4"
+                                                    className="mt-1 resize-none"
                                                 />
                                             </Field>
                                         )}
@@ -566,7 +557,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={handleThumbnailChange}
-                                                    className="h-11 px-4 pt-2 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-xs font-medium file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
+                                                    className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
                                                 />
                                                 <ImageIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
                                             </div>
@@ -576,8 +567,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => setThumbnailFile(null)}
-                                                    className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10"
-                                                >
+                                                    className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
                                                     <X className="h-4 w-4" />
                                                 </Button>
                                             )}
@@ -608,7 +598,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     type="file"
                                                     accept="video/*"
                                                     onChange={handleVideoChange}
-                                                    className="h-11 px-4 pt-2 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-xs font-medium file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
+                                                    className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
                                                 />
                                                 <Film className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
                                             </div>
@@ -618,8 +608,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => setVideoFile(null)}
-                                                    className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10"
-                                                >
+                                                    className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
                                                     <X className="h-4 w-4" />
                                                 </Button>
                                             )}
@@ -645,22 +634,18 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     </ScrollArea>
 
                     {/* Footer */}
-                    <SheetFooter className="px-8 py-6 bg-background border-t border-border/10 flex flex-row items-center justify-between gap-4 relative z-20 flex-shrink-0">
+                    <SheetFooter>
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={handleClose}
-                            disabled={uploading}
-                            className="rounded-xl h-11 px-6 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 hover:text-foreground hover:bg-muted/10 group transition-all"
-                        >
+                            disabled={uploading}>
                             <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
                             Hủy Bỏ
                         </Button>
                         <Button
                             type="submit"
-                            disabled={uploading || !isDirty}
-                            className="rounded-xl h-11 px-8 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
-                        >
+                            disabled={uploading || !isDirty}>
                             {uploading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

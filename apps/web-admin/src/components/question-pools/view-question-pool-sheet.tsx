@@ -1,14 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetFooter,
+} from '@workspace/ui/components/sheet';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { Separator } from '@workspace/ui/components/separator';
-import { Database, BookOpen, GraduationCap, Calendar, FileQuestion } from 'lucide-react';
+import { BookOpen, GraduationCap, Calendar, FileQuestion } from 'lucide-react';
 import type { QuestionPoolResponseDTO } from '@workspace/schemas';
 
 interface ViewQuestionPoolDialogProps {
@@ -29,14 +30,11 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl border border-border/50 shadow-2xl bg-background rounded-3xl p-0">
-                <DialogHeader className="p-8 pb-4 bg-muted/5 border-b border-border/10">
-                    <DialogTitle className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-                        <Database className="h-6 w-6 text-primary" />
-                        Pool Details
-                    </DialogTitle>
-                </DialogHeader>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+                <SheetHeader>
+                    <SheetTitle>Chi tiết Kho đề</SheetTitle>
+                </SheetHeader>
 
                 <div className="p-8 pt-4 space-y-6">
                     <div className="space-y-4">
@@ -96,35 +94,33 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-6 border-t border-border/10">
+                    <SheetFooter>
                         <Button
                             variant="ghost"
-                            className="rounded-xl h-12 px-6"
                             onClick={() => onOpenChange(false)}
                         >
-                            Close
+                            Đóng
                         </Button>
                         <Button
                             variant="outline"
-                            className="rounded-xl h-12 px-6"
                             onClick={() => {
                                 onOpenChange(false);
                                 onEdit(pool);
                             }}
                         >
-                            Edit
+                            Chỉnh sửa
                         </Button>
                         <Button
                             onClick={handleViewQuestions}
-                            className="rounded-xl h-12 px-8 flex items-center gap-2 font-semibold"
+                            className="flex items-center gap-2"
                         >
                             <FileQuestion className="h-4 w-4" />
-                            Questions
+                            Câu hỏi
                         </Button>
-                    </div>
+                    </SheetFooter>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }
 

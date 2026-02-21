@@ -3,12 +3,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { FileUpload } from '@/components/common/file-upload';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+    SheetFooter,
+} from '@workspace/ui/components/sheet';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
@@ -18,9 +19,9 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Plus, X, BrainCircuit, FileText, CheckCircle2, AlignLeft, Headphones } from 'lucide-react';
+import { Loader2, Save, X, BrainCircuit, FileText, CheckCircle2, AlignLeft, Headphones, Plus } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateQuestion } from '@/api/services/questions.ts';
+import { useUpdateQuestion } from '@/api/services/questions.ts';
 import { useQuestionPools } from '@/api/services/question-pools.ts';
 import {
     QuestionType,
@@ -29,19 +30,20 @@ import {
     QuestionJlptLevel,
     questionCreateDTOSchema,
     type QuestionCreateDTO,
+    type QuestionResponseDTO,
 } from '@workspace/schemas';
 import type { z } from 'zod';
 
-type CreateQuestionFormData = z.input<typeof questionCreateDTOSchema>;
+type EditQuestionFormData = z.input<typeof questionCreateDTOSchema>;
 
-interface CreateQuestionDialogProps {
+interface EditQuestionDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    defaultPoolId?: string;
+    question: QuestionResponseDTO | null;
 }
 
-export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: CreateQuestionDialogProps) {
-    const createQuestion = useCreateQuestion();
+export function EditQuestionDialog({ open, onOpenChange, question }: EditQuestionDialogProps) {
+    const updateQuestion = useUpdateQuestion();
     const { data: poolsData } = useQuestionPools({ page: 1, limit: 100 });
     const [options, setOptions] = useState<Record<string, string>>({ A: '', B: '' });
     const [optionKeys, setOptionKeys] = useState<string[]>(['A', 'B']);
@@ -51,7 +53,8 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
         handleSubmit,
         reset,
         watch,
-    } = useForm<CreateQuestionFormData>({
+        setValue,
+    } = useForm<EditQuestionFormData>({
         resolver: zodResolver(questionCreateDTOSchema),
         defaultValues: {
             questionText: '',
@@ -62,7 +65,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
             correctAnswer: '',
             explanation: '',
             tags: [],
-            poolId: defaultPoolId || undefined,
+            poolId: undefined,
         },
     });
 
@@ -70,22 +73,35 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
     const category = watch('category');
 
     useEffect(() => {
-        if (open) {
+        if (open && question) {
+            // Populate form
             reset({
-                questionText: '',
-                questionType: QuestionType.MULTIPLE_CHOICE,
-                jlptLevel: QuestionJlptLevel.N5,
-                category: QuestionCategory.VOCAB,
-                difficulty: QuestionDifficultyLevel.MEDIUM,
-                correctAnswer: '',
-                explanation: '',
-                tags: [],
-                poolId: defaultPoolId || undefined,
+                questionText: question.questionText || '',
+                questionType: question.questionType as QuestionType,
+                jlptLevel: question.jlptLevel as QuestionJlptLevel,
+                category: question.category as QuestionCategory,
+                difficulty: question.difficulty as QuestionDifficultyLevel,
+                correctAnswer: question.correctAnswer || '',
+                explanation: question.explanation || '',
+                tags: question.tags || [],
+                poolId: question.poolId || undefined,
             });
-            setOptions({ A: '', B: '' });
-            setOptionKeys(['A', 'B']);
+
+            // Set metadata/audio
+            if (question.metadata?.audioUrl) {
+                setValue('metadata.audioUrl', question.metadata.audioUrl);
+            }
+
+            // Populate options
+            if ((question.questionType === QuestionType.MULTIPLE_CHOICE || question.questionType === QuestionType.LISTENING) && question.options) {
+                setOptions(question.options as Record<string, string>);
+                setOptionKeys(Object.keys(question.options).sort());
+            } else {
+                setOptions({ A: '', B: '' });
+                setOptionKeys(['A', 'B']);
+            }
         }
-    }, [open, defaultPoolId, reset]);
+    }, [open, question, reset, setValue]);
 
     const addOption = () => {
         const nextKey = String.fromCharCode(65 + optionKeys.length);
@@ -95,7 +111,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
 
     const removeOption = (key: string) => {
         if (optionKeys.length <= 2) {
-            toast.error('Không thể thực hiện', { description: 'Câu hỏi trắc nghiệm cần tối thiểu 2 lựa chọn.' });
+            toast.error('Không thể thực hiện', { description: 'Câu hỏi cần tối thiểu 2 lựa chọn.' });
             return;
         }
         setOptionKeys(optionKeys.filter(k => k !== key));
@@ -104,36 +120,36 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
         setOptions(newOptions);
     };
 
-    const onSubmit = async (data: CreateQuestionFormData) => {
+    const onSubmit = async (data: EditQuestionFormData) => {
+        if (!question) return;
+
         try {
             const submitData: QuestionCreateDTO = {
                 ...data,
                 options: (questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) ? options : undefined,
             };
 
-            await createQuestion.mutateAsync(submitData);
+            await updateQuestion.mutateAsync({ id: question.id, question: submitData });
             toast.success('Thành công', {
-                description: 'Đã tạo câu hỏi mới thành công.',
+                description: 'Cập nhật câu hỏi thành công.',
             });
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Lỗi khởi tạo', {
-                description: error.response?.data?.message || 'Không thể lưu câu hỏi vào hệ thống.',
+            toast.error('Lỗi cập nhật', {
+                description: error.response?.data?.message || 'Không thể lưu thay đổi vào hệ thống.',
             });
         }
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl border-border bg-background rounded-xl p-0 max-h-[90vh] overflow-hidden flex flex-col">
-                <DialogHeader className="p-6 border-b border-border bg-muted/5">
-                    <DialogTitle className="text-xl font-bold">
-                        Tạo câu hỏi mới
-                    </DialogTitle>
-                    <DialogDescription className="text-sm text-muted-foreground mt-1">
-                        Thiết lập nội dung và các thuộc tính cho câu hỏi thi.
-                    </DialogDescription>
-                </DialogHeader>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="flex flex-col gap-0 p-0 sm:max-w-2xl overflow-hidden border-l border-border/10 shadow-2xl bg-background/95 backdrop-blur-xl">
+                <SheetHeader className="px-8 py-6 border-b border-border/10 bg-muted/5">
+                    <SheetTitle>Chỉnh sửa câu hỏi</SheetTitle>
+                    <SheetDescription>
+                        Cập nhật nội dung và các thuộc tính của câu hỏi này.
+                    </SheetDescription>
+                </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto flex-1">
                     <div className="p-6 space-y-6">
@@ -393,36 +409,35 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                             />
                         </div>
                     </div>
-
-                    <div className="p-6 border-t border-border bg-muted/5 flex justify-end gap-3 shrink-0">
+                    <SheetFooter className="p-6 border-t border-border/10 bg-muted/5 flex-row justify-end space-x-3">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
-                            className="rounded-xl h-10 px-6"
+                            className="rounded-xl h-10 px-6 font-semibold"
                         >
-                            Hủy
+                            Hủy bỏ
                         </Button>
                         <Button
                             type="submit"
-                            disabled={createQuestion.isPending}
-                            className="rounded-xl h-10 px-8 shadow-sm"
+                            disabled={updateQuestion.isPending}
+                            className="rounded-xl h-10 px-8 font-semibold shadow-sm text-background"
                         >
-                            {createQuestion.isPending ? (
+                            {updateQuestion.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Đang xử lý...
+                                    Đang lưu...
                                 </>
                             ) : (
                                 <>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Khởi tạo câu hỏi
+                                    <Save className="mr-2 h-4 w-4 text-background" />
+                                    Lưu thay đổi
                                 </>
                             )}
                         </Button>
-                    </div>
+                    </SheetFooter>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

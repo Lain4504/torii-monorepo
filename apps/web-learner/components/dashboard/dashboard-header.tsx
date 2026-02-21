@@ -81,63 +81,47 @@ export function DashboardHeader() {
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="rounded-2xl h-10 pl-1 pr-3 hover:bg-muted transition-all cursor-pointer border border-border/20 shadow-sm gap-2">
-                                <Avatar className="w-8 h-8 rounded-xl border border-border shadow-sm">
-                                    <AvatarImage src={user?.avatarUrl || undefined} />
-                                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                                        {user?.displayName?.[0] || 'U'}
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
+                                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                        {user?.displayName?.[0]?.toUpperCase() || 'U'}
                                     </AvatarFallback>
                                 </Avatar>
-                                <div className="hidden lg:block text-left">
-                                    <p className="text-sm font-bold text-foreground leading-none truncate max-w-[100px]">
-                                        {user?.displayName || 'Người dùng'}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                                        {user?.role === UserRole.LEARNER ? 'Học viên' : user?.role || 'Học viên'}
-                                    </p>
-                                </div>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 border-border bg-background shadow-lg animate-in slide-in-from-top-2 duration-200">
-                            <DropdownMenuLabel className="px-3 py-3">
-                                <div className="flex items-center gap-3">
-                                    <Avatar className="h-10 w-10 rounded-xl border border-border">
-                                        <AvatarImage src={user?.avatarUrl || undefined} />
-                                        <AvatarFallback className="rounded-xl bg-primary/10 text-primary text-xs font-bold">
-                                            {user?.displayName?.[0]?.toUpperCase() || "U"}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex flex-col gap-0.5">
-                                        <p className="text-sm font-bold text-foreground truncate">{user?.displayName}</p>
-                                        <p className="text-xs text-muted-foreground font-medium truncate">{user?.email}</p>
-                                    </div>
+                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                            <DropdownMenuLabel className="font-normal">
+                                <div className="flex flex-col space-y-1">
+                                    <p className="text-sm font-medium leading-none">{user?.displayName || 'Người dùng'}</p>
+                                    <p className="text-xs leading-none text-muted-foreground">
+                                        {user?.email || (user?.role === UserRole.LEARNER ? 'Học viên' : user?.role || 'Học viên')}
+                                    </p>
                                 </div>
                             </DropdownMenuLabel>
-                            <DropdownMenuSeparator className="bg-border mx-2" />
-                            <DropdownMenuGroup className="p-1 space-y-1">
-                                <DropdownMenuItem className="rounded-xl px-3 py-2.5 cursor-pointer focus:bg-primary/5 focus:text-primary transition-colors" onClick={() => router.push('/dashboard/profile')}>
-                                    <BadgeCheck className="size-4 mr-3 opacity-70" />
-                                    Hồ sơ cá nhân
+                            <DropdownMenuSeparator />
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/dashboard/profile')}>
+                                    <BadgeCheck className="mr-2 size-4 text-muted-foreground" />
+                                    <span>Hồ sơ cá nhân</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="rounded-xl px-3 py-2.5 cursor-pointer focus:bg-primary/5 focus:text-primary transition-colors" onClick={() => router.push('/dashboard/notifications')}>
-                                    <Bell className="size-4 mr-3 opacity-70" />
-                                    Thông báo
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/dashboard/notifications')}>
+                                    <Bell className="mr-2 size-4 text-muted-foreground" />
+                                    <span>Thông báo</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="rounded-xl px-3 py-2.5 cursor-pointer focus:bg-primary/5 focus:text-primary transition-colors" onClick={() => router.push('/dashboard/wishlist')}>
-                                    <Heart className="size-4 mr-3 opacity-70" />
-                                    Wishlist
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/dashboard/wishlist')}>
+                                    <Heart className="mr-2 size-4 text-muted-foreground" />
+                                    <span>Khóa học yêu thích</span>
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
-                            <DropdownMenuSeparator className="bg-border mx-2" />
-                            <div className="p-1">
-                                <DropdownMenuItem
-                                    onClick={handleLogout}
-                                    className="rounded-xl px-3 py-2.5 text-destructive focus:bg-destructive/5 focus:text-destructive transition-colors cursor-pointer"
-                                >
-                                    <LogOut className="size-4 mr-3 opacity-70" />
-                                    Đăng xuất
-                                </DropdownMenuItem>
-                            </div>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onClick={handleLogout}
+                                className="cursor-pointer text-destructive focus:text-destructive"
+                            >
+                                <LogOut className="mr-2 size-4" />
+                                <span>Đăng xuất</span>
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

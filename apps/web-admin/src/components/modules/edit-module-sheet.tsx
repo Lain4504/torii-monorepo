@@ -98,7 +98,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] sm:max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
 
                 {/* Header Section with Ambient Glow */}
                 {/* Header Section */}
@@ -227,21 +227,18 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-6 py-6 border-t border-border/10 bg-background flex-shrink-0">
+                    <SheetFooter>
                         <div className="flex w-full gap-4">
                             <Button
                                 type="button"
                                 variant="ghost"
                                 onClick={() => onOpenChange(false)}
-                                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10"
-                            >
+                                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10">
                                 Hủy Bỏ
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={isSubmitting}
-                                className="flex-[2] h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
-                            >
+                                disabled={isSubmitting}>
                                 {isSubmitting ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

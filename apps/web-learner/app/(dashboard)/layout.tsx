@@ -48,20 +48,15 @@ export default function DashboardLayout({
 
     return (
         <SidebarProvider>
-            {/* Main Layout Container */}
-            <div className="flex min-h-screen w-full bg-background overflow-hidden">
-
-                <AppSidebar />
-
-                <SidebarInset className="relative z-10 flex flex-col bg-transparent">
-                    <DashboardHeader />
-                    <main className="flex-1 overflow-y-auto scrollbar-none">
-                        <div className="container mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-                            {children}
-                        </div>
-                    </main>
-                </SidebarInset>
-            </div>
+            <AppSidebar />
+            <SidebarInset>
+                <DashboardHeader />
+                <main className="flex-1 overflow-y-auto scrollbar-none bg-background">
+                    <div className="container mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+                        {children}
+                    </div>
+                </main>
+            </SidebarInset>
         </SidebarProvider>
     )
 }

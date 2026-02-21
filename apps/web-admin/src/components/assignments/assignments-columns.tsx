@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import {
-  MoreHorizontal,
+  MoreVertical,
   Pencil,
   Trash2,
   Send,
@@ -140,7 +140,7 @@ export const getAssignmentsColumns = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted/50 rounded-lg">
-                <MoreHorizontal className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px] rounded-xl border-border/10 bg-card/80 backdrop-blur-xl">

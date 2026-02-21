@@ -9,7 +9,7 @@ import {
     StopCircle,
     Video,
     Trash,
-    MoreHorizontal,
+    MoreVertical,
 } from 'lucide-react';
 import {
     useLiveSessions,
@@ -237,7 +237,7 @@ export default function CourseLiveSessionsPage() {
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                        <MoreHorizontal className="size-4" />
+                                                        <MoreVertical className="size-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">

@@ -52,7 +52,7 @@ export function QuestionDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-2xl border-l border-border bg-background p-0 flex flex-col h-full shadow-2xl">
+            <SheetContent className="w-full sm:w-[900px] !max-w-[900px] border-l border-border bg-background p-0 flex flex-col h-full shadow-2xl">
                 <SheetHeader className="p-8 border-b border-border bg-muted/5 space-y-4">
                     <div className="flex items-center justify-between">
                         <Badge variant="outline" className="rounded-full px-3 py-1 bg-primary/5 text-primary border-primary/20 text-[10px] font-bold tracking-widest uppercase">
