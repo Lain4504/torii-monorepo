@@ -38,7 +38,7 @@ export class SenseiHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.sensei.grammarCheck' },
-                    { userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -58,7 +58,7 @@ export class SenseiHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.sensei.translate' },
-                    { userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -78,7 +78,7 @@ export class SenseiHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.sensei.createFlashcard' },
-                    { userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -98,7 +98,7 @@ export class SenseiHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.sensei.generateDrill' },
-                    { userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -118,7 +118,7 @@ export class SenseiHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.sensei.simulateConversation' },
-                    { userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -138,7 +138,7 @@ export class SenseiHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.sensei.recommendResources' },
-                    { userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -158,7 +158,7 @@ export class SenseiHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.sensei.chat' },
-                    { userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -178,7 +178,7 @@ export class SenseiHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.sensei.roleplay' },
-                    { userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);

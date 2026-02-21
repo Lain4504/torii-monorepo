@@ -11,7 +11,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { agentApi, FlashcardResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentFlashcardResponseDTO as FlashcardResponse } from "@workspace/schemas"
 import { Card, CardContent } from "@workspace/ui/components/card"
 
 export function FlashcardGenerator() {

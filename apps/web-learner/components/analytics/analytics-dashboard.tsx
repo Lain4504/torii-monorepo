@@ -6,7 +6,9 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { ProgressChart } from "./progress-chart"
 import { StudyPath } from "./study-path"
-import { agentApi, ReadinessProfileResponse } from "@/apis/services/agent-api"
+import { cn } from "@workspace/ui/lib/utils"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentReadinessProfileResponseDTO as ReadinessProfileResponse } from "@workspace/schemas"
 
 export function AnalyticsDashboard() {
     const [progress, setProgress] = React.useState<any>(null)

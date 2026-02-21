@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AnalyticsService } from '@server/agents/modules';
-
+import { Requester } from '@workspace/schemas';
 
 /**
  * NATS Handler for Analytics Agent
@@ -15,12 +15,12 @@ export class AnalyticsHandler {
   async trackProgress(
     @Payload()
     data: {
-      userId: string;
+      requester: Requester;
       timeframe?: 'week' | 'month' | 'quarter' | 'year';
     },
   ) {
     return this.analyticsService.trackProgress(
-      data.userId,
+      data.requester.sub,
       data.timeframe || 'month',
     );
   }
@@ -29,13 +29,13 @@ export class AnalyticsHandler {
   async suggestStudyPath(
     @Payload()
     data: {
-      userId: string;
+      requester: Requester;
       targetLevel?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       timeframe?: string;
     },
   ) {
     return this.analyticsService.suggestStudyPath(
-      data.userId,
+      data.requester.sub,
       data.targetLevel || 'N5',
       data.timeframe,
     );
@@ -45,13 +45,13 @@ export class AnalyticsHandler {
   async generateReport(
     @Payload()
     data: {
-      userId: string;
+      requester: Requester;
       reportType?: 'progress' | 'assessment' | 'comprehensive';
       timeframe?: string;
     },
   ) {
     return this.analyticsService.generateReport(
-      data.userId,
+      data.requester.sub,
       data.reportType || 'comprehensive',
       data.timeframe || 'month',
     );
@@ -61,12 +61,12 @@ export class AnalyticsHandler {
   async getReadinessProfile(
     @Payload()
     data: {
-      userId: string;
+      requester: Requester;
       targetLevel?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
     },
   ) {
     return this.analyticsService.getReadinessProfile(
-      data.userId,
+      data.requester.sub,
       data.targetLevel || 'N5',
     );
   }

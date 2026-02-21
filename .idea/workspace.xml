@@ -4,7 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: improve course repository and service methods, add analytics handlers" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: improve course repository and service methods, add analytics handlers">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/agents.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/agents.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/interfaces/nats/analytics.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/interfaces/nats/assessment.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/interfaces/nats/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/interfaces/nats/sensei.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/agents/controllers/analytics.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/agents/controllers/analytics.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/agents/controllers/assessment.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/agents/controllers/assessment.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/agents/controllers/sensei.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/agents/controllers/sensei.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/chat-interface.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/chat-interface.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/analytics/analytics-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/analytics/analytics-dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/assessment-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/assessment-dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-test.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-test.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/test-runner.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/test-runner.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -382,15 +404,8 @@
       <workItem from="1770522694227" duration="28000" />
       <workItem from="1771656031608" duration="52000" />
       <workItem from="1771656283677" duration="780000" />
-      <workItem from="1771658110565" duration="1043000" />
-    </task>
-    <task id="LOCAL-00780" summary="update nats logic">
-      <option name="closed" value="true" />
-      <created>1770003991073</created>
-      <option name="number" value="00780" />
-      <option name="presentableId" value="LOCAL-00780" />
-      <option name="project" value="LOCAL" />
-      <updated>1770003991074</updated>
+      <workItem from="1771658110565" duration="1298000" />
+      <workItem from="1771661136662" duration="345000" />
     </task>
     <task id="LOCAL-00781" summary="update nats logic">
       <option name="closed" value="true" />
@@ -776,7 +791,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771658892653</updated>
     </task>
-    <option name="localTasksCounter" value="829" />
+    <task id="LOCAL-00829" summary="refactor: improve course repository and service methods, add analytics handlers">
+      <option name="closed" value="true" />
+      <created>1771659261712</created>
+      <option name="number" value="00829" />
+      <option name="presentableId" value="LOCAL-00829" />
+      <option name="project" value="LOCAL" />
+      <updated>1771659261712</updated>
+    </task>
+    <option name="localTasksCounter" value="830" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

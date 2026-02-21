@@ -1,12 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { BookCheck, GraduationCap, Clock, BarChart3, ArrowRight, Calendar } from "lucide-react"
+import { BookCheck, GraduationCap, Clock, BarChart3, ArrowRight, Calendar, Sparkles } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@workspace/ui/components/card"
 import { Progress } from "@workspace/ui/components/progress"
 import Link from "next/link"
-import { agentApi, ReadinessProfileResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentReadinessProfileResponseDTO as ReadinessProfileResponse } from "@workspace/schemas"
 
 export function AssessmentDashboard() {
     const [profile, setProfile] = React.useState<ReadinessProfileResponse | null>(null)
@@ -161,7 +162,7 @@ export function AssessmentDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/50 text-sm space-y-2">
-                            <p>{benchmark?.recommendations?.[0] || "You're doing great! Try focusing on your weak areas to improve further."}</p>
+                            <p>{profile?.recommendations?.[0] || "You're doing great! Try focusing on your weak areas to improve further."}</p>
                         </div>
                     </CardContent>
                     <CardFooter>

@@ -6,7 +6,8 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
-import { agentApi, PlacementTestResponse, PlacementEvaluationResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentTestGenerationResponseDTO as PlacementTestResponse, AgentTestEvaluationResponseDTO as PlacementEvaluationResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
 
@@ -116,7 +117,7 @@ export function PlacementTest() {
                                     <span className="flex-none bg-background border size-8 rounded-lg flex items-center justify-center text-sm font-bold shadow-sm text-muted-foreground">
                                         {i + 1}
                                     </span>
-                                    {q.content}
+                                    {q.question}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="pt-6">
@@ -162,18 +163,18 @@ export function PlacementTest() {
                     <div className="absolute top-0 right-0 p-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                     <CardHeader>
                         <CardDescription className="uppercase tracking-widest text-xs font-semibold text-primary">Recommended Level</CardDescription>
-                        <CardTitle className="text-6xl font-black text-primary py-2">{result.suggestedLevel}</CardTitle>
+                        <CardTitle className="text-6xl font-black text-primary py-2">{result.assessedLevel}</CardTitle>
                     </CardHeader>
                     <CardContent className="relative z-10">
                         <p className="text-lg leading-relaxed text-foreground/80 max-w-lg mx-auto">
-                            {result.analysis}
+                            {result.feedback}
                         </p>
                     </CardContent>
                     <CardFooter className="justify-center pb-8 relative z-10">
                         <Button
                             size="lg"
                             className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20"
-                            onClick={() => handleSelectLevel(result.suggestedLevel ?? 'N5')}
+                            onClick={() => handleSelectLevel(result.assessedLevel ?? 'N5')}
                             asChild
                         >
                             <Link href="/dashboard">

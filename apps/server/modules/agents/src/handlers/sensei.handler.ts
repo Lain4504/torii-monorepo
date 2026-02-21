@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SenseiService } from '@server/agents/modules';
 import { TTSService } from '@server/agents/modules/sensei/tts.service';
-
+import { Requester } from '@workspace/schemas';
 
 /**
  * NATS Handler for Sensei Agent
@@ -16,25 +16,25 @@ export class SenseiHandler {
   ) { }
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
-  async checkGrammar(@Payload() data: { text: string; userId: string }) {
-    return this.senseiService.checkGrammar(data.userId, data.text);
+  async checkGrammar(@Payload() data: { text: string; requester: Requester }) {
+    return this.senseiService.checkGrammar(data.requester.sub, data.text);
   }
 
   @MessagePattern({ cmd: 'agents.sensei.translate' })
   async translate(
     @Payload()
-    data: { text: string; from: string; to: string; userId: string },
+    data: { text: string; from: string; to: string; requester: Requester },
   ) {
-    return this.senseiService.translate(data.userId, data.text, data.from, data.to);
+    return this.senseiService.translate(data.requester.sub, data.text, data.from, data.to);
   }
 
   @MessagePattern({ cmd: 'agents.sensei.createFlashcard' })
   async createFlashcard(
     @Payload()
-    data: { topic: string; level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'; userId: string },
+    data: { topic: string; level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'; requester: Requester },
   ) {
     return this.senseiService.createFlashcard(
-      data.userId,
+      data.requester.sub,
       data.topic,
       data.level || 'N4',
     );
@@ -48,11 +48,11 @@ export class SenseiHandler {
       topic: string;
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       count?: number;
-      userId: string;
+      requester: Requester;
     },
   ) {
     return this.senseiService.generatePracticeDrill(
-      data.userId,
+      data.requester.sub,
       data.drillType,
       data.topic,
       data.level || 'N4',
@@ -67,11 +67,11 @@ export class SenseiHandler {
       scenario: 'restaurant' | 'shopping' | 'station' | 'office' | 'casual' | 'formal';
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       turns?: number;
-      userId: string;
+      requester: Requester;
     },
   ) {
     return this.senseiService.simulateConversation(
-      data.userId,
+      data.requester.sub,
       data.scenario,
       data.level || 'N4',
       data.turns || 4,
@@ -85,11 +85,11 @@ export class SenseiHandler {
       topic: string;
       resourceType?: 'article' | 'video' | 'book' | 'app' | 'website' | 'all';
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-      userId: string;
+      requester: Requester;
     },
   ) {
     return this.senseiService.recommendResources(
-      data.userId,
+      data.requester.sub,
       data.topic,
       data.resourceType || 'all',
       data.level,
@@ -102,11 +102,11 @@ export class SenseiHandler {
     data: {
       message: string;
       history: any[];
-      userId: string;
+      requester: Requester;
     },
   ) {
     return this.senseiService.chat(
-      data.userId,
+      data.requester.sub,
       data.message,
       data.history || [],
     );
@@ -116,7 +116,7 @@ export class SenseiHandler {
   async roleplay(
     @Payload()
     data: {
-      userId: string;
+      requester: Requester;
       topic: string;
       message: string;
       history: any[];
@@ -124,7 +124,7 @@ export class SenseiHandler {
     },
   ) {
     return this.senseiService.roleplay(
-      data.userId,
+      data.requester.sub,
       data.topic,
       data.message,
       data.history || [],

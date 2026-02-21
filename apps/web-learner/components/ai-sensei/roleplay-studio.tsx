@@ -6,7 +6,8 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
-import { agentApi, ConversationSimulationResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentConversationSimulationResponseDTO as ConversationSimulationResponse } from "@workspace/schemas"
 
 export function RoleplayStudio() {
     const [scenario, setScenario] = React.useState("")
@@ -124,7 +125,7 @@ export function RoleplayStudio() {
                                                 </p>
                                                 {isPracticeMode && <span className="absolute top-1/2 left-0 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none uppercase tracking-widest pl-2">Chạm để xem</span>}
                                             </div>
-                                            <p className="text-sm text-muted-foreground">{line.english}</p>
+                                            <p className="text-sm text-muted-foreground">{line.vietnamese}</p>
                                         </div>
                                     </div>
                                 ))}

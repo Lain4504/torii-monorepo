@@ -4,7 +4,8 @@ import * as React from "react"
 import { Languages, ArrowRightLeft, Loader2, Copy, Sparkles } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { agentApi, TranslateResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentTranslateResponseDTO as TranslateResponse } from "@workspace/schemas"
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 

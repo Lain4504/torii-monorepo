@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
-import { SenseiHandler, AssessmentHandler, AnalyticsHandler } from '@server/agents/interfaces/nats';
+import { SenseiHandler } from './handlers/sensei.handler';
+import { AssessmentHandler } from './handlers/assessment.handler';
+import { AnalyticsHandler } from './handlers/analytics.handler';
 import { SenseiModule, AssessmentModule, AnalyticsModule } from '@server/agents/modules';
 
 

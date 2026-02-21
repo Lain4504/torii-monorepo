@@ -34,7 +34,7 @@ export class AssessmentHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.assessment.generateTest' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -54,7 +54,7 @@ export class AssessmentHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.assessment.evaluateTest' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -74,7 +74,7 @@ export class AssessmentHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.assessment.placementTest' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -94,7 +94,7 @@ export class AssessmentHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.assessment.evaluatePlacement' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);

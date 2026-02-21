@@ -34,7 +34,7 @@ export class AnalyticsHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.analytics.trackProgress' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -54,7 +54,7 @@ export class AnalyticsHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.analytics.suggestStudyPath' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -74,7 +74,7 @@ export class AnalyticsHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.analytics.generateReport' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -94,7 +94,7 @@ export class AnalyticsHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.analytics.readinessProfile' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);

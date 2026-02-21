@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AssessmentService } from '@server/agents/modules';
-
+import { Requester } from '@workspace/schemas';
 
 /**
  * NATS Handler for Assessment Agent
@@ -18,11 +18,11 @@ export class AssessmentHandler {
       level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       section: 'vocabulary' | 'grammar' | 'reading' | 'listening' | 'full';
       questionCount?: number;
-      userId: string;
+      requester: Requester;
     },
   ) {
     return this.assessmentService.generateJlptTest(
-      data.userId,
+      data.requester.sub,
       data.level,
       data.section,
       data.questionCount || 10,
@@ -35,13 +35,27 @@ export class AssessmentHandler {
     data: {
       testId: string;
       answers: Array<{ questionId: string; userAnswer: string; correctAnswer: string }>;
-      userId: string;
+      requester: Requester;
     },
   ) {
     return this.assessmentService.evaluateTest(
-      data.userId,
+      data.requester.sub,
       data.testId,
       data.answers,
+    );
+  }
+
+  @MessagePattern({ cmd: 'agents.assessment.placementTest' })
+  async generatePlacementTest(
+    @Payload()
+    data: {
+      questionCount?: number;
+      requester: Requester;
+    },
+  ) {
+    return this.assessmentService.generatePlacementTest(
+      data.requester.sub,
+      data.questionCount || 15,
     );
   }
 
@@ -49,13 +63,13 @@ export class AssessmentHandler {
   async evaluatePlacementTest(
     @Payload()
     data: {
-      userId: string;
+      requester: Requester;
       testId: string;
       answers: any;
     },
   ) {
     return this.assessmentService.evaluatePlacementTest(
-      data.userId,
+      data.requester.sub,
       data.testId,
       data.answers,
     );
