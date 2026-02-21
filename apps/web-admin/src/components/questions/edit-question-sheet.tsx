@@ -143,12 +143,22 @@ export function EditQuestionDialog({ open, onOpenChange, question }: EditQuestio
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="flex flex-col gap-0 p-0 sm:max-w-2xl overflow-hidden border-l border-border/10 shadow-2xl bg-background/95 backdrop-blur-xl">
-                <SheetHeader className="px-8 py-6 border-b border-border/10 bg-muted/5">
-                    <SheetTitle>Chỉnh sửa câu hỏi</SheetTitle>
-                    <SheetDescription>
-                        Cập nhật nội dung và các thuộc tính của câu hỏi này.
-                    </SheetDescription>
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                                <Save className="size-4" />
+                            </div>
+                            <div className="space-y-0.5">
+                                <SheetTitle className="text-xl font-bold tracking-tight">Chỉnh Sửa Câu Hỏi</SheetTitle>
+                                <p className="text-xs font-medium text-muted-foreground/60 italic">Cập nhật dữ liệu tri thức hệ thống</p>
+                            </div>
+                        </div>
+                        <SheetDescription className="text-sm text-muted-foreground/80 leading-relaxed">
+                            Cập nhật lại nội dung, đáp án hoặc các thuộc tính liên kết của câu hỏi này.
+                        </SheetDescription>
+                    </div>
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto flex-1">
@@ -412,16 +422,16 @@ export function EditQuestionDialog({ open, onOpenChange, question }: EditQuestio
                     <SheetFooter className="p-6 border-t border-border/10 bg-muted/5 flex-row justify-end space-x-3">
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="ghost"
                             onClick={() => onOpenChange(false)}
-                            className="rounded-xl h-10 px-6 font-semibold"
+                            className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
                         >
                             Hủy bỏ
                         </Button>
                         <Button
                             type="submit"
                             disabled={updateQuestion.isPending}
-                            className="rounded-xl h-10 px-8 font-semibold shadow-sm text-background"
+                            className="h-11 px-8 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                         >
                             {updateQuestion.isPending ? (
                                 <>
@@ -430,7 +440,7 @@ export function EditQuestionDialog({ open, onOpenChange, question }: EditQuestio
                                 </>
                             ) : (
                                 <>
-                                    <Save className="mr-2 h-4 w-4 text-background" />
+                                    <Save className="mr-2 h-4 w-4" />
                                     Lưu thay đổi
                                 </>
                             )}

@@ -88,6 +88,8 @@ export class OrderService implements IOrderService {
         return {
             id: o.id,
             userId: o.userId,
+            userEmail: o.user?.email,
+            userName: o.user?.displayName,
             amount: Number(o.amount),
             currency: o.currency,
             paymentMethod: o.paymentMethod as PaymentMethod,
@@ -127,7 +129,7 @@ export class OrderService implements IOrderService {
      */
     async findAll(query: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
         try {
-            const { page = 1, limit = 10, userId, status } = query;
+            const { page = 1, limit = 10, userId, status, startDate, endDate } = query;
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
             const validPage = pageNum > 0 ? pageNum : 1;
@@ -138,6 +140,22 @@ export class OrderService implements IOrderService {
             if (userId) whereClause.userId = userId;
             if (status) whereClause.status = status as any;
 
+            if (startDate || endDate) {
+                whereClause.createdAt = {};
+                if (startDate) {
+                    const date = new Date(startDate);
+                    if (!isNaN(date.getTime())) {
+                        whereClause.createdAt.gte = date;
+                    }
+                }
+                if (endDate) {
+                    const date = new Date(endDate);
+                    if (!isNaN(date.getTime())) {
+                        whereClause.createdAt.lte = date;
+                    }
+                }
+            }
+
             const [total, items] = await Promise.all([
                 this.orderRepository.count(whereClause),
                 this.orderRepository.findMany({
@@ -145,6 +163,7 @@ export class OrderService implements IOrderService {
                     take: validLimit,
                     skip,
                     orderBy: { createdAt: 'desc' },
+                    include: { user: true },
                 }),
             ]);
 

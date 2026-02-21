@@ -26,6 +26,8 @@ export const orderQueryDTOSchema = z.object({
     userId: z.string().uuid().optional(),
     courseId: z.string().uuid().optional(),
     status: z.nativeEnum(OrderStatus).optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
 });
 
 export type OrderQueryDTO = z.infer<typeof orderQueryDTOSchema>;

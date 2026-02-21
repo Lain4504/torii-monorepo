@@ -9,8 +9,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Label } from '@workspace/ui/components/label';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { QuestionStatus, QuestionDifficultyLevel, QuestionType, QuestionCategory } from '@workspace/schemas';
-import { Button } from '@workspace/ui/components/button';
-import { FileText, Tag, CheckCircle2, BrainCircuit, Layers, Hash, Calendar, X, AlignLeft, Headphones } from 'lucide-react';
+import { FileText, Tag, CheckCircle2, BrainCircuit, Layers, Hash, Calendar, AlignLeft, Headphones } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface ViewQuestionDialogProps {
@@ -28,25 +27,21 @@ export function ViewQuestionDialog({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent showCloseButton={false} className="w-full sm:w-[800px] !max-w-[800px] border-l border-border/50 bg-background p-0 h-full flex flex-col shadow-2xl">
-                <SheetHeader className="p-6 border-b border-border bg-muted/5 flex-shrink-0">
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                            <SheetTitle>
-                                Chi tiết câu hỏi
-                            </SheetTitle>
-                            <SheetDescription>
-                                <span className="px-1.5 py-0.5 bg-muted rounded font-mono text-[10px]">Mã: {question.id}</span>
-                            </SheetDescription>
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                                <FileText className="size-4" />
+                            </div>
+                            <div className="space-y-0.5">
+                                <SheetTitle className="text-xl font-bold tracking-tight">Chi Tiết Câu Hỏi</SheetTitle>
+                                <p className="text-xs font-medium text-muted-foreground/60 italic">Xem thông tin chi tiết về câu hỏi tri thức</p>
+                            </div>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onOpenChange(false)}
-                            className="rounded-lg h-9 w-9 hover:bg-muted/50"
-                        >
-                            <X className="h-4 w-4" />
-                        </Button>
+                        <SheetDescription className="text-sm text-muted-foreground/80 leading-relaxed">
+                            Mã hệ thống: <span className="font-mono text-primary/60">{question.id}</span>
+                        </SheetDescription>
                     </div>
                 </SheetHeader>
 

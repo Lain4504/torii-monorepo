@@ -19,6 +19,14 @@ import {
     GatewayAuthGuard,
     ReqWithRequester,
 } from '@server/shared';
+import {
+    OrderResponseDTO,
+    OrderQueryDTO,
+    OrderCreateDTO,
+    OrderConfirmDTO,
+    PaymentQueryDTO,
+    PaginatedApiResponse,
+} from '@workspace/schemas';
 
 @Controller('api/orders')
 @UseGuards(GatewayAuthGuard)
@@ -26,8 +34,8 @@ export class OrderController {
     private readonly logger = new Logger(OrderController.name);
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
-    async findAll(@Query() query: any) {
+    @Post('list')
+    async findAll(@Body() query: OrderQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -42,7 +50,7 @@ export class OrderController {
     }
 
     @Get('transactions')
-    async findAllPayments(@Query() query: any) {
+    async findAllPayments(@Query() query: PaymentQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -105,7 +113,7 @@ export class OrderController {
     }
 
     @Post()
-    async create(@Body() input: any, @Req() req: ReqWithRequester) {
+    async create(@Body() input: OrderCreateDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
@@ -121,7 +129,7 @@ export class OrderController {
     }
 
     @Post(':id/confirm')
-    async confirm(@Param('id') id: string, @Body() input: any) {
+    async confirm(@Param('id') id: string, @Body() input: OrderConfirmDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

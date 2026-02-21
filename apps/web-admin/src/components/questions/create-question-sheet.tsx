@@ -126,12 +126,22 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="flex flex-col gap-0 p-0 sm:max-w-2xl overflow-hidden border-l border-border/10 shadow-2xl bg-background/95 backdrop-blur-xl">
-                <SheetHeader className="px-8 py-6 border-b border-border/10 bg-muted/5">
-                    <SheetTitle>Tạo câu hỏi mới</SheetTitle>
-                    <SheetDescription>
-                        Thiết lập nội dung và các thuộc tính cho câu hỏi thi.
-                    </SheetDescription>
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                                <Plus className="size-4" />
+                            </div>
+                            <div className="space-y-0.5">
+                                <SheetTitle className="text-xl font-bold tracking-tight">Tạo Câu Hỏi Mới</SheetTitle>
+                                <p className="text-xs font-medium text-muted-foreground/60 italic">Cấu trúc ngân hàng đề thi tri thức</p>
+                            </div>
+                        </div>
+                        <SheetDescription className="text-sm text-muted-foreground/80 leading-relaxed">
+                            Thiết lập nội dung và các thuộc tính kỹ thuật chuyên sâu cho câu hỏi mới.
+                        </SheetDescription>
+                    </div>
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto flex-1">
@@ -392,11 +402,19 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                             />
                         </div>
                     </div>
-                    <SheetFooter>
+                    <SheetFooter className="p-6 border-t border-border/10 bg-muted/5 flex-row justify-end space-x-3">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => onOpenChange(false)}
+                            className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                        >
+                            Hủy bỏ
+                        </Button>
                         <Button
                             type="submit"
                             disabled={createQuestion.isPending}
-                            className="rounded-xl h-10 px-8 font-semibold shadow-sm text-background"
+                            className="h-11 px-8 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                         >
                             {createQuestion.isPending ? (
                                 <>
@@ -405,18 +423,10 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                 </>
                             ) : (
                                 <>
-                                    <Plus className="mr-2 h-4 w-4 text-background" />
+                                    <Plus className="mr-2 h-4 w-4" />
                                     Khởi tạo câu hỏi
                                 </>
                             )}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                            className="rounded-xl h-10 px-6 font-semibold"
-                        >
-                            Hủy
                         </Button>
                     </SheetFooter>
                 </form>

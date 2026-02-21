@@ -45,7 +45,7 @@ export function DeleteQuestionDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent size="sm">
+            <AlertDialogContent className="w-[95vw] sm:w-[500px] !max-w-[500px] border-destructive/20 bg-background/95 backdrop-blur-xl">
                 <AlertDialogHeader>
                     <AlertDialogMedia className="bg-destructive/10 text-destructive">
                         <AlertTriangle />
