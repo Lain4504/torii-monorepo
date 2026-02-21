@@ -128,4 +128,17 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors duration-200;
+  }
 }
