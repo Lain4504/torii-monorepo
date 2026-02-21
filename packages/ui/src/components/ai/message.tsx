@@ -263,7 +263,12 @@ export type MessageResponseProps = ComponentProps<typeof Streamdown>
 export const MessageResponse = memo(
   ({ className, ...props }: MessageResponseProps) => (
     <Streamdown
-      className={cn("size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0", className)}
+      className={cn(
+        "prose prose-sm dark:prose-invert max-w-none break-words",
+        "prose-p:leading-relaxed prose-pre:p-0",
+        "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+        className
+      )}
       {...props}
     />
   ),
