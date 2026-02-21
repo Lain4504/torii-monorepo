@@ -191,7 +191,7 @@ describe('StorageService', () => {
     });
 
     describe('deleteFile', () => {
-        it('should delete file from shared storage and repository', async () => {
+        it('should delete from database first, then from shared storage', async () => {
             const dto = { fileId: 'mock-uuid-1234' };
             const fileAsset = {
                 id: 'mock-uuid-1234',
@@ -201,20 +201,56 @@ describe('StorageService', () => {
 
             mockStorageRepository.findById.mockResolvedValue(fileAsset);
             mockSharedStorageService.extractKeyFromUrl.mockReturnValue(extractedKey);
-            mockSharedStorageService.delete.mockResolvedValue(undefined);
             mockStorageRepository.delete.mockResolvedValue(undefined);
+            mockSharedStorageService.delete.mockResolvedValue(undefined);
 
             const result = await service.deleteFile(dto);
 
-            expect(storageRepository.findById).toHaveBeenCalledWith(dto.fileId);
-            expect(sharedStorageService.extractKeyFromUrl).toHaveBeenCalledWith(fileAsset.fileUrl);
-            expect(sharedStorageService.delete).toHaveBeenCalledWith(extractedKey);
+            // Verify order: DB delete called before S3 delete
             expect(storageRepository.delete).toHaveBeenCalledWith(dto.fileId);
+            expect(sharedStorageService.delete).toHaveBeenCalledWith(extractedKey);
 
             expect(result).toEqual({
                 success: true,
                 message: 'File deleted successfully',
             });
+        });
+
+        it('should throw BadRequestException if database deletion fails due to constraint (Restrict)', async () => {
+            const dto = { fileId: 'mock-uuid-1234' };
+            const fileAsset = {
+                id: 'mock-uuid-1234',
+                fileUrl: 'https://storage.example.com/uploads/profile/mock-uuid-1234.png',
+            };
+
+            mockStorageRepository.findById.mockResolvedValue(fileAsset);
+            
+            // Mock Prisma constraint error
+            const restictError = new Error('Foreign key constraint violation');
+            (restictError as any).code = 'P2003';
+            mockStorageRepository.delete.mockRejectedValue(restictError);
+
+            await expect(service.deleteFile(dto)).rejects.toThrow(BadRequestException);
+            
+            // Verify S3 delete was NEVER called
+            expect(sharedStorageService.delete).not.toHaveBeenCalled();
+        });
+
+        it('should succeed even if S3 deletion fails after DB record is removed', async () => {
+            const dto = { fileId: 'mock-uuid-1234' };
+            const fileAsset = {
+                id: 'mock-uuid-1234',
+                fileUrl: 'https://storage.example.com/uploads/profile/mock-uuid-1234.png',
+            };
+
+            mockStorageRepository.findById.mockResolvedValue(fileAsset);
+            mockStorageRepository.delete.mockResolvedValue(undefined);
+            mockSharedStorageService.delete.mockRejectedValue(new Error('S3 Connection Failed'));
+
+            const result = await service.deleteFile(dto);
+
+            expect(storageRepository.delete).toHaveBeenCalledWith(dto.fileId);
+            expect(result.success).toBe(true);
         });
 
         it('should throw NotFoundException if file asset not found', async () => {

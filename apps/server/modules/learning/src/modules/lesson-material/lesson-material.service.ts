@@ -11,9 +11,10 @@ import type {
     Requester,
 } from '@workspace/schemas';
 
-import type { ILessonMaterialService } from '@server/learning/interfaces/services';
-import type { ILessonMaterialRepository } from '@server/learning/interfaces/repositories';
-import { LESSON_MATERIAL_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import type { ILessonMaterialService, IEnrollmentService } from '@server/learning/interfaces/services';
+import { ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import type { ILessonMaterialRepository, IModuleRepository } from '@server/learning/interfaces/repositories';
+import { LESSON_MATERIAL_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 
 /**
  * Lesson Material Service
@@ -28,6 +29,10 @@ export class LessonMaterialService implements ILessonMaterialService {
         private readonly lessonMaterialRepository: ILessonMaterialRepository,
         private readonly prisma: PrismaService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        @Inject(ENROLLMENT_SERVICE_TOKEN)
+        private readonly enrollmentService: IEnrollmentService,
+        @Inject(MODULE_REPOSITORY_TOKEN)
+        private readonly moduleRepository: IModuleRepository,
     ) { }
 
     /**
@@ -74,6 +79,7 @@ export class LessonMaterialService implements ILessonMaterialService {
 
     /**
      * Check if requester has access to lesson materials
+     * Used only for upload/update/delete (write) operations.
      */
     private async checkAccess(lessonId: string, requester: Requester): Promise<void> {
         // Only authorized users can manage lesson materials
@@ -92,6 +98,59 @@ export class LessonMaterialService implements ILessonMaterialService {
             if (!hasAccess) {
                 throw new ForbiddenException('You are not assigned to this course');
             }
+        }
+    }
+
+    /**
+     * Check if a user has read access to lesson materials.
+     * Rules:
+     *   - Staff (material.upload | blog.manage permission): always allowed
+     *   - Preview lessons: public, no login required
+     *   - Authenticated + enrolled learners: allowed
+     *   - Unauthenticated or non-enrolled users: ForbiddenException
+     */
+    private async checkReadAccess(lessonId: string, requester?: Requester): Promise<void> {
+        // Staff/Admin bypass
+        if (requester && (
+            this.hasPermission(requester, 'lesson.create') ||
+            this.hasPermission(requester, 'lesson.update') ||
+            this.hasPermission(requester, 'blog.manage')
+        )) {
+            return;
+        }
+
+        const lesson = await this.prisma.lesson.findUnique({
+            where: { id: lessonId },
+            include: { module: { select: { courseId: true } } },
+        });
+
+        if (!lesson || lesson.deletedAt) {
+            throw new NotFoundException(`Lesson with id ${lessonId} not found`);
+        }
+
+        // Preview lessons: materials are publicly accessible
+        if (lesson.isPreview) return;
+
+        // Non-preview: user must be logged in
+        if (!requester?.sub) {
+            throw new ForbiddenException('You must be logged in to access lesson materials');
+        }
+
+        // Must be unlocked in DB
+        if (!lesson.isUnlocked) {
+            throw new ForbiddenException('This lesson is currently locked');
+        }
+
+        // Non-preview: user must be actively enrolled in the course
+        const courseId = (lesson as any).module?.courseId;
+        if (!courseId) {
+            this.logger.warn(`Could not resolve courseId for lesson ${lessonId}`);
+            throw new ForbiddenException('Access denied: course information unavailable');
+        }
+
+        const enrolled = await this.enrollmentService.isEnrolled(requester.sub, courseId);
+        if (!enrolled) {
+            throw new ForbiddenException('You must be enrolled in this course to access its materials');
         }
     }
 
@@ -148,17 +207,14 @@ export class LessonMaterialService implements ILessonMaterialService {
     }
 
     /**
-     * Get all materials for a lesson
+     * Get all materials for a lesson.
+     * Access control:
+     *   - Preview lessons: public
+     *   - Authenticated + enrolled learners: allowed
+     *   - Unauthenticated or non-enrolled: ForbiddenException
      */
-    async findByLessonId(lessonId: string): Promise<LessonMaterialResponseDTO[]> {
-        // Verify lesson exists
-        const lesson = await this.prisma.lesson.findUnique({
-            where: { id: lessonId },
-        });
-
-        if (!lesson || lesson.deletedAt) {
-            throw new NotFoundException(`Lesson with id ${lessonId} not found`);
-        }
+    async findByLessonId(lessonId: string, requester?: Requester): Promise<LessonMaterialResponseDTO[]> {
+        await this.checkReadAccess(lessonId, requester);
 
         const materials = await this.lessonMaterialRepository.findByLessonId(lessonId);
         return materials.map(material => this.toLessonMaterialResponseDTO(material));

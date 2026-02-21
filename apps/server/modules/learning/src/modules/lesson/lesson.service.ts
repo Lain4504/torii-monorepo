@@ -104,6 +104,22 @@ export class LessonService implements ILessonService {
   }
 
   /**
+   * Build a protected DTO: mask sensitive content if the user is not authorized.
+   * Centralizes content-protection logic to avoid duplication across methods.
+   */
+  private buildProtectedDTO(lesson: Lesson, isAuthorized: boolean): LessonResponseDTO {
+    const dto = this.toLessonResponseDTO(lesson);
+    // Override isUnlocked to reflect actual access status (may differ from DB value)
+    dto.isUnlocked = isAuthorized;
+    if (!isAuthorized) {
+      dto.videoUrl = undefined;
+      dto.articleContent = undefined;
+      dto.aiMetadata = undefined;
+    }
+    return dto;
+  }
+
+  /**
    * Find all lessons with pagination and search
    */
   async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<LessonResponseDTO>> {
@@ -163,57 +179,78 @@ export class LessonService implements ILessonService {
   /**
    * Find one lesson by ID
    */
-  async findOne(lessonId: string, userId?: string): Promise<LessonResponseDTO> {
+  async findOne(lessonId: string, requester?: Requester): Promise<LessonResponseDTO> {
     const lesson = await this.lessonRepository.findById(lessonId);
 
     if (!lesson || lesson.deletedAt) {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
 
-    const dto = this.toLessonResponseDTO(lesson);
+    const isStaff = requester && (
+      this.hasPermission(requester, 'lesson.create') ||
+      this.hasPermission(requester, 'lesson.update') ||
+      this.hasPermission(requester, 'blog.manage')
+    );
 
-    // Protection logic for content access
+    // Staff/Admin: return full content
+    if (isStaff) {
+      return this.toLessonResponseDTO(lesson);
+    }
+
+    // Check enrollment only for non-preview lessons with a known user
     let isEnrolled = false;
-
-    if (userId && !lesson.isPreview) {
+    if (requester?.sub && !lesson.isPreview) {
       try {
         const module = await this.moduleRepository.findById(lesson.moduleId);
         if (module) {
-          isEnrolled = await this.enrollmentService.isEnrolled(userId, module.courseId);
+          isEnrolled = await this.enrollmentService.isEnrolled(requester.sub, module.courseId);
         }
       } catch (error) {
-        this.logger.warn(`Failed to check enrollment for user ${userId} on lesson ${lessonId}`, error);
+        this.logger.warn(`Failed to check enrollment for user ${requester.sub} on lesson ${lessonId}`, error);
       }
     }
 
     // Accessible if (preview OR enrolled) AND marked unlocked in DB
     const isAuthorized = (lesson.isPreview || isEnrolled) && lesson.isUnlocked;
-
-    // Synchronize isUnlocked with actual access status
-    dto.isUnlocked = isAuthorized;
-
-    // If not authorized, hide protected content (videoUrl, articleContent, aiMetadata)
-    if (!isAuthorized) {
-      dto.videoUrl = undefined;
-      dto.articleContent = undefined;
-      dto.aiMetadata = undefined;
-    }
-
-    return dto;
+    return this.buildProtectedDTO(lesson, isAuthorized);
   }
 
   /**
-   * Find all lessons for a specific module
+   * Find all lessons for a specific module.
+   * Content protection: staff sees full content; learners only see content
+   * they are enrolled in (or preview lessons).
    */
   async findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]> {
-    let includeDrafts = false;
-    if (requester && (this.hasPermission(requester, 'lesson.create') || this.hasPermission(requester, 'lesson.update'))) {
-      includeDrafts = true;
+    const isStaff = requester && (
+      this.hasPermission(requester, 'lesson.create') ||
+      this.hasPermission(requester, 'lesson.update') ||
+      this.hasPermission(requester, 'blog.manage')
+    );
+
+    const lessons = await this.lessonRepository.findByModuleId(moduleId, !!isStaff);
+
+    // Staff/Admin: return full content, no further checks needed
+    if (isStaff) {
+      return lessons.map(lesson => this.toLessonResponseDTO(lesson));
     }
 
-    // Explicitly pass boolean to repo method which accepts it as optional
-    const lessons = await this.lessonRepository.findByModuleId(moduleId, includeDrafts);
-    return lessons.map(lesson => this.toLessonResponseDTO(lesson));
+    // Learner: perform a single enrollment check for the entire module/course
+    let isEnrolledInCourse = false;
+    if (requester?.sub) {
+      try {
+        const module = await this.moduleRepository.findById(moduleId);
+        if (module) {
+          isEnrolledInCourse = await this.enrollmentService.isEnrolled(requester.sub, module.courseId);
+        }
+      } catch (error) {
+        this.logger.warn(`Enrollment check failed for module ${moduleId}`, error);
+      }
+    }
+
+    return lessons.map(lesson => {
+      const isAuthorized = (lesson.isPreview || isEnrolledInCourse) && lesson.isUnlocked;
+      return this.buildProtectedDTO(lesson, isAuthorized);
+    });
   }
 
   /**

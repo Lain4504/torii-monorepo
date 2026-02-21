@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { LESSON_SERVICE_TOKEN, ILessonService } from '@server/learning/interfaces/services';
-import { LessonCreateDTO, LessonUpdateDTO } from '@workspace/schemas';
+import { LessonCreateDTO, LessonUpdateDTO, Requester } from '@workspace/schemas';
 
 @Controller()
 export class LessonHandler {
@@ -22,9 +22,8 @@ export class LessonHandler {
     }
 
     @MessagePattern({ cmd: 'learning.lesson.findByModuleId' })
-    async findByModuleId(@Payload() data: { moduleId: string, userId: string, userRole?: string, userPermissions?: string[] }) {
-        const requester = { sub: data.userId, role: (data.userRole || 'LEARNER') as any, permissions: data.userPermissions || [] };
-        return this.lessonService.findByModuleId(data.moduleId, requester);
+    async findByModuleId(@Payload() data: { moduleId: string, requester?: Requester }) {
+        return this.lessonService.findByModuleId(data.moduleId, data.requester);
     }
 
     @MessagePattern({ cmd: 'learning.lesson.findPreviewLessonsByCourseId' })
@@ -33,8 +32,8 @@ export class LessonHandler {
     }
 
     @MessagePattern({ cmd: 'learning.lesson.findOne' })
-    async findOne(@Payload() data: { id: string, userId?: string }) {
-        return this.lessonService.findOne(data.id, data.userId);
+    async findOne(@Payload() data: { id: string; requester?: Requester }) {
+        return this.lessonService.findOne(data.id, data.requester);
     }
 
     @MessagePattern({ cmd: 'learning.lesson.update' })

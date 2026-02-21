@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { LESSON_MATERIAL_SERVICE_TOKEN, ILessonMaterialService } from '@server/learning/interfaces/services';
-import { LessonMaterialCreateDTO, LessonMaterialUpdateDTO } from '@workspace/schemas';
+import { LessonMaterialCreateDTO, LessonMaterialUpdateDTO, Requester } from '@workspace/schemas';
 
 @Controller()
 export class LessonMaterialHandler {
@@ -28,8 +28,8 @@ export class LessonMaterialHandler {
     }
 
     @MessagePattern({ cmd: 'learning.lesson-material.findByLessonId' })
-    async findByLessonId(@Payload() data: { lessonId: string }) {
-        return this.lessonMaterialService.findByLessonId(data.lessonId);
+    async findByLessonId(@Payload() data: { lessonId: string; requester?: Requester }) {
+        return this.lessonMaterialService.findByLessonId(data.lessonId, data.requester);
     }
 
     @MessagePattern({ cmd: 'learning.lesson-material.update' })

@@ -109,6 +109,22 @@ export class StorageService implements IStorageService {
             throw new NotFoundException('File asset not found');
         }
 
+        // 1. Try to delete from database first. 
+        // If this file is linked to LessonMaterial (onDelete: Restrict), 
+        // Prisma will throw an error here and we won't proceed to delete the physical file.
+        try {
+            await this.storageRepository.delete(data.fileId);
+        } catch (error: any) {
+            // Prisma error code for foreign key constraint violation (Restrict)
+            // https://www.prisma.io/docs/reference/api-reference/error-reference#p2003
+            if (error.code === 'P2003' || error.message?.includes('Foreign key constraint')) {
+                throw new BadRequestException('Cannot delete file: It is currently being used by another module (e.g. Lesson Material).');
+            }
+            this.logger.error(`Database deletion failed for file ${data.fileId}`, error.stack);
+            throw error;
+        }
+
+        // 2. Database deletion succeeded, now safe to delete the physical file
         let key = fileAsset.fileUrl;
         try {
             if (key.startsWith('http')) {
@@ -118,9 +134,13 @@ export class StorageService implements IStorageService {
             this.logger.warn(`Could not extract key from ${key}, assuming it is the key`);
         }
 
-        await this.sharedStorage.delete(key);
-
-        await this.storageRepository.delete(data.fileId);
+        try {
+            await this.sharedStorage.delete(key);
+        } catch (e: any) {
+            this.logger.error(`Physical file deletion failed for key ${key} after DB was cleared`, e.stack);
+            // We don't throw here as the DB record is already gone, 
+            // but we should log it for manual cleanup if necessary.
+        }
 
         return {
             success: true,

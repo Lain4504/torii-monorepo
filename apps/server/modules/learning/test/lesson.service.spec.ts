@@ -117,8 +117,9 @@ describe('LessonService', () => {
             mockLessonRepository.findById.mockResolvedValue(lesson);
             mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
             mockEnrollmentService.isEnrolled.mockResolvedValue(true);
+            const requester = { sub: 'user-student', role: 'LEARNER' as any, permissions: [] };
 
-            const result = await service.findOne('les-1', 'user-student');
+            const result = await service.findOne('les-1', requester);
 
             expect(result.videoUrl).toBe('private-url');
         });
@@ -128,10 +129,22 @@ describe('LessonService', () => {
             mockLessonRepository.findById.mockResolvedValue(lesson);
             mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
             mockEnrollmentService.isEnrolled.mockResolvedValue(false);
+            const requester = { sub: 'user-stranger', role: 'LEARNER' as any, permissions: [] };
 
-            const result = await service.findOne('les-1', 'user-stranger');
+            const result = await service.findOne('les-1', requester);
 
             expect(result.videoUrl).toBeUndefined();
+        });
+
+        it('nên trả về đầy đủ nội dung nếu là Staff/Admin (Bypass enrollment)', async () => {
+            const lesson = { id: 'les-1', moduleId: 'mod-1', contentType: 'video', videoUrl: 'private-url', isPreview: false, isUnlocked: true };
+            mockLessonRepository.findById.mockResolvedValue(lesson);
+            const requester = { sub: 'admin-1', role: 'ADMIN' as any, permissions: ['lesson.update'] };
+
+            const result = await service.findOne('les-1', requester);
+
+            expect(result.videoUrl).toBe('private-url');
+            expect(mockEnrollmentService.isEnrolled).not.toHaveBeenCalled();
         });
 
         it('nên đồng nhất isUnlocked: false nếu người dùng chưa đăng ký học (Fix UI Inconsistency)', async () => {
@@ -139,8 +152,9 @@ describe('LessonService', () => {
             mockLessonRepository.findById.mockResolvedValue(lesson);
             mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
             mockEnrollmentService.isEnrolled.mockResolvedValue(false);
+            const requester = { sub: 'user-stranger', role: 'LEARNER' as any, permissions: [] };
 
-            const result = await service.findOne('les-1', 'user-stranger');
+            const result = await service.findOne('les-1', requester);
 
             expect(result.isUnlocked).toBe(false);
             expect(result.videoUrl).toBeUndefined();
@@ -151,8 +165,9 @@ describe('LessonService', () => {
             mockLessonRepository.findById.mockResolvedValue(lesson);
             mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
             mockEnrollmentService.isEnrolled.mockResolvedValue(true);
+            const requester = { sub: 'user-student', role: 'LEARNER' as any, permissions: [] };
 
-            const result = await service.findOne('les-1', 'user-student');
+            const result = await service.findOne('les-1', requester);
 
             expect(result.isUnlocked).toBe(false);
             expect(result.videoUrl).toBeUndefined();
@@ -205,6 +220,62 @@ describe('LessonService', () => {
 
             await expect(service.delete(requester as any, 'non-existent'))
                 .rejects.toThrow(NotFoundException);
+        });
+    });
+    describe('findByModuleId - Content Protection', () => {
+        const moduleId = 'mod-1';
+
+        const lessons = [
+            { id: 'les-1', moduleId, contentType: 'article', videoUrl: null, articleContent: 'secret article', isPreview: false, isUnlocked: true },
+            { id: 'les-2', moduleId, contentType: 'video', videoUrl: 'secret-url', articleContent: null, isPreview: true, isUnlocked: true },
+        ];
+
+        beforeEach(() => {
+            mockLessonRepository.findByModuleId.mockResolvedValue(lessons);
+            mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
+        });
+
+        it('Learner chưa enrolled: nên ẩn articleContent và videoUrl của bài không phải preview', async () => {
+            mockEnrollmentService.isEnrolled.mockResolvedValue(false);
+            const requester = { sub: 'user-1', role: 'LEARNER' as any, permissions: [] };
+
+            const result = await service.findByModuleId(moduleId, requester);
+            const nonPreview = result.find(l => l.id === 'les-1');
+            const preview = result.find(l => l.id === 'les-2');
+
+            expect(nonPreview?.articleContent).toBeUndefined();
+            expect(nonPreview?.isUnlocked).toBe(false);
+            // Preview lesson vẫn hiển thị bình thường
+            expect(preview?.isUnlocked).toBe(true);
+        });
+
+        it('Learner đã enrolled: nên nhận đầy đủ nội dung', async () => {
+            mockEnrollmentService.isEnrolled.mockResolvedValue(true);
+            const requester = { sub: 'user-1', role: 'LEARNER' as any, permissions: [] };
+
+            const result = await service.findByModuleId(moduleId, requester);
+            const nonPreview = result.find(l => l.id === 'les-1');
+
+            expect(nonPreview?.articleContent).toBe('secret article');
+            expect(nonPreview?.isUnlocked).toBe(true);
+        });
+
+        it('Staff: luôn nhận đầy đủ nội dung mà không cần kiểm tra enrollment', async () => {
+            const requester = { sub: 'staff-1', role: 'STAFF' as any, permissions: ['lesson.create'] };
+
+            const result = await service.findByModuleId(moduleId, requester);
+
+            expect(result[0].articleContent).toBe('secret article');
+            // Staff không cần gọi isEnrolled
+            expect(mockEnrollmentService.isEnrolled).not.toHaveBeenCalled();
+        });
+
+        it('Không có requester (public): tất cả bài không phải preview đều bị ẩn nội dung', async () => {
+            const result = await service.findByModuleId(moduleId, undefined);
+            const nonPreview = result.find(l => l.id === 'les-1');
+
+            expect(nonPreview?.articleContent).toBeUndefined();
+            expect(nonPreview?.isUnlocked).toBe(false);
         });
     });
 });
