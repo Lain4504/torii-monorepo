@@ -57,8 +57,8 @@ export function TeamSwitcher({
                                 <activeTeam.logo className="size-4 group-data-[collapsible=icon]:size-3.5" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-sans font-bold italic tracking-tight">{activeTeam.name}</span>
-                                <span className="truncate text-[10px] font-sans font-bold italic text-muted-foreground/60 uppercase tracking-wider">{activeTeam.plan}</span>
+                                <span className="truncate font-sans font-semibold tracking-tight">{activeTeam.name}</span>
+                                <span className="truncate text-[10px] font-sans font-medium text-muted-foreground/60 uppercase tracking-wider">{activeTeam.plan}</span>
                             </div>
                             <ChevronsUpDown className="ml-auto opacity-50 group-data-[collapsible=icon]:hidden" />
                         </SidebarMenuButton>

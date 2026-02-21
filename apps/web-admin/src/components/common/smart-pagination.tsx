@@ -95,10 +95,9 @@ export function SmartPagination({
 
     return (
         <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-1", className)}>
-            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/80">
-                <span>Trang <span className="text-foreground font-semibold">{page}</span> / {totalPages}</span>
-                <span className="mx-1 opacity-20 text-border">|</span>
-                <span>Tổng cộng <span className="text-foreground font-semibold">{totalItems.toLocaleString()}</span> {itemName}</span>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span>Trang <span className="text-foreground font-medium">{page}</span> / {totalPages}</span>
+                <span>Tổng cộng <span className="text-foreground font-medium">{totalItems.toLocaleString()}</span> {itemName}</span>
             </div>
 
             {totalPages > 1 && (

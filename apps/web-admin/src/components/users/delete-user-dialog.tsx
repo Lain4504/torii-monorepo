@@ -5,11 +5,12 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
+    AlertDialogMedia,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { Button } from '@workspace/ui/components/button';
 import type { UserResponseDTO } from '@workspace/schemas';
-import { toast } from '@workspace/ui/components/sonner';
+import { toast } from 'sonner';
 import { useDeleteUser } from "@/api/services/users.ts";
 import { AlertTriangle, Loader2 } from 'lucide-react';
 
@@ -44,11 +45,11 @@ export function DeleteUserDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
+            <AlertDialogContent size="sm">
                 <AlertDialogHeader>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive mb-2">
-                        <AlertTriangle className="size-6" />
-                    </div>
+                    <AlertDialogMedia className="bg-destructive/10 text-destructive">
+                        <AlertTriangle />
+                    </AlertDialogMedia>
                     <AlertDialogTitle>Xóa tài khoản</AlertDialogTitle>
                     <AlertDialogDescription>
                         Hành động này sẽ xóa vĩnh viễn người dùng <span className="font-semibold text-foreground">{user?.displayName}</span> và tất cả dữ liệu liên quan. Bạn có chắc chắn muốn tiếp tục?

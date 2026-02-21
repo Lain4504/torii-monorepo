@@ -20,7 +20,7 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { UserRole } from '@workspace/schemas';
 import { Loader2, User, Mail, ShieldCheck, UserCog } from 'lucide-react';
 import { userAdminUpdateDTOSchema, type UserAdminUpdateDTO } from '@workspace/schemas';
-import { toast } from '@workspace/ui/components/sonner';
+import { toast } from 'sonner';
 import { useUpdateUser } from "@/api/services/users.ts";
 
 type UpdateUserFormData = UserAdminUpdateDTO;

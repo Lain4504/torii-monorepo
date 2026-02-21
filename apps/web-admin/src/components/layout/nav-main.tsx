@@ -110,7 +110,7 @@ export function NavMain({
                                                     <Link
                                                         to={subItem.url}
                                                         className={cn(
-                                                            "rounded-xl px-3 py-2.5 text-[11px] font-bold uppercase tracking-widest cursor-pointer transition-colors focus:bg-primary/5 focus:text-primary mb-1",
+                                                            "rounded-xl px-3 py-2 text-[13px] font-medium cursor-pointer transition-colors focus:bg-primary/5 focus:text-primary mb-1",
                                                             pathname === subItem.url ? "bg-primary/5 text-primary" : "text-muted-foreground/70"
                                                         )}
                                                     >
@@ -140,7 +140,7 @@ export function NavMain({
                                                     <PermissionWrapper permission={subItem.permission}>
                                                         <SidebarMenuSubButton asChild isActive={pathname === subItem.url}>
                                                             <Link to={subItem.url} className={cn(
-                                                                "h-9 rounded-lg text-[11px] font-bold uppercase tracking-widest transition-colors",
+                                                                "h-8 rounded-lg text-[13px] font-medium transition-colors",
                                                                 pathname === subItem.url ? "text-primary bg-primary/5" : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/30"
                                                             )}>
                                                                 <span className="truncate">{subItem.title}</span>

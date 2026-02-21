@@ -14,7 +14,6 @@ import { useBoolean } from "@workspace/ui/hooks/use-boolean";
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { UserPlus, ShieldCheck } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { Card } from "@workspace/ui/components/card";
 import { PageHeader } from '@/components/common/page-header';
 
 export default function PersonnelPage() {
@@ -50,20 +49,23 @@ export default function PersonnelPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] p-8 bg-destructive/5 text-center rounded-xl border border-destructive/10">
-                <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 mb-4 text-destructive">
-                    <ShieldCheck className="size-6" />
-                </div>
-                <div className="max-w-md space-y-2">
-                    <h3 className="text-xl font-bold tracking-tight text-foreground uppercase">Truy cập bị hạn chế</h3>
-                    <p className="text-sm text-muted-foreground">{error.message}</p>
-                    <Button
-                        variant="outline"
-                        onClick={() => window.location.reload()}
-                        className="mt-4"
-                    >
-                        Thử kết nối lại
-                    </Button>
+            <div className="flex h-[450px] items-center justify-center p-8">
+                <div className="max-w-md w-full">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
+                            <ShieldCheck className="size-6" />
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-semibold">Truy cập bị hạn chế</h3>
+                            <p className="text-sm text-muted-foreground">{error.message}</p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={() => window.location.reload()}
+                        >
+                            Thử kết nối lại
+                        </Button>
+                    </div>
                 </div>
             </div>
         );
@@ -92,26 +94,24 @@ export default function PersonnelPage() {
             />
 
 
-            <div className="flex flex-col gap-4">
+            <div className="space-y-4">
                 {/* Search & Filter */}
-                <Card className="p-4">
-                    <UsersPrimaryToolbar
-                        search={search}
-                        onSearchChange={setSearch}
-                        filters={{ role: targetRole }}
-                        onFilterChange={() => { }}
-                        sortBy={sortBy}
-                        sortOrder={sortOrder}
-                        onSortChange={(field, order) => {
-                            setSortBy(field);
-                            setSortOrder(order);
-                        }}
-                        hideRoleFilter={true}
-                    />
-                </Card>
+                <UsersPrimaryToolbar
+                    search={search}
+                    onSearchChange={setSearch}
+                    filters={{ role: targetRole }}
+                    onFilterChange={() => { }}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    onSortChange={(field, order) => {
+                        setSortBy(field);
+                        setSortOrder(order);
+                    }}
+                    hideRoleFilter={true}
+                />
 
                 {/* Table container */}
-                <Card className="p-0 overflow-hidden">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
@@ -121,7 +121,7 @@ export default function PersonnelPage() {
                         limit={limit}
                         isLoading={isLoading}
                     />
-                </Card>
+                </div>
 
                 {/* Footer / Pagination */}
                 <SmartPagination
