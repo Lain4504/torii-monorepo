@@ -25,7 +25,7 @@ export interface ILessonService {
      * @returns The lesson data
      * @throws NotFoundException if lesson not found
      */
-    findOne(lessonId: string, userId?: string): Promise<LessonResponseDTO>;
+    findOne(lessonId: string, requester?: Requester): Promise<LessonResponseDTO>;
 
     /**
      * Find all lessons for a specific module

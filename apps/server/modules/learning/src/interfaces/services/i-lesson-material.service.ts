@@ -33,7 +33,7 @@ export interface ILessonMaterialService {
      * @returns Array of lesson materials with file asset details
      * @throws NotFoundException if lesson not found
      */
-    findByLessonId(lessonId: string): Promise<LessonMaterialResponseDTO[]>;
+    findByLessonId(lessonId: string, requester?: Requester): Promise<LessonMaterialResponseDTO[]>;
 
     /**
      * Update lesson material metadata
