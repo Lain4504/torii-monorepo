@@ -1,6 +1,7 @@
 // Models
 export * from './models/user.model';
 export * from './models/course.model';
+export * from './models/course-version.model';
 export * from './models/module.model';
 export * from './models/lesson.model';
 export * from './models/question.model';

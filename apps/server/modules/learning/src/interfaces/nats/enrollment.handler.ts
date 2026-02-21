@@ -22,15 +22,7 @@ export class EnrollmentHandler {
 
     @MessagePattern({ cmd: 'learning.enrollment.check' })
     async checkEnrollment(@Payload() data: { userId: string, courseId: string }) {
-        const [isEnrolled, enrollment] = await Promise.all([
-            this.enrollmentService.isEnrolled(data.userId, data.courseId),
-            this.enrollmentService.findByUserAndCourse(data.userId, data.courseId),
-        ]);
-        
-        return {
-            isEnrolled,
-            enrollment: enrollment || undefined,
-        };
+        return this.enrollmentService.checkEnrollmentDetails(data.userId, data.courseId);
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.create' })
@@ -62,6 +54,11 @@ export class EnrollmentHandler {
     @MessagePattern({ cmd: 'learning.enrollment.delete' })
     async delete(@Payload() data: { userId: string, courseId: string }) {
         return this.enrollmentService.deleteByUserAndCourse(data.userId, data.courseId);
+    }
+
+    @MessagePattern({ cmd: 'learning.enrollment.upgradeVersion' })
+    async upgradeVersion(@Payload() data: { userId: string, courseId: string }) {
+        return this.enrollmentService.upgradeVersion(data.userId, data.courseId);
     }
 }
 

@@ -12,6 +12,7 @@ export const enrollmentSchema = z.object({
     id: z.string().uuid(),
     userId: z.string().uuid(),
     courseId: z.string().uuid(),
+    versionId: z.string().uuid().optional(),
     enrollmentDate: z.date(),
     completionStatus: z.nativeEnum(EnrollmentStatus).default(EnrollmentStatus.IN_PROGRESS),
     completionPercentage: z.number().min(0).max(100).default(0),

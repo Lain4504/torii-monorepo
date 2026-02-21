@@ -295,14 +295,22 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                     </DropdownMenuItem>
                                 </>
                             ) : course.status === 'published' && can('course.publish') ? (
-                                <DropdownMenuItem
-                                    onClick={() => onUnpublish(course)}
-                                    className="rounded-lg px-3 py-2.5 text-xs font-medium text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer flex gap-2.5"
-                                >
-                                    <XCircle className="h-4 w-4 opacity-60" />
-                                    <span>Gỡ bỏ khóa học</span>
-                                </DropdownMenuItem>
-
+                                <>
+                                    <DropdownMenuItem
+                                        onClick={() => onPublish(course)}
+                                        className="rounded-lg px-3 py-2.5 text-xs font-medium text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer flex gap-2.5"
+                                    >
+                                        <CheckCircle className="h-4 w-4 opacity-60" />
+                                        <span>Xuất bản bản cập nhật</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => onUnpublish(course)}
+                                        className="rounded-lg px-3 py-2.5 text-xs font-medium text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer flex gap-2.5"
+                                    >
+                                        <XCircle className="h-4 w-4 opacity-60" />
+                                        <span>Gỡ bỏ khóa học</span>
+                                    </DropdownMenuItem>
+                                </>
                             ) : null}
 
                             {can('user.manage') && ( // Assuming course deletion is restricted to high-level users

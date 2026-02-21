@@ -1,4 +1,4 @@
-import type { Course, Prisma } from '@prisma/generated';
+import type { Course, CourseVersion, Prisma } from '@prisma/generated';
 
 /**
  * Course Repository Interface
@@ -83,12 +83,25 @@ export interface ICourseRepository {
     getInstructors(courseId: string): Promise<any[]>;
 
     /**
-     * Count published quizzes for a course
+     * Create a new course version snapshot
      */
-    countQuizzes(courseId: string): Promise<number>;
+    createVersion(data: Prisma.CourseVersionCreateInput): Promise<CourseVersion>;
 
     /**
-     * Count published lessons for a course
+     * Get the latest published version for a course
      */
-    countLessons(courseId: string): Promise<number>;
+    getLatestVersion(courseId: string): Promise<CourseVersion | null>;
+
+    /**
+     * Get a specific course version by ID
+     */
+    getVersionById(versionId: string): Promise<CourseVersion | null>;
+     * Count published quizzes for a course
+    */
+    countQuizzes(courseId: string): Promise<number>;
+
+/**
+ * Count published lessons for a course
+ */
+countLessons(courseId: string): Promise<number>;
 }

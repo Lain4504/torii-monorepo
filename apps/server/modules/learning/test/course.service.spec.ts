@@ -28,6 +28,9 @@ describe('CourseService', () => {
         slugExists: jest.fn(),
         getInstructors: jest.fn().mockResolvedValue([]), // Default to empty array to avoid undefined errors
         updateStats: jest.fn(),
+        getLatestVersion: jest.fn(),
+        getVersionById: jest.fn(),
+        createVersion: jest.fn(),
     };
 
     const mockModuleRepository = {
@@ -42,6 +45,7 @@ describe('CourseService', () => {
 
     const mockEnrollmentService = {
         isEnrolled: jest.fn(),
+        findByUserAndCourse: jest.fn(),
     };
 
     const mockNatsClient = {
@@ -264,7 +268,7 @@ describe('CourseService', () => {
             mockLessonRepository.findByModuleId.mockResolvedValue([
                 { id: 'les-1', title: 'Lesson', contentType: 'video', videoUrl: 'secret.mp4', isPreview: false }
             ]);
-            mockEnrollmentService.isEnrolled.mockResolvedValue(true);
+            mockEnrollmentService.findByUserAndCourse.mockResolvedValue({ id: 'enr-1' });
 
             const result = await service.getCurriculum(courseId, userId);
 
@@ -277,7 +281,7 @@ describe('CourseService', () => {
             mockLessonRepository.findByModuleId.mockResolvedValue([
                 { id: 'les-1', title: 'Lesson', contentType: 'video', videoUrl: 'secret.mp4', isPreview: false }
             ]);
-            mockEnrollmentService.isEnrolled.mockResolvedValue(false);
+            mockEnrollmentService.findByUserAndCourse.mockResolvedValue(null);
 
             const result = await service.getCurriculum(courseId, userId);
 
@@ -290,7 +294,7 @@ describe('CourseService', () => {
             mockLessonRepository.findByModuleId.mockResolvedValue([
                 { id: 'les-1', videoUrl: 'preview.mp4', isPreview: true, isUnlocked: true }
             ]);
-            mockEnrollmentService.isEnrolled.mockResolvedValue(false);
+            mockEnrollmentService.findByUserAndCourse.mockResolvedValue(null);
 
             const result = await service.getCurriculum(courseId, userId);
 

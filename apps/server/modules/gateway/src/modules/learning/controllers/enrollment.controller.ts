@@ -112,6 +112,22 @@ export class EnrollmentController {
     }
 
 
+    @Post('upgrade/:courseId')
+    async upgradeVersion(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
+        try {
+            const requester = req.requester;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.enrollment.upgradeVersion' },
+                    { courseId, userId: requester.sub }
+                )
+            );
+            return successResponse({ enrollment: result }, 'Successfully upgraded to latest version');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to upgrade enrollment version');
+        }
+    }
+
     @Post()
     async create(@Body() input: any, @Req() req: ReqWithRequester) {
         try {

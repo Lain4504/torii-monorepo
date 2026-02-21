@@ -71,12 +71,29 @@ model Course {
   enrollments      Enrollment[]
   assignments  Assignment[]
   certificates Certificate[]
+  versions     CourseVersion[]
 
   @@index([jlptLevel])
   @@index([createdBy])
   @@index([approvedBy])
   @@map("courses")
 }
+
+// 2. Model Versioning mới
+model CourseVersion {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId           String   @map("course_id") @db.Uuid
+  versionTag         String   @map("version_tag") @db.VarChar(20) // v1.0, v1.1
+  curriculumSnapshot Json     @map("curriculum_snapshot") @db.JsonB // Lưu mảng Module + Lesson
+  changelog          String?  @db.Text
+  publishedAt        DateTime @default(now()) @map("published_at")
+
+  course             Course       @relation(fields: [courseId], references: [id])
+  enrollments        Enrollment[]
+
+  @@map("course_versions")
+}
+
 
 // Modules: chapters/sections that belong to a Course
 model Module {
@@ -1390,6 +1407,7 @@ model Enrollment {
   id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId               String    @map("user_id") @db.Uuid
   courseId             String    @map("course_id") @db.Uuid
+  versionId            String?   @map("version_id") @db.Uuid // Reference to CourseVersion for snapshot tracking
   enrollmentDate       DateTime  @default(now()) @map("enrollment_date")
   completionStatus     String    @default("in_progress") @map("completion_status") @db.VarChar(20) // pending_payment, in_progress, completed, dropped
   completionPercentage Decimal   @default(0.00) @map("completion_percentage") @db.Decimal(5, 2)
@@ -1409,6 +1427,7 @@ model Enrollment {
   // Relations
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  version        CourseVersion?   @relation(fields: [versionId], references: [id], onDelete: SetNull)
   order          Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
   sender         User?            @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
   lessonProgress LessonProgress[]
@@ -1417,6 +1436,7 @@ model Enrollment {
   @@unique([userId, courseId]) // Mỗi user chỉ enroll 1 lần cho 1 course
   @@index([userId])
   @@index([courseId])
+  @@index([versionId])
   @@index([completionStatus])
   @@index([enrollmentDate])
   @@index([expiresAt])

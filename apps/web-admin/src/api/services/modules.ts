@@ -26,6 +26,12 @@ export const modulesApi = {
         return response.data.data!.module;
     },
 
+    // GET /api/admin/modules/by-course/:courseId
+    async findByCourseId(courseId: string): Promise<ModuleResponseDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<{ modules: ModuleResponseDTO[] }>>(`/api/modules/by-course/${courseId}`);
+        return response.data.data!.modules;
+    },
+
     // POST /api/admin/modules
     async create(module: ModuleCreateDTO): Promise<ModuleResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ module: ModuleResponseDTO }>>('/api/modules', module);
@@ -63,6 +69,17 @@ export function useModules(params: ModuleQueryDTO) {
         queryKey: ['modules', params],
         queryFn: () => modulesApi.findAll(params),
         staleTime: 30000,
+    });
+}
+
+/**
+ * Hook: Get single module by ID
+ */
+export function useCourseModules(courseId: string) {
+    return useQuery({
+        queryKey: ['modules', 'course', courseId],
+        queryFn: () => modulesApi.findByCourseId(courseId),
+        enabled: !!courseId,
     });
 }
 

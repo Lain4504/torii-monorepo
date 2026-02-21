@@ -19,6 +19,7 @@ import { RejectCourseDialog } from '@/components/courses/reject-course-dialog';
 import { useNavigate } from 'react-router-dom';
 import { EditCourseSheet } from "@/components/courses/edit-course-sheet.tsx";
 import { ManageInstructorsSheet } from "@/components/courses/manage-instructors-sheet.tsx";
+import { PublishCourseDialog } from "@/components/courses/publish-course-dialog.tsx";
 
 import { useSelector } from 'react-redux';
 import { selectUser } from "@/store/slices/auth-slice";
@@ -35,6 +36,7 @@ export default function MyCoursesPage() {
     const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseResponseDTO | null>(null);
     const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseResponseDTO | null>(null);
     const [rejectingCourse, setRejectingCourse] = useState<CourseResponseDTO | null>(null);
+    const [publishingCourse, setPublishingCourse] = useState<CourseResponseDTO | null>(null);
 
     const submitForReviewMutation = useSubmitCourseForReview();
 
@@ -99,7 +101,7 @@ export default function MyCoursesPage() {
                 onDelete={() => { }}
                 onModules={(course) => navigate(`/courses/${course.id}`)}
                 onManageInstructors={setManagingInstructorsCourse}
-                onPublish={() => { }}
+                onPublish={setPublishingCourse}
                 onReject={setRejectingCourse}
                 onViewAuditLog={setViewingAuditLogCourse}
                 onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
@@ -143,6 +145,12 @@ export default function MyCoursesPage() {
                 open={!!managingInstructorsCourse}
                 onOpenChange={(open) => !open && setManagingInstructorsCourse(null)}
                 course={managingInstructorsCourse}
+            />
+
+            <PublishCourseDialog
+                open={!!publishingCourse}
+                onOpenChange={(open) => !open && setPublishingCourse(null)}
+                course={publishingCourse}
             />
 
             <CourseAuditLogSheet
