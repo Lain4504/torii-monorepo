@@ -4,7 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: restructure agent handlers and update request payloads" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: enhance prompt and resource loading with dynamic path resolution">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/analytics.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/analytics.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/assessment.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/assessment.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/sensei.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/sensei.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/agent-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/agent-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -384,14 +397,7 @@
       <workItem from="1771656283677" duration="780000" />
       <workItem from="1771658110565" duration="1298000" />
       <workItem from="1771661136662" duration="381000" />
-    </task>
-    <task id="LOCAL-00782" summary="update nats logic">
-      <option name="closed" value="true" />
-      <created>1770004575679</created>
-      <option name="number" value="00782" />
-      <option name="presentableId" value="LOCAL-00782" />
-      <option name="project" value="LOCAL" />
-      <updated>1770004575679</updated>
+      <workItem from="1771662839658" duration="721000" />
     </task>
     <task id="LOCAL-00783" summary="update nats logic">
       <option name="closed" value="true" />
@@ -777,7 +783,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771661489924</updated>
     </task>
-    <option name="localTasksCounter" value="831" />
+    <task id="LOCAL-00831" summary="refactor: enhance prompt and resource loading with dynamic path resolution">
+      <option name="closed" value="true" />
+      <created>1771662928313</created>
+      <option name="number" value="00831" />
+      <option name="presentableId" value="LOCAL-00831" />
+      <option name="project" value="LOCAL" />
+      <updated>1771662928313</updated>
+    </task>
+    <option name="localTasksCounter" value="832" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -812,7 +826,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add artifacts module and analytics service for handling telemetry data" />
     <MESSAGE value="feat: integrate etherpad module" />
     <MESSAGE value="update" />
     <MESSAGE value="fix meet config" />
@@ -837,7 +850,8 @@
     <MESSAGE value="feat: add implementation checklist for Agents Service to track progress on AI-related tasks" />
     <MESSAGE value="refactor: improve course repository and service methods, add analytics handlers" />
     <MESSAGE value="refactor: restructure agent handlers and update request payloads" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: restructure agent handlers and update request payloads" />
+    <MESSAGE value="refactor: enhance prompt and resource loading with dynamic path resolution" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance prompt and resource loading with dynamic path resolution" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

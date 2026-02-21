@@ -29,7 +29,7 @@ interface Message {
     role: 'user' | 'assistant'
     content: string
     romaji?: string // For assistant
-    english?: string // For assistant
+    vietnamese?: string // For assistant
     isFeedback?: boolean
 }
 
@@ -334,7 +334,7 @@ export function InteractiveRoleplay() {
                 role: 'assistant',
                 content: data.response,
                 romaji: data.romaji,
-                english: data.english
+                vietnamese: data.vietnamese
             }
 
             setMessages([aiMsg])
@@ -383,7 +383,7 @@ export function InteractiveRoleplay() {
                 role: 'assistant',
                 content: data.response,
                 romaji: data.romaji,
-                english: data.english
+                vietnamese: data.vietnamese
             }
 
             setMessages(prev => [...prev, aiMsg])
@@ -454,7 +454,7 @@ export function InteractiveRoleplay() {
                         role: 'assistant',
                         content: data.response,
                         romaji: data.romaji,
-                        english: data.english
+                        vietnamese: data.vietnamese
                     }
                     // Insert closing message before feedback
                     setMessages(prev => {
@@ -748,7 +748,7 @@ export function InteractiveRoleplay() {
                                 {msg.role === 'assistant' && !msg.isFeedback && (
                                     <div className="px-3 mt-2 space-y-1 text-left">
                                         {msg.romaji && <p className="text-xs text-muted-foreground font-medium italic">{msg.romaji}</p>}
-                                        {msg.english && <p className="text-xs text-muted-foreground opacity-70">{msg.english}</p>}
+                                        {msg.vietnamese && <p className="text-xs text-muted-foreground opacity-70">{msg.vietnamese}</p>}
                                     </div>
                                 )}
                             </div>

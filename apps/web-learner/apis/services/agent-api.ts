@@ -12,96 +12,14 @@ import {
     AgentReadinessProfileResponseDTO
 } from '@workspace/schemas';
 
-// Non-AI metrics/track types (not yet in shared schemas, keep for now or move to separate DTO if needed)
-export interface TranslateResponse {
-    originalText: string;
-    translatedText: string;
-    sourceLanguage: string;
-    targetLanguage: string;
-    culturalNotes?: string;
-    alternativeTranslations?: string[];
-}
-
-export interface FlashcardResponse {
-    topic: string;
-    flashcards: Array<{
-        front: string;
-        back: string;
-        reading?: string;
-    }>;
-}
-
-export interface DrillResponse {
-    topic: string;
-    drills: Array<{
-        question: string;
-        options: string[];
-        correctAnswer: string;
-        explanation: string;
-    }>;
-}
-
-export interface ConversationSimulationResponse {
-    scenario: string;
-    conversation: Array<{
-        speaker: string;
-        japanese: string;
-        romaji: string;
-        english: string;
-    }>;
-    vocabulary: string[];
-    grammarPoints: string[];
-}
-
+// Non-AI metrics/track types
 export interface RoleplayResponse {
     response: string;
     romaji?: string;
-    english?: string;
+    vietnamese?: string;
     feedback?: string | null;
     isFinished: boolean;
 }
-
-export interface ResourceRecommendationResponse {
-    topic: string;
-    resources: Array<{
-        title: string;
-        type: string;
-        url: string;
-        description: string;
-    }>;
-}
-
-// Assessment Types
-export interface TestGenerationResponse {
-    testId: string;
-    questions: Array<{
-        id: string;
-        type: string;
-        content: string;
-        options?: string[];
-    }>;
-}
-
-export type PlacementTestResponse = TestGenerationResponse;
-
-export interface TestEvaluationResponse {
-    testId: string;
-    score: number;
-    maxScore: number;
-    feedback: string;
-    details: Array<{
-        questionId: string;
-        isCorrect: boolean;
-        explanation: string;
-    }>;
-}
-
-export interface PlacementEvaluationResponse extends TestEvaluationResponse {
-    suggestedLevel?: string;
-    analysis?: string;
-}
-
-// ...
 
 export interface ProgressTrackResponse {
     timeframe: string;
@@ -138,57 +56,75 @@ export interface ReportResponse {
 export const agentApi = {
     sensei: {
         chat: async (message: string, history: any[] = []): Promise<AgentChatResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentChatResponseDTO }>('/api/agents/chat', {
+            const response = await apiClient.post<{ success: boolean; data: AgentChatResponseDTO; message?: string }>('/api/agents/chat', {
                 message,
                 history
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to chat with Sensei');
+            }
             return response.data.data;
         },
         checkGrammar: async (text: string): Promise<AgentGrammarCheckResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentGrammarCheckResponseDTO }>('/api/agents/grammar-check', {
+            const response = await apiClient.post<{ success: boolean; data: AgentGrammarCheckResponseDTO; message?: string }>('/api/agents/grammar-check', {
                 text
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to check grammar');
+            }
             return response.data.data;
         },
         translate: async (text: string, sourceLanguage: string, targetLanguage: string): Promise<AgentTranslateResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentTranslateResponseDTO }>('/api/agents/translate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentTranslateResponseDTO; message?: string }>('/api/agents/translate', {
                 text,
                 sourceLanguage,
                 targetLanguage
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to translate');
+            }
             return response.data.data;
         },
-        createFlashcard: async (topic: string, difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate'): Promise<AgentFlashcardResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentFlashcardResponseDTO }>('/api/agents/flashcard', {
+        createFlashcard: async (topic: string, level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4'): Promise<AgentFlashcardResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AgentFlashcardResponseDTO; message?: string }>('/api/agents/flashcard', {
                 topic,
-                difficulty
+                level
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to create flashcard');
+            }
             return response.data.data;
         },
         generateDrill: async (
             type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading',
             topic: string,
-            difficulty: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
+            level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
             count: number = 5
         ): Promise<AgentDrillResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentDrillResponseDTO }>('/api/agents/drill/generate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentDrillResponseDTO; message?: string }>('/api/agents/drill/generate', {
                 type,
                 topic,
-                difficulty,
+                level,
                 count
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to generate drill');
+            }
             return response.data.data;
         },
         simulateConversation: async (
             scenario: string,
-            difficulty: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
+            level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
             turns: number = 4
         ): Promise<AgentConversationSimulationResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentConversationSimulationResponseDTO }>('/api/agents/conversation/simulate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentConversationSimulationResponseDTO; message?: string }>('/api/agents/conversation/simulate', {
                 scenario,
-                difficulty,
+                level,
                 turns
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to simulate conversation');
+            }
             return response.data.data;
         },
         roleplay: async (
@@ -212,68 +148,93 @@ export const agentApi = {
             });
             return response.data.data;
         },
-        recommendResources: async (topic: string, resourceType: string = 'all'): Promise<AgentResourceRecommendationResponseDTO> => {
+        recommendResources: async (topic: string, resourceType: string = 'all', level?: string): Promise<AgentResourceRecommendationResponseDTO> => {
             const response = await apiClient.post<{ success: boolean; data: AgentResourceRecommendationResponseDTO }>('/api/agents/resources/recommend', {
                 topic,
-                resourceType
+                resourceType,
+                level
             });
             return response.data.data;
         }
     },
     assessment: {
         generateTest: async (level: string, section: string, questionCount: number = 10): Promise<AgentTestGenerationResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO }>('/api/agents/test/generate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO; message?: string }>('/api/agents/test/generate', {
                 level,
                 section,
                 questionCount
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to generate test');
+            }
             return response.data.data;
         },
         evaluateTest: async (testId: string, answers: any[]): Promise<AgentTestEvaluationResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentTestEvaluationResponseDTO }>('/api/agents/test/evaluate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestEvaluationResponseDTO; message?: string }>('/api/agents/test/evaluate', {
                 testId,
                 answers
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to evaluate test');
+            }
             return response.data.data;
         },
         generatePlacementTest: async (questionCount: number = 15): Promise<AgentTestGenerationResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO }>('/api/agents/placement/test', {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO; message?: string }>('/api/agents/placement/test', {
                 questionCount
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to generate placement test');
+            }
             return response.data.data;
         },
         evaluatePlacementTest: async (testId: string, userAnswers: any): Promise<AgentTestEvaluationResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentTestEvaluationResponseDTO }>('/api/agents/placement/evaluate', {
+            const response = await apiClient.post<{ success: boolean; data: AgentTestEvaluationResponseDTO; message?: string }>('/api/agents/placement/evaluate', {
                 testId,
                 userAnswers
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to evaluate placement test');
+            }
             return response.data.data;
-        }
+        },
     },
     analytics: {
         trackProgress: async (timeframe: string = 'month'): Promise<ProgressTrackResponse> => {
-            const response = await apiClient.post<{ success: boolean; data: ProgressTrackResponse }>('/api/agents/progress/track', {
+            const response = await apiClient.post<{ success: boolean; data: ProgressTrackResponse; message?: string }>('/api/agents/progress/track', {
                 timeframe
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to track progress');
+            }
             return response.data.data;
         },
         suggestStudyPath: async (targetLevel: string): Promise<StudyPathResponse> => {
-            const response = await apiClient.post<{ success: boolean; data: StudyPathResponse }>('/api/agents/path/suggest', {
+            const response = await apiClient.post<{ success: boolean; data: StudyPathResponse; message?: string }>('/api/agents/path/suggest', {
                 targetLevel
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to suggest study path');
+            }
             return response.data.data;
         },
         generateReport: async (reportType: string = 'comprehensive', timeframe: string = 'month'): Promise<ReportResponse> => {
-            const response = await apiClient.post<{ success: boolean; data: ReportResponse }>('/api/agents/analytics/report', {
+            const response = await apiClient.post<{ success: boolean; data: ReportResponse; message?: string }>('/api/agents/analytics/report', {
                 reportType,
                 timeframe
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to generate report');
+            }
             return response.data.data;
         },
         getReadinessProfile: async (targetLevel: string): Promise<AgentReadinessProfileResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentReadinessProfileResponseDTO }>('/api/agents/analytics/readiness-profile', {
+            const response = await apiClient.post<{ success: boolean; data: AgentReadinessProfileResponseDTO; message?: string }>('/api/agents/analytics/readiness-profile', {
                 targetLevel
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to get readiness profile');
+            }
             return response.data.data;
         }
     }

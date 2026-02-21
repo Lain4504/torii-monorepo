@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
+// Triggering reload for schema update
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { z } from 'zod';
@@ -10,6 +11,7 @@ import {
     AgentConversationSimulationResponseSchema,
     AgentResourceRecommendationResponseSchema,
     AgentChatResponseSchema,
+    Requester,
 } from '@workspace/schemas';
 
 import { PrismaService } from '@server/shared';
@@ -259,51 +261,51 @@ export class SenseiService implements OnModuleInit {
 
     // --- Public Methods (Delegate to Tools) ---
 
-    async checkGrammar(userId: string, text: string): Promise<any> {
-        return this.fastMcpService.callTool('sensei_check_grammar', { userId, text });
+    async checkGrammar(requester: Requester, text: string): Promise<any> {
+        return this.fastMcpService.callTool('sensei_check_grammar', { userId: requester.sub, text });
     }
 
-    async translate(userId: string, text: string, sourceLanguage: string, targetLanguage: string): Promise<any> {
-        return this.fastMcpService.callTool('sensei_translate', { userId, text, sourceLanguage, targetLanguage });
+    async translate(requester: Requester, text: string, sourceLanguage: string, targetLanguage: string): Promise<any> {
+        return this.fastMcpService.callTool('sensei_translate', { userId: requester.sub, text, sourceLanguage, targetLanguage });
     }
 
-    async createFlashcard(userId: string, topic: string, level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4'): Promise<any> {
-        return this.fastMcpService.callTool('sensei_create_flashcard', { userId, topic, level });
+    async createFlashcard(requester: Requester, topic: string, level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4'): Promise<any> {
+        return this.fastMcpService.callTool('sensei_create_flashcard', { userId: requester.sub, topic, level });
     }
 
     async generatePracticeDrill(
-        userId: string,
+        requester: Requester,
         type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading',
         topic: string,
         level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
         count: number = 5,
     ): Promise<any> {
-        return this.fastMcpService.callTool('sensei_generate_drill', { userId, type, topic, level, count });
+        return this.fastMcpService.callTool('sensei_generate_drill', { userId: requester.sub, type, topic, level, count });
     }
 
     async simulateConversation(
-        userId: string,
+        requester: Requester,
         scenario: 'restaurant' | 'shopping' | 'station' | 'office' | 'casual' | 'formal',
         level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
         turns: number = 4,
     ): Promise<any> {
-        return this.fastMcpService.callTool('sensei_simulate_conversation', { userId, scenario, level, turns });
+        return this.fastMcpService.callTool('sensei_simulate_conversation', { userId: requester.sub, scenario, level, turns });
     }
 
     async recommendResources(
-        userId: string,
+        requester: Requester,
         topic: string,
         resourceType: 'article' | 'video' | 'book' | 'app' | 'website' | 'all' = 'all',
         level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
     ): Promise<any> {
-        return this.fastMcpService.callTool('sensei_recommend_resources', { userId, topic, resourceType, level });
+        return this.fastMcpService.callTool('sensei_recommend_resources', { userId: requester.sub, topic, resourceType, level });
     }
 
-    async chat(userId: string, message: string, history: any[] = []): Promise<any> {
-        return this.fastMcpService.callTool('sensei_chat', { userId, message, history });
+    async chat(requester: Requester, message: string, history: any[] = []): Promise<any> {
+        return this.fastMcpService.callTool('sensei_chat', { userId: requester.sub, message, history });
     }
 
-    async roleplay(userId: string, topic: string, message: string, history: any[] = [], isFinal: boolean = false): Promise<any> {
-        return this.fastMcpService.callTool('sensei_roleplay', { userId, topic, message, history, isFinal });
+    async roleplay(requester: Requester, topic: string, message: string, history: any[] = [], isFinal: boolean = false): Promise<any> {
+        return this.fastMcpService.callTool('sensei_roleplay', { userId: requester.sub, topic, message, history, isFinal });
     }
 }

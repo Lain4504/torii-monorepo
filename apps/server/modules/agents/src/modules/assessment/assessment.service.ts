@@ -5,7 +5,8 @@ import { PrismaService } from '@server/shared';
 
 import {
     AgentTestGenerationResponseSchema,
-    AgentTestEvaluationResponseSchema
+    AgentTestEvaluationResponseSchema,
+    Requester
 } from '@workspace/schemas';
 
 @Injectable()
@@ -277,27 +278,27 @@ export class AssessmentService implements OnModuleInit {
     // --- Public Methods (Delegate to Tools) ---
 
     async generateJlptTest(
-        userId: string,
+        requester: Requester,
         level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
         section: 'vocabulary' | 'grammar' | 'reading' | 'listening' | 'full',
         questionCount: number = 10,
     ): Promise<any> {
-        return this.fastMcpService.callTool('assessment_generate_test', { userId, level, section, questionCount });
+        return this.fastMcpService.callTool('assessment_generate_test', { userId: requester.sub, level, section, questionCount });
     }
 
     async evaluateTest(
-        userId: string,
+        requester: Requester,
         testId: string,
         answers: Array<{ questionId: string; userAnswer: string; correctAnswer: string }>,
     ): Promise<any> {
-        return this.fastMcpService.callTool('assessment_evaluate_test', { userId, testId, answers });
+        return this.fastMcpService.callTool('assessment_evaluate_test', { userId: requester.sub, testId, answers });
     }
 
-    async generatePlacementTest(userId: string, questionCount: number = 15): Promise<any> {
-        return this.fastMcpService.callTool('assessment_placement_test', { userId, questionCount });
+    async generatePlacementTest(requester: Requester, questionCount: number = 15): Promise<any> {
+        return this.fastMcpService.callTool('assessment_placement_test', { userId: requester.sub, questionCount });
     }
 
-    async evaluatePlacementTest(userId: string, testId: string, userAnswers: any): Promise<any> {
-        return this.fastMcpService.callTool('assessment_evaluate_placement', { userId, testId, userAnswers });
+    async evaluatePlacementTest(requester: Requester, testId: string, userAnswers: any): Promise<any> {
+        return this.fastMcpService.callTool('assessment_evaluate_placement', { userId: requester.sub, testId, userAnswers });
     }
 }

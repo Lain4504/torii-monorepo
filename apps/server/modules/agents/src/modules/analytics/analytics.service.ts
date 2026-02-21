@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
-import { AgentReadinessProfileResponseSchema, AgentStudyPathResponseSchema } from '@workspace/schemas';
+import { AgentReadinessProfileResponseSchema, AgentStudyPathResponseSchema, Requester } from '@workspace/schemas';
 
 @Injectable()
 export class AnalyticsService implements OnModuleInit {
@@ -117,27 +117,27 @@ export class AnalyticsService implements OnModuleInit {
 
     // --- Public Methods (Delegate to Tools) ---
 
-    async trackProgress(userId: string, timeframe: 'week' | 'month' | 'quarter' | 'year' = 'month'): Promise<any> {
-        return this.fastMcpService.callTool('analytics_track_progress', { userId, timeframe });
+    async trackProgress(requester: Requester, timeframe: 'week' | 'month' | 'quarter' | 'year' = 'month'): Promise<any> {
+        return this.fastMcpService.callTool('analytics_track_progress', { userId: requester.sub, timeframe });
     }
 
     async suggestStudyPath(
-        userId: string,
+        requester: Requester,
         targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
         timeframe?: string,
     ): Promise<any> {
-        return this.fastMcpService.callTool('analytics_suggest_study_path', { userId, targetLevel, timeframe });
+        return this.fastMcpService.callTool('analytics_suggest_study_path', { userId: requester.sub, targetLevel, timeframe });
     }
 
     async generateReport(
-        userId: string,
+        requester: Requester,
         reportType: 'progress' | 'assessment' | 'comprehensive' = 'comprehensive',
         timeframe: string = 'month',
     ): Promise<any> {
-        return this.fastMcpService.callTool('analytics_generate_report', { userId, reportType, timeframe });
+        return this.fastMcpService.callTool('analytics_generate_report', { userId: requester.sub, reportType, timeframe });
     }
 
-    async getReadinessProfile(userId: string, targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'): Promise<any> {
-        return this.fastMcpService.callTool('analytics_get_readiness_profile', { userId, targetLevel });
+    async getReadinessProfile(requester: Requester, targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'): Promise<any> {
+        return this.fastMcpService.callTool('analytics_get_readiness_profile', { userId: requester.sub, targetLevel });
     }
 }

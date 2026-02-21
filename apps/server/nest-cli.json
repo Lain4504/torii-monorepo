@@ -63,6 +63,7 @@
         "assets": [
           {
             "include": "src/assets/**/*",
+            "outDir": "dist/modules/agents/src/assets",
             "watchAssets": true
           }
         ]

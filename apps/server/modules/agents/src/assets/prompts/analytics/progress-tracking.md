@@ -37,9 +37,14 @@ Analyze the `Recent Activity` data to populate `chartData`.
     { "date": "Mon", "score": 65, "lessons": 2 },
     { "date": "Tue", "score": 70, "lessons": 3 }
   ],
-  "insights": ["key observations"],
-  "nextSteps": ["recommendations"]
+  "insights": ["key observations (IN VIETNAMESE)"],
+  "nextSteps": ["recommendations (IN VIETNAMESE)"]
 }
 ```
+
+**Rules:**
+- All `insights` and `nextSteps` MUST be written in **Vietnamese**.
+- If data is sparse, provide encouraging and helpful feedback based on the user's current status.
+- Output ONLY valid JSON.
 
 Remember: Output ONLY valid JSON, no other text!

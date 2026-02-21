@@ -92,7 +92,7 @@ export const AgentChatResponseSchema = z.object({
             'placement_test'
         ]),
         payload: z.any()
-    }).optional()
+    }).nullable().optional()
 });
 
 export const AgentReadinessProfileResponseSchema = z.object({

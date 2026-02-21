@@ -73,70 +73,61 @@ export class FastMcpService {
   // ==================== PUBLIC HELPERS ====================
 
   public loadPromptTemplate(templatePath: string): HandlebarsTemplateDelegate {
-    const pathsToTry = [
-      // 1. Build Path (Standard Prod if cwd is apps/server)
-      join(process.cwd(), 'dist/modules/agents/src/assets/prompts', templatePath),
-      join(process.cwd(), 'dist/modules/agents/assets/prompts', templatePath),
-
-      // 2. Source Paths (Dev)
-      join(process.cwd(), 'modules/agents/src/assets/prompts', templatePath),
-      join(process.cwd(), 'apps/server/modules/agents/src/assets/prompts', templatePath),
-    ];
-
-    // 3. Dynamic Strategy: Walk up from __dirname to find 'assets' folder
-    let currentDir = __dirname;
+    const searchDirs = [__dirname, process.cwd()];
     const rootPath = join(sep);
-    for (let i = 0; i < 10; i++) { // Max 10 levels up
-      pathsToTry.push(join(currentDir, 'assets/prompts', templatePath));
-      pathsToTry.push(join(currentDir, 'src/assets/prompts', templatePath));
-      if (currentDir === rootPath) break;
-      currentDir = dirname(currentDir);
-    }
 
-    for (const p of pathsToTry) {
-      try {
-        if (existsSync(p)) {
-          const content = readFileSync(p, 'utf-8');
-          return Handlebars.compile(content);
+    for (let currentDir of searchDirs) {
+      for (let i = 0; i < 15; i++) { // Increase depth for monorepo
+        const pathsToTry = [
+          join(currentDir, 'src/assets/prompts', templatePath),
+          join(currentDir, 'assets/prompts', templatePath),
+          join(currentDir, 'modules/agents/src/assets/prompts', templatePath),
+          join(currentDir, 'apps/server/modules/agents/src/assets/prompts', templatePath),
+        ];
+
+        for (const p of pathsToTry) {
+          if (existsSync(p)) {
+            // this.logger.debug(`Loaded template from: ${p}`);
+            const content = readFileSync(p, 'utf-8');
+            return Handlebars.compile(content);
+          }
         }
-      } catch (err) {
-        // Skip and try next
+
+        if (currentDir === rootPath) break;
+        currentDir = dirname(currentDir);
       }
     }
 
-    this.logger.error(`Failed to load prompt template: ${templatePath}. Tried paths: ${pathsToTry.join(', ')}`);
+    this.logger.error(`Failed to load prompt template: ${templatePath}. Search reached root starting from ${__dirname} and ${process.cwd()}`);
     throw new Error(`Template not found: ${templatePath}`);
   }
 
   public loadResource(resourcePath: string): any {
-    const pathsToTry = [
-      join(process.cwd(), 'dist/modules/agents/src/assets/resources', resourcePath),
-      join(process.cwd(), 'dist/modules/agents/assets/resources', resourcePath),
-      join(process.cwd(), 'modules/agents/src/assets/resources', resourcePath),
-      join(process.cwd(), 'apps/server/modules/agents/src/assets/resources', resourcePath),
-    ];
-
-    let currentDir = __dirname;
+    const searchDirs = [__dirname, process.cwd()];
     const rootPath = join(sep);
-    for (let i = 0; i < 10; i++) {
-      pathsToTry.push(join(currentDir, 'assets/resources', resourcePath));
-      pathsToTry.push(join(currentDir, 'src/assets/resources', resourcePath));
-      if (currentDir === rootPath) break;
-      currentDir = dirname(currentDir);
-    }
 
-    for (const p of pathsToTry) {
-      try {
-        if (existsSync(p)) {
-          const content = readFileSync(p, 'utf-8');
-          return JSON.parse(content);
+    for (let currentDir of searchDirs) {
+      for (let i = 0; i < 15; i++) {
+        const pathsToTry = [
+          join(currentDir, 'src/assets/resources', resourcePath),
+          join(currentDir, 'assets/resources', resourcePath),
+          join(currentDir, 'modules/agents/src/assets/resources', resourcePath),
+          join(currentDir, 'apps/server/modules/agents/src/assets/resources', resourcePath),
+        ];
+
+        for (const p of pathsToTry) {
+          if (existsSync(p)) {
+            const content = readFileSync(p, 'utf-8');
+            return JSON.parse(content);
+          }
         }
-      } catch (err) {
-        // Skip and try next
+
+        if (currentDir === rootPath) break;
+        currentDir = dirname(currentDir);
       }
     }
 
-    this.logger.error(`Failed to load resource: ${resourcePath}. Tried paths: ${pathsToTry.join(', ')}`);
+    this.logger.error(`Failed to load resource: ${resourcePath}. Search reached root starting from ${__dirname} and ${process.cwd()}`);
     return null;
   }
 

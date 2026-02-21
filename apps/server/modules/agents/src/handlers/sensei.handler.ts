@@ -17,15 +17,15 @@ export class SenseiHandler {
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; requester: Requester }) {
-    return this.senseiService.checkGrammar(data.requester.sub, data.text);
+    return this.senseiService.checkGrammar(data.requester, data.text);
   }
 
   @MessagePattern({ cmd: 'agents.sensei.translate' })
   async translate(
     @Payload()
-    data: { text: string; from: string; to: string; requester: Requester },
+    data: { text: string; sourceLanguage: string; targetLanguage: string; requester: Requester },
   ) {
-    return this.senseiService.translate(data.requester.sub, data.text, data.from, data.to);
+    return this.senseiService.translate(data.requester, data.text, data.sourceLanguage, data.targetLanguage);
   }
 
   @MessagePattern({ cmd: 'agents.sensei.createFlashcard' })
@@ -34,7 +34,7 @@ export class SenseiHandler {
     data: { topic: string; level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'; requester: Requester },
   ) {
     return this.senseiService.createFlashcard(
-      data.requester.sub,
+      data.requester,
       data.topic,
       data.level || 'N4',
     );
@@ -44,7 +44,7 @@ export class SenseiHandler {
   async generateDrill(
     @Payload()
     data: {
-      drillType: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading';
+      type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading';
       topic: string;
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       count?: number;
@@ -52,8 +52,8 @@ export class SenseiHandler {
     },
   ) {
     return this.senseiService.generatePracticeDrill(
-      data.requester.sub,
-      data.drillType,
+      data.requester,
+      data.type,
       data.topic,
       data.level || 'N4',
       data.count || 5,
@@ -71,7 +71,7 @@ export class SenseiHandler {
     },
   ) {
     return this.senseiService.simulateConversation(
-      data.requester.sub,
+      data.requester,
       data.scenario,
       data.level || 'N4',
       data.turns || 4,
@@ -89,7 +89,7 @@ export class SenseiHandler {
     },
   ) {
     return this.senseiService.recommendResources(
-      data.requester.sub,
+      data.requester,
       data.topic,
       data.resourceType || 'all',
       data.level,
@@ -106,7 +106,7 @@ export class SenseiHandler {
     },
   ) {
     return this.senseiService.chat(
-      data.requester.sub,
+      data.requester,
       data.message,
       data.history || [],
     );
@@ -124,7 +124,7 @@ export class SenseiHandler {
     },
   ) {
     return this.senseiService.roleplay(
-      data.requester.sub,
+      data.requester,
       data.topic,
       data.message,
       data.history || [],

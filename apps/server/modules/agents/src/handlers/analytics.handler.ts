@@ -20,7 +20,7 @@ export class AnalyticsHandler {
     },
   ) {
     return this.analyticsService.trackProgress(
-      data.requester.sub,
+      data.requester,
       data.timeframe || 'month',
     );
   }
@@ -35,7 +35,7 @@ export class AnalyticsHandler {
     },
   ) {
     return this.analyticsService.suggestStudyPath(
-      data.requester.sub,
+      data.requester,
       data.targetLevel || 'N5',
       data.timeframe,
     );
@@ -51,7 +51,7 @@ export class AnalyticsHandler {
     },
   ) {
     return this.analyticsService.generateReport(
-      data.requester.sub,
+      data.requester,
       data.reportType || 'comprehensive',
       data.timeframe || 'month',
     );
@@ -66,7 +66,7 @@ export class AnalyticsHandler {
     },
   ) {
     return this.analyticsService.getReadinessProfile(
-      data.requester.sub,
+      data.requester,
       data.targetLevel || 'N5',
     );
   }

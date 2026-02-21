@@ -22,7 +22,7 @@ export class AssessmentHandler {
     },
   ) {
     return this.assessmentService.generateJlptTest(
-      data.requester.sub,
+      data.requester,
       data.level,
       data.section,
       data.questionCount || 10,
@@ -39,7 +39,7 @@ export class AssessmentHandler {
     },
   ) {
     return this.assessmentService.evaluateTest(
-      data.requester.sub,
+      data.requester,
       data.testId,
       data.answers,
     );
@@ -54,7 +54,7 @@ export class AssessmentHandler {
     },
   ) {
     return this.assessmentService.generatePlacementTest(
-      data.requester.sub,
+      data.requester,
       data.questionCount || 15,
     );
   }
@@ -65,13 +65,13 @@ export class AssessmentHandler {
     data: {
       requester: Requester;
       testId: string;
-      answers: any;
+      userAnswers: any;
     },
   ) {
     return this.assessmentService.evaluatePlacementTest(
-      data.requester.sub,
+      data.requester,
       data.testId,
-      data.answers,
+      data.userAnswers,
     );
   }
 }

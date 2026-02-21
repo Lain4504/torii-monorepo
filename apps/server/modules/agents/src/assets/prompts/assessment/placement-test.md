@@ -30,7 +30,7 @@ You MUST respond with valid JSON only.
       "id": "q1",
       "level": "N5",
       "type": "vocabulary",
-      "question": "Choose the correct reading for: 猫",
+      "question": "Chọn cách đọc đúng cho: 猫",
       "options": ["neko", "inu", "tori", "uma"],
       "correctAnswer": 0
     },
@@ -38,7 +38,7 @@ You MUST respond with valid JSON only.
       "id": "q2",
       "level": "N4",
       "type": "grammar",
-      "question": "Fill in the blank: 私は寿司 ___ 好きです。",
+      "question": "Điền vào chỗ trống: 私は寿司 ___ 好きです。",
       "options": ["が", "を", "に", "で"],
       "correctAnswer": 0
     }
@@ -51,6 +51,7 @@ You MUST respond with valid JSON only.
 - `correctAnswer` MUST be the index (0-3) of the correct option.
 - Distribute questions across multiple difficulty levels (N5-N1).
 - All questions must be unique.
+- **IMPORTANT**: All instruction text within the `question` field (e.g., "Choose the correct...", "Fill in the blank...") MUST be in **Vietnamese**.
 - Output ONLY valid JSON.
 
 

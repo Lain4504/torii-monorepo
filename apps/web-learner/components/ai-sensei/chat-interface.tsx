@@ -54,7 +54,7 @@ export function ChatInterface() {
             const response: Message = {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: data.message || "Sorry, I didn't get that.",
+                content: data?.message || "Sorry, I didn't get that.",
                 timestamp: new Date(),
             }
 

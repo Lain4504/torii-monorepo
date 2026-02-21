@@ -1,16 +1,24 @@
 "use client"
 
 import * as React from "react"
-import { Drama, RefreshCw, Clapperboard } from "lucide-react"
+import { Drama, RefreshCw, Clapperboard, Loader2 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@workspace/ui/components/select"
 import { agentApi } from "@/apis/services/agent-api"
 import { AgentConversationSimulationResponseDTO as ConversationSimulationResponse } from "@workspace/schemas"
 
 export function RoleplayStudio() {
     const [scenario, setScenario] = React.useState("")
+    const [level, setLevel] = React.useState<"N5" | "N4" | "N3" | "N2" | "N1">("N4")
     const [isLoading, setIsLoading] = React.useState(false)
     const [roleplayData, setRoleplayData] = React.useState<ConversationSimulationResponse | null>(null)
     const [isPracticeMode, setIsPracticeMode] = React.useState(false)
@@ -20,7 +28,7 @@ export function RoleplayStudio() {
         setIsLoading(true)
         setRoleplayData(null)
         try {
-            const data = await agentApi.sensei.simulateConversation(scenario)
+            const data = await agentApi.sensei.simulateConversation(scenario, level)
             setRoleplayData(data)
         } catch (error) {
             console.error(error)
@@ -71,19 +79,31 @@ export function RoleplayStudio() {
                                         </button>
                                     ))}
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="grid md:grid-cols-[1fr,120px,100px] gap-2">
                                     <Input
                                         placeholder="Nhập tình huống (VD: Đi khám bệnh)..."
                                         className="h-10"
                                         value={scenario}
                                         onChange={(e) => setScenario(e.target.value)}
                                     />
+                                    <Select value={level} onValueChange={(v: any) => setLevel(v)}>
+                                        <SelectTrigger className="h-10">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="N5">N5</SelectItem>
+                                            <SelectItem value="N4">N4</SelectItem>
+                                            <SelectItem value="N3">N3</SelectItem>
+                                            <SelectItem value="N2">N2</SelectItem>
+                                            <SelectItem value="N1">N1</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <Button
-                                        className="bg-orange-600 hover:bg-orange-700 text-white font-semibold"
+                                        className="bg-orange-600 hover:bg-orange-700 text-white font-semibold h-10"
                                         onClick={handleGenerate}
                                         disabled={!scenario.trim() || isLoading}
                                     >
-                                        {isLoading ? "Đang viết..." : "Tạo"}
+                                        {isLoading ? <Loader2 className="size-4 animate-spin" /> : "Tạo"}
                                     </Button>
                                 </div>
                             </div>

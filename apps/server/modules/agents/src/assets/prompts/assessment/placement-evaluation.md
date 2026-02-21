@@ -26,12 +26,12 @@ You MUST respond with valid JSON only.
   "assessedLevel": "{{calculatedResult.suggestedLevel}}",
   "targetLevel": "N4",
   "studyPathRecommendation": {
-    "focusAreas": ["N4 Grammar", "Kanji"],
+    "focusAreas": ["Tên chủ đề cần tập trung (IN VIETNAMESE)"],
     "estimatedWeeks": 12,
     "weeklySchedule": [
       {
         "week": 1,
-        "topics": ["Particles (ni/de)", "Te-form conjugation"]
+        "topics": ["Danh sách chủ đề theo tuần (IN VIETNAMESE)"]
       }
     ]
   }
@@ -39,7 +39,7 @@ You MUST respond with valid JSON only.
 ```
 
 Additional Rules:
-- All analysis and recommendations MUST be in **Vietnamese**.
+- All analysis, topic names, and recommendations MUST be in **Vietnamese**.
 - The `assessedLevel` MUST match the `Calculated Level` provided above.
 - Suggest a logical `targetLevel` (usually one level higher than assessed).
 - Output ONLY valid JSON.
