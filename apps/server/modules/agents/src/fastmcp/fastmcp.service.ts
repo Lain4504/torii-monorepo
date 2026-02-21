@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService, AppConfigService } from '@server/shared';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as Handlebars from 'handlebars';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, existsSync } from 'fs';
+import { join, sep, dirname } from 'path';
 import { z } from 'zod';
 
 export interface ToolContext {
@@ -73,71 +73,71 @@ export class FastMcpService {
   // ==================== PUBLIC HELPERS ====================
 
   public loadPromptTemplate(templatePath: string): HandlebarsTemplateDelegate {
-    try {
-      // 1. Try Build Path (Standard Prod)
-      // If we are in apps/server/dist, this might be correct or nested
-      const buildPath = join(process.cwd(), 'dist/modules/agents/src/assets/prompts', templatePath);
+    const pathsToTry = [
+      // 1. Build Path (Standard Prod if cwd is apps/server)
+      join(process.cwd(), 'dist/modules/agents/src/assets/prompts', templatePath),
+      join(process.cwd(), 'dist/modules/agents/assets/prompts', templatePath),
 
-      // 2. Try Source Path (Service Root - apps/server)
-      // When running 'nest start' from apps/server, cwd is apps/server
-      const serviceSourcePath = join(process.cwd(), 'modules/agents/src/assets/prompts', templatePath);
+      // 2. Source Paths (Dev)
+      join(process.cwd(), 'modules/agents/src/assets/prompts', templatePath),
+      join(process.cwd(), 'apps/server/modules/agents/src/assets/prompts', templatePath),
+    ];
 
-      // 3. Try Source Path (Monorepo Root)
-      // When running from root
-      const monorepoSourcePath = join(process.cwd(), 'apps/server/modules/agents/src/assets/prompts', templatePath);
-
-      // 4. Try Relative to Service File (Fallback)
-      const localPath = join(__dirname, '../../assets/prompts', templatePath);
-
-      let templateContent: string;
-      try {
-        templateContent = readFileSync(buildPath, 'utf-8');
-      } catch (e1) {
-        try {
-          templateContent = readFileSync(serviceSourcePath, 'utf-8');
-        } catch (e2) {
-          try {
-            templateContent = readFileSync(monorepoSourcePath, 'utf-8');
-          } catch (e3) {
-            templateContent = readFileSync(localPath, 'utf-8');
-          }
-        }
-      }
-
-      return Handlebars.compile(templateContent);
-    } catch (error) {
-      this.logger.error(`Failed to load prompt template: ${templatePath}`, error);
-      throw new Error(`Template not found: ${templatePath}`);
+    // 3. Dynamic Strategy: Walk up from __dirname to find 'assets' folder
+    let currentDir = __dirname;
+    const rootPath = join(sep);
+    for (let i = 0; i < 10; i++) { // Max 10 levels up
+      pathsToTry.push(join(currentDir, 'assets/prompts', templatePath));
+      pathsToTry.push(join(currentDir, 'src/assets/prompts', templatePath));
+      if (currentDir === rootPath) break;
+      currentDir = dirname(currentDir);
     }
+
+    for (const p of pathsToTry) {
+      try {
+        if (existsSync(p)) {
+          const content = readFileSync(p, 'utf-8');
+          return Handlebars.compile(content);
+        }
+      } catch (err) {
+        // Skip and try next
+      }
+    }
+
+    this.logger.error(`Failed to load prompt template: ${templatePath}. Tried paths: ${pathsToTry.join(', ')}`);
+    throw new Error(`Template not found: ${templatePath}`);
   }
 
   public loadResource(resourcePath: string): any {
-    try {
-      const buildPath = join(process.cwd(), 'dist/modules/agents/src/assets/resources', resourcePath);
-      const serviceSourcePath = join(process.cwd(), 'modules/agents/src/assets/resources', resourcePath);
-      const monorepoSourcePath = join(process.cwd(), 'apps/server/modules/agents/src/assets/resources', resourcePath);
-      const localPath = join(__dirname, '../../assets/resources', resourcePath);
+    const pathsToTry = [
+      join(process.cwd(), 'dist/modules/agents/src/assets/resources', resourcePath),
+      join(process.cwd(), 'dist/modules/agents/assets/resources', resourcePath),
+      join(process.cwd(), 'modules/agents/src/assets/resources', resourcePath),
+      join(process.cwd(), 'apps/server/modules/agents/src/assets/resources', resourcePath),
+    ];
 
-      let content: string;
-      try {
-        content = readFileSync(buildPath, 'utf-8');
-      } catch (e1) {
-        try {
-          content = readFileSync(serviceSourcePath, 'utf-8');
-        } catch (e2) {
-          try {
-            content = readFileSync(monorepoSourcePath, 'utf-8');
-          } catch (e3) {
-            content = readFileSync(localPath, 'utf-8');
-          }
-        }
-      }
-
-      return JSON.parse(content);
-    } catch (error) {
-      this.logger.error(`Failed to load resource: ${resourcePath}`, error);
-      return null;
+    let currentDir = __dirname;
+    const rootPath = join(sep);
+    for (let i = 0; i < 10; i++) {
+      pathsToTry.push(join(currentDir, 'assets/resources', resourcePath));
+      pathsToTry.push(join(currentDir, 'src/assets/resources', resourcePath));
+      if (currentDir === rootPath) break;
+      currentDir = dirname(currentDir);
     }
+
+    for (const p of pathsToTry) {
+      try {
+        if (existsSync(p)) {
+          const content = readFileSync(p, 'utf-8');
+          return JSON.parse(content);
+        }
+      } catch (err) {
+        // Skip and try next
+      }
+    }
+
+    this.logger.error(`Failed to load resource: ${resourcePath}. Tried paths: ${pathsToTry.join(', ')}`);
+    return null;
   }
 
   public async callGemini(prompt: string): Promise<string> {
