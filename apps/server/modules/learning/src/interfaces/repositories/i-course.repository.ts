@@ -81,4 +81,14 @@ export interface ICourseRepository {
      * Get instructors for a course
      */
     getInstructors(courseId: string): Promise<any[]>;
+
+    /**
+     * Count published quizzes for a course
+     */
+    countQuizzes(courseId: string): Promise<number>;
+
+    /**
+     * Count published lessons for a course
+     */
+    countLessons(courseId: string): Promise<number>;
 }
