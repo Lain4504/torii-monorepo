@@ -17,9 +17,9 @@ Analyze the following Japanese text for grammar errors:
 **Text:** {{text}}
 
 ## Response Requirements
-You MUST respond with valid JSON only. No extra text, no markdown, just pure JSON.
+You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.
 
-Structure your response as follows:
+The JSON structure MUST strictly follow the `AgentGrammarCheckResponseSchema`:
 
 ```json
 {
@@ -30,16 +30,19 @@ Structure your response as follows:
     {
       "type": "grammar|particle|verb-form|tense|politeness",
       "location": "the problematic part",
-      "issue": "what's wrong",
+      "issue": "what's wrong (EXPLAIN IN VIETNAMESE)",
       "correction": "how to fix it",
-      "explanation": "why it's wrong and the rule"
+      "explanation": "why it's wrong and the pedagogical rule (EXPLAIN IN VIETNAMESE)"
     }
   ],
   "suggestions": [
-    "additional improvement suggestions"
+    "additional improvement suggestions (DESCRIBE IN VIETNAMESE)"
   ],
-  "overallAssessment": "brief overall feedback"
+  "overallAssessment": "brief overall feedback (WRITE IN VIETNAMESE)"
 }
 ```
 
-Remember: Output ONLY valid JSON. Do NOT wrap the response in markdown code blocks (```json). Just raw JSON.
+Additional Rules:
+- All pedagogical explanations, issue descriptions, and suggestions MUST be in **Vietnamese**.
+- Keep Japanese examples and technical terms accurate.
+- Output ONLY raw JSON. No backticks.

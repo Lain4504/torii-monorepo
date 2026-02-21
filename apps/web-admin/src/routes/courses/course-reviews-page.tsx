@@ -2,31 +2,34 @@
 import { useState } from 'react';
 import { useReviews, useReview } from '@/api/services/reviews';
 import { Button } from '@workspace/ui/components/button';
-
 import { SmartPagination } from '@/components/common/smart-pagination';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+} from '@workspace/ui/components/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 import { formatDateTime } from '@/lib/format-utils';
-import { Loader2, Star, AlertCircle } from 'lucide-react';
+import { Loader2, Star, Info } from 'lucide-react';
 import { ReviewsPrimaryToolbar } from '@/components/reviews/reviews-primary-toolbar';
 import { ReviewsTable } from '@/components/reviews/reviews-table';
-
-
 import { PageHeader } from '@/components/common/page-header';
+import {
+    Empty,
+    EmptyContent,
+    EmptyMedia,
+    EmptyTitle,
+    EmptyDescription,
+} from '@workspace/ui/components/empty';
 
 export default function CourseReviewsPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [ratingFilter, setRatingFilter] = useState<string>('all');
 
-    // Detail View State
     const [viewDialogOpen, setViewDialogOpen] = useState(false);
     const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
 
@@ -44,7 +47,6 @@ export default function CourseReviewsPage() {
         setViewDialogOpen(true);
     };
 
-    // Reset selected ID when dialog closes to ensuring refetch on next open if needed (though react-query caches)
     const handleOpenChange = (open: boolean) => {
         setViewDialogOpen(open);
         if (!open) setSelectedReviewId(null);
@@ -54,7 +56,7 @@ export default function CourseReviewsPage() {
     const totalPages = data?.totalPages || 1;
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Đánh giá Khóa học"
                 subtitle="Quản lý phản hồi và xếp hạng học thuật Torii"
@@ -63,9 +65,7 @@ export default function CourseReviewsPage() {
                 ]}
             />
 
-
             <div className="space-y-4">
-                {/* Toolbar */}
                 <ReviewsPrimaryToolbar
                     search={search}
                     onSearchChange={(val) => {
@@ -79,77 +79,76 @@ export default function CourseReviewsPage() {
                     }}
                 />
 
-                {/* Table Section */}
-                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <ReviewsTable
                         data={reviews}
                         isLoading={isLoading}
                         onView={openDetail}
+                        page={page}
+                        limit={10}
                     />
 
-                    {/* Pagination */}
                     <SmartPagination
                         page={page}
                         totalPages={totalPages}
                         totalItems={data?.total || 0}
                         onPageChange={setPage}
                         itemName="đánh giá"
-                        className="border-t border-border/10 px-6 py-4"
                     />
                 </div>
             </div>
 
             {/* Detail View Dialog */}
-            <Dialog open={viewDialogOpen} onOpenChange={handleOpenChange}>
-                <DialogContent className="border border-border/50 shadow-2xl bg-background rounded-3xl p-0 overflow-hidden sm:max-w-[500px]">
-                    <DialogHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
-                        <DialogTitle className="text-xl font-bold tracking-tight text-foreground">Chi Tiết Đánh Giá</DialogTitle>
-                        <DialogDescription className="text-xs font-medium text-muted-foreground/60 mt-1">
+            <Sheet open={viewDialogOpen} onOpenChange={handleOpenChange}>
+                <SheetContent className="w-full sm:w-[500px] !max-w-[500px] border-l border-border/50 shadow-2xl bg-background p-0 h-full flex flex-col">
+                    <SheetHeader className="p-6 border-b border-border/10 shrink-0">
+                        <SheetTitle>Chi tiết đánh giá</SheetTitle>
+                        <SheetDescription>
                             Xem nội dung đầy đủ của đánh giá
-                        </DialogDescription>
-                    </DialogHeader>
+                        </SheetDescription>
+                    </SheetHeader>
 
-                    <div className="p-6">
+                    <div className="p-6 flex-1 overflow-y-auto">
                         {isLoadingDetail ? (
                             <div className="flex flex-col items-center justify-center py-10 gap-2">
                                 <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
                                 <p className="text-xs text-muted-foreground">Đang tải thông tin...</p>
                             </div>
                         ) : reviewDetail ? (
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 {/* User Info */}
-                                <div className="flex items-center gap-4">
-                                    <Avatar className="h-12 w-12 rounded-xl border border-border/40 bg-muted/20">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 rounded-lg border border-border/40">
                                         <AvatarImage src={reviewDetail.user.avatarUrl} />
-                                        <AvatarFallback className="text-sm font-black bg-primary/10 text-primary">
+                                        <AvatarFallback className="text-sm font-bold bg-primary/10 text-primary">
                                             {reviewDetail.user.displayName.substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <h3 className="font-bold text-base text-foreground">{reviewDetail.user.displayName}</h3>
-                                        <p className="text-xs font-medium text-muted-foreground italic">Học viên</p>
+                                        <h3 className="font-semibold text-sm text-foreground">{reviewDetail.user.displayName}</h3>
+                                        <p className="text-xs text-muted-foreground">Học viên</p>
                                     </div>
                                 </div>
 
                                 {/* Course & Rating */}
-                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/40 space-y-3">
+                                <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-2">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/50 mb-1">Khóa học</p>
-                                            <p className="text-sm font-semibold text-foreground italic">
+                                            <p className="text-xs font-medium text-muted-foreground mb-0.5">Khóa học</p>
+                                            <p className="text-sm font-semibold text-foreground">
                                                 {reviewDetail.courseTitle || reviewDetail.courseId}
                                             </p>
                                         </div>
-                                        <div className="flex flex-col items-end">
-                                            <div className="flex bg-background rounded-full px-2 py-1 border border-border/50 shadow-sm">
+                                        <div className="flex flex-col items-end gap-1">
+                                            <div className="flex items-center gap-0.5">
                                                 {Array.from({ length: 5 }).map((_, i) => (
                                                     <Star
                                                         key={i}
-                                                        className={`w-3 h-3 ${i < reviewDetail.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
+                                                        className={`w-3.5 h-3.5 ${i < reviewDetail.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
                                                     />
                                                 ))}
                                             </div>
-                                            <span className="text-[10px] font-bold text-muted-foreground mt-1">
+                                            <span className="text-xs text-muted-foreground">
                                                 {formatDateTime(reviewDetail.createdAt)}
                                             </span>
                                         </div>
@@ -158,29 +157,34 @@ export default function CourseReviewsPage() {
 
                                 {/* Comment Content */}
                                 <div>
-                                    <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/50 mb-2">Nội dung đánh giá</p>
-                                    <div className="bg-background rounded-xl p-4 border border-border/50 shadow-sm">
-                                        <p className="text-sm text-foreground/80 leading-relaxed italic">
+                                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Nội dung đánh giá</p>
+                                    <div className="bg-muted/20 rounded-lg p-3 border border-border/30">
+                                        <p className="text-sm text-foreground/80 leading-relaxed">
                                             "{reviewDetail.comment || "Không có nội dung"}"
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-10 text-muted-foreground">
-                                <AlertCircle className="h-10 w-10 mx-auto mb-2 opacity-20" />
-                                <p>Không tìm thấy thông tin đánh giá</p>
-                            </div>
+                            <Empty className="border-none">
+                                <EmptyMedia>
+                                    <Info className="size-6 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Không tìm thấy</EmptyTitle>
+                                    <EmptyDescription>Không tìm thấy thông tin đánh giá.</EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
                         )}
                     </div>
 
-                    <DialogFooter className="px-6 py-4 bg-background border-t border-border/10">
-                        <Button variant="outline" onClick={() => setViewDialogOpen(false)} className="w-full rounded-xl h-10 text-xs font-bold uppercase tracking-wider">
+                    <SheetFooter className="p-6 border-t border-border/10 shrink-0 bg-muted/5">
+                        <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
                             Đóng
                         </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

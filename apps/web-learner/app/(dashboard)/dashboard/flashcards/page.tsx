@@ -139,7 +139,7 @@ export default function FlashcardsPage() {
             })
 
             // 2. Generate Cards
-            const level = jlptLevel === 'All' ? 'intermediate' : jlptLevel.toLowerCase() as 'beginner' | 'intermediate' | 'advanced'
+            const level = (jlptLevel === 'All' ? 'N3' : jlptLevel) as 'N5' | 'N4' | 'N3' | 'N2' | 'N1'
             const result = await agentApi.sensei.createFlashcard(aiTopic, level)
 
             // 3. Save Cards

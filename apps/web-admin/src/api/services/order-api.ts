@@ -13,9 +13,7 @@ export const orderApi = {
      * Get all orders
      */
     async getAllOrders(query?: OrderQueryDTO): Promise<PaginatedApiResponse<OrderResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>('/api/orders', {
-            params: query,
-        });
+        const response = await apiClient.post<PaginatedApiResponse<OrderResponseDTO>>('/api/orders/list', query);
         return response.data;
     },
 

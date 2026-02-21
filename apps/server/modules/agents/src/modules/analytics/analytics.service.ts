@@ -1,12 +1,18 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
+import { AgentReadinessProfileResponseSchema, AgentStudyPathResponseSchema, Requester } from '@workspace/schemas';
 
 @Injectable()
 export class AnalyticsService implements OnModuleInit {
     private readonly logger = new Logger(AnalyticsService.name);
 
-    constructor(private readonly fastMcpService: FastMcpService) { }
+    constructor(
+        private readonly fastMcpService: FastMcpService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    ) { }
 
     onModuleInit() {
         this.registerTools();
@@ -41,47 +47,24 @@ export class AnalyticsService implements OnModuleInit {
             }),
             async ({ userId, targetLevel, timeframe }) => {
                 const userContext = await this.fastMcpService.getUserContext(userId);
+                const syllabus = this.fastMcpService.loadResource('jlpt-syllabus.json');
+                const levelSyllabus = syllabus ? syllabus[targetLevel] : null;
+
                 const template = this.fastMcpService.loadPromptTemplate('analytics/study-path-suggestion.md');
-                const prompt = template({ userId, targetLevel, timeframe, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                const prompt = template({
+                    userId,
+                    targetLevel,
+                    timeframe,
+                    userContext,
+                    syllabus: levelSyllabus,
+                    timestamp: new Date().toISOString()
+                });
+
+                return this.fastMcpService.callGeminiWithSchema(prompt, AgentStudyPathResponseSchema);
             }
         );
 
-        // 3. Identify Weaknesses
-        this.fastMcpService.addTool(
-            'analytics_identify_weaknesses',
-            'Identify knowledge gaps and weaknesses',
-            z.object({
-                userId: z.string(),
-            }),
-            async ({ userId }) => {
-                const userContext = await this.fastMcpService.getUserContext(userId);
-                const template = this.fastMcpService.loadPromptTemplate('analytics/weakness-identification.md');
-                const prompt = template({ userId, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
-            }
-        );
-
-        // 4. Predict Readiness
-        this.fastMcpService.addTool(
-            'analytics_predict_readiness',
-            'Predict readiness for specific JLPT level',
-            z.object({
-                userId: z.string(),
-                targetLevel: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
-            }),
-            async ({ userId, targetLevel }) => {
-                const userContext = await this.fastMcpService.getUserContext(userId);
-                const template = this.fastMcpService.loadPromptTemplate('analytics/readiness-prediction.md');
-                const prompt = template({ userId, targetTest: targetLevel, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
-            }
-        );
-
-        // 5. Generate Report
+        // 3. Generate Report
         this.fastMcpService.addTool(
             'analytics_generate_report',
             'Generate comprehensive analytics report',
@@ -98,35 +81,63 @@ export class AnalyticsService implements OnModuleInit {
                 return this.fastMcpService.cleanJsonResponse(response);
             }
         );
+
+        // 4. Readiness Profile (Unified)
+        this.fastMcpService.addTool(
+            'analytics_get_readiness_profile',
+            'Get a comprehensive readiness profile and benchmark',
+            z.object({
+                userId: z.string(),
+                targetLevel: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']),
+            }),
+            async ({ userId, targetLevel }) => {
+                // Fetch real metrics from core service via NATS
+                const metrics = await firstValueFrom(
+                    this.natsClient.send({ cmd: 'learning.readinessMetrics' }, { userId })
+                ).catch(err => {
+                    this.logger.warn(`Failed to fetch readiness metrics for user ${userId}: ${err.message}`);
+                    return null;
+                });
+
+                const template = this.fastMcpService.loadPromptTemplate('analytics/readiness-profile.md');
+                const userContext = await this.fastMcpService.getUserContext(userId);
+
+                const prompt = template({
+                    userId,
+                    targetLevel,
+                    metrics,
+                    userContext,
+                    timestamp: new Date().toISOString()
+                });
+
+                return this.fastMcpService.callGeminiWithSchema(prompt, AgentReadinessProfileResponseSchema);
+            }
+        );
     }
 
     // --- Public Methods (Delegate to Tools) ---
 
-    async trackProgress(userId: string, timeframe: 'week' | 'month' | 'quarter' | 'year' = 'month'): Promise<any> {
-        return this.fastMcpService.callTool('analytics_track_progress', { userId, timeframe });
+    async trackProgress(requester: Requester, timeframe: 'week' | 'month' | 'quarter' | 'year' = 'month'): Promise<any> {
+        return this.fastMcpService.callTool('analytics_track_progress', { userId: requester.sub, timeframe });
     }
 
     async suggestStudyPath(
-        userId: string,
+        requester: Requester,
         targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1',
         timeframe?: string,
     ): Promise<any> {
-        return this.fastMcpService.callTool('analytics_suggest_study_path', { userId, targetLevel, timeframe });
-    }
-
-    async identifyWeaknesses(userId: string): Promise<any> {
-        return this.fastMcpService.callTool('analytics_identify_weaknesses', { userId });
-    }
-
-    async predictReadiness(userId: string, targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'): Promise<any> {
-        return this.fastMcpService.callTool('analytics_predict_readiness', { userId, targetLevel });
+        return this.fastMcpService.callTool('analytics_suggest_study_path', { userId: requester.sub, targetLevel, timeframe });
     }
 
     async generateReport(
-        userId: string,
+        requester: Requester,
         reportType: 'progress' | 'assessment' | 'comprehensive' = 'comprehensive',
         timeframe: string = 'month',
     ): Promise<any> {
-        return this.fastMcpService.callTool('analytics_generate_report', { userId, reportType, timeframe });
+        return this.fastMcpService.callTool('analytics_generate_report', { userId: requester.sub, reportType, timeframe });
+    }
+
+    async getReadinessProfile(requester: Requester, targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'): Promise<any> {
+        return this.fastMcpService.callTool('analytics_get_readiness_profile', { userId: requester.sub, targetLevel });
     }
 }

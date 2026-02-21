@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { PrismaModule, NatsClientModule } from '@server/shared';
 import { TicketService } from './ticket.service';
 import { TicketRepository } from './ticket.repository';
-import { TicketHandler } from '../../interfaces/nats/ticket.handler';
-import { TICKET_SERVICE_TOKEN } from '../../interfaces/services';
-import { TICKET_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { TicketHandler } from '@server/communication/interfaces/nats/ticket.handler';
+import { TICKET_SERVICE_TOKEN } from '@server/communication/interfaces/services';
+import { TICKET_REPOSITORY_TOKEN } from '@server/communication/interfaces/repositories';
 import { NotificationModule } from '../notification/notification.module';
 import { EmailModule } from '../email/email.module';
 

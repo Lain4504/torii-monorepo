@@ -8,6 +8,7 @@ import StoreProvider from "@/store/provider"
 const queryClient = new QueryClient()
 
 import { AuthInitializer } from "@/store/auth-initializer"
+import { TooltipProvider } from "@workspace/ui/components/tooltip"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -21,7 +22,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             disableTransitionOnChange
             enableColorScheme
           >
-            {children}
+            <TooltipProvider>
+              {children}
+            </TooltipProvider>
           </NextThemesProvider>
         </QueryClientProvider>
       </AuthInitializer>

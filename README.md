@@ -39,17 +39,17 @@ Backend được xây dựng dựa trên sự kết hợp giữa **NestJS** và 
 ```mermaid
 graph TB
     Client((Clients)) -->|HTTP| Gateway["API Gateway :8080"]
-    Gateway -->|HTTP/NATS Proxy| Services
+    Gateway -->|NATS Proxy| Services
     
     subgraph Services ["Hệ sinh thái Microservices"]
         direction TB
-        Identity["<b>Identity</b> :8081<br>Auth, RBAC, 2FA, Billing"]
-        Learning["<b>Learning</b> :8082<br>LMS, Exams, Flashcards"]
-        Comm["<b>Communication</b> :8083<br>Notifications, Messaging"]
-        Gamification["<b>Gamification</b> (NATS)<br>Streaks, Achievements"]
-        Storage["<b>Storage</b> :8085<br>S3 Integration, Meta"]
-        Agents["<b>Agents</b> :8090<br>AI Tutor, Analytics"]
-        Meet["<b>Meet</b> :8091<br>WebRTC Live Class"]
+        Identity["<b>Identity</b><br>Auth, RBAC, 2FA, Billing"]
+        Learning["<b>Learning</b><br>LMS, Exams, Flashcards"]
+        Comm["<b>Communication</b><br>Notifications, Messaging"]
+        Gamification["<b>Gamification</b><br>Streaks, Achievements"]
+        Storage["<b>Storage</b><br>S3 Integration, Meta"]
+        Agents["<b>Agents</b><br>AI Tutor, Analytics"]
+        Meet["<b>Meet</b><br>WebRTC Live Class"]
     end
     
     Services -.->|Pub/Sub & Events| NATS[("NATS Broker")]
@@ -65,16 +65,16 @@ graph TB
 
 ### 🧩 Chi tiết các Microservices
 
-| Service | Port | Protocol | Vai trò & Trách nhiệm |
-|:---|:---|:---|:---|
-| **Gateway** | `8080` | HTTP | Entry point chính, xử lý Auth Guard, Proxy routing. |
-| **Identity** | `8081` | HTTP + NATS | Quản lý định danh (Login/OAuth), Phân quyền (RBAC), Bảo mật (2FA), Thanh toán (Payments). |
-| **Learning** | `8082` | HTTP + NATS | LMS Core: Khóa học, Bài học, Thi cử (Exams), Cộng đồng (Blog), Flashcards (SRS). |
-| **Communication**| `8083` | HTTP + NATS | Trung tâm thông báo (In-app, Email, Push). |
-| **Storage** | `8085` | HTTP + NATS | Quản lý tập tin, tích hợp S3, xử lý metadata file. |
-| **Gamification** | `NATS` | NATS | Hệ thống Streak, Huy hiệu (Achievements), Điểm thưởng (XP). |
-| **Agents** | `8090` | HTTP + NATS | Trí tuệ nhân tạo: AI Sensei hỗ trợ học tập qua FastMCP. |
-| **Meet** | `8091` | HTTP + NATS | Lớp học trực tuyến WebRTC, tích hợp LiveKit. |
+| Service | Protocol | Vai trò & Trách nhiệm |
+|:---|:---|:---|
+| **Gateway** | HTTP / NATS | Entry point chính (Port 8080), xử lý Auth Guard, Proxy routing qua NATS. |
+| **Identity** | NATS | Quản lý định danh (Login/OAuth), Phân quyền (RBAC), Bảo mật (2FA), Thanh toán (Payments). |
+| **Learning** | NATS | LMS Core: Khóa học, Bài học, Thi cử (Exams), Cộng đồng (Blog), Flashcards (SRS). |
+| **Communication**| NATS | Trung tâm thông báo (In-app, Email, Push). |
+| **Storage** | NATS | Quản lý tập tin, tích hợp S3, xử lý metadata file. |
+| **Gamification** | NATS | Hệ thống Streak, Huy hiệu (Achievements), Điểm thưởng (XP). |
+| **Agents** | NATS | Trí tuệ nhân tạo: AI Sensei hỗ trợ học tập qua FastMCP. |
+| **Meet** | NATS / WebRTC | Lớp học trực tuyến WebRTC, tích hợp LiveKit. |
 
 ---
 

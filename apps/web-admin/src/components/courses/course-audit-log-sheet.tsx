@@ -129,7 +129,7 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
 
     return (
         <Sheet open={!!courseId} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent className="sm:max-w-md md:max-w-lg p-0 border-l border-border/20 shadow-2xl bg-background/95 backdrop-blur-xl">
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] p-0 border-l border-border/20 shadow-2xl bg-background/95 backdrop-blur-xl">
                 <div className="flex flex-col h-full">
                     <SheetHeader className="p-8 pb-6 border-b border-border/10">
                         <div className="flex items-center gap-4 mb-4">
@@ -186,8 +186,7 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
                         <Button
                             variant="outline"
                             className="w-full h-11 rounded-xl border-border/40 bg-background hover:bg-muted text-xs font-bold uppercase tracking-widest gap-2 shadow-sm"
-                            onClick={() => window.location.href = '/audit'}
-                        >
+                            onClick={() => window.location.href = '/audit'}>
                             <ExternalLink className="size-3.5 opacity-50" />
                             Xem toàn bộ nhật ký hệ thống
                         </Button>

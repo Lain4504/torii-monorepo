@@ -25,10 +25,9 @@ export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Uplo
 
         // Check file type manually since drag-and-drop might bypass accept attribute
         if (accept && accept !== '*') {
-            const acceptType = accept.replace('*', '');
-            if (!file.type.match(acceptType)) {
-                toast.error('Invalid file type', {
-                    description: `Please upload a valid ${accept.split('/')[0]} file.`
+            if (accept && !file.type.match(accept.replace('*', '.*'))) {
+                toast.error('Định dạng file không hợp lệ', {
+                    description: `Vui lòng tải lên file ${accept.split('/')[0]} hợp lệ.`
                 });
                 return;
             }
@@ -45,7 +44,7 @@ export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Uplo
             });
 
             if (!presignData || !presignData.data || !presignData.data.uploadUrl) {
-                throw new Error('Failed to get upload URL');
+                throw new Error('Không thể lấy URL tải lên');
             }
 
             const { uploadUrl, fileUrl, fileId } = presignData.data;
@@ -70,8 +69,8 @@ export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Uplo
 
         } catch (error: any) {
             console.error('Upload failed:', error);
-            const message = error.response?.data?.message || error.message || 'Upload failed. Please try again.';
-            toast.error('Upload failed', { description: message });
+            const message = error.response?.data?.message || error.message || 'Tải lên thất bại. Vui lòng thử lại.';
+            toast.error('Tải lên thất bại', { description: message });
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) {

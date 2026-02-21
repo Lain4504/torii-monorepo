@@ -44,11 +44,11 @@ export function PoolsTable({
             <Table className="min-w-[1000px] border-collapse bg-transparent">
                 <TableHeader className="bg-muted/30 border-b border-border">
                     <TableRow className="hover:bg-transparent border-none">
-                        <TableHead className="w-12 px-4 h-11 border-r border-border/30">#</TableHead>
-                        <TableHead className="px-4 h-11 border-r border-border/30">Tên bộ câu hỏi</TableHead>
-                        <TableHead className="px-4 h-11 border-r border-border/30">Mô tả</TableHead>
-                        <TableHead className="px-4 h-11 border-r border-border/30">Cấp độ</TableHead>
-                        <TableHead className="px-4 h-11 border-r border-border/30">Câu hỏi</TableHead>
+                        <TableHead className="w-12 px-4 h-11">#</TableHead>
+                        <TableHead className="px-4 h-11">Tên bộ câu hỏi</TableHead>
+                        <TableHead className="px-4 h-11">Mô tả</TableHead>
+                        <TableHead className="px-4 h-11">Cấp độ</TableHead>
+                        <TableHead className="px-4 h-11">Câu hỏi</TableHead>
                         <TableHead className="w-12 px-4 h-11 text-right">Thao tác</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -86,11 +86,11 @@ export function PoolsTable({
         <Table className="min-w-[1000px] border-collapse bg-transparent">
             <TableHeader className="bg-muted/30 border-b border-border">
                 <TableRow className="hover:bg-transparent border-none">
-                    <TableHead className="w-12 px-4 h-11 text-xs font-semibold text-muted-foreground border-r border-border/30">#</TableHead>
-                    <TableHead className="px-4 h-11 text-xs font-semibold text-muted-foreground border-r border-border/30">Bộ câu hỏi</TableHead>
-                    <TableHead className="px-4 h-11 text-xs font-semibold text-muted-foreground border-r border-border/30">Mô tả tóm tắt</TableHead>
-                    <TableHead className="px-4 h-11 text-xs font-semibold text-muted-foreground border-r border-border/30">Cấp độ</TableHead>
-                    <TableHead className="px-4 h-11 text-xs font-semibold text-muted-foreground border-r border-border/30">Số lượng</TableHead>
+                    <TableHead className="w-12 px-4 h-11 text-xs font-semibold text-muted-foreground">#</TableHead>
+                    <TableHead className="px-4 h-11 text-xs font-semibold text-muted-foreground">Bộ câu hỏi</TableHead>
+                    <TableHead className="px-4 h-11 text-xs font-semibold text-muted-foreground">Mô tả tóm tắt</TableHead>
+                    <TableHead className="px-4 h-11 text-xs font-semibold text-muted-foreground">Cấp độ</TableHead>
+                    <TableHead className="px-4 h-11 text-xs font-semibold text-muted-foreground">Số lượng</TableHead>
                     <TableHead className="w-12 px-4 h-11 text-right text-xs font-semibold text-muted-foreground">Thao tác</TableHead>
                 </TableRow>
             </TableHeader>
@@ -146,7 +146,7 @@ function PoolRow({
                         {pool.name}
                     </span>
                     <span className="text-[10px] text-muted-foreground/60 font-mono tracking-tight">
-                        ID: {pool.id}
+                        Mã: {pool.id}
                     </span>
                 </div>
             </TableCell>

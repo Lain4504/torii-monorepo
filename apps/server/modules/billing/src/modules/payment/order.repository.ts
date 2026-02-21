@@ -44,12 +44,14 @@ export class OrderRepository implements IOrderRepository {
         take: number;
         where?: Prisma.OrderWhereInput;
         orderBy?: Prisma.OrderOrderByWithRelationInput;
-    }): Promise<Order[]> {
+        include?: Prisma.OrderInclude;
+    }): Promise<any[]> {
         return this.prisma.order.findMany({
             where: options.where,
             skip: options.skip,
             take: options.take,
             orderBy: options.orderBy || { createdAt: 'desc' },
+            include: options.include,
         });
     }
 

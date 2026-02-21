@@ -109,10 +109,10 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                                     <Check className="size-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                                     <div className="space-y-1">
                                         <p className="text-sm font-medium text-foreground">
-                                            New backup codes generated
+                                            Đã tạo mã dự phòng mới
                                         </p>
                                         <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                                            Each code can only be used once. Store them in a safe place.
+                                            Mỗi mã chỉ có thể được sử dụng một lần. Lưu chúng ở nơi an toàn.
                                         </p>
                                     </div>
                                 </div>
@@ -138,7 +138,7 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                                     className="flex-1 gap-2 rounded-lg"
                                 >
                                     {copiedCodes ? <Check className="size-4 text-emerald-600" /> : <Copy className="size-4" />}
-                                    Copy Codes
+                                    Sao chép mã
                                 </Button>
                                 <Button
                                     onClick={downloadBackupCodes}
@@ -146,7 +146,7 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                                     className="flex-1 gap-2 rounded-lg"
                                 >
                                     <Download className="size-4" />
-                                    Download
+                                    Tải xuống
                                 </Button>
                             </div>
 
@@ -157,7 +157,7 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                                 }}
                                 className="w-full rounded-lg"
                             >
-                                I've Saved My Backup Codes
+                                Tôi đã lưu mã dự phòng
                             </Button>
                         </>
                     )}

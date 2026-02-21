@@ -10,7 +10,7 @@ import {
     CalendarCheck2,
     Edit,
     Trash,
-    MoreHorizontal,
+    MoreVertical,
     PlayCircle,
     StopCircle,
     Settings,
@@ -196,16 +196,16 @@ export default function CourseDetailPage() {
 
     if (!course) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-in fade-in duration-500 max-w-lg mx-auto px-6">
-                <div className="p-6 rounded-3xl bg-destructive/5 border border-destructive/20">
-                    <AlertCircle className="size-12 text-destructive/60 mx-auto" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+                <div className="size-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive">
+                    <AlertCircle className="size-6" />
                 </div>
-                <div className="space-y-2 text-center">
-                    <h2 className="text-2xl font-sans font-bold italic tracking-tight uppercase">Không tìm thấy khóa học</h2>
-                    <p className="text-xs font-medium text-muted-foreground">Khóa học bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
+                <div className="space-y-1">
+                    <h2 className="text-xl font-semibold">Không tìm thấy khóa học</h2>
+                    <p className="text-sm text-muted-foreground">Khóa học bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
                 </div>
-                <Button variant="outline" className="h-10 px-6 rounded-xl" onClick={() => navigate('/courses')}>
-                    <ChevronLeft className="mr-2 size-3.5" />
+                <Button variant="outline" onClick={() => navigate('/courses')}>
+                    <ChevronLeft className="mr-2 size-4" />
                     Quay về danh sách
                 </Button>
             </div>
@@ -217,16 +217,16 @@ export default function CourseDetailPage() {
     ) || [];
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700 pb-20">
-            <div className="space-y-4">
+        <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
+                    className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit group"
                     onClick={() => navigate('/courses')}
                 >
-                    <ChevronLeft className="size-4" />
-                    <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại danh sách</span>
+                    <ChevronLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Quay lại danh sách</span>
                 </Button>
 
                 <PageHeader
@@ -236,34 +236,33 @@ export default function CourseDetailPage() {
                         { label: "Trình độ", value: course.jlptLevel || 'N/A' },
                         { label: "Bài học", value: course.totalLessons || 0 },
                         { label: "Quiz", value: course.totalQuizzes || 0 },
-                        { label: "Buổi học live", value: liveSessions?.length || 0 },
+                        { label: "Live session", value: liveSessions?.length || 0 },
                     ]}
                     actions={
                         <Button
                             onClick={() => setCreateModuleOpen(true)}
-                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
                         >
+                            <Plus className="mr-2 size-4" />
                             Thêm Học Phần
-                            <Plus className="ml-2 size-4" />
                         </Button>
                     }
                 />
             </div>
 
             <Tabs defaultValue="curriculum" className="space-y-6">
-                <TabsList className="h-12 p-1.5 rounded-2xl bg-muted/30 border border-border/40">
-                    <TabsTrigger value="curriculum" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <Layers className="size-4 mr-2" />
+                <TabsList className="bg-muted/40 p-1 h-auto gap-1">
+                    <TabsTrigger value="curriculum" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
+                        <Layers className="size-4" />
                         Chương Trình
                     </TabsTrigger>
                     {course?.type === 'live' && (
-                        <TabsTrigger value="live-schedule" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                            <CalendarCheck2 className="size-4 mr-2" />
+                        <TabsTrigger value="live-schedule" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
+                            <CalendarCheck2 className="size-4" />
                             Lịch học Live
                         </TabsTrigger>
                     )}
-                    <TabsTrigger value="assignments" className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <PenTool className="size-4 mr-2" />
+                    <TabsTrigger value="assignments" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
+                        <PenTool className="size-4" />
                         Bài Tập
                     </TabsTrigger>
                 </TabsList>
@@ -271,15 +270,16 @@ export default function CourseDetailPage() {
                 {/* Curriculum Tab */}
                 <TabsContent value="curriculum" className="space-y-4">
                     {modules.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center p-20 text-center space-y-6 border-2 border-dashed border-border/40 rounded-3xl bg-muted/5">
-                            <div className="p-6 rounded-full bg-muted/10">
-                                <Layers className="size-16 text-muted-foreground/20" />
+                        <div className="flex flex-col items-center justify-center p-20 text-center gap-6 border border-dashed rounded-xl bg-muted/5">
+                            <div className="size-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground/40">
+                                <Layers className="size-6" />
                             </div>
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-sans font-bold italic text-muted-foreground/50 uppercase tracking-tight">Chưa có nội dung</h3>
-                                <p className="text-sm text-muted-foreground/40 max-w-sm mx-auto">Khóa học này chưa có học phần nào. Hãy bắt đầu xây dựng chương trình học ngay.</p>
+                            <div className="space-y-1">
+                                <h3 className="text-lg font-semibold uppercase tracking-tight">Chưa có nội dung</h3>
+                                <p className="text-sm text-muted-foreground/60 max-w-xs mx-auto">Khóa học này chưa có học phần nào. Hãy bắt đầu xây dựng chương trình học ngay.</p>
                             </div>
-                            <Button onClick={() => setCreateModuleOpen(true)} variant="outline" className="h-11 px-8 rounded-xl">
+                            <Button onClick={() => setCreateModuleOpen(true)} variant="outline">
+                                <Plus className="mr-2 size-4" />
                                 Tạo Học Phần Mới
                             </Button>
                         </div>
@@ -331,7 +331,7 @@ export default function CourseDetailPage() {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                                    <MoreHorizontal className="size-4" />
+                                                                    <MoreVertical className="size-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
@@ -376,7 +376,7 @@ export default function CourseDetailPage() {
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
                                                                     <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                                        <MoreHorizontal className="size-4" />
+                                                                        <MoreVertical className="size-4" />
                                                                     </Button>
                                                                 </DropdownMenuTrigger>
                                                                 <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
@@ -422,15 +422,16 @@ export default function CourseDetailPage() {
                         </div>
 
                         {sortedSessions.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center p-20 text-center space-y-6 border-2 border-dashed border-border/40 rounded-3xl bg-muted/5">
-                                <div className="p-6 rounded-full bg-muted/10">
-                                    <Video className="size-16 text-muted-foreground/20" />
+                            <div className="flex flex-col items-center justify-center p-20 text-center gap-6 border border-dashed rounded-xl bg-muted/5">
+                                <div className="size-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground/40">
+                                    <Video className="size-6" />
                                 </div>
-                                <div className="space-y-2">
-                                    <h3 className="text-xl font-sans font-bold italic text-muted-foreground/50 uppercase tracking-tight">Chưa có lịch dạy nào</h3>
-                                    <p className="text-sm text-muted-foreground/40 max-w-sm mx-auto">Hãy bắt đầu bằng cách thiết lập lịch cố định hàng tuần cho khóa học này.</p>
+                                <div className="space-y-1">
+                                    <h3 className="text-lg font-semibold uppercase tracking-tight">Chưa có lịch dạy nào</h3>
+                                    <p className="text-sm text-muted-foreground/60 max-w-xs mx-auto">Hãy bắt đầu bằng cách thiết lập lịch cố định hàng tuần cho khóa học này.</p>
                                 </div>
-                                <Button onClick={() => setIsScheduleSheetOpen(true)} variant="outline" className="h-11 px-8 rounded-xl">
+                                <Button onClick={() => setIsScheduleSheetOpen(true)} variant="outline">
+                                    <Settings className="mr-2 size-4" />
                                     Thiết lập lịch cố định
                                 </Button>
                             </div>
@@ -471,7 +472,7 @@ export default function CourseDetailPage() {
                                                 <TableCell className="border-r border-border/30">
                                                     <div className="space-y-1">
                                                         <p className="font-semibold text-sm">{session.title}</p>
-                                                        <p className="text-[10px] text-muted-foreground font-mono">ID: {session.id.slice(0, 8)}</p>
+                                                        <p className="text-[10px] text-muted-foreground font-mono">Mã: {session.id.slice(0, 8)}</p>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="border-r border-border/30">
@@ -502,7 +503,7 @@ export default function CourseDetailPage() {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                                    <MoreHorizontal className="size-4" />
+                                                                    <MoreVertical className="size-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
@@ -542,7 +543,6 @@ export default function CourseDetailPage() {
                                 setSelectedLessonIdForAssignment(null);
                                 setCreateAssignmentOpen(true);
                             }}
-                            className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 transition-all"
                         >
                             <Plus className="mr-2 size-4" />
                             Thêm bài tập mới
@@ -583,7 +583,7 @@ export default function CourseDetailPage() {
             <EditModuleSheet open={editModuleOpen} onOpenChange={setEditModuleOpen} module={selectedModule} />
             <DeleteModuleDialog open={deleteModuleOpen} onOpenChange={setDeleteModuleOpen} module={selectedModule} />
 
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div>Đang tải...</div>}>
                 <CreateLessonSheet open={createLessonOpen} onOpenChange={setCreateLessonOpen} moduleId={selectedModuleIdForLesson || ''} />
             </Suspense>
             <EditLessonSheet open={editLessonOpen} onOpenChange={setEditLessonOpen} lesson={selectedLesson} />

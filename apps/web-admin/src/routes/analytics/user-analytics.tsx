@@ -39,7 +39,7 @@ import { PageHeader } from "@/components/common/page-header"
 const userChartConfig = {
     count: {
         label: "Học viên",
-        color: "hsl(var(--chart-2))",
+        color: "var(--chart-2)",
     },
 } satisfies ChartConfig
 
@@ -49,10 +49,9 @@ export default function UserAnalytics() {
     if (isLoading) return <PageLoading />
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
-            {/* Header */}
+        <div className="flex flex-col gap-8">
             <PageHeader
-                title={<span>Phân tích <span className="text-purple-500">Học viên</span></span>}
+                title="Phân tích Học viên"
                 subtitle="Tìm hiểu chân dung học viên, tốc độ tăng trưởng và hành vi tương tác trên nền tảng."
                 stats={[
                     { label: "Tổng học viên", value: userStats?.roles.reduce((acc, curr) => acc + curr.count, 0).toLocaleString() || "0" },
@@ -61,10 +60,10 @@ export default function UserAnalytics() {
                 actions={
                     <Button
                         onClick={() => refetch()}
-                        className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
+                        size="lg"
                     >
-                        <RefreshCw className="size-3.5" />
                         Làm mới
+                        <RefreshCw className={cn(isLoading && "animate-spin")} />
                     </Button>
                 }
             />
@@ -116,15 +115,15 @@ export default function UserAnalytics() {
                             <AreaChart data={userStats?.monthlyGrowth || []}>
                                 <defs>
                                     <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} />
                                 <YAxis axisLine={false} tickLine={false} fontSize={10} />
                                 <ChartTooltip content={<ChartTooltipContent />} />
-                                <Area type="monotone" dataKey="count" stroke="hsl(var(--chart-2))" strokeWidth={3} fill="url(#growthGradient)" />
+                                <Area type="monotone" dataKey="count" stroke="var(--chart-2)" strokeWidth={3} fill="url(#growthGradient)" />
                             </AreaChart>
                         </ChartContainer>
                     </CardContent>
@@ -145,7 +144,7 @@ export default function UserAnalytics() {
                                     </div>
                                     <div>
                                         <p className="text-xs font-bold uppercase text-foreground">{role.role}</p>
-                                        <p className="text-[9px] text-muted-foreground/40 font-black uppercase">User Role</p>
+                                        <p className="text-[9px] text-muted-foreground/40 font-black uppercase">Vai trò</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
@@ -171,7 +170,7 @@ export default function UserAnalytics() {
                     <CardContent className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={userStats?.activityTrends || []}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
                                 <XAxis dataKey="date" axisLine={false} tickLine={false} fontSize={10} tickFormatter={(val) => val.split('-').slice(1).join('/')} />
                                 <YAxis axisLine={false} tickLine={false} fontSize={10} />
                                 <Tooltip
@@ -187,7 +186,7 @@ export default function UserAnalytics() {
                                         return null
                                     }}
                                 />
-                                <Area type="stepAfter" dataKey="count" stroke="hsl(var(--chart-2))" strokeWidth={2} fill="hsl(var(--chart-2))" fillOpacity={0.05} />
+                                <Area type="stepAfter" dataKey="count" stroke="var(--chart-2)" strokeWidth={2} fill="var(--chart-2)" fillOpacity={0.05} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </CardContent>

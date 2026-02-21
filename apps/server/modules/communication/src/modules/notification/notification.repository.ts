@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Notification, Prisma } from '@prisma/generated';
-import type { INotificationRepository } from '../../interfaces/repositories';
+import type { INotificationRepository } from '@server/communication/interfaces/repositories';
 
 /**
  * Notification Repository

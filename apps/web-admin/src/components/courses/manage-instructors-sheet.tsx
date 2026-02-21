@@ -99,7 +99,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
                 {!course ? (
                     <div className="flex-1 flex items-center justify-center">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -182,8 +182,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                             )}
                                                             onClick={() => handleTogglePrimary(instructor.id, instructor.isPrimary)}
                                                             disabled={updatePrimaryMutation.isPending}
-                                                            title="Đặt làm chủ nhiệm"
-                                                        >
+                                                            title="Đặt làm chủ nhiệm">
                                                             <Crown className={cn("h-4 w-4", instructor.isPrimary && "fill-current")} />
                                                         </Button>
                                                         <Button
@@ -192,8 +191,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                             className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5"
                                                             onClick={() => handleUnassign(instructor.id)}
                                                             disabled={unassignMutation.isPending}
-                                                            title="Gỡ bỏ giảng viên"
-                                                        >
+                                                            title="Gỡ bỏ giảng viên">
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
                                                     </div>
@@ -264,8 +262,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                         <Button
                                             onClick={handleAssign}
                                             disabled={!selectedLecturerId || assignMutation.isPending}
-                                            className="w-full rounded-xl h-11 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transition-all"
-                                        >
+                                            className="w-full rounded-xl h-11 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transition-all">
                                             {assignMutation.isPending ? (
                                                 <>
                                                     <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />

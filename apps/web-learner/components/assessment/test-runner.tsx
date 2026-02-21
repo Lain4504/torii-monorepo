@@ -7,7 +7,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@workspace/ui/components/select"
-import { agentApi, TestGenerationResponse, TestEvaluationResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentTestGenerationResponseDTO as TestGenerationResponse, AgentTestEvaluationResponseDTO as TestEvaluationResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
 
@@ -130,7 +131,7 @@ export function TestRunner() {
                             <CardHeader>
                                 <CardTitle className="text-base flex gap-3">
                                     <span className="flex-none bg-muted size-6 flex items-center justify-center rounded text-sm">{i + 1}</span>
-                                    {q.content}
+                                    {q.question}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -157,7 +158,7 @@ export function TestRunner() {
     }
 
     if (step === "result" && evaluation) {
-        const percentage = Math.round((evaluation.score / evaluation.maxScore) * 100)
+        const percentage = Math.round(((evaluation.score || 0) / (evaluation.maxScore || 1)) * 100)
 
         return (
             <div className="max-w-3xl mx-auto py-12 space-y-8">

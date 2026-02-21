@@ -105,7 +105,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[540px] border border-border/50 shadow-2xl bg-background rounded-3xl p-0">
+            <DialogContent className="w-[95vw] sm:w-[540px] !max-w-[540px] border border-border/50 shadow-2xl bg-background rounded-3xl p-0">
                 <DialogHeader className="px-8 py-6 border-b border-border/10 bg-muted/5">
                     <DialogTitle className="text-xl font-sans font-bold italic uppercase tracking-tight text-foreground">
                         Xuất Bản Khóa Học

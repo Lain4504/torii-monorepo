@@ -34,7 +34,7 @@ export class AnalyticsHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.analytics.trackProgress' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
@@ -54,53 +54,13 @@ export class AnalyticsHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.analytics.suggestStudyPath' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
         } catch (error: any) {
             this.logger.error(`Study path suggestion failed for user ${userId}`, error.stack);
             return errorResponse(error.message || 'Failed to suggest study path');
-        }
-    }
-
-    @Post('analytics/weaknesses')
-    @UseGuards(GatewayAuthGuard)
-    async identifyWeaknesses(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            this.logger.log(`🔍 Weakness identification request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.analytics.identifyWeaknesses' },
-                    { userId: userId, ...body }
-                )
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Weakness identification failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to identify weaknesses');
-        }
-    }
-
-    @Post('analytics/readiness')
-    @UseGuards(GatewayAuthGuard)
-    async predictReadiness(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            this.logger.log(`🎯 Readiness prediction request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.analytics.predictReadiness' },
-                    { userId: userId, ...body }
-                )
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Readiness prediction failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to predict readiness');
         }
     }
 
@@ -114,13 +74,33 @@ export class AnalyticsHandler {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'agents.analytics.generateReport' },
-                    { userId: userId, ...body }
+                    { requester, ...body }
                 )
             );
             return successResponse(result);
         } catch (error: any) {
             this.logger.error(`Report generation failed for user ${userId}`, error.stack);
             return errorResponse(error.message || 'Failed to generate report');
+        }
+    }
+
+    @Post('analytics/readiness-profile')
+    @UseGuards(GatewayAuthGuard)
+    async getReadinessProfile(@Req() req: ReqWithRequester, @Body() body: any) {
+        const requester = req.requester;
+        const userId = requester?.sub;
+        try {
+            this.logger.log(`📊 Readiness profile request from user ${userId}`);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.analytics.readinessProfile' },
+                    { requester, ...body }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Readiness profile failed for user ${userId}`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch readiness profile');
         }
     }
 }

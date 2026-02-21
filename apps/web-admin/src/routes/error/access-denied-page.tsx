@@ -1,18 +1,46 @@
 import { useNavigate } from "react-router-dom"
-import { ErrorState } from "@workspace/ui/components/error-state"
+import { Button } from "@workspace/ui/components/button"
+import { ShieldAlert, ArrowLeft, Home } from "lucide-react"
+import {
+    Empty,
+    EmptyContent,
+    EmptyMedia,
+    EmptyTitle,
+    EmptyDescription,
+} from "@workspace/ui/components/empty"
 
 export default function AccessDeniedPage() {
     const navigate = useNavigate()
     return (
-        <div className="flex flex-1 items-center justify-center p-8">
-            <ErrorState
-                code="403"
-                title="Truy cập bị từ chối"
-                description="Tài khoản của bạn không có đủ quyền hạn để truy cập vào vùng dữ liệu này."
-                variant="403"
-                onBack={() => navigate(-1)}
-                onHome={() => navigate("/")}
-            />
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] p-6">
+            <Empty className="max-w-md border-none">
+                <EmptyMedia>
+                    <div className="size-16 flex items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+                        <ShieldAlert className="size-8" />
+                    </div>
+                </EmptyMedia>
+                <EmptyContent>
+                    <div className="text-6xl font-black text-muted-foreground/10 select-none leading-none">
+                        403
+                    </div>
+                    <EmptyTitle className="text-xl font-semibold">
+                        Truy cập bị từ chối
+                    </EmptyTitle>
+                    <EmptyDescription>
+                        Tài khoản của bạn không có đủ quyền hạn để truy cập vào vùng dữ liệu này.
+                    </EmptyDescription>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                        <Button variant="outline" onClick={() => navigate(-1)}>
+                            <ArrowLeft className="mr-2 size-4" />
+                            Quay lại
+                        </Button>
+                        <Button onClick={() => navigate("/")}>
+                            <Home className="mr-2 size-4" />
+                            Trang chủ
+                        </Button>
+                    </div>
+                </EmptyContent>
+            </Empty>
         </div>
     )
 }

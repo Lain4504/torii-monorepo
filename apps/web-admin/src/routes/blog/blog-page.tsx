@@ -11,9 +11,10 @@ import { Button } from '@workspace/ui/components/button';
 import { useBlogs } from "@/api/services/blog.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { Plus, ShieldAlert } from 'lucide-react';
+import { Plus, TriangleAlert } from 'lucide-react';
 
 import { PageHeader } from '@/components/common/page-header';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 export function BlogPage() {
     const [page, setPage] = useState(1);
@@ -47,14 +48,19 @@ export function BlogPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-destructive/5 rounded-[2rem] border border-dashed border-destructive/20 text-center animate-in fade-in duration-500">
-                <div className="size-16 rounded-xl bg-white/50 shadow-sm flex items-center justify-center">
-                    <ShieldAlert className="size-8 text-destructive/50" />
-                </div>
-                <div className="space-y-1">
-                    <h3 className="text-lg font-medium text-foreground">Thông báo Hệ thống</h3>
-                    <p className="text-sm text-muted-foreground">{error.message}</p>
-                </div>
+            <div className="rounded-xl border bg-card">
+                <Empty>
+                    <EmptyMedia className="bg-destructive/10 text-destructive">
+                        <TriangleAlert className="size-6" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Có lỗi xảy ra</EmptyTitle>
+                        <EmptyDescription>{error.message}</EmptyDescription>
+                    </EmptyContent>
+                    <Button variant="outline" className="mt-2" onClick={() => window.location.reload()}>
+                        Thử lại
+                    </Button>
+                </Empty>
             </div>
         );
     }
@@ -68,7 +74,7 @@ export function BlogPage() {
     } : null;
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Bài viết & Tin tức"
                 subtitle="Quản lý nội dung học thuật và cộng đồng Torii"
@@ -78,9 +84,9 @@ export function BlogPage() {
                 actions={
                     <Button
                         onClick={() => setShowCreateDialog(true)}
-                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
+                        size="lg"
                     >
-                        <Plus className="mr-2 size-4" />
+                        <Plus />
                         Tạo bài viết mới
                     </Button>
                 }
@@ -88,22 +94,18 @@ export function BlogPage() {
 
 
             <div className="space-y-4">
-                {/* Toolbar area */}
-                <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
-                    <BlogPrimaryToolbar
-                        search={search}
-                        onSearchChange={setSearch}
-                        statusFilter={statusFilter}
-                        onStatusFilterChange={setStatusFilter}
-                        onSortChange={(field, order) => {
-                            setSortBy(field);
-                            setSortOrder(order);
-                        }}
-                    />
-                </div>
+                <BlogPrimaryToolbar
+                    search={search}
+                    onSearchChange={setSearch}
+                    statusFilter={statusFilter}
+                    onStatusFilterChange={setStatusFilter}
+                    onSortChange={(field, order) => {
+                        setSortBy(field);
+                        setSortOrder(order);
+                    }}
+                />
 
-                {/* Table container */}
-                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <BlogTable
                         data={blogs}
                         onEdit={setEditingBlog}
@@ -115,7 +117,6 @@ export function BlogPage() {
                     />
                 </div>
 
-                {/* Pagination */}
                 <SmartPagination
                     page={page}
                     totalPages={meta?.totalPages || 0}

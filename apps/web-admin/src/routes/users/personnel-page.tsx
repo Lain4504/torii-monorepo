@@ -14,7 +14,6 @@ import { useBoolean } from "@workspace/ui/hooks/use-boolean";
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { UserPlus, ShieldCheck } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { Card } from "@workspace/ui/components/card";
 import { PageHeader } from '@/components/common/page-header';
 
 export default function PersonnelPage() {
@@ -50,20 +49,23 @@ export default function PersonnelPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] p-8 border-2 border-dashed border-destructive/20 bg-destructive/5 text-center animate-in fade-in duration-500">
-                <div className="w-12 h-12 flex items-center justify-center bg-destructive/10 mb-4 text-destructive">
-                    <ShieldCheck className="size-6" />
-                </div>
-                <div className="max-w-md space-y-2">
-                    <h3 className="text-xl font-bold uppercase tracking-tight text-foreground">Truy cập bị hạn chế</h3>
-                    <p className="text-sm text-muted-foreground">{error.message}</p>
-                    <Button
-                        variant="outline"
-                        onClick={() => window.location.reload()}
-                        className="mt-4 rounded-xl border-destructive/20 hover:bg-destructive/5"
-                    >
-                        Thử kết nối lại
-                    </Button>
+            <div className="flex h-[450px] items-center justify-center p-8">
+                <div className="max-w-md w-full">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
+                            <ShieldCheck className="size-6" />
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-semibold">Truy cập bị hạn chế</h3>
+                            <p className="text-sm text-muted-foreground">{error.message}</p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={() => window.location.reload()}
+                        >
+                            Thử kết nối lại
+                        </Button>
+                    </div>
                 </div>
             </div>
         );
@@ -74,7 +76,7 @@ export default function PersonnelPage() {
     const totalPages = data?.totalPages || 0;
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title={isLecturers ? "Đội ngũ Giảng viên" : "Đội ngũ Nhân viên"}
                 subtitle={isLecturers
@@ -84,12 +86,9 @@ export default function PersonnelPage() {
                     { label: `Tổng số ${isLecturers ? 'giáo viên' : 'nhân viên'}`, value: total.toLocaleString() }
                 ]}
                 actions={
-                    <Button
-                        onClick={createDialog.setTrue}
-                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
-                    >
+                    <Button onClick={createDialog.setTrue} size="lg">
+                        <UserPlus />
                         Thêm {isLecturers ? 'Giảng viên' : 'Nhân viên'}
-                        <UserPlus className="ml-2 size-4" />
                     </Button>
                 }
             />
@@ -97,24 +96,22 @@ export default function PersonnelPage() {
 
             <div className="space-y-4">
                 {/* Search & Filter */}
-                <Card className="p-4 rounded-2xl border-border bg-card shadow-sm">
-                    <UsersPrimaryToolbar
-                        search={search}
-                        onSearchChange={setSearch}
-                        filters={{ role: targetRole }}
-                        onFilterChange={() => { }}
-                        sortBy={sortBy}
-                        sortOrder={sortOrder}
-                        onSortChange={(field, order) => {
-                            setSortBy(field);
-                            setSortOrder(order);
-                        }}
-                        hideRoleFilter={true}
-                    />
-                </Card>
+                <UsersPrimaryToolbar
+                    search={search}
+                    onSearchChange={setSearch}
+                    filters={{ role: targetRole }}
+                    onFilterChange={() => { }}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    onSortChange={(field, order) => {
+                        setSortBy(field);
+                        setSortOrder(order);
+                    }}
+                    hideRoleFilter={true}
+                />
 
                 {/* Table container */}
-                <Card className="rounded-2xl p-0 border-border bg-card overflow-hidden shadow-sm">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
@@ -124,7 +121,7 @@ export default function PersonnelPage() {
                         limit={limit}
                         isLoading={isLoading}
                     />
-                </Card>
+                </div>
 
                 {/* Footer / Pagination */}
                 <SmartPagination

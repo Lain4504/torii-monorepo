@@ -30,13 +30,3 @@ export interface TokenPayload {
 }
 
 export interface Requester extends TokenPayload { }
-
-/**
- * Minimal request interface containing requester information.
- * Suitable for cross-environment use (Frontend, Microservices, etc.) where 
- * full HTTP request properties like headers/cookies might not be available.
- * For server-side Express controllers, use the extended ReqWithRequester from '@server/shared'.
- */
-export interface ReqWithRequester {
-    requester: Requester;
-}

@@ -1,10 +1,10 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService, AppConfigService } from '@server/shared';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as Handlebars from 'handlebars';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { FastMCP } from 'fastmcp';
+import { readFileSync, existsSync } from 'fs';
+import { join, sep, dirname } from 'path';
+import { z } from 'zod';
 
 export interface ToolContext {
   userId: string;
@@ -12,6 +12,9 @@ export interface ToolContext {
   jlptLevels?: string[];
   aiMetadata?: any[];
   recentActivity?: { date: string; lessons: number; averageScore: number }[];
+  commonErrors?: any[];
+  recentVocabulary?: any[];
+  stats?: { level: number; streak: number; totalXp: number } | null;
 }
 
 /**
@@ -24,9 +27,8 @@ export interface ToolContext {
  * - User Context retrieval (shared)
  */
 @Injectable()
-export class FastMcpService implements OnModuleInit {
+export class FastMcpService {
   private readonly logger = new Logger(FastMcpService.name);
-  private server: FastMCP;
   private toolRegistry = new Map<string, { schema: any; handler: Function }>();
   private genAI: GoogleGenerativeAI;
 
@@ -35,13 +37,6 @@ export class FastMcpService implements OnModuleInit {
     private readonly prisma: PrismaService,
   ) {
     this.registerHandlebarsHelpers();
-
-    // Initialize FastMCP Server
-    this.server = new FastMCP({
-      name: 'Torii Agents',
-      version: '1.0.0',
-      transportType: 'httpStream',
-    } as any);
 
     // Priority: 1. Config (YAML), 2. Environment Variable
     const apiKey = this.appConfig.thirdParty.gemini.apiKey || process.env.GEMINI_API_KEY;
@@ -53,38 +48,12 @@ export class FastMcpService implements OnModuleInit {
     }
   }
 
-  async onModuleInit() {
-    this.logger.log('✅ Integrated AI Service Initialized');
-
-    // Start FastMCP server on internal port 4000
-    // This allows us to proxy requests from the main NestJS app (port 3004) -> FastMCP (port 4000)
-    await this.server.start({
-      transportType: 'httpStream',
-      httpStream: {
-        port: 4000,
-        endpoint: '/sse', // Standard MCP endpoint
-      }
-    } as any);
-  }
-
-  public getApp() {
-    return this.server.getApp();
-  }
-
   // ==================== TOOL REGISTRY ====================
 
   public addTool(name: string, description: string, schema: any, handler: Function) {
     this.logger.debug(`🛠️ Registering Tool: ${name}`);
 
-    // 1. Register with FastMCP (for external MCP clients)
-    this.server.addTool({
-      name,
-      description,
-      parameters: schema,
-      execute: async (args) => handler(args),
-    });
-
-    // 2. Register internally (for NATS execution)
+    // Register internally (for NATS execution)
     this.toolRegistry.set(name, { schema, handler });
   }
 
@@ -104,44 +73,62 @@ export class FastMcpService implements OnModuleInit {
   // ==================== PUBLIC HELPERS ====================
 
   public loadPromptTemplate(templatePath: string): HandlebarsTemplateDelegate {
-    try {
-      // 1. Try Build Path (Standard Prod)
-      // If we are in apps/server/dist, this might be correct or nested
-      const buildPath = join(process.cwd(), 'dist/modules/agents/src/assets/prompts', templatePath);
+    const searchDirs = [__dirname, process.cwd()];
+    const rootPath = join(sep);
 
-      // 2. Try Source Path (Service Root - apps/server)
-      // When running 'nest start' from apps/server, cwd is apps/server
-      const serviceSourcePath = join(process.cwd(), 'modules/agents/src/assets/prompts', templatePath);
+    for (let currentDir of searchDirs) {
+      for (let i = 0; i < 15; i++) { // Increase depth for monorepo
+        const pathsToTry = [
+          join(currentDir, 'src/assets/prompts', templatePath),
+          join(currentDir, 'assets/prompts', templatePath),
+          join(currentDir, 'modules/agents/src/assets/prompts', templatePath),
+          join(currentDir, 'apps/server/modules/agents/src/assets/prompts', templatePath),
+        ];
 
-      // 3. Try Source Path (Monorepo Root)
-      // When running from root
-      const monorepoSourcePath = join(process.cwd(), 'apps/server/modules/agents/src/assets/prompts', templatePath);
-
-      // 4. Try Relative to Service File (Fallback)
-      const localPath = join(__dirname, '../../assets/prompts', templatePath);
-
-      let templateContent: string;
-      try {
-        templateContent = readFileSync(buildPath, 'utf-8');
-      } catch (e1) {
-        try {
-          templateContent = readFileSync(serviceSourcePath, 'utf-8');
-        } catch (e2) {
-          try {
-            templateContent = readFileSync(monorepoSourcePath, 'utf-8');
-          } catch (e3) {
-            templateContent = readFileSync(localPath, 'utf-8');
+        for (const p of pathsToTry) {
+          if (existsSync(p)) {
+            // this.logger.debug(`Loaded template from: ${p}`);
+            const content = readFileSync(p, 'utf-8');
+            return Handlebars.compile(content);
           }
         }
+
+        if (currentDir === rootPath) break;
+        currentDir = dirname(currentDir);
       }
-
-      this.logger.debug(`Template paths tried:\n1. ${buildPath}\n2. ${serviceSourcePath}\n3. ${monorepoSourcePath}\n4. ${localPath}`);
-
-      return Handlebars.compile(templateContent);
-    } catch (error) {
-      this.logger.error(`Failed to load prompt template: ${templatePath}. CWD: ${process.cwd()}`, error);
-      throw new Error(`Template not found: ${templatePath}`);
     }
+
+    this.logger.error(`Failed to load prompt template: ${templatePath}. Search reached root starting from ${__dirname} and ${process.cwd()}`);
+    throw new Error(`Template not found: ${templatePath}`);
+  }
+
+  public loadResource(resourcePath: string): any {
+    const searchDirs = [__dirname, process.cwd()];
+    const rootPath = join(sep);
+
+    for (let currentDir of searchDirs) {
+      for (let i = 0; i < 15; i++) {
+        const pathsToTry = [
+          join(currentDir, 'src/assets/resources', resourcePath),
+          join(currentDir, 'assets/resources', resourcePath),
+          join(currentDir, 'modules/agents/src/assets/resources', resourcePath),
+          join(currentDir, 'apps/server/modules/agents/src/assets/resources', resourcePath),
+        ];
+
+        for (const p of pathsToTry) {
+          if (existsSync(p)) {
+            const content = readFileSync(p, 'utf-8');
+            return JSON.parse(content);
+          }
+        }
+
+        if (currentDir === rootPath) break;
+        currentDir = dirname(currentDir);
+      }
+    }
+
+    this.logger.error(`Failed to load resource: ${resourcePath}. Search reached root starting from ${__dirname} and ${process.cwd()}`);
+    return null;
   }
 
   public async callGemini(prompt: string): Promise<string> {
@@ -196,6 +183,45 @@ export class FastMcpService implements OnModuleInit {
         raw: text,
       };
     }
+  }
+
+  /**
+   * Call Gemini and validate the parsed JSON output against a Zod schema.
+   * - Sử dụng cleanJsonResponse để trích JSON từ nội dung trả về.
+   * - Validate bằng Zod; nếu fail thì log warn và (tuỳ chọn) retry một lần nữa.
+   */
+  public async callGeminiWithSchema<T>(
+    prompt: string,
+    schema: z.ZodSchema<T>,
+    options?: { maxRetries?: number },
+  ): Promise<T> {
+    const maxRetries = options?.maxRetries ?? 1;
+    let lastError: unknown = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const raw = await this.callGemini(prompt);
+      const json = this.cleanJsonResponse(raw);
+
+      try {
+        const parsed = schema.parse(json);
+        return parsed;
+      } catch (err) {
+        lastError = err;
+        this.logger.warn(
+          `AI output validation failed (attempt ${attempt + 1}/${maxRetries + 1}): ${(err as Error).message}`,
+        );
+
+        if (attempt === maxRetries) {
+          // Ném lỗi cuối cùng kèm theo raw để phía trên có thể quyết định fallback.
+          throw new Error(
+            `AI output schema validation failed after ${maxRetries + 1} attempts`,
+          );
+        }
+      }
+    }
+
+    // theoretically unreachable
+    throw lastError as Error;
   }
 
   public async getUserContext(userId: string): Promise<ToolContext> {
@@ -272,9 +298,51 @@ export class FastMcpService implements OnModuleInit {
           : 0
       })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-      // Limit to last 7 days? Or keep all 30? Context window assumes 30 is fine.
-      // Let's pass the last 14 days to be safe and concise.
+      // Limit to last 14 days
       const conciseActivity = recentActivity.slice(-14);
+
+      // --- NEW DATA FETCHING ---
+
+      // 1. Common Errors (Top 10 recently missed questions)
+      const recentWrongDetails = await this.prisma.quizAttemptDetail.findMany({
+        where: {
+          attempt: { userId },
+          isCorrect: false
+        },
+        include: {
+          question: { select: { questionText: true, category: true, subcategory: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20
+      });
+
+      const commonErrors = recentWrongDetails.map(d => ({
+        question: d.question.questionText,
+        category: d.question.category,
+        subcategory: d.question.subcategory
+      }));
+
+      // 2. Recent Vocabulary (Flashcards reviewed/added)
+      const recentFlashcards = await this.prisma.flashcardReview.findMany({
+        where: { userId },
+        include: {
+          flashcard: { select: { frontText: true, backText: true, kanji: true, furigana: true } }
+        },
+        orderBy: { reviewDate: 'desc' },
+        take: 10
+      });
+
+      const recentVocabulary = recentFlashcards.map(r => ({
+        word: r.flashcard.kanji || r.flashcard.frontText,
+        reading: r.flashcard.furigana,
+        meaning: r.flashcard.backText,
+        quality: r.quality // Review quality (0-4)
+      }));
+
+      // 3. User Gamification (Streak, Level, XP)
+      const gamification = await this.prisma.userGamification.findUnique({
+        where: { userId }
+      });
 
       return {
         userId,
@@ -282,7 +350,14 @@ export class FastMcpService implements OnModuleInit {
         jlptLevels,
         aiMetadata: courseMetadata,
         recentActivity: conciseActivity,
-      } as any; // Cast as any to bypass partial interface for now or update interface
+        commonErrors,
+        recentVocabulary,
+        stats: gamification ? {
+          level: gamification.level,
+          streak: gamification.currentStreak,
+          totalXp: gamification.totalXp
+        } : null
+      };
     } catch (error) {
       this.logger.warn(`Failed to fetch user context: ${error.message}`);
       return { userId };

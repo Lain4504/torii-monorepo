@@ -173,12 +173,12 @@ export function EditBlogSheet({
             };
 
             await updateBlog.mutateAsync({ id: blog.id, blog: dto });
-            toast.success('Blog Updated', {
-                description: `Blog "${data.title}" successfully updated.`,
+            toast.success('Đã cập nhật bài viết', {
+                description: `Bài viết "${data.title}" đã được cập nhật thành công.`,
             });
             onOpenChange(false);
         } catch (error: any) {
-            toast.error('Update Failed', {
+            toast.error('Cập nhật thất bại', {
                 description: error.response?.data?.message || error.message,
             });
         } finally {
@@ -190,7 +190,7 @@ export function EditBlogSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[900px] sm:max-w-[900px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
                 <SheetHeader className="px-6 py-6 border-b border-border">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -202,7 +202,7 @@ export function EditBlogSheet({
                                     Chỉnh sửa bài viết
                                 </SheetTitle>
                                 <SheetDescription className="text-sm text-muted-foreground flex items-center gap-2">
-                                    ID: <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{blog.id.substring(0, 8)}</span>
+                                    Mã: <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{blog.id.substring(0, 8)}</span>
                                 </SheetDescription>
                             </div>
                         </div>
@@ -413,8 +413,7 @@ export function EditBlogSheet({
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={removeCoverImage}
-                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                    >
+                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10">
                                                         <X className="h-4 w-4" />
                                                     </Button>
                                                 )}
@@ -424,7 +423,7 @@ export function EditBlogSheet({
                                                 <div className="relative rounded-lg overflow-hidden border border-border/50 aspect-video w-full max-w-sm">
                                                     <img
                                                         src={coverImagePreview || (coverImageFile ? URL.createObjectURL(coverImageFile) : '')}
-                                                        alt="Preview"
+                                                        alt="Bản xem trước"
                                                         className="object-cover w-full h-full"
                                                     />
                                                 </div>
@@ -438,20 +437,10 @@ export function EditBlogSheet({
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-6 py-4 bg-background border-t border-border flex flex-row items-center justify-between gap-4">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => onOpenChange(false)}
-                            className="h-10 px-6"
-                        >
-                            Hủy bỏ
-                        </Button>
+                    <SheetFooter>
                         <Button
                             type="submit"
-                            disabled={uploading || (!isDirty && !coverImageFile)}
-                            className="h-10 px-8 bg-primary text-primary-foreground font-semibold shadow-sm hover:translate-y-0"
-                        >
+                            disabled={uploading || (!isDirty && !coverImageFile)}>
                             {uploading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -463,6 +452,13 @@ export function EditBlogSheet({
                                     Lưu thay đổi
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            className="h-10 px-6">
+                            Hủy bỏ
                         </Button>
                     </SheetFooter>
                 </form>

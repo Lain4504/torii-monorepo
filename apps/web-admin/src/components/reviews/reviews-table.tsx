@@ -9,7 +9,8 @@ import {
 } from '@workspace/ui/components/table';
 import { Button } from '@workspace/ui/components/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
-import { Loader2, AlertCircle, Star, Eye } from 'lucide-react';
+import { Skeleton } from '@workspace/ui/components/skeleton';
+import { AlertCircle, Star, Eye } from 'lucide-react';
 import { formatDateTime } from '@/lib/format-utils';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
@@ -17,34 +18,39 @@ interface ReviewsTableProps {
     data: any[];
     isLoading: boolean;
     onView: (id: string) => void;
+    page?: number;
+    limit?: number;
 }
 
-export function ReviewsTable({ data, isLoading, onView }: ReviewsTableProps) {
+export function ReviewsTable({ data, isLoading, onView, page = 1, limit = 10 }: ReviewsTableProps) {
     return (
         <div className="overflow-x-auto">
             <Table className="border-collapse min-w-[1000px] bg-transparent">
                 <TableHeader className="bg-muted/30 border-b border-border">
                     <TableRow className="border-b border-border/50 hover:bg-transparent">
-                        <TableHead className="w-[220px] h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">NGƯỜI DÙNG</TableHead>
-                        <TableHead className="w-[250px] h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">KHÓA HỌC</TableHead>
-                        <TableHead className="w-[140px] h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">ĐÁNH GIÁ</TableHead>
-                        <TableHead className="w-[160px] h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">NGÀY</TableHead>
-                        <TableHead className="w-[100px] h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right border-r border-border/30 last:border-r-0">CHI TIẾT</TableHead>
+                        <TableHead className="w-12 h-11 text-xs font-semibold text-muted-foreground px-4 text-center">#</TableHead>
+                        <TableHead className="w-[220px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Người dùng</TableHead>
+                        <TableHead className="w-[250px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Khóa học</TableHead>
+                        <TableHead className="w-[140px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Đánh giá</TableHead>
+                        <TableHead className="w-[160px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Ngày</TableHead>
+                        <TableHead className="w-[100px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right">Chi tiết</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {isLoading ? (
-                        <TableRow>
-                            <TableCell colSpan={5} className="h-[400px] text-center">
-                                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                                    <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
-                                    <p className="text-xs font-semibold">Đang tải dữ liệu...</p>
-                                </div>
-                            </TableCell>
-                        </TableRow>
+                        Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow key={index} className="border-b border-border/50">
+                                <TableCell className="px-4 py-4"><Skeleton className="h-4 w-4 mx-auto" /></TableCell>
+                                <TableCell className="px-6 py-4"><Skeleton className="h-4 w-36" /></TableCell>
+                                <TableCell className="px-6 py-4"><Skeleton className="h-4 w-44" /></TableCell>
+                                <TableCell className="px-6 py-4"><Skeleton className="h-4 w-20" /></TableCell>
+                                <TableCell className="px-6 py-4"><Skeleton className="h-4 w-28" /></TableCell>
+                                <TableCell className="px-6 py-4"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                            </TableRow>
+                        ))
                     ) : data.length === 0 ? (
                         <TableRow>
-                            <TableCell colSpan={5} className="h-[400px] text-center">
+                            <TableCell colSpan={6} className="h-[400px] text-center">
                                 <Empty>
                                     <EmptyMedia>
                                         <AlertCircle className="size-8 text-muted-foreground" />
@@ -57,9 +63,12 @@ export function ReviewsTable({ data, isLoading, onView }: ReviewsTableProps) {
                             </TableCell>
                         </TableRow>
                     ) : (
-                        data.map((review: any) => (
+                        data.map((review: any, index: number) => (
                             <TableRow key={review.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
-                                <TableCell className="py-4 px-6 border-r border-border/10 last:border-r-0">
+                                <TableCell className="py-4 px-4 text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                                    {(page - 1) * limit + index + 1}
+                                </TableCell>
+                                <TableCell className="py-4 px-6">
                                     <div className="flex items-center gap-3">
                                         <Avatar className="h-9 w-9 rounded-lg border border-border/40 bg-muted/20">
                                             <AvatarImage src={review.user.avatarUrl} />
@@ -73,14 +82,12 @@ export function ReviewsTable({ data, isLoading, onView }: ReviewsTableProps) {
                                         </div>
                                     </div>
                                 </TableCell>
-                                <TableCell className="py-4 px-6 border-r border-border/10 last:border-r-0">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium text-foreground/80 truncate max-w-[220px] font-sans italic" title={review.courseTitle || review.courseId}>
-                                            {review.courseTitle || review.courseId}
-                                        </span>
-                                    </div>
+                                <TableCell className="py-4 px-6">
+                                    <span className="text-sm font-medium text-foreground/80 truncate max-w-[220px] block font-sans italic" title={review.courseTitle || review.courseId}>
+                                        {review.courseTitle || review.courseId}
+                                    </span>
                                 </TableCell>
-                                <TableCell className="py-4 px-6 border-r border-border/10 last:border-r-0">
+                                <TableCell className="py-4 px-6">
                                     <div className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-amber-500/5 border border-amber-500/10 w-fit">
                                         {Array.from({ length: 5 }).map((_, i) => (
                                             <Star
@@ -91,12 +98,12 @@ export function ReviewsTable({ data, isLoading, onView }: ReviewsTableProps) {
                                         <span className="ml-1.5 text-[10px] font-black text-amber-600/80 tabular-nums tracking-tighter">{review.rating}.0</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="py-4 px-6 border-r border-border/10 last:border-r-0">
+                                <TableCell className="py-4 px-6">
                                     <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">
                                         {formatDateTime(review.createdAt)}
                                     </span>
                                 </TableCell>
-                                <TableCell className="py-4 px-6 text-right border-r border-border/10 last:border-r-0">
+                                <TableCell className="py-4 px-6 text-right">
                                     <Button
                                         variant="ghost"
                                         size="icon"

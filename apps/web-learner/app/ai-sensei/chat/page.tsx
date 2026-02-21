@@ -1,5 +1,5 @@
-import { ChatInterface } from "@/components/ai-sensei/chat-interface"
+import { AiChatBot } from "@/components/ai-sensei/ai-chat-bot"
 
 export default function ChatPage() {
-    return <ChatInterface />
+    return <AiChatBot />
 }

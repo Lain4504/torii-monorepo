@@ -6,10 +6,10 @@ import { Can } from "@/lib/guard/can";
 import { useQuestionPools } from "@/api/services/question-pools.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { Plus, ShieldAlert } from 'lucide-react';
-import { Card } from '@workspace/ui/components/card';
-import { CreateQuestionPoolDialog } from '@/components/question-pools/create-question-pool-dialog.tsx';
-import { EditQuestionPoolDialog } from '@/components/question-pools/edit-question-pool-dialog.tsx';
+import { Plus, TriangleAlert } from 'lucide-react';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
+import { CreateQuestionPoolDialog } from '@/components/question-pools/create-question-pool-sheet.tsx';
+import { EditQuestionPoolDialog } from '@/components/question-pools/edit-question-pool-sheet.tsx';
 import { DeleteQuestionPoolDialog } from '@/components/question-pools/delete-question-pool-dialog.tsx';
 import { PoolsPrimaryToolbar } from '@/components/question-pools/pools-primary-toolbar.tsx';
 import { PoolsTable } from '@/components/question-pools/pools-table.tsx';
@@ -51,20 +51,25 @@ export default function QuestionPoolsPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-destructive/5 rounded-[2rem] border border-dashed border-destructive/20 text-center animate-in fade-in duration-500">
-                <div className="w-16 h-16 rounded-2xl bg-white/50 shadow-sm flex items-center justify-center">
-                    <ShieldAlert className="size-8 text-destructive/50" />
-                </div>
-                <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-foreground">Thông báo hệ thống</h3>
-                    <p className="text-sm text-muted-foreground">{error.message}</p>
-                </div>
+            <div className="rounded-xl border bg-card">
+                <Empty>
+                    <EmptyMedia className="bg-destructive/10 text-destructive">
+                        <TriangleAlert className="size-6" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Có lỗi xảy ra</EmptyTitle>
+                        <EmptyDescription>{error.message}</EmptyDescription>
+                    </EmptyContent>
+                    <Button variant="outline" className="mt-2" onClick={() => window.location.reload()}>
+                        Thử lại
+                    </Button>
+                </Empty>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700 pb-10">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Ngân hàng Câu hỏi"
                 subtitle="Hệ thống quản lý và tổ chức kho dữ liệu câu hỏi tri thức"
@@ -75,26 +80,24 @@ export default function QuestionPoolsPage() {
                     <Can permission="question_pool.create">
                         <Button
                             onClick={() => setShowCreateDialog(true)}
-                            className="h-10 px-4 rounded-xl font-semibold shadow-sm"
+                            size="lg"
                         >
                             Tạo Kho đề mới
-                            <Plus className="ml-2 size-4" />
+                            <Plus />
                         </Button>
                     </Can>
                 }
             />
 
             <div className="space-y-4">
-                <Card className="bg-card p-4 rounded-xl border-border shadow-sm">
-                    <PoolsPrimaryToolbar
-                        search={search}
-                        onSearchChange={setSearch}
-                        jlptLevelFilter={jlptLevelFilter}
-                        onJlptLevelFilterChange={setJlptLevelFilter}
-                    />
-                </Card>
+                <PoolsPrimaryToolbar
+                    search={search}
+                    onSearchChange={setSearch}
+                    jlptLevelFilter={jlptLevelFilter}
+                    onJlptLevelFilterChange={setJlptLevelFilter}
+                />
 
-                <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <PoolsTable
                         data={pools}
                         isLoading={isLoading}
@@ -104,7 +107,7 @@ export default function QuestionPoolsPage() {
                         onEdit={setEditingPool}
                         onDelete={setDeletingPool}
                     />
-                </Card>
+                </div>
 
                 <SmartPagination
                     page={page}

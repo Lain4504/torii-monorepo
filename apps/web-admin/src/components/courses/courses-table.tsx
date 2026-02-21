@@ -15,7 +15,8 @@ import {
 } from '@workspace/ui/components/table';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
-import { SearchCode } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { getCoursesColumns } from './courses-columns.tsx';
@@ -94,7 +95,7 @@ export function CoursesTable({
                     <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">
+                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -126,7 +127,7 @@ export function CoursesTable({
                             className="border-b border-border/50 hover:bg-muted/30 transition-colors group"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap">
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
@@ -139,19 +140,19 @@ export function CoursesTable({
                     <TableRow className="hover:bg-transparent border-none">
                         <TableCell
                             colSpan={columns.length}
-                            className="h-[300px] text-center p-0"
+                            className="h-[400px] text-center p-0"
                         >
-                            <div className="flex flex-col items-center justify-center p-8">
-                                <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground/30 mb-4">
-                                    <SearchCode className="size-8" />
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy khóa học</p>
-                                    <p className="text-sm text-muted-foreground/40">
+                            <Empty>
+                                <EmptyMedia>
+                                    <BookOpen className="size-8 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Không tìm thấy khóa học</EmptyTitle>
+                                    <EmptyDescription>
                                         Chưa có dữ liệu khóa học nào trong hệ thống hoặc không khớp với bộ lọc hiện tại.
-                                    </p>
-                                </div>
-                            </div>
+                                    </EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
                         </TableCell>
                     </TableRow>
                 )}

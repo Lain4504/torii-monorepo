@@ -52,11 +52,11 @@ export function QuestionDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-2xl border-l border-border bg-background p-0 flex flex-col h-full shadow-2xl">
-                <SheetHeader className="p-8 border-b border-border bg-muted/5 space-y-4">
-                    <div className="flex items-center justify-between">
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
+                    <div className="flex items-center justify-between mb-4">
                         <Badge variant="outline" className="rounded-full px-3 py-1 bg-primary/5 text-primary border-primary/20 text-[10px] font-bold tracking-widest uppercase">
-                            JLPT {question.jlptLevel || 'Global'}
+                            JLPT {question.jlptLevel || 'GLOBAL'}
                         </Badge>
                         <div className="flex items-center gap-2">
                             <Badge variant="outline" className={cn(
@@ -65,19 +65,19 @@ export function QuestionDetailSheet({
                                     question.difficulty === QuestionDifficultyLevel.MEDIUM ? "bg-amber-500/10 text-amber-600" :
                                         "bg-emerald-500/10 text-emerald-600"
                             )}>
-                                {question.difficulty === QuestionDifficultyLevel.HARD ? "Khó" :
-                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? "Trung bình" : "Dễ"}
+                                {question.difficulty === QuestionDifficultyLevel.HARD ? "Mức độ: Khó" :
+                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? "Mức độ: Trung bình" : "Mức độ: Dễ"}
                             </Badge>
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <SheetTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                            <Target className="size-6 text-primary opacity-40" />
-                            Chi tiết Câu hỏi
+                    <div className="space-y-1">
+                        <SheetTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-3">
+                            <Target className="size-5 text-primary opacity-40" />
+                            Chi Tiết Câu Hỏi
                         </SheetTitle>
                         <SheetDescription className="text-sm font-medium text-muted-foreground/60 flex items-center gap-3">
-                            <span>ID: <span className="font-mono text-primary/60">{question.id.slice(0, 12)}...</span></span>
+                            <span>Mã số: <span className="font-mono text-primary/60">{question.id.slice(0, 12)}...</span></span>
                             <span className="size-1 rounded-full bg-border" />
                             <span className="flex items-center gap-1.5 uppercase font-bold text-[10px] tracking-wider">
                                 <Calendar className="size-3" />
@@ -205,8 +205,8 @@ function FillBlankContent({ question }: { question: QuestionResponseDTO }) {
                 <MessageSquareQuote className="size-4" />
                 <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án điền khuyết</h3>
             </div>
-            <div className="p-8 rounded-3xl bg-emerald-500/5 border-2 border-dashed border-emerald-500/20 flex flex-col items-center justify-center text-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600/60">Correct Entry</span>
+            <div className="p-8 rounded-2xl bg-emerald-500/5 border-2 border-dashed border-emerald-500/20 flex flex-col items-center justify-center text-center gap-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600/60">Đáp án chính xác</span>
                 <div className="text-2xl font-bold text-emerald-600 font-mono tracking-tight underline decoration-emerald-500/30 underline-offset-8">
                     {question.correctAnswer}
                 </div>

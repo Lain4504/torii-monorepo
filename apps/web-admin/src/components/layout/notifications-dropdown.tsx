@@ -1,4 +1,4 @@
-import { Bell, Check, ExternalLink } from 'lucide-react';
+import { Bell, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -102,14 +102,14 @@ export function NotificationsDropdown() {
 
             <DropdownMenuContent
                 align="end"
-                className="w-[90vw] sm:w-[380px] p-0 border-border/40 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-2xl overflow-hidden animate-in slide-in-from-top-2 duration-300"
+                className="w-[90vw] sm:w-[380px] p-0 rounded-lg border-border/40"
             >
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-border/10 bg-muted/5">
+                <div className="px-4 py-3 border-b">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-sm font-sans font-bold italic text-foreground uppercase tracking-tight">Thông báo</h3>
-                            <p className="text-[11px] font-medium text-muted-foreground mt-0.5">
+                            <h3 className="text-sm font-semibold">Thông báo</h3>
+                            <p className="text-xs text-muted-foreground mt-0.5">
                                 {unreadCount > 0 ? `Bạn có ${unreadCount} tin nhắn chưa đọc` : 'Bạn đã xem hết thông báo'}
                             </p>
                         </div>
@@ -119,9 +119,9 @@ export function NotificationsDropdown() {
                                 size="sm"
                                 onClick={markAllAsRead}
                                 disabled={markAllAsReadMutation.isPending}
-                                className="h-7 px-2.5 rounded-lg hover:bg-primary/5 hover:text-primary text-[10px] font-bold uppercase tracking-wide transition-all disabled:opacity-50"
+                                className="h-7 px-2 text-xs font-medium hover:text-primary transition-colors disabled:opacity-50"
                             >
-                                <Check className="size-3.5 mr-1.5" />
+                                <Check className="size-3.5 mr-1" />
                                 {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
                             </Button>
                         )}
@@ -200,15 +200,9 @@ export function NotificationsDropdown() {
                 </div>
 
                 {/* Footer */}
-                <div className="p-3 border-t border-border/10 bg-muted/5">
-                    <Link to="/notifications" className="block">
-                        <Button
-                            variant="ghost"
-                            className="w-full h-10 rounded-xl bg-background border border-border/40 hover:border-primary/20 hover:text-primary text-xs font-sans font-bold italic uppercase tracking-wide transition-all shadow-sm text-muted-foreground hover:bg-background group"
-                        >
-                            Xem tất cả thông báo
-                            <ExternalLink className="ml-2 size-3 opacity-50 group-hover:opacity-100 transition-opacity" />
-                        </Button>
+                <div className="p-2 border-t text-center">
+                    <Link to="/notifications" className="block text-xs font-medium text-muted-foreground hover:text-primary transition-colors py-1">
+                        Xem tất cả thông báo
                     </Link>
                 </div>
             </DropdownMenuContent>

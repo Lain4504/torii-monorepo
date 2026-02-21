@@ -19,7 +19,6 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@workspace/ui/components/sheet';
-import { Card } from '@workspace/ui/components/card';
 import { Eye, ShieldCheck, Terminal, Search, Fingerprint, Zap, ShieldAlert, Clock, Copy, Check, User, Globe, Info, Database } from 'lucide-react';
 import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -239,7 +238,7 @@ function AuditLogDetailsSheet({ log }: { log: AuditLog }) {
                                     {JSON.stringify(log.metadata, null, 2)}
                                 </pre>
                                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <CopyButton text={JSON.stringify(log.metadata, null, 2)} label="Metadata" />
+                                    <CopyButton text={JSON.stringify(log.metadata, null, 2)} label="Dữ liệu" />
                                 </div>
                             </div>
                         </div>
@@ -257,7 +256,7 @@ function AuditLogDetailsSheet({ log }: { log: AuditLog }) {
                                 <span className="text-[11px] font-mono font-bold text-foreground">{log.ipAddress || 'Không rõ'}</span>
                             </div>
                             <div className="p-2.5 bg-muted/20 rounded-lg">
-                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase mb-1.5 block">User Agent</span>
+                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase mb-1.5 block">Trình duyệt</span>
                                 <p className="text-[10px] font-mono text-muted-foreground/80 leading-snug break-all truncate" title={log.userAgent ?? undefined}>
                                     {log.userAgent || 'Không có dữ liệu'}
                                 </p>
@@ -300,7 +299,7 @@ export function AuditLogsPage() {
     }, [debouncedAction, debouncedEntity, dateRange]);
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Nhật ký Hệ thống"
                 subtitle="Theo dõi và truy vết tất cả các hoạt động hệ thống và thay đổi dữ liệu."
@@ -308,139 +307,138 @@ export function AuditLogsPage() {
 
             <div className="space-y-4">
                 {/* Toolbar */}
-                <Card className="p-4 rounded-xl border-border shadow-sm bg-card">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-0.5">Hành động</label>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
-                                <Input
-                                    placeholder="Tìm kiếm hành động..."
-                                    value={action}
-                                    onChange={(e) => setAction(e.target.value)}
-                                    className="h-11 pl-10 rounded-xl border-border bg-background focus:border-primary/40 focus:ring-4 focus:ring-primary/5 transition-all text-sm shadow-sm"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-0.5">Đối tượng</label>
-                            <Select value={entity || 'all'} onValueChange={(val) => setEntity(val === 'all' ? '' : val)}>
-                                <SelectTrigger className="h-11 rounded-xl bg-background border-border hover:border-primary/50 transition-all shadow-sm">
-                                    <SelectValue placeholder="Chọn đối tượng" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl p-1">
-                                    <SelectItem value="all" className="rounded-lg">Tất cả</SelectItem>
-                                    <SelectItem value="user" className="rounded-lg">Người dùng</SelectItem>
-                                    <SelectItem value="permission" className="rounded-lg">Phân quyền</SelectItem>
-                                    <SelectItem value="course" className="rounded-lg">Khóa học</SelectItem>
-                                    <SelectItem value="module" className="rounded-lg">Module</SelectItem>
-                                    <SelectItem value="lesson" className="rounded-lg">Bài học</SelectItem>
-                                    <SelectItem value="ticket" className="rounded-lg">Hỗ trợ</SelectItem>
-                                    <SelectItem value="meet_room" className="rounded-lg">Phòng họp</SelectItem>
-                                    <SelectItem value="order" className="rounded-lg">Đơn hàng</SelectItem>
-                                    <SelectItem value="payment" className="rounded-lg">Giao dịch</SelectItem>
-                                    <SelectItem value="review" className="rounded-lg">Đánh giá</SelectItem>
-                                    <SelectItem value="coupon" className="rounded-lg">Mã giảm giá</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-0.5">Ngày bắt đầu</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-0.5">Hành động</label>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
                             <Input
-                                type="date"
-                                value={dateRange.startDate}
-                                onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                                className="h-11 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm shadow-sm"
-                            />
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-0.5">Ngày kết thúc</label>
-                            <Input
-                                type="date"
-                                value={dateRange.endDate}
-                                onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                                className="h-11 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm shadow-sm"
+                                placeholder="Tìm kiếm hành động..."
+                                value={action}
+                                onChange={(e) => setAction(e.target.value)}
+                                className="pl-10"
                             />
                         </div>
                     </div>
-                </Card>
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-0.5">Đối tượng</label>
+                        <Select value={entity || 'all'} onValueChange={(val) => setEntity(val === 'all' ? '' : val)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Chọn đối tượng" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tất cả</SelectItem>
+                                <SelectItem value="user">Người dùng</SelectItem>
+                                <SelectItem value="permission">Phân quyền</SelectItem>
+                                <SelectItem value="course">Khóa học</SelectItem>
+                                <SelectItem value="module">Module</SelectItem>
+                                <SelectItem value="lesson">Bài học</SelectItem>
+                                <SelectItem value="ticket">Hỗ trợ</SelectItem>
+                                <SelectItem value="meet_room">Phòng họp</SelectItem>
+                                <SelectItem value="order">Đơn hàng</SelectItem>
+                                <SelectItem value="payment">Giao dịch</SelectItem>
+                                <SelectItem value="review">Đánh giá</SelectItem>
+                                <SelectItem value="coupon">Mã giảm giá</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-0.5">Ngày bắt đầu</label>
+                        <Input
+                            type="date"
+                            value={dateRange.startDate}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-0.5">Ngày kết thúc</label>
+                        <Input
+                            type="date"
+                            value={dateRange.endDate}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                        />
+                    </div>
+                </div>
 
                 {/* Table */}
-                <Card className="p-0 rounded-xl border-border overflow-hidden shadow-sm bg-card">
-                    <div className="overflow-x-auto">
-                        <Table className="min-w-[1000px] border-collapse bg-transparent font-sans">
-                            <TableHeader className="bg-muted/30 border-b border-border">
-                                <TableRow className="border-none hover:bg-transparent">
-                                    <TableHead className="h-11 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 px-4 border-r border-border/30 last:border-r-0">Thời gian</TableHead>
-                                    <TableHead className="h-11 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 px-4 border-r border-border/30 last:border-r-0">Người dùng</TableHead>
-                                    <TableHead className="h-11 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 px-4 border-r border-border/30 last:border-r-0">Hành động</TableHead>
-                                    <TableHead className="h-11 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 px-4 border-r border-border/30 last:border-r-0">Mô tả</TableHead>
-                                    <TableHead className="h-11 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 px-4 text-right">Thao tác</TableHead>
+                <div className="rounded-xl border bg-card overflow-hidden">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-12 text-center text-xs font-semibold text-muted-foreground">#</TableHead>
+                                <TableHead>Thời gian</TableHead>
+                                <TableHead>Người dùng</TableHead>
+                                <TableHead>Hành động</TableHead>
+                                <TableHead>Mô tả</TableHead>
+                                <TableHead className="text-right">Thao tác</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                Array.from({ length: 5 }).map((_, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell><Skeleton className="h-4 w-4 mx-auto" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                                        <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                                    </TableRow>
+                                ))
+                            ) : !data?.data?.length ? (
+                                <TableRow className="hover:bg-transparent">
+                                    <TableCell colSpan={6} className="py-20 text-center">
+                                        <div className="flex flex-col items-center justify-center gap-4">
+                                            <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                                                <ShieldAlert className="size-6" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <h3 className="text-lg font-semibold">Không tìm thấy bản ghi</h3>
+                                                <p className="text-sm text-muted-foreground">Thử điều chỉnh điều kiện lọc hoặc chọn khoảng thời gian khác.</p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    Array.from({ length: 5 }).map((_, index) => (
-                                        <TableRow key={index} className="border-b border-border/50">
-                                            <TableCell className="py-4 px-4"><Skeleton className="h-4 w-32 bg-muted/20" /></TableCell>
-                                            <TableCell className="py-4 px-4"><Skeleton className="h-4 w-24 bg-muted/20" /></TableCell>
-                                            <TableCell className="py-4 px-4"><Skeleton className="h-5 w-20 bg-muted/20" /></TableCell>
-                                            <TableCell className="py-4 px-4"><Skeleton className="h-4 w-full bg-muted/20" /></TableCell>
-                                            <TableCell className="py-4 px-4 text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : !data?.data?.length ? (
-                                    <TableRow className="hover:bg-transparent border-none">
-                                        <TableCell colSpan={5} className="h-64 text-center">
-                                            <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                                                <div className="p-5 rounded-full bg-muted/30">
-                                                    <ShieldAlert className="size-10 text-muted-foreground/40" />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <h3 className="text-lg font-bold text-muted-foreground/60">Không tìm thấy bản ghi</h3>
-                                                    <p className="text-sm text-muted-foreground/40">Thử điều chỉnh điều kiện lọc hoặc chọn khoảng thời gian khác.</p>
+                            ) : (
+                                (data?.data || []).map((log: AuditLog, index: number) => (
+                                    <TableRow key={log.id} className="hover:bg-muted/30 transition-colors group">
+                                        <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                                            {(page - 1) * 10 + index + 1}
+                                        </TableCell>
+                                        <TableCell className="text-xs font-mono text-muted-foreground">
+                                            {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col">
+                                                <div className="text-sm font-semibold">{log.user?.displayName || 'Ẩn danh'}</div>
+                                                <div className="text-[10px] text-muted-foreground uppercase">{log.user?.role || 'Guest'}</div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="space-y-1.5">
+                                                <Badge variant="secondary" className="text-[10px] font-bold">
+                                                    {log.action}
+                                                </Badge>
+                                                <div className="text-[10px] text-muted-foreground uppercase flex items-center gap-1.5">
+                                                    <Fingerprint className="size-3" />
+                                                    {log.entity}
                                                 </div>
                                             </div>
                                         </TableCell>
+                                        <TableCell className="max-w-md">
+                                            <div className="truncate text-sm text-muted-foreground">
+                                                {log.description}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <AuditLogDetailsSheet log={log} />
+                                        </TableCell>
                                     </TableRow>
-                                ) : (
-                                    (data?.data || []).map((log: AuditLog) => (
-                                        <TableRow key={log.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
-                                            <TableCell className="py-4 px-4 text-xs font-medium text-foreground/60 whitespace-nowrap font-mono">
-                                                {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
-                                            </TableCell>
-                                            <TableCell className="py-4 px-4">
-                                                <div className="flex flex-col gap-0.5">
-                                                    <div className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{log.user?.displayName || 'Ẩn danh'}</div>
-                                                    <div className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-tight">{log.user?.role || 'Guest'}</div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="py-4 px-4">
-                                                <div className="space-y-1.5">
-                                                    <Badge className="bg-muted text-[10px] font-bold px-1.5 h-5 border-none shadow-none text-muted-foreground">
-                                                        {log.action}
-                                                    </Badge>
-                                                    <div className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-widest flex items-center gap-1.5">
-                                                        <Fingerprint className="size-3" />
-                                                        {log.entity}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="py-4 px-4 max-w-md">
-                                                <div className="truncate text-sm font-medium text-muted-foreground/80 group-hover:text-foreground transition-colors leading-relaxed">
-                                                    {log.description}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="py-4 px-4 text-right">
-                                                <AuditLogDetailsSheet log={log} />
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </Card>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
 
                 <SmartPagination
                     page={page}

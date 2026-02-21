@@ -3,30 +3,30 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle, 
-  SheetDescription 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription
 } from "@workspace/ui/components/sheet";
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage, 
-  FormDescription 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription
 } from "@workspace/ui/components/form";
 import { Input } from "@workspace/ui/components/input";
 import { Button } from "@workspace/ui/components/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@workspace/ui/components/select";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
@@ -145,13 +145,13 @@ export function EditAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[700px] h-full flex flex-col gap-0 p-0 overflow-hidden">
+      <SheetContent className="w-full sm:w-[800px] !max-w-[800px] h-full flex flex-col gap-0 p-0 overflow-hidden">
         <SheetHeader className="p-6 border-b shrink-0">
           <SheetTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
             Chỉnh sửa <span className="text-primary not-italic">Bài Tập</span>
           </SheetTitle>
           <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground/50">
-            ID: {assignment?.id.substring(0, 8)}...
+            Mã: {assignment?.id.substring(0, 8)}...
           </SheetDescription>
         </SheetHeader>
 
@@ -202,9 +202,9 @@ export function EditAssignmentSheet({
                         Ghi chú bổ sung
                       </FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Nhập ghi chú hoặc hướng dẫn ngắn gọn..." 
-                          {...field} 
+                        <Textarea
+                          placeholder="Nhập ghi chú hoặc hướng dẫn ngắn gọn..."
+                          {...field}
                           value={field.value || ""}
                           className="rounded-xl bg-muted/20"
                           rows={3}
@@ -264,12 +264,12 @@ export function EditAssignmentSheet({
                       <FormItem>
                         <FormLabel className="text-xs font-bold uppercase tracking-wider">Điểm tối đa</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            {...field}
                             value={field.value ?? ""}
                             onChange={(e) => field.onChange(Number(e.target.value))}
-                            className="rounded-xl" 
+                            className="rounded-xl"
                           />
                         </FormControl>
                         <FormMessage />
@@ -284,12 +284,12 @@ export function EditAssignmentSheet({
                       <FormItem>
                         <FormLabel className="text-xs font-bold uppercase tracking-wider">Điểm đạt</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            {...field}
                             value={field.value ?? ""}
                             onChange={(e) => field.onChange(Number(e.target.value))}
-                            className="rounded-xl" 
+                            className="rounded-xl"
                           />
                         </FormControl>
                         <FormMessage />
@@ -300,7 +300,7 @@ export function EditAssignmentSheet({
 
                 <div className="space-y-4 border rounded-2xl p-4 bg-muted/30">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cấu hình nộp muộn</h3>
-                  
+
                   <FormField
                     control={form.control}
                     name="allowLateSubmission"
@@ -329,12 +329,12 @@ export function EditAssignmentSheet({
                           <FormLabel className="text-xs font-medium tracking-tight">Mức phạt (Gợi ý %)</FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-2">
-                              <Input 
-                                type="number" 
-                                {...field} 
+                              <Input
+                                type="number"
+                                {...field}
                                 value={field.value ?? ""}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="rounded-xl w-24" 
+                                className="rounded-xl w-24"
                               />
                               <span className="text-sm font-bold">%</span>
                             </div>
@@ -350,7 +350,7 @@ export function EditAssignmentSheet({
                 {(form.watch("type") === AssignmentType.FILE || form.watch("type") === AssignmentType.BOTH) && (
                   <div className="space-y-4 border rounded-2xl p-4 bg-muted/30">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cấu hình tệp đính kèm</h3>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -359,12 +359,12 @@ export function EditAssignmentSheet({
                           <FormItem>
                             <FormLabel className="text-xs font-bold uppercase tracking-wider">Dung lượng tối đa (MB)</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="number" 
+                              <Input
+                                type="number"
                                 placeholder="Cài đặt MB"
                                 value={field.value ? field.value / 1048576 : ""}
                                 onChange={(e) => field.onChange(Number(e.target.value) * 1048576)}
-                                className="rounded-xl" 
+                                className="rounded-xl"
                               />
                             </FormControl>
                             <FormMessage />
@@ -378,12 +378,12 @@ export function EditAssignmentSheet({
                           <FormItem>
                             <FormLabel className="text-xs font-bold uppercase tracking-wider">Số lượng tối đa</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="number" 
-                                {...field} 
+                              <Input
+                                type="number"
+                                {...field}
                                 value={field.value ?? ""}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="rounded-xl" 
+                                className="rounded-xl"
                               />
                             </FormControl>
                             <FormMessage />
@@ -402,7 +402,7 @@ export function EditAssignmentSheet({
                   <p className="text-[10px] text-muted-foreground/60 uppercase tracking-tight">
                     Tải lên các tài liệu hướng dẫn, tệp mẫu cho bài tập này (PDF, Word, Zip,...)
                   </p>
-                  
+
                   <FormField
                     control={form.control}
                     name="attachmentUrls"
@@ -427,15 +427,13 @@ export function EditAssignmentSheet({
                     type="button"
                     variant="outline"
                     onClick={() => onOpenChange(false)}
-                    className="rounded-xl font-sans font-bold italic text-xs uppercase"
-                  >
+                    className="rounded-xl font-sans font-bold italic text-xs uppercase">
                     Hủy
                   </Button>
                   <Button
                     type="submit"
                     disabled={updateMutation.isPending}
-                    className="rounded-xl font-sans font-bold italic text-xs uppercase bg-primary text-primary-foreground"
-                  >
+                    className="rounded-xl font-sans font-bold italic text-xs uppercase bg-primary text-primary-foreground">
                     {updateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <Save className="mr-2 h-4 w-4" />
                     Lưu thay đổi

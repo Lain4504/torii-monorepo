@@ -65,7 +65,7 @@ export function CouponsTable({
                     <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">
+                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -97,7 +97,7 @@ export function CouponsTable({
                             className="border-b border-border/50 hover:bg-muted/30 transition-colors group"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap">
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()

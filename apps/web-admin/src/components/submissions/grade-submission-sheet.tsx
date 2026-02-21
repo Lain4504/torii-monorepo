@@ -1,26 +1,26 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { 
-  GradeSubmissionDto, 
+import type {
+  GradeSubmissionDto,
   SubmissionResponseDTO,
 } from "@workspace/schemas";
-import { 
+import {
   gradeSubmissionDto,
 } from "@workspace/schemas";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle, 
-  SheetDescription 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription
 } from "@workspace/ui/components/sheet";
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
   FormMessage,
 } from "@workspace/ui/components/form";
 import { Input } from "@workspace/ui/components/input";
@@ -97,18 +97,18 @@ export function GradeSubmissionSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[700px] h-full flex flex-col p-0 border-l border-border/50 shadow-2xl overflow-hidden outline-none text-left">
+      <SheetContent className="w-full sm:w-[700px] !max-w-[700px] h-full flex flex-col p-0 border-l border-border/50 shadow-2xl overflow-hidden outline-none text-left">
         <SheetHeader className="p-6 border-b border-border/40 bg-muted/5">
           <div className="flex items-center gap-3 mb-1">
             <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight uppercase">
               Chấm <span className="text-primary not-italic">Bài Làm</span>
             </SheetTitle>
             <Badge variant={submission.isLate ? "destructive" : "outline"} className="rounded-md uppercase text-[10px] font-bold py-0.5">
-               {submission.isLate ? "Nộp muộn" : "Đúng hạn"}
+              {submission.isLate ? "Nộp muộn" : "Đúng hạn"}
             </Badge>
           </div>
           <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground/50 font-semibold">
-            Học viên: <span className="text-primary">{(submission as any).user?.displayName || submission.userId}</span> • ID: <span className="font-mono">{submission.id.slice(0, 8)}</span>
+            Học viên: <span className="text-primary">{(submission as any).user?.displayName || submission.userId}</span> • Mã: <span className="font-mono">{submission.id.slice(0, 8)}</span>
           </SheetDescription>
         </SheetHeader>
 
@@ -120,7 +120,7 @@ export function GradeSubmissionSheet({
                 <FileText className="size-4 text-primary" />
                 <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Nội dung bài nộp</h3>
               </div>
-              
+
               {submission.textAnswer && (
                 <div className="p-5 rounded-xl bg-muted/30 border border-border/50 text-sm leading-relaxed whitespace-pre-wrap font-medium text-foreground/80">
                   {submission.textAnswer}
@@ -136,18 +136,17 @@ export function GradeSubmissionSheet({
                           <Download className="size-4" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-bold truncate max-w-[200px] text-foreground/90">
-                              Tệp đính kèm {i + 1}
-                            </span>
-                            <span className="text-[10px] uppercase text-muted-foreground tracking-wider">File Upload</span>
+                          <span className="text-sm font-bold truncate max-w-[200px] text-foreground/90">
+                            Tệp đính kèm {i + 1}
+                          </span>
+                          <span className="text-[10px] uppercase text-muted-foreground tracking-wider">File Upload</span>
                         </div>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-8 rounded-lg text-xs font-bold uppercase text-muted-foreground hover:text-primary hover:bg-primary/5"
-                        onClick={() => window.open(url, '_blank')}
-                      >
+                        onClick={() => window.open(url, '_blank')}>
                         Mở <ExternalLink className="ml-2 size-3" />
                       </Button>
                     </div>
@@ -157,8 +156,8 @@ export function GradeSubmissionSheet({
 
               {!submission.textAnswer && submission.fileUrls.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-10 border-2 border-dashed border-border/40 rounded-xl bg-muted/5">
-                    <FileText className="size-8 text-muted-foreground/20 mb-2" />
-                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/40">Không có nội dung</p>
+                  <FileText className="size-8 text-muted-foreground/20 mb-2" />
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/40">Không có nội dung</p>
                 </div>
               )}
             </section>
@@ -173,55 +172,55 @@ export function GradeSubmissionSheet({
               <Form {...form}>
                 <form id="grade-form" onSubmit={form.handleSubmit(onGrade)} className="space-y-6">
                   <div className="p-5 rounded-2xl bg-muted/10 border border-border/40 space-y-6">
-                      <FormField
-                        control={form.control}
-                        name="score"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Điểm số</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input 
-                                  type="number" 
-                                  {...field} 
-                                  value={field.value || ''}
-                                  onChange={e => {
-                                    const input = e.target.value;
-                                    field.onChange(input === '' ? 0 : parseFloat(input));
-                                  }}
-                                  className="rounded-xl pr-12 font-black text-2xl h-14 bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all" 
-                                  placeholder="0"
-                                  min="0"
-                                  max={maxScore}
-                                  step="0.5"
-                                />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-muted-foreground/40 italic">
-                                  / {maxScore} điểm
-                                </span>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="feedback"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Phản hồi</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                {...field} 
-                                className="min-h-[120px] rounded-xl resize-none bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all text-sm leading-relaxed" 
-                                placeholder="Nhập nhận xét chi tiết..."
+                    <FormField
+                      control={form.control}
+                      name="score"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Điểm số</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type="number"
+                                {...field}
+                                value={field.value || ''}
+                                onChange={e => {
+                                  const input = e.target.value;
+                                  field.onChange(input === '' ? 0 : parseFloat(input));
+                                }}
+                                className="rounded-xl pr-12 font-black text-2xl h-14 bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all"
+                                placeholder="0"
+                                min="0"
+                                max={maxScore}
+                                step="0.5"
                               />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-muted-foreground/40 italic">
+                                / {maxScore} điểm
+                              </span>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="feedback"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Phản hồi</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className="min-h-[120px] rounded-xl resize-none bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all text-sm leading-relaxed"
+                              placeholder="Nhập nhận xét chi tiết..."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </form>
               </Form>
@@ -236,8 +235,7 @@ export function GradeSubmissionSheet({
               variant="ghost"
               onClick={onReturn}
               disabled={returnMutation.isPending || gradeMutation.isPending}
-              className="flex-1 h-11 rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 font-bold uppercase text-xs tracking-wide"
-            >
+              className="flex-1 h-11 rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 font-bold uppercase text-xs tracking-wide">
               {returnMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Trả lại bài
             </Button>
@@ -245,8 +243,7 @@ export function GradeSubmissionSheet({
               type="submit"
               form="grade-form"
               disabled={gradeMutation.isPending || returnMutation.isPending}
-              className="flex-[2] h-11 rounded-xl font-bold uppercase text-xs tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
-            >
+              className="flex-[2] h-11 rounded-xl font-bold uppercase text-xs tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
               {gradeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Hoàn tất chấm điểm
             </Button>

@@ -11,12 +11,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { agentApi, FlashcardResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentFlashcardResponseDTO as FlashcardResponse } from "@workspace/schemas"
 import { Card, CardContent } from "@workspace/ui/components/card"
 
 export function FlashcardGenerator() {
     const [topic, setTopic] = React.useState("")
-    const [difficulty, setDifficulty] = React.useState<"beginner" | "intermediate" | "advanced">("intermediate")
+    const [level, setLevel] = React.useState<"N5" | "N4" | "N3" | "N2" | "N1">("N4")
     const [isLoading, setIsLoading] = React.useState(false)
     const [result, setResult] = React.useState<FlashcardResponse | null>(null)
     const [flippedCards, setFlippedCards] = React.useState<Record<number, boolean>>({})
@@ -28,7 +29,7 @@ export function FlashcardGenerator() {
         setFlippedCards({})
 
         try {
-            const data = await agentApi.sensei.createFlashcard(topic, difficulty)
+            const data = await agentApi.sensei.createFlashcard(topic, level)
             setResult(data)
         } catch (error) {
             console.error(error)
@@ -68,14 +69,16 @@ export function FlashcardGenerator() {
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Trình độ</label>
-                        <Select value={difficulty} onValueChange={(v: any) => setDifficulty(v)}>
+                        <Select value={level} onValueChange={(v: any) => setLevel(v)}>
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="beginner">Sơ cấp (Beginner)</SelectItem>
-                                <SelectItem value="intermediate">Trung cấp (Intermediate)</SelectItem>
-                                <SelectItem value="advanced">Cao cấp (Advanced)</SelectItem>
+                                <SelectItem value="N5">N5 (Sơ cấp)</SelectItem>
+                                <SelectItem value="N4">N4 (Cơ bản)</SelectItem>
+                                <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
+                                <SelectItem value="N2">N2 (Tiền cao cấp)</SelectItem>
+                                <SelectItem value="N1">N1 (Cao cấp)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

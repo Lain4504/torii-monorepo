@@ -1,7 +1,7 @@
 'use client'
 
 import { useAppSelector } from '@/hooks/hooks'
-import { Card, CardContent } from '@workspace/ui/components/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
 import {
@@ -81,26 +81,6 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="px-5 py-3 rounded-2xl bg-amber-50 border border-amber-100 flex flex-col gap-2 min-w-[180px] shadow-sm">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-lg bg-amber-200 flex items-center justify-center">
-                                        <Star className="w-3.5 h-3.5 text-amber-700 fill-amber-700" />
-                                    </div>
-                                    <p className="text-[10px] font-black text-amber-700 uppercase tracking-wider">Cấp độ {user?.level || 1}</p>
-                                </div>
-                                <p className="text-xs font-black text-amber-900">{user?.xp || 0} XP</p>
-                            </div>
-                            <div className="w-full h-1.5 bg-amber-200/50 rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-amber-500 rounded-full transition-all duration-1000"
-                                    style={{ width: `${((user?.xp || 0) % 1000) / 10}%` }}
-                                />
-                            </div>
-                            <p className="text-[9px] font-bold text-amber-600 text-right">Còn {1000 - ((user?.xp || 0) % 1000)} XP đến cấp tiếp theo</p>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Stats Grid - Minimal Style */}
@@ -108,20 +88,22 @@ export default function DashboardPage() {
                     {stats.map((stat, index) => {
                         const Icon = stat.icon
                         return (
-                            <div
+                            <Card
                                 key={index}
-                                className="p-6 rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-all duration-300"
+                                className="border border-border shadow-sm hover:shadow-md transition-all duration-300"
                             >
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className={`p-2.5 rounded-xl bg-primary/10 text-primary`}>
-                                        <Icon className="w-5 h-5" />
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className={`p-2.5 rounded-xl bg-primary/10 text-primary`}>
+                                            <Icon className="w-5 h-5" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                                    <p className="text-xs font-medium text-muted-foreground mt-1">{stat.label}</p>
-                                </div>
-                            </div>
+                                    <div>
+                                        <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                                        <p className="text-xs font-medium text-muted-foreground mt-1">{stat.label}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         )
                     })}
                 </div>
@@ -129,47 +111,51 @@ export default function DashboardPage() {
                 {/* Practice Tools Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <Link href="/dashboard/flashcards">
-                        <div className="relative group rounded-2xl bg-card border border-border p-8 min-h-[200px] flex flex-col justify-between hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-                            <div className="relative z-10">
-                                <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold mb-4">
+                        <Card className="group flex flex-col justify-between h-full min-h-[200px] hover:border-primary/50 hover:shadow-lg transition-all duration-300">
+                            <CardHeader className="pb-4">
+                                <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold mb-3 w-fit">
                                     <Target className="size-3.5" />
                                     Luyện trí nhớ
                                 </div>
-                                <h3 className="text-2xl font-bold text-foreground mb-2">Thẻ nhớ Flashcards</h3>
-                                <p className="text-sm text-muted-foreground max-w-[90%] leading-relaxed">Hệ thống lặp lại ngắt quãng (SRS) giúp tối ưu hóa khả năng ghi nhớ dài hạn.</p>
-                            </div>
-                            <div className="relative z-10 flex items-center justify-between mt-6 pt-6 border-t border-border/50">
+                                <CardTitle className="text-2xl font-bold">Thẻ nhớ Flashcards</CardTitle>
+                                <CardDescription className="max-w-[90%] text-sm">
+                                    Hệ thống lặp lại ngắt quãng (SRS) giúp tối ưu hóa khả năng ghi nhớ dài hạn.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardFooter className="flex items-center justify-between mt-auto pt-6 bg-transparent border-t border-border/50 rounded-none">
                                 <div className="flex items-center gap-2">
                                     <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                                     <span className="text-xs font-medium text-muted-foreground">Đã đồng bộ</span>
                                 </div>
-                                <Button size="sm" variant="ghost" className="rounded-lg font-bold text-xs hover:bg-primary/10 hover:text-primary transition-all">
+                                <Button size="sm" variant="ghost" className="rounded-lg font-bold text-xs hover:bg-primary/10 hover:text-primary transition-all group-hover:bg-primary/5">
                                     Bắt đầu học <ArrowRight className="ml-2 w-3.5 h-3.5" />
                                 </Button>
-                            </div>
-                        </div>
+                            </CardFooter>
+                        </Card>
                     </Link>
 
                     <Link href="/assessment">
-                        <div className="relative group rounded-2xl bg-card border border-border p-8 min-h-[200px] flex flex-col justify-between hover:border-blue-500/50 hover:shadow-lg transition-all duration-300">
-                            <div className="relative z-10">
-                                <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold mb-4">
+                        <Card className="group flex flex-col justify-between h-full min-h-[200px] hover:border-blue-500/50 hover:shadow-lg transition-all duration-300">
+                            <CardHeader className="pb-4">
+                                <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold w-fit mb-3">
                                     <Award className="size-3.5" />
                                     Kiểm tra năng lực
                                 </div>
-                                <h3 className="text-2xl font-bold text-foreground mb-2">Thi thử JLPT</h3>
-                                <p className="text-sm text-muted-foreground max-w-[90%] leading-relaxed">Các bài thi chuẩn hóa giúp đánh giá trình độ ngôn ngữ chính xác.</p>
-                            </div>
-                            <div className="relative z-10 flex items-center justify-between mt-6 pt-6 border-t border-border/50">
+                                <CardTitle className="text-2xl font-bold">Thi thử JLPT</CardTitle>
+                                <CardDescription className="max-w-[90%] text-sm">
+                                    Các bài thi chuẩn hóa giúp đánh giá trình độ ngôn ngữ chính xác.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardFooter className="flex items-center justify-between mt-auto pt-6 bg-transparent border-t border-border/50 rounded-none">
                                 <div className="flex items-center gap-2">
                                     <span className="inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
                                     <span className="text-xs font-medium text-muted-foreground">Sẵn sàng</span>
                                 </div>
-                                <Button size="sm" variant="ghost" className="rounded-lg font-bold text-xs hover:bg-blue-50 hover:text-blue-600 transition-all">
+                                <Button size="sm" variant="ghost" className="rounded-lg font-bold text-xs hover:bg-blue-50 hover:text-blue-600 transition-all group-hover:bg-blue-50">
                                     Làm bài thi <ArrowRight className="ml-2 w-3.5 h-3.5" />
                                 </Button>
-                            </div>
-                        </div>
+                            </CardFooter>
+                        </Card>
                     </Link>
                 </div>
 
@@ -195,12 +181,12 @@ export default function DashboardPage() {
                             <div className="grid gap-4">
                                 {recentCourses.map((course, idx) => {
                                     const isExpired = course.expiresAt && new Date(course.expiresAt) < new Date();
-                                    
+
                                     return (
                                         <Card
                                             key={course.id}
                                             className={cn(
-                                                "rounded-2xl border border-border bg-card transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md",
+                                                "transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md block",
                                                 isExpired ? "opacity-90 border-destructive/20" : "hover:border-primary/50 cursor-pointer"
                                             )}
                                             onClick={() => {
@@ -211,9 +197,9 @@ export default function DashboardPage() {
                                                 }
                                             }}
                                         >
-                                            <CardContent className="p-4 sm:p-6">
+                                            <CardContent className="p-4 sm:p-6 pb-4 sm:pb-6">
                                                 <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-                                                    <div className="w-full sm:w-40 h-24 rounded-xl bg-muted border border-border/50 flex-shrink-0 relative overflow-hidden">
+                                                    <div className="w-full sm:w-40 h-24 rounded-lg bg-muted border border-border/50 flex-shrink-0 relative overflow-hidden">
                                                         {course.thumbnailUrl ? (
                                                             <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                                         ) : (
@@ -248,8 +234,8 @@ export default function DashboardPage() {
                                                     </div>
                                                     <div className="flex shrink-0">
                                                         <Button size="icon" variant="ghost" className={cn(
-                                                            "rounded-xl w-10 h-10 transition-colors",
-                                                            isExpired ? "hover:bg-destructive hover:text-white" : "hover:bg-primary hover:text-white"
+                                                            "w-10 h-10 transition-colors",
+                                                            isExpired ? "hover:bg-destructive hover:text-white" : "group-hover:bg-primary group-hover:text-white"
                                                         )}>
                                                             {isExpired ? <ArrowRight className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                                                         </Button>
@@ -260,12 +246,14 @@ export default function DashboardPage() {
                                     );
                                 })}
                                 {recentCourses.length === 0 && (
-                                    <div className="p-8 rounded-2xl border border-border bg-card text-center shadow-sm">
-                                        <p className="text-muted-foreground font-medium text-sm">Bạn chưa tham gia khóa học nào.</p>
-                                        <Link href="/courses">
-                                            <Button variant="outline" className="mt-4 rounded-xl font-bold">Khám phá khóa học</Button>
-                                        </Link>
-                                    </div>
+                                    <Card className="shadow-sm">
+                                        <CardContent className="p-8 text-center flex flex-col items-center justify-center min-h-[160px] pb-8">
+                                            <p className="text-muted-foreground font-medium text-sm">Bạn chưa tham gia khóa học nào.</p>
+                                            <Button variant="outline" asChild className="mt-4 font-bold">
+                                                <Link href="/courses">Khám phá khóa học</Link>
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
                                 )}
                             </div>
                         </div>
@@ -274,14 +262,14 @@ export default function DashboardPage() {
                     {/* Sidebar Column */}
                     <div className="space-y-8">
                         {/* Upcoming Classes */}
-                        <div className="space-y-6 p-6 rounded-2xl border border-border bg-card shadow-sm">
-                            <div className="flex items-center gap-3">
+                        <Card className="shadow-sm">
+                            <CardHeader className="flex flex-row items-center gap-3 pb-4">
                                 <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
                                     <Calendar className="w-4 h-4" />
                                 </div>
-                                <h3 className="text-sm font-bold text-foreground">Lịch học trực tuyến</h3>
-                            </div>
-                            <div className="space-y-4">
+                                <CardTitle className="text-sm font-bold m-0">Lịch học trực tuyến</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
                                 {upcomingClasses.map((classItem) => (
                                     <div key={classItem.id} className="p-4 rounded-xl border border-border bg-background flex items-start gap-4 hover:border-orange-200 transition-colors cursor-pointer">
                                         <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
@@ -293,19 +281,21 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
                                 ))}
-                            </div>
-                            <Button variant="ghost" className="w-full rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground">Xem lịch chi tiết</Button>
-                        </div>
+                            </CardContent>
+                            <CardFooter className="bg-transparent rounded-none pt-2">
+                                <Button variant="ghost" className="w-full text-xs font-bold text-muted-foreground hover:text-foreground">Xem lịch chi tiết</Button>
+                            </CardFooter>
+                        </Card>
 
                         {/* Weekly Goals */}
-                        <div className="space-y-6 p-6 rounded-2xl border border-border bg-card shadow-sm">
-                            <div className="flex items-center gap-3">
+                        <Card className="shadow-sm">
+                            <CardHeader className="flex flex-row items-center gap-3 pb-2">
                                 <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
                                     <Target className="w-4 h-4" />
                                 </div>
-                                <h3 className="text-sm font-bold text-foreground">Mục tiêu tuần</h3>
-                            </div>
-                            <div className="space-y-4">
+                                <CardTitle className="text-sm font-bold">Mục tiêu tuần</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4 pt-2">
                                 <div>
                                     <p className="text-base font-bold text-foreground">Lộ trình học tập</p>
                                     <p className="text-xs text-muted-foreground mt-1">"Hành trình vạn dặm bắt đầu từ một bước chân."</p>
@@ -320,9 +310,11 @@ export default function DashboardPage() {
                                     </div>
                                     <p className="text-xs text-center font-medium text-muted-foreground">{statsData?.completedCourses || 0} khóa học hoàn thành</p>
                                 </div>
-                            </div>
-                            <Button className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm">Tối ưu hóa tập trung</Button>
-                        </div>
+                            </CardContent>
+                            <CardFooter className="bg-transparent rounded-none">
+                                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm">Tối ưu hóa tập trung</Button>
+                            </CardFooter>
+                        </Card>
 
                         {/* Leaderboard Preview */}
                         <LeaderboardPreview

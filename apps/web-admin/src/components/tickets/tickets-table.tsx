@@ -21,14 +21,18 @@ interface TicketsTableProps {
     data: TicketResponseDTO[];
     isLoading?: boolean;
     onView: (ticket: TicketResponseDTO) => void;
+    page?: number;
+    limit?: number;
 }
 
 export function TicketsTable({
     data,
     isLoading,
     onView,
+    page = 1,
+    limit = 10,
 }: TicketsTableProps) {
-    const columns = getTicketsColumns(onView);
+    const columns = getTicketsColumns({ onView, page, limit });
 
     const table = useReactTable({
         data,
@@ -42,7 +46,7 @@ export function TicketsTable({
                 {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
                         {headerGroup.headers.map((header) => (
-                            <TableHead key={header.id} className="h-11 text-[10px] font-black uppercase tracking-widest text-muted-foreground px-4 border-r border-border/50 last:border-r-0">
+                            <TableHead key={header.id} className="h-11 text-[10px] font-black uppercase tracking-widest text-muted-foreground px-4">
                                 {header.isPlaceholder
                                     ? null
                                     : flexRender(
@@ -73,7 +77,7 @@ export function TicketsTable({
                             onClick={() => onView(row.original)}
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-4 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                <TableCell key={cell.id} className="py-4 px-4 text-sm text-foreground/80 whitespace-nowrap">
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()

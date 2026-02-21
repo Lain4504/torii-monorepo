@@ -1,7 +1,5 @@
-'use client'
-
 import { useState, useMemo } from 'react'
-import { Bell, Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
+import { Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
 import { format, formatDistanceToNow } from 'date-fns'
@@ -19,8 +17,11 @@ import {
   PaginationPrevious,
 } from '@workspace/ui/components/pagination'
 import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
+import { Skeleton } from '@workspace/ui/components/skeleton'
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/api/services/notifications'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
+import { PageHeader } from '@/components/common/page-header'
 
 interface Notification {
   id: string
@@ -34,7 +35,6 @@ interface Notification {
   category: 'system' | 'security' | 'finance' | 'identity'
 }
 
-// Map API notification type to UI type
 function mapNotificationType(notificationType: NotificationType): 'info' | 'success' | 'warning' | 'error' {
   switch (notificationType) {
     case 'course':
@@ -45,7 +45,6 @@ function mapNotificationType(notificationType: NotificationType): 'info' | 'succ
       return 'warning'
     case 'payment':
     case 'order_status_update':
-      return 'info'
     case 'live_class':
     case 'reminder':
     case 'comment_reply':
@@ -55,47 +54,28 @@ function mapNotificationType(notificationType: NotificationType): 'info' | 'succ
   }
 }
 
-// Map notification type to category
 function mapNotificationCategory(notificationType: NotificationType): 'system' | 'security' | 'finance' | 'identity' {
   switch (notificationType) {
-    case 'system':
-      return 'system'
+    case 'system': return 'system'
     case 'payment':
     case 'order_success':
-    case 'order_status_update':
-      return 'finance'
-    case 'course':
-    case 'achievement':
-    case 'reminder':
-    case 'live_class':
-    case 'comment_reply':
-      return 'system'
-    default:
-      return 'system'
+    case 'order_status_update': return 'finance'
+    default: return 'system'
   }
 }
 
-// Map notification type to node name
 function mapNotificationNode(notificationType: NotificationType): string {
   switch (notificationType) {
-    case 'system':
-      return 'System'
-    case 'course':
-      return 'Learning'
-    case 'payment':
-      return 'Finance'
-    case 'live_class':
-      return 'Meet'
-    case 'achievement':
-      return 'Gamification'
-    case 'reminder':
-      return 'Scheduler'
-    default:
-      return 'System'
+    case 'system': return 'System'
+    case 'course': return 'Learning'
+    case 'payment': return 'Finance'
+    case 'live_class': return 'Meet'
+    case 'achievement': return 'Gamification'
+    case 'reminder': return 'Scheduler'
+    default: return 'System'
   }
 }
 
-// Convert API notification to UI format
 function mapNotificationToUI(notification: NotificationResponseDTO): Notification {
   const createdAt = new Date(notification.createdAt)
   return {
@@ -111,13 +91,10 @@ function mapNotificationToUI(notification: NotificationResponseDTO): Notificatio
   }
 }
 
-import { PageHeader } from '@/components/common/page-header';
-
 export default function NotificationsPage() {
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [page, setPage] = useState(1)
 
-  // Fetch notifications with pagination
   const { data: notificationsData, isLoading } = useNotifications({
     limit: 50,
     page,
@@ -128,29 +105,17 @@ export default function NotificationsPage() {
   const markAllAsReadMutation = useMarkAllNotificationsAsRead()
   const deleteNotificationMutation = useDeleteNotification()
 
-  // Map API notifications to UI format
   const notifications = useMemo(() => {
-    // Handle response structure: PaginatedApiResponse = { data: NotificationResponseDTO[], total, page, limit, totalPages }
     if (!notificationsData?.data) return []
     return notificationsData.data.map(mapNotificationToUI)
   }, [notificationsData])
 
-  // Filter notifications by search
   const filteredNotifications = useMemo(() => {
     return notifications.filter((n: Notification) => {
-      if (filter === 'all') return true
       if (filter === 'unread') return !n.read
       return true
     })
   }, [notifications, filter])
-
-  const markAsRead = (id: string) => {
-    markAsReadMutation.mutate(id)
-  }
-
-  const deleteNotification = (id: string) => {
-    deleteNotificationMutation.mutate(id)
-  }
 
   const unreadCount = unreadCountData?.count || 0
 
@@ -164,7 +129,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
+    <div className="flex flex-col gap-6">
       <PageHeader
         title="Thông báo Hệ thống"
         subtitle="Cập nhật tin tức và cảnh báo bảo mật Torii Academy"
@@ -173,9 +138,9 @@ export default function NotificationsPage() {
         ]}
         actions={
           <Button
+            size="sm"
             onClick={() => markAllAsReadMutation.mutate()}
             disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
           >
             <Check className="size-4 mr-2" />
             {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
@@ -183,165 +148,157 @@ export default function NotificationsPage() {
         }
       />
 
-
-      {/* Filters (Tabs Style) */}
-      <Tabs value={filter} onValueChange={(v) => { setFilter(v as any); setPage(1); }} className="w-full">
-        <TabsList className="flex h-auto w-full max-w-3xl gap-1 bg-muted/20 p-1 rounded-xl border border-border/50 backdrop-blur-sm overflow-x-auto no-scrollbar justify-start">
-          {[
-            { id: 'all', label: 'Tất cả' },
-            { id: 'unread', label: 'Chưa đọc' }
-          ].map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className={cn(
-                "flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-bold uppercase italic tracking-wider transition-all duration-200",
-                "data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm data-[state=active]:border-border/50",
-                "hover:text-primary/70"
-              )}
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
+      {/* Filter Tabs */}
+      <Tabs value={filter} onValueChange={(v) => { setFilter(v as any); setPage(1); }}>
+        <TabsList>
+          <TabsTrigger value="all">Tất cả</TabsTrigger>
+          <TabsTrigger value="unread">
+            Chưa đọc
+            {unreadCount > 0 && (
+              <span className="ml-2 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-bold tabular-nums">
+                {unreadCount}
+              </span>
+            )}
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
       {/* Notifications List */}
-      <div className="">
-        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-          <div className="divide-y divide-border/40">
-            {isLoading ? (
-              <div className="py-20 text-center space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-muted/20 mx-auto flex items-center justify-center border border-border/10">
-                  <Bell className="size-5 text-muted-foreground/30 animate-pulse" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-sans font-bold italic uppercase tracking-widest text-muted-foreground/60">Đang tải thông báo...</p>
+      <div className="rounded-xl border bg-card">
+        {isLoading ? (
+          <div className="divide-y divide-border">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex gap-4 p-6">
+                <Skeleton className="size-10 rounded-xl shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-3 w-1/4" />
+                  <Skeleton className="h-3 w-3/4" />
                 </div>
               </div>
-            ) : filteredNotifications.length > 0 ? (
-              filteredNotifications.map((notification: Notification) => {
-                const styles = getTypeStyles(notification.type)
-                const Icon = styles.icon
-                return (
-                  <div
-                    key={notification.id}
-                    className={cn(
-                      "group p-6 flex flex-col sm:flex-row gap-5 transition-all duration-200 relative hover:bg-muted/30",
-                      !notification.read && "bg-primary/[0.02]"
-                    )}
-                  >
-                    <div className={cn(
-                      "size-10 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 border border-transparent",
-                      styles.bg,
-                      styles.color
-                    )}>
-                      <Icon className="size-5" />
-                    </div>
+            ))}
+          </div>
+        ) : filteredNotifications.length > 0 ? (
+          <div className="divide-y divide-border">
+            {filteredNotifications.map((notification: Notification) => {
+              const styles = getTypeStyles(notification.type)
+              const Icon = styles.icon
+              return (
+                <div
+                  key={notification.id}
+                  className={cn(
+                    "group p-6 flex flex-col sm:flex-row gap-4 transition-colors hover:bg-muted/30",
+                    !notification.read && "bg-primary/[0.02]"
+                  )}
+                >
+                  <div className={cn(
+                    "size-10 rounded-xl shrink-0 flex items-center justify-center",
+                    styles.bg,
+                    styles.color
+                  )}>
+                    <Icon className="size-5" />
+                  </div>
 
-                    <div className="flex-1 space-y-1.5">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <h3 className={cn(
-                            "text-base font-semibold transition-colors",
-                            !notification.read ? "text-foreground" : "text-muted-foreground/80"
-                          )}>
-                            {notification.title}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-2.5">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/50 text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground border border-border/50">
-                              {notification.node}
-                            </span>
-                            <span className="text-border text-[10px]">|</span>
-                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground/60">
-                              <Clock className="size-3 opacity-70" />
-                              {notification.date} • {notification.time}
-                            </div>
+                  <div className="flex-1 space-y-1.5 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1 min-w-0">
+                        <h3 className={cn(
+                          "text-sm font-semibold truncate",
+                          !notification.read ? "text-foreground" : "text-muted-foreground/80"
+                        )}>
+                          {notification.title}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/50 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border border-border/50">
+                            {notification.node}
+                          </span>
+                          <div className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
+                            <Clock className="size-3" />
+                            {notification.date} · {notification.time}
                           </div>
                         </div>
-
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-muted-foreground hover:text-foreground">
-                              <MoreVertical className="size-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl border-border shadow-lg min-w-[160px] p-1">
-                            {!notification.read && (
-                              <DropdownMenuItem
-                                onClick={() => markAsRead(notification.id)}
-                                disabled={markAsReadMutation.isPending}
-                                className="rounded-lg text-xs font-medium cursor-pointer px-3 py-2 disabled:opacity-50"
-                              >
-                                <Check className="size-3.5 mr-2 opacity-50" />
-                                {markAsReadMutation.isPending ? 'Đang xử lý...' : 'Đánh dấu đã đọc'}
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem
-                              onClick={() => deleteNotification(notification.id)}
-                              disabled={deleteNotificationMutation.isPending}
-                              className="rounded-lg text-xs font-medium cursor-pointer px-3 py-2 text-rose-500 focus:text-rose-600 focus:bg-rose-50 disabled:opacity-50"
-                            >
-                              <Trash2 className="size-3.5 mr-2 opacity-50" />
-                              {deleteNotificationMutation.isPending ? 'Đang xóa...' : 'Xóa thông báo'}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
                       </div>
-                      <p className="max-w-3xl text-sm text-muted-foreground/70 leading-relaxed">
-                        {notification.message}
-                      </p>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
+                            <MoreVertical className="size-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="rounded-xl min-w-[160px] p-1">
+                          {!notification.read && (
+                            <DropdownMenuItem
+                              onClick={() => markAsReadMutation.mutate(notification.id)}
+                              disabled={markAsReadMutation.isPending}
+                              className="rounded-lg text-xs cursor-pointer px-3 py-2"
+                            >
+                              <Check className="size-3.5 mr-2 opacity-50" />
+                              Đánh dấu đã đọc
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onClick={() => deleteNotificationMutation.mutate(notification.id)}
+                            disabled={deleteNotificationMutation.isPending}
+                            className="rounded-lg text-xs cursor-pointer px-3 py-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                          >
+                            <Trash2 className="size-3.5 mr-2 opacity-50" />
+                            Xóa thông báo
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
+
+                    <p className="text-sm text-muted-foreground/70 leading-relaxed">
+                      {notification.message}
+                    </p>
                   </div>
-                )
-              })
-            ) : (
-              <div className="py-20 text-center space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-muted/20 mx-auto flex items-center justify-center border border-border/10">
-                  <BellOff className="size-8 text-muted-foreground/20" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-sans font-bold italic uppercase tracking-tight text-foreground">Không có thông báo</h3>
-                  <p className="text-sm text-muted-foreground/60">Bạn đã xem hết tất cả thông tin quan trọng.</p>
-                </div>
-              </div>
-            )}
+              )
+            })}
           </div>
-        </div>
-
-        {/* Pagination Section */}
-        {notificationsData && notificationsData.totalPages > 1 && (
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-border/10">
-            <div className="text-xs font-medium text-muted-foreground ml-2">
-              Trang <span className="text-foreground">{page}</span> / {notificationsData.totalPages}
-            </div>
-
-            <Pagination className="w-auto mx-0">
-              <PaginationContent className="gap-2">
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className={cn(
-                      "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all cursor-pointer",
-                      page === 1 ? "opacity-30 cursor-not-allowed pointer-events-none" : "hover:bg-muted"
-                    )}
-                  />
-                </PaginationItem>
-
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => setPage((p) => Math.min(notificationsData.totalPages, p + 1))}
-                    className={cn(
-                      "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all cursor-pointer",
-                      page === notificationsData.totalPages ? "opacity-30 cursor-not-allowed pointer-events-none" : "hover:bg-muted"
-                    )}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
+        ) : (
+          <Empty>
+            <EmptyMedia>
+              <BellOff className="size-6" />
+            </EmptyMedia>
+            <EmptyContent>
+              <EmptyTitle>Không có thông báo</EmptyTitle>
+              <EmptyDescription>Bạn đã xem hết tất cả thông tin quan trọng.</EmptyDescription>
+            </EmptyContent>
+          </Empty>
         )}
       </div>
+
+      {/* Pagination */}
+      {notificationsData && notificationsData.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            Trang <span className="font-semibold text-foreground">{page}</span> / {notificationsData.totalPages}
+          </p>
+          <Pagination className="w-auto mx-0">
+            <PaginationContent className="gap-1">
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className={cn(
+                    "h-9 px-3 rounded-lg text-xs cursor-pointer",
+                    page === 1 ? "opacity-40 pointer-events-none" : ""
+                  )}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage((p) => Math.min(notificationsData.totalPages, p + 1))}
+                  className={cn(
+                    "h-9 px-3 rounded-lg text-xs cursor-pointer",
+                    page === notificationsData.totalPages ? "opacity-40 pointer-events-none" : ""
+                  )}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   )
 }

@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
-    Eye,
+    MoreVertical,
     CheckCircle2,
     XCircle,
     Clock,
@@ -12,7 +12,22 @@ import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
 import { cn } from '@workspace/ui/lib/utils';
 
-export const getTicketsColumns = (onView: (ticket: TicketResponseDTO) => void): ColumnDef<TicketResponseDTO>[] => [
+interface TicketsColumnsProps {
+    onView: (ticket: TicketResponseDTO) => void;
+    page?: number;
+    limit?: number;
+}
+
+export const getTicketsColumns = ({ onView, page = 1, limit = 10 }: TicketsColumnsProps): ColumnDef<TicketResponseDTO>[] => [
+    {
+        id: 'stt',
+        header: () => <div className="text-center">#</div>,
+        cell: ({ row }) => {
+            const stt = (page - 1) * limit + row.index + 1;
+            return <div className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">{stt}</div>;
+        },
+        size: 50,
+    },
     {
         accessorKey: 'id',
         header: 'Mã yêu cầu',
@@ -93,7 +108,7 @@ export const getTicketsColumns = (onView: (ticket: TicketResponseDTO) => void): 
                     className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
                     onClick={() => onView(row.original)}
                 >
-                    <Eye className="size-4" />
+                    <MoreVertical className="size-4" />
                 </Button>
             </div>
         ),

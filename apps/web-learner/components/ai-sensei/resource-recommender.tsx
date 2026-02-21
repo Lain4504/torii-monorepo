@@ -11,7 +11,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { agentApi, ResourceRecommendationResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentResourceRecommendationResponseDTO as ResourceRecommendationResponse } from "@workspace/schemas"
 import { Card, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 

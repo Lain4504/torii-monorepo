@@ -1,4 +1,4 @@
-# Cortex Module
+# Agents Service
 
 The Cortex module is the AI-powered brain of the Torii platform, providing intelligent tutoring, assessment, and analytics for Japanese language learning. It integrates multiple specialized agents to deliver personalized, adaptive learning experiences focused on JLPT preparation and foundational language skills.
 

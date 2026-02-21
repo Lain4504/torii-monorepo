@@ -69,7 +69,7 @@ export function RejectCourseDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] border-destructive/20 bg-background/95 backdrop-blur-xl">
+            <DialogContent className="w-[95vw] sm:w-[500px] !max-w-[500px] border-destructive/20 bg-background/95 backdrop-blur-xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-destructive font-sans italic text-xl">
                         <XCircle className="w-5 h-5" />

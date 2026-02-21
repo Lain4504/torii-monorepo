@@ -1,9 +1,8 @@
-'use client'
-
 import { Button } from '@workspace/ui/components/button'
-import { ArrowRight, BookOpen, Clock, Layers, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, Clock, Layers } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
+import { Badge } from '@workspace/ui/components/badge'
 
 const jlptLevels = [
     {
@@ -13,7 +12,7 @@ const jlptLevels = [
         courses: 25,
         hours: '150 giờ',
         kanji: '80 chữ',
-        active: true,
+        featured: true,
     },
     {
         level: 'N4',
@@ -51,102 +50,89 @@ const jlptLevels = [
 
 export function CourseCategoriesSection() {
     return (
-        <section className="py-24 bg-background">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Section Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="max-w-2xl space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold">
-                            <Layers className="w-3.5 h-3.5" />
-                            <span>Lộ trình học tập</span>
-                        </div>
-                        <h2 className="text-3xl md:text-5xl font-sans font-bold text-foreground tracking-tight leading-tight">
+        <section className="py-20 border-t bg-background">
+            <div className="container max-w-6xl mx-auto px-4">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                    <div className="space-y-3">
+                        <p className="text-sm font-semibold text-primary">Lộ trình học tập</p>
+                        <h2 className="text-3xl font-bold tracking-tight">
                             Lộ Trình <span className="text-primary">JLPT</span> Chuẩn Quốc Tế
                         </h2>
-                        <p className="text-lg text-muted-foreground font-medium">
+                        <p className="text-muted-foreground max-w-lg">
                             Hệ thống khóa học bám sát cấu trúc đề thi năng lực tiếng Nhật mới nhất.
                         </p>
                     </div>
-                    <Link href="/courses">
-                        <Button variant="outline" className="rounded-xl h-12 px-6 text-sm font-bold border-border hover:bg-muted transition-all active:scale-95 bg-background group">
-                            Xem tất cả khóa học
-                            <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                    </Link>
+                    <Button variant="outline" asChild className="shrink-0">
+                        <Link href="/courses">
+                            Xem tất cả
+                            <ArrowRight className="ml-2 w-4 h-4" />
+                        </Link>
+                    </Button>
                 </div>
 
-                {/* JLPT Levels Grid */}
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {jlptLevels.map((level, index) => (
-                        <div
-                            key={index}
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {jlptLevels.map((level) => (
+                        <Link
+                            key={level.level}
+                            href={`/courses?level=${level.level}`}
                             className={cn(
-                                "group relative overflow-hidden rounded-2xl p-8 border border-border transition-all duration-300 flex flex-col h-full",
-                                level.active ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-card hover:shadow-md hover:-translate-y-1"
+                                'group block p-6 rounded-xl border transition-all hover:border-primary/40 hover:shadow-sm',
+                                level.featured ? 'bg-primary/5 border-primary/20' : 'bg-card'
                             )}
                         >
-                            {/* JLPT Badge */}
-                            <div className={cn(
-                                "inline-flex items-center justify-center px-4 py-1.5 rounded-lg text-xs font-bold mb-6 transition-colors",
-                                level.active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground"
-                            )}>
-                                JLPT {level.level}
+                            <div className="flex items-center justify-between mb-4">
+                                <Badge variant={level.featured ? 'default' : 'secondary'}>
+                                    JLPT {level.level}
+                                </Badge>
                             </div>
 
-                            {/* Content */}
-                            <div className="space-y-4 flex-1">
-                                <h3 className="text-2xl font-bold text-foreground">{level.title}</h3>
-                                <p className="text-sm text-muted-foreground leading-relaxed">{level.description}</p>
-                            </div>
+                            <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
+                                {level.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+                                {level.description}
+                            </p>
 
-                            {/* Stats List */}
-                            <div className="mt-8 pt-6 border-t border-border/50 space-y-3">
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <BookOpen className="w-4 h-4" />
-                                        <span>Tài liệu</span>
-                                    </div>
-                                    <span className="font-semibold text-foreground">{level.courses} Khóa học</span>
+                            <div className="space-y-2 text-sm border-t pt-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground flex items-center gap-1.5">
+                                        <BookOpen className="w-3.5 h-3.5" /> Khóa học
+                                    </span>
+                                    <span className="font-medium">{level.courses}</span>
                                 </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Clock className="w-4 h-4" />
-                                        <span>Thời gian</span>
-                                    </div>
-                                    <span className="font-semibold text-foreground">{level.hours}</span>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground flex items-center gap-1.5">
+                                        <Clock className="w-3.5 h-3.5" /> Thời gian
+                                    </span>
+                                    <span className="font-medium">{level.hours}</span>
                                 </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Layers className="w-4 h-4" />
-                                        <span>Từ vựng</span>
-                                    </div>
-                                    <span className="font-semibold text-foreground">{level.kanji} Kanji</span>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground flex items-center gap-1.5">
+                                        <Layers className="w-3.5 h-3.5" /> Kanji
+                                    </span>
+                                    <span className="font-medium">{level.kanji}</span>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
 
-                    {/* Special Promo Card */}
-                    <div className="group relative overflow-hidden rounded-2xl p-8 bg-foreground text-background transition-all duration-300 hover:shadow-xl cursor-pointer hover:-translate-y-1 flex flex-col justify-between">
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-3xl" />
-
-                        <div className="space-y-6 relative z-10">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white rounded-full text-xs font-bold backdrop-blur-sm">
-                                <Sparkles className="w-3.5 h-3.5" />
-                                <span>High Interactive</span>
-                            </div>
-                            <h3 className="text-2xl font-bold leading-tight">
-                                Lớp Trực Tuyến <br /> <span className="text-primary">WebRTC</span>
-                            </h3>
-                            <p className="text-sm font-medium opacity-80 leading-relaxed">
-                                Học trực tiếp cùng giảng viên N1, tương tác không giới hạn qua bảng trắng kỹ thuật số và âm thanh Hi-Fi.
-                            </p>
-                        </div>
-
-                        <Button className="mt-8 rounded-xl h-12 bg-white text-black hover:bg-white/90 font-bold text-sm w-full relative z-10 transition-all active:scale-95 shadow-lg">
+                    {/* Live Classes Promo */}
+                    <Link
+                        href="/live-classes"
+                        className="group block p-6 rounded-xl border bg-foreground text-background hover:opacity-90 transition-opacity"
+                    >
+                        <Badge className="mb-4 bg-white/15 text-white hover:bg-white/15 border-none">
+                            High Interactive
+                        </Badge>
+                        <h3 className="font-semibold mb-2">Lớp Trực Tuyến WebRTC</h3>
+                        <p className="text-sm opacity-70 leading-relaxed mb-6">
+                            Học trực tiếp cùng giảng viên N1, tương tác không giới hạn qua bảng trắng kỹ thuật số.
+                        </p>
+                        <div className="flex items-center gap-1.5 text-sm font-medium text-primary">
                             Tham gia ngay
-                        </Button>
-                    </div>
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </Link>
                 </div>
             </div>
         </section>

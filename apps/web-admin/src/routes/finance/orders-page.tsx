@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -12,12 +12,12 @@ import { Input } from '@workspace/ui/components/input';
 import {
   Zap,
   Clock,
-  Hash,
-  Database,
-  Globe,
-  CalendarDays,
-  CreditCard, RotateCcw, ShieldCheck, TrendingUp, Activity, Search, User, Filter
+  CreditCard, RotateCcw, ShieldCheck, TrendingUp, Activity, Search, Calendar as CalendarIcon
 } from 'lucide-react';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { Calendar } from '@workspace/ui/components/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
 import {
   Select,
   SelectContent,
@@ -26,60 +26,57 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select";
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
-import {
-  Sheet,
-  SheetContent,
-} from "@workspace/ui/components/sheet";
-import { orderApi } from '@/api/services/order-api.ts';
-import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
-import { formatCurrency, formatDateTime } from '@/lib/format-utils';
-import { cn } from "@workspace/ui/lib/utils";
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { Card } from "@workspace/ui/components/card";
 import { PageHeader } from '@/components/common/page-header';
+import { OrderDetailSheet } from '@/components/finance/order-detail-sheet';
+import { useOrders } from '@/api/services/finance';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu";
+import { MoreHorizontal, Eye, FileText, XCircle } from 'lucide-react';
+import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
+import { formatCurrency } from '@/lib/format-utils';
+import { cn } from "@workspace/ui/lib/utils";
 
 export default function OrdersPage() {
-  const [payments, setPayments] = useState<OrderResponseDTO[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<string>('all');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [selectedOrder, setSelectedOrder] = useState<OrderResponseDTO | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  useEffect(() => {
-    loadPayments();
-  }, [page, status]);
+  const { data: ordersResponse, isLoading } = useOrders({
+    page,
+    limit: 10,
+    status: status !== 'all' ? status as OrderStatus : undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+  });
 
-  const loadPayments = async () => {
-    try {
-      setIsLoading(true);
-      const response = await orderApi.getAllOrders({
-        page,
-        limit: 10,
-        status: status !== 'all' ? status as OrderStatus : undefined,
-      });
-      setPayments(response.data || []);
-      setTotalPages(response.totalPages);
-      setTotal(response.total);
-    } catch (error) {
-      console.error('Failed to load payments:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const orders = ordersResponse?.data || [];
+  const total = ordersResponse?.total || 0;
+  const totalPages = ordersResponse?.totalPages || 1;
 
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
       case OrderStatus.COMPLETED:
         return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
       case OrderStatus.PENDING:
+      case OrderStatus.PROCESSING:
         return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
       case OrderStatus.FAILED:
       case OrderStatus.CANCELLED:
+      case OrderStatus.TIMED_OUT:
         return 'bg-red-500/10 text-red-600 border-red-500/20';
+      case OrderStatus.REFUNDED:
+        return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
       default:
         return 'bg-muted/10 text-muted-foreground border-border/20';
     }
@@ -90,11 +87,16 @@ export default function OrdersPage() {
       case OrderStatus.COMPLETED:
         return 'Hoàn thành';
       case OrderStatus.PENDING:
+      case OrderStatus.PROCESSING:
         return 'Đang xử lý';
       case OrderStatus.FAILED:
         return 'Thất bại';
       case OrderStatus.CANCELLED:
         return 'Đã hủy';
+      case OrderStatus.TIMED_OUT:
+        return 'Hết hạn';
+      case OrderStatus.REFUNDED:
+        return 'Hoàn tiền';
       default:
         return status;
     }
@@ -102,7 +104,7 @@ export default function OrdersPage() {
 
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-700 pb-20 p-4 md:p-6">
+    <div className="flex flex-col gap-8">
       <PageHeader
         title="Tài chính & Doanh thu"
         subtitle="Theo dõi dòng tiền và tối ưu hiệu suất Torii Academy"
@@ -111,108 +113,178 @@ export default function OrdersPage() {
         ]}
         actions={
           <Button
-            onClick={loadPayments}
+            variant="outline"
+            onClick={() => window.location.reload()}
             disabled={isLoading}
-            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all group"
           >
-            Làm mới
-            <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
+            <RotateCcw className={cn("mr-2 size-4", isLoading && "animate-spin")} />
+            Làm mới Dữ liệu
           </Button>
         }
       />
 
 
       {/* Stats Quick Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-1">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { label: 'Tổng doanh thu', value: '25.4M', sub: '+12% so với tháng trước', icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10' },
           { label: 'Trạng thái Hệ thống', value: 'Ổn định', sub: 'Độ trễ < 12ms', icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
           { label: 'Bảo mật', value: 'Hoạt động', sub: '99.9% Tỷ lệ an toàn', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
         ].map((stat, i) => (
-          <Card key={i}
-            className="group p-6 rounded-xl border border-border bg-card shadow-sm hover:shadow-md transition-all duration-300">
+          <div key={i}
+            className="group p-6 rounded-xl border bg-card hover:border-primary/20 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <div className={cn("p-2.5 rounded-lg transition-transform group-hover:scale-105", stat.bg, stat.color)}>
-                <stat.icon className="size-5" />
+              <div className={cn("p-2 rounded-lg", stat.bg, stat.color)}>
+                <stat.icon className="size-4" />
               </div>
-              <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="size-1.5 rounded-full bg-emerald-500" />
             </div>
-            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-sans font-bold italic mb-1">{stat.label}</h3>
-            <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-bold text-foreground leading-none">{stat.value}</p>
-              <span className="text-[10px] font-bold text-muted-foreground/40">{stat.sub}</span>
+            <div className="space-y-1">
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{stat.label}</h3>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                <p className="text-[10px] font-medium text-muted-foreground/40">{stat.sub}</p>
+              </div>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
       {/* Main Table Container */}
       <div className="space-y-4">
         {/* Toolbar */}
-        <Card className="bg-card p-4 rounded-xl border border-border shadow-sm">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50" />
-              <Input
-                placeholder="Tìm kiếm giao dịch (Mã đơn, Người dùng...)"
-                className="pl-9 h-11 w-full bg-background border-border hover:border-border/80 focus:border-primary/50 focus:ring-primary/20 rounded-xl transition-all"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+            <Input
+              placeholder="Tìm kiếm giao dịch (Mã đơn, Người dùng...)"
+              className="pl-10"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-wrap md:flex-nowrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-muted-foreground uppercase">Từ:</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full md:w-[160px] h-9 justify-start text-left font-normal text-xs",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                    {startDate ? format(new Date(startDate), "dd/MM/yyyy") : <span>Chọn ngày</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate ? new Date(startDate) : undefined}
+                    onSelect={(date) => {
+                      setStartDate(date ? format(date, "yyyy-MM-dd") : '');
+                      setPage(1);
+                    }}
+                    initialFocus
+                    locale={vi}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              <Select
-                value={status}
-                onValueChange={(val) => {
-                  setStatus(val);
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="w-full md:w-[180px] h-11 bg-background border-border hover:border-border/80 rounded-xl focus:ring-primary/20 font-medium">
-                  <div className="flex items-center gap-2">
-                    <Filter className="size-3.5 opacity-50" />
-                    <SelectValue placeholder="Trạng thái" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="bg-background border-border rounded-xl shadow-lg">
-                  <SelectItem value="all" className="cursor-pointer py-2.5 font-medium">Tất cả trạng thái</SelectItem>
-                  {Object.values(OrderStatus).map((s) => (
-                    <SelectItem key={s} value={s} className="cursor-pointer py-2.5 font-medium">
-                      {getStatusLabel(s)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-muted-foreground uppercase">Đến:</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full md:w-[160px] h-9 justify-start text-left font-normal text-xs",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                    {endDate ? format(new Date(endDate), "dd/MM/yyyy") : <span>Chọn ngày</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate ? new Date(endDate) : undefined}
+                    onSelect={(date) => {
+                      setEndDate(date ? format(date, "yyyy-MM-dd") : '');
+                      setPage(1);
+                    }}
+                    initialFocus
+                    locale={vi}
+                  />
+                </PopoverContent>
+              </Popover>
+              {(startDate || endDate) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    setStartDate('');
+                    setEndDate('');
+                    setPage(1);
+                  }}
+                >
+                  <XCircle className="size-4" />
+                </Button>
+              )}
             </div>
           </div>
-        </Card>
+          <Select
+            value={status}
+            onValueChange={(val) => {
+              setStatus(val);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-full md:w-[160px]">
+              <SelectValue placeholder="Trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              {Object.values(OrderStatus).map((s) => (
+                <SelectItem key={s} value={s}>
+                  {getStatusLabel(s)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Table */}
-        <Card className="bg-card p-0 rounded-xl border border-border overflow-hidden shadow-sm">
-          <Table className="border-collapse">
-            <TableHeader className="bg-muted/30">
-              <TableRow className="border-b border-border/50 hover:bg-transparent">
-                <TableHead className="h-12 w-[80px] text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">#</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30 last:border-r-0">Người dùng</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Số tiền</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Phương thức</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-center border-r border-border/30 last:border-r-0">Trạng thái</TableHead>
-                <TableHead className="h-12 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right border-r border-border/30 last:border-r-0">Ngày tạo</TableHead>
+        <div className="rounded-xl border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[80px] text-center">#</TableHead>
+                <TableHead>Dữ liệu Đơn hàng</TableHead>
+                <TableHead className="text-center font-bold">Số tiền</TableHead>
+                <TableHead className="text-center">Dịch vụ</TableHead>
+                <TableHead className="text-center">Trạng thái</TableHead>
+                <TableHead className="text-center">Ngày ghi nhận</TableHead>
+                <TableHead className="w-[80px] text-center">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-[400px] text-center">
+                  <TableCell colSpan={7} className="h-[400px] text-center">
                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                       <RotateCcw className="h-8 w-8 animate-spin text-primary/60" />
-                      <p className="text-xs font-sans font-bold italic uppercase tracking-widest">Đang tải dữ liệu...</p>
+                      <p className="text-xs font-sans font-bold italic uppercase tracking-widest text-primary/40">Đang truy xuất dữ liệu Tài chính...</p>
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : payments.length === 0 ? (
+              ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-[400px] text-center">
+                  <TableCell colSpan={7} className="h-[400px] text-center">
                     <Empty>
                       <EmptyMedia>
                         <CreditCard className="size-8 text-muted-foreground" />
@@ -227,55 +299,96 @@ export default function OrdersPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                payments.map((payment) => (
+                orders.map((order, index) => (
                   <TableRow
-                    key={payment.id}
-                    className="border-b border-border/50 hover:bg-muted/30 transition-colors group cursor-pointer"
-                    onClick={() => {
-                      setSelectedOrder(payment);
-                      setIsSheetOpen(true);
-                    }}
+                    key={order.id}
+                    className="group hover:bg-muted/30 transition-colors"
                   >
-                    <TableCell className="py-4 px-6 border-r border-border/10 last:border-r-0">
-                      <div className="text-xs font-medium text-muted-foreground/60 tabular-nums">0{payments.indexOf(payment) + 1}</div>
+                    <TableCell className="text-center text-xs font-medium text-muted-foreground/40 tabular-nums">
+                      {(page - 1) * 10 + index + 1}
                     </TableCell>
-                    <TableCell className="py-4 px-6 border-r border-border/10 last:border-r-0">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate max-w-[150px]">
-                          {payment.userId}
-                        </span>
-                        <span className="text-[10px] font-medium text-muted-foreground/50 uppercase tracking-wider">ID: {payment.id.slice(0, 8)}</span>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/5 text-primary border border-primary/10">
+                          <CreditCard className="size-4" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-foreground text-sm uppercase tracking-tight">
+                            {order.id.slice(0, 13)}...
+                          </span>
+                          <span className="text-[10px] text-muted-foreground/60 font-medium">Khách hàng: {order.userName || order.userEmail || order.userId}</span>
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 px-6 text-center border-r border-border/10 last:border-r-0">
-                      <span className="text-sm font-bold text-foreground tabular-nums tracking-tight">
-                        {formatCurrency(payment.amount)}
+                    <TableCell className="text-center">
+                      <span className="text-sm font-black tabular-nums text-primary">
+                        {formatCurrency(order.amount)}
                       </span>
                     </TableCell>
-                    <TableCell className="py-4 px-6 text-center border-r border-border/10 last:border-r-0">
-                      <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-muted/50 border border-border/50 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 group-hover:border-primary/20 group-hover:text-primary transition-colors">
-                        <Zap className="size-3 mr-1.5 opacity-50" />
-                        {payment.paymentMethod}
+                    <TableCell className="text-center">
+                      <div className="inline-flex flex-col items-center">
+                        <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted text-[9px] font-black uppercase tracking-widest text-muted-foreground/80 border border-border/50">
+                          <Zap className="size-2.5 mr-1" />
+                          {order.paymentMethod}
+                        </div>
+                        <span className="text-[10px] text-muted-foreground/40 mt-1 font-medium">{order.orderType}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 px-6 text-center border-r border-border/10 last:border-r-0">
-                      <div className={cn("inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm", getStatusColor(payment.status))}>
-                        <div className={cn("size-1.5 rounded-full mr-2", payment.status === OrderStatus.COMPLETED ? 'bg-emerald-500' : 'bg-current opacity-50')} />
-                        {getStatusLabel(payment.status)}
+                    <TableCell className="text-center">
+                      <div className={cn("inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm", getStatusColor(order.status))}>
+                        <div className={cn("size-1.5 rounded-full mr-2", order.status === OrderStatus.COMPLETED ? 'bg-emerald-500 animate-pulse' : 'bg-current opacity-50')} />
+                        {getStatusLabel(order.status)}
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 px-6 text-right border-r border-border/10 last:border-r-0">
-                      <div className="flex items-center justify-end gap-1.5 text-muted-foreground text-xs font-medium tabular-nums">
-                        <Clock className="size-3 opacity-40" />
-                        {formatDateTime(payment.createdAt)}
+                    <TableCell className="text-center">
+                      <div className="flex flex-col items-center gap-0.5 text-muted-foreground/60">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                          <Clock className="size-3 opacity-40" />
+                          {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                        </div>
+                        <span className="text-[9px] font-medium opacity-40 uppercase tracking-tighter">Lúc {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted rounded-lg">
+                            <span className="sr-only">Mở menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 rounded-xl border-border/50 p-1.5 shadow-xl">
+                          <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 px-2 py-1.5">
+                            Thao tác Đơn hàng
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedOrder(order);
+                              setIsSheetOpen(true);
+                            }}
+                            className="rounded-lg h-10 px-2 focus:bg-primary/5 focus:text-primary transition-colors cursor-pointer"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            <span className="text-xs font-bold">Xem Chi tiết</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="rounded-lg h-10 px-2 focus:bg-primary/5 focus:text-primary transition-colors cursor-pointer">
+                            <FileText className="mr-2 h-4 w-4" />
+                            <span className="text-xs font-bold">Xuất Hóa đơn</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-border/50 my-1" />
+                          <DropdownMenuItem className="rounded-lg h-10 px-2 text-destructive focus:bg-destructive/5 focus:text-destructive transition-colors cursor-pointer">
+                            <XCircle className="mr-2 h-4 w-4" />
+                            <span className="text-xs font-bold">Hủy Đơn hàng</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
-        </Card>
+        </div>
 
         {/* Pagination */}
         <SmartPagination
@@ -287,134 +400,11 @@ export default function OrdersPage() {
         />
       </div>
 
-      {/* Order Detail Sheet */}
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent
-          className="sm:max-w-xl p-0 border-l border-border/40 bg-card/95 backdrop-blur-3xl rounded-l-2xl shadow-2xl">
-          {selectedOrder && (
-            <div className="h-full flex flex-col font-sans">
-              {/* Sheet Header Overlay */}
-              <div className="relative h-40 bg-primary/5 border-b border-border/10 overflow-hidden shrink-0">
-                <div
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] scale-150 rotate-12">
-                  <CreditCard className="size-64" />
-                </div>
-
-                <div className="absolute bottom-8 left-10 space-y-2">
-                  <div
-                    className="inline-flex items-center gap-2 px-2.5 py-1 bg-background/40 backdrop-blur-md text-foreground/80 rounded-full text-[10px] font-bold uppercase tracking-wide border border-white/10">
-                    <Hash className="size-3" />
-                    Mã đơn: {selectedOrder.id.slice(0, 12)}
-                  </div>
-                  <h2 className="text-3xl font-sans font-black text-foreground leading-none tracking-tight uppercase">Chi tiết Đơn hàng</h2>
-                </div>
-              </div>
-
-              {/* Sheet Body */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-8">
-                {/* Main Grid */}
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-1.5">
-                    <div
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-black">
-                      <User className="size-3.5" />
-                      Người dùng
-                    </div>
-                    <p className="text-sm font-bold text-foreground truncate">{selectedOrder.userId}</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-black">
-                      <Database className="size-3.5" />
-                      Phương thức
-                    </div>
-                    <p className="text-sm font-bold text-foreground uppercase tracking-wide">{selectedOrder.paymentMethod}</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-black">
-                      <Globe className="size-3.5" />
-                      Nền tảng
-                    </div>
-                    <p className="text-sm font-bold text-foreground">Torii Academy Web</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div
-                      className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-black">
-                      <CalendarDays className="size-3.5" />
-                      Ngày tạo
-                    </div>
-                    <p className="text-sm font-bold text-foreground">{formatDateTime(selectedOrder.createdAt)}</p>
-                  </div>
-                </div>
-
-                {/* Financial Stats */}
-                <div className="p-6 rounded-2xl bg-muted/20 border border-border/10 space-y-4">
-                  <div className="flex items-center justify-between border-b border-border/10 pb-4">
-                    <div className="space-y-1">
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-black">Loại giao dịch</p>
-                      <h4 className="text-sm font-bold text-foreground">Đăng ký khóa học</h4>
-                    </div>
-                    <div
-                      className={cn("px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shadow-sm flex items-center gap-2", getStatusColor(selectedOrder.status))}>
-                      <div
-                        className={cn("size-1.5 rounded-full", selectedOrder.status === OrderStatus.COMPLETED ? 'bg-emerald-500' : 'bg-current')} />
-                      {getStatusLabel(selectedOrder.status)}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-muted-foreground/80">
-                      <span className="text-[11px] font-bold uppercase tracking-wide">Giá gốc</span>
-                      <span className="font-black text-sm">{formatCurrency(selectedOrder.amount)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-muted-foreground/80">
-                      <span className="text-[11px] font-bold uppercase tracking-wide">Phí</span>
-                      <span className="font-black text-sm">{formatCurrency(0)}</span>
-                    </div>
-                    <div className="pt-4 border-t border-border/10 flex justify-between items-center">
-                      <span className="text-xs font-black uppercase tracking-wider text-primary">Tổng cộng</span>
-                      <span
-                        className="text-2xl font-black text-foreground tracking-tight">{formatCurrency(selectedOrder.amount)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Info Alert */}
-                <div className="p-5 rounded-2xl bg-primary/5 border border-primary/10 flex gap-3">
-                  <ShieldCheck className="size-5 text-primary/70 shrink-0" />
-                  <div className="space-y-1">
-                    <h5 className="text-[10px] font-bold uppercase tracking-wider text-primary">Xác minh giao dịch</h5>
-                    <p className="text-[11px] font-bold text-muted-foreground/70 leading-relaxed">
-                      Giao dịch này đã được hệ thống xác minh và ghi nhận.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sheet Footer */}
-              <div className="p-8 border-t border-border/10 shrink-0 space-y-3 bg-muted/5">
-                <Button
-                  variant="outline"
-                  className="w-full h-11 rounded-xl border-primary/20 text-primary font-bold uppercase tracking-wide text-xs hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
-                  onClick={() => {
-                    setIsSheetOpen(false);
-                  }}
-                >
-                  <Database className="size-3.5" />
-                  Xem nhật ký giao dịch
-                </Button>
-                <Button
-                  className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
-                  onClick={() => setIsSheetOpen(false)}
-                >
-                  Đóng chi tiết
-                </Button>
-              </div>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
+      <OrderDetailSheet
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        order={selectedOrder}
+      />
     </div>
   );
 }

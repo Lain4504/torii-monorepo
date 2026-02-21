@@ -43,14 +43,13 @@ export default function LearningAnalytics() {
     const enrollmentStatusData = courseStats?.enrollmentByStatus?.map(item => ({
         name: item.status === 'completed' ? 'Hoàn thành' : item.status === 'in_progress' ? 'Đang học' : 'Bỏ dở',
         value: item.count,
-        color: item.status === 'completed' ? 'hsl(var(--primary))' : item.status === 'in_progress' ? 'hsl(var(--chart-2))' : 'hsl(var(--muted))'
+        color: item.status === 'completed' ? 'var(--primary)' : item.status === 'in_progress' ? 'var(--chart-2)' : 'var(--muted)'
     })) || []
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
-            {/* Header */}
+        <div className="flex flex-col gap-8">
             <PageHeader
-                title={<span>Phân tích <span className="text-blue-500">Nội dung</span></span>}
+                title="Phân tích Nội dung"
                 subtitle="Đánh giá chất lượng bài giảng, tỷ lệ hoàn thành và mức độ tương tác của học viên với chương trình học."
                 stats={[
                     { label: "Hoàn thành TB", value: `${(courseStats?.averageCompletion || 0).toFixed(1)}%` },
@@ -59,10 +58,10 @@ export default function LearningAnalytics() {
                 actions={
                     <Button
                         onClick={() => refetchCourse()}
-                        className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
+                        size="lg"
                     >
-                        <RefreshCw className="size-3.5" />
                         Làm mới
+                        <RefreshCw className={cn(isCourseLoading && "animate-spin")} />
                     </Button>
                 }
             />
@@ -197,11 +196,11 @@ export default function LearningAnalytics() {
                 <CardContent className="h-[350px] pt-8">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={courseStats?.statsByLevel || []}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
                             <XAxis dataKey="level" axisLine={false} tickLine={false} fontSize={10} />
                             <YAxis axisLine={false} tickLine={false} fontSize={10} />
                             <Tooltip
-                                cursor={{ fill: 'hsl(var(--muted))', opacity: 0.1 }}
+                                cursor={{ fill: 'var(--muted)', opacity: 0.1 }}
                                 content={({ active, payload }) => {
                                     if (active && payload && payload.length) {
                                         return (
@@ -216,7 +215,7 @@ export default function LearningAnalytics() {
                             />
                             <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={50}>
                                 {(courseStats?.statsByLevel || []).map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${(index % 5) + 1}))`} />
+                                    <Cell key={`cell-${index}`} fill={`var(--chart-${(index % 5) + 1})`} />
                                 ))}
                             </Bar>
                         </BarChart>

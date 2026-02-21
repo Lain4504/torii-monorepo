@@ -4,8 +4,8 @@ import { PrismaModule, NatsClientModule } from '@server/shared';
 import { NotificationService } from './notification.service';
 import { NotificationRepository } from './notification.repository';
 import { NotificationHandler } from './notification.handler';
-import { NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
-import { NOTIFICATION_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { NOTIFICATION_SERVICE_TOKEN } from '@server/communication/interfaces/services';
+import { NOTIFICATION_REPOSITORY_TOKEN } from '@server/communication/interfaces/repositories';
 
 /**
  * Notification Feature Module

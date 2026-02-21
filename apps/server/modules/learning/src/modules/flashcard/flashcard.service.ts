@@ -48,6 +48,9 @@ function fromDifficultyLevel(level: FlashcardDifficulty): string {
     }
 }
 
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+
 @Injectable()
 export class FlashcardService implements IFlashcardService {
     private readonly logger = new Logger(FlashcardService.name);
@@ -57,9 +60,57 @@ export class FlashcardService implements IFlashcardService {
         private readonly flashcardRepository: IFlashcardRepository,
         @Inject(FLASHCARD_DECK_REPOSITORY_TOKEN)
         private readonly deckRepository: IFlashcardDeckRepository,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         private readonly prisma: PrismaService, // Still used for complex multi-table ops like initial progress
         private readonly srsAlgorithm: SrsAlgorithmService,
     ) {
+    }
+
+    async generateFlashcardsFromAI(userId: string, deckId: string, topic: string, level: string): Promise<{ success: boolean; count: number }> {
+        try {
+            await this.verifyDeckOwnership(userId, deckId);
+
+            const result = await firstValueFrom(
+                this.natsClient.send('agents.sensei.createFlashcard', { userId, topic, level })
+            );
+
+            if (!result || !result.flashcards || !Array.isArray(result.flashcards)) {
+                throw new Error('AI returned invalid flashcard data');
+            }
+
+            this.logger.log(`AI generated ${result.flashcards.length} flashcards for topic ${topic}`);
+
+            let createdCount = 0;
+            for (const card of result.flashcards) {
+                try {
+                    await this.createFlashcard({
+                        userId,
+                        deckId,
+                        frontText: card.front,
+                        backText: card.back,
+                        difficulty: toDifficultyLevel(level),
+                        wordJlptLevel: level.toUpperCase(), // Ensure uppercase
+                        furigana: card.reading,
+                        kanji: card.front, // AI usually puts Kanji in front
+                        aiGenerated: true,
+                        generationMethod: FlashcardGenerationMethod.AI_AUTO,
+                        generationMetadata: { topic, method: 'sensei_create_flashcard' },
+                        tags: ['ai-generated', topic, level]
+                    });
+                    createdCount++;
+                } catch (e: any) {
+                    this.logger.warn(`Failed to create AI flashcard: ${e.message}`);
+                }
+            }
+
+            return { success: true, count: createdCount };
+        } catch (error: any) {
+            this.logger.error(`Error generating flashcards from AI: ${error.message}`, error.stack);
+            throw new RpcException({
+                status: 500,
+                message: `Failed to generate flashcards: ${error?.message || 'Unknown error'}`,
+            });
+        }
     }
 
     /**

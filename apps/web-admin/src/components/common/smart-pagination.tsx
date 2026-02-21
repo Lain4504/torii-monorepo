@@ -47,7 +47,7 @@ export function SmartPagination({
                             e.preventDefault();
                             onPageChange(1);
                         }}
-                        className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer"
+                        className="cursor-pointer"
                     >
                         1
                     </PaginationLink>
@@ -65,12 +65,7 @@ export function SmartPagination({
                             e.preventDefault();
                             if (page !== i) onPageChange(i);
                         }}
-                        className={cn(
-                            "rounded-md border h-9 w-9 text-xs font-semibold transition-all cursor-pointer",
-                            page === i
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-card border-border hover:bg-muted text-muted-foreground hover:text-foreground"
-                        )}
+                        className="cursor-pointer"
                     >
                         {i}
                     </PaginationLink>
@@ -87,7 +82,7 @@ export function SmartPagination({
                             e.preventDefault();
                             onPageChange(totalPages);
                         }}
-                        className="rounded-md border border-border h-9 w-9 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer"
+                        className="cursor-pointer"
                     >
                         {totalPages}
                     </PaginationLink>
@@ -99,16 +94,15 @@ export function SmartPagination({
     };
 
     return (
-        <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1", className)}>
-            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <span>Hiển thị trang <span className="text-foreground">{page}</span> / {totalPages}</span>
-                <span className="mx-1 text-border">|</span>
-                <span>Tổng cộng <span className="text-foreground">{totalItems.toLocaleString()}</span> {itemName}</span>
+        <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-1", className)}>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span>Trang <span className="text-foreground font-medium">{page}</span> / {totalPages}</span>
+                <span>Tổng cộng <span className="text-foreground font-medium">{totalItems.toLocaleString()}</span> {itemName}</span>
             </div>
 
             {totalPages > 1 && (
                 <Pagination className="w-auto mx-0">
-                    <PaginationContent className="flex items-center gap-1">
+                    <PaginationContent className="gap-1">
                         <PaginationItem>
                             <PaginationPrevious
                                 onClick={(e) => {
@@ -116,8 +110,7 @@ export function SmartPagination({
                                     onPageChange(Math.max(1, page - 1));
                                 }}
                                 className={cn(
-                                    "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                                    page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                    page === 1 ? "opacity-30 pointer-events-none" : "cursor-pointer"
                                 )}
                             />
                         </PaginationItem>
@@ -133,8 +126,7 @@ export function SmartPagination({
                                     onPageChange(Math.min(totalPages, page + 1));
                                 }}
                                 className={cn(
-                                    "h-9 px-3 rounded-md border border-border text-xs font-medium transition-all",
-                                    page === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                    page === totalPages ? "opacity-30 pointer-events-none" : "cursor-pointer"
                                 )}
                             />
                         </PaginationItem>

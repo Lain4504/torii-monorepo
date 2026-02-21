@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import type { QuestionResponseDTO, QuestionType, QuestionStatus, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
-import { ArrowUpDown, Pencil, Trash, Eye, CheckCircle, XCircle, Clock, Archive, BrainCircuit, Zap } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, Eye, CheckCircle, XCircle, Clock, Archive, BrainCircuit, MoreVertical } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -108,7 +108,7 @@ export const getQuestionsColumns = ({
                     </div>
                     <div className="flex flex-col min-w-0">
                         <span className="font-black italic uppercase tracking-tight text-foreground group-hover/text:text-primary transition-colors truncate">{info.getValue()}</span>
-                        <span className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">UID: {info.row.original.id.slice(0, 8)}</span>
+                        <span className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">Mã: {info.row.original.id.slice(0, 8)}</span>
                     </div>
                 </div>
             ),
@@ -204,7 +204,7 @@ export const getQuestionsColumns = ({
                                     variant="ghost"
                                     className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
                                 >
-                                    <Zap className="h-4 w-4 opacity-40 group-hover:opacity-100" />
+                                    <MoreVertical className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent

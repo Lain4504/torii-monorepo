@@ -178,7 +178,7 @@ export default function ManageDeckPage() {
         if (!aiTopic.trim()) return
         setIsGeneratingAi(true)
         try {
-            const result = await agentApi.sensei.createFlashcard(aiTopic, 'intermediate')
+            const result = await agentApi.sensei.createFlashcard(aiTopic, 'N3')
 
             const createData = result.flashcards.map(card => ({
                 deckId,

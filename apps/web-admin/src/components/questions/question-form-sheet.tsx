@@ -175,15 +175,28 @@ export function QuestionFormSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-2xl border-l border-border bg-background p-0 flex flex-col h-full shadow-2xl">
-                <SheetHeader className="p-8 border-b border-border bg-muted/5 space-y-2">
-                    <SheetTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                        {isEdit ? <Target className="size-6 text-primary opacity-40" /> : <Plus className="size-6 text-primary opacity-40" />}
-                        {isEdit ? 'Cập nhật Câu hỏi' : 'Tạo Câu hỏi mới'}
-                    </SheetTitle>
-                    <SheetDescription className="text-sm font-medium text-muted-foreground/60 italic">
-                        {isEdit ? 'Thay đổi nội dung hoặc các thông số cấu trúc của câu hỏi này.' : 'Thiết lập nội dung và các thuộc tính kỹ thuật cho câu hỏi thi mới.'}
-                    </SheetDescription>
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                                {isEdit ? <Target className="size-4" /> : <Plus className="size-4" />}
+                            </div>
+                            <div className="space-y-0.5">
+                                <SheetTitle className="text-xl font-bold tracking-tight">
+                                    {isEdit ? 'Cập Nhật Câu Hỏi' : 'Tạo Câu Hỏi Mới'}
+                                </SheetTitle>
+                                <p className="text-xs font-medium text-muted-foreground/60">
+                                    {isEdit ? 'Điều chỉnh nội dung và cấu trúc câu hỏi' : 'Xây dựng câu hỏi tri thức mới'}
+                                </p>
+                            </div>
+                        </div>
+                        <SheetDescription className="text-sm text-muted-foreground/80 leading-relaxed italic">
+                            {isEdit
+                                ? 'Thay đổi nội dung hoặc các thông số cấu trúc của câu hỏi này để phù hợp với giáo trình.'
+                                : 'Thiết lập các thuộc tính kỹ thuật và nội dung hiển thị cho câu hỏi thi mới trong ngân hàng.'}
+                        </SheetDescription>
+                    </div>
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto custom-scrollbar">
@@ -333,11 +346,11 @@ export function QuestionFormSheet({
 
                         {/* Listening Content */}
                         {(category === QuestionCategory.LISTENING || questionType === QuestionType.LISTENING) && (
-                            <section className="space-y-4 p-6 rounded-3xl bg-primary/5 border border-primary/10 animate-in zoom-in-95 duration-300">
+                            <section className="space-y-4 p-6 rounded-2xl bg-primary/5 border border-primary/10 animate-in zoom-in-95 duration-300">
                                 <div className="flex items-center gap-2">
                                     <Headphones className="size-4 text-primary" />
-                                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary/80">
-                                        Audio Resource
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">
+                                        Âm Thanh Đính Kèm
                                     </h4>
                                 </div>
 
@@ -349,7 +362,7 @@ export function QuestionFormSheet({
                                             <FileUpload
                                                 onUploadComplete={(url) => field.onChange(url)}
                                                 accept="audio/*"
-                                                label="Upload Audio File"
+                                                label="Bấm vào đây để tải tệp âm thanh"
                                                 currentValue={field.value}
                                             />
                                             {fieldState.error && <FieldError className="text-[10px] font-bold text-destructive uppercase tracking-widest">{fieldState.error.message}</FieldError>}
@@ -361,12 +374,12 @@ export function QuestionFormSheet({
 
                         {/* Options Section */}
                         {(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) && (
-                            <section className="space-y-6 p-6 rounded-3xl bg-muted/20 border border-border/50 animate-in zoom-in-95 duration-300">
+                            <section className="space-y-6 p-6 rounded-2xl bg-muted/20 border border-border/50 animate-in zoom-in-95 duration-300">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <AlignLeft className="size-4 text-primary" />
-                                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary/80">
-                                            Answer Options
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">
+                                            Các Phương Án Trả Lời
                                         </h4>
                                     </div>
                                     <Button
@@ -374,10 +387,9 @@ export function QuestionFormSheet({
                                         variant="outline"
                                         size="sm"
                                         onClick={addOption}
-                                        className="h-8 rounded-lg border-primary/20 bg-primary/5 text-primary text-[10px] font-bold uppercase hover:bg-primary/10"
-                                    >
+                                        className="h-8 rounded-lg border-primary/20 bg-primary/5 text-primary text-[10px] font-bold uppercase hover:bg-primary/10">
                                         <Plus className="size-3 mr-1.5" />
-                                        Add
+                                        Thêm
                                     </Button>
                                 </div>
 
@@ -390,7 +402,7 @@ export function QuestionFormSheet({
                                             <Input
                                                 value={options[key] || ''}
                                                 onChange={(e) => setOptions({ ...options, [key]: e.target.value })}
-                                                placeholder={`Option ${key} text...`}
+                                                placeholder={`Nhập nội dung lựa chọn ${key}...`}
                                                 className="h-11 px-4 rounded-xl border-border bg-background focus-visible:ring-primary/20 text-sm font-medium transition-all flex-1"
                                             />
                                             <Button
@@ -399,8 +411,7 @@ export function QuestionFormSheet({
                                                 size="icon"
                                                 disabled={optionKeys.length <= 2}
                                                 onClick={() => removeOption(key)}
-                                                className="size-11 text-destructive hover:bg-destructive/10 rounded-xl shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
+                                                className="size-11 text-destructive hover:bg-destructive/10 rounded-xl shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <X className="size-4" />
                                             </Button>
                                         </div>
@@ -457,29 +468,27 @@ export function QuestionFormSheet({
                     </div>
                 </form>
 
-                <div className="p-8 border-t border-border bg-muted/5 flex items-center justify-end gap-4 shadow-[0_-4px_24px_rgba(0,0,0,0.02)]">
+                <div className="p-6 border-t border-border/10 bg-muted/5 flex items-center justify-end gap-3">
                     <Button
                         type="button"
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
-                        className="rounded-xl h-12 px-8 font-bold text-xs uppercase tracking-widest text-muted-foreground hover:bg-muted"
-                    >
-                        Hủy bỏ
+                        className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                        Hủy Bỏ
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
                         disabled={isLoading}
-                        className="rounded-xl h-12 px-10 shadow-lg shadow-primary/20 bg-primary text-white font-bold text-xs uppercase tracking-[0.15em] transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    >
+                        className="h-11 px-10 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
                         {isLoading ? (
                             <>
                                 <Loader2 className="mr-2 size-4 animate-spin" />
-                                Processing...
+                                Đang Xử Lý...
                             </>
                         ) : (
                             <>
                                 {isEdit ? <Save className="mr-2 size-4" /> : <Plus className="mr-2 size-4" />}
-                                {isEdit ? 'Update Question' : 'Deploy Question'}
+                                {isEdit ? 'Cập Nhật Câu Hỏi' : 'Khởi Tạo Câu Hỏi'}
                             </>
                         )}
                     </Button>

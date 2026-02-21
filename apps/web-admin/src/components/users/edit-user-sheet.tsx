@@ -18,11 +18,10 @@ import {
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { UserRole } from '@workspace/schemas';
-import { Loader2, User, Mail, ShieldCheck, X, UserCog } from 'lucide-react';
+import { Loader2, User, Mail, ShieldCheck, UserCog } from 'lucide-react';
 import { userAdminUpdateDTOSchema, type UserAdminUpdateDTO } from '@workspace/schemas';
-import { toast } from '@workspace/ui/components/sonner';
+import { toast } from 'sonner';
 import { useUpdateUser } from "@/api/services/users.ts";
-import { cn } from '@workspace/ui/lib/utils';
 
 type UpdateUserFormData = UserAdminUpdateDTO;
 
@@ -57,13 +56,13 @@ export function EditUserSheet({
                 id: user.id,
                 user: data,
             });
-            toast.success('User Updated', {
-                description: `User details have been updated.`,
+            toast.success('Đã cập nhật người dùng', {
+                description: `Thông tin người dùng đã được cập nhật.`,
             });
             onOpenChange(false);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to update user';
-            toast.error('Update Failed', {
+            const errorMessage = error instanceof Error ? error.message : 'Không thể cập nhật người dùng';
+            toast.error('Cập nhật thất bại', {
                 description: errorMessage,
             });
         }
@@ -71,152 +70,118 @@ export function EditUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-[600px] p-0 flex flex-col bg-background border-l border-border/50 shadow-2xl">
-                {/* Header */}
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border bg-background relative">
-                    <div className="relative flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
-                            <UserCog className="h-6 w-6" />
+            <SheetContent className="w-full sm:w-[600px] !max-w-[600px] p-0 flex flex-col">
+                <SheetHeader className="px-6 py-6 border-b">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                            <UserCog className="size-5 text-foreground" />
                         </div>
-                        <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-xl font-sans font-bold italic uppercase tracking-tight text-foreground">
-                                Chỉnh Sửa Người Dùng
-                            </SheetTitle>
-                            <SheetDescription className="text-xs font-medium text-muted-foreground">
+                        <div className="flex-1">
+                            <SheetTitle>Chỉnh sửa người dùng</SheetTitle>
+                            <SheetDescription>
                                 Cập nhật thông tin và quyền hạn truy cập
                             </SheetDescription>
                         </div>
                     </div>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-hidden relative" noValidate>
-                    {/* Scrollable Content */}
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
                     <ScrollArea className="flex-1">
-                        <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
-                            {/* Section Header */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                    <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/40 text-center">
-                                        Basic Information
-                                    </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
-                                </div>
+                        <div className="px-6 py-8 space-y-6">
+                            <Controller
+                                control={control}
+                                name="displayName"
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                        <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold">
+                                            <User className="size-3.5 text-muted-foreground" />
+                                            Họ và tên
+                                        </FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            {...field}
+                                            autoFocus
+                                            placeholder="Nhập họ và tên đầy đủ"
+                                            className="h-10"
+                                        />
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
 
-                                <Controller
-                                    control={control}
-                                    name="displayName"
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid} className="space-y-2 group">
-                                            <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold text-foreground/70 group-focus-within:text-primary transition-colors">
-                                                <User className="size-3.5" />
-                                                Họ và tên
-                                            </FieldLabel>
-                                            <Input
-                                                id={field.name}
-                                                {...field}
-                                                autoFocus
-                                                placeholder="Nhập họ và tên đầy đủ"
-                                                aria-invalid={fieldState.invalid}
-                                                className={cn(
-                                                    "h-11 px-4 rounded-xl bg-background border-border hover:border-primary/50 focus-visible:ring-primary/20",
-                                                    "text-sm font-medium transition-all"
-                                                )}
-                                            />
-                                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[11px] font-medium text-destructive mt-1" />}
-                                        </Field>
-                                    )}
-                                />
+                            <Controller
+                                control={control}
+                                name="email"
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                        <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold">
+                                            <Mail className="size-3.5 text-muted-foreground" />
+                                            Địa chỉ Email
+                                        </FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            {...field}
+                                            type="email"
+                                            placeholder="example@torii.edu.vn"
+                                            className="h-10"
+                                        />
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
 
-                                <Controller
-                                    control={control}
-                                    name="email"
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid} className="space-y-2 group">
-                                            <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold text-foreground/70 group-focus-within:text-primary transition-colors">
-                                                <Mail className="size-3.5" />
-                                                Địa chỉ Email
-                                            </FieldLabel>
-                                            <Input
-                                                id={field.name}
-                                                {...field}
-                                                type="email"
-                                                placeholder="example@torii.edu.vn"
-                                                aria-invalid={fieldState.invalid}
-                                                className={cn(
-                                                    "h-11 px-4 rounded-xl bg-background border-border hover:border-primary/50 focus-visible:ring-primary/20",
-                                                    "text-sm font-medium transition-all"
-                                                )}
-                                            />
-                                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[11px] font-medium text-destructive mt-1" />}
-                                        </Field>
-                                    )}
-                                />
-
-                                <Controller
-                                    control={control}
-                                    name="role"
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid} className="space-y-2 group">
-                                            <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold text-foreground/70 group-focus-within:text-primary transition-colors">
-                                                <ShieldCheck className="size-3.5" />
-                                                Vai trò
-                                            </FieldLabel>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={field.onChange}
-                                            >
-                                                <SelectTrigger
-                                                    id={field.name}
-                                                    aria-invalid={fieldState.invalid}
-                                                    className={cn(
-                                                        "h-11 px-4 rounded-xl bg-background border-border hover:border-primary/50 focus:ring-primary/20",
-                                                        "text-sm font-medium transition-all"
-                                                    )}
-                                                >
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
-                                                    <SelectItem value={UserRole.LEARNER} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Học viên</SelectItem>
-                                                    <SelectItem value={UserRole.LECTURER} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Giảng viên</SelectItem>
-                                                    <SelectItem value={UserRole.STAFF} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Nhân viên (Chung)</SelectItem>
-                                                    <SelectItem value={UserRole.STAFF_LMS} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Giáo vụ (LMS)</SelectItem>
-                                                    <SelectItem value={UserRole.STAFF_SUPPORT} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Hỗ trợ (Support)</SelectItem>
-                                                    <SelectItem value={UserRole.STAFF_SALES} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Kinh doanh (Sales)</SelectItem>
-                                                    <SelectItem value={UserRole.ADMIN} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Quản trị viên (Admin)</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            {fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[11px] font-medium text-destructive mt-1" />}
-                                        </Field>
-                                    )}
-                                />
-                            </div>
+                            <Controller
+                                control={control}
+                                name="role"
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                        <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold">
+                                            <ShieldCheck className="size-3.5 text-muted-foreground" />
+                                            Vai trò
+                                        </FieldLabel>
+                                        <Select
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                        >
+                                            <SelectTrigger id={field.name} className="h-10">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value={UserRole.LEARNER}>Học viên</SelectItem>
+                                                <SelectItem value={UserRole.LECTURER}>Giảng viên</SelectItem>
+                                                <SelectItem value={UserRole.STAFF}>Nhân viên (Chung)</SelectItem>
+                                                <SelectItem value={UserRole.STAFF_LMS}>Giáo vụ (LMS)</SelectItem>
+                                                <SelectItem value={UserRole.STAFF_SUPPORT}>Hỗ trợ (Support)</SelectItem>
+                                                <SelectItem value={UserRole.STAFF_SALES}>Kinh doanh (Sales)</SelectItem>
+                                                <SelectItem value={UserRole.ADMIN}>Quản trị viên (Admin)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
                         </div>
                     </ScrollArea>
 
-                    {/* Fixed Footer */}
-                    <div className="px-8 py-6 bg-background border-t border-border flex items-center justify-between gap-4 relative z-20">
+                    <div className="px-6 py-4 border-t flex items-center justify-end gap-3">
                         <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
                             onClick={() => onOpenChange(false)}
-                            disabled={updateUser.isPending}
-                            className="rounded-xl h-11 px-6 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/10 group bg-background border border-border"
-                        >
-                            <X className="mr-2 h-4 w-4 transition-transform group-hover:rotate-90" />
+                            disabled={updateUser.isPending}>
                             Hủy bỏ
                         </Button>
                         <Button
                             type="submit"
-                            disabled={updateUser.isPending}
-                            className="rounded-xl h-11 px-8 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
-                        >
+                            disabled={updateUser.isPending}>
                             {updateUser.isPending ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Loader2 className="size-4 animate-spin mr-2" />
                                     Đang lưu...
                                 </>
-                            ) : 'Lưu Thay Đổi'}
+                            ) : (
+                                "Lưu thay đổi"
+                            )}
                         </Button>
                     </div>
                 </form>

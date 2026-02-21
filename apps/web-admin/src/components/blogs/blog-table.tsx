@@ -16,8 +16,9 @@ import {
 import { useState } from 'react';
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { getBlogColumns } from './blog-columns.tsx';
-import { SearchCode } from 'lucide-react';
+import { Newspaper } from 'lucide-react';
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 interface BlogTableProps {
     data: BlogResponseDTO[];
@@ -49,10 +50,10 @@ export function BlogTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
         <Table className="min-w-[1000px] border-collapse bg-transparent">
             <TableHeader className="bg-muted/30 border-b border-border">
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="hover:bg-transparent border-none">
+                    <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/50 last:border-r-0">
+                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -84,7 +85,7 @@ export function BlogTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                             className="border-b border-border/50 hover:bg-muted/30 transition-colors group"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap">
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
@@ -97,19 +98,19 @@ export function BlogTable({ data, onView, onEdit, onDelete, page, limit, isLoadi
                     <TableRow className="hover:bg-transparent border-none">
                         <TableCell
                             colSpan={columns.length}
-                            className="h-[300px] text-center p-0"
+                            className="h-[400px] text-center p-0"
                         >
-                            <div className="flex flex-col items-center justify-center p-8">
-                                <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground/30 mb-4">
-                                    <SearchCode className="size-8" />
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-lg font-semibold text-foreground/50">Không tìm thấy bài viết</p>
-                                    <p className="text-sm text-muted-foreground/40">
+                            <Empty>
+                                <EmptyMedia>
+                                    <Newspaper className="size-8 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Không tìm thấy bài viết</EmptyTitle>
+                                    <EmptyDescription>
                                         Thử thay đổi điều kiện lọc hoặc từ khóa tìm kiếm.
-                                    </p>
-                                </div>
-                            </div>
+                                    </EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
                         </TableCell>
                     </TableRow>
                 )}

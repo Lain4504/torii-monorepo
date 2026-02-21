@@ -17,6 +17,11 @@ import {
     Wallet,
     Receipt,
     Gift,
+    Sparkles,
+    Languages,
+    MessagesSquare,
+    Dumbbell,
+    Library,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -60,4 +65,13 @@ export const accountNav: NavItem[] = [
     { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: Receipt },
     { name: 'Hỗ trợ', href: '/dashboard/support', icon: LifeBuoy },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
+]
+
+export const aiSenseiNav: NavItem[] = [
+    { name: 'General Chat', href: '/ai-sensei/chat', icon: Bot },
+    { name: 'Grammar Guide', href: '/ai-sensei/grammar', icon: Sparkles },
+    { name: 'Translator', href: '/ai-sensei/translate', icon: Languages },
+    { name: 'Roleplay', href: '/ai-sensei/roleplay', icon: MessagesSquare },
+    { name: 'Practice Drills', href: '/ai-sensei/drill', icon: Dumbbell },
+    { name: 'Resources', href: '/ai-sensei/resources', icon: Library },
 ]

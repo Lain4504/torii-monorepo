@@ -12,43 +12,41 @@ export default function CourseCatalogPage() {
     const [sortBy, setSortBy] = useState("popular")
     const [currentPage, setCurrentPage] = useState(1)
 
-    const handleFilterChange = () => {
-        setCurrentPage(1)
-    }
+    const resetPage = () => setCurrentPage(1)
 
     return (
-        <div className="min-h-screen bg-background py-16 animate-in fade-in duration-700">
-            <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="min-h-screen bg-background">
+            {/* Page Header */}
+            <div className="border-b bg-muted/30">
+                <div className="container max-w-7xl mx-auto px-4 py-12">
+                    <div className="space-y-2">
+                        <p className="text-sm font-medium text-primary">Khóa học</p>
+                        <h1 className="text-3xl font-bold tracking-tight">Danh mục khóa học</h1>
+                        <p className="text-muted-foreground">Tìm kiếm khóa học phù hợp với lộ trình học tiếng Nhật của bạn.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
                 <SearchHeader
                     searchQuery={searchQuery}
-                    onSearchChange={(q) => {
-                        setSearchQuery(q)
-                        handleFilterChange()
-                    }}
+                    onSearchChange={(q) => { setSearchQuery(q); resetPage() }}
                     sortBy={sortBy}
                     onSortChange={setSortBy}
                 />
 
                 <div className="grid lg:grid-cols-4 gap-8">
-                    {/* Sidebar Filters */}
-                    <aside className="hidden lg:block lg:col-span-1">
-                        <div className="sticky top-24">
+                    <aside className="hidden lg:block">
+                        <div className="sticky top-20">
                             <FilterSidebar
                                 selectedLevels={selectedLevels}
-                                onLevelChange={(levels) => {
-                                    setSelectedLevels(levels)
-                                    handleFilterChange()
-                                }}
+                                onLevelChange={(levels) => { setSelectedLevels(levels); resetPage() }}
                                 priceFilter={priceFilter}
-                                onPriceChange={(price) => {
-                                    setPriceFilter(price)
-                                    handleFilterChange()
-                                }}
+                                onPriceChange={(price) => { setPriceFilter(price); resetPage() }}
                             />
                         </div>
                     </aside>
 
-                    {/* Main Content */}
                     <main className="lg:col-span-3">
                         <CourseGrid
                             searchQuery={searchQuery}

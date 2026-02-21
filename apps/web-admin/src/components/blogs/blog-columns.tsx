@@ -1,7 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, Pencil, Trash, FileText, Clock, Zap, Eye as EyeIcon } from 'lucide-react';
+import {ArrowUpDown, Pencil, Trash, FileText, Clock, Eye as EyeIcon, MoreVertical} from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -63,7 +63,7 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                 </div>
                 <div className="flex flex-col">
                     <span className="font-bold text-foreground text-lg group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
-                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-0.5">ID: {info.row.original.id.slice(0, 8)}</span>
+                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-0.5">Mã: {info.row.original.id.slice(0, 8)}</span>
                 </div>
             </div>
         ),
@@ -181,7 +181,7 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                                 className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
                             >
                                 <span className="sr-only">Menu Thao tác</span>
-                                <Zap className="h-4 w-4 opacity-40 group-hover:opacity-100" />
+                                <MoreVertical className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent

@@ -6,9 +6,7 @@ import {
     ChevronLeft,
     AlertCircle,
     Search,
-    Filter,
 } from 'lucide-react';
-import { Card } from "@workspace/ui/components/card";
 import { Input } from "@workspace/ui/components/input";
 import { useQuestionPool } from '@/api/services/question-pools';
 import { useQuestionsByPool } from '@/api/services/questions';
@@ -44,16 +42,16 @@ export default function PoolDetailPage() {
 
     if (!pool) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-in fade-in duration-500 max-w-lg mx-auto px-6">
-                <div className="p-6 rounded-3xl bg-destructive/5 border border-destructive/20">
-                    <AlertCircle className="size-12 text-destructive/60 mx-auto" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+                <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
+                    <AlertCircle className="size-6" />
                 </div>
-                <div className="space-y-2 text-center">
-                    <h2 className="text-2xl font-sans font-bold italic tracking-tight uppercase">Không tìm thấy bộ đề</h2>
-                    <p className="text-xs font-medium text-muted-foreground">Bộ đề bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
+                <div className="space-y-1">
+                    <h2 className="text-xl font-semibold">Không tìm thấy bộ đề</h2>
+                    <p className="text-sm text-muted-foreground">Bộ đề bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
                 </div>
-                <Button variant="outline" className="h-10 px-6 rounded-xl" onClick={() => navigate('/question-bank')}>
-                    <ChevronLeft className="mr-2 size-3.5" />
+                <Button variant="outline" onClick={() => navigate('/question-bank')}>
+                    <ChevronLeft className="mr-2 size-4" />
                     Quay về danh sách
                 </Button>
             </div>
@@ -61,16 +59,16 @@ export default function PoolDetailPage() {
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700 pb-20">
-            <div className="space-y-4">
+        <div className="flex flex-col gap-8 pb-20">
+            <div className="flex flex-col gap-4">
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
+                    className="w-fit -ml-2 text-muted-foreground"
                     onClick={() => navigate('/question-bank')}
                 >
-                    <ChevronLeft className="size-4" />
-                    <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại danh sách</span>
+                    <ChevronLeft className="mr-2 size-4" />
+                    Quay lại danh sách
                 </Button>
 
                 <PageHeader
@@ -84,35 +82,28 @@ export default function PoolDetailPage() {
                     actions={
                         <Button
                             onClick={() => setIsCreateDialogOpen(true)}
-                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
                         >
+                            <Plus className="mr-2 size-4" />
                             Thêm Câu Hỏi Mới
-                            <Plus className="ml-2 size-4" />
                         </Button>
                     }
                 />
             </div>
 
             <div className="space-y-4">
-                <Card className="bg-card p-4 rounded-xl border-border shadow-sm">
-                    <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-                        <div className="relative flex-1 group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                            <Input
-                                placeholder="Tìm kiếm nội dung câu hỏi trong bộ đề..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="h-10 pl-9 rounded-lg border-border bg-background focus-visible:ring-primary/20 transition-all text-sm placeholder:text-muted-foreground/50"
-                            />
-                        </div>
-                        <Button variant="outline" className="h-10 px-4 rounded-lg flex gap-2 text-xs font-bold uppercase tracking-wider">
-                            <Filter className="size-4 opacity-40" />
-                            Lọc nâng cao
-                        </Button>
+                <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                        <Input
+                            placeholder="Tìm kiếm nội dung câu hỏi trong bộ đề..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10"
+                        />
                     </div>
-                </Card>
+                </div>
 
-                <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <QuestionsTable
                         data={filteredQuestions}
                         isLoading={isLoadingQuestions}
@@ -120,7 +111,7 @@ export default function PoolDetailPage() {
                         onEdit={setEditingQuestion}
                         onDelete={setDeletingQuestion}
                     />
-                </Card>
+                </div>
             </div>
 
             {/* Sheets & Dialogs */}

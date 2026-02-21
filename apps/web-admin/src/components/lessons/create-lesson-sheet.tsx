@@ -117,7 +117,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[800px] sm:max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
                 <SheetHeader className="px-6 py-6 border-b border-border/10">
                     <div className="space-y-2">
                         <div className="flex items-center gap-3 mb-1">
@@ -352,21 +352,11 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter className="px-6 py-6 border-t border-border/10 bg-background flex-shrink-0">
+                    <SheetFooter>
                         <div className="flex w-full gap-4">
                             <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={handleClose}
-                                className="flex-1 h-12 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10"
-                            >
-                                Hủy Bỏ
-                            </Button>
-                            <Button
                                 type="submit"
-                                disabled={uploading || !isDirty}
-                                className="flex-[2] h-12 rounded-xl text-xs font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
-                            >
+                                disabled={uploading || !isDirty}>
                                 {uploading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -378,6 +368,12 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                                         Tạo Bài Học
                                     </>
                                 )}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}>
+                                Hủy Bỏ
                             </Button>
                         </div>
                     </SheetFooter>

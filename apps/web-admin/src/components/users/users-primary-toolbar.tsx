@@ -38,13 +38,13 @@ export function UsersPrimaryToolbar({
     return (
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
             {/* Search Input */}
-            <div className="relative flex-1 group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     placeholder="Tìm kiếm theo tên hoặc email..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-10 pl-9 rounded-lg border-border bg-background focus-visible:ring-primary/20 transition-all text-sm placeholder:text-muted-foreground/50"
+                    className="pl-9"
                 />
             </div>
 
@@ -54,17 +54,17 @@ export function UsersPrimaryToolbar({
                         value={filters.role || 'all'}
                         onValueChange={(value) => onFilterChange({ ...filters, role: value === 'all' ? undefined : value })}
                     >
-                        <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
+                        <SelectTrigger className="w-full sm:w-[180px]">
                             <div className="flex items-center gap-2">
                                 <Filter className="size-3.5 text-muted-foreground" />
                                 <SelectValue placeholder="Vai trò" />
                             </div>
                         </SelectTrigger>
-                        <SelectContent className="border-border rounded-lg shadow-lg bg-background">
-                            <SelectItem value="all" className="text-sm">Tất cả vai trò</SelectItem>
-                            <SelectItem value="admin" className="text-sm">Quản trị viên</SelectItem>
-                            <SelectItem value="learner" className="text-sm">Học viên</SelectItem>
-                            <SelectItem value="lecturer" className="text-sm">Giảng viên</SelectItem>
+                        <SelectContent>
+                            <SelectItem value="all">Tất cả vai trò</SelectItem>
+                            <SelectItem value="admin">Quản trị viên</SelectItem>
+                            <SelectItem value="learner">Học viên</SelectItem>
+                            <SelectItem value="lecturer">Giảng viên</SelectItem>
                         </SelectContent>
                     </Select>
                 )}
@@ -72,23 +72,23 @@ export function UsersPrimaryToolbar({
                 {/* Sort Controls */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="h-10 w-full sm:w-auto rounded-lg border-border bg-background hover:bg-muted/50 px-4 gap-2 text-sm font-medium transition-all">
-                            <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Button variant="outline" className="gap-2">
+                            <SlidersHorizontal className="size-4 text-muted-foreground" />
                             <span>Sắp xếp</span>
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 border-border rounded-xl shadow-xl bg-background p-1">
+                    <DropdownMenuContent align="end" className="w-56">
                         <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'desc')} className="rounded-lg px-3 py-2 text-sm cursor-pointer flex justify-between">
+                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'desc')} className="flex justify-between">
                                 Mới nhất <Sparkles className="size-3 text-amber-500" />
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'asc')} className="rounded-lg px-3 py-2 text-sm cursor-pointer">
+                            <DropdownMenuItem onClick={() => onSortChange('createdAt', 'asc')}>
                                 Cũ nhất
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('displayName', 'asc')} className="rounded-lg px-3 py-2 text-sm cursor-pointer">
+                            <DropdownMenuItem onClick={() => onSortChange('displayName', 'asc')}>
                                 Tên (A-Z)
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('email', 'asc')} className="rounded-lg px-3 py-2 text-sm cursor-pointer">
+                            <DropdownMenuItem onClick={() => onSortChange('email', 'asc')}>
                                 Email (A-Z)
                             </DropdownMenuItem>
                         </DropdownMenuGroup>

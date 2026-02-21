@@ -37,10 +37,10 @@ export function PageHeader({ title, subtitle, actions, stats, className }: PageH
                                     index < stats.length - 1 && "border-r border-border/40"
                                 )}
                             >
-                                <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">
+                                <span className="text-xs text-muted-foreground">
                                     {stat.label}
                                 </span>
-                                <span className="text-2xl font-bold text-foreground tabular-nums">
+                                <span className="text-xl font-semibold text-foreground tabular-nums">
                                     {stat.value}
                                 </span>
                             </div>

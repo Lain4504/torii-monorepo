@@ -154,7 +154,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-[600px] overflow-y-auto bg-background/95 backdrop-blur-xl border-l border-border/40">
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] overflow-y-auto bg-background/95 backdrop-blur-xl border-l border-border/40">
                 <SheetHeader className="pb-6 border-b border-border/20">
                     <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight">
                         Lịch dạy <span className="text-primary not-italic">Cố định</span>
@@ -199,8 +199,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => handleRemove(schedule.id)}
-                                                className="size-8 rounded-lg text-destructive hover:bg-destructive/10"
-                                            >
+                                                className="size-8 rounded-lg text-destructive hover:bg-destructive/10">
                                                 <Trash className="size-4" />
                                             </Button>
                                         </div>
@@ -284,8 +283,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                                     className={cn(
                                                         "size-11 rounded-xl text-[10px] font-bold",
                                                         isSelected && "shadow-md shadow-primary/20"
-                                                    )}
-                                                >
+                                                    )}>
                                                     {day}
                                                 </Button>
                                             );
@@ -341,8 +339,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                         variant="secondary"
                                         onClick={handleCheckAvailability}
                                         disabled={availabilityMutation.isPending}
-                                        className="w-full h-10 rounded-xl text-[10px] font-bold uppercase tracking-widest"
-                                    >
+                                        className="w-full h-10 rounded-xl text-[10px] font-bold uppercase tracking-widest">
                                         {availabilityMutation.isPending ? 'Đang kiểm tra...' : 'Kiểm tra lịch trùng'}
                                     </Button>
                                 )}
@@ -352,15 +349,13 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                         type="button"
                                         variant="ghost"
                                         onClick={() => onOpenChange(false)}
-                                        className="flex-1 h-11 rounded-xl text-[10px] font-bold uppercase tracking-widest"
-                                    >
+                                        className="flex-1 h-11 rounded-xl text-[10px] font-bold uppercase tracking-widest">
                                         Hủy bỏ
                                     </Button>
                                     <Button
                                         type="submit"
                                         disabled={assignMutation.isPending || selectedDays.length === 0}
-                                        className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm"
-                                    >
+                                        className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm">
                                         Lưu lịch cố định
                                     </Button>
                                 </div>

@@ -22,7 +22,6 @@ import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { cn } from '@workspace/ui/lib/utils';
 import { Plus, ShieldAlert } from 'lucide-react';
-import { Card } from "@workspace/ui/components/card";
 import { PageHeader } from '@/components/common/page-header';
 
 export default function QuestionsPage() {
@@ -110,9 +109,9 @@ export default function QuestionsPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 space-y-4 rounded-3xl border border-dashed text-center animate-in fade-in duration-500">
-                <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center">
-                    <ShieldAlert className="size-8 text-destructive" />
+            <div className="flex flex-col items-center justify-center p-20 space-y-4 rounded-xl border border-dashed text-center">
+                <div className="size-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive">
+                    <ShieldAlert className="size-6" />
                 </div>
                 <div className="space-y-1">
                     <h3 className="text-lg font-semibold">Lỗi tải Danh sách Câu hỏi</h3>
@@ -192,7 +191,7 @@ export default function QuestionsPage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700 pb-20">
+        <div className="flex flex-col gap-8">
             {/* Page Header */}
             <PageHeader
                 title="Ngân hàng Câu hỏi"
@@ -207,10 +206,9 @@ export default function QuestionsPage() {
                     <Can permission="question.create">
                         <Button
                             onClick={() => setShowCreateDialog(true)}
-                            className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all group"
                         >
+                            <Plus className="mr-2 size-4" />
                             Tạo Câu hỏi
-                            <Plus className="ml-2 size-4 opacity-70 group-hover:opacity-100 transition-opacity" />
                         </Button>
                     </Can>
                 }
@@ -235,7 +233,7 @@ export default function QuestionsPage() {
             />
 
             {/* Table */}
-            <Card className="rounded-xl border-border bg-card overflow-hidden shadow-sm p-0">
+            <div className="rounded-xl border bg-card overflow-hidden">
                 <QuestionsTable
                     data={questions}
                     onView={setViewingQuestion}
@@ -249,19 +247,19 @@ export default function QuestionsPage() {
                     limit={queryParams.limit || 10}
                     isLoading={isLoading}
                 />
-            </Card>
+            </div>
 
             {/* Pagination */}
             {meta && meta.totalPages > 1 && (
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium">
-                        <div>Trang {page} / {meta.totalPages}</div>
+                    <div className="flex items-center gap-4 text-xs font-medium">
+                        <div className="text-muted-foreground">Trang {page} / {meta.totalPages}</div>
                         <div className="w-1 h-1 rounded-full bg-border" />
-                        <div>Tổng cộng: <span className="text-foreground font-semibold">{meta.total}</span> câu hỏi</div>
+                        <div className="text-muted-foreground">Tổng cộng: <span className="text-foreground font-semibold">{meta.total}</span> câu hỏi</div>
                     </div>
 
                     <Pagination>
-                        <PaginationContent className="flex items-center gap-2">
+                        <PaginationContent className="gap-2">
                             <PaginationItem>
                                 <PaginationPrevious
                                     onClick={(e) => {
@@ -269,13 +267,12 @@ export default function QuestionsPage() {
                                         if (page > 1) setPage(p => p - 1);
                                     }}
                                     className={cn(
-                                        "h-10 px-4 rounded-xl bg-card border border-border/20 text-xs font-medium transition-all",
-                                        page === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                        page === 1 && "opacity-30 pointer-events-none"
                                     )}
                                 />
                             </PaginationItem>
 
-                            <div className="hidden md:flex items-center gap-1 mx-2">
+                            <div className="hidden md:flex items-center gap-1">
                                 {renderPaginationItems()}
                             </div>
 
@@ -286,8 +283,7 @@ export default function QuestionsPage() {
                                         if (page < meta.totalPages) setPage(p => p + 1);
                                     }}
                                     className={cn(
-                                        "h-10 px-4 rounded-xl bg-card border border-border/20 text-xs font-medium transition-all",
-                                        page === meta.totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-primary/5 hover:text-primary cursor-pointer"
+                                        page === meta.totalPages && "opacity-30 pointer-events-none"
                                     )}
                                 />
                             </PaginationItem>

@@ -6,7 +6,8 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
-import { agentApi, ChatResponse } from "@/apis/services/agent-api"
+import { agentApi } from "@/apis/services/agent-api"
+import { AgentChatResponseDTO as ChatResponse } from "@workspace/schemas"
 
 interface Message {
     id: string
@@ -53,7 +54,7 @@ export function ChatInterface() {
             const response: Message = {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: data.message || "Sorry, I didn't get that.",
+                content: data?.message || "Sorry, I didn't get that.",
                 timestamp: new Date(),
             }
 

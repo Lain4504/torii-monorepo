@@ -1,0 +1,165 @@
+import { useNavigate } from 'react-router-dom';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetFooter,
+} from '@workspace/ui/components/sheet';
+import { Button } from '@workspace/ui/components/button';
+import { Badge } from '@workspace/ui/components/badge';
+import { Separator } from '@workspace/ui/components/separator';
+import { BookOpen, GraduationCap, Calendar, FileQuestion } from 'lucide-react';
+import type { QuestionPoolResponseDTO } from '@workspace/schemas';
+
+interface ViewQuestionPoolDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    pool: QuestionPoolResponseDTO | null;
+    onEdit: (pool: QuestionPoolResponseDTO) => void;
+}
+
+export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: ViewQuestionPoolDialogProps) {
+    const navigate = useNavigate();
+
+    if (!pool) return null;
+
+    const handleViewQuestions = () => {
+        onOpenChange(false);
+        navigate(`/question-bank/pools/${pool.id}/questions`);
+    };
+
+    return (
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
+                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                                <FileQuestion className="size-4" />
+                            </div>
+                            <div className="space-y-0.5">
+                                <SheetTitle className="text-xl font-bold tracking-tight">
+                                    Chi Tiết Kho Đề
+                                </SheetTitle>
+                                <p className="text-xs font-medium text-muted-foreground/60 italic uppercase tracking-widest">
+                                    Thông tin định danh & Phân loại
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </SheetHeader>
+
+                <div className="flex-1 overflow-y-auto">
+                    <div className="px-8 py-8 space-y-10">
+                        <section className="space-y-4">
+                            <div className="flex items-center gap-2 text-primary opacity-60">
+                                <BookOpen className="size-4" />
+                                <h3 className="text-xs font-bold uppercase tracking-wider">Thông tin hiển thị</h3>
+                            </div>
+                            <div className="space-y-4 p-6 rounded-2xl bg-muted/5 border border-border/80 shadow-sm transition-all hover:bg-muted/10">
+                                <div>
+                                    <h4 className="text-xl font-bold text-foreground mb-2">{pool.name}</h4>
+                                    {pool.description ? (
+                                        <p className="text-sm text-muted-foreground leading-relaxed italic">
+                                            "{pool.description}"
+                                        </p>
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground/50 italic">Chưa có mô tả chi tiết cho kho đề này.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </section>
+
+                        <Separator className="opacity-50" />
+
+                        <div className="grid grid-cols-2 gap-8">
+                            <section className="space-y-4">
+                                <div className="flex items-center gap-2 text-primary opacity-60">
+                                    <GraduationCap className="size-4" />
+                                    <h3 className="text-xs font-bold uppercase tracking-wider">Trình độ chuyên môn</h3>
+                                </div>
+                                <div className="flex flex-col gap-1.5 ml-1">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Cấp độ JLPT</p>
+                                    <div>
+                                        {pool.jlptLevel ? (
+                                            <Badge variant="outline" className="rounded-lg px-3 py-1 font-bold text-primary bg-primary/5 border-primary/20">
+                                                {pool.jlptLevel}
+                                            </Badge>
+                                        ) : (
+                                            <span className="text-sm font-medium text-muted-foreground/40 italic">Chưa thiết lập</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section className="space-y-4">
+                                <div className="flex items-center gap-2 text-primary opacity-60">
+                                    <Calendar className="size-4" />
+                                    <h3 className="text-xs font-bold uppercase tracking-wider">Dữ liệu hệ thống</h3>
+                                </div>
+                                <div className="flex flex-col gap-1.5 ml-1">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Ngày khởi tạo</p>
+                                    <p className="text-sm font-bold text-foreground">
+                                        {new Date(pool.createdAt).toLocaleDateString('vi-VN', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        })}
+                                    </p>
+                                </div>
+                            </section>
+                        </div>
+
+                        <Separator className="opacity-50" />
+
+                        <section className="space-y-4">
+                            <div className="flex items-center gap-2 text-primary opacity-60">
+                                <GraduationCap className="size-4" />
+                                <h3 className="text-xs font-bold uppercase tracking-wider">Liên kết giáo trình</h3>
+                            </div>
+                            <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-between">
+                                <span className="text-sm font-medium text-muted-foreground">Khóa học liên quan:</span>
+                                {pool.courseId ? (
+                                    <Badge variant="outline" className="rounded-lg bg-emerald-500/5 text-emerald-600 border-emerald-500/10 font-bold">
+                                        Đã liên kết
+                                    </Badge>
+                                ) : (
+                                    <span className="text-xs font-medium text-muted-foreground/40 italic">Chưa liên kết khóa học</span>
+                                )}
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <SheetFooter className="p-6 border-t border-border/10 bg-muted/5 flex-row justify-end space-x-3">
+                    <Button
+                        variant="ghost"
+                        onClick={() => onOpenChange(false)}
+                        className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider"
+                    >
+                        Đóng
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            onOpenChange(false);
+                            onEdit(pool);
+                        }}
+                        className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider"
+                    >
+                        Chỉnh sửa
+                    </Button>
+                    <Button
+                        onClick={handleViewQuestions}
+                        className="h-11 px-8 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                        <FileQuestion className="h-4 w-4 mr-2" />
+                        Xem Câu Hỏi
+                    </Button>
+                </SheetFooter>
+            </SheetContent>
+        </Sheet>
+    );
+}
+

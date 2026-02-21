@@ -151,10 +151,6 @@ function getStaticFilesToCopy(): ViteStaticCopyOptions {
         ].filter(Boolean),
         dest: 'assets/',
       },
-      {
-        src: 'assets/tflite/*',
-        dest: 'assets/js/',
-      },
     ],
   };
 }
