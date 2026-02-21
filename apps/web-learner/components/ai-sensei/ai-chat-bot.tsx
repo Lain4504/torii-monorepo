@@ -133,7 +133,7 @@ const PromptInputAttachmentsDisplay = () => {
 }
 
 export function AiChatBot() {
-    const [model, setModel] = useState<string>(models[0].id)
+    const [model, setModel] = useState<string>(models[0]?.id || "gemini-2.0-flash")
     const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
     const [text, setText] = useState<string>("")
     const [useWebSearch, setUseWebSearch] = useState<boolean>(false)
@@ -248,7 +248,7 @@ export function AiChatBot() {
     }
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-background">
+        <div className="flex flex-col h-full overflow-hidden bg-card border border-border shadow-sm rounded-xl m-4">
             {/* Conversation Area */}
             <Conversation className="flex-1 min-h-0 border-b">
                 <ConversationContent>

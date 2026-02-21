@@ -6,17 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: enhance prompt and resource loading with dynamic path resolution">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/analytics.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/analytics.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/assessment.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/assessment.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/sensei.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/sensei.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/apis/services/agent-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/apis/services/agent-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/ai-chat-bot.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/ai-chat-bot.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/sensei-layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/sensei-layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/nav-main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/nav-main.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/styles/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -398,6 +393,7 @@
       <workItem from="1771658110565" duration="1298000" />
       <workItem from="1771661136662" duration="381000" />
       <workItem from="1771662839658" duration="721000" />
+      <workItem from="1771674736995" duration="351000" />
     </task>
     <task id="LOCAL-00783" summary="update nats logic">
       <option name="closed" value="true" />
