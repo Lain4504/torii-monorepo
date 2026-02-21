@@ -132,4 +132,9 @@ export class CourseHandler {
         };
         return this.courseService.reject(requester, id, reason);
     }
+
+    @MessagePattern({ cmd: 'learning.course.recalculate_stats' })
+    async recalculateStats(@Payload() data: { courseId: string }) {
+        return this.courseService.recalculateStats(data.courseId);
+    }
 }

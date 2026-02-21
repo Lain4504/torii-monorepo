@@ -277,6 +277,17 @@ export class CourseService implements ICourseService {
 
     const dto = this.toCourseResponseDTO(course);
 
+    // Force recalculate stats to ensure "Live" accuracy for Admin/Staff
+    // This handles manual database edits being reflected in the UI
+    await this.recalculateStats(courseId);
+    
+    // Refresh DTO values from database after recalculation
+    const updated = await this.courseRepository.findById(courseId);
+    if (updated) {
+      dto.totalLessons = updated.totalLessons;
+      dto.totalQuizzes = updated.totalQuizzes;
+    }
+
     // Fetch instructors
     try {
       const instructors = await this.courseRepository.getInstructors(course.id);
@@ -853,18 +864,11 @@ export class CourseService implements ICourseService {
    */
   async recalculateStats(courseId: string): Promise<void> {
     try {
-      const totalLessons = await this.lessonRepository.count({
-        module: {
-          courseId,
-          status: 'published',
-          deletedAt: null
-        },
-        deletedAt: null,
-        status: 'published',
-      } as any);
+      const totalLessons = await this.courseRepository.countLessons(courseId);
+      const totalQuizzes = await this.courseRepository.countQuizzes(courseId);
 
-      await this.courseRepository.updateStats(courseId, { totalLessons });
-      this.logger.log(`Recalculated stats for course ${courseId}: totalLessons=${totalLessons}`);
+      await this.courseRepository.updateStats(courseId, { totalLessons, totalQuizzes });
+      this.logger.log(`Recalculated stats for course ${courseId}: totalLessons=${totalLessons}, totalQuizzes=${totalQuizzes}`);
     } catch (error: any) {
       this.logger.error(`Failed to recalculate stats for course ${courseId}`, error);
     }

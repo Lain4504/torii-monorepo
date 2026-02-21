@@ -233,8 +233,9 @@ export default function CourseDetailPage() {
                     title={course.title}
                     subtitle={course.shortDescription || "Chưa có mô tả ngắn cho khóa học này."}
                     stats={[
-                        { label: "Học phần", value: modules.length },
-                        { label: "Cấp độ", value: course.jlptLevel || 'N/A' },
+                        { label: "Trình độ", value: course.jlptLevel || 'N/A' },
+                        { label: "Bài học", value: course.totalLessons || 0 },
+                        { label: "Quiz", value: course.totalQuizzes || 0 },
                         { label: "Buổi học live", value: liveSessions?.length || 0 },
                     ]}
                     actions={
