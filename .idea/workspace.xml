@@ -4,10 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add implementation checklist for Agents Service to track progress on AI-related tasks">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/package.json" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: update dependencies and improve project configuration">
+      <change beforePath="$PROJECT_DIR$/packages/ui/components.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/components.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/accordion.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/accordion.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/ai/reasoning.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/ai/reasoning.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/alert-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/alert-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/avatar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/avatar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/badge.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/badge.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/breadcrumb.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/breadcrumb.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/checkbox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/checkbox.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/item.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/label.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/label.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/menubar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/menubar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/navigation-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/navigation-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/popover.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/popover.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/progress.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/progress.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/radio-group.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/radio-group.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/slider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/slider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/switch.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/switch.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/tabs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/tabs.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/toggle.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/toggle.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/ui/shadcn-io/banner/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/ui/shadcn-io/banner/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/ui/shadcn-io/dialog-stack/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/ui/shadcn-io/dialog-stack/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/ui/src/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/styles/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -392,22 +414,6 @@
       <workItem from="1771674736995" duration="351000" />
       <workItem from="1771676906109" duration="338000" />
     </task>
-    <task id="LOCAL-00783" summary="update nats logic">
-      <option name="closed" value="true" />
-      <created>1770004580313</created>
-      <option name="number" value="00783" />
-      <option name="presentableId" value="LOCAL-00783" />
-      <option name="project" value="LOCAL" />
-      <updated>1770004580313</updated>
-    </task>
-    <task id="LOCAL-00784" summary="update nats logic">
-      <option name="closed" value="true" />
-      <created>1770004604242</created>
-      <option name="number" value="00784" />
-      <option name="presentableId" value="LOCAL-00784" />
-      <option name="project" value="LOCAL" />
-      <updated>1770004604242</updated>
-    </task>
     <task id="LOCAL-00785" summary="update meet client logic">
       <option name="closed" value="true" />
       <created>1770006249551</created>
@@ -784,7 +790,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771662928313</updated>
     </task>
-    <option name="localTasksCounter" value="832" />
+    <task id="LOCAL-00832" summary="chore: update dependencies and improve project configuration">
+      <option name="closed" value="true" />
+      <created>1771678828103</created>
+      <option name="number" value="00832" />
+      <option name="presentableId" value="LOCAL-00832" />
+      <option name="project" value="LOCAL" />
+      <updated>1771678828104</updated>
+    </task>
+    <task id="LOCAL-00833" summary="chore: update dependencies and improve project configuration">
+      <option name="closed" value="true" />
+      <created>1771678903444</created>
+      <option name="number" value="00833" />
+      <option name="presentableId" value="LOCAL-00833" />
+      <option name="project" value="LOCAL" />
+      <updated>1771678903444</updated>
+    </task>
+    <option name="localTasksCounter" value="834" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -819,7 +841,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: integrate etherpad module" />
     <MESSAGE value="update" />
     <MESSAGE value="fix meet config" />
     <MESSAGE value="fix dependecy injection" />
@@ -844,7 +865,8 @@
     <MESSAGE value="refactor: improve course repository and service methods, add analytics handlers" />
     <MESSAGE value="refactor: restructure agent handlers and update request payloads" />
     <MESSAGE value="refactor: enhance prompt and resource loading with dynamic path resolution" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance prompt and resource loading with dynamic path resolution" />
+    <MESSAGE value="chore: update dependencies and improve project configuration" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: update dependencies and improve project configuration" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
