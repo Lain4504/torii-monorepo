@@ -12,13 +12,13 @@ interface CourseHeroActionsProps {
 
 export function CourseHeroActions({ courseId, courseSlug }: CourseHeroActionsProps) {
     const router = useRouter()
-    const { isEnrolled, isLoadingEnrollment } = useCourseEnrollment(courseId, courseSlug)
+    const { isEnrolled, isExpired, isLoadingEnrollment } = useCourseEnrollment(courseId, courseSlug)
 
     if (isLoadingEnrollment) {
         return <div className="h-12 w-40 bg-muted animate-pulse rounded-md" />
     }
 
-    if (!isEnrolled) {
+    if (!isEnrolled || isExpired) {
         return null
     }
 

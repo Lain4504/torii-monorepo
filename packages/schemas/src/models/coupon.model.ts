@@ -25,30 +25,31 @@ export const couponSchema = z.object({
   code: z.string().min(1).max(50),
   name: z.string().min(1).max(100),
   description: z.string().optional().nullable(),
-  
+
   // Discount Configuration
   discountType: z.nativeEnum(CouponDiscountType),
   discountValue: z.number().positive(),
   maxDiscountAmount: z.number().positive().optional().nullable(),
-  
+
   // Conditions
   minOrderAmount: z.number().nonnegative().optional().nullable(),
   applicableCourseIds: z.array(z.string().uuid()).default([]),
   excludedCourseIds: z.array(z.string().uuid()).default([]),
-  
+
   // Validity Period
   validFrom: z.date(),
   validUntil: z.date(),
-  
+
   // Usage Limits
   usageLimit: z.number().int().positive().optional().nullable(),
   usageCount: z.number().int().nonnegative().default(0),
   userUsageLimit: z.number().int().positive().default(1),
-  
+
   // Status
   status: z.nativeEnum(CouponStatus).default(CouponStatus.ACTIVE),
-  
-  // Metadata
+
+  // Ownership
+  userId: z.string().uuid().optional().nullable(),
   createdBy: z.string().uuid().optional().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),

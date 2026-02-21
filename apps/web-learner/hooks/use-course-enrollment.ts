@@ -4,11 +4,12 @@ import { wishlistApi } from '@/apis/services/wishlist-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
 import { useRouter } from 'next/navigation'
-import type { EnrollmentResponseDTO } from '@workspace/schemas'
+import { type EnrollmentResponseDTO, EnrollmentStatus } from '@workspace/schemas'
 
 export function useCourseEnrollment(courseId: string, courseSlug: string) {
     const [isInWishlist, setIsInWishlist] = useState(false)
     const [isEnrolled, setIsEnrolled] = useState(false)
+    const [isExpired, setIsExpired] = useState(false)
     const [enrollment, setEnrollment] = useState<EnrollmentResponseDTO | null>(null)
     const [hasNewerVersion, setHasNewerVersion] = useState(false)
     const [isLoadingWishlist, setIsLoadingWishlist] = useState(false)
@@ -46,6 +47,15 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
             setIsEnrolled(result.isEnrolled)
             if (result.enrollment) {
                 setEnrollment(result.enrollment)
+                // Check if expired
+                if (result.enrollment.expiresAt) {
+                    const expiresAt = new Date(result.enrollment.expiresAt)
+                    setIsExpired(expiresAt < new Date() || result.enrollment.completionStatus === EnrollmentStatus.EXPIRED)
+                } else if (result.enrollment.completionStatus === EnrollmentStatus.EXPIRED) {
+                    setIsExpired(true)
+                } else {
+                    setIsExpired(false)
+                }
             }
             if (result.hasNewerVersion) {
                 setHasNewerVersion(result.hasNewerVersion)
@@ -88,6 +98,7 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
             setIsEnrolling(true)
             const newEnrollment = await enrollmentApi.createEnrollment({ courseId })
             setIsEnrolled(true)
+            setIsExpired(false)
             setEnrollment(newEnrollment)
             toast.success('Đã đăng ký khóa học thành công!')
             router.push(`/courses/${courseSlug}/learn`)
@@ -102,6 +113,7 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
     return {
         isInWishlist,
         isEnrolled,
+        isExpired,
         enrollment,
         hasNewerVersion,
         isLoadingWishlist,

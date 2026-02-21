@@ -48,6 +48,12 @@ export class CouponService {
             return { isValid: false, message: `Minimum order amount of ${coupon.minOrderAmount} required` };
         }
 
+        // Ownership check (Personal Coupons)
+        if (coupon.userId && coupon.userId !== userId) {
+            this.logger.warn(`Coupon ${code} verification failed: Ownership mismatch. Coupon belongs to ${coupon.userId}, but used by ${userId}`);
+            return { isValid: false, message: 'Mã giảm giá không thuộc về bạn' };
+        }
+
         // Check user usage limit
         const userUsage = await this.couponRepository.checkUserUsage(userId, coupon.id);
         if (coupon.userUsageLimit && userUsage >= coupon.userUsageLimit) {
@@ -145,5 +151,76 @@ export class CouponService {
         } catch (error: any) {
             this.logger.error(`Failed to release coupon ${couponId}: ${error.message}`);
         }
+    }
+
+    /**
+     * Create a personal coupon for a user (Redeemed Coupon)
+     */
+    async createRedeemedCoupon(data: {
+        userId: string;
+        name: string;
+        discountType: CouponDiscountType;
+        discountValue: number;
+        maxDiscountAmount?: number;
+        minOrderAmount?: number;
+        validDurationDays?: number;
+    }) {
+        const code = this.generateRandomCode();
+        const now = new Date();
+        const validUntil = new Date();
+        validUntil.setDate(now.getDate() + (data.validDurationDays || 30));
+
+        return this.couponRepository.create({
+            code,
+            name: data.name,
+            discountType: data.discountType,
+            discountValue: data.discountValue,
+            maxDiscountAmount: data.maxDiscountAmount,
+            minOrderAmount: data.minOrderAmount,
+            validFrom: now,
+            validUntil,
+            user: { connect: { id: data.userId } },
+            userUsageLimit: 1,
+            usageLimit: 1,
+            status: CouponStatus.ACTIVE,
+        });
+    }
+
+    async getCouponsForUser(userId: string) {
+        const coupons = await this.couponRepository.findCouponsForUser(userId);
+
+        // Filter public coupons where user reached limit
+        const availableCoupons: any[] = [];
+        for (const coupon of coupons) {
+            // For personal coupons, they are already filtered by userId in repo
+            if (coupon.userId === userId) {
+                availableCoupons.push(coupon);
+                continue;
+            }
+
+            // For public coupons, check usage limit
+            if (coupon.userUsageLimit) {
+                const usage = await this.couponRepository.checkUserUsage(userId, coupon.id);
+                if (usage >= coupon.userUsageLimit) {
+                    continue;
+                }
+            }
+
+            // Also check global usage limit
+            if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+                continue;
+            }
+
+            availableCoupons.push(coupon);
+        }
+
+        return availableCoupons;
+    }
+
+    private generateRandomCode(): string {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const part1 = Array.from({ length: 3 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+        const part2 = Array.from({ length: 3 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+        return `${part1}-${part2}`;
     }
 }

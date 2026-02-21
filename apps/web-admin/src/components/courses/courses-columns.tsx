@@ -133,6 +133,28 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
         },
         size: 130,
     }),
+    columnHelper.accessor('totalLessons', {
+        id: 'lessonsCount',
+        header: () => <div className="px-1 text-center">Bài học</div>,
+        cell: (info) => (
+            <div className="flex flex-col items-center">
+                <div className="font-bold text-sm text-foreground">{info.getValue() || 0}</div>
+                <div className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-tight">Đã xuất bản</div>
+            </div>
+        ),
+        size: 90,
+    }),
+    columnHelper.accessor('totalQuizzes', {
+        id: 'quizzesCount',
+        header: () => <div className="px-1 text-center">Quiz</div>,
+        cell: (info) => (
+            <div className="flex flex-col items-center">
+                <div className="font-bold text-sm text-foreground">{info.getValue() || 0}</div>
+                <div className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-tight">Đã xuất bản</div>
+            </div>
+        ),
+        size: 90,
+    }),
     columnHelper.accessor('totalStudents', {
         header: ({ column }) => {
             return (

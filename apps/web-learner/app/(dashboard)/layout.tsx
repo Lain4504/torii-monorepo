@@ -1,8 +1,9 @@
 'use client'
 
+import * as React from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { AppSidebar } from '@/components/dashboard/app-sidebar'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
@@ -13,15 +14,24 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     const { isAuthenticated, status } = useAppSelector((state) => state.auth)
+    const [hasMounted, setHasMounted] = useState(false)
     const router = useRouter()
+    const [mounted, setMounted] = React.useState(false)
 
     useEffect(() => {
-        if (status === 'succeeded' && !isAuthenticated) {
+
+        setMounted(true)
+    }, [])
+
+    useEffect(() => {
+        if (mounted && status === 'succeeded' && !isAuthenticated) {
             router.push('/login')
         }
-    }, [isAuthenticated, status, router])
+    }, [isAuthenticated, status, router, mounted])
 
-    if (status === 'loading') {
+    // Delay rendering logic until after hydration to avoid mismatch
+    if (!mounted || status === 'loading') {
+
         return (
             <div className="flex items-center justify-center min-h-screen bg-background">
                 <div className="flex flex-col items-center gap-4 animate-in fade-in duration-700">

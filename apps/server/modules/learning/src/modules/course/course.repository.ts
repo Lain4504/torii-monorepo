@@ -212,16 +212,40 @@ export class CourseRepository implements ICourseRepository {
         return this.prisma.courseVersion.findFirst({
             where: { courseId },
             orderBy: { publishedAt: 'desc' },
-        });
-    }
+            * Count published quizzes for a course
+     */
+            async countQuizzes(courseId: string): Promise < number > {
+                return this.prisma.quiz.count({
+                    where: {
+                        OR: [
+                            { courseId },
+                            { lesson: { module: { courseId } } }
+                        ],
+                        status: 'published',
+                    },
+                });
+            }
 
     /**
      * Get a specific course version by ID
      */
-    async getVersionById(versionId: string): Promise<any | null> {
-        return this.prisma.courseVersion.findUnique({
-            where: { id: versionId },
-        });
-    }
+    async getVersionById(versionId: string): Promise < any | null > {
+            return this.prisma.courseVersion.findUnique({
+                where: { id: versionId },
+                * Count published lessons for a course
+     */
+                async countLessons(courseId: string): Promise < number > {
+                    return this.prisma.lesson.count({
+                        where: {
+                            module: {
+                                courseId,
+                                status: 'published',
+                                deletedAt: null,
+                            },
+                            status: 'published',
+                            deletedAt: null,
+                        },
+                    });
+                }
 }
 

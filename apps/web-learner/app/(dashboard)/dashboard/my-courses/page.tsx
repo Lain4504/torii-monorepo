@@ -20,6 +20,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { learningProgressApi, type MyCourseResponse, type LearningStats } from '@/apis/services/learning-progress-api'
 import { LiveSessionBlock } from '@/components/courses/live-session-block'
+import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
 
 export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
@@ -27,6 +28,7 @@ export default function MyCoursesPage() {
     const [courses, setCourses] = useState<MyCourseResponse[]>([])
     const [statsData, setStatsData] = useState<LearningStats | null>(null)
     const [loading, setLoading] = useState(true)
+    const [expiredCourse, setExpiredCourse] = useState<{ title: string, slug: string } | null>(null)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -143,7 +145,15 @@ export default function MyCoursesPage() {
             {/* Courses Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCourses.map((course) => (
-                    <Card key={course.id} className="border-border bg-card hover:shadow-lg transition-all group overflow-hidden cursor-pointer flex flex-col h-full rounded-2xl">
+                    <Card 
+                        key={course.id} 
+                        onClick={() => {
+                            if (course.expiresAt && new Date(course.expiresAt) < new Date()) {
+                                setExpiredCourse({ title: course.title, slug: course.slug })
+                            }
+                        }}
+                        className="border-border bg-card hover:shadow-lg transition-all group overflow-hidden cursor-pointer flex flex-col h-full rounded-2xl"
+                    >
                         <div className="relative aspect-video bg-muted overflow-hidden">
                             {/* Placeholder/Thumb - real image if available */}
                             {course.thumbnailUrl ? (
@@ -168,6 +178,11 @@ export default function MyCoursesPage() {
                             {course.type === 'live' && (
                                 <Badge className="absolute top-3 left-3 bg-red-500 text-white border-none shadow-sm flex gap-1.5 items-center px-2 py-0.5 text-xs font-bold z-20">
                                     <Video className="w-3 h-3" /> Live
+                                </Badge>
+                            )}
+                            {course.expiresAt && new Date(course.expiresAt) < new Date() && (
+                                <Badge className="absolute top-3 left-3 bg-destructive text-white border-none shadow-sm flex gap-1.5 items-center px-2 py-0.5 text-xs font-bold z-20">
+                                    <Clock className="w-3 h-3" /> Hết hạn
                                 </Badge>
                             )}
                             <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/10 z-20">
@@ -208,12 +223,27 @@ export default function MyCoursesPage() {
                                 </div>
                             )}
 
-                            <Link href={`/courses/${course.slug}/learn`} className="w-full pt-2">
-                                <Button className="w-full rounded-xl h-10 text-xs font-bold hover:bg-primary/90 transition-all shadow-sm">
-                                    {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
-                                    <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
-                                </Button>
-                            </Link>
+                            <div className="pt-2">
+                                {course.expiresAt && new Date(course.expiresAt) < new Date() ? (
+                                    <Button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setExpiredCourse({ title: course.title, slug: course.slug })
+                                        }}
+                                        className="w-full rounded-xl h-10 text-xs font-bold bg-destructive hover:bg-destructive/90 transition-all shadow-sm"
+                                    >
+                                        Gia hạn khóa học
+                                        <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
+                                    </Button>
+                                ) : (
+                                    <Link href={`/courses/${course.slug}/learn`} className="w-full" onClick={(e) => e.stopPropagation()}>
+                                        <Button className="w-full rounded-xl h-10 text-xs font-bold hover:bg-primary/90 transition-all shadow-sm">
+                                            {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
+                                            <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
+                                        </Button>
+                                    </Link>
+                                )}
+                            </div>
                         </CardContent>
                     </Card>
                 ))}
@@ -233,6 +263,12 @@ export default function MyCoursesPage() {
                     </div>
                 </div>
             )}
+            <CourseExpirationModal
+                isOpen={!!expiredCourse}
+                onClose={() => setExpiredCourse(null)}
+                courseTitle={expiredCourse?.title || ''}
+                courseSlug={expiredCourse?.slug || ''}
+            />
         </div>
     )
 }

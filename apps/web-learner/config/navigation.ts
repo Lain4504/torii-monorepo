@@ -16,6 +16,7 @@ import {
     MessageSquare,
     Wallet,
     Receipt,
+    Gift,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -45,6 +46,7 @@ export const progressNav: NavItem[] = [
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
     { name: 'AI Analytics', href: '/ai-analytics', icon: TrendingUp },
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
+    { name: 'Cửa hàng quà tặng', href: '/dashboard/rewards', icon: Gift },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
     { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
     { name: 'Ghi chú', href: '/dashboard/notes', icon: FileText },

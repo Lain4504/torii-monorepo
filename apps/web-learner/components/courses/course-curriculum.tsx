@@ -65,8 +65,8 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
 
     const totalLessons = curriculum.modules.reduce((acc, module) => acc + module.lessons.length, 0)
 
-    const handleLessonClick = (lessonId: string, isPreview: boolean) => {
-        if (isPreview) {
+    const handleLessonClick = (lessonId: string, isUnlocked: boolean) => {
+        if (isUnlocked) {
             router.push(`/courses/${courseSlug}/learn/lessons/${lessonId}`)
         }
     }
@@ -176,23 +176,23 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                             key={lesson.id}
                                             className={cn(
                                                 "p-4 rounded-xl flex items-center justify-between group/lesson transition-all duration-200 gap-3 md:gap-4",
-                                                lesson.isPreview
+                                                lesson.isUnlocked
                                                     ? "hover:bg-primary/5 cursor-pointer"
                                                     : "opacity-80 select-none"
                                             )}
-                                            onClick={() => handleLessonClick(lesson.id, lesson.isPreview)}
+                                            onClick={() => handleLessonClick(lesson.id, lesson.isUnlocked)}
                                         >
                                             <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                                                 <div className={cn(
                                                     "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                                                    lesson.isPreview ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                                                    lesson.isUnlocked ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                                                 )}>
                                                     {lesson.contentType === 'video' ? <PlayCircle className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                                                 </div>
                                                 <div className="min-w-0">
                                                     <h4 className={cn(
                                                         "text-sm font-medium truncate",
-                                                        lesson.isPreview ? "text-foreground" : "text-muted-foreground"
+                                                        lesson.isUnlocked ? "text-foreground" : "text-muted-foreground"
                                                     )}>
                                                         {lesson.title}
                                                     </h4>
@@ -207,11 +207,11 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                                     <span className="hidden sm:inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary">Xem thử</span>
                                                 )}
                                                 <div className="flex items-center justify-end min-w-[40px]">
-                                                    {lesson.isPreview && lesson.videoDuration ? (
+                                                    {lesson.isUnlocked && lesson.videoDuration ? (
                                                         <span className="text-xs font-medium text-muted-foreground">{formatDuration(lesson.videoDuration)}</span>
-                                                    ) : (
+                                                    ) : !lesson.isUnlocked ? (
                                                         <Lock className="w-4 h-4 text-muted-foreground/40" />
-                                                    )}
+                                                    ) : null}
                                                 </div>
                                             </div>
                                         </div>

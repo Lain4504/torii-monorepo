@@ -29,21 +29,22 @@ export class UserBalanceService {
         type: BalanceTransactionType = BalanceTransactionType.OTHER,
         metadata: any = {}
     ) {
-        this.logger.log(`Adding ${amount} balance to user ${userId} for reason: ${reason} (Type: ${type})`);
+        const roundedAmount = Math.round(amount);
+        this.logger.log(`Adding ${roundedAmount} balance to user ${userId} for reason: ${reason} (Type: ${type})`);
 
         let userBalance = await this.userBalanceRepository.findByUserId(userId);
 
         if (!userBalance) {
-            await this.userBalanceRepository.create(userId, amount);
+            await this.userBalanceRepository.create(userId, roundedAmount);
         } else {
-            await this.userBalanceRepository.updateBalance(userId, amount);
+            await this.userBalanceRepository.updateBalance(userId, roundedAmount);
         }
 
         // Log transaction history
         await this.prisma.balanceTransaction.create({
             data: {
                 userId,
-                amount,
+                amount: roundedAmount,
                 type,
                 description: reason,
                 metadata,
@@ -60,21 +61,22 @@ export class UserBalanceService {
         type: BalanceTransactionType = BalanceTransactionType.PURCHASE,
         metadata: any = {}
     ) {
-        this.logger.log(`Deducting ${amount} balance from user ${userId} for reason: ${reason} (Type: ${type})`);
+        const roundedAmount = Math.round(amount);
+        this.logger.log(`Deducting ${roundedAmount} balance from user ${userId} for reason: ${reason} (Type: ${type})`);
 
         const balance = await this.getBalance(userId);
 
-        if (balance < amount) {
+        if (balance < roundedAmount) {
             throw new BadRequestException('Insufficient balance');
         }
 
-        await this.userBalanceRepository.updateBalance(userId, -amount);
+        await this.userBalanceRepository.updateBalance(userId, -roundedAmount);
 
         // Log transaction history
         await this.prisma.balanceTransaction.create({
             data: {
                 userId,
-                amount: -amount,
+                amount: -roundedAmount,
                 type,
                 description: reason,
                 metadata,

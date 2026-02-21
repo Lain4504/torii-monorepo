@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SharedEmailService } from '@server/shared';
-import { SendEmailEvent, OrderSuccessEmailData, EnrollmentSuccessEmailData } from '../../infrastructure/events/email.event';
+import { SendEmailEvent, OrderSuccessEmailData, EnrollmentSuccessEmailData, RefundEmailData } from '../../infrastructure/events/email.event';
 import * as pug from 'pug';
 import * as path from 'path';
+import * as fs from 'fs';
 
 /**
  * Email Service
@@ -17,7 +18,25 @@ export class EmailService {
 
     private render(templateName: string, data: any): string {
         try {
-            const templatePath = path.join(this.templateDir, `${templateName}.pug`);
+            let templatePath = path.join(this.templateDir, `${templateName}.pug`);
+
+            // Handle monorepo structure mismatch: templates might be flattened in dist/modules/email
+            if (!fs.existsSync(templatePath)) {
+                this.logger.debug(`Template not found at ${templatePath}, trying fallback location...`);
+                // Try going up to dist/modules/email/templates/pug
+                const flattenedPath = path.join(__dirname, '../../../../email/templates/pug', `${templateName}.pug`);
+                if (fs.existsSync(flattenedPath)) {
+                    templatePath = flattenedPath;
+                } else {
+                    // Try one more: relative to process root if running from apps/server
+                    const rootPath = path.join(process.cwd(), 'dist/modules/email/templates/pug', `${templateName}.pug`);
+                    if (fs.existsSync(rootPath)) {
+                        templatePath = rootPath;
+                    }
+                }
+            }
+
+            this.logger.log(`Rendering template from: ${templatePath}`);
             return pug.renderFile(templatePath, data);
         } catch (error) {
             this.logger.error(`Failed to render template ${templateName}: ${error.message}`);
@@ -70,6 +89,10 @@ export class EmailService {
 
                 case 'invite':
                     await this.sendInviteEmail(to, data);
+                    break;
+
+                case 'refund_status':
+                    await this.sendRefundStatusEmail(to, data as RefundEmailData);
                     break;
 
 
@@ -217,6 +240,24 @@ export class EmailService {
         });
 
         this.logger.log(`Password reset confirmation email sent to: ${to}`);
+    }
+
+    /**
+     * Send refund status email
+     */
+    private async sendRefundStatusEmail(to: string | string[], data: RefundEmailData): Promise<void> {
+        const html = this.render('refund-status', data);
+        const subject = data.status === 'APPROVED'
+            ? '💰 Hoàn tiền thành công - Torii Nihongo'
+            : '❌ Thông báo kết quả yêu cầu hoàn tiền - Torii Nihongo';
+
+        await this.sharedEmailService.sendMail({
+            to,
+            subject,
+            html,
+        });
+
+        this.logger.log(`Refund status email (${data.status}) sent to: ${to}`);
     }
 }
 

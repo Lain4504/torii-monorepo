@@ -113,7 +113,7 @@ describe('LessonService', () => {
 
     describe('findOne', () => {
         it('nên trả về đầy đủ videoUrl nếu người dùng đã đăng ký học', async () => {
-            const lesson = { id: 'les-1', moduleId: 'mod-1', contentType: 'video', videoUrl: 'private-url', isPreview: false };
+            const lesson = { id: 'les-1', moduleId: 'mod-1', contentType: 'video', videoUrl: 'private-url', isPreview: false, isUnlocked: true };
             mockLessonRepository.findById.mockResolvedValue(lesson);
             mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
             mockEnrollmentService.isEnrolled.mockResolvedValue(true);
@@ -124,13 +124,37 @@ describe('LessonService', () => {
         });
 
         it('nên ẩn videoUrl nếu bài học không phải preview và người dùng chưa đăng ký học', async () => {
-            const lesson = { id: 'les-1', moduleId: 'mod-1', contentType: 'video', videoUrl: 'private-url', isPreview: false };
+            const lesson = { id: 'les-1', moduleId: 'mod-1', contentType: 'video', videoUrl: 'private-url', isPreview: false, isUnlocked: true };
             mockLessonRepository.findById.mockResolvedValue(lesson);
             mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
             mockEnrollmentService.isEnrolled.mockResolvedValue(false);
 
             const result = await service.findOne('les-1', 'user-stranger');
 
+            expect(result.videoUrl).toBeUndefined();
+        });
+
+        it('nên đồng nhất isUnlocked: false nếu người dùng chưa đăng ký học (Fix UI Inconsistency)', async () => {
+            const lesson = { id: 'les-1', moduleId: 'mod-1', contentType: 'video', videoUrl: 'private-url', isPreview: false, isUnlocked: true };
+            mockLessonRepository.findById.mockResolvedValue(lesson);
+            mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
+            mockEnrollmentService.isEnrolled.mockResolvedValue(false);
+
+            const result = await service.findOne('les-1', 'user-stranger');
+
+            expect(result.isUnlocked).toBe(false);
+            expect(result.videoUrl).toBeUndefined();
+        });
+
+        it('nên ẩn nội dung nếu bài học bị khóa bởi Admin (isUnlocked = false) ngay cả khi đã đăng ký', async () => {
+            const lesson = { id: 'les-1', moduleId: 'mod-1', contentType: 'video', videoUrl: 'private-url', isPreview: false, isUnlocked: false };
+            mockLessonRepository.findById.mockResolvedValue(lesson);
+            mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
+            mockEnrollmentService.isEnrolled.mockResolvedValue(true);
+
+            const result = await service.findOne('les-1', 'user-student');
+
+            expect(result.isUnlocked).toBe(false);
             expect(result.videoUrl).toBeUndefined();
         });
     });
