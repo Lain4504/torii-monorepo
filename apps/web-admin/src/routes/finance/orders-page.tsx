@@ -75,6 +75,8 @@ export default function OrdersPage() {
       case OrderStatus.CANCELLED:
       case OrderStatus.TIMED_OUT:
         return 'bg-red-500/10 text-red-600 border-red-500/20';
+      case OrderStatus.REFUNDED:
+        return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
       default:
         return 'bg-muted/10 text-muted-foreground border-border/20';
     }
@@ -93,6 +95,8 @@ export default function OrdersPage() {
         return 'Đã hủy';
       case OrderStatus.TIMED_OUT:
         return 'Hết hạn';
+      case OrderStatus.REFUNDED:
+        return 'Hoàn tiền';
       default:
         return status;
     }

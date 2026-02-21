@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update text labels to Vietnamese for consistency across multiple components">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/create-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/create-blog-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/edit-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/edit-blog-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/create-coupon-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/create-coupon-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/edit-coupon-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/edit-coupon-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-course-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/edit-course-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/create-lesson-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/create-lesson-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/edit-lesson-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/edit-lesson-sheet.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: enhance order management with additional fields and update API methods for improved data handling">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/flashcards/[deckId]/manage/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/flashcards/[deckId]/manage/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -397,54 +391,6 @@
       <workItem from="1771674736995" duration="351000" />
       <workItem from="1771676906109" duration="338000" />
     </task>
-    <task id="LOCAL-00797" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770025873317</created>
-      <option name="number" value="00797" />
-      <option name="presentableId" value="LOCAL-00797" />
-      <option name="project" value="LOCAL" />
-      <updated>1770025873317</updated>
-    </task>
-    <task id="LOCAL-00798" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770026258039</created>
-      <option name="number" value="00798" />
-      <option name="presentableId" value="LOCAL-00798" />
-      <option name="project" value="LOCAL" />
-      <updated>1770026258039</updated>
-    </task>
-    <task id="LOCAL-00799" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770026807672</created>
-      <option name="number" value="00799" />
-      <option name="presentableId" value="LOCAL-00799" />
-      <option name="project" value="LOCAL" />
-      <updated>1770026807672</updated>
-    </task>
-    <task id="LOCAL-00800" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770027944883</created>
-      <option name="number" value="00800" />
-      <option name="presentableId" value="LOCAL-00800" />
-      <option name="project" value="LOCAL" />
-      <updated>1770027944883</updated>
-    </task>
-    <task id="LOCAL-00801" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770028340509</created>
-      <option name="number" value="00801" />
-      <option name="presentableId" value="LOCAL-00801" />
-      <option name="project" value="LOCAL" />
-      <updated>1770028340509</updated>
-    </task>
-    <task id="LOCAL-00802" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770029412966</created>
-      <option name="number" value="00802" />
-      <option name="presentableId" value="LOCAL-00802" />
-      <option name="project" value="LOCAL" />
-      <updated>1770029412966</updated>
-    </task>
     <task id="LOCAL-00803" summary="fix bug#2">
       <option name="closed" value="true" />
       <created>1770032880601</created>
@@ -789,7 +735,55 @@
       <option name="project" value="LOCAL" />
       <updated>1771691235973</updated>
     </task>
-    <option name="localTasksCounter" value="846" />
+    <task id="LOCAL-00846" summary="refactor: update button styles and labels for consistency across multiple sheets">
+      <option name="closed" value="true" />
+      <created>1771691864181</created>
+      <option name="number" value="00846" />
+      <option name="presentableId" value="LOCAL-00846" />
+      <option name="project" value="LOCAL" />
+      <updated>1771691864182</updated>
+    </task>
+    <task id="LOCAL-00847" summary="refactor: update button styles and labels for consistency across multiple sheets">
+      <option name="closed" value="true" />
+      <created>1771692003490</created>
+      <option name="number" value="00847" />
+      <option name="presentableId" value="LOCAL-00847" />
+      <option name="project" value="LOCAL" />
+      <updated>1771692003490</updated>
+    </task>
+    <task id="LOCAL-00848" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
+      <option name="closed" value="true" />
+      <created>1771692669428</created>
+      <option name="number" value="00848" />
+      <option name="presentableId" value="LOCAL-00848" />
+      <option name="project" value="LOCAL" />
+      <updated>1771692669428</updated>
+    </task>
+    <task id="LOCAL-00849" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
+      <option name="closed" value="true" />
+      <created>1771693019683</created>
+      <option name="number" value="00849" />
+      <option name="presentableId" value="LOCAL-00849" />
+      <option name="project" value="LOCAL" />
+      <updated>1771693019684</updated>
+    </task>
+    <task id="LOCAL-00850" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
+      <option name="closed" value="true" />
+      <created>1771693198458</created>
+      <option name="number" value="00850" />
+      <option name="presentableId" value="LOCAL-00850" />
+      <option name="project" value="LOCAL" />
+      <updated>1771693198458</updated>
+    </task>
+    <task id="LOCAL-00851" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
+      <option name="closed" value="true" />
+      <created>1771693324764</created>
+      <option name="number" value="00851" />
+      <option name="presentableId" value="LOCAL-00851" />
+      <option name="project" value="LOCAL" />
+      <updated>1771693324764</updated>
+    </task>
+    <option name="localTasksCounter" value="852" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -824,8 +818,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update meet client logic" />
-    <MESSAGE value="fix bug" />
     <MESSAGE value="fix bug#2" />
     <MESSAGE value="update NATS logic and improve error handling" />
     <MESSAGE value="update config" />
@@ -849,7 +841,9 @@
     <MESSAGE value="refactor: update container widths and improve layout consistency across multiple sections" />
     <MESSAGE value="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency" />
     <MESSAGE value="refactor: update text labels to Vietnamese for consistency across multiple components" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update text labels to Vietnamese for consistency across multiple components" />
+    <MESSAGE value="refactor: update button styles and labels for consistency across multiple sheets" />
+    <MESSAGE value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

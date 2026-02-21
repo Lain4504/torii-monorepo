@@ -14,7 +14,8 @@ import {
     XCircle,
     AlertCircle,
     Receipt,
-    ExternalLink
+    ExternalLink,
+    RotateCcw
 } from 'lucide-react';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
@@ -57,9 +58,15 @@ export function OrderDetailSheet({
             case OrderStatus.CANCELLED:
             case OrderStatus.TIMED_OUT:
                 return {
-                    label: status === OrderStatus.CANCELLED ? 'Đã hủy' : 'Thất bại',
+                    label: status === OrderStatus.CANCELLED ? 'Đã hủy' : status === OrderStatus.TIMED_OUT ? 'Hết hạn' : 'Thất bại',
                     variant: 'destructive' as const,
                     icon: XCircle
+                };
+            case OrderStatus.REFUNDED:
+                return {
+                    label: 'Hoàn tiền',
+                    variant: 'outline' as const,
+                    icon: RotateCcw
                 };
             default:
                 return {

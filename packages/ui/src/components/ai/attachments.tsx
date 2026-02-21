@@ -474,7 +474,7 @@ export default function AttachmentsDemo() {
           <span className="text-muted-foreground text-xs">Full details with media type</span>
         </div>
         <Attachments variant="list">
-          {[imageAttachments[0], ...mixedAttachments.slice(0, 2)].map(attachment => (
+          {[imageAttachments[0], ...mixedAttachments.slice(0, 2)].filter((a): a is AttachmentData => !!a).map(attachment => (
             <Attachment
               key={attachment.id}
               data={attachment}
