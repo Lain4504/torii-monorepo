@@ -6,7 +6,8 @@ import { Can } from "@/lib/guard/can";
 import { useQuestionPools } from "@/api/services/question-pools.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { Plus } from 'lucide-react';
+import { Plus, TriangleAlert } from 'lucide-react';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import { CreateQuestionPoolDialog } from '@/components/question-pools/create-question-pool-dialog.tsx';
 import { EditQuestionPoolDialog } from '@/components/question-pools/edit-question-pool-dialog.tsx';
 import { DeleteQuestionPoolDialog } from '@/components/question-pools/delete-question-pool-dialog.tsx';
@@ -50,24 +51,19 @@ export default function QuestionPoolsPage() {
 
     if (error) {
         return (
-            <div className="flex h-[450px] items-center justify-center p-8">
-                <div className="max-w-md w-full">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                        <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
-                            <Plus className="size-6 rotate-45" />
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="text-lg font-semibold">Thông báo hệ thống</h3>
-                            <p className="text-sm text-muted-foreground">{error.message}</p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            onClick={() => window.location.reload()}
-                        >
-                            Thử kết nối lại
-                        </Button>
-                    </div>
-                </div>
+            <div className="rounded-xl border bg-card">
+                <Empty>
+                    <EmptyMedia className="bg-destructive/10 text-destructive">
+                        <TriangleAlert className="size-6" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Có lỗi xảy ra</EmptyTitle>
+                        <EmptyDescription>{error.message}</EmptyDescription>
+                    </EmptyContent>
+                    <Button variant="outline" className="mt-2" onClick={() => window.location.reload()}>
+                        Thử lại
+                    </Button>
+                </Empty>
             </div>
         );
     }

@@ -130,17 +130,13 @@ export default function RoomsPage() {
           {isLoadingActive ? (
             <PageLoading text="Đang tải danh sách phòng..." />
           ) : activeRooms?.length === 0 ? (
-            <div className="flex h-[450px] items-center justify-center p-8">
-              <div className="max-w-md w-full">
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
-                    <WifiOff className="size-6" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold">Không có phòng hoạt động</h3>
-                    <p className="text-sm text-muted-foreground">Các phòng học live sẽ xuất hiện ở đây khi có buổi học đang diễn ra.</p>
-                  </div>
-                </div>
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                <WifiOff className="size-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold">Không có phòng hoạt động</h3>
+                <p className="text-sm text-muted-foreground">Các phòng học live sẽ xuất hiện ở đây khi có buổi học đang diễn ra.</p>
               </div>
             </div>
           ) : (
@@ -217,17 +213,13 @@ export default function RoomsPage() {
           {isLoadingPast ? (
             <PageLoading text="Đang tải lịch sử phòng..." />
           ) : pastRoomsData?.roomsList?.length === 0 ? (
-            <div className="flex h-[450px] items-center justify-center p-8">
-              <div className="max-w-md w-full">
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
-                    <Archive className="size-6" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold">Chưa có lịch sử phòng học</h3>
-                    <p className="text-sm text-muted-foreground">Lịch sử các buổi học đã kết thúc sẽ được lưu trữ tại đây.</p>
-                  </div>
-                </div>
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                <Archive className="size-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold">Chưa có lịch sử phòng học</h3>
+                <p className="text-sm text-muted-foreground">Lịch sử các buổi học đã kết thúc sẽ được lưu trữ tại đây.</p>
               </div>
             </div>
           ) : (

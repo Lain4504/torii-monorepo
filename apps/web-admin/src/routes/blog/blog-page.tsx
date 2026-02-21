@@ -11,9 +11,10 @@ import { Button } from '@workspace/ui/components/button';
 import { useBlogs } from "@/api/services/blog.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { Plus } from 'lucide-react';
+import { Plus, TriangleAlert } from 'lucide-react';
 
 import { PageHeader } from '@/components/common/page-header';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 export function BlogPage() {
     const [page, setPage] = useState(1);
@@ -47,24 +48,19 @@ export function BlogPage() {
 
     if (error) {
         return (
-            <div className="flex h-[450px] items-center justify-center p-8">
-                <div className="max-w-md w-full">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                        <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
-                            <Plus className="size-6 rotate-45" />
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="text-lg font-semibold">Thông báo Hệ thống</h3>
-                            <p className="text-sm text-muted-foreground">{error.message}</p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            onClick={() => window.location.reload()}
-                        >
-                            Thử kết nối lại
-                        </Button>
-                    </div>
-                </div>
+            <div className="rounded-xl border bg-card">
+                <Empty>
+                    <EmptyMedia className="bg-destructive/10 text-destructive">
+                        <TriangleAlert className="size-6" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Có lỗi xảy ra</EmptyTitle>
+                        <EmptyDescription>{error.message}</EmptyDescription>
+                    </EmptyContent>
+                    <Button variant="outline" className="mt-2" onClick={() => window.location.reload()}>
+                        Thử lại
+                    </Button>
+                </Empty>
             </div>
         );
     }
@@ -90,8 +86,8 @@ export function BlogPage() {
                         onClick={() => setShowCreateDialog(true)}
                         size="lg"
                     >
-                        Tạo bài viết mới
                         <Plus />
+                        Tạo bài viết mới
                     </Button>
                 }
             />

@@ -384,9 +384,9 @@ export function AuditLogsPage() {
                                     </TableRow>
                                 ))
                             ) : !data?.data?.length ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-64 text-center">
-                                        <div className="flex flex-col items-center justify-center p-12 space-y-4">
+                                <TableRow className="hover:bg-transparent">
+                                    <TableCell colSpan={5} className="py-20 text-center">
+                                        <div className="flex flex-col items-center justify-center gap-4">
                                             <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
                                                 <ShieldAlert className="size-6" />
                                             </div>

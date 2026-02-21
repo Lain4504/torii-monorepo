@@ -17,7 +17,7 @@ import { usePermissions } from "@/hooks/use-permissions.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { toast } from '@workspace/ui/components/sonner';
-import { Plus } from 'lucide-react';
+import { Plus, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 
 export default function CoursesPage() {
@@ -86,7 +86,7 @@ export default function CoursesPage() {
         <div className="max-w-md w-full">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
-              <Plus className="size-6 rotate-45" />
+              <ShieldAlert className="size-6" />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Thông báo hệ thống</h3>

@@ -1,5 +1,5 @@
 import { Input } from '@workspace/ui/components/input';
-import { Search, Layers, ArrowUpDown } from 'lucide-react';
+import { Search, Layers, Sparkles, SlidersHorizontal } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -32,19 +32,19 @@ export function BlogPrimaryToolbar({
     onSortChange,
 }: BlogPrimaryToolbarProps) {
     return (
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
             {/* Search Input */}
-            <div className="relative flex-1 max-w-md group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
+            <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     placeholder="Tìm kiếm theo tiêu đề..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-10 pl-9 rounded-xl bg-background border-border/50 hover:bg-accent/5 focus-visible:ring-primary/20 transition-all text-sm"
+                    className="pl-9"
                 />
             </div>
 
-            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 {/* Status Filter */}
                 <Select
                     value={statusFilter || 'all'}
@@ -52,43 +52,40 @@ export function BlogPrimaryToolbar({
                         onStatusFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-10 w-full md:w-[150px] rounded-xl border-border/50 bg-background hover:bg-accent/5 transition-all text-sm font-medium focus:ring-primary/20">
+                    <SelectTrigger className="w-full sm:w-[160px]">
                         <div className="flex items-center gap-2">
-                            <Layers className="size-4 opacity-50" />
+                            <Layers className="size-3.5 text-muted-foreground" />
                             <SelectValue placeholder="Trạng thái" />
                         </div>
                     </SelectTrigger>
-                    <SelectContent className="border-border/50 shadow-lg bg-background/95 backdrop-blur-xl rounded-xl p-1">
-                        <SelectItem value="all" className="rounded-lg cursor-pointer">Tất cả</SelectItem>
-                        <SelectItem value="draft" className="rounded-lg cursor-pointer">Bản nháp</SelectItem>
-                        <SelectItem value="published" className="rounded-lg cursor-pointer">Đã xuất bản</SelectItem>
-                        <SelectItem value="archived" className="rounded-lg cursor-pointer">Đã lưu trữ</SelectItem>
+                    <SelectContent>
+                        <SelectItem value="all">Tất cả</SelectItem>
+                        <SelectItem value="draft">Bản nháp</SelectItem>
+                        <SelectItem value="published">Đã xuất bản</SelectItem>
+                        <SelectItem value="archived">Đã lưu trữ</SelectItem>
                     </SelectContent>
                 </Select>
 
                 {/* Sort Dropdown */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="h-10 w-full md:w-[150px] justify-start rounded-xl border-border/50 bg-background hover:bg-accent/5 transition-all text-sm font-medium focus:ring-primary/20">
-                            <div className="flex items-center gap-2">
-                                <ArrowUpDown className="size-4 opacity-50" />
-                                <span className="hidden sm:inline">Sắp xếp</span>
-                                <span className="sm:hidden">Sắp xếp</span>
-                            </div>
+                        <Button variant="outline" className="gap-2">
+                            <SlidersHorizontal className="size-4 text-muted-foreground" />
+                            <span>Sắp xếp</span>
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 border-border/50 shadow-lg bg-background/95 backdrop-blur-xl rounded-xl p-1">
+                    <DropdownMenuContent align="end" className="w-52">
                         <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={() => onSortChange('publishedAt', 'desc')} className="rounded-lg cursor-pointer">
-                                Mới nhất
+                            <DropdownMenuItem onClick={() => onSortChange('publishedAt', 'desc')} className="flex justify-between">
+                                Mới nhất <Sparkles className="size-3 text-amber-500" />
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('publishedAt', 'asc')} className="rounded-lg cursor-pointer">
+                            <DropdownMenuItem onClick={() => onSortChange('publishedAt', 'asc')}>
                                 Cũ nhất
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('title', 'asc')} className="rounded-lg cursor-pointer">
+                            <DropdownMenuItem onClick={() => onSortChange('title', 'asc')}>
                                 Tiêu đề (A-Z)
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onSortChange('viewCount', 'desc')} className="rounded-lg cursor-pointer">
+                            <DropdownMenuItem onClick={() => onSortChange('viewCount', 'desc')}>
                                 Lượt xem nhiều nhất
                             </DropdownMenuItem>
                         </DropdownMenuGroup>

@@ -6,12 +6,8 @@ import { Button } from "@workspace/ui/components/button";
 import {
   ChevronLeft,
   Clock,
-  ArrowUpRight,
   AlertCircle
 } from "lucide-react";
-import {
-  Card
-} from "@workspace/ui/components/card";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { Badge } from "@workspace/ui/components/badge";
 import {
@@ -61,9 +57,14 @@ export default function SubmissionsPage() {
 
   if (!assignment) {
     return (
-      <div className="p-6 flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <AlertCircle className="size-12 text-rose-500" />
-        <h2 className="text-xl font-bold uppercase tracking-tighter italic">Không tìm thấy bài tập</h2>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
+        <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
+          <AlertCircle className="size-6" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold">Không tìm thấy bài tập</h2>
+          <p className="text-sm text-muted-foreground">Bài tập bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
+        </div>
         <Button onClick={() => navigate("/assignments")} variant="outline">
           Quay lại danh sách
         </Button>

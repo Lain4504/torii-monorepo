@@ -1,143 +1,94 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Sparkles, ArrowRight, ShieldCheck, ShieldAlert } from 'lucide-react';
-import { Button } from '@workspace/ui/components/button';
-import { useTimeout } from '@workspace/ui/hooks/use-timeout';
-import { useAppDispatch } from '@/hooks/hooks';
-import { fetchProfile } from '@/store/slices/authSlice';
-import { Spinner } from '@workspace/ui/components/spinner';
-import { useVerifyEmail } from '@/apis/services/auth-api';
+import { useEffect, useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { ShieldCheck, ShieldAlert } from 'lucide-react'
+import { Button } from '@workspace/ui/components/button'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { useTimeout } from '@workspace/ui/hooks/use-timeout'
+import { useAppDispatch } from '@/hooks/hooks'
+import { fetchProfile } from '@/store/slices/authSlice'
+import { useVerifyEmail } from '@/apis/services/auth-api'
 
 export function VerificationContent() {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const dispatch = useAppDispatch();
-    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-    const [message, setMessage] = useState('');
-    const [redirectDelay, setRedirectDelay] = useState<number | null>(null);
-    const { mutateAsync: verifyEmail } = useVerifyEmail();
+    const searchParams = useSearchParams()
+    const router = useRouter()
+    const dispatch = useAppDispatch()
+    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+    const [message, setMessage] = useState('')
+    const [redirectDelay, setRedirectDelay] = useState<number | null>(null)
+    const { mutateAsync: verifyEmail } = useVerifyEmail()
 
-    useTimeout(() => {
-        router.push('/');
-    }, redirectDelay);
+    useTimeout(() => { router.push('/') }, redirectDelay)
 
     useEffect(() => {
-        const token = searchParams.get('token');
+        const token = searchParams.get('token')
 
         if (!token) {
-            setStatus('error');
-            setMessage('Link xác thực không hợp lệ');
-            return;
+            setStatus('error')
+            setMessage('Link xác thực không hợp lệ')
+            return
         }
 
         const verifyToken = async () => {
             try {
-                const data = await verifyEmail(token);
-                // Smart Unwrap handled by apiClient, so data is the payload
-                // Wait, if verifyEmail returns { success: boolean... }, 
-                // and apiClient unwrap returns response.data...
-
-                // If backend returns { success: true, message: "..." } (StandardApiResponse<void>)
-                // apiClient unwrap: if 'data' in body -> returns body.data. 
-                // Does body HAVE 'data'? Usually success response might be { success: true, message: "..." } without 'data'.
-                // My interceptor implementation: if ('data' in body) response.data = body.data.
-                // If NO 'data' in body, response.data remains the BODY.
-
-                // So for { success: true, message: "..." }, data is the BODY. { success: true, message: "..." }
-                // So data.success works.
-
+                const data = await verifyEmail(token)
                 if (data.success) {
-                    setStatus('success');
-                    setMessage('Email đã được xác thực thành công!');
-
-                    await dispatch(fetchProfile());
-                    setRedirectDelay(3000);
+                    setStatus('success')
+                    setMessage('Email đã được xác thực thành công!')
+                    await dispatch(fetchProfile())
+                    setRedirectDelay(3000)
                 } else {
-                    setStatus('error');
-                    setMessage(data.message || 'Link xác thực không hợp lệ hoặc đã hết hạn');
+                    setStatus('error')
+                    setMessage(data.message || 'Link xác thực không hợp lệ hoặc đã hết hạn')
                 }
-            } catch (error) {
-                setStatus('error');
-                setMessage('Đã xảy ra lỗi khi xác thực. Vui lòng thử lại.');
+            } catch {
+                setStatus('error')
+                setMessage('Đã xảy ra lỗi khi xác thực. Vui lòng thử lại.')
             }
-        };
+        }
 
-        verifyToken();
+        verifyToken()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, dispatch, router]);
+    }, [searchParams, dispatch, router])
 
     if (status === 'loading') {
         return (
-            <div className="flex flex-col items-center justify-center space-y-8 py-16 text-center animate-in fade-in duration-500">
-                <Spinner className="h-14 w-14 text-primary" />
-                <div className="space-y-2">
-                    <h3 className="text-xl font-black uppercase tracking-tight italic">Đang <span className="text-primary not-italic">Xác thực...</span></h3>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 italic">Đang thiết lập kết nối bảo mật</p>
-                </div>
+            <div className="flex flex-col items-center justify-center gap-4 py-12">
+                <Spinner className="h-8 w-8 text-primary" />
+                <p className="text-sm text-muted-foreground">Đang xác thực...</p>
             </div>
-        );
+        )
     }
 
     if (status === 'success') {
         return (
-            <div className="flex flex-col items-center justify-center space-y-10 py-12 text-center animate-in fade-in zoom-in-95 duration-700">
-                <div className="relative group">
-                    <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full animate-pulse" />
-                    <div className="relative w-24 h-24 rounded-[1.5rem] bg-white shadow-xl shadow-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                        <ShieldCheck className="h-12 w-12 text-emerald-500" />
-                        <Sparkles className="absolute -top-3 -right-3 w-6 h-6 text-amber-500" />
-                    </div>
+            <div className="flex flex-col items-center text-center gap-4 py-8">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
+                    <ShieldCheck className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <div className="space-y-4">
-                    <h3 className="text-3xl font-black uppercase tracking-tight italic text-foreground">
-                        Kích hoạt <span className="text-emerald-500 not-italic italic">Thành công!</span>
-                    </h3>
-                    <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 max-w-sm">
-                        <p className="text-[11px] font-bold text-muted-foreground/80 leading-relaxed italic italic">
-                            Chào mừng bạn đến với cộng đồng Torii Nihongo. Tài khoản của bạn đã được xác minh toàn diện.
-                        </p>
-                    </div>
-                    <div className="pt-6 border-t border-border/20 flex flex-col items-center gap-4">
-                        <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/40">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Chuyển hướng sau 3 giây
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    // Error state
-    return (
-        <div className="flex flex-col items-center justify-center space-y-10 py-12 text-center animate-in fade-in zoom-in-95 duration-700">
-            <div className="relative group">
-                <div className="absolute inset-0 bg-destructive/10 blur-2xl rounded-full" />
-                <div className="relative w-24 h-24 rounded-[1.5rem] bg-white shadow-xl shadow-destructive/5 flex items-center justify-center border border-destructive/10">
-                    <ShieldAlert className="h-12 w-12 text-destructive" />
-                </div>
-            </div>
-            <div className="space-y-4">
-                <h3 className="text-3xl font-black uppercase tracking-tight italic text-foreground">
-                    Xác thực <span className="text-destructive not-italic italic">Thất bại</span>
-                </h3>
-                <div className="p-6 rounded-2xl bg-destructive/5 border border-destructive/10 max-w-sm">
-                    <p className="text-[11px] font-bold text-muted-foreground/80 leading-relaxed italic italic">
-                        {message}
+                <div className="space-y-1">
+                    <h3 className="font-semibold">Kích hoạt thành công!</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Chào mừng đến với Torii Nihongo. Đang chuyển hướng sau 3 giây...
                     </p>
                 </div>
-                <div className="pt-6 border-t border-border/20">
-                    <Button
-                        onClick={() => router.push('/')}
-                        className="w-full h-14 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 group"
-                    >
-                        Trở về trang chủ
-                        <ArrowRight className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                    </Button>
-                </div>
             </div>
+        )
+    }
+
+    return (
+        <div className="flex flex-col items-center text-center gap-4 py-8">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+                <ShieldAlert className="h-8 w-8 text-destructive" />
+            </div>
+            <div className="space-y-1">
+                <h3 className="font-semibold">Xác thực thất bại</h3>
+                <p className="text-sm text-muted-foreground">{message}</p>
+            </div>
+            <Button onClick={() => router.push('/')} variant="outline">
+                Trở về trang chủ
+            </Button>
         </div>
-    );
+    )
 }

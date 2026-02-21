@@ -21,14 +21,18 @@ interface TicketsTableProps {
     data: TicketResponseDTO[];
     isLoading?: boolean;
     onView: (ticket: TicketResponseDTO) => void;
+    page?: number;
+    limit?: number;
 }
 
 export function TicketsTable({
     data,
     isLoading,
     onView,
+    page = 1,
+    limit = 10,
 }: TicketsTableProps) {
-    const columns = getTicketsColumns(onView);
+    const columns = getTicketsColumns({ onView, page, limit });
 
     const table = useReactTable({
         data,

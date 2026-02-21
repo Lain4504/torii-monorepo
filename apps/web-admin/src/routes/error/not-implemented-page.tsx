@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
-import { ShieldAlert, ArrowLeft, Home } from "lucide-react"
+import { Wrench, ArrowLeft, Home } from "lucide-react"
 import {
     Empty,
     EmptyContent,
@@ -9,25 +9,25 @@ import {
     EmptyDescription,
 } from "@workspace/ui/components/empty"
 
-export default function AccessDeniedPage() {
+export default function NotImplementedPage() {
     const navigate = useNavigate()
     return (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] p-6">
             <Empty className="max-w-md border-none">
                 <EmptyMedia>
-                    <div className="size-16 flex items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
-                        <ShieldAlert className="size-8" />
+                    <div className="size-16 flex items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                        <Wrench className="size-8" />
                     </div>
                 </EmptyMedia>
                 <EmptyContent>
                     <div className="text-6xl font-black text-muted-foreground/10 select-none leading-none">
-                        403
+                        501
                     </div>
                     <EmptyTitle className="text-xl font-semibold">
-                        Truy cập bị từ chối
+                        Tính năng chưa hỗ trợ
                     </EmptyTitle>
                     <EmptyDescription>
-                        Tài khoản của bạn không có đủ quyền hạn để truy cập vào vùng dữ liệu này.
+                        Chức năng này đang trong quá trình phát triển và chưa được triển khai.
                     </EmptyDescription>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                         <Button variant="outline" onClick={() => navigate(-1)}>

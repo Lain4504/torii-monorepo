@@ -37,7 +37,7 @@ const WORKSPACES: Workspace[] = [
         plan: "Nihongo Pro",
         roles: ["*"],
         navItems: [
-            { labelKey: "common:sidebar.overview", items: mainNavItems }
+            { labelKey: "Tổng quan", items: mainNavItems }
         ]
     },
     {
@@ -47,7 +47,7 @@ const WORKSPACES: Workspace[] = [
         plan: "Enterprise Ops",
         roles: [UserRole.LECTURER, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF_SALES, UserRole.STAFF_FINANCE, UserRole.STAFF],
         navItems: [
-            { labelKey: "common:sidebar.management", items: managementNavItems }
+            { labelKey: "Vận hành", items: managementNavItems }
         ]
     },
     {
@@ -57,7 +57,7 @@ const WORKSPACES: Workspace[] = [
         plan: "System Config",
         roles: [UserRole.ADMIN, UserRole.STAFF_LMS],
         navItems: [
-            { labelKey: "common:sidebar.system", items: systemNavItems }
+            { labelKey: "Hệ thống", items: systemNavItems }
         ]
     },
 ];
@@ -89,9 +89,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 plan: "Enterprise",
                 roles: [UserRole.ADMIN],
                 navItems: [
-                    { labelKey: "common:sidebar.overview", items: filteredMainNavItems },
-                    { labelKey: "common:sidebar.management", items: managementNavItems },
-                    { labelKey: "common:sidebar.system", items: systemNavItems }
+                    { labelKey: "Tổng quan", items: filteredMainNavItems },
+                    { labelKey: "Vận hành", items: managementNavItems },
+                    { labelKey: "Hệ thống", items: systemNavItems }
                 ]
             }];
         }
@@ -105,8 +105,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 plan: "Staff Access",
                 roles: [userRole],
                 navItems: [
-                    { labelKey: "common:sidebar.overview", items: mainNavItems },
-                    { labelKey: "common:sidebar.management", items: managementNavItems },
+                    { labelKey: "Tổng quan", items: mainNavItems },
+                    { labelKey: "Vận hành", items: managementNavItems },
                 ]
             }];
         }

@@ -5,10 +5,11 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
+    AlertDialogMedia,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { Button } from '@workspace/ui/components/button';
-import { Loader2, Trash } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useDeleteCoupon } from "@/api/services/coupons";
 import { type CouponResponseDTO } from '@workspace/schemas';
@@ -38,42 +39,30 @@ export function DeleteCouponDialog({ open, onOpenChange, coupon }: DeleteCouponD
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="rounded-2xl border-border/50 shadow-2xl bg-background max-w-sm">
-                <AlertDialogHeader className="space-y-3">
-                    <div className="size-12 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0 text-rose-600 mb-2">
-                        <Trash className="size-6" />
-                    </div>
-                    <AlertDialogTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
-                        Xóa Coupon?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription className="text-muted-foreground/80 leading-relaxed font-medium">
-                        Bạn có chắc chắn muốn xóa mã giảm giá <span className="font-bold text-foreground font-mono">{coupon.code}</span> không?
-                        <br />
-                        <span className="text-xs mt-2 block opacity-70">
-                            Hành động này không thể hoàn tác nếu coupon chưa được sử dụng. Coupon đã sử dụng sẽ được lưu trữ.
-                        </span>
+            <AlertDialogContent size="sm">
+                <AlertDialogHeader>
+                    <AlertDialogMedia className="bg-destructive/10 text-destructive">
+                        <AlertTriangle />
+                    </AlertDialogMedia>
+                    <AlertDialogTitle>Xóa coupon</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Hành động này sẽ xóa vĩnh viễn mã giảm giá <span className="font-semibold text-foreground font-mono">{coupon.code}</span>. Thao tác này không thể hoàn tác nếu coupon chưa được sử dụng.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter className="mt-4">
-                    <AlertDialogCancel 
-                        className="rounded-xl h-10 px-6 text-xs font-bold uppercase tracking-wider"
-                        disabled={deleteMutation.isPending}
-                    >
-                        Hủy Bỏ
+
+                <AlertDialogFooter>
+                    <AlertDialogCancel asChild>
+                        <Button variant="outline" disabled={deleteMutation.isPending}>Hủy</Button>
                     </AlertDialogCancel>
-                    <Button 
+                    <Button
                         variant="destructive"
-                        className="rounded-xl h-10 px-6 text-xs font-bold uppercase tracking-wider bg-rose-600 hover:bg-rose-700 hover:shadow-lg hover:shadow-rose-600/20"
                         onClick={handleDelete}
                         disabled={deleteMutation.isPending}
                     >
                         {deleteMutation.isPending ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Đang xóa...
-                            </>
+                            <Loader2 className="size-4 animate-spin" />
                         ) : (
-                            'Xóa Ngay'
+                            "Xóa coupon"
                         )}
                     </Button>
                 </AlertDialogFooter>
