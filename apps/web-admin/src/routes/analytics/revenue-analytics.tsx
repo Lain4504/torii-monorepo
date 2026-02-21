@@ -6,6 +6,7 @@ import {
     CardTitle,
 } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
 import {
     DollarSign,
     TrendingUp,
@@ -58,10 +59,9 @@ export default function RevenueAnalytics() {
     const revenueByLevelData = overview?.revenueByLevel?.sort((a, b) => b.amount - a.amount) || []
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
-            {/* Header */}
+        <div className="flex flex-col gap-8">
             <PageHeader
-                title={<span>Phân tích <span className="text-emerald-500">Doanh thu</span></span>}
+                title="Phân tích Doanh thu"
                 subtitle="Theo dõi dòng tiền, tăng trưởng và hiệu suất kinh doanh trên từng phân khúc khóa học."
                 stats={[
                     { label: "Tổng doanh thu", value: formatCurrency(overview?.overview.totalRevenue || 0) },
@@ -69,20 +69,19 @@ export default function RevenueAnalytics() {
                 ]}
                 actions={
                     <>
-                        <Button variant="outline" className="h-10 px-4 rounded-xl border-border/40 font-bold uppercase text-[10px] tracking-widest hover:bg-muted/30 transition-all flex items-center gap-2">
-                            <Filter className="size-3.5" />
+                        <Button variant="outline">
+                            <Filter />
                             Lọc dữ liệu
                         </Button>
-                        <Button variant="outline" className="h-10 px-4 rounded-xl border-border/40 font-bold uppercase text-[10px] tracking-widest hover:bg-muted/30 transition-all flex items-center gap-2">
-                            <Download className="size-3.5" />
+                        <Button variant="outline">
+                            <Download />
                             Xuất báo cáo
                         </Button>
                         <Button
                             onClick={() => refetch()}
-                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
                         >
-                            <RefreshCw className="size-3.5" />
                             Làm mới
+                            <RefreshCw className={cn(isLoading && "animate-spin")} />
                         </Button>
                     </>
                 }
@@ -187,50 +186,45 @@ export default function RevenueAnalytics() {
             </div>
 
             {/* Recent Transactions Table */}
-            <Card className="rounded-2xl border-border/40 shadow-sm bg-card">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle className="text-lg font-bold uppercase tracking-tight">Giao dịch <span className="text-primary">Gần đây</span></CardTitle>
-                        <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Chi tiết các đơn hàng vừa hoàn thành</CardDescription>
-                    </div>
-                    <Button variant="ghost" className="text-[10px] font-bold uppercase text-muted-foreground hover:text-primary">Xem tất cả</Button>
-                </CardHeader>
-                <CardContent>
-                    <div className="relative overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="border-b border-border/40">
-                                    <th className="pb-4 text-[10px] font-bold uppercase text-muted-foreground/40 px-4">Đơn hàng</th>
-                                    <th className="pb-4 text-[10px] font-bold uppercase text-muted-foreground/40 px-4">Khách hàng</th>
-                                    <th className="pb-4 text-[10px] font-bold uppercase text-muted-foreground/40 px-4">Số tiền</th>
-                                    <th className="pb-4 text-[10px] font-bold uppercase text-muted-foreground/40 px-4">Thời gian</th>
-                                    <th className="pb-4 text-[10px] font-bold uppercase text-muted-foreground/40 px-4">Trạng thái</th>
+            <div className="rounded-xl border bg-card overflow-hidden">
+                <div className="p-6 border-b">
+                    <h3 className="text-lg font-semibold">Giao dịch Gần đây</h3>
+                    <p className="text-sm text-muted-foreground">Chi tiết các đơn hàng vừa hoàn thành</p>
+                </div>
+                <div className="relative overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="border-b bg-muted/30">
+                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Đơn hàng</th>
+                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Khách hàng</th>
+                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Số tiền</th>
+                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Thời gian</th>
+                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {overview?.recentSales.map((sale, i) => (
+                                <tr key={i} className="hover:bg-muted/30 transition-colors">
+                                    <td className="py-4 px-4">
+                                        <span className="text-xs font-mono font-medium">#{sale.id.slice(-8).toUpperCase()}</span>
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <div className="space-y-0.5">
+                                            <p className="text-sm font-semibold">{sale.userName}</p>
+                                            <p className="text-xs text-muted-foreground">{sale.userEmail}</p>
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-4 text-sm font-semibold">{formatCurrency(Number(sale.amount))}</td>
+                                    <td className="py-4 px-4 text-xs text-muted-foreground">{new Date(sale.date).toLocaleString('vi-VN')}</td>
+                                    <td className="py-4 px-4">
+                                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-none">Hoàn tất</Badge>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/20">
-                                {overview?.recentSales.map((sale, i) => (
-                                    <tr key={i} className="group hover:bg-muted/20 transition-colors">
-                                        <td className="py-4 px-4">
-                                            <span className="text-xs font-mono font-bold text-muted-foreground/60">#{sale.id.slice(-8).toUpperCase()}</span>
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            <div>
-                                                <p className="text-xs font-bold uppercase text-foreground">{sale.userName}</p>
-                                                <p className="text-[10px] text-muted-foreground/40 font-medium">{sale.userEmail}</p>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4 text-xs font-bold text-foreground">{formatCurrency(Number(sale.amount))}</td>
-                                        <td className="py-4 px-4 text-[10px] font-medium text-muted-foreground/60">{new Date(sale.date).toLocaleString('vi-VN')}</td>
-                                        <td className="py-4 px-4">
-                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider">Success</span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </CardContent>
-            </Card>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     )
 }

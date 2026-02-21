@@ -86,7 +86,7 @@ export default function RoomsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-700 pb-20">
+    <div className="flex flex-col gap-8">
       <PageHeader
         title="Quản lý Phòng học Live"
         subtitle="Theo dõi và quản lý tất cả các phòng học trực tuyến"
@@ -103,59 +103,59 @@ export default function RoomsPage() {
       />
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'active' | 'past')} className="space-y-6">
-        <TabsList className="h-12 p-1.5 rounded-2xl bg-muted/30 border border-border/40">
+        <TabsList>
           <TabsTrigger
             value="active"
-            className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="gap-2"
           >
-            <Wifi className="size-4 mr-2" />
+            <Wifi className="size-4" />
             Đang hoạt động
             {activeRooms && activeRooms.length > 0 && (
-              <Badge variant="destructive" className="ml-2 size-5 p-0 flex items-center justify-center rounded-full text-[9px] font-black animate-pulse">
+              <Badge variant="destructive" className="ml-1 size-5 p-0 flex items-center justify-center rounded-full text-[9px] font-bold">
                 {activeRooms.length}
               </Badge>
             )}
           </TabsTrigger>
           <TabsTrigger
             value="past"
-            className="rounded-xl h-9 px-6 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="gap-2"
           >
-            <Archive className="size-4 mr-2" />
+            <Archive className="size-4" />
             Lịch sử
           </TabsTrigger>
         </TabsList>
 
         {/* Active Rooms Tab */}
-        <TabsContent value="active" className="space-y-6">
+        <TabsContent value="active" className="space-y-4">
           {isLoadingActive ? (
             <PageLoading text="Đang tải danh sách phòng..." />
           ) : activeRooms?.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-20 text-center space-y-6 border-2 border-dashed border-border/40 rounded-3xl bg-muted/5">
-              <div className="p-6 rounded-full bg-muted/10">
-                <WifiOff className="size-16 text-muted-foreground/20" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-sans font-bold italic text-muted-foreground/50 uppercase tracking-tight">
-                  Không có phòng nào đang hoạt động
-                </h3>
-                <p className="text-sm text-muted-foreground/40 max-w-sm mx-auto">
-                  Các phòng học live sẽ xuất hiện ở đây khi có buổi học đang diễn ra.
-                </p>
+            <div className="flex h-[450px] items-center justify-center p-8">
+              <div className="max-w-md w-full">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                    <WifiOff className="size-6" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold">Không có phòng hoạt động</h3>
+                    <p className="text-sm text-muted-foreground">Các phòng học live sẽ xuất hiện ở đây khi có buổi học đang diễn ra.</p>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            <div className="rounded-xl border bg-card overflow-hidden">
               <Table>
-                <TableHeader className="bg-muted/30 border-b border-border">
-                  <TableRow className="hover:bg-transparent border-none">
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-12 border-r border-border/30 last:border-r-0">#</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Trạng thái</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Tên phòng</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Thời gian bắt đầu</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Đã chạy</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Số người tối đa</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Ghi hình</TableHead>
-                    <TableHead className="text-right h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Thao tác</TableHead>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Tên phòng</TableHead>
+                    <TableHead>Thời gian bắt đầu</TableHead>
+                    <TableHead>Đã chạy</TableHead>
+                    <TableHead>Số người tối đa</TableHead>
+                    <TableHead>Ghi hình</TableHead>
+                    <TableHead className="text-right">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -213,36 +213,36 @@ export default function RoomsPage() {
         </TabsContent>
 
         {/* Past Rooms Tab */}
-        <TabsContent value="past" className="space-y-6">
+        <TabsContent value="past" className="space-y-4">
           {isLoadingPast ? (
             <PageLoading text="Đang tải lịch sử phòng..." />
           ) : pastRoomsData?.roomsList?.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-20 text-center space-y-6 border-2 border-dashed border-border/40 rounded-3xl bg-muted/5">
-              <div className="p-6 rounded-full bg-muted/10">
-                <Archive className="size-16 text-muted-foreground/20" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-sans font-bold italic text-muted-foreground/50 uppercase tracking-tight">
-                  Chưa có lịch sử phòng học
-                </h3>
-                <p className="text-sm text-muted-foreground/40 max-w-sm mx-auto">
-                  Lịch sử các buổi học đã kết thúc sẽ được lưu trữ tại đây.
-                </p>
+            <div className="flex h-[450px] items-center justify-center p-8">
+              <div className="max-w-md w-full">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
+                    <Archive className="size-6" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold">Chưa có lịch sử phòng học</h3>
+                    <p className="text-sm text-muted-foreground">Lịch sử các buổi học đã kết thúc sẽ được lưu trữ tại đây.</p>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            <div className="rounded-xl border bg-card overflow-hidden">
               <Table>
-                <TableHeader className="bg-muted/30 border-b border-border">
-                  <TableRow className="hover:bg-transparent border-none">
-                    <TableHead className="w-12 h-11 px-4 border-r border-border/30 last:border-r-0">#</TableHead>
-                    <TableHead className="w-12 h-11 px-4 border-r border-border/30 last:border-r-0"></TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Tên phòng</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Ngày</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Thời lượng</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Người tham gia</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Recordings</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Analytics</TableHead>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead className="w-12"></TableHead>
+                    <TableHead>Tên phòng</TableHead>
+                    <TableHead>Ngày</TableHead>
+                    <TableHead>Thời lượng</TableHead>
+                    <TableHead>Người tham gia</TableHead>
+                    <TableHead>Recordings</TableHead>
+                    <TableHead>Analytics</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

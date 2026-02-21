@@ -49,10 +49,9 @@ export default function UserAnalytics() {
     if (isLoading) return <PageLoading />
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
-            {/* Header */}
+        <div className="flex flex-col gap-8">
             <PageHeader
-                title={<span>Phân tích <span className="text-purple-500">Học viên</span></span>}
+                title="Phân tích Học viên"
                 subtitle="Tìm hiểu chân dung học viên, tốc độ tăng trưởng và hành vi tương tác trên nền tảng."
                 stats={[
                     { label: "Tổng học viên", value: userStats?.roles.reduce((acc, curr) => acc + curr.count, 0).toLocaleString() || "0" },
@@ -61,10 +60,10 @@ export default function UserAnalytics() {
                 actions={
                     <Button
                         onClick={() => refetch()}
-                        className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
+                        size="lg"
                     >
-                        <RefreshCw className="size-3.5" />
                         Làm mới
+                        <RefreshCw className={cn(isLoading && "animate-spin")} />
                     </Button>
                 }
             />

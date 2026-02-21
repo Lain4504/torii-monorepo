@@ -398,29 +398,25 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full pb-20">
+    <div className="flex flex-col gap-8">
       <PageHeader
         title={`${getGreeting()}, ${user?.displayName?.split(' ')[0] || 'ADMIN'}`}
-        subtitle={
-          <span>
-            Bảng chỉ huy trung tâm Torii Admin • <span className="font-mono opacity-50">v4.2.0-stable</span>
-          </span>
-        }
+        subtitle={`Bảng chỉ huy trung tâm Torii Admin • v4.2.0-stable`}
         actions={
           <div className="flex items-center gap-3">
-            <div className="flex bg-muted/20 p-1.5 rounded-xl border border-border/40">
-              <Button variant="ghost" asChild className="h-8 px-4 rounded-lg font-bold text-xs hover:bg-background hover:shadow-sm transition-all shadow-none">
+            <div className="flex bg-muted p-1 rounded-xl border">
+              <Button variant="ghost" asChild size="sm">
                 <Link to="/analytics/revenue">Tài chính</Link>
               </Button>
-              <Button variant="ghost" asChild className="h-8 px-4 rounded-lg font-bold text-xs hover:bg-background hover:shadow-sm transition-all shadow-none">
+              <Button variant="ghost" asChild size="sm">
                 <Link to="/analytics/learning">Học tập</Link>
               </Button>
-              <Button variant="ghost" asChild className="h-8 px-4 rounded-lg font-bold text-xs hover:bg-background hover:shadow-sm transition-all shadow-none">
+              <Button variant="ghost" asChild size="sm">
                 <Link to="/analytics/users">Học viên</Link>
               </Button>
             </div>
-            <Button className="h-10 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-xs transition-all shadow-md">
-              <Zap className="size-3.5 mr-2" />
+            <Button size="lg" className="group">
+              <Zap className="size-4 mr-2" />
               Lệnh nhanh
             </Button>
           </div>
@@ -429,7 +425,7 @@ export default function DashboardPage() {
 
 
       <div className="relative">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -translate-y-10" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -translate-y-8" />
 
         {role === 'admin' && <AdminDashboard />}
         {(role === 'staff' || role?.startsWith('staff-')) && <StaffDashboard />}
@@ -437,10 +433,10 @@ export default function DashboardPage() {
 
         {!['admin', 'staff', 'lecturer'].includes(role || '') && !role?.startsWith('staff-') && (
           <div className="p-20 text-center space-y-4 bg-muted/10 rounded-xl border border-dashed border-border/40">
-            <ShieldAlert className="size-12 text-muted-foreground/30 mx-auto" strokeWidth={1.5} />
+            <ShieldAlert className="size-12 text-muted-foreground/30 mx-auto" />
             <div className="space-y-1">
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/40">Truy cập bị hạn chế</p>
-              <p className="text-base font-semibold text-foreground">Giao diện quản trị không khả dụng cho vai trò của bạn ({role}).</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">Truy cập bị hạn chế</p>
+              <p className="text-base font-semibold">Giao diện quản trị không khả dụng cho vai trò của bạn ({role}).</p>
             </div>
           </div>
         )}

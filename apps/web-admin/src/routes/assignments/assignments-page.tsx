@@ -10,7 +10,6 @@ import { EditAssignmentSheet } from "@/components/assignments/edit-assignment-sh
 
 import { PageHeader } from '@/components/common/page-header';
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { Card } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import {
@@ -91,10 +90,10 @@ export default function AssignmentsPage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700 pb-10">
+        <div className="flex flex-col gap-8">
             <PageHeader
-                title={<>Quản lý <span className="text-primary italic">Bài tập</span></>}
-                subtitle={<>Hệ sinh thái chương trình giảng dạy <span className="text-primary/60 font-medium font-sans italic tracking-wide">Torii Academy</span></>}
+                title="Quản lý Bài tập"
+                subtitle="Hệ sinh thái chương trình giảng dạy Torii Academy"
                 stats={[
                     { label: "Tổng số bài tập", value: totalStats.total },
                     { label: "Đã công bố", value: totalStats.published },
@@ -103,58 +102,51 @@ export default function AssignmentsPage() {
             />
 
             <div className="space-y-4">
-                {/* Toolbar */}
-                <Card className="bg-card p-4 rounded-xl border-border shadow-sm">
-                    <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
-                        {/* Search Input */}
-                        <div className="relative flex-1 group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                            <Input
-                                placeholder="Tìm kiếm bài tập theo tên..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="h-10 pl-9 rounded-lg border-border bg-background focus-visible:ring-primary/20 transition-all text-sm placeholder:text-muted-foreground/50"
-                            />
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                            <Select value={selectedCourseId} onValueChange={(val) => { setSelectedCourseId(val); setPage(1); }}>
-                                <SelectTrigger className="h-10 w-full lg:w-[350px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm overflow-hidden">
-                                    <div className="flex items-center gap-2 max-w-full overflow-hidden">
-                                        <BookOpen className="size-3.5 text-muted-foreground shrink-0" />
-                                        <div className="truncate text-left flex-1">
-                                            <SelectValue placeholder="Bộ lọc theo khóa học" />
-                                        </div>
-                                    </div>
-                                </SelectTrigger>
-                                <SelectContent className="border-border rounded-lg shadow-lg bg-background max-w-[400px]">
-                                    <SelectItem value="all" className="text-sm">Tất cả khóa học</SelectItem>
-                                    {coursesData?.data?.map(course => (
-                                        <SelectItem key={course.id} value={course.id} className="text-sm">
-                                            <span className="truncate">{course.title}</span>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </Card>
-
-                {/* Content Container */}
-                <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
-                    <div className="bg-card/20 backdrop-blur-sm">
-                        <AssignmentsTable
-                            data={assignmentsData?.data || []}
-                            isLoading={isLoading}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            onPublish={handlePublish}
-                            onViewSubmissions={handleViewSubmissions}
+                <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
+                    {/* Search Input */}
+                    <div className="relative flex-1 group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                        <Input
+                            placeholder="Tìm kiếm bài tập theo tên..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-9"
                         />
                     </div>
-                </Card>
 
-                {/* Pagination */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <Select value={selectedCourseId} onValueChange={(val) => { setSelectedCourseId(val); setPage(1); }}>
+                            <SelectTrigger className="w-full lg:w-[350px]">
+                                <div className="flex items-center gap-2 max-w-full overflow-hidden">
+                                    <BookOpen className="size-3.5 text-muted-foreground shrink-0" />
+                                    <div className="truncate text-left flex-1">
+                                        <SelectValue placeholder="Bộ lọc theo khóa học" />
+                                    </div>
+                                </div>
+                            </SelectTrigger>
+                            <SelectContent className="max-w-[400px]">
+                                <SelectItem value="all">Tất cả khóa học</SelectItem>
+                                {coursesData?.data?.map(course => (
+                                    <SelectItem key={course.id} value={course.id}>
+                                        <span className="truncate">{course.title}</span>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <div className="rounded-xl border bg-card overflow-hidden">
+                    <AssignmentsTable
+                        data={assignmentsData?.data || []}
+                        isLoading={isLoading}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onPublish={handlePublish}
+                        onViewSubmissions={handleViewSubmissions}
+                    />
+                </div>
+
                 <SmartPagination
                     page={page}
                     totalPages={assignmentsData?.totalPages || 0}

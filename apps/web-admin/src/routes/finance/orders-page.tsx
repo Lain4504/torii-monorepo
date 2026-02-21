@@ -16,7 +16,7 @@ import {
   Database,
   Globe,
   CalendarDays,
-  CreditCard, RotateCcw, ShieldCheck, TrendingUp, Activity, Search, User, Filter
+  CreditCard, RotateCcw, ShieldCheck, TrendingUp, Activity, Search, User
 } from 'lucide-react';
 import {
   Select,
@@ -112,18 +112,16 @@ export default function OrdersPage() {
           <Button
             onClick={loadPayments}
             disabled={isLoading}
-            size="lg"
-            className="group"
           >
+            <RotateCcw className={cn("mr-2 size-4", isLoading && "animate-spin")} />
             Làm mới
-            <RotateCcw className={cn("ml-2 size-4", isLoading && "animate-spin")} />
           </Button>
         }
       />
 
 
       {/* Stats Quick Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-1">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { label: 'Tổng doanh thu', value: '25.4M', sub: '+12% so với tháng trước', icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10' },
           { label: 'Trạng thái Hệ thống', value: 'Ổn định', sub: 'Độ trễ < 12ms', icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
@@ -132,15 +130,17 @@ export default function OrdersPage() {
           <div key={i}
             className="group p-6 rounded-xl border bg-card hover:border-primary/20 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <div className={cn("p-2.5 rounded-lg", stat.bg, stat.color)}>
-                <stat.icon className="size-5" />
+              <div className={cn("p-2 rounded-lg", stat.bg, stat.color)}>
+                <stat.icon className="size-4" />
               </div>
-              <div className="size-2 rounded-full bg-emerald-500" />
+              <div className="size-1.5 rounded-full bg-emerald-500" />
             </div>
-            <h3 className="text-xs text-muted-foreground font-medium mb-1">{stat.label}</h3>
-            <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-bold text-foreground leading-none">{stat.value}</p>
-              <span className="text-[10px] font-medium text-muted-foreground/60">{stat.sub}</span>
+            <div className="space-y-1">
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{stat.label}</h3>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                <p className="text-[10px] font-medium text-muted-foreground/40">{stat.sub}</p>
+              </div>
             </div>
           </div>
         ))}
@@ -151,38 +151,33 @@ export default function OrdersPage() {
         {/* Toolbar */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
             <Input
               placeholder="Tìm kiếm giao dịch (Mã đơn, Người dùng...)"
-              className="pl-9"
+              className="pl-10"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <Select
-              value={status}
-              onValueChange={(val) => {
-                setStatus(val);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-full md:w-[180px]">
-                <div className="flex items-center gap-2">
-                  <Filter className="size-3.5 opacity-50" />
-                  <SelectValue placeholder="Trạng thái" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                {Object.values(OrderStatus).map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {getStatusLabel(s)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            value={status}
+            onValueChange={(val) => {
+              setStatus(val);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-full md:w-[200px]">
+              <SelectValue placeholder="Trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              {Object.values(OrderStatus).map((s) => (
+                <SelectItem key={s} value={s}>
+                  {getStatusLabel(s)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Table */}

@@ -140,20 +140,20 @@ export function PermissionsPage() {
 
     if (rolesLoading || permsLoading || (roles && isAnyRolePermsLoading)) {
         return (
-            <div className="space-y-8 animate-in fade-in duration-700 pb-20 px-6">
+            <div className="flex flex-col gap-8">
                 <div className="space-y-4">
-                    <Skeleton className="h-10 w-64 bg-muted/30 rounded-xl" />
-                    <Skeleton className="h-5 w-96 bg-muted/20 rounded-lg" />
+                    <Skeleton className="h-10 w-64 rounded-xl" />
+                    <Skeleton className="h-5 w-96 rounded-lg" />
                 </div>
-                <div className="rounded-2xl border border-border/50 bg-muted/5 p-6 mt-8">
-                    <Skeleton className="h-[400px] w-full bg-muted/20 rounded-xl" />
+                <div className="rounded-xl border bg-card p-6">
+                    <Skeleton className="h-[400px] w-full rounded-xl" />
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 pb-40 px-6 max-w-full mx-auto">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Quản lý Quyền truy cập"
                 subtitle="Kiểm soát quyền truy cập chi tiết hệ thống"

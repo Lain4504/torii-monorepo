@@ -9,7 +9,6 @@ import { TicketsTable } from '@/components/tickets/tickets-table';
 import { TicketDetailSheet } from '@/components/tickets/ticket-detail-sheet';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
-import { Card } from "@workspace/ui/components/card";
 import { PageHeader } from '@/components/common/page-header';
 
 export default function TicketsPage() {
@@ -72,44 +71,37 @@ export default function TicketsPage() {
     };
 
     return (
-        <div className="flex flex-col gap-8 p-4 md:p-8 animate-in fade-in duration-700 pb-20 max-w-[1600px] mx-auto">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Yêu cầu & Hỗ trợ"
                 subtitle="Quản lý các ticket hỗ trợ kỹ thuật và hoàn tiền"
             />
 
-
             <div className="space-y-4">
-                {/* Toolbar */}
-                <Card className="p-4 rounded-xl border-border bg-card shadow-sm">
-                    <TicketsPrimaryToolbar
-                        search={search}
-                        onSearchChange={handleSearch}
-                        type={type}
-                        onTypeChange={(val) => handleFilterChange('type', val)}
-                        status={status}
-                        onStatusChange={(val) => handleFilterChange('status', val)}
-                    />
-                </Card>
+                <TicketsPrimaryToolbar
+                    search={search}
+                    onSearchChange={handleSearch}
+                    type={type}
+                    onTypeChange={(val) => handleFilterChange('type', val)}
+                    status={status}
+                    onStatusChange={(val) => handleFilterChange('status', val)}
+                />
 
-                {/* Table */}
-                <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <TicketsTable
                         data={tickets}
                         isLoading={isLoading}
                         onView={handleViewTicket}
                     />
 
-                    {/* Pagination */}
                     <SmartPagination
                         page={page}
                         totalPages={totalPages}
                         totalItems={data?.total || 0}
                         onPageChange={handlePageChange}
                         itemName="yêu cầu"
-                        className="border-t border-border bg-muted/5 px-6 py-4"
                     />
-                </Card>
+                </div>
             </div>
 
             {/* Ticket Detail Detail Detail Sheet */}

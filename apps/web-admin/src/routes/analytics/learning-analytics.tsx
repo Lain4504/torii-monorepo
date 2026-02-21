@@ -47,10 +47,9 @@ export default function LearningAnalytics() {
     })) || []
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
-            {/* Header */}
+        <div className="flex flex-col gap-8">
             <PageHeader
-                title={<span>Phân tích <span className="text-blue-500">Nội dung</span></span>}
+                title="Phân tích Nội dung"
                 subtitle="Đánh giá chất lượng bài giảng, tỷ lệ hoàn thành và mức độ tương tác của học viên với chương trình học."
                 stats={[
                     { label: "Hoàn thành TB", value: `${(courseStats?.averageCompletion || 0).toFixed(1)}%` },
@@ -59,10 +58,10 @@ export default function LearningAnalytics() {
                 actions={
                     <Button
                         onClick={() => refetchCourse()}
-                        className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all flex items-center gap-2"
+                        size="lg"
                     >
-                        <RefreshCw className="size-3.5" />
                         Làm mới
+                        <RefreshCw className={cn(isCourseLoading && "animate-spin")} />
                     </Button>
                 }
             />

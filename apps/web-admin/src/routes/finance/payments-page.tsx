@@ -125,11 +125,9 @@ export default function TransactionsPage() {
                     <Button
                         onClick={loadTransactions}
                         disabled={isLoading}
-                        size="lg"
-                        className="group"
                     >
+                        <RotateCcw className={cn("mr-2 size-4", isLoading && "animate-spin")} />
                         Cập nhật Nhật ký
-                        <RotateCcw className={cn("ml-2 size-4", isLoading && "animate-spin")} />
                     </Button>
                 }
             />
@@ -170,11 +168,11 @@ export default function TransactionsPage() {
                                     </TableRow>
                                 ))
                             ) : transactions.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-[400px] text-center">
+                                <TableRow className="hover:bg-transparent">
+                                    <TableCell colSpan={5} className="py-20">
                                         <Empty>
                                             <EmptyMedia>
-                                                <Info className="size-8 text-muted-foreground" />
+                                                <Info className="size-6" />
                                             </EmptyMedia>
                                             <EmptyContent>
                                                 <EmptyTitle>Không tìm thấy nhật ký giao dịch</EmptyTitle>

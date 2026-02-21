@@ -93,7 +93,7 @@ export default function CouponsPage() {
     };
 
     return (
-        <div className="flex flex-col gap-8 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Mã Giảm Giá"
                 subtitle="Quản lý các chương trình khuyến mãi và mã giảm giá cho khóa học."
@@ -101,10 +101,10 @@ export default function CouponsPage() {
                     <Can permission="coupon.manage">
                         <Button
                             onClick={handleCreate}
-                            className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
+                            size="lg"
                         >
-                            <Plus className="mr-2 size-4" />
                             Tạo Coupon Mới
+                            <Plus />
                         </Button>
                     </Can>
                 }
@@ -121,7 +121,7 @@ export default function CouponsPage() {
                 />
 
                 {/* Table */}
-                <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+                <div className="rounded-xl border bg-card overflow-hidden">
                     <CouponsTable
                         data={coupons}
                         isLoading={isLoading}
@@ -138,7 +138,6 @@ export default function CouponsPage() {
                         totalItems={data?.total || 0}
                         onPageChange={handlePageChange}
                         itemName="mã giảm giá"
-                        className="border-t border-border bg-muted/5 px-6 py-4"
                     />
                 </div>
             </div>
