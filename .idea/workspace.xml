@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/flashcards/[deckId]/manage/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/flashcards/[deckId]/manage/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/styles/globals.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -391,22 +391,6 @@
       <workItem from="1771674736995" duration="351000" />
       <workItem from="1771676906109" duration="338000" />
     </task>
-    <task id="LOCAL-00803" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770032880601</created>
-      <option name="number" value="00803" />
-      <option name="presentableId" value="LOCAL-00803" />
-      <option name="project" value="LOCAL" />
-      <updated>1770032880602</updated>
-    </task>
-    <task id="LOCAL-00804" summary="update NATS logic and improve error handling">
-      <option name="closed" value="true" />
-      <created>1770036968372</created>
-      <option name="number" value="00804" />
-      <option name="presentableId" value="LOCAL-00804" />
-      <option name="project" value="LOCAL" />
-      <updated>1770036968372</updated>
-    </task>
     <task id="LOCAL-00805" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
       <created>1770037557852</created>
@@ -783,7 +767,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771693324764</updated>
     </task>
-    <option name="localTasksCounter" value="852" />
+    <task id="LOCAL-00852" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
+      <option name="closed" value="true" />
+      <created>1771693548937</created>
+      <option name="number" value="00852" />
+      <option name="presentableId" value="LOCAL-00852" />
+      <option name="project" value="LOCAL" />
+      <updated>1771693548937</updated>
+    </task>
+    <task id="LOCAL-00853" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
+      <option name="closed" value="true" />
+      <created>1771693927384</created>
+      <option name="number" value="00853" />
+      <option name="presentableId" value="LOCAL-00853" />
+      <option name="project" value="LOCAL" />
+      <updated>1771693927384</updated>
+    </task>
+    <option name="localTasksCounter" value="854" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
