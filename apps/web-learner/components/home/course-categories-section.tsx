@@ -51,7 +51,7 @@ const jlptLevels = [
 export function CourseCategoriesSection() {
     return (
         <section className="py-20 border-t bg-background">
-            <div className="container mx-auto px-4">
+            <div className="container max-w-6xl mx-auto px-4">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                     <div className="space-y-3">
                         <p className="text-sm font-semibold text-primary">Lộ trình học tập</p>

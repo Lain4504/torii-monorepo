@@ -14,7 +14,7 @@ import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
 import RevenueAnalytics from '@/routes/analytics/revenue-analytics.tsx'
 import LearningAnalytics from '@/routes/analytics/learning-analytics.tsx'
 import UserAnalytics from '@/routes/analytics/user-analytics.tsx'
-import ReportsPage from '@/routes/analytics/reports-page.tsx'
+
 import LearnersPage from '@/routes/users/learners-page.tsx'
 import PersonnelPage from '@/routes/users/personnel-page.tsx'
 import CouponsPage from '@/routes/coupons/coupons-page.tsx'
@@ -114,7 +114,7 @@ function App() {
                     <Route path="analytics/revenue" element={<RevenueAnalytics />} />
                     <Route path="analytics/learning" element={<LearningAnalytics />} />
                     <Route path="analytics/users" element={<UserAnalytics />} />
-                    <Route path="analytics/reports" element={<ReportsPage />} />
+
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="course.manage" />}>
@@ -139,7 +139,7 @@ function App() {
                 </Route>
               </Routes>
             </BrowserRouter>
-            <Toaster position="top-right" />
+            <Toaster position="top-center" />
           </TooltipProvider>
         </QueryClientProvider>
       </ThemeProvider>

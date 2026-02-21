@@ -1,3 +1,5 @@
+import { useState } from "react"
+import { toast } from "sonner"
 import {
     Card,
     CardContent,
@@ -7,6 +9,16 @@ import {
 } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
+import { Input } from "@workspace/ui/components/input"
+import { Label } from "@workspace/ui/components/label"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@workspace/ui/components/dialog"
 import {
     DollarSign,
     TrendingUp,
@@ -16,9 +28,11 @@ import {
     ArrowDownRight,
     Filter,
     Download,
+    Loader2,
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "../../api/services/analytics"
+import { reportApi } from "../../api/services/reports"
 import {
     AreaChart,
     Area,
@@ -43,7 +57,7 @@ import { PageHeader } from "@/components/common/page-header"
 const revenueChartConfig = {
     total: {
         label: "Doanh thu",
-        color: "hsl(var(--primary))",
+        color: "var(--primary)",
     },
 } satisfies ChartConfig
 
@@ -73,10 +87,7 @@ export default function RevenueAnalytics() {
                             <Filter />
                             Lọc dữ liệu
                         </Button>
-                        <Button variant="outline">
-                            <Download />
-                            Xuất báo cáo
-                        </Button>
+                        <ExportReportDialog />
                         <Button
                             onClick={() => refetch()}
                         >
@@ -136,15 +147,15 @@ export default function RevenueAnalytics() {
                             <AreaChart data={overview?.growthData || []}>
                                 <defs>
                                     <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} />
                                 <YAxis axisLine={false} tickLine={false} fontSize={10} tickFormatter={(val) => `${val / 1000000}M`} />
                                 <ChartTooltip content={<ChartTooltipContent />} />
-                                <Area type="monotone" dataKey="total" stroke="hsl(var(--primary))" strokeWidth={3} fill="url(#revenueGradient)" />
+                                <Area type="monotone" dataKey="total" stroke="var(--primary)" strokeWidth={3} fill="url(#revenueGradient)" />
                             </AreaChart>
                         </ChartContainer>
                     </CardContent>
@@ -176,7 +187,7 @@ export default function RevenueAnalytics() {
                                 />
                                 <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={30}>
                                     {revenueByLevelData.map((_, index) => (
-                                        <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${(index % 5) + 1}))`} />
+                                        <Cell key={`cell-${index}`} fill={`var(--chart-${(index % 5) + 1})`} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -255,5 +266,113 @@ function RevenueCard({ title, value, sub, icon: Icon, trend, trendUp, inverseCol
                 </div>
             </CardContent>
         </Card>
+    )
+}
+
+function ExportReportDialog() {
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [isExporting, setIsExporting] = useState<string | null>(null);
+    const [open, setOpen] = useState(false);
+
+    const handleExport = async (type: "orders" | "balance" | "revenue") => {
+        try {
+            setIsExporting(type);
+            toast.info(`Đang tạo báo cáo ${type === 'orders' ? 'đơn hàng' : type === 'balance' ? 'biến động số dư' : 'doanh thu'}...`);
+            await reportApi.exportReport(type, startDate, endDate);
+            toast.success("Xuất báo cáo thành công!");
+            setOpen(false);
+        } catch (error) {
+            console.error("Export failed:", error);
+            toast.error("Xuất báo cáo thất bại. Vui lòng thử lại sau.");
+        } finally {
+            setIsExporting(null);
+        }
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline">
+                    <Download />
+                    Xuất báo cáo
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle className="uppercase tracking-widest text-lg font-bold">Xuất báo cáo</DialogTitle>
+                    <DialogDescription className="text-xs">
+                        Chọn khoảng thời gian và loại báo cáo để xuất dưới dạng tập tin Excel phục vụ đối soát và quản trị.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="start-date" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-0.5">Từ ngày</Label>
+                            <Input
+                                id="start-date"
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="end-date" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-0.5">Đến ngày</Label>
+                            <Input
+                                id="end-date"
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2 mt-2">
+                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block ml-0.5">Loại báo cáo</Label>
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start h-auto p-4 gap-4"
+                            onClick={() => handleExport("revenue")}
+                            disabled={!!isExporting}
+                        >
+                            <div className="bg-amber-500/10 text-amber-500 p-2 rounded-lg shrink-0">
+                                {isExporting === "revenue" ? <Loader2 className="size-4 animate-spin" /> : <TrendingUp className="size-4" />}
+                            </div>
+                            <div className="flex flex-col items-start gap-1 text-left">
+                                <span className="font-bold">Báo cáo Doanh thu</span>
+                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Thống kê hiệu suất bán khóa học và doanh thu quy đổi.</span>
+                            </div>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start h-auto p-4 gap-4"
+                            onClick={() => handleExport("orders")}
+                            disabled={!!isExporting}
+                        >
+                            <div className="bg-emerald-500/10 text-emerald-500 p-2 rounded-lg shrink-0">
+                                {isExporting === "orders" ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />}
+                            </div>
+                            <div className="flex flex-col items-start gap-1 text-left">
+                                <span className="font-bold">Nhật ký Đơn hàng</span>
+                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Chi tiết các giao dịch thanh toán thành công.</span>
+                            </div>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start h-auto p-4 gap-4"
+                            onClick={() => handleExport("balance")}
+                            disabled={!!isExporting}
+                        >
+                            <div className="bg-blue-500/10 text-blue-500 p-2 rounded-lg shrink-0">
+                                {isExporting === "balance" ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
+                            </div>
+                            <div className="flex flex-col items-start gap-1 text-left">
+                                <span className="font-bold">Biến động Số dư</span>
+                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Lịch sử nạp, trừ và hoàn trả coin của học viên.</span>
+                            </div>
+                        </Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }

@@ -154,7 +154,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-[600px] overflow-y-auto bg-background/95 backdrop-blur-xl border-l border-border/40">
+            <SheetContent className="sm:max-w-[800px] overflow-y-auto bg-background/95 backdrop-blur-xl border-l border-border/40">
                 <SheetHeader className="pb-6 border-b border-border/20">
                     <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight">
                         Lịch dạy <span className="text-primary not-italic">Cố định</span>

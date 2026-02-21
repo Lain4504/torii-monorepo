@@ -365,6 +365,7 @@ export function AuditLogsPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="w-12 text-center text-xs font-semibold text-muted-foreground">#</TableHead>
                                 <TableHead>Thời gian</TableHead>
                                 <TableHead>Người dùng</TableHead>
                                 <TableHead>Hành động</TableHead>
@@ -376,6 +377,7 @@ export function AuditLogsPage() {
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, index) => (
                                     <TableRow key={index}>
+                                        <TableCell><Skeleton className="h-4 w-4 mx-auto" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                                         <TableCell><Skeleton className="h-5 w-20" /></TableCell>
@@ -385,7 +387,7 @@ export function AuditLogsPage() {
                                 ))
                             ) : !data?.data?.length ? (
                                 <TableRow className="hover:bg-transparent">
-                                    <TableCell colSpan={5} className="py-20 text-center">
+                                    <TableCell colSpan={6} className="py-20 text-center">
                                         <div className="flex flex-col items-center justify-center gap-4">
                                             <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
                                                 <ShieldAlert className="size-6" />
@@ -398,8 +400,11 @@ export function AuditLogsPage() {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                (data?.data || []).map((log: AuditLog) => (
+                                (data?.data || []).map((log: AuditLog, index: number) => (
                                     <TableRow key={log.id} className="hover:bg-muted/30 transition-colors group">
+                                        <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                                            {(page - 1) * 10 + index + 1}
+                                        </TableCell>
                                         <TableCell className="text-xs font-mono text-muted-foreground">
                                             {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
                                         </TableCell>

@@ -65,7 +65,7 @@ export function TestimonialsSection() {
 
     return (
         <section className="py-20 border-t bg-muted/30">
-            <div className="container mx-auto px-4">
+            <div className="container max-w-6xl mx-auto px-4">
                 <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
                     <p className="text-sm font-semibold text-primary">Câu chuyện thành công</p>
                     <h2 className="text-3xl font-bold tracking-tight">

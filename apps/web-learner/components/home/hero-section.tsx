@@ -3,12 +3,13 @@
 import { ArrowRight, Brain, CheckCircle2, Star, Users, BookOpen } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Separator } from '@workspace/ui/components/separator'
 
 export function HeroSection() {
     return (
         <section className="py-20 lg:py-28 bg-background">
-            <div className="container mx-auto px-4">
+            <div className="container max-w-6xl mx-auto px-4">
                 <div className="grid lg:grid-cols-2 gap-16 items-center">
                     {/* Left - Content */}
                     <div className="space-y-8">
@@ -76,24 +77,31 @@ export function HeroSection() {
                         </div>
                     </div>
 
-                    {/* Right - Visual Cards */}
-                    <div className="relative hidden lg:grid grid-cols-2 gap-4">
-                        {[
-                            { icon: BookOpen, label: 'Khóa học', value: '50+ Chuyên sâu', color: 'text-amber-600', bg: 'bg-amber-500/10' },
-                            { icon: Brain, label: 'AI Sensei', value: 'Hỗ trợ 24/7', color: 'text-primary', bg: 'bg-primary/10' },
-                            { icon: CheckCircle2, label: 'Đỗ JLPT N2', value: 'Tỷ lệ 94%', color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
-                            { icon: Users, label: 'Cộng đồng', value: '50K+ học viên', color: 'text-blue-600', bg: 'bg-blue-500/10' },
-                        ].map((item, i) => (
-                            <div key={i} className="p-5 rounded-xl border bg-card flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-lg ${item.bg} flex items-center justify-center shrink-0`}>
-                                    <item.icon className={`w-5 h-5 ${item.color}`} />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-muted-foreground">{item.label}</p>
-                                    <p className="text-sm font-semibold">{item.value}</p>
-                                </div>
-                            </div>
-                        ))}
+                    {/* Right - Mascot Image */}
+                    <div className="relative hidden lg:flex justify-center items-center">
+                        {/* Decorative glow elements */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary/20 rounded-full blur-[100px] dark:bg-primary/30" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-purple-500/20 rounded-full blur-[80px] dark:bg-purple-600/30" />
+
+                        <div
+                            className="relative w-full max-w-[500px] aspect-square"
+                            style={{ animation: 'float 6s ease-in-out infinite' }}
+                        >
+                            <style>{`
+                                @keyframes float {
+                                    0% { transform: translateY(0px); }
+                                    50% { transform: translateY(-20px); }
+                                    100% { transform: translateY(0px); }
+                                }
+                            `}</style>
+                            <Image
+                                src="/mascot.png"
+                                alt="Astronaut Mascot"
+                                fill
+                                className="object-contain drop-shadow-2xl dark:drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                                priority
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

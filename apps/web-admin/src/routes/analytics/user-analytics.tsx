@@ -39,7 +39,7 @@ import { PageHeader } from "@/components/common/page-header"
 const userChartConfig = {
     count: {
         label: "Học viên",
-        color: "hsl(var(--chart-2))",
+        color: "var(--chart-2)",
     },
 } satisfies ChartConfig
 
@@ -115,15 +115,15 @@ export default function UserAnalytics() {
                             <AreaChart data={userStats?.monthlyGrowth || []}>
                                 <defs>
                                     <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} />
                                 <YAxis axisLine={false} tickLine={false} fontSize={10} />
                                 <ChartTooltip content={<ChartTooltipContent />} />
-                                <Area type="monotone" dataKey="count" stroke="hsl(var(--chart-2))" strokeWidth={3} fill="url(#growthGradient)" />
+                                <Area type="monotone" dataKey="count" stroke="var(--chart-2)" strokeWidth={3} fill="url(#growthGradient)" />
                             </AreaChart>
                         </ChartContainer>
                     </CardContent>
@@ -170,7 +170,7 @@ export default function UserAnalytics() {
                     <CardContent className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={userStats?.activityTrends || []}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
                                 <XAxis dataKey="date" axisLine={false} tickLine={false} fontSize={10} tickFormatter={(val) => val.split('-').slice(1).join('/')} />
                                 <YAxis axisLine={false} tickLine={false} fontSize={10} />
                                 <Tooltip
@@ -186,7 +186,7 @@ export default function UserAnalytics() {
                                         return null
                                     }}
                                 />
-                                <Area type="stepAfter" dataKey="count" stroke="hsl(var(--chart-2))" strokeWidth={2} fill="hsl(var(--chart-2))" fillOpacity={0.05} />
+                                <Area type="stepAfter" dataKey="count" stroke="var(--chart-2)" strokeWidth={2} fill="var(--chart-2)" fillOpacity={0.05} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </CardContent>

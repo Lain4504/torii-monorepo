@@ -43,7 +43,7 @@ export default function LearningAnalytics() {
     const enrollmentStatusData = courseStats?.enrollmentByStatus?.map(item => ({
         name: item.status === 'completed' ? 'Hoàn thành' : item.status === 'in_progress' ? 'Đang học' : 'Bỏ dở',
         value: item.count,
-        color: item.status === 'completed' ? 'hsl(var(--primary))' : item.status === 'in_progress' ? 'hsl(var(--chart-2))' : 'hsl(var(--muted))'
+        color: item.status === 'completed' ? 'var(--primary)' : item.status === 'in_progress' ? 'var(--chart-2)' : 'var(--muted)'
     })) || []
 
     return (
@@ -196,11 +196,11 @@ export default function LearningAnalytics() {
                 <CardContent className="h-[350px] pt-8">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={courseStats?.statsByLevel || []}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
                             <XAxis dataKey="level" axisLine={false} tickLine={false} fontSize={10} />
                             <YAxis axisLine={false} tickLine={false} fontSize={10} />
                             <Tooltip
-                                cursor={{ fill: 'hsl(var(--muted))', opacity: 0.1 }}
+                                cursor={{ fill: 'var(--muted)', opacity: 0.1 }}
                                 content={({ active, payload }) => {
                                     if (active && payload && payload.length) {
                                         return (
@@ -215,7 +215,7 @@ export default function LearningAnalytics() {
                             />
                             <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={50}>
                                 {(courseStats?.statsByLevel || []).map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${(index % 5) + 1}))`} />
+                                    <Cell key={`cell-${index}`} fill={`var(--chart-${(index % 5) + 1})`} />
                                 ))}
                             </Bar>
                         </BarChart>

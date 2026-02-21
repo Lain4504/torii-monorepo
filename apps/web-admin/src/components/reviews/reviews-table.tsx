@@ -28,11 +28,11 @@ export function ReviewsTable({ data, isLoading, onView, page = 1, limit = 10 }: 
             <Table className="border-collapse min-w-[1000px] bg-transparent">
                 <TableHeader className="bg-muted/30 border-b border-border">
                     <TableRow className="border-b border-border/50 hover:bg-transparent">
-                        <TableHead className="w-12 h-11 text-xs font-semibold text-muted-foreground px-4 text-center border-r border-border/30">#</TableHead>
-                        <TableHead className="w-[220px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30">Người dùng</TableHead>
-                        <TableHead className="w-[250px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30">Khóa học</TableHead>
-                        <TableHead className="w-[140px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30">Đánh giá</TableHead>
-                        <TableHead className="w-[160px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 border-r border-border/30">Ngày</TableHead>
+                        <TableHead className="w-12 h-11 text-xs font-semibold text-muted-foreground px-4 text-center">#</TableHead>
+                        <TableHead className="w-[220px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Người dùng</TableHead>
+                        <TableHead className="w-[250px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Khóa học</TableHead>
+                        <TableHead className="w-[140px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Đánh giá</TableHead>
+                        <TableHead className="w-[160px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Ngày</TableHead>
                         <TableHead className="w-[100px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right">Chi tiết</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -65,10 +65,10 @@ export function ReviewsTable({ data, isLoading, onView, page = 1, limit = 10 }: 
                     ) : (
                         data.map((review: any, index: number) => (
                             <TableRow key={review.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
-                                <TableCell className="py-4 px-4 text-center font-medium text-muted-foreground/60 tabular-nums text-xs border-r border-border/10">
+                                <TableCell className="py-4 px-4 text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
                                     {(page - 1) * limit + index + 1}
                                 </TableCell>
-                                <TableCell className="py-4 px-6 border-r border-border/10">
+                                <TableCell className="py-4 px-6">
                                     <div className="flex items-center gap-3">
                                         <Avatar className="h-9 w-9 rounded-lg border border-border/40 bg-muted/20">
                                             <AvatarImage src={review.user.avatarUrl} />
@@ -82,12 +82,12 @@ export function ReviewsTable({ data, isLoading, onView, page = 1, limit = 10 }: 
                                         </div>
                                     </div>
                                 </TableCell>
-                                <TableCell className="py-4 px-6 border-r border-border/10">
+                                <TableCell className="py-4 px-6">
                                     <span className="text-sm font-medium text-foreground/80 truncate max-w-[220px] block font-sans italic" title={review.courseTitle || review.courseId}>
                                         {review.courseTitle || review.courseId}
                                     </span>
                                 </TableCell>
-                                <TableCell className="py-4 px-6 border-r border-border/10">
+                                <TableCell className="py-4 px-6">
                                     <div className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-amber-500/5 border border-amber-500/10 w-fit">
                                         {Array.from({ length: 5 }).map((_, i) => (
                                             <Star
@@ -98,7 +98,7 @@ export function ReviewsTable({ data, isLoading, onView, page = 1, limit = 10 }: 
                                         <span className="ml-1.5 text-[10px] font-black text-amber-600/80 tabular-nums tracking-tighter">{review.rating}.0</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="py-4 px-6 border-r border-border/10">
+                                <TableCell className="py-4 px-6">
                                     <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">
                                         {formatDateTime(review.createdAt)}
                                     </span>

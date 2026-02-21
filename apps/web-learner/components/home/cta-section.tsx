@@ -8,7 +8,7 @@ const perks = ['Đăng ký trong 30s', 'Hỗ trợ 24/7', 'Chứng chỉ quốc 
 export function CTASection() {
     return (
         <section className="py-20 border-t bg-muted/30">
-            <div className="container mx-auto px-4">
+            <div className="container max-w-6xl mx-auto px-4">
                 <div className="rounded-xl border bg-foreground text-background p-10 md:p-14 text-center">
                     <p className="text-sm font-semibold text-primary mb-3">Đặc quyền học viên</p>
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
