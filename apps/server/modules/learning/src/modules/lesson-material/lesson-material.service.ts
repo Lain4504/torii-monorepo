@@ -113,8 +113,7 @@ export class LessonMaterialService implements ILessonMaterialService {
         // Staff/Admin bypass
         if (requester && (
             this.hasPermission(requester, 'lesson.create') ||
-            this.hasPermission(requester, 'lesson.update') ||
-            this.hasPermission(requester, 'blog.manage')
+            this.hasPermission(requester, 'lesson.update')
         )) {
             return;
         }

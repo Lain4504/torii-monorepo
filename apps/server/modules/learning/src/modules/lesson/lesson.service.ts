@@ -188,8 +188,7 @@ export class LessonService implements ILessonService {
 
     const isStaff = requester && (
       this.hasPermission(requester, 'lesson.create') ||
-      this.hasPermission(requester, 'lesson.update') ||
-      this.hasPermission(requester, 'blog.manage')
+      this.hasPermission(requester, 'lesson.update')
     );
 
     // Staff/Admin: return full content
@@ -223,8 +222,7 @@ export class LessonService implements ILessonService {
   async findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]> {
     const isStaff = requester && (
       this.hasPermission(requester, 'lesson.create') ||
-      this.hasPermission(requester, 'lesson.update') ||
-      this.hasPermission(requester, 'blog.manage')
+      this.hasPermission(requester, 'lesson.update')
     );
 
     const lessons = await this.lessonRepository.findByModuleId(moduleId, !!isStaff);
