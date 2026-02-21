@@ -1,30 +1,11 @@
 "use client"
 
-import type { ToolUIPart } from "ai"
-import { CheckIcon, GlobeIcon, MicIcon } from "lucide-react"
+import { useCallback, useState, useMemo } from "react"
 import { nanoid } from "nanoid"
-import { useCallback, useState } from "react"
 import { toast } from "sonner"
-/**
- * @title React AI Chatbot
- * @credit {"name": "Vercel", "url": "https://ai-sdk.dev/elements", "license": {"name": "Apache License 2.0", "url": "https://www.apache.org/licenses/LICENSE-2.0"}}
- * @description React AI chatbot component showcasing a complete chat interface with messages, model selection, and prompt input
- * @opening A full-featured AI chatbot interface combining all the essential components—conversation history with branching message versions, model selector dropdown, prompt input with attachments and tools, streaming responses, and suggestion chips. This demo shows how to wire together Message, Conversation, PromptInput, ModelSelector, Reasoning, and Sources into a cohesive chat experience. Great as a starting point for building your own AI assistant interface.
- * @related [
- *   {"href":"/ai/conversation","title":"React AI Conversation","description":"Chat container with scroll"},
- *   {"href":"/ai/message","title":"React AI Message","description":"Chat message bubbles"},
- *   {"href":"/ai/prompt-input","title":"React AI Prompt Input","description":"Message composition"},
- *   {"href":"/ai/model-selector","title":"React AI Model Selector","description":"LLM model picker"},
- *   {"href":"/ai/reasoning","title":"React AI Reasoning","description":"Thinking process display"},
- *   {"href":"/ai/sources","title":"React AI Sources","description":"Citation display"}
- * ]
- * @questions [
- *   {"id":"chatbot-components","title":"What components does this combine?","answer":"Conversation, Message (with branching), PromptInput (with attachments), ModelSelector, Reasoning, Sources, and Suggestions. It's a comprehensive demo of all chat-related components working together."},
- *   {"id":"chatbot-streaming","title":"How does streaming work?","answer":"The demo simulates streaming by adding words one at a time with delays. In production, you'd use the AI SDK's streaming response and update message content as chunks arrive."},
- *   {"id":"chatbot-branching","title":"What is message branching?","answer":"Users can have multiple versions of a message (like regenerating a response). MessageBranch handles switching between versions with prev/next buttons."},
- *   {"id":"chatbot-customization","title":"How do I customize this?","answer":"Replace the mock data and responses with your actual AI integration. The component structure is modular—swap out ModelSelector providers, add more tools to PromptInput, customize message rendering."}
- * ]
- */
+import { CheckIcon, GlobeIcon, MicIcon } from "lucide-react"
+import { agentApi } from "@/apis/services/agent-api"
+
 import {
     Attachment,
     AttachmentPreview,
@@ -80,14 +61,16 @@ import { Reasoning, ReasoningContent, ReasoningTrigger } from "@workspace/ui/com
 import { Source, Sources, SourcesContent, SourcesTrigger } from "@workspace/ui/components/ai/sources"
 import { Suggestion, Suggestions } from "@workspace/ui/components/ai/suggestion"
 
+interface MessageVersion {
+    id: string
+    content: string
+}
+
 interface MessageType {
     key: string
-    from: "user" | "assistant"
+    from: "user" | "assistant" | "system"
     sources?: { href: string; title: string }[]
-    versions: {
-        id: string
-        content: string
-    }[]
+    versions: MessageVersion[]
     reasoning?: {
         content: string
         duration: number
@@ -95,167 +78,21 @@ interface MessageType {
     tools?: {
         name: string
         description: string
-        status: ToolUIPart["state"]
+        status: "inactive" | "running" | "result" | "error"
         parameters: Record<string, unknown>
         result: string | undefined
         error: string | undefined
     }[]
 }
 
-const initialMessages: MessageType[] = [
-    {
-        key: nanoid(),
-        from: "user",
-        versions: [
-            {
-                id: nanoid(),
-                content: "Can you explain how to use React hooks effectively?",
-            },
-        ],
-    },
-    {
-        key: nanoid(),
-        from: "assistant",
-        sources: [
-            {
-                href: "https://react.dev/reference/react",
-                title: "React Documentation",
-            },
-            {
-                href: "https://react.dev/reference/react-dom",
-                title: "React DOM Documentation",
-            },
-        ],
-        versions: [
-            {
-                id: nanoid(),
-                content: `# React Hooks Best Practices
-
-React hooks are a powerful feature that let you use state and other React features without writing classes. Here are some tips for using them effectively:
-
-## Rules of Hooks
-
-1. **Only call hooks at the top level** of your component or custom hooks
-2. **Don't call hooks inside loops, conditions, or nested functions**
-
-## Common Hooks
-
-- **useState**: For local component state
-- **useEffect**: For side effects like data fetching
-- **useContext**: For consuming context
-- **useReducer**: For complex state logic
-- **useCallback**: For memoizing functions
-- **useMemo**: For memoizing values
-
-## Example of useState and useEffect
-
-\`\`\`jsx
-function ProfilePage({ userId }) {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    // This runs after render and when userId changes
-    fetchUser(userId).then(userData => {
-      setUser(userData);
-    });
-  }, [userId]);
-
-  return user ? <Profile user={user} /> : <Loading />;
-}
-\`\`\`
-
-Would you like me to explain any specific hook in more detail?`,
-            },
-        ],
-    },
-    {
-        key: nanoid(),
-        from: "user",
-        versions: [
-            {
-                id: nanoid(),
-                content:
-                    "Yes, could you explain useCallback and useMemo in more detail? When should I use one over the other?",
-            },
-            {
-                id: nanoid(),
-                content:
-                    "I'm particularly interested in understanding the performance implications of useCallback and useMemo. Could you break down when each is most appropriate?",
-            },
-            {
-                id: nanoid(),
-                content:
-                    "Thanks for the overview! Could you dive deeper into the specific use cases where useCallback and useMemo make the biggest difference in React applications?",
-            },
-        ],
-    },
-    {
-        key: nanoid(),
-        from: "assistant",
-        reasoning: {
-            content: `The user is asking for a detailed explanation of useCallback and useMemo. I should provide a clear and concise explanation of each hook's purpose and how they differ.
-
-The useCallback hook is used to memoize functions to prevent unnecessary re-renders of child components that receive functions as props.
-
-The useMemo hook is used to memoize values to avoid expensive recalculations on every render.
-
-Both hooks help with performance optimization, but they serve different purposes.`,
-            duration: 10,
-        },
-        versions: [
-            {
-                id: nanoid(),
-                content: `## useCallback vs useMemo
-
-Both hooks help with performance optimization, but they serve different purposes:
-
-### useCallback
-
-\`useCallback\` memoizes **functions** to prevent unnecessary re-renders of child components that receive functions as props.
-
-\`\`\`jsx
-// Without useCallback - a new function is created on every render
-const handleClick = () => {
-  console.log(count);
-};
-
-// With useCallback - the function is only recreated when dependencies change
-const handleClick = useCallback(() => {
-  console.log(count);
-}, [count]);
-\`\`\`
-
-### useMemo
-
-\`useMemo\` memoizes **values** to avoid expensive recalculations on every render.
-
-\`\`\`jsx
-// Without useMemo - expensive calculation runs on every render
-const sortedList = expensiveSort(items);
-
-// With useMemo - calculation only runs when items change
-const sortedList = useMemo(() => expensiveSort(items), [items]);
-\`\`\`
-
-### When to use which?
-
-- Use **useCallback** when:
-  - Passing callbacks to optimized child components that rely on reference equality
-  - Working with event handlers that you pass to child components
-
-- Use **useMemo** when:
-  - You have computationally expensive calculations
-  - You want to avoid recreating objects that are used as dependencies for other hooks
-
-### Performance Note
-
-Don't overuse these hooks! They come with their own overhead. Only use them when you have identified a genuine performance issue.`,
-            },
-        ],
-    },
-]
-
 const models = [
+    {
+        id: "gemini-2.0-flash",
+        name: "Gemini 2.0 Flash",
+        chef: "Google",
+        chefSlug: "google",
+        providers: ["google"],
+    },
     {
         id: "gpt-4o",
         name: "GPT-4o",
@@ -264,52 +101,12 @@ const models = [
         providers: ["openai", "azure"],
     },
     {
-        id: "gpt-4o-mini",
-        name: "GPT-4o Mini",
-        chef: "OpenAI",
-        chefSlug: "openai",
-        providers: ["openai", "azure"],
-    },
-    {
-        id: "claude-opus-4-20250514",
-        name: "Claude 4 Opus",
+        id: "claude-3-5-sonnet",
+        name: "Claude 3.5 Sonnet",
         chef: "Anthropic",
         chefSlug: "anthropic",
-        providers: ["anthropic", "azure", "google", "amazon-bedrock"],
+        providers: ["anthropic"],
     },
-    {
-        id: "claude-sonnet-4-20250514",
-        name: "Claude 4 Sonnet",
-        chef: "Anthropic",
-        chefSlug: "anthropic",
-        providers: ["anthropic", "azure", "google", "amazon-bedrock"],
-    },
-    {
-        id: "gemini-2.0-flash-exp",
-        name: "Gemini 2.0 Flash",
-        chef: "Google",
-        chefSlug: "google",
-        providers: ["google"],
-    },
-]
-
-const suggestions = [
-    "What are the latest trends in AI?",
-    "How does machine learning work?",
-    "Explain quantum computing",
-    "Best practices for React development",
-    "Tell me about TypeScript benefits",
-    "How to optimize database queries?",
-    "What is the difference between SQL and NoSQL?",
-    "Explain cloud computing basics",
-]
-
-const mockResponses = [
-    "That's a great question! Let me help you understand this concept better. The key thing to remember is that proper implementation requires careful consideration of the underlying principles and best practices in the field.",
-    "I'd be happy to explain this topic in detail. From my understanding, there are several important factors to consider when approaching this problem. Let me break it down step by step for you.",
-    "This is an interesting topic that comes up frequently. The solution typically involves understanding the core concepts and applying them in the right context. Here's what I recommend...",
-    "Great choice of topic! This is something that many developers encounter. The approach I'd suggest is to start with the fundamentals and then build up to more complex scenarios.",
-    "That's definitely worth exploring. From what I can see, the best way to handle this is to consider both the theoretical aspects and practical implementation details.",
 ]
 
 const PromptInputAttachmentsDisplay = () => {
@@ -335,135 +132,146 @@ const PromptInputAttachmentsDisplay = () => {
     )
 }
 
-export function ChatbotDemo() {
+export function AiChatBot() {
     const [model, setModel] = useState<string>(models[0].id)
     const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
     const [text, setText] = useState<string>("")
     const [useWebSearch, setUseWebSearch] = useState<boolean>(false)
     const [useMicrophone, setUseMicrophone] = useState<boolean>(false)
     const [status, setStatus] = useState<"submitted" | "streaming" | "ready" | "error">("ready")
-    const [messages, setMessages] = useState<MessageType[]>(initialMessages)
-    const [_streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
 
-    const selectedModelData = models.find(m => m.id === model)
+    const [messages, setMessages] = useState<MessageType[]>([
+        {
+            key: "welcome",
+            from: "assistant",
+            versions: [
+                {
+                    id: "welcome-v1",
+                    content: "Konnichiwa! Mình là AI Sensei. Bạn muốn học gì hôm nay?"
+                }
+            ]
+        }
+    ])
 
-    const streamResponse = useCallback(async (messageId: string, content: string) => {
+    const [suggestions, setSuggestions] = useState<string[]>([
+        "Giải thích ngữ pháp N3",
+        "Luyện giao tiếp xin việc",
+        "Dịch câu này",
+        "Tạo bài tập từ vựng"
+    ])
+
+    const selectedModelData = useMemo(() => models.find(m => m.id === model), [model])
+
+    const streamResponse = useCallback(async (messageKey: string, versionId: string, fullContent: string) => {
         setStatus("streaming")
-        setStreamingMessageId(messageId)
 
-        const words = content.split(" ")
+        const chunks = fullContent.split("")
         let currentContent = ""
 
-        for (let i = 0; i < words.length; i++) {
-            currentContent += (i > 0 ? " " : "") + words[i]
+        // Initial empty state for the version being streamed
+        setMessages(prev => prev.map(m =>
+            m.key === messageKey
+                ? { ...m, versions: m.versions.map(v => v.id === versionId ? { ...v, content: "" } : v) }
+                : m
+        ))
 
-            setMessages(prev =>
-                prev.map(msg => {
-                    if (msg.versions.some(v => v.id === messageId)) {
-                        return {
-                            ...msg,
-                            versions: msg.versions.map(v =>
-                                v.id === messageId ? { ...v, content: currentContent } : v,
-                            ),
-                        }
-                    }
-                    return msg
-                }),
-            )
-
-            await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50))
+        for (const char of chunks) {
+            currentContent += char
+            setMessages(prev => prev.map(m =>
+                m.key === messageKey
+                    ? { ...m, versions: m.versions.map(v => v.id === versionId ? { ...v, content: currentContent } : v) }
+                    : m
+            ))
+            await new Promise(resolve => setTimeout(resolve, 5))
         }
 
         setStatus("ready")
-        setStreamingMessageId(null)
     }, [])
 
-    const addUserMessage = useCallback(
-        (content: string) => {
-            const userMessage: MessageType = {
-                key: `user-${Date.now()}`,
-                from: "user",
-                versions: [
-                    {
-                        id: `user-${Date.now()}`,
-                        content,
-                    },
-                ],
-            }
+    const handleSend = async (content: string) => {
+        const trimmedContent = content.trim()
+        if (!trimmedContent) return
 
-            setMessages(prev => [...prev, userMessage])
+        setStatus("submitted")
+        const userMsg: MessageType = {
+            key: nanoid(),
+            from: "user",
+            versions: [{ id: nanoid(), content: trimmedContent }]
+        }
 
-            setTimeout(() => {
-                const assistantMessageId = `assistant-${Date.now()}`
-                const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)]
+        setMessages(prev => [...prev, userMsg])
+        setText("")
 
-                const assistantMessage: MessageType = {
-                    key: `assistant-${Date.now()}`,
-                    from: "assistant",
-                    versions: [
-                        {
-                            id: assistantMessageId,
-                            content: "",
-                        },
-                    ],
+        try {
+            // Prepare history for API (last 10 messages, flattening versions to the latest one)
+            const history = messages.slice(-10).map(m => ({
+                role: m.from,
+                content: m.versions[m.versions.length - 1]?.content || ""
+            }))
+
+            // Add assistant placeholder
+            const aiKey = nanoid()
+            const versionId = nanoid()
+            setMessages(prev => [...prev, {
+                key: aiKey,
+                from: "assistant",
+                versions: [{ id: versionId, content: "..." }]
+            }])
+
+            // API Call
+            const response = await agentApi.sensei.chat(trimmedContent, history)
+
+            if (response) {
+                if (response.suggestions?.length) {
+                    setSuggestions(response.suggestions)
                 }
 
-                setMessages(prev => [...prev, assistantMessage])
-                streamResponse(assistantMessageId, randomResponse)
-            }, 500)
-        },
-        [streamResponse],
-    )
-
-    const handleSubmit = (message: PromptInputMessage) => {
-        const hasText = Boolean(message.text)
-        const hasAttachments = Boolean(message.files?.length)
-
-        if (!(hasText || hasAttachments)) {
-            return
+                await streamResponse(aiKey, versionId, response.message)
+            } else {
+                throw new Error("No response data")
+            }
+        } catch (error: any) {
+            console.error("Chat error:", error)
+            toast.error("Lỗi kết nối tới Sensei")
+            setMessages(prev => prev.map(m =>
+                (m.from === "assistant" && m.versions.some(v => v.content === "..."))
+                    ? { ...m, versions: m.versions.map(v => v.content === "..." ? { ...v, content: "Xin lỗi, mình đang gặp chút trục trặc. Bạn có thể thử lại sau giây lát nhé!" } : v) }
+                    : m
+            ))
+            setStatus("ready")
         }
-
-        setStatus("submitted")
-
-        if (message.files?.length) {
-            toast.success("Files attached", {
-                description: `${message.files.length} file(s) attached to message`,
-            })
-        }
-
-        addUserMessage(message.text || "Sent with attachments")
-        setText("")
     }
 
-    const handleSuggestionClick = (suggestion: string) => {
-        setStatus("submitted")
-        addUserMessage(suggestion)
+    const handleSubmit = (message: PromptInputMessage) => {
+        if (!message.text.trim()) return
+        handleSend(message.text)
     }
 
     return (
-        <div className="fixed inset-0 flex flex-col overflow-hidden">
-            <Conversation className="min-h-0 flex-1 border-b">
+        <div className="flex flex-col h-full overflow-hidden bg-background">
+            {/* Conversation Area */}
+            <Conversation className="flex-1 min-h-0 border-b">
                 <ConversationContent>
-                    {messages.map(({ versions, ...message }) => (
-                        <MessageBranch defaultBranch={0} key={message.key}>
+                    {messages.map((msg) => (
+                        <MessageBranch defaultBranch={0} key={msg.key}>
                             <MessageBranchContent>
-                                {versions.map(version => (
-                                    <Message from={message.from} key={`${message.key}-${version.id}`}>
-                                        <div>
-                                            {message.sources?.length && (
+                                {msg.versions.map((version) => (
+                                    <Message from={msg.from} key={version.id}>
+                                        <div className="flex flex-col gap-2">
+                                            {msg.sources?.length && (
                                                 <Sources>
-                                                    <SourcesTrigger count={message.sources.length} />
+                                                    <SourcesTrigger count={msg.sources.length} />
                                                     <SourcesContent>
-                                                        {message.sources.map(source => (
+                                                        {msg.sources.map(source => (
                                                             <Source href={source.href} key={source.href} title={source.title} />
                                                         ))}
                                                     </SourcesContent>
                                                 </Sources>
                                             )}
-                                            {message.reasoning && (
-                                                <Reasoning duration={message.reasoning.duration}>
+                                            {msg.reasoning && (
+                                                <Reasoning duration={msg.reasoning.duration}>
                                                     <ReasoningTrigger />
-                                                    <ReasoningContent>{message.reasoning.content}</ReasoningContent>
+                                                    <ReasoningContent>{msg.reasoning.content}</ReasoningContent>
                                                 </Reasoning>
                                             )}
                                             <MessageContent>
@@ -473,8 +281,8 @@ export function ChatbotDemo() {
                                     </Message>
                                 ))}
                             </MessageBranchContent>
-                            {versions.length > 1 && (
-                                <MessageBranchSelector from={message.from}>
+                            {msg.versions.length > 1 && (
+                                <MessageBranchSelector from={msg.from}>
                                     <MessageBranchPrevious />
                                     <MessageBranchPage />
                                     <MessageBranchNext />
@@ -485,23 +293,34 @@ export function ChatbotDemo() {
                 </ConversationContent>
                 <ConversationScrollButton />
             </Conversation>
-            <div className="shrink-0 space-y-4 pt-4">
-                <Suggestions className="px-4">
-                    {suggestions.map(suggestion => (
-                        <Suggestion
-                            key={suggestion}
-                            onClick={() => handleSuggestionClick(suggestion)}
-                            suggestion={suggestion}
-                        />
-                    ))}
-                </Suggestions>
+
+            {/* Input & Suggestions Area */}
+            <div className="shrink-0 pt-4 space-y-4 shadow-2xl bg-muted/30">
+                {suggestions.length > 0 && status === "ready" && (
+                    <Suggestions className="px-4">
+                        {suggestions.map(s => (
+                            <Suggestion
+                                key={s}
+                                onClick={() => handleSend(s)}
+                                suggestion={s}
+                            />
+                        ))}
+                    </Suggestions>
+                )}
+
                 <div className="w-full px-4 pb-4">
-                    <PromptInput globalDrop multiple onSubmit={handleSubmit}>
+                    <PromptInput multiple onSubmit={handleSubmit}>
                         <PromptInputHeader>
                             <PromptInputAttachmentsDisplay />
                         </PromptInputHeader>
                         <PromptInputBody>
-                            <PromptInputTextarea onChange={event => setText(event.target.value)} value={text} />
+                            <PromptInputTextarea
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value)}
+                                value={text}
+                                placeholder="Hỏi AI Sensei về tiếng Nhật..."
+                                className="min-h-[100px]"
+                                disabled={status === "streaming" || status === "submitted"}
+                            />
                         </PromptInputBody>
                         <PromptInputFooter>
                             <PromptInputTools>
@@ -511,6 +330,7 @@ export function ChatbotDemo() {
                                         <PromptInputActionAddAttachments />
                                     </PromptInputActionMenuContent>
                                 </PromptInputActionMenu>
+
                                 <PromptInputButton
                                     onClick={() => setUseMicrophone(!useMicrophone)}
                                     variant={useMicrophone ? "default" : "ghost"}
@@ -518,6 +338,7 @@ export function ChatbotDemo() {
                                     <MicIcon size={16} />
                                     <span className="sr-only">Microphone</span>
                                 </PromptInputButton>
+
                                 <PromptInputButton
                                     onClick={() => setUseWebSearch(!useWebSearch)}
                                     variant={useWebSearch ? "default" : "ghost"}
@@ -525,14 +346,15 @@ export function ChatbotDemo() {
                                     <GlobeIcon size={16} />
                                     <span>Search</span>
                                 </PromptInputButton>
+
                                 <ModelSelector onOpenChange={setModelSelectorOpen} open={modelSelectorOpen}>
                                     <ModelSelectorTrigger asChild>
                                         <PromptInputButton>
                                             {selectedModelData?.chefSlug && (
-                                                <ModelSelectorLogo provider={selectedModelData.chefSlug} />
+                                                <ModelSelectorLogo provider={selectedModelData.chefSlug as any} />
                                             )}
                                             {selectedModelData?.name && (
-                                                <ModelSelectorName>{selectedModelData.name}</ModelSelectorName>
+                                                <ModelSelectorName className="text-xs">{selectedModelData.name}</ModelSelectorName>
                                             )}
                                         </PromptInputButton>
                                     </ModelSelectorTrigger>
@@ -540,7 +362,7 @@ export function ChatbotDemo() {
                                         <ModelSelectorInput placeholder="Search models..." />
                                         <ModelSelectorList>
                                             <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
-                                            {["OpenAI", "Anthropic", "Google"].map(chef => (
+                                            {["Google", "OpenAI", "Anthropic"].map(chef => (
                                                 <ModelSelectorGroup heading={chef} key={chef}>
                                                     {models
                                                         .filter(m => m.chef === chef)
@@ -574,8 +396,8 @@ export function ChatbotDemo() {
                                 </ModelSelector>
                             </PromptInputTools>
                             <PromptInputSubmit
-                                disabled={!(text.trim() || status) || status === "streaming"}
-                                status={status}
+                                disabled={!text.trim() || status === "streaming" || status === "submitted"}
+                                status={status === "streaming" || status === "submitted" ? "submitted" : "ready"}
                             />
                         </PromptInputFooter>
                     </PromptInput>
@@ -585,4 +407,4 @@ export function ChatbotDemo() {
     )
 }
 
-export default ChatbotDemo
+export default AiChatBot

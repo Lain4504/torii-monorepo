@@ -5,9 +5,9 @@ import { BrainIcon, ChevronDownIcon } from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
 import { createContext, memo, useContext, useEffect, useState } from "react"
 import { Streamdown } from "streamdown"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/components/ui/collapsible"
-import { cn } from "~/lib/utils"
-import { Shimmer } from "~/packages/ai/shimmer"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@workspace/ui/components/collapsible"
+import { cn } from "@workspace/ui/lib/utils"
+import { Shimmer } from "@workspace/ui/components/ai/shimmer"
 
 interface ReasoningContextValue {
   isStreaming: boolean
