@@ -64,19 +64,31 @@ export class LearningProgressService implements ILearningProgressService {
         const data = await Promise.all(enrollments.map(async (e: any) => {
             const completedLessons = await this.progressRepo.countCompletedLessons(e.id);
 
-            // Get strict count of published lessons for accurate progress
-            const totalPublishedLessons = await this.lessonRepo.count({
-                module: {
-                    courseId: e.course.id,
-                    status: 'published',
-                    deletedAt: null
-                },
-                deletedAt: null,
-                status: 'published'
-            } as any);
+            // Count totalLessons from the pinned snapshot version (not live DB)
+            // This ensures the card progress matches what the learner actually sees.
+            let totalLessons = 0;
+            if (e.versionId) {
+                try {
+                    const courseVersion = await this.courseRepo.getVersionById(e.versionId);
+                    if (courseVersion && courseVersion.curriculumSnapshot) {
+                        totalLessons = (courseVersion.curriculumSnapshot as any[]).reduce(
+                            (sum: number, mod: any) => sum + ((mod.lessons || []).length),
+                            0
+                        );
+                    }
+                } catch (err) {
+                    this.logger.warn(`Failed to get snapshot for enrollment ${e.id}: ${err}`);
+                }
+            }
 
-            // Use this strictly for progress calculation
-            const totalLessons = totalPublishedLessons;
+            // Fallback: if no snapshot available, use live count of published lessons
+            if (totalLessons === 0) {
+                totalLessons = await this.lessonRepo.count({
+                    module: { courseId: e.course.id, deletedAt: null },
+                    deletedAt: null,
+                    status: 'published'
+                } as any);
+            }
 
             // Auto-correct percentage if needed
             let progress = Number(e.completionPercentage);

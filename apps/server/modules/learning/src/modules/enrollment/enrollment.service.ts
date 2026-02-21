@@ -132,6 +132,7 @@ export class EnrollmentService implements IEnrollmentService {
             id: e.id,
             userId: e.userId,
             courseId: e.courseId,
+            versionId: e.versionId || undefined,
             enrollmentDate: e.enrollmentDate,
             completionStatus: e.completionStatus,
             completionPercentage: Number(e.completionPercentage),
@@ -225,6 +226,32 @@ export class EnrollmentService implements IEnrollmentService {
     }
 
     /**
+     * Check enrollment details including version update info
+     */
+    async checkEnrollmentDetails(userId: string, courseId: string): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }> {
+        try {
+            const enrollment = await this.findByUserAndCourse(userId, courseId);
+            let hasNewerVersion = false;
+
+            if (enrollment) {
+                const latestVersion = await this.courseRepository.getLatestVersion(courseId);
+                if (latestVersion && enrollment.versionId !== latestVersion.id) {
+                    hasNewerVersion = true;
+                }
+            }
+
+            return {
+                isEnrolled: enrollment !== null && (enrollment.completionStatus === 'in_progress' || enrollment.completionStatus === 'completed'),
+                enrollment,
+                hasNewerVersion,
+            };
+        } catch (error: any) {
+            this.logger.error(`Error checking enrollment details: ${error.message}`, error.stack);
+            return { isEnrolled: false, enrollment: null, hasNewerVersion: false };
+        }
+    }
+
+    /**
      * Create a new enrollment
      */
     async create(userId: string, input: EnrollmentCreateDTO): Promise<EnrollmentResponseDTO> {
@@ -261,9 +288,14 @@ export class EnrollmentService implements IEnrollmentService {
             }
             const finalPrice = course.discountPrice ? Number(course.discountPrice) : Number(course.price);
 
+            // Get latest course version for snapshot tracking
+            const latestVersion = await this.courseRepository.getLatestVersion(input.courseId);
+            const versionId = latestVersion ? latestVersion.id : undefined;
+
             const created = await this.enrollmentRepository.create({
                 user: { connect: { id: userId } },
                 course: { connect: { id: input.courseId } },
+                ...(versionId ? { version: { connect: { id: versionId } } } : {}),
                 enrollmentDate: new Date(),
                 lastAccessedAt: new Date(),
                 completionStatus: finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS,
@@ -380,6 +412,47 @@ export class EnrollmentService implements IEnrollmentService {
             return this.toEnrollmentDto(updated);
         } catch (error: any) {
             this.logger.error(`Error updating enrollment order ID: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
+
+    /**
+     * Upgrade enrollment to the latest course version
+     */
+    async upgradeVersion(userId: string, courseId: string): Promise<EnrollmentResponseDTO> {
+        try {
+            const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+            if (!enrollment) {
+                throw new NotFoundException('Enrollment not found');
+            }
+
+            const latestVersion = await this.courseRepository.getLatestVersion(courseId);
+            if (!latestVersion) {
+                return this.toEnrollmentDto(enrollment);
+            }
+
+            if (enrollment.versionId === latestVersion.id) {
+                return this.toEnrollmentDto(enrollment);
+            }
+
+            const updated = await this.enrollmentRepository.update(enrollment.id, {
+                version: { connect: { id: latestVersion.id } },
+            });
+
+            // Log Audit
+            await this.logAudit({
+                action: 'enrollment.upgrade_version',
+                entity: 'enrollment',
+                entityId: enrollment.id,
+                userId: userId,
+                description: `Upgraded enrollment ${enrollment.id} to version ${latestVersion.id}`,
+                oldValues: { versionId: enrollment.versionId },
+                newValues: { versionId: latestVersion.id },
+            });
+
+            return this.toEnrollmentDto(updated);
+        } catch (error: any) {
+            this.logger.error(`Error upgrading enrollment version: ${error.message}`, error.stack);
             throw error;
         }
     }

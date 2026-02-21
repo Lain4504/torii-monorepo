@@ -12,6 +12,8 @@ import {
 import { useCourseBySlug, useCurriculum } from '@/apis/services/course-api'
 import { learningProgressApi, useCompletedLessons } from '@/apis/services/learning-progress-api'
 import { useLesson } from '@/apis/services/lesson-api'
+import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
+import { useUpgradeCourseVersion } from '@/apis/services/enrollment-api'
 import { LearningSidebar } from '@/components/courses/learning-sidebar'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { toast } from '@workspace/ui/components/sonner'
@@ -37,6 +39,19 @@ export default function LessonDetailPage() {
     const { data: curriculumData, isLoading: isLoadingCurriculum } = useCurriculum(course?.id)
     const { data: currentLesson, isLoading: isLoadingLesson } = useLesson(lessonId)
     const { data: completedLessonIds = [], refetch: refetchCompleted } = useCompletedLessons(course?.id)
+    const { hasNewerVersion } = useCourseEnrollment(course?.id || '', slug)
+    const upgradeMutation = useUpgradeCourseVersion()
+
+    const handleUpgrade = async () => {
+        if (!course?.id) return
+        try {
+            await upgradeMutation.mutateAsync(course.id)
+            toast.success('Đã cập nhật phiên bản mới nhất của khóa học!')
+            window.location.reload()
+        } catch (error) {
+            toast.error('Có lỗi xảy ra khi cập nhật khóa học')
+        }
+    }
 
     const loading = isLoadingCourse || isLoadingCurriculum || isLoadingLesson
     const curriculum = curriculumData?.modules || []
@@ -175,6 +190,22 @@ export default function LessonDetailPage() {
                 />
 
                 <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                    {hasNewerVersion && (
+                        <div className="bg-primary/10 border-b border-primary/20 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold text-primary mb-1">Phiên bản mới của khóa học đã sẵn sàng!</span>
+                                <span className="text-xs text-primary/80">Nội dung khóa học đã được cập nhật bởi giảng viên. Cập nhật sẽ đồng bộ danh sách bài học của bạn với bản gốc hiện tại. Lưu ý: Cập nhật này không thể hoàn tác.</span>
+                            </div>
+                            <Button
+                                size="sm"
+                                onClick={handleUpgrade}
+                                disabled={upgradeMutation.isPending}
+                                className="shrink-0 font-bold"
+                            >
+                                {upgradeMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật bản mới nhất'}
+                            </Button>
+                        </div>
+                    )}
                     <div className="max-w-6xl mx-auto pb-20">
                         {currentLesson.contentType === 'video' ? (
                             <>

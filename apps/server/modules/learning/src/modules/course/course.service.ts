@@ -599,6 +599,7 @@ export class CourseService implements ICourseService {
 
   /**
    * Publish a course (set approvedBy and approvedAt)
+   * Also creates a CourseVersion snapshot.
    */
   async publish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
     if (!this.hasPermission(requester, 'course.publish')) {
@@ -618,6 +619,59 @@ export class CourseService implements ICourseService {
     };
 
     const course = await this.courseRepository.update(courseId, publishUpdateData);
+
+    // Create a new CourseVersion snapshot
+    try {
+      // 1. Fetch modules and lessons
+      const modules = await this.moduleRepository.findByCourseId(courseId);
+      const curriculumSnapshot = await Promise.all(
+        modules.map(async (module) => {
+          const lessons = await this.lessonRepository.findByModuleId(module.id);
+          return {
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            orderIndex: module.orderIndex,
+            durationMinutes: module.durationMinutes,
+            lessons: lessons.map(lesson => ({
+              id: lesson.id,
+              title: lesson.title,
+              contentType: lesson.contentType,
+              videoUrl: lesson.videoUrl,
+              videoDuration: lesson.videoDuration,
+              articleContent: lesson.articleContent,
+              orderIndex: lesson.orderIndex,
+              isPreview: lesson.isPreview,
+              isUnlocked: lesson.isUnlocked,
+            })),
+          };
+        })
+      );
+
+      // 2. Determine version tag
+      const latestVersion = await this.courseRepository.getLatestVersion(courseId);
+      let nextVersionNumber = 1;
+      if (latestVersion && latestVersion.versionTag.startsWith('v')) {
+        const currentVersion = parseFloat(latestVersion.versionTag.substring(1));
+        if (!isNaN(currentVersion)) {
+          nextVersionNumber = Math.floor(currentVersion) + 1;
+        }
+      }
+      const versionTag = `v${nextVersionNumber}.0`;
+
+      // 3. Create CourseVersion
+      await this.courseRepository.createVersion({
+        course: { connect: { id: courseId } },
+        versionTag,
+        curriculumSnapshot: curriculumSnapshot as any,
+        changelog: `Published version ${versionTag}`,
+      });
+      this.logger.log(`Created new CourseVersion ${versionTag} for course ${courseId}`);
+    } catch (error: any) {
+      this.logger.error(`Failed to create course version snapshot: ${error?.message}`, error);
+      // We don't throw an error here to prevent blocking the publish action, 
+      // but in a real system we might want this in a transaction.
+    }
 
     await this.createAuditLog({
       userId: requester.sub,
@@ -742,23 +796,74 @@ export class CourseService implements ICourseService {
       throw new NotFoundException(`Course with id ${courseId} not found`);
     }
 
-    // Get all modules for the course
-    const modules = await this.moduleRepository.findByCourseId(courseId);
+    // Check enrollment and instructor status if userId is provided
+    let enrollment: any = null;
+    let isInstructorForCourse = false;
+    let isAdminOrStaff = false;
 
-    // Check enrollment if userId is provided
-    let isEnrolled = false;
     if (userId) {
       try {
-        isEnrolled = await this.enrollmentService.isEnrolled(userId, courseId);
+        enrollment = await this.enrollmentService.findByUserAndCourse(userId, courseId);
       } catch (error) {
         this.logger.warn(`Failed to check enrollment for user ${userId} on course ${courseId}`, error);
       }
+      try {
+        isInstructorForCourse = await this.isInstructor(userId, courseId);
+        // Note: For full accuracy, we'd also check if the user has 'course.publish' permission to act as admin/staff
+        // But for getCurriculum, we can assume instructors see staging/draft, while learners see snapshots.
+      } catch (error) { }
     }
 
-    // Get lessons for each module
+    const showDraft = isInstructorForCourse;
+
+    if (!showDraft) {
+      // It's a student or a public user. We should serve from CourseVersion snapshot.
+      let courseVersion: any = null;
+
+      if (enrollment && enrollment.versionId) {
+        // Enrolled user sees the version they enrolled in
+        courseVersion = await this.courseRepository.getVersionById(enrollment.versionId);
+      } else {
+        // Not enrolled (or enrolled without version tracking), fetch latest published version
+        courseVersion = await this.courseRepository.getLatestVersion(courseId);
+      }
+
+      if (courseVersion && courseVersion.curriculumSnapshot) {
+        return {
+          modules: (courseVersion.curriculumSnapshot as any[]).map(mod => {
+            const showAllVideoUrl = !!enrollment;
+            return {
+              id: mod.id,
+              title: mod.title,
+              description: mod.description || undefined,
+              order: mod.orderIndex,
+              durationMinutes: mod.durationMinutes || undefined,
+              lessons: (mod.lessons || []).map((lesson: any) => ({
+                id: lesson.id,
+                title: lesson.title,
+                contentType: lesson.contentType,
+                videoDuration: lesson.videoDuration || undefined,
+                videoUrl: (lesson.isPreview || showAllVideoUrl) ? (lesson.videoUrl || undefined) : undefined,
+                order: lesson.orderIndex,
+                isPreview: lesson.isPreview,
+                isUnlocked: lesson.isUnlocked,
+              })),
+            };
+          }),
+        };
+      }
+
+      // No snapshot exists: learners/public see empty curriculum.
+      // Instructors fall through to live tables below.
+      return { modules: [] };
+    }
+
+    // Instructor path: Fetch from live/staging tables so they can preview draft content
+    const modules = await this.moduleRepository.findByCourseId(courseId);
+
     const modulesWithLessons = await Promise.all(
       modules.map(async (module) => {
-        const lessons = await this.lessonRepository.findByModuleId(module.id);
+        const lessons = await this.lessonRepository.findByModuleId(module.id, true); // includeDrafts = true for instructors
 
         return {
           id: module.id,
@@ -767,15 +872,12 @@ export class CourseService implements ICourseService {
           order: module.orderIndex,
           durationMinutes: module.durationMinutes || undefined,
           lessons: lessons.map((lesson) => {
-            // Unauthorized users should not see videoUrl for non-preview lessons
-            const showVideoUrl = lesson.isPreview || isEnrolled;
-
             return {
               id: lesson.id,
               title: lesson.title,
               contentType: lesson.contentType,
               videoDuration: lesson.videoDuration || undefined,
-              videoUrl: showVideoUrl ? (lesson.videoUrl || undefined) : undefined,
+              videoUrl: lesson.videoUrl || undefined,
               order: lesson.orderIndex,
               isPreview: lesson.isPreview,
               isUnlocked: lesson.isUnlocked,

@@ -1,4 +1,4 @@
-import type { Course, Prisma } from '@prisma/generated';
+import type { Course, CourseVersion, Prisma } from '@prisma/generated';
 
 /**
  * Course Repository Interface
@@ -81,4 +81,19 @@ export interface ICourseRepository {
      * Get instructors for a course
      */
     getInstructors(courseId: string): Promise<any[]>;
+
+    /**
+     * Create a new course version snapshot
+     */
+    createVersion(data: Prisma.CourseVersionCreateInput): Promise<CourseVersion>;
+
+    /**
+     * Get the latest published version for a course
+     */
+    getLatestVersion(courseId: string): Promise<CourseVersion | null>;
+
+    /**
+     * Get a specific course version by ID
+     */
+    getVersionById(versionId: string): Promise<CourseVersion | null>;
 }

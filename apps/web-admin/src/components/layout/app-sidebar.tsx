@@ -162,7 +162,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <NavMain
                         key={group.labelKey}
                         label={group.labelKey}
-                        items={group.items as any}
+                        items={(group.items as NavItem[]).map(item => ({
+                            ...item,
+                            title: item.titleKey,
+                            items: item.items?.map(sub => ({
+                                ...sub,
+                                title: sub.titleKey
+                            }))
+                        })) as any}
                     />
                 ))}
             </SidebarContent>

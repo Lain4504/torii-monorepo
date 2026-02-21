@@ -197,5 +197,31 @@ export class CourseRepository implements ICourseRepository {
             };
         }).filter(item => item.user); // Filter out if user not found
     }
+
+    /**
+     * Create a new course version snapshot
+     */
+    async createVersion(data: Prisma.CourseVersionCreateInput): Promise<any> {
+        return this.prisma.courseVersion.create({ data });
+    }
+
+    /**
+     * Get the latest published version for a course
+     */
+    async getLatestVersion(courseId: string): Promise<any | null> {
+        return this.prisma.courseVersion.findFirst({
+            where: { courseId },
+            orderBy: { publishedAt: 'desc' },
+        });
+    }
+
+    /**
+     * Get a specific course version by ID
+     */
+    async getVersionById(versionId: string): Promise<any | null> {
+        return this.prisma.courseVersion.findUnique({
+            where: { id: versionId },
+        });
+    }
 }
 

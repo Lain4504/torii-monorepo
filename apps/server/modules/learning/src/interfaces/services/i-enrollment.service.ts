@@ -26,6 +26,11 @@ export interface IEnrollmentService {
     findByUserAndCourse(userId: string, courseId: string): Promise<EnrollmentResponseDTO | null>;
 
     /**
+     * Check enrollment details including version update info
+     */
+    checkEnrollmentDetails(userId: string, courseId: string): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }>;
+
+    /**
      * Create a new enrollment
      */
     create(userId: string, input: EnrollmentCreateDTO): Promise<EnrollmentResponseDTO>;
@@ -57,6 +62,11 @@ export interface IEnrollmentService {
      * Activate enrollment (switch from PENDING_PAYMENT to IN_PROGRESS)
      */
     activateEnrollment(enrollmentId: string): Promise<EnrollmentResponseDTO>;
+
+    /**
+     * Upgrade enrollment to the latest course version
+     */
+    upgradeVersion(userId: string, courseId: string): Promise<EnrollmentResponseDTO>;
 }
 
 

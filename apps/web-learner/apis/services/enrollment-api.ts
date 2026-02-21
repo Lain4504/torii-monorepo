@@ -31,8 +31,8 @@ export const enrollmentApi = {
     /**
      * Check if user is enrolled in a course
      */
-    async checkEnrollment(courseId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO }> {
-        const response = await apiClient.get<StandardApiResponse<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO }>>(
+    async checkEnrollment(courseId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }> {
+        const response = await apiClient.get<StandardApiResponse<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }>>(
             `/api/enrollments/check/${courseId}`
         );
         return response.data.data!;
@@ -53,6 +53,16 @@ export const enrollmentApi = {
         const response = await apiClient.patch<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(
             `/api/enrollments/${enrollmentId}/progress`,
             { completionPercentage }
+        );
+        return response.data.data!.enrollment;
+    },
+
+    /**
+     * Upgrade enrollment to the latest course version
+     */
+    async upgradeVersion(courseId: string): Promise<EnrollmentResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(
+            `/api/enrollments/upgrade/${courseId}`
         );
         return response.data.data!.enrollment;
     },
@@ -133,6 +143,21 @@ export function useUpdateEnrollmentProgress() {
         }) => enrollmentApi.updateProgress(enrollmentId, completionPercentage),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['enrollments', variables.enrollmentId] });
+            queryClient.invalidateQueries({ queryKey: ['enrollments'] });
+        },
+    });
+}
+
+/**
+ * Hook: Upgrade course version
+ */
+export function useUpgradeCourseVersion() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (courseId: string) => enrollmentApi.upgradeVersion(courseId),
+        onSuccess: (_, courseId) => {
+            queryClient.invalidateQueries({ queryKey: ['enrollments', 'check', courseId] });
             queryClient.invalidateQueries({ queryKey: ['enrollments'] });
         },
     });

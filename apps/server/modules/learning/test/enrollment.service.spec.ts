@@ -27,6 +27,9 @@ describe('EnrollmentService', () => {
 
     const mockCourseRepository = {
         findById: jest.fn(),
+        getLatestVersion: jest.fn(),
+        getVersionById: jest.fn(),
+        createVersion: jest.fn(),
     };
 
     const mockCertificateService = {

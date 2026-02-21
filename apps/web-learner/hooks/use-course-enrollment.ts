@@ -10,6 +10,7 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
     const [isInWishlist, setIsInWishlist] = useState(false)
     const [isEnrolled, setIsEnrolled] = useState(false)
     const [enrollment, setEnrollment] = useState<EnrollmentResponseDTO | null>(null)
+    const [hasNewerVersion, setHasNewerVersion] = useState(false)
     const [isLoadingWishlist, setIsLoadingWishlist] = useState(false)
     const [isLoadingEnrollment, setIsLoadingEnrollment] = useState(false)
     const [isToggling, setIsToggling] = useState(false)
@@ -45,6 +46,9 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
             setIsEnrolled(result.isEnrolled)
             if (result.enrollment) {
                 setEnrollment(result.enrollment)
+            }
+            if (result.hasNewerVersion) {
+                setHasNewerVersion(result.hasNewerVersion)
             }
         } catch (error) {
             console.error('Failed to check enrollment status:', error)
@@ -99,6 +103,7 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
         isInWishlist,
         isEnrolled,
         enrollment,
+        hasNewerVersion,
         isLoadingWishlist,
         isLoadingEnrollment,
         isToggling,
