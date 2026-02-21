@@ -10,15 +10,14 @@ import { UsersModule } from '@server/identity/modules/users/users.module';
 import { AuthorizationModule } from '@server/identity/modules/authorization/authorization.module';
 import { AuditModule } from '@server/identity/modules/audit/audit.module';
 import { TwoFactorAuthModule } from '@server/identity/modules/two-factor-auth/two-factor-auth.module';
-import { PaymentsModule } from '@server/identity/modules/payments/payments.module';
 
-// NATS Handlers (replacing HTTP controllers)
-import { AuthHandler } from '@server/identity/interfaces/nats/auth.handler';
-import { UsersHandler } from '@server/identity/interfaces/nats/users.handler';
-import { AuthorizationHandler } from '@server/identity/interfaces/nats/authorization.handler';
-import { AuditLogHandler } from '@server/identity/interfaces/nats/audit-log.handler';
-import { TwoFactorAuthHandler } from '@server/identity/interfaces/nats/two-factor-auth.handler';
-import { AnalyticsHandler } from '@server/identity/interfaces/nats/analytics.handler';
+// NATS Handlers
+import { AuthHandler } from '@server/identity/handlers/auth.handler';
+import { UsersHandler } from '@server/identity/handlers/users.handler';
+import { AuthorizationHandler } from '@server/identity/handlers/authorization.handler';
+import { AuditLogHandler } from '@server/identity/handlers/audit-log.handler';
+import { TwoFactorAuthHandler } from '@server/identity/handlers/two-factor-auth.handler';
+import { AnalyticsHandler } from '@server/identity/handlers/analytics.handler';
 
 // Filters
 import { GlobalRpcExceptionFilter } from '@server/shared';
@@ -37,7 +36,6 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
     AuthorizationModule,
     AuditModule,
     TwoFactorAuthModule,
-    PaymentsModule,
   ],
   controllers: [
     // NATS Handlers (not HTTP controllers)
@@ -63,7 +61,6 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
     AuthorizationModule,
     AuditModule,
     TwoFactorAuthModule,
-    PaymentsModule,
   ],
 })
 export class IdentityModule { }

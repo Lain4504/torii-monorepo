@@ -6,6 +6,7 @@ import type {
     UserCreateDTO,
     UserAdminUpdateDTO,
     AdminCreateInternalUserDTO,
+    Requester,
 } from '@workspace/schemas';
 
 @Controller()
@@ -35,14 +36,14 @@ export class UsersHandler {
     }
 
     @MessagePattern({ cmd: 'identity.users.update' })
-    async update(@Payload() data: { id: string; dto: UserAdminUpdateDTO; requester: any }) {
+    async update(@Payload() data: { id: string; dto: UserAdminUpdateDTO; requester: Requester }) {
         return {
             user: await this.usersService.update(data.requester, data.id, data.dto)
         };
     }
 
     @MessagePattern({ cmd: 'identity.users.delete' })
-    async delete(@Payload() data: { id: string; hardDelete: boolean; requester: any }) {
+    async delete(@Payload() data: { id: string; hardDelete: boolean; requester: Requester }) {
         await this.usersService.delete(data.requester, data.id, data.hardDelete);
         return { success: true };
     }

@@ -941,7 +941,7 @@ export class CourseService implements ICourseService {
           durationMinutes: module.durationMinutes || undefined,
           lessons: lessons.map((lesson) => {
             // Unlocked if (preview OR enrolled) AND marked unlocked in DB
-            const isAccessible = (lesson.isPreview || isEnrolled) && lesson.isUnlocked;
+            const isAccessible = (lesson.isPreview || !!enrollment) && lesson.isUnlocked;
 
             return {
               id: lesson.id,

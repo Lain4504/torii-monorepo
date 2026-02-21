@@ -96,12 +96,14 @@ export interface ICourseRepository {
      * Get a specific course version by ID
      */
     getVersionById(versionId: string): Promise<CourseVersion | null>;
+
+    /**
      * Count published quizzes for a course
-    */
+     */
     countQuizzes(courseId: string): Promise<number>;
 
-/**
- * Count published lessons for a course
- */
-countLessons(courseId: string): Promise<number>;
+    /**
+     * Count published lessons for a course
+     */
+    countLessons(courseId: string): Promise<number>;
 }
