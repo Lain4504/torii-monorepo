@@ -355,12 +355,6 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                     <SheetFooter>
                         <div className="flex w-full gap-4">
                             <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={handleClose}>
-                                Hủy Bỏ
-                            </Button>
-                            <Button
                                 type="submit"
                                 disabled={uploading || !isDirty}>
                                 {uploading ? (
@@ -374,6 +368,12 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                                         Tạo Bài Học
                                     </>
                                 )}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}>
+                                Hủy Bỏ
                             </Button>
                         </div>
                     </SheetFooter>

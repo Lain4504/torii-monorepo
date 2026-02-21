@@ -636,14 +636,6 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     {/* Footer */}
                     <SheetFooter>
                         <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={handleClose}
-                            disabled={uploading}>
-                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
-                            Hủy Bỏ
-                        </Button>
-                        <Button
                             type="submit"
                             disabled={uploading || !isDirty}>
                             {uploading ? (
@@ -657,6 +649,14 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                     Tạo Khóa Học
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                            disabled={uploading}>
+                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
+                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

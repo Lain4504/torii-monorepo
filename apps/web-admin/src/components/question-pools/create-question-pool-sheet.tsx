@@ -178,16 +178,6 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                     </div>
 
                     <SheetFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                                reset();
-                                onOpenChange(false);
-                            }}
-                        >
-                            Hủy
-                        </Button>
                         <Button type="submit" disabled={createPool.isPending}>
                             {createPool.isPending ? (
                                 <>
@@ -200,6 +190,16 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                                     Khởi tạo kho đề
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                                reset();
+                                onOpenChange(false);
+                            }}
+                        >
+                            Hủy
                         </Button>
                     </SheetFooter>
                 </form>

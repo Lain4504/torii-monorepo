@@ -196,13 +196,6 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                     </div>
 
                     <SheetFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            Hủy
-                        </Button>
                         <Button type="submit" disabled={updatePool.isPending}>
                             {updatePool.isPending ? (
                                 <>
@@ -215,6 +208,13 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                     Lưu thay đổi
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Hủy
                         </Button>
                     </SheetFooter>
                 </form>

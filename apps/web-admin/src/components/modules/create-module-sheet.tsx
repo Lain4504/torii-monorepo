@@ -213,13 +213,6 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                     </ScrollArea>
 
                     <SheetFooter>
-                        <div className="flex w-full gap-4">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={handleClose}>
-                                Hủy Bỏ
-                            </Button>
                             <Button
                                 type="submit"
                                 disabled={isSubmitting}>
@@ -235,7 +228,12 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                     </>
                                 )}
                             </Button>
-                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}>
+                            Hủy Bỏ
+                        </Button>
                     </SheetFooter>
                 </form>
             </SheetContent>

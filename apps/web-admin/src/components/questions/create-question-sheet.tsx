@@ -392,15 +392,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                             />
                         </div>
                     </div>
-                    <SheetFooter className="p-6 border-t border-border/10 bg-muted/5 flex-row justify-end space-x-3">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                            className="rounded-xl h-10 px-6 font-semibold"
-                        >
-                            Hủy
-                        </Button>
+                    <SheetFooter>
                         <Button
                             type="submit"
                             disabled={createQuestion.isPending}
@@ -417,6 +409,14 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     Khởi tạo câu hỏi
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            className="rounded-xl h-10 px-6 font-semibold"
+                        >
+                            Hủy
                         </Button>
                     </SheetFooter>
                 </form>

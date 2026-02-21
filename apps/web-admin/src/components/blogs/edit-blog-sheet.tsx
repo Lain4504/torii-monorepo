@@ -439,13 +439,6 @@ export function EditBlogSheet({
 
                     <SheetFooter>
                         <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => onOpenChange(false)}
-                            className="h-10 px-6">
-                            Hủy bỏ
-                        </Button>
-                        <Button
                             type="submit"
                             disabled={uploading || (!isDirty && !coverImageFile)}>
                             {uploading ? (
@@ -459,6 +452,13 @@ export function EditBlogSheet({
                                     Lưu thay đổi
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            className="h-10 px-6">
+                            Hủy bỏ
                         </Button>
                     </SheetFooter>
                 </form>

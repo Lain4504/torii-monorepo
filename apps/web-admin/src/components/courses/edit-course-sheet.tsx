@@ -746,14 +746,6 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
                     <SheetFooter>
                         <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => onOpenChange(false)}
-                            className="flex-1 rounded-xl h-11 bg-background border border-border text-[10px] font-bold uppercase tracking-wider hover:bg-muted/5 transition-all text-muted-foreground/80 hover:text-foreground">
-                            <X className="mr-2 h-3.5 w-3.5" />
-                            Hủy Bỏ
-                        </Button>
-                        <Button
                             type="submit"
                             disabled={uploading || (!isDirty && !thumbnailFile && !videoFile)}>
                             {uploading ? (
@@ -767,6 +759,13 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     Lưu Thay Đổi
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}>
+                            <X className="mr-2 h-3.5 w-3.5" />
+                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

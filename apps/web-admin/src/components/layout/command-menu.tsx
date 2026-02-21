@@ -134,7 +134,7 @@ export function CommandMenu() {
                             </CommandItem>
                             <CommandItem onSelect={() => runCommand(() => navigate("/ai-service"))} className="rounded-lg aria-selected:bg-purple-500/10 aria-selected:text-purple-500 group cursor-pointer py-2.5">
                                 <Bot className="mr-3 h-4 w-4 opacity-50 group-aria-selected:opacity-100 transition-opacity" />
-                                <span className="text-xs font-medium">AI Operations</span>
+                                <span className="text-xs font-medium">Dịch vụ AI</span>
                             </CommandItem>
                         </CommandGroup>
 

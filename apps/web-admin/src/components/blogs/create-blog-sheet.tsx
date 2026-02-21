@@ -408,13 +408,6 @@ export function CreateBlogSheet({
                     {/* Footer */}
                     <SheetFooter>
                         <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={handleClose}
-                            disabled={uploading}>
-                            Hủy bỏ
-                        </Button>
-                        <Button
                             type="submit"
                             disabled={uploading || createBlog.isPending}>
                             {uploading || createBlog.isPending ? (
@@ -428,6 +421,13 @@ export function CreateBlogSheet({
                                     Tạo bài viết
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                            disabled={uploading}>
+                            Hủy bỏ
                         </Button>
                     </SheetFooter>
                 </form>

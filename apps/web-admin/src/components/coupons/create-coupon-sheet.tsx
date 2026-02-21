@@ -318,14 +318,6 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
 
                     <SheetFooter>
                         <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={handleClose}
-                            disabled={createMutation.isPending}>
-                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
-                            Hủy Bỏ
-                        </Button>
-                        <Button
                             type="submit"
                             disabled={createMutation.isPending || !isDirty}>
                             {createMutation.isPending ? (
@@ -339,6 +331,14 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                     Tạo Coupon
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                            disabled={createMutation.isPending}>
+                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
+                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

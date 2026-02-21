@@ -378,13 +378,6 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                     <SheetFooter>
                         <div className="flex w-full gap-4">
                             <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() => onOpenChange(false)}
-                                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-muted/10 border border-transparent hover:border-border/10">
-                                Hủy Bỏ
-                            </Button>
-                            <Button
                                 type="submit"
                                 disabled={uploading || !isDirty}>
                                 {uploading ? (
@@ -398,6 +391,12 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                         Lưu Thay Đổi
                                     </>
                                 )}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => onOpenChange(false)}>
+                                Hủy Bỏ
                             </Button>
                         </div>
                     </SheetFooter>

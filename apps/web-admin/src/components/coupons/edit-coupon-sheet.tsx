@@ -369,14 +369,6 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
 
                     <SheetFooter>
                         <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={handleClose}
-                            disabled={updateMutation.isPending}>
-                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
-                            Hủy Bỏ
-                        </Button>
-                        <Button
                             type="submit"
                             disabled={updateMutation.isPending || !isDirty}>
                             {updateMutation.isPending ? (
@@ -390,6 +382,14 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                     Lưu Thay Đổi
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                            disabled={updateMutation.isPending}>
+                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
+                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>
