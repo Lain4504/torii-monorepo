@@ -62,7 +62,7 @@ export class LessonController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.findByModuleId' },
-                    { moduleId, userId: requester.sub }
+                    { moduleId, requester: req.requester }
                 )
             );
             return successResponse({ lessons: result });
@@ -94,7 +94,7 @@ export class LessonController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.findOne' },
-                    { id, userId: requester?.sub }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse({ lesson: result });

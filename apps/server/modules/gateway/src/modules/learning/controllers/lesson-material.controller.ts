@@ -53,12 +53,15 @@ export class LessonMaterialController {
     }
 
     @Get('by-lesson/:lessonId')
-    async getMaterialsByLesson(@Param('lessonId') lessonId: string) {
+    async getMaterialsByLesson(
+        @Param('lessonId') lessonId: string,
+        @Req() req: ReqWithRequester,
+    ) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson-material.findByLessonId' },
-                    { lessonId }
+                    { lessonId, requester: req.requester }
                 )
             );
             return successResponse({ materials: result });

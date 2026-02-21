@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import type { Course, Prisma } from '@prisma/generated';
+import type { Course, CourseVersion, Prisma } from '@prisma/generated';
 import type { ICourseRepository } from '@server/learning/interfaces/repositories';
 
 /**
@@ -128,11 +128,8 @@ export class CourseRepository implements ICourseRepository {
 
     /**
      * Find featured courses
-     * Note: Featured functionality removed. This method is kept for backward compatibility.
-     * TODO: Remove or implement via aiMetadata/tags filtering
      */
     async findFeatured(): Promise<Course[]> {
-        // Featured courses removed - return empty array
         return [];
     }
 
@@ -164,10 +161,8 @@ export class CourseRepository implements ICourseRepository {
 
     /**
      * Get instructors for a course
-     * Manually joins CourseInstructor and User since relation is missing in Prisma schema
      */
     async getInstructors(courseId: string): Promise<any[]> {
-        // 1. Get CourseInstructors with lecturerId
         const courseInstructors = await this.prisma.courseInstructor.findMany({
             where: { courseId },
         });
@@ -176,7 +171,6 @@ export class CourseRepository implements ICourseRepository {
             return [];
         }
 
-        // 2. Get User details for each lecturer
         const lecturerIds = courseInstructors.map(ci => ci.lecturerId);
         const users = await this.prisma.user.findMany({
             where: { id: { in: lecturerIds } },
@@ -188,27 +182,26 @@ export class CourseRepository implements ICourseRepository {
             },
         });
 
-        // 3. Merge data
         return courseInstructors.map(ci => {
             const user = users.find(u => u.id === ci.lecturerId);
             return {
                 ...ci,
                 user,
             };
-        }).filter(item => item.user); // Filter out if user not found
+        }).filter(item => item.user);
     }
 
     /**
      * Create a new course version snapshot
      */
-    async createVersion(data: Prisma.CourseVersionCreateInput): Promise<any> {
+    async createVersion(data: Prisma.CourseVersionCreateInput): Promise<CourseVersion> {
         return this.prisma.courseVersion.create({ data });
     }
 
     /**
      * Get the latest published version for a course
      */
-    async getLatestVersion(courseId: string): Promise<any | null> {
+    async getLatestVersion(courseId: string): Promise<CourseVersion | null> {
         return this.prisma.courseVersion.findFirst({
             where: { courseId },
             orderBy: { publishedAt: 'desc' },
@@ -233,7 +226,7 @@ export class CourseRepository implements ICourseRepository {
     /**
      * Get a specific course version by ID
      */
-    async getVersionById(versionId: string): Promise<any | null> {
+    async getVersionById(versionId: string): Promise<CourseVersion | null> {
         return this.prisma.courseVersion.findUnique({
             where: { id: versionId },
         });
@@ -256,4 +249,3 @@ export class CourseRepository implements ICourseRepository {
         });
     }
 }
-

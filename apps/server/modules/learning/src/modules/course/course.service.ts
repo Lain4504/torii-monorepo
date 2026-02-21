@@ -929,6 +929,8 @@ export class CourseService implements ICourseService {
     // Instructor path: Fetch from live/staging tables so they can preview draft content
     const modules = await this.moduleRepository.findByCourseId(courseId);
 
+    const isEnrolled = !!enrollment || isInstructorForCourse || isAdminOrStaff;
+
     const modulesWithLessons = await Promise.all(
       modules.map(async (module) => {
         const lessons = await this.lessonRepository.findByModuleId(module.id, true); // includeDrafts = true for instructors
