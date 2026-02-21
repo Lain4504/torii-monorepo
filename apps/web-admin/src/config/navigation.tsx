@@ -132,6 +132,7 @@ export const managementNavItems: NavItem[] = [
             { titleKey: "Doanh thu & Thu nhập", url: "/analytics/revenue", permission: "report.view" },
             { titleKey: "Hiệu suất Học tập", url: "/analytics/learning", permission: "report.view" },
             { titleKey: "Học viên & Tương tác", url: "/analytics/users", permission: "report.view" },
+            { titleKey: "Hệ thống Báo cáo", url: "/analytics/reports", permission: "report.view" },
         ]
     },
 ];
