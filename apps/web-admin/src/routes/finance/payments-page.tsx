@@ -10,7 +10,6 @@ import {
 } from '@workspace/ui/components/table';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Card } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import {
@@ -115,7 +114,7 @@ export default function TransactionsPage() {
     };
 
     return (
-        <div className="p-4 lg:p-10 space-y-10 animate-in fade-in duration-700">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Nhật ký Giao dịch"
                 subtitle="Tra cứu dòng tiền và xác minh webhook SePay/PayOS"
@@ -126,133 +125,131 @@ export default function TransactionsPage() {
                     <Button
                         onClick={loadTransactions}
                         disabled={isLoading}
-                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all group"
+                        size="lg"
+                        className="group"
                     >
                         Cập nhật Nhật ký
-                        <RotateCcw className={cn("ml-2 size-4 opacity-70 group-hover:opacity-100 transition-all", isLoading && "animate-spin")} />
+                        <RotateCcw className={cn("ml-2 size-4", isLoading && "animate-spin")} />
                     </Button>
                 }
             />
 
 
             {/* Main Table Container */}
-            <Card className="rounded-2xl bg-card border border-border/40 shadow-sm overflow-hidden">
-                <div className="p-4 lg:p-6 space-y-6">
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                        <div className="relative flex-1 w-full">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
-                            <Input
-                                placeholder="Tìm kiếm Mã giao dịch..."
-                                className="pl-10 h-11 w-full bg-background border-border/40 rounded-xl text-sm font-medium focus-visible:ring-primary/20"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                        </div>
+            <div className="space-y-4">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div className="relative flex-1 w-full">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                        <Input
+                            placeholder="Tìm kiếm Mã giao dịch..."
+                            className="pl-10"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
                     </div>
+                </div>
 
-                    <div className="rounded-xl border border-border/40 bg-card overflow-hidden relative shadow-sm">
-                        <Table className="border-collapse bg-transparent">
-                            <TableHeader className="bg-muted/30 border-b border-border">
-                                <TableRow className="border-none hover:bg-transparent">
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Nguồn</TableHead>
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Mã giao dịch</TableHead>
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-center">Số tiền</TableHead>
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-center">Trạng thái</TableHead>
-                                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-right">Thời gian xử lý</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    Array.from({ length: 5 }).map((_, i) => (
-                                        <TableRow key={i} className="border-b border-border/50">
-                                            <TableCell colSpan={5} className="py-4 px-6">
-                                                <Skeleton className="h-5 w-full bg-muted/20 rounded-md" />
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : transactions.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-[400px] text-center">
-                                            <Empty>
-                                                <EmptyMedia>
-                                                    <Info className="size-8 text-muted-foreground" />
-                                                </EmptyMedia>
-                                                <EmptyContent>
-                                                    <EmptyTitle>Không tìm thấy nhật ký giao dịch</EmptyTitle>
-                                                    <EmptyDescription>
-                                                        Không tìm thấy bản ghi giao dịch nào khớp với bộ lọc hiện tại.
-                                                    </EmptyDescription>
-                                                </EmptyContent>
-                                            </Empty>
+                <div className="rounded-xl border bg-card overflow-hidden">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Nguồn</TableHead>
+                                <TableHead>Mã giao dịch</TableHead>
+                                <TableHead className="text-center">Số tiền</TableHead>
+                                <TableHead className="text-center">Trạng thái</TableHead>
+                                <TableHead className="text-right">Thời gian xử lý</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <TableRow key={i} className="border-b border-border/50">
+                                        <TableCell colSpan={5} className="py-4 px-6">
+                                            <Skeleton className="h-5 w-full bg-muted/20 rounded-md" />
                                         </TableCell>
                                     </TableRow>
-                                ) : (
-                                    transactions.map((tx) => (
-                                        <TableRow
-                                            key={tx.id}
-                                            className="border-b border-border/40 hover:bg-muted/20 transition-all duration-200 group cursor-pointer"
-                                            onClick={() => {
-                                                setSelectedTx(tx);
-                                                setIsSheetOpen(true);
-                                            }}
-                                        >
-                                            <TableCell className="py-3 px-4">
-                                                <div className="flex items-center gap-2">
-                                                    <Globe className="size-3 text-primary/50" />
-                                                    <span className="text-xs font-bold text-foreground/70 group-hover:text-primary transition-colors uppercase">{tx.gateway || 'KHÔNG XÁC ĐỊNH'}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-4">
-                                                <code className="text-[10px] font-bold font-mono bg-primary/5 text-primary px-1.5 py-0.5 rounded transition-transform group-hover:scale-105 inline-block border border-primary/10">
-                                                    {tx.transactionId || tx.id.slice(0, 8)}
-                                                </code>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-4 text-center">
-                                                <span className="text-sm font-bold text-foreground tabular-nums tracking-tight">
-                                                    {formatCurrency(tx.amount || 0)}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-4 text-center">
-                                                <Badge className={cn("text-[9px] uppercase font-bold px-2 py-0.5 border shadow-none rounded-md tracking-wider", getStatusColor(tx.status))}>
-                                                    {getStatusLabel(tx.status)}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-4 text-right">
-                                                <div className="flex items-center justify-end gap-1.5 text-muted-foreground/60 text-xs font-medium tabular-nums">
-                                                    <Clock className="size-3 opacity-50" />
-                                                    {formatDateTime(tx.processedAt)}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {/* Pagination */}
-                    <SmartPagination
-                        page={page}
-                        totalPages={totalPages}
-                        totalItems={total}
-                        onPageChange={setPage}
-                        itemName="bản ghi"
-                        className="border-t border-border/10 pt-4"
-                    />
+                                ))
+                            ) : transactions.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-[400px] text-center">
+                                        <Empty>
+                                            <EmptyMedia>
+                                                <Info className="size-8 text-muted-foreground" />
+                                            </EmptyMedia>
+                                            <EmptyContent>
+                                                <EmptyTitle>Không tìm thấy nhật ký giao dịch</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Không tìm thấy bản ghi giao dịch nào khớp với bộ lọc hiện tại.
+                                                </EmptyDescription>
+                                            </EmptyContent>
+                                        </Empty>
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                transactions.map((tx) => (
+                                    <TableRow
+                                        key={tx.id}
+                                        className="cursor-pointer"
+                                        onClick={() => {
+                                            setSelectedTx(tx);
+                                            setIsSheetOpen(true);
+                                        }}
+                                    >
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <Globe className="size-3 text-primary/50" />
+                                                <span className="text-xs font-bold text-foreground/70 uppercase">{tx.gateway || 'KHÔNG XÁC ĐỊNH'}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <code className="text-[10px] font-bold font-mono bg-primary/5 text-primary px-1.5 py-0.5 rounded inline-block border border-primary/10">
+                                                {tx.transactionId || tx.id.slice(0, 8)}
+                                            </code>
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <span className="text-sm font-bold tabular-nums">
+                                                {formatCurrency(tx.amount || 0)}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <Badge className={cn("text-[9px] uppercase font-bold px-2 py-0.5 border shadow-none", getStatusColor(tx.status))}>
+                                                {getStatusLabel(tx.status)}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex items-center justify-end gap-1.5 text-muted-foreground/60 text-xs font-medium tabular-nums">
+                                                <Clock className="size-3 opacity-50" />
+                                                {formatDateTime(tx.processedAt)}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
                 </div>
-            </Card>
+
+                {/* Pagination */}
+                <SmartPagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalItems={total}
+                    onPageChange={setPage}
+                    itemName="bản ghi"
+                />
+            </div>
 
             {/* Transaction Details Sheet */}
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetContent className="sm:max-w-xl bg-background/95 backdrop-blur-xl border-l border-border/40 shadow-2xl p-0">
+                <SheetContent className="sm:max-w-xl bg-background/95 backdrop-blur-xml border-l border-border/40 shadow-2xl p-0">
                     {selectedTx && (
                         <div className="flex flex-col h-full">
-                            <SheetHeader className="px-8 py-6 border-b border-border/10 bg-muted/5">
+                            <SheetHeader className="px-8 py-6 border-b bg-muted/5">
                                 <div className="flex items-center gap-2 px-2.5 py-1 bg-primary/10 text-primary border border-primary/10 rounded-full text-[10px] font-bold w-fit mb-4 uppercase tracking-wider">
                                     Bản ghi hệ thống
                                 </div>
-                                <SheetTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">Chi tiết Giao dịch</SheetTitle>
-                                <SheetDescription className="text-xs font-mono font-medium text-muted-foreground/60">
+                                <SheetTitle className="text-2xl font-bold tracking-tight">Chi tiết Giao dịch</SheetTitle>
+                                <SheetDescription className="text-xs font-mono text-muted-foreground/60">
                                     ID: {selectedTx.id}
                                 </SheetDescription>
                             </SheetHeader>
@@ -302,6 +299,6 @@ export default function TransactionsPage() {
                     )}
                 </SheetContent>
             </Sheet>
-        </div>
+        </div >
     );
 }

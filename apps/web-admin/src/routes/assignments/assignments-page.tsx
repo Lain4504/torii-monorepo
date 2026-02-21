@@ -13,12 +13,12 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { Card } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from "@workspace/ui/components/select";
 import { BookOpen, Search } from 'lucide-react';
 import type { AssignmentResponseDTO } from '@workspace/schemas';

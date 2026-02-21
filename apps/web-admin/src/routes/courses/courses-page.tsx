@@ -17,8 +17,7 @@ import { usePermissions } from "@/hooks/use-permissions.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { toast } from '@workspace/ui/components/sonner';
-import { Plus, ShieldAlert } from 'lucide-react';
-import { Card } from "@workspace/ui/components/card";
+import { Plus } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 
 export default function CoursesPage() {
@@ -83,20 +82,30 @@ export default function CoursesPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-destructive/5 rounded-[2rem] border border-dashed border-destructive/20 text-center animate-in fade-in duration-500">
-        <div className="w-16 h-16 rounded-2xl bg-white/50 shadow-sm flex items-center justify-center">
-          <ShieldAlert className="size-8 text-destructive/50" />
-        </div>
-        <div className="space-y-1">
-          <h3 className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground">Thông báo hệ thống</h3>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
+      <div className="flex h-[450px] items-center justify-center p-8">
+        <div className="max-w-md w-full">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
+              <Plus className="size-6 rotate-45" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Thông báo hệ thống</h3>
+              <p className="text-sm text-muted-foreground">{error.message}</p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+            >
+              Thử kết nối lại
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-700 pb-10">
+    <div className="flex flex-col gap-8">
       <PageHeader
         title="Quản lý Khóa học"
         subtitle="Hệ sinh thái chương trình giảng dạy Torii Academy"
@@ -105,12 +114,9 @@ export default function CoursesPage() {
         ]}
         actions={
           <Can permission="course.create">
-            <Button
-              onClick={() => setShowCreateDialog(true)}
-              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
-            >
+            <Button onClick={() => setShowCreateDialog(true)} size="lg">
+              <Plus />
               Tạo Khóa học Mới
-              <Plus className="ml-2 size-4" />
             </Button>
           </Can>
         }
@@ -118,18 +124,16 @@ export default function CoursesPage() {
 
 
       <div className="space-y-4">
-        <Card className="bg-card p-4 rounded-xl border-border shadow-sm">
-          <CoursesPrimaryToolbar
-            search={search}
-            onSearchChange={setSearch}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            jlptLevelFilter={jlptLevelFilter}
-            onJlptLevelFilterChange={setJlptLevelFilter}
-          />
-        </Card>
+        <CoursesPrimaryToolbar
+          search={search}
+          onSearchChange={setSearch}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          jlptLevelFilter={jlptLevelFilter}
+          onJlptLevelFilterChange={setJlptLevelFilter}
+        />
 
-        <Card className="bg-card p-0 rounded-xl border-border overflow-hidden shadow-sm">
+        <div className="rounded-xl border bg-card overflow-hidden">
           <CoursesTable
             data={courses}
             onEdit={setEditingCourse}
@@ -149,7 +153,7 @@ export default function CoursesPage() {
             limit={queryParams.limit || 10}
             isLoading={isLoading}
           />
-        </Card>
+        </div>
 
         {/* Pagination */}
         <SmartPagination
