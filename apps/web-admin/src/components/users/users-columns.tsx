@@ -1,6 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
+import { Badge } from '@workspace/ui/components/badge';
 
 import { ArrowUpDown, Pencil, Trash, UserCircle, Mail, Clock, ShieldIcon } from 'lucide-react';
 import {
@@ -41,10 +42,10 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-3 h-8 px-3 text-xs font-semibold hover:bg-muted transition-all group rounded-md"
+                    className="-ml-3 h-8 gap-2 text-xs font-semibold"
                 >
                     Họ và tên
-                    <ArrowUpDown className="ml-2 h-3 w-3 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpDown className="size-3 opacity-50" />
                 </Button>
             );
         },
@@ -77,10 +78,10 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-3 h-8 px-3 text-xs font-semibold hover:bg-muted transition-all group rounded-md"
+                    className="-ml-3 h-8 gap-2 text-xs font-semibold"
                 >
                     Email
-                    <ArrowUpDown className="ml-2 h-3 w-3 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpDown className="size-3 opacity-50" />
                 </Button>
             );
         },
@@ -125,25 +126,24 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
         header: () => <div className="px-1 text-xs font-semibold">Vai trò</div>,
         cell: (info) => {
             const role = info.getValue() as string;
-            const colors = {
-                admin: 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20',
-                staff: 'bg-primary/10 text-primary border-primary/20 dark:bg-primary/5 dark:text-primary-foreground dark:border-primary/10',
-                lecturer: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
-                learner: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
-            };
-            const roleLabels = {
+            const roleLabels: Record<string, string> = {
                 admin: 'Quản trị viên',
                 staff: 'Nhân viên',
                 lecturer: 'Giảng viên',
                 learner: 'Học viên'
             };
-            const colorClass = colors[role as keyof typeof colors] || 'bg-muted text-muted-foreground border-border';
-            const label = roleLabels[role as keyof typeof roleLabels] || role;
+            const label = roleLabels[role] || role;
 
             return (
-                <div className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border", colorClass)}>
+                <Badge
+                    variant="outline"
+                    className={cn(
+                        "text-[10px] font-bold uppercase tracking-wider px-2",
+                        role === 'admin' && "border-destructive text-destructive bg-destructive/5"
+                    )}
+                >
                     {label}
-                </div>
+                </Badge>
             );
         },
         size: 130,
@@ -224,24 +224,24 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-[180px] border border-border rounded-xl shadow-xl bg-background p-1"
+                            className="w-[180px]"
                         >
                             <Can permission="user.manage">
                                 <DropdownMenuItem
                                     onClick={() => onEdit(user)}
-                                    className="rounded-lg px-3 py-2 text-sm focus:bg-primary focus:text-white cursor-pointer flex gap-2"
+                                    className="flex gap-2"
                                 >
-                                    <Pencil className="h-3.5 w-3.5 opacity-70" />
-                                    <span>Chỉnh sửa thông tin</span>
+                                    <Pencil className="size-3.5 opacity-70" />
+                                    <span>Chỉnh sửa</span>
                                 </DropdownMenuItem>
 
-                                <DropdownMenuSeparator className="bg-border mx-1 my-1" />
+                                <DropdownMenuSeparator />
 
                                 <DropdownMenuItem
                                     onClick={() => onDelete(user)}
-                                    className="rounded-lg px-3 py-2 text-sm text-rose-600 focus:text-white focus:bg-rose-600 cursor-pointer flex gap-2"
+                                    className="text-destructive focus:bg-destructive focus:text-destructive-foreground flex gap-2"
                                 >
-                                    <Trash className="h-3.5 w-3.5 opacity-70" />
+                                    <Trash className="size-3.5 opacity-70" />
                                     <span>Xóa tài khoản</span>
                                 </DropdownMenuItem>
                             </Can>

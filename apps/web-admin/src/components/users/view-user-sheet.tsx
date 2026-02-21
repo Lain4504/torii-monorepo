@@ -28,64 +28,54 @@ export function ViewUserSheet({
 
     // Determine user status
     let status = 'Đang hoạt động';
-    let statusBadgeClass = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]';
     let StatusIcon = Zap;
 
     if (user.deletedAt) {
         status = 'Đã xóa';
-        statusBadgeClass = 'bg-destructive/10 text-destructive border-destructive/20 shadow-[0_0_10px_rgba(220,38,38,0.2)]';
         StatusIcon = AlertTriangle;
     } else if (user.bannedUntil && new Date(user.bannedUntil) > new Date()) {
         status = 'Đang bị cấm';
-        statusBadgeClass = 'bg-orange-500/10 text-orange-500 border-orange-500/20 shadow-[0_0_10px_rgba(249,115,22,0.2)]';
         StatusIcon = Lock;
     } else if (!user.verifiedAt) {
         status = 'Chưa kích hoạt';
-        statusBadgeClass = 'bg-muted text-muted-foreground border-border/50';
         StatusIcon = Clock;
     }
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[500px] sm:max-w-[500px] flex flex-col p-0 border-l border-border/50 shadow-2xl bg-background">
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
-                    <div className="relative flex items-center gap-4 z-10">
-                        <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
-                            <ScanEye className="h-6 w-6" />
+            <SheetContent className="w-full sm:max-w-[500px] flex flex-col p-0">
+                <SheetHeader className="px-6 py-6 border-b">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                            <ScanEye className="size-5 text-foreground" />
                         </div>
-                        <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">
-                                Hồ sơ <span className="text-primary">Người dùng</span>
-                            </SheetTitle>
-                            <SheetDescription className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
-                                Thông tin chi tiết tài khoản và hoạt động
+                        <div className="flex-1">
+                            <SheetTitle>Chi tiết người dùng</SheetTitle>
+                            <SheetDescription>
+                                Thông tin chi tiết tài khoản và lịch sử hoạt động
                             </SheetDescription>
                         </div>
-                        <Badge variant="outline" className="font-mono text-[10px] bg-background border-border/20">
-                            ID: {user.id.substring(0, 8)}
-                        </Badge>
                     </div>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1 h-full">
-                    <div className="px-8 py-8 space-y-8">
+                <ScrollArea className="flex-1">
+                    <div className="px-6 py-8 space-y-8">
                         {/* User Profile */}
-                        <div className="relative group">
-                            <div className="relative flex items-center gap-6 p-6 rounded-xl bg-background border border-border/10 shadow-inner">
-                                <Avatar className="h-20 w-20 ring-2 ring-primary/20 shadow-xl rounded-lg">
-                                    <AvatarFallback className="bg-primary/10 text-primary text-2xl font-medium rounded-lg">
-                                        {user.displayName?.charAt(0).toUpperCase() || 'U'}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 space-y-1.5 overflow-hidden">
-                                    <h3 className="text-xl font-sans font-bold italic tracking-tight text-foreground truncate">{user.displayName}</h3>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Mail className="h-3.5 w-3.5" />
-                                        <p className="font-medium text-xs truncate">{user.email}</p>
-                                    </div>
-                                    <Badge variant="secondary" className="mt-2 text-[10px] font-bold uppercase tracking-wider bg-primary/5 text-primary border-primary/10">
-                                        Đã xác minh
+                        <div className="flex items-center gap-6 p-6 rounded-lg border bg-card">
+                            <Avatar className="h-16 w-16 rounded-full border">
+                                <AvatarFallback className="text-xl">
+                                    {user.displayName?.charAt(0).toUpperCase() || 'U'}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-lg font-semibold truncate">{user.displayName}</h3>
+                                <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
+                                    <Mail className="size-3.5" />
+                                    <span className="truncate">{user.email}</span>
+                                </div>
+                                <div className="mt-3">
+                                    <Badge variant="outline" className="text-[10px] font-mono">
+                                        ID: {user.id.substring(0, 8)}
                                     </Badge>
                                 </div>
                             </div>
@@ -93,60 +83,54 @@ export function ViewUserSheet({
 
                         {/* Role & Status */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="p-5 rounded-xl bg-muted/5 border border-border/10 space-y-3 group hover:bg-muted/10 transition-colors">
-                                <div className="flex items-center gap-2 text-muted-foreground/60 group-hover:text-primary/80 transition-colors">
-                                    <Shield className="h-4 w-4" />
-                                    <span className="text-[10px] font-sans font-bold italic uppercase tracking-widest">Vai trò</span>
+                            <div className="p-4 rounded-lg border bg-muted/20 space-y-2">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <Shield className="size-3.5" />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider">Vai trò</span>
                                 </div>
-                                <div className="pt-1">
-                                    <Badge variant="outline" className="w-full justify-center py-1.5 capitalize border-border/20 bg-background text-foreground font-medium text-xs tracking-wide shadow-sm">
-                                        {user.role}
-                                    </Badge>
-                                </div>
+                                <Badge variant="secondary" className="w-full justify-center capitalize">
+                                    {user.role}
+                                </Badge>
                             </div>
 
-                            <div className="p-5 rounded-xl bg-muted/5 border border-border/10 space-y-3 group hover:bg-muted/10 transition-colors">
-                                <div className="flex items-center gap-2 text-muted-foreground/60 group-hover:text-primary/80 transition-colors">
-                                    <Activity className="h-4 w-4" />
-                                    <span className="text-[10px] font-sans font-bold italic uppercase tracking-widest">Trạng thái</span>
+                            <div className="p-4 rounded-lg border bg-muted/20 space-y-2">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <Activity className="size-3.5" />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider">Trạng thái</span>
                                 </div>
-                                <div className="pt-1">
-                                    <Badge className={cn("w-full justify-center py-1.5 capitalize border font-medium text-xs tracking-wide", statusBadgeClass)}>
-                                        <StatusIcon className="w-3 h-3 mr-1.5" />
-                                        {status}
-                                    </Badge>
-                                </div>
+                                <Badge variant="outline" className={cn("w-full justify-center capitalize", status.includes('cấm') || status.includes('xóa') ? "border-destructive text-destructive" : "")}>
+                                    <StatusIcon className="size-3 mr-1.5" />
+                                    {status}
+                                </Badge>
                             </div>
                         </div>
 
                         {/* Timeline */}
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3">
-                                <div className="h-px flex-1 bg-border/20" />
-                                <span className="text-[10px] font-sans font-bold italic uppercase tracking-widest text-muted-foreground/40">Lịch sử</span>
-                                <div className="h-px flex-1 bg-border/20" />
-                            </div>
+                        <div className="space-y-4">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 px-1">
+                                Lịch sử hoạt động
+                            </h4>
 
-                            <div className="grid gap-3">
+                            <div className="grid gap-2">
                                 {[
-                                    { label: 'Thành viên từ', value: user.createdAt, icon: Fingerprint, color: 'text-blue-500' },
-                                    { label: 'Cập nhật lần cuối', value: user.updatedAt, icon: Terminal, color: 'text-violet-500' },
-                                    user.verifiedAt && { label: 'Thời gian xác minh', value: user.verifiedAt, icon: Shield, color: 'text-emerald-500' },
-                                    user.lastSignInAt && { label: 'Đăng nhập cuối', value: user.lastSignInAt, icon: Clock, color: 'text-amber-500' },
-                                    user.bannedUntil && new Date(user.bannedUntil) > new Date() && { label: 'Thời gian hết hạn cấm', value: user.bannedUntil, icon: Lock, color: 'text-orange-500' },
-                                    user.deletedAt && { label: 'Thời gian đã xóa', value: user.deletedAt, icon: AlertTriangle, color: 'text-red-500' }
+                                    { label: 'Thành viên từ', value: user.createdAt, icon: Fingerprint },
+                                    { label: 'Cập nhật lần cuối', value: user.updatedAt, icon: Terminal },
+                                    user.verifiedAt && { label: 'Xác minh lúc', value: user.verifiedAt, icon: Shield },
+                                    user.lastSignInAt && { label: 'Đăng nhập cuối', value: user.lastSignInAt, icon: Clock },
+                                    user.bannedUntil && new Date(user.bannedUntil) > new Date() && { label: 'Hết hạn cấm', value: user.bannedUntil, icon: Lock },
+                                    user.deletedAt && { label: 'Đã xóa lúc', value: user.deletedAt, icon: AlertTriangle }
                                 ]
                                     .filter(Boolean)
                                     .map((item: any, i) => (
-                                        <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-muted/5 border border-border/5 hover:bg-muted/10 transition-colors group">
-                                            <div className={cn("p-2 rounded-lg bg-background shadow-sm border border-border/10", item.color)}>
-                                                <item.icon className="h-4 w-4" />
+                                        <div key={i} className="flex items-center gap-4 p-3 rounded-md border bg-muted/5">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background border shadow-sm">
+                                                <item.icon className="size-3.5 text-muted-foreground" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 mb-0.5 group-hover:text-foreground/80 transition-colors">
+                                                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                                                     {item.label}
                                                 </p>
-                                                <p className="text-xs font-medium font-mono text-foreground truncate">
+                                                <p className="text-xs font-medium truncate">
                                                     {format(new Date(item.value), 'PPpp')}
                                                 </p>
                                             </div>

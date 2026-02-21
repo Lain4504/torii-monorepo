@@ -50,17 +50,17 @@ export default function PersonnelPage() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] p-8 border-2 border-dashed border-destructive/20 bg-destructive/5 text-center animate-in fade-in duration-500">
-                <div className="w-12 h-12 flex items-center justify-center bg-destructive/10 mb-4 text-destructive">
+            <div className="flex flex-col items-center justify-center min-h-[400px] p-8 bg-destructive/5 text-center rounded-xl border border-destructive/10">
+                <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 mb-4 text-destructive">
                     <ShieldCheck className="size-6" />
                 </div>
                 <div className="max-w-md space-y-2">
-                    <h3 className="text-xl font-bold uppercase tracking-tight text-foreground">Truy cập bị hạn chế</h3>
+                    <h3 className="text-xl font-bold tracking-tight text-foreground uppercase">Truy cập bị hạn chế</h3>
                     <p className="text-sm text-muted-foreground">{error.message}</p>
                     <Button
                         variant="outline"
                         onClick={() => window.location.reload()}
-                        className="mt-4 rounded-xl border-destructive/20 hover:bg-destructive/5"
+                        className="mt-4"
                     >
                         Thử kết nối lại
                     </Button>
@@ -74,7 +74,7 @@ export default function PersonnelPage() {
     const totalPages = data?.totalPages || 0;
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title={isLecturers ? "Đội ngũ Giảng viên" : "Đội ngũ Nhân viên"}
                 subtitle={isLecturers
@@ -84,20 +84,17 @@ export default function PersonnelPage() {
                     { label: `Tổng số ${isLecturers ? 'giáo viên' : 'nhân viên'}`, value: total.toLocaleString() }
                 ]}
                 actions={
-                    <Button
-                        onClick={createDialog.setTrue}
-                        className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all"
-                    >
+                    <Button onClick={createDialog.setTrue} size="lg">
+                        <UserPlus />
                         Thêm {isLecturers ? 'Giảng viên' : 'Nhân viên'}
-                        <UserPlus className="ml-2 size-4" />
                     </Button>
                 }
             />
 
 
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
                 {/* Search & Filter */}
-                <Card className="p-4 rounded-2xl border-border bg-card shadow-sm">
+                <Card className="p-4">
                     <UsersPrimaryToolbar
                         search={search}
                         onSearchChange={setSearch}
@@ -114,7 +111,7 @@ export default function PersonnelPage() {
                 </Card>
 
                 {/* Table container */}
-                <Card className="rounded-2xl p-0 border-border bg-card overflow-hidden shadow-sm">
+                <Card className="p-0 overflow-hidden">
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
