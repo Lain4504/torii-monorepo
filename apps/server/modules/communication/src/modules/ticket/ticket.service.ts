@@ -167,15 +167,24 @@ export class TicketService implements ITicketService {
                     // 2. Refund balance if applicable
                     if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
                         const refundUserId = deletedEnrollment.senderId || userId;
-                        this.logger.log(`Refunding ${deletedEnrollment.finalPrice} coins to User ${refundUserId} (Original student: ${userId})`);
+                        const refundAmount = Math.round(Number(deletedEnrollment.finalPrice));
+
+                        this.logger.log(`Refunding ${refundAmount} coins to User ${refundUserId} (Original student: ${userId})`);
+
                         await firstValueFrom(
                             this.natsClient.send(
                                 { cmd: 'billing.user_balance.add' },
                                 {
                                     userId: refundUserId,
-                                    amount: deletedEnrollment.finalPrice,
+                                    amount: refundAmount,
                                     reason: `Hoàn tiền khóa học - Ticket #${ticket.id}`,
-                                    metadata: { ticketId: ticket.id, courseId, originalStudentId: userId }
+                                    type: 'REFUND',
+                                    metadata: {
+                                        ticketId: ticket.id,
+                                        courseId,
+                                        originalStudentId: userId,
+                                        originalAmount: deletedEnrollment.finalPrice
+                                    }
                                 }
                             )
                         ).catch(err => {
