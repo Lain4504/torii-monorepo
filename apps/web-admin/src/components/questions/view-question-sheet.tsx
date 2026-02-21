@@ -36,7 +36,7 @@ export function ViewQuestionDialog({
                                 Chi tiết câu hỏi
                             </SheetTitle>
                             <SheetDescription>
-                                <span className="px-1.5 py-0.5 bg-muted rounded font-mono text-[10px]">ID: {question.id}</span>
+                                <span className="px-1.5 py-0.5 bg-muted rounded font-mono text-[10px]">Mã: {question.id}</span>
                             </SheetDescription>
                         </div>
                         <Button

@@ -248,7 +248,7 @@ export default function TransactionsPage() {
                                 </div>
                                 <SheetTitle className="text-2xl font-bold tracking-tight">Chi tiết Giao dịch</SheetTitle>
                                 <SheetDescription className="text-xs font-mono text-muted-foreground/60">
-                                    ID: {selectedTx.id}
+                                    Mã: {selectedTx.id}
                                 </SheetDescription>
                             </SheetHeader>
 

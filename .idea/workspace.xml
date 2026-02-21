@@ -5,25 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/assignments-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/assignments-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/create-assignment-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/create-assignment-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/edit-assignment-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/edit-assignment-sheet.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-columns.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/create-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/create-blog-sheet.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/edit-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/edit-blog-sheet.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/view-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/view-blog-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/coupons-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/coupons-columns.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-audit-log-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/course-audit-log-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/common/file-upload.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/common/file-upload.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/courses-columns.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/manage-instructors-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/manage-instructors-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/publish-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/publish-course-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/reject-course-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/reject-course-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/schedule-request-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/schedule-request-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/teaching-schedule-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/teaching-schedule-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/create-lesson-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/create-lesson-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/nav-user.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/nav-user.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/edit-lesson-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/lessons/edit-lesson-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/create-module-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/create-module-sheet.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/edit-module-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/edit-module-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/module-item.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/question-pools/pools-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/question-pools/pools-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/questions/question-detail-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/questions/question-detail-sheet.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/questions/questions-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/questions/questions-columns.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/tickets-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/tickets-columns.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/users-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/questions/view-question-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/questions/view-question-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/settings/backup-codes-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/settings/backup-codes-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/settings/disable-two-factor-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/settings/disable-two-factor-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/settings/enable-two-factor-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/settings/enable-two-factor-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/submissions/grade-submission-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/submissions/grade-submission-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/delete-user-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/delete-user-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/edit-user-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/edit-user-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/users/view-user-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/users/view-user-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/user-analytics.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/user-analytics.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/assignments/submissions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/assignments/submissions-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/audit/audit-logs-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/audit/audit-logs-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-live-sessions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-live-sessions-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/orders-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/orders-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/payments-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/payments-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/rooms/rooms-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/rooms/rooms-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/notifications-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/notifications-page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -408,22 +422,6 @@
       <workItem from="1771674736995" duration="351000" />
       <workItem from="1771676906109" duration="338000" />
     </task>
-    <task id="LOCAL-00793" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770018645527</created>
-      <option name="number" value="00793" />
-      <option name="presentableId" value="LOCAL-00793" />
-      <option name="project" value="LOCAL" />
-      <updated>1770018645527</updated>
-    </task>
-    <task id="LOCAL-00794" summary="fix bug#2">
-      <option name="closed" value="true" />
-      <created>1770018734505</created>
-      <option name="number" value="00794" />
-      <option name="presentableId" value="LOCAL-00794" />
-      <option name="project" value="LOCAL" />
-      <updated>1770018734505</updated>
-    </task>
     <task id="LOCAL-00795" summary="fix bug#2">
       <option name="closed" value="true" />
       <created>1770024176070</created>
@@ -800,7 +798,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771689574854</updated>
     </task>
-    <option name="localTasksCounter" value="842" />
+    <task id="LOCAL-00842" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
+      <option name="closed" value="true" />
+      <created>1771690012748</created>
+      <option name="number" value="00842" />
+      <option name="presentableId" value="LOCAL-00842" />
+      <option name="project" value="LOCAL" />
+      <updated>1771690012748</updated>
+    </task>
+    <task id="LOCAL-00843" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
+      <option name="closed" value="true" />
+      <created>1771690467294</created>
+      <option name="number" value="00843" />
+      <option name="presentableId" value="LOCAL-00843" />
+      <option name="project" value="LOCAL" />
+      <updated>1771690467294</updated>
+    </task>
+    <option name="localTasksCounter" value="844" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

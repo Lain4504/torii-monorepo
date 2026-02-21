@@ -75,7 +75,7 @@ export function ViewUserSheet({
                                 </div>
                                 <div className="mt-3">
                                     <Badge variant="outline" className="text-[10px] font-mono">
-                                        ID: {user.id.substring(0, 8)}
+                                        Mã: {user.id.substring(0, 8)}
                                     </Badge>
                                 </div>
                             </div>

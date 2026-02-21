@@ -77,7 +77,7 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-foreground">
-                                Confirm your password
+                                Xác nhận mật khẩu của bạn
                             </label>
                             <Controller
                                 name="password"
@@ -89,7 +89,7 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
                                             <Input
                                                 {...field}
                                                 type="password"
-                                                placeholder="Enter your password"
+                                                placeholder="Nhập mật khẩu của bạn"
                                                 className="pl-10 rounded-lg"
                                                 autoComplete="current-password"
                                             />
@@ -112,7 +112,7 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
                                 }}
                                 className="flex-1 rounded-lg"
                             >
-                                Cancel
+                                Hủy
                             </Button>
                             <Button
                                 type="submit"
@@ -122,10 +122,10 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
                                 {disableMutation.isPending ? (
                                     <>
                                         <Loader2 className="size-4 animate-spin" />
-                                        Disabling...
+                                        Đang tắt...
                                     </>
                                 ) : (
-                                    'Disable 2FA'
+                                    'Tắt 2FA'
                                 )}
                             </Button>
                         </div>

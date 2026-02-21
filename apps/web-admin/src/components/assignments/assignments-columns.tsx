@@ -59,7 +59,7 @@ export const getAssignmentsColumns = ({
             {row.getValue('title')}
           </span>
           <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
-            ID: {row.original.id.slice(0, 8)}...
+            Mã: {row.original.id.slice(0, 8)}...
           </span>
         </div>
       ),
@@ -127,7 +127,7 @@ export const getAssignmentsColumns = ({
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <span className="font-bold text-foreground">{row.getValue('maxScore')}</span>
-          <span className="text-[10px] text-muted-foreground">pt</span>
+          <span className="text-[10px] text-muted-foreground">điểm</span>
         </div>
       ),
     },

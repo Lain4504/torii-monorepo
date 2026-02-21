@@ -113,7 +113,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                     Chỉnh Sửa Học Phần
                                 </SheetTitle>
                                 <p className="text-xs font-medium text-muted-foreground/60">
-                                    ID: {module.id.substring(0, 8)}...
+                                    Mã: {module.id.substring(0, 8)}...
                                 </p>
                             </div>
                         </div>

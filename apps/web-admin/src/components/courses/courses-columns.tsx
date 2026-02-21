@@ -66,7 +66,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                 </div>
                 <div className="flex flex-col min-w-0">
                     <span className="font-semibold text-foreground text-sm group-hover/title:text-primary transition-colors truncate">{info.getValue()}</span>
-                    <span className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider truncate">ID: {info.row.original.id.slice(0, 8)}</span>
+                    <span className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider truncate">Mã: {info.row.original.id.slice(0, 8)}</span>
                 </div>
             </div>
         ),

@@ -63,7 +63,7 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                 </div>
                 <div className="flex flex-col">
                     <span className="font-bold text-foreground text-lg group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
-                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-0.5">ID: {info.row.original.id.slice(0, 8)}</span>
+                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-0.5">Mã: {info.row.original.id.slice(0, 8)}</span>
                 </div>
             </div>
         ),

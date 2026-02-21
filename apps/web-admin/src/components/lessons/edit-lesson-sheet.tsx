@@ -143,7 +143,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                     Chỉnh Sửa Bài Học
                                 </SheetTitle>
                                 <p className="text-xs font-medium text-muted-foreground/60">
-                                    ID: {lesson.id.substring(0, 8)}...
+                                    Mã: {lesson.id.substring(0, 8)}...
                                 </p>
                             </div>
                         </div>

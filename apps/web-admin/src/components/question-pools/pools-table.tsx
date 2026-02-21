@@ -146,7 +146,7 @@ function PoolRow({
                         {pool.name}
                     </span>
                     <span className="text-[10px] text-muted-foreground/60 font-mono tracking-tight">
-                        ID: {pool.id}
+                        Mã: {pool.id}
                     </span>
                 </div>
             </TableCell>

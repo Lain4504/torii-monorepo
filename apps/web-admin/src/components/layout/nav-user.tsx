@@ -5,7 +5,6 @@ import {
     Bell,
     ChevronsUpDown,
     LogOut,
-    ShieldCheck,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 

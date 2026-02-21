@@ -113,7 +113,7 @@ export default function SubmissionsPage() {
                 {assignment.type === AssignmentType.FILE && "Tệp tin"}
                 {assignment.type === AssignmentType.BOTH && "Văn bản & Tệp tin"}
               </Badge>
-              <span className="text-xs font-mono text-muted-foreground">ID: {assignment.id.slice(0, 8)}</span>
+              <span className="text-xs font-mono text-muted-foreground">Mã: {assignment.id.slice(0, 8)}</span>
             </div>
             <h2 className="text-xl font-bold">{assignment.title}</h2>
           </div>

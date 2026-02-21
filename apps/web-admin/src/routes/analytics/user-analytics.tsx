@@ -144,7 +144,7 @@ export default function UserAnalytics() {
                                     </div>
                                     <div>
                                         <p className="text-xs font-bold uppercase text-foreground">{role.role}</p>
-                                        <p className="text-[9px] text-muted-foreground/40 font-black uppercase">User Role</p>
+                                        <p className="text-[9px] text-muted-foreground/40 font-black uppercase">Vai trò</p>
                                     </div>
                                 </div>
                                 <div className="text-right">

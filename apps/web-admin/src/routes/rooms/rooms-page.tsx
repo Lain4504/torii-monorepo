@@ -172,7 +172,7 @@ export default function RoomsPage() {
                       <TableCell>
                         <div className="space-y-1">
                           <p className="font-semibold text-sm">{room.roomTitle}</p>
-                          <p className="text-[10px] text-muted-foreground font-mono">ID: {room.roomId}</p>
+                          <p className="text-[10px] text-muted-foreground font-mono">Mã: {room.roomId}</p>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -277,9 +277,9 @@ function PastRoomRow({ room, idx, formatDuration, formatFileSize }: {
           </Button>
         </TableCell>
         <TableCell>
-          <div className="space-y-1">
+          <div>
             <p className="font-semibold text-sm">{room.roomTitle}</p>
-            <p className="text-[10px] text-muted-foreground font-mono">ID: {room.roomId}</p>
+            <p className="text-[10px] text-muted-foreground font-mono">Mã: {room.roomId}</p>
           </div>
         </TableCell>
         <TableCell>
@@ -320,8 +320,8 @@ function PastRoomRow({ room, idx, formatDuration, formatFileSize }: {
                         <BarChart3 className="size-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold">Analytics Report</p>
-                        <p className="text-[10px] text-muted-foreground font-mono">ID: {room.analyticsFileId}</p>
+                        <p className="text-sm font-bold">Báo cáo phân tích</p>
+                        <p className="text-[10px] text-muted-foreground font-mono">Mã: {room.analyticsFileId}</p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" className="rounded-lg text-[10px] font-bold uppercase">

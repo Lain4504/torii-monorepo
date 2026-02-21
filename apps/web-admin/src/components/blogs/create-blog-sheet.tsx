@@ -99,8 +99,8 @@ export function CreateBlogSheet({
             });
 
             if (!uploadResponse.ok) {
-                const errorText = await uploadResponse.text().catch(() => 'Unknown error');
-                throw new Error(`Upload failed with status ${uploadResponse.status}: ${errorText}`);
+                const errorText = await uploadResponse.text().catch(() => 'Lỗi không xác định');
+                throw new Error(`Tải lên thất bại với mã lỗi ${uploadResponse.status}: ${errorText}`);
             }
 
             // Confirm upload
@@ -108,8 +108,8 @@ export function CreateBlogSheet({
             return confirmResult.fileUrl;
         } catch (error) {
             console.error('Upload failed:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Unknown upload error';
-            throw new Error(`Failed to upload file: ${errorMessage}`);
+            const errorMessage = error instanceof Error ? error.message : 'Lỗi tải lên không xác định';
+            throw new Error(`Không thể tải lên file: ${errorMessage}`);
         }
     };
 

@@ -206,7 +206,7 @@ export default function CourseLiveSessionsPage() {
                                     <TableCell>
                                         <div className="space-y-1">
                                             <p className="font-semibold text-sm">{session.title}</p>
-                                            <p className="text-[10px] text-muted-foreground font-mono">ID: {session.id.slice(0, 8)}</p>
+                                            <p className="text-[10px] text-muted-foreground font-mono">Mã: {session.id.slice(0, 8)}</p>
                                         </div>
                                     </TableCell>
                                     <TableCell>

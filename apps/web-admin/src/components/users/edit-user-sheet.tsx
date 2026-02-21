@@ -56,13 +56,13 @@ export function EditUserSheet({
                 id: user.id,
                 user: data,
             });
-            toast.success('User Updated', {
-                description: `User details have been updated.`,
+            toast.success('Đã cập nhật người dùng', {
+                description: `Thông tin người dùng đã được cập nhật.`,
             });
             onOpenChange(false);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to update user';
-            toast.error('Update Failed', {
+            const errorMessage = error instanceof Error ? error.message : 'Không thể cập nhật người dùng';
+            toast.error('Cập nhật thất bại', {
                 description: errorMessage,
             });
         }

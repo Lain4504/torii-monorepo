@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Bell, Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
+import { Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
 import { format, formatDistanceToNow } from 'date-fns'

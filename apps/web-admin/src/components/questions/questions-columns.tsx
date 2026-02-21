@@ -108,7 +108,7 @@ export const getQuestionsColumns = ({
                     </div>
                     <div className="flex flex-col min-w-0">
                         <span className="font-black italic uppercase tracking-tight text-foreground group-hover/text:text-primary transition-colors truncate">{info.getValue()}</span>
-                        <span className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">UID: {info.row.original.id.slice(0, 8)}</span>
+                        <span className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">Mã: {info.row.original.id.slice(0, 8)}</span>
                     </div>
                 </div>
             ),

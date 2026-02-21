@@ -77,7 +77,7 @@ export function QuestionDetailSheet({
                             Chi tiết Câu hỏi
                         </SheetTitle>
                         <SheetDescription className="text-sm font-medium text-muted-foreground/60 flex items-center gap-3">
-                            <span>ID: <span className="font-mono text-primary/60">{question.id.slice(0, 12)}...</span></span>
+                            <span>Mã: <span className="font-mono text-primary/60">{question.id.slice(0, 12)}...</span></span>
                             <span className="size-1 rounded-full bg-border" />
                             <span className="flex items-center gap-1.5 uppercase font-bold text-[10px] tracking-wider">
                                 <Calendar className="size-3" />

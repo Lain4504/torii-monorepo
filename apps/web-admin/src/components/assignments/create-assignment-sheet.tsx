@@ -350,7 +350,7 @@ export function CreateAssignmentSheet({
                             <FormControl>
                               <Input
                                 type="number"
-                                placeholder="Cài đặt MB"
+                                placeholder="Nhập dung lượng"
                                 value={field.value ? field.value / 1048576 : ""}
                                 onChange={(e) => field.onChange(Number(e.target.value) * 1048576)}
                                 className="rounded-xl"

@@ -288,11 +288,11 @@ export function EnableTwoFactorDialog({
                 <Key className="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-foreground">
-                    Save these backup codes
+                    Lưu các mã dự phòng này
                   </p>
                   <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                    Each code can only be used once. Store them in a safe place
-                    in case you lose access to your authenticator app.
+                    Mỗi mã chỉ có thể sử dụng một lần. Lưu chúng ở nơi an toàn
+                    trong trường hợp bạn mất quyền truy cập vào ứng dụng xác thực.
                   </p>
                 </div>
               </div>
@@ -322,7 +322,7 @@ export function EnableTwoFactorDialog({
                 ) : (
                   <Copy className="size-4" />
                 )}
-                Copy Codes
+                Sao chép mã
               </Button>
               <Button
                 onClick={downloadBackupCodes}
@@ -330,12 +330,12 @@ export function EnableTwoFactorDialog({
                 className="flex-1 gap-2 rounded-lg"
               >
                 <Download className="size-4" />
-                Download
+                Tải xuống
               </Button>
             </div>
 
             <Button onClick={handleFinish} className="w-full rounded-lg">
-              I've Saved My Backup Codes
+              Tôi đã lưu mã dự phòng
             </Button>
           </div>
         )}

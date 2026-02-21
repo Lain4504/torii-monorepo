@@ -151,7 +151,7 @@ export function EditAssignmentSheet({
             Chỉnh sửa <span className="text-primary not-italic">Bài Tập</span>
           </SheetTitle>
           <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground/50">
-            ID: {assignment?.id.substring(0, 8)}...
+            Mã: {assignment?.id.substring(0, 8)}...
           </SheetDescription>
         </SheetHeader>
 

@@ -108,7 +108,7 @@ export function GradeSubmissionSheet({
             </Badge>
           </div>
           <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground/50 font-semibold">
-            Học viên: <span className="text-primary">{(submission as any).user?.displayName || submission.userId}</span> • ID: <span className="font-mono">{submission.id.slice(0, 8)}</span>
+            Học viên: <span className="text-primary">{(submission as any).user?.displayName || submission.userId}</span> • Mã: <span className="font-mono">{submission.id.slice(0, 8)}</span>
           </SheetDescription>
         </SheetHeader>
 

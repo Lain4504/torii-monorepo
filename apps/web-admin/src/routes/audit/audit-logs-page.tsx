@@ -238,7 +238,7 @@ function AuditLogDetailsSheet({ log }: { log: AuditLog }) {
                                     {JSON.stringify(log.metadata, null, 2)}
                                 </pre>
                                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <CopyButton text={JSON.stringify(log.metadata, null, 2)} label="Metadata" />
+                                    <CopyButton text={JSON.stringify(log.metadata, null, 2)} label="Dữ liệu" />
                                 </div>
                             </div>
                         </div>
@@ -256,7 +256,7 @@ function AuditLogDetailsSheet({ log }: { log: AuditLog }) {
                                 <span className="text-[11px] font-mono font-bold text-foreground">{log.ipAddress || 'Không rõ'}</span>
                             </div>
                             <div className="p-2.5 bg-muted/20 rounded-lg">
-                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase mb-1.5 block">User Agent</span>
+                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase mb-1.5 block">Trình duyệt</span>
                                 <p className="text-[10px] font-mono text-muted-foreground/80 leading-snug break-all truncate" title={log.userAgent ?? undefined}>
                                     {log.userAgent || 'Không có dữ liệu'}
                                 </p>

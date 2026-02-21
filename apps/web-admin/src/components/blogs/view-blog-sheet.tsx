@@ -41,7 +41,7 @@ export function ViewBlogSheet({
                                     Xem chi tiết <span className="text-primary">Bài viết</span>
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                                    ID: <span className="font-mono text-primary">{blog.id.substring(0, 8)}</span>
+                                    Mã: <span className="font-mono text-primary">{blog.id.substring(0, 8)}</span>
                                 </SheetDescription>
                             </div>
                         </div>

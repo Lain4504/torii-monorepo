@@ -237,7 +237,7 @@ export default function OrdersPage() {
                         <span className="font-semibold text-foreground truncate max-w-[200px]">
                           {payment.userId}
                         </span>
-                        <span className="text-[10px] text-muted-foreground/50">ID: {payment.id.slice(0, 8)}</span>
+                        <span className="text-[10px] text-muted-foreground/50">Mã: {payment.id.slice(0, 8)}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">

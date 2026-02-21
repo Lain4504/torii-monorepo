@@ -31,13 +31,13 @@ export function DeleteUserDialog({
         if (!user) return;
         try {
             await deleteUser.mutateAsync({ id: user.id, hardDelete: true });
-            toast.success('User Deleted', {
-                description: `${user.displayName} has been removed.`,
+            toast.success('Đã xóa người dùng', {
+                description: `${user.displayName} đã được xóa khỏi hệ thống.`,
             });
             onOpenChange(false);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to delete user';
-            toast.error('Deletion Failed', {
+            const errorMessage = error instanceof Error ? error.message : 'Không thể xóa người dùng';
+            toast.error('Xóa thất bại', {
                 description: errorMessage,
             });
         }

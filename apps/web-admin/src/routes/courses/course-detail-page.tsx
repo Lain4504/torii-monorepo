@@ -472,7 +472,7 @@ export default function CourseDetailPage() {
                                                 <TableCell className="border-r border-border/30">
                                                     <div className="space-y-1">
                                                         <p className="font-semibold text-sm">{session.title}</p>
-                                                        <p className="text-[10px] text-muted-foreground font-mono">ID: {session.id.slice(0, 8)}</p>
+                                                        <p className="text-[10px] text-muted-foreground font-mono">Mã: {session.id.slice(0, 8)}</p>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="border-r border-border/30">
@@ -583,7 +583,7 @@ export default function CourseDetailPage() {
             <EditModuleSheet open={editModuleOpen} onOpenChange={setEditModuleOpen} module={selectedModule} />
             <DeleteModuleDialog open={deleteModuleOpen} onOpenChange={setDeleteModuleOpen} module={selectedModule} />
 
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div>Đang tải...</div>}>
                 <CreateLessonSheet open={createLessonOpen} onOpenChange={setCreateLessonOpen} moduleId={selectedModuleIdForLesson || ''} />
             </Suspense>
             <EditLessonSheet open={editLessonOpen} onOpenChange={setEditLessonOpen} lesson={selectedLesson} />

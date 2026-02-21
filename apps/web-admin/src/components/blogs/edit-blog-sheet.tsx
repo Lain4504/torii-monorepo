@@ -202,7 +202,7 @@ export function EditBlogSheet({
                                     Chỉnh sửa bài viết
                                 </SheetTitle>
                                 <SheetDescription className="text-sm text-muted-foreground flex items-center gap-2">
-                                    ID: <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{blog.id.substring(0, 8)}</span>
+                                    Mã: <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{blog.id.substring(0, 8)}</span>
                                 </SheetDescription>
                             </div>
                         </div>
