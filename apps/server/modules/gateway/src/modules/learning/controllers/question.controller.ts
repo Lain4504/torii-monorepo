@@ -19,15 +19,18 @@ import {
     successPaginatedResponse,
     GatewayAuthGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { questionQueryDTOSchema } from '@workspace/schemas';
+import type { QuestionQueryDTO } from '@workspace/schemas';
 
 @Controller('api/questions')
 @UseGuards(GatewayAuthGuard)
 export class QuestionController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
-    async findAll(@Query() query: any) {
+    @Post('search')
+    async findAll(@Body(new ZodValidationPipe(questionQueryDTOSchema)) query: QuestionQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

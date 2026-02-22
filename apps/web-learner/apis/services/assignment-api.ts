@@ -76,9 +76,9 @@ export const assignmentApi = {
    * Get all assignments for a course with pagination
    */
   getCourseAssignments: async (params: AssignmentQueryParams = {}): Promise<PaginatedApiResponse<AssignmentResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<AssignmentResponseDTO>>(
-      '/api/assignments',
-      { params }
+    const response = await apiClient.post<PaginatedApiResponse<AssignmentResponseDTO>>(
+      '/api/assignments/search',
+      params
     );
     return response.data;
   },
@@ -87,9 +87,9 @@ export const assignmentApi = {
    * Get all assignments for the current user (across all enrolled courses)
    */
   getMyAssignments: async (params: Omit<AssignmentQueryParams, 'courseId'> = {}): Promise<PaginatedApiResponse<AssignmentResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<AssignmentResponseDTO>>(
-      '/api/assignments',
-      { params: { ...params, status: 'PUBLISHED' } }
+    const response = await apiClient.post<PaginatedApiResponse<AssignmentResponseDTO>>(
+      '/api/assignments/search',
+      { ...params, status: 'PUBLISHED' }
     );
     return response.data;
   },
@@ -195,7 +195,7 @@ export function useMySubmission(assignmentId: string) {
  */
 export function useSubmitAssignment() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ assignmentId, dto }: { assignmentId: string; dto: SubmitAssignmentDto }) =>
       assignmentApi.submitAssignment(assignmentId, dto),
@@ -216,7 +216,7 @@ export function useSubmitAssignment() {
  */
 export function useSaveDraft() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ assignmentId, dto }: { assignmentId: string; dto: SubmitAssignmentDto }) =>
       assignmentApi.saveDraft(assignmentId, dto),

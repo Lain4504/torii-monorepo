@@ -13,9 +13,9 @@ export const enrollmentApi = {
      * Get all enrollments
      */
     async getAllEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<EnrollmentResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<EnrollmentResponseDTO>>(
-            '/api/enrollments',
-            { params: query }
+        const response = await apiClient.post<PaginatedApiResponse<EnrollmentResponseDTO>>(
+            '/api/enrollments/search',
+            query || {}
         );
         return response.data;
     },
@@ -71,9 +71,9 @@ export const enrollmentApi = {
      * Check if a gift recipient (by email) is enrolled in a course
      */
     async checkGiftRecipient(email: string, courseId: string): Promise<{ isRegistered: boolean; isEnrolled: boolean }> {
-        const response = await apiClient.get<StandardApiResponse<{ isRegistered: boolean; isEnrolled: boolean }>>(
+        const response = await apiClient.post<StandardApiResponse<{ isRegistered: boolean; isEnrolled: boolean }>>(
             '/api/enrollments/check-gift',
-            { params: { email, courseId } }
+            { email, courseId }
         );
         return response.data.data!;
     },

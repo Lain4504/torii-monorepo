@@ -29,9 +29,7 @@ export const orderApi = {
      * Get all raw transactions (payments)
      */
     async getAllTransactions(query?: PaymentQueryDTO): Promise<PaginatedApiResponse<PaymentResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<PaymentResponseDTO>>('/api/orders/transactions', {
-            params: query,
-        });
+        const response = await apiClient.post<PaginatedApiResponse<PaymentResponseDTO>>('/api/orders/transactions/search', query || {});
         return response.data;
     },
 };

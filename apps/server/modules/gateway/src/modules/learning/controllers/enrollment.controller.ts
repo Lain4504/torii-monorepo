@@ -25,11 +25,11 @@ import {
 export class EnrollmentController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get('check-gift')
+    @Post('check-gift/search')
     async checkGiftRecipient(
-        @Query('email') email: string,
-        @Query('courseId') courseId: string
+        @Body() body: { email: string; courseId: string }
     ) {
+        const { email, courseId } = body;
         try {
             // 1. Find user by email using the existing findAll endpoint with search
             const identityResponse = await firstValueFrom(
@@ -65,8 +65,8 @@ export class EnrollmentController {
         }
     }
 
-    @Get()
-    async findAll(@Query() query: any) {
+    @Post('search')
+    async findAll(@Body() query: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

@@ -14,9 +14,7 @@ export const blogApi = {
      * Get all blogs with pagination and filters
      */
     findAll: async (params: BlogQueryDTO = { page: 1, limit: 12 }): Promise<PaginatedApiResponse<BlogResponseDTO>> => {
-        const response = await apiClient.get<PaginatedApiResponse<BlogResponseDTO>>('/api/blogs', {
-            params,
-        });
+        const response = await apiClient.post<PaginatedApiResponse<BlogResponseDTO>>('/api/blogs/search', params);
 
         // Backend returns: { success: true, data: [...], total, page, limit, totalPages }
         const responseData = response.data;

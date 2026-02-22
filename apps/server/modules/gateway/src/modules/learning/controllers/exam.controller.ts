@@ -18,15 +18,18 @@ import {
     successPaginatedResponse,
     GatewayAuthGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { examQueryDTOSchema, examSessionQueryDTOSchema } from '@workspace/schemas';
+import type { ExamQueryDTO, ExamSessionQueryDTO } from '@workspace/schemas';
 
 @Controller('api/exams')
 @UseGuards(GatewayAuthGuard)
 export class ExamController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
-    async findAll(@Query() query: any, @Req() req: ReqWithRequester) {
+    @Post('search')
+    async findAll(@Body(new ZodValidationPipe(examQueryDTOSchema)) query: ExamQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
@@ -41,8 +44,8 @@ export class ExamController {
         }
     }
 
-    @Get('attempts')
-    async getExamAttempts(@Query() query: any, @Req() req: ReqWithRequester) {
+    @Post('attempts/search')
+    async getExamAttempts(@Body(new ZodValidationPipe(examSessionQueryDTOSchema)) query: ExamSessionQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
@@ -125,8 +128,8 @@ export class ExamController {
         }
     }
 
-    @Get(':id/sessions')
-    async getExamSessions(@Param('id') examId: string, @Query() query: any, @Req() req: ReqWithRequester) {
+    @Post(':id/sessions/search')
+    async getExamSessions(@Param('id') examId: string, @Body(new ZodValidationPipe(examSessionQueryDTOSchema)) query: ExamSessionQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

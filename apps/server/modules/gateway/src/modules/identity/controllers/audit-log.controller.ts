@@ -1,38 +1,24 @@
-import { Controller, Get, Query, UseGuards, Inject, Param } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, UseGuards, Inject, Param } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard } from '@server/shared';
+import { successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard, ZodValidationPipe } from '@server/shared';
+import { auditLogFiltersDTOSchema } from '@workspace/schemas';
+import type { AuditLogFiltersDTO } from '@workspace/schemas';
 
 @Controller('api/admin/audit-logs')
 @UseGuards(GatewayAuthGuard)
 export class AuditLogController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
+    @Post('search')
     async getAuditLogs(
-        @Query('userId') userId?: string,
-        @Query('action') action?: string,
-        @Query('entity') entity?: string,
-        @Query('entityId') entityId?: string,
-        @Query('startDate') startDate?: string,
-        @Query('endDate') endDate?: string,
-        @Query('page') page?: string,
-        @Query('limit') limit?: string,
+        @Body(new ZodValidationPipe(auditLogFiltersDTOSchema)) dto: AuditLogFiltersDTO,
     ) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.audit.query' },
-                    {
-                        userId,
-                        action,
-                        entity,
-                        entityId,
-                        startDate,
-                        endDate,
-                        page: page ? parseInt(page, 10) : 1,
-                        limit: limit ? parseInt(limit, 10) : 50,
-                    },
+                    dto,
                 ),
             );
             return successPaginatedResponse(result);
@@ -41,16 +27,16 @@ export class AuditLogController {
         }
     }
 
-    @Get('user/:userId')
+    @Post('user/:userId/search')
     async getUserActivity(
         @Param('userId') userId: string,
-        @Query('limit') limit?: string,
+        @Body() dto: { limit?: number },
     ) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.audit.getUserActivity' },
-                    { userId, limit: limit ? parseInt(limit, 10) : 20 },
+                    { userId, limit: dto.limit ?? 20 },
                 ),
             );
             return successResponse(result);
@@ -59,11 +45,11 @@ export class AuditLogController {
         }
     }
 
-    @Get('entity/:entity/:entityId')
+    @Post('entity/:entity/:entityId/search')
     async getEntityActivity(
         @Param('entity') entity: string,
         @Param('entityId') entityId: string,
-        @Query('limit') limit?: string,
+        @Body() dto: { limit?: number },
     ) {
         try {
             const result = await firstValueFrom(
@@ -72,7 +58,7 @@ export class AuditLogController {
                     {
                         entity,
                         entityId,
-                        limit: limit ? parseInt(limit, 10) : 20,
+                        limit: dto.limit ?? 20,
                     },
                 ),
             );

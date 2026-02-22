@@ -77,6 +77,15 @@ export const userCondDTOSchema = userSchema
 
 export type UserCondDTO = z.infer<typeof userCondDTOSchema>;
 
+// Search Query DTO
+export const userSearchDTOSchema = userCondDTOSchema.extend({
+    page: z.number().int().min(1).optional().default(1),
+    limit: z.number().int().min(1).max(100).optional().default(10),
+    search: z.string().optional().default(''),
+});
+
+export type UserSearchDTO = z.infer<typeof userSearchDTOSchema>;
+
 // Response DTO (safe for client - no password)
 export const userResponseDTOSchema = userSchema.omit({
     password: true,

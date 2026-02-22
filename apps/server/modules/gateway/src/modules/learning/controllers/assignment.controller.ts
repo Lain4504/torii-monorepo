@@ -52,8 +52,8 @@ export class AssignmentController {
         return successResponse({ assignment: result }, 'Assignment created successfully');
     }
 
-    @Get()
-    async findAll(@Query(new ZodValidationPipe(queryAssignmentsDto)) query: any, @Req() req: ReqWithRequester) {
+    @Post('search')
+    async findAll(@Body(new ZodValidationPipe(queryAssignmentsDto)) query: any, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.assignment.findAll' },

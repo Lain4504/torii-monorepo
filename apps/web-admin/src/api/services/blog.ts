@@ -14,9 +14,9 @@ import type {
 // ============================================================================
 
 export const blogApi = {
-    // GET /api/blogs
+    // POST /api/blogs/search
     async findAll(params: BlogQueryDTO): Promise<PaginatedApiResponse<BlogResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<BlogResponseDTO>>('/api/blogs', { params });
+        const response = await apiClient.post<PaginatedApiResponse<BlogResponseDTO>>('/api/blogs/search', params);
         return response.data;
     },
 

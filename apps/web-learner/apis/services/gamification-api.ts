@@ -82,16 +82,9 @@ export const gamificationApi = {
     async getHistory(
         params: { page?: number; limit?: number; type?: string } = {}
     ): Promise<GamificationHistoryPaginatedResponse> {
-        const queryParams = new URLSearchParams();
-
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.limit) queryParams.append('limit', params.limit.toString());
-        if (params.type) queryParams.append('type', params.type);
-
-        const response =
-            await apiClient.get<
-                StandardApiResponse<GamificationHistoryPaginatedResponse>
-            >(`/api/gamification/history?${queryParams.toString()}`);
+        const response = await apiClient.post<
+            StandardApiResponse<GamificationHistoryPaginatedResponse>
+        >('/api/gamification/history/search', params);
 
         if (response.data.success && response.data.data) {
             return response.data.data;
@@ -137,7 +130,8 @@ export const gamificationApi = {
         throw new Error(
             response.data.message || 'Failed to redeem points'
         );
-    },};
+    },
+};
 
 /**
  * Hook: Get leaderboard

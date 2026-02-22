@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import type { 
-  PaginatedApiResponse, 
-  AssignmentResponseDTO, 
-  CreateAssignmentDto, 
-  UpdateAssignmentDto, 
-  QueryAssignmentsDto, 
-  StandardApiResponse 
+import type {
+    PaginatedApiResponse,
+    AssignmentResponseDTO,
+    CreateAssignmentDto,
+    UpdateAssignmentDto,
+    QueryAssignmentsDto,
+    StandardApiResponse
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -14,9 +14,9 @@ import type {
 // ============================================================================
 
 export const assignmentsApi = {
-    // GET /api/assignments
+    // POST /api/assignments/search
     async findAll(params: QueryAssignmentsDto): Promise<PaginatedApiResponse<AssignmentResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<AssignmentResponseDTO>>('/api/assignments', { params });
+        const response = await apiClient.post<PaginatedApiResponse<AssignmentResponseDTO>>('/api/assignments/search', params);
         return response.data;
     },
 

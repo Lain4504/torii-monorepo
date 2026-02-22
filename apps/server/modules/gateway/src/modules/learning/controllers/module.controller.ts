@@ -22,25 +22,26 @@ import {
     Permissions,
     PermissionsGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
 import { GatewayAuthGuard } from '@server/shared';
+import { moduleQueryDTOSchema } from '@workspace/schemas';
+import type { ModuleQueryDTO } from '@workspace/schemas';
 
 @Controller('api/modules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ModuleController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
+    @Post('search')
     async findAll(
-        @Query('page') page: number = 1,
-        @Query('limit') limit: number = 10,
-        @Query('search') search: string = '',
+        @Body(new ZodValidationPipe(moduleQueryDTOSchema)) dto: ModuleQueryDTO,
     ) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.findAll' },
-                    { page, limit, search }
+                    dto
                 )
             );
             return successPaginatedResponse(result);

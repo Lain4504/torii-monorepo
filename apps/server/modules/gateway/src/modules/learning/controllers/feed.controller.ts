@@ -27,8 +27,8 @@ export class FeedController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Public()
-    @Get()
-    async findAll(@Query() query: any, @Req() req: ReqWithRequester) {
+    @Post('search')
+    async findAll(@Body() query: any, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

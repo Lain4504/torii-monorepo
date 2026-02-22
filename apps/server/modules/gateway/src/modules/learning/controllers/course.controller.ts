@@ -25,7 +25,10 @@ import {
     successPaginatedResponse,
     Public,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { courseQueryDTOSchema } from '@workspace/schemas';
+import type { CourseQueryDTO } from '@workspace/schemas';
 
 @Controller('api/courses')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -57,9 +60,9 @@ export class CourseController {
     }
     */
 
-    @Get('advanced-search')
+    @Post('advanced-search')
     @Public()
-    async advancedSearch(@Query() query: any) {
+    async advancedSearch(@Body() query: any) {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.course.advancedSearch' }, query)
         );
@@ -75,9 +78,9 @@ export class CourseController {
         return successResponse({ courses: result });
     }
 
-    @Get()
+    @Post('search')
     @Public()
-    async getCourses(@Query() query: any, @Req() req: ReqWithRequester) {
+    async getCourses(@Body(new ZodValidationPipe(courseQueryDTOSchema)) query: CourseQueryDTO, @Req() req: ReqWithRequester) {
         const requester = req.requester;
 
         // Logic:

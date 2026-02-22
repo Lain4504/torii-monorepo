@@ -12,9 +12,9 @@ export const certificateApi = {
      * Get all certificates (paginated)
      */
     async getAllCertificates(query?: CertificateQueryDTO): Promise<PaginatedApiResponse<CertificateResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<CertificateResponseDTO>>(
-            '/api/certificates',
-            { params: query }
+        const response = await apiClient.post<PaginatedApiResponse<CertificateResponseDTO>>(
+            '/api/certificates/search',
+            query || {}
         );
         return response.data;
     },

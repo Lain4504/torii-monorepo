@@ -25,8 +25,8 @@ import {
 export class WishlistController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
-    async findAll(@Query() query: any) {
+    @Post('search')
+    async findAll(@Body() query: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

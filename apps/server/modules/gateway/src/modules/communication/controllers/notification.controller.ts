@@ -34,11 +34,10 @@ import {
 export class NotificationController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
-    @UsePipes(new ZodValidationPipe(notificationQueryDTOSchema)) // Optional: if query validation is needed here
+    @Post('search')
     async findAll(
         @Req() req: ReqWithRequester,
-        @Query() query: NotificationQueryDTO,
+        @Body(new ZodValidationPipe(notificationQueryDTOSchema)) query: NotificationQueryDTO,
     ) {
         try {
             const userId = req.requester?.sub;

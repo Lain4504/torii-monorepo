@@ -19,7 +19,10 @@ import {
     successPaginatedResponse,
     GatewayAuthGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { flashcardDeckQueryDTOSchema } from '@workspace/schemas';
+import type { FlashcardDeckQueryDTO } from '@workspace/schemas';
 
 @Controller('api/flashcard-decks')
 @UseGuards(GatewayAuthGuard)
@@ -42,8 +45,8 @@ export class FlashcardDeckController {
         }
     }
 
-    @Get()
-    async findAllDecks(@Query() query: any, @Req() req: ReqWithRequester) {
+    @Post('search')
+    async findAllDecks(@Body(new ZodValidationPipe(flashcardDeckQueryDTOSchema)) query: FlashcardDeckQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

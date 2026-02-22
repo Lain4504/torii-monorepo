@@ -42,8 +42,8 @@ export class TicketController {
         return successResponse(result, 'Ticket submitted successfully');
     }
 
-    @Get()
-    async getTickets(@Query() query: TicketQueryDTO, @Req() req: ReqWithRequester) {
+    @Post('search')
+    async getTickets(@Body() query: TicketQueryDTO, @Req() req: ReqWithRequester) {
         const requester = req.requester;
 
         // Learners can only see their own tickets

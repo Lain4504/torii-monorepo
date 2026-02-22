@@ -59,9 +59,7 @@ export const orderApi = {
      * Get user balance transaction history (internal coins)
      */
     async getBalanceHistory(params: { page?: number; limit?: number; type?: string } = {}): Promise<BalanceTransactionPaginatedResponse> {
-        const response = await apiClient.get<StandardApiResponse<BalanceTransactionPaginatedResponse>>('/api/orders/wallet/balance-history', {
-            params,
-        });
+        const response = await apiClient.post<StandardApiResponse<BalanceTransactionPaginatedResponse>>('/api/orders/wallet/balance-history/search', params);
         if (response.data.success && response.data.data) {
             return response.data.data;
         }

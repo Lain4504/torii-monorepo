@@ -14,9 +14,9 @@ import type {
 // ============================================================================
 
 export const modulesApi = {
-    // GET /api/admin/modules
+    // POST /api/modules/search
     async findAll(params: ModuleQueryDTO): Promise<PaginatedApiResponse<ModuleResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<ModuleResponseDTO>>('/api/modules', { params });
+        const response = await apiClient.post<PaginatedApiResponse<ModuleResponseDTO>>('/api/modules/search', params);
         return response.data;
     },
 

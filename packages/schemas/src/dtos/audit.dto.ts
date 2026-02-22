@@ -26,10 +26,10 @@ export const auditLogFiltersDTOSchema = z.object({
     action: z.string().optional(),
     entity: z.string().optional(),
     entityId: z.string().optional(),
-    startDate: z.date().optional(),
-    endDate: z.date().optional(),
-    page: z.number().int().min(1).optional(),
-    limit: z.number().int().min(1).max(100).optional(),
+    startDate: z.coerce.date().optional(),
+    endDate: z.coerce.date().optional(),
+    page: z.number().int().min(1).optional().default(1),
+    limit: z.number().int().min(1).max(100).optional().default(50),
 });
 
 export type AuditLogFiltersDTO = z.infer<typeof auditLogFiltersDTOSchema>;

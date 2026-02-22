@@ -28,8 +28,8 @@ export class BlogController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Public()
-    @Get()
-    async findAllBlogs(@Query() query: any) {
+    @Post('search')
+    async findAllBlogs(@Body() query: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

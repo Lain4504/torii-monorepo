@@ -32,9 +32,9 @@ export type ReviewQueryDTO = {
 // ============================================================================
 
 export class ReviewsApi {
-    // GET /api/courses/reviews
+    // POST /api/courses/reviews/search
     static async findAll(params: ReviewQueryDTO): Promise<PaginatedApiResponse<ReviewResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<ReviewResponseDTO>>('/api/courses/reviews', { params });
+        const response = await apiClient.post<PaginatedApiResponse<ReviewResponseDTO>>('/api/courses/reviews/search', params);
         return response.data;
     }
 

@@ -25,9 +25,7 @@ export const flashcardApi = {
             jlptLevel: params.jlptLevel,
         };
 
-        const response = await apiClient.get<PaginatedApiResponse<FlashcardDeckResponseDTO>>('/api/flashcard-decks', {
-            params: query,
-        });
+        const response = await apiClient.post<PaginatedApiResponse<FlashcardDeckResponseDTO>>('/api/flashcard-decks/search', query);
         return response.data;
     },
 
@@ -61,9 +59,7 @@ export const flashcardApi = {
             isArchived: params.isArchived,
         };
 
-        const response = await apiClient.get<PaginatedApiResponse<FlashcardResponseDTO>>('/api/flashcards', {
-            params: query,
-        });
+        const response = await apiClient.post<PaginatedApiResponse<FlashcardResponseDTO>>('/api/flashcards/search', query);
         return response.data;
     },
 
@@ -89,7 +85,7 @@ export const flashcardApi = {
     // --- REVIEWS ---
 
     getCardsDue: async (params: { deckId?: string; limit?: number }): Promise<any[]> => {
-        const response = await apiClient.get<StandardApiResponse<{ flashcards: any[] }>>('/api/flashcards/reviews/due', { params });
+        const response = await apiClient.post<StandardApiResponse<{ flashcards: any[] }>>('/api/flashcards/reviews/due', params);
         return response.data.data!.flashcards;
     },
 
@@ -127,7 +123,7 @@ export const flashcardApi = {
     },
 
     getRecentSessions: async (params: { deckId?: string; limit?: number }): Promise<any[]> => {
-        const response = await apiClient.get<StandardApiResponse<{ sessions: any[] }>>('/api/flashcards/reviews/sessions', { params });
+        const response = await apiClient.post<StandardApiResponse<{ sessions: any[] }>>('/api/flashcards/reviews/sessions', params);
         return response.data.data!.sessions;
     }
 };

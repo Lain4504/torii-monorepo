@@ -14,9 +14,9 @@ import type {
 // ============================================================================
 
 export const questionsApi = {
-    // GET /api/questions
+    // POST /api/questions/search
     async findAll(params: QuestionQueryDTO): Promise<PaginatedApiResponse<QuestionResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<QuestionResponseDTO>>('/api/questions', { params });
+        const response = await apiClient.post<PaginatedApiResponse<QuestionResponseDTO>>('/api/questions/search', params);
         return response.data;
     },
 

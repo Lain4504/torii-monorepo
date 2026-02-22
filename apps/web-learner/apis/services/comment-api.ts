@@ -45,9 +45,7 @@ export const commentApi = {
                 delete backendParams.feedId;
             }
 
-            const response = await apiClient.get<PaginatedApiResponse<CommentResponseDTO>>('/api/comments', {
-                params: backendParams,
-            });
+            const response = await apiClient.post<PaginatedApiResponse<CommentResponseDTO>>('/api/comments/search', backendParams);
 
             const responseData = response.data;
             if (!responseData?.success) {

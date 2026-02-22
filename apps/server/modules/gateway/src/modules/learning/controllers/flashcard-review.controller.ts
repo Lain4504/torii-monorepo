@@ -40,8 +40,8 @@ export class FlashcardReviewController {
         }
     }
 
-    @Get('due')
-    async getCardsDue(@Query() query: any, @Req() req: ReqWithRequester) {
+    @Post('due/search')
+    async getCardsDue(@Body() query: any, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
@@ -124,12 +124,12 @@ export class FlashcardReviewController {
         }
     }
 
-    @Get('sessions')
+    @Post('sessions/recent/search')
     async getRecentSessions(
-        @Query('deckId') deckId: string,
-        @Query('limit') limit: string,
+        @Body() body: { deckId?: string; limit?: string },
         @Req() req: ReqWithRequester
     ) {
+        const { deckId, limit } = body;
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

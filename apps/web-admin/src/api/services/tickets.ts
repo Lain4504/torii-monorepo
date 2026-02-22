@@ -3,7 +3,7 @@ import { apiClient } from '../api-client';
 
 export const ticketApi = {
     getTickets: async (query: TicketQueryDTO): Promise<PaginatedApiResponse<TicketResponseDTO>> => {
-        const response = await apiClient.get<PaginatedApiResponse<TicketResponseDTO>>('/api/tickets', { params: query });
+        const response = await apiClient.post<PaginatedApiResponse<TicketResponseDTO>>('/api/tickets/search', query);
         return response.data;
     },
 

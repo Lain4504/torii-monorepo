@@ -37,9 +37,7 @@ export const courseApi = {
    * Get all courses with pagination and filters
    */
   findAll: async (params: CourseQueryParams = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses', {
-      params,
-    });
+    const response = await apiClient.post<PaginatedApiResponse<CourseResponseDTO>>('/api/courses/search', params);
     return response.data;
   },
 
@@ -56,9 +54,7 @@ export const courseApi = {
     rating?: number;
     sort?: string;
   } = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses/advanced-search', {
-      params,
-    });
+    const response = await apiClient.post<PaginatedApiResponse<CourseResponseDTO>>('/api/courses/advanced-search', params);
     return response.data;
   },
 

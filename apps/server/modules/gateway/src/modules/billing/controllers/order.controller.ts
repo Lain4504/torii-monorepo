@@ -49,8 +49,8 @@ export class OrderController {
         }
     }
 
-    @Get('transactions')
-    async findAllPayments(@Query() query: PaymentQueryDTO) {
+    @Post('transactions/search')
+    async findAllPayments(@Body() query: PaymentQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -79,8 +79,8 @@ export class OrderController {
         }
     }
 
-    @Get('wallet/balance-history')
-    async getBalanceHistory(@Req() req: ReqWithRequester, @Query() query: any) {
+    @Post('wallet/balance-history/search')
+    async getBalanceHistory(@Req() req: ReqWithRequester, @Body() query: any) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

@@ -2,6 +2,7 @@ import {
     Controller,
     Get,
     Post,
+    Body,
     Inject,
     Req,
     UseGuards,
@@ -118,10 +119,9 @@ export class GamificationController {
         }
     }
 
-    @Get('history')
-    async getHistory(@Req() req: ReqWithRequester) {
+    @Post('history/search')
+    async getHistory(@Req() req: ReqWithRequester, @Body() query: any) {
         const user = req.requester;
-        const query = req.query;
         try {
             const result = await firstValueFrom(
                 this.natsClient.send('gamification.getHistory', {

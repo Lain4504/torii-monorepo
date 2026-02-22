@@ -25,8 +25,8 @@ import {
 export class ExamAdminController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
-    async findAll(@Query() query: any) {
+    @Post('search')
+    async findAll(@Body() query: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -134,8 +134,8 @@ export class ExamAdminController {
         }
     }
 
-    @Get(':id/attempts')
-    async getQuizAttempts(@Param('id') id: string, @Query() query: any) {
+    @Post(':id/attempts/search')
+    async getQuizAttempts(@Param('id') id: string, @Body() query: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

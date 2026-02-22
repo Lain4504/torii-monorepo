@@ -19,7 +19,10 @@ import {
     successPaginatedResponse,
     GatewayAuthGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { flashcardQueryDTOSchema } from '@workspace/schemas';
+import type { FlashcardQueryDTO } from '@workspace/schemas';
 
 @Controller('api/flashcards')
 @UseGuards(GatewayAuthGuard)
@@ -42,8 +45,8 @@ export class FlashcardController {
         }
     }
 
-    @Get()
-    async getFlashcards(@Query() query: any, @Req() req: ReqWithRequester) {
+    @Post('search')
+    async getFlashcards(@Body(new ZodValidationPipe(flashcardQueryDTOSchema)) query: FlashcardQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

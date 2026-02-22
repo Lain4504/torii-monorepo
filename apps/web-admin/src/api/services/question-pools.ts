@@ -14,9 +14,9 @@ import type {
 // ============================================================================
 
 export const questionPoolsApi = {
-    // GET /api/question-pools
+    // POST /api/question-pools/search
     async findAll(params: QuestionPoolQueryDTO): Promise<PaginatedApiResponse<QuestionPoolResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<QuestionPoolResponseDTO>>('/api/question-pools', { params });
+        const response = await apiClient.post<PaginatedApiResponse<QuestionPoolResponseDTO>>('/api/question-pools/search', params);
         return response.data;
     },
 
