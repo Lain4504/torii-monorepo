@@ -141,13 +141,15 @@ export class OrderService implements IOrderService {
 
             const totalPages = Math.ceil(total / validLimit);
 
-            return {
+            const response = {
                 data: items.map((i) => this.toOrderDto(i)),
                 total,
                 page: validPage,
                 limit: validLimit,
                 totalPages,
             };
+
+            return response;
         } catch (error: any) {
             this.logger.error(`Error fetching orders: ${error.message}`, error.stack);
             return {
@@ -157,6 +159,45 @@ export class OrderService implements IOrderService {
                 limit: 10,
                 totalPages: 0,
             };
+        }
+    }
+
+    /**
+     * Get order statistics
+     */
+    async getStats(query: OrderQueryDTO): Promise<{ totalRevenue: number; orderCount: number }> {
+        try {
+            const { userId, status, startDate, endDate } = query;
+            const whereClause: Prisma.OrderWhereInput = {
+                status: (status || OrderStatus.COMPLETED) as any
+            };
+
+            if (userId) whereClause.userId = userId;
+
+            if (startDate || endDate) {
+                whereClause.createdAt = {};
+                if (startDate) {
+                    const date = new Date(startDate);
+                    if (!isNaN(date.getTime())) whereClause.createdAt.gte = date;
+                }
+                if (endDate) {
+                    const date = new Date(endDate);
+                    if (!isNaN(date.getTime())) whereClause.createdAt.lte = date;
+                }
+            }
+
+            const stats = await this.orderRepository.aggregate(
+                whereClause,
+                { _sum: { amount: true }, _count: true }
+            );
+
+            return {
+                totalRevenue: Number(stats._sum?.amount || 0),
+                orderCount: (stats._count as any) || 0,
+            };
+        } catch (error: any) {
+            this.logger.error(`Error fetching order stats: ${error.message}`, error.stack);
+            return { totalRevenue: 0, orderCount: 0 };
         }
     }
 

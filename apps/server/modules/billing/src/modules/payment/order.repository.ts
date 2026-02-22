@@ -65,6 +65,16 @@ export class OrderRepository implements IOrderRepository {
     }
 
     /**
+     * Aggregate orders (e.g., sum amount)
+     */
+    async aggregate(where: Prisma.OrderWhereInput, aggregate: Prisma.OrderAggregateArgs) {
+        return this.prisma.order.aggregate({
+            where,
+            ...aggregate,
+        });
+    }
+
+    /**
      * Create a new order
      */
     async create(data: Prisma.OrderCreateInput): Promise<Order> {

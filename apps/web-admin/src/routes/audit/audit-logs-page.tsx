@@ -12,14 +12,11 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@workspace/ui/components/sheet';
-import { Eye, ShieldCheck, Terminal, Search, Fingerprint, Zap, ShieldAlert, Clock, Copy, Check, User, Globe, Info } from 'lucide-react';
+    Search,
+    Fingerprint,
+    ShieldAlert,
+    Eye
+} from 'lucide-react';
 import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
@@ -34,219 +31,10 @@ import {
 import {
     Field, FieldLabel
 } from "@workspace/ui/components/field";
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@workspace/ui/components/item";
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from "@workspace/ui/components/empty";
-
-function CopyButton({ text, label }: { text: string; label?: string }) {
-    const [copied, setCopied] = useState(false);
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        toast.success(label ? `Đã sao chép ${label}` : 'Đã sao chép');
-        setTimeout(() => setCopied(false), 2000);
-    };
-
-    return (
-        <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCopy}
-            className="h-7"
-        >
-            {copied ? <Check className="size-3.5 mr-1.5" /> : <Copy className="size-3.5 mr-1.5" />}
-            {copied ? "Đã sao chép" : "Sao chép"}
-        </Button>
-    );
-}
-
-function DiffViewer({ oldValues, newValues }: { oldValues: any; newValues: any }) {
-    if (!oldValues && !newValues) return null;
-
-    const oldKeys = oldValues ? Object.keys(oldValues) : [];
-    const newKeys = newValues ? Object.keys(newValues) : [];
-    const allKeys = Array.from(new Set([...oldKeys, ...newKeys]));
-
-    return (
-        <div className="space-y-3">
-            {allKeys.map((key) => {
-                const oldVal = oldValues?.[key];
-                const newVal = newValues?.[key];
-                const isChanged = JSON.stringify(oldVal) !== JSON.stringify(newVal);
-                const isAdded = oldVal === undefined && newVal !== undefined;
-                const isRemoved = oldVal !== undefined && newVal === undefined;
-
-                if (!isChanged && !isAdded && !isRemoved) return null;
-
-                return (
-                    <div
-                        key={key}
-                        className="rounded-lg border bg-muted/20 p-4 space-y-2"
-                    >
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold font-mono">{key}</span>
-                            {isAdded && <Badge variant="default">Thêm mới</Badge>}
-                            {isRemoved && <Badge variant="destructive">Xóa bỏ</Badge>}
-                            {isChanged && !isAdded && !isRemoved && <Badge variant="secondary">Sửa đổi</Badge>}
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {oldVal !== undefined && (
-                                <div className="space-y-1">
-                                    <Label className="text-destructive/80">Dữ liệu cũ</Label>
-                                    <div className="p-3 bg-destructive/10 rounded-md border border-destructive/20 max-h-40 overflow-auto">
-                                        <pre className="text-xs font-mono text-destructive whitespace-pre-wrap break-all">
-                                            {typeof oldVal === 'object' ? JSON.stringify(oldVal, null, 2) : String(oldVal)}
-                                        </pre>
-                                    </div>
-                                </div>
-                            )}
-                            {newVal !== undefined && (
-                                <div className="space-y-1">
-                                    <Label className="text-emerald-600/80">Dữ liệu mới</Label>
-                                    <div className="p-3 bg-emerald-500/10 rounded-md border border-emerald-500/20 max-h-40 overflow-auto">
-                                        <pre className="text-xs font-mono text-emerald-600 whitespace-pre-wrap break-all">
-                                            {typeof newVal === 'object' ? JSON.stringify(newVal, null, 2) : String(newVal)}
-                                        </pre>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
-
-import { ScrollArea } from '@workspace/ui/components/scroll-area';
-
-function AuditLogDetailsSheet({ log }: { log: AuditLog }) {
-    return (
-        <Sheet>
-            <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <Eye className="size-4" />
-                </Button>
-            </SheetTrigger>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0 gap-0">
-                <SheetHeader className="p-6 border-b">
-                    <SheetTitle>Chi tiết Nhật ký Hệ thống</SheetTitle>
-                    <SheetDescription className="flex items-center gap-2">
-                        <Clock className="size-4" />
-                        {formatDateTime(log.createdAt, 'dd/MM/yyyy HH:mm:ss')}
-                    </SheetDescription>
-                </SheetHeader>
-
-                <ScrollArea className="flex-1 min-h-0">
-                    <div className="p-6 space-y-6">
-                        {/* Primary Actors Row */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <Item variant="outline">
-                                <ItemMedia><User className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Thực hiện bởi</ItemTitle>
-                                    <ItemDescription>{log.user?.displayName || 'Ẩn danh'}</ItemDescription>
-                                </ItemContent>
-                            </Item>
-                            <Item variant="outline">
-                                <ItemMedia><ShieldCheck className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Quyền</ItemTitle>
-                                    <ItemDescription>
-                                        <Badge variant="secondary">{log.user?.role || 'Hệ thống'}</Badge>
-                                    </ItemDescription>
-                                </ItemContent>
-                            </Item>
-                        </div>
-
-                        {/* Operational Details */}
-                        <div className="space-y-4">
-                            <h4 className="font-semibold">Chi tiết hoạt động</h4>
-                            <Item variant="outline">
-                                <ItemMedia><Zap className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Hành động</ItemTitle>
-                                    <ItemDescription>{log.action}</ItemDescription>
-                                </ItemContent>
-                            </Item>
-                            <Item variant="outline">
-                                <ItemMedia><Fingerprint className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Đối tượng</ItemTitle>
-                                    <ItemDescription>{log.entity}</ItemDescription>
-                                </ItemContent>
-                            </Item>
-                            <div className="p-4 bg-muted/50 rounded-lg border">
-                                <Label className="text-xs text-muted-foreground">Mô tả</Label>
-                                <p className="text-sm italic">"{log.description}"</p>
-                            </div>
-                            {log.entityId && (
-                                <Item variant="outline">
-                                    <ItemMedia><Info className="size-4" /></ItemMedia>
-                                    <ItemContent>
-                                        <ItemTitle>Entity ID</ItemTitle>
-                                        <ItemDescription className="font-mono text-xs">{log.entityId}</ItemDescription>
-                                    </ItemContent>
-                                    <CopyButton text={log.entityId} label="Entity ID" />
-                                </Item>
-                            )}
-                        </div>
-
-                        {/* Data Changes */}
-                        {(log.oldValues || log.newValues) && (
-                            <div className="space-y-4">
-                                <h4 className="font-semibold">Lịch sử thay đổi</h4>
-                                <DiffViewer oldValues={log.oldValues} newValues={log.newValues} />
-                            </div>
-                        )}
-
-                        {/* Technical metadata */}
-                        {Object.keys(log.metadata || {}).length > 0 && (
-                            <div className="space-y-4">
-                                <h4 className="font-semibold">Thông số kỹ thuật</h4>
-                                <div className="relative group">
-                                    <pre className="text-xs font-mono p-4 bg-muted/50 border rounded-lg overflow-x-auto max-h-60">
-                                        {JSON.stringify(log.metadata, null, 2)}
-                                    </pre>
-                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <CopyButton text={JSON.stringify(log.metadata, null, 2)} label="Metadata" />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Access Logistics */}
-                        <div className="space-y-4 pt-4 border-t">
-                            <h4 className="font-semibold">Thông tin truy cập</h4>
-                            <Item variant="outline">
-                                <ItemMedia><Globe className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Địa chỉ IP</ItemTitle>
-                                    <ItemDescription className="font-mono text-xs">{log.ipAddress || 'Không rõ'}</ItemDescription>
-                                </ItemContent>
-                            </Item>
-                            <Item variant="outline">
-                                <ItemMedia><Terminal className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>User Agent</ItemTitle>
-                                    <ItemDescription className="font-mono text-xs truncate" title={log.userAgent ?? undefined}>
-                                        {log.userAgent || 'Không có dữ liệu'}
-                                    </ItemDescription>
-                                </ItemContent>
-                            </Item>
-                        </div>
-                    </div>
-                </ScrollArea>
-            </SheetContent>
-        </Sheet>
-    );
-}
-
 import { PageHeader } from '@/components/common/page-header';
 import { Card, CardContent } from "@workspace/ui/components/card";
-import { Label } from '@workspace/ui/components/label';
-import { toast } from '@workspace/ui/components/sonner';
+import { AuditLogDetailsSheet, ENTITY_MAP, ACTION_MAP } from '@/components/audit/audit-log-details-sheet';
 
 export function AuditLogsPage() {
     const [action, setAction] = useState('');
@@ -259,6 +47,9 @@ export function AuditLogsPage() {
         startDate: formatDateTime(subtractDays(new Date(), 30), 'yyyy-MM-dd'),
         endDate: formatDateTime(new Date(), 'yyyy-MM-dd'),
     });
+
+    const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+    const [sheetOpen, setSheetOpen] = useState(false);
 
     const filters = {
         action: debouncedAction,
@@ -274,6 +65,11 @@ export function AuditLogsPage() {
     useEffect(() => {
         setPage(1);
     }, [debouncedAction, debouncedEntity, dateRange]);
+
+    const handleViewDetails = (log: AuditLog) => {
+        setSelectedLog(log);
+        setSheetOpen(true);
+    };
 
     return (
         <div className="flex flex-col gap-8">
@@ -305,17 +101,9 @@ export function AuditLogsPage() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Tất cả</SelectItem>
-                                <SelectItem value="user">Người dùng</SelectItem>
-                                <SelectItem value="permission">Phân quyền</SelectItem>
-                                <SelectItem value="course">Khóa học</SelectItem>
-                                <SelectItem value="module">Module</SelectItem>
-                                <SelectItem value="lesson">Bài học</SelectItem>
-                                <SelectItem value="ticket">Hỗ trợ</SelectItem>
-                                <SelectItem value="meet_room">Phòng họp</SelectItem>
-                                <SelectItem value="order">Đơn hàng</SelectItem>
-                                <SelectItem value="payment">Giao dịch</SelectItem>
-                                <SelectItem value="review">Đánh giá</SelectItem>
-                                <SelectItem value="coupon">Mã giảm giá</SelectItem>
+                                {Object.entries(ENTITY_MAP).map(([key, value]) => (
+                                    <SelectItem key={key} value={key}>{value}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </Field>
@@ -395,10 +183,10 @@ export function AuditLogsPage() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-col gap-1">
-                                                    <Badge variant="secondary">{log.action}</Badge>
+                                                    <Badge variant="secondary">{ACTION_MAP[log.action] || log.action}</Badge>
                                                     <div className="text-xs text-muted-foreground flex items-center gap-1.5">
                                                         <Fingerprint className="size-3" />
-                                                        {log.entity}
+                                                        {ENTITY_MAP[log.entity] || log.entity}
                                                     </div>
                                                 </div>
                                             </TableCell>
@@ -406,7 +194,13 @@ export function AuditLogsPage() {
                                                 {log.description}
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <AuditLogDetailsSheet log={log} />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleViewDetails(log)}
+                                                >
+                                                    <Eye className="size-4" />
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -425,6 +219,12 @@ export function AuditLogsPage() {
                     itemName="nhật ký"
                 />
             </div>
+
+            <AuditLogDetailsSheet
+                log={selectedLog}
+                open={sheetOpen}
+                onOpenChange={setSheetOpen}
+            />
         </div>
     );
 }

@@ -19,7 +19,7 @@ import {
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { PageHeader } from '@/components/common/page-header';
 import { OrderDetailSheet } from '@/components/finance/order-detail-sheet';
-import { useOrders } from '@/api/services/finance';
+import { useOrders, useOrderStats } from '@/api/services/finance';
 import { XCircle } from 'lucide-react';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { cn } from "@workspace/ui/lib/utils";
@@ -41,9 +41,16 @@ export default function OrdersPage() {
     endDate: endDate || undefined,
   } as any);
 
+  const { data: statsResponse } = useOrderStats({
+    status: status !== 'all' ? status as OrderStatus : undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+  } as any);
+
   const orders = ordersResponse?.data || [];
   const total = ordersResponse?.total || 0;
   const totalPages = ordersResponse?.totalPages || 1;
+  const stats = statsResponse?.data;
 
 
   const getStatusLabel = (status: OrderStatus) => {
@@ -91,9 +98,30 @@ export default function OrdersPage() {
       {/* Stats Quick Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: 'Tổng doanh thu', value: '25.4M', sub: '+12% so với tháng trước', icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10' },
-          { label: 'Trạng thái Hệ thống', value: 'Ổn định', sub: 'Độ trễ < 12ms', icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-          { label: 'Bảo mật', value: 'Hoạt động', sub: '99.9% Tỷ lệ an toàn', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
+          {
+            label: 'Tổng doanh thu',
+            value: stats?.totalRevenue ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.totalRevenue) : '0 ₫',
+            sub: 'Dựa trên bộ lọc hiện tại',
+            icon: TrendingUp,
+            color: 'text-primary',
+            bg: 'bg-primary/10'
+          },
+          {
+            label: 'Số đơn hoàn thành',
+            value: stats?.orderCount?.toLocaleString() || '0',
+            sub: 'Giao dịch thành công',
+            icon: ShieldCheck,
+            color: 'text-emerald-500',
+            bg: 'bg-emerald-500/10'
+          },
+          {
+            label: 'Trạng thái Hệ thống',
+            value: 'Ổn định',
+            sub: 'Độ trễ < 12ms',
+            icon: Activity,
+            color: 'text-amber-500',
+            bg: 'bg-amber-500/10'
+          }
         ].map((stat, i) => (
           <Card key={i}
             className="group hover:border-primary/20 transition-all duration-300">

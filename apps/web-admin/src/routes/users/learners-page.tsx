@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { UsersPrimaryToolbar } from '@/components/users/users-primary-toolbar.tsx';
 import { UsersTable } from '@/components/users/users-table.tsx';
-import { CreateUserSheet } from '@/components/users/create-user-sheet.tsx';
+
 import { EditUserSheet } from '@/components/users/edit-user-sheet.tsx';
 import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
@@ -9,10 +9,10 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
-import { useBoolean } from "@workspace/ui/hooks/use-boolean";
+
 
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { UserPlus, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 import { Card, CardContent } from "@workspace/ui/components/card";
 
@@ -24,7 +24,7 @@ export default function LearnersPage() {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
     // Dialog States
-    const createDialog = useBoolean();
+
     const [editingUser, setEditingUser] = useState<UserResponseDTO | null>(null);
     const [deletingUser, setDeletingUser] = useState<UserResponseDTO | null>(null);
     const [viewingUser, setViewingUser] = useState<UserResponseDTO | null>(null);
@@ -80,12 +80,7 @@ export default function LearnersPage() {
                 stats={[
                     { label: "Tổng số học viên", value: total.toLocaleString() }
                 ]}
-                actions={
-                    <Button onClick={createDialog.setTrue} size="lg">
-                        <UserPlus />
-                        Tạo tài khoản học viên
-                    </Button>
-                }
+
             />
 
 
@@ -132,11 +127,7 @@ export default function LearnersPage() {
                 />
             </div>
 
-            {/* Sheets & Dialogs */}
-            <CreateUserSheet
-                open={createDialog.value}
-                onOpenChange={createDialog.setValue}
-            />
+
 
             <EditUserSheet
                 open={!!editingUser}

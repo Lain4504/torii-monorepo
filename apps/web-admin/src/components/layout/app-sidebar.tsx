@@ -2,9 +2,11 @@
 
 import { useState, useMemo, useEffect } from "react"
 import {
-    GalleryVerticalEnd,
     Command,
     LayoutGrid,
+    BookOpen,
+    CreditCard,
+    Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/layout/nav-main"
@@ -19,7 +21,7 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { useAppSelector } from "@/hooks/hooks"
 import { selectUser } from "@/store/slices/auth-slice"
-import { mainNavItems, managementNavItems, systemNavItems, type NavItem } from "@/config/navigation"
+import { academicNavItems, operationsNavItems, financeNavItems, personnelNavItems, systemNavItems, type NavItem } from "@/config/navigation"
 import { UserRole } from "@workspace/schemas"
 
 // Define Workspace Configuration
@@ -31,31 +33,51 @@ interface Workspace extends Team {
 
 const WORKSPACES: Workspace[] = [
     {
-        id: "overview",
+        id: "academic",
         name: "Academic Hub",
-        logo: GalleryVerticalEnd,
-        plan: "Nihongo Pro",
-        roles: ["*"],
+        logo: BookOpen,
+        plan: "Hệ thống Học tập",
+        roles: [UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF_LMS],
         navItems: [
-            { labelKey: "Tổng quan", items: mainNavItems }
+            { labelKey: "Đào tạo", items: academicNavItems }
         ]
     },
     {
-        id: "management",
-        name: "Operations",
+        id: "operations",
+        name: "Operation Center",
         logo: LayoutGrid,
-        plan: "Enterprise Ops",
-        roles: [UserRole.LECTURER, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF_SALES, UserRole.STAFF_FINANCE, UserRole.STAFF],
+        plan: "Trung tâm Vận hành",
+        roles: [UserRole.ADMIN, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF],
         navItems: [
-            { labelKey: "Vận hành", items: managementNavItems }
+            { labelKey: "Vận hành", items: operationsNavItems }
+        ]
+    },
+    {
+        id: "finance",
+        name: "Commercial & Finance",
+        logo: CreditCard,
+        plan: "Kinh doanh & Tài chính",
+        roles: [UserRole.ADMIN, UserRole.STAFF_SALES, UserRole.STAFF_FINANCE],
+        navItems: [
+            { labelKey: "Tài chính", items: financeNavItems }
+        ]
+    },
+    {
+        id: "personnel",
+        name: "HR & Personnel",
+        logo: Users,
+        plan: "Quản trị Nhân sự",
+        roles: [UserRole.ADMIN, UserRole.STAFF_LMS],
+        navItems: [
+            { labelKey: "Nhân sự", items: personnelNavItems }
         ]
     },
     {
         id: "system",
-        name: "Security",
+        name: "System Security",
         logo: Command,
-        plan: "System Config",
-        roles: [UserRole.ADMIN, UserRole.STAFF_LMS],
+        plan: "Quản trị Hệ thống",
+        roles: [UserRole.ADMIN],
         navItems: [
             { labelKey: "Hệ thống", items: systemNavItems }
         ]
@@ -70,52 +92,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         if (!user) return [];
         const userRole = user.role as string;
 
-        // If Admin, show ALL menu items in a single unified workspace
+        // Determine base workspaces based on role
+        let baseWorkspaces = [];
         if (userRole === UserRole.ADMIN) {
-            // Filter mainNavItems for Admin: 
-            // 1. Remove "My Courses" sub-item
-            // 2. Remove "Assignments" top-level item (as it's for lecturers)
-            const filteredMainNavItems = mainNavItems
-                .filter(item => item.url !== '/assignments')
-                .map(item => ({
+            baseWorkspaces = WORKSPACES;
+        } else {
+            baseWorkspaces = WORKSPACES.filter(ws => ws.roles.includes(userRole));
+        }
+
+        // Post-process navigation: Only LECTURER should see "My Courses"
+        return baseWorkspaces.map(ws => ({
+            ...ws,
+            navItems: ws.navItems.map(group => ({
+                ...group,
+                items: group.items.map(item => ({
                     ...item,
-                    items: item.items?.filter(subItem => subItem.url !== '/courses/my')
-                }));
-
-            return [{
-                id: "admin-all",
-                name: "Torii Admin",
-                logo: GalleryVerticalEnd,
-                plan: "Enterprise",
-                roles: [UserRole.ADMIN],
-                navItems: [
-                    { labelKey: "Tổng quan", items: filteredMainNavItems },
-                    { labelKey: "Vận hành", items: managementNavItems },
-                    { labelKey: "Hệ thống", items: systemNavItems }
-                ]
-            }];
-        }
-
-        // If staff variant, consolidate Overview and Operations
-        if (userRole.startsWith('staff-') || userRole === UserRole.STAFF) {
-            return [{
-                id: "staff-hub",
-                name: "Torii Operations",
-                logo: LayoutGrid,
-                plan: "Staff Access",
-                roles: [userRole],
-                navItems: [
-                    { labelKey: "Tổng quan", items: mainNavItems },
-                    { labelKey: "Vận hành", items: managementNavItems },
-                ]
-            }];
-        }
-
-        // For other roles (Lecturer, etc.), use default filtering
-        return WORKSPACES.filter(ws => {
-            if (ws.roles.includes("*")) return true;
-            return ws.roles.includes(userRole);
-        });
+                    // Hide "My Courses" sub-item if the user is not a Lecturer
+                    items: userRole === UserRole.LECTURER
+                        ? item.items
+                        : item.items?.filter(subItem => subItem.url !== '/courses/my')
+                }))
+            }))
+        }));
     }, [user?.role]);
 
     const [activeWorkspace, setActiveWorkspace] = useState<Workspace | undefined>(undefined);

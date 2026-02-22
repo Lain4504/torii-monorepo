@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from './store'
 import { Toaster } from '@workspace/ui/components/sonner'
@@ -53,6 +54,8 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 30, // 30 minutes
+      retry: 1, // Reduced for easier debugging
+      refetchOnWindowFocus: false, // Avoid unexpected reloads during dev
     },
   },
 })
@@ -139,6 +142,7 @@ function App() {
             </BrowserRouter>
             <Toaster position="top-center" />
           </TooltipProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </ThemeProvider>
     </ReduxProvider>

@@ -18,6 +18,16 @@ export const orderApi = {
     },
 
     /**
+     * Get order statistics
+     */
+    async getOrderStats(query?: OrderQueryDTO): Promise<StandardApiResponse<{ totalRevenue: number, orderCount: number }>> {
+        const response = await apiClient.get<StandardApiResponse<{ totalRevenue: number, orderCount: number }>>('/api/orders/stats', {
+            params: query,
+        });
+        return response.data;
+    },
+
+    /**
      * Get order by ID
      */
     async getOrder(id: string): Promise<OrderResponseDTO> {

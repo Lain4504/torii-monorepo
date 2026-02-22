@@ -19,6 +19,11 @@ export interface IOrderService {
     findAll(query: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>>;
 
     /**
+     * Get order statistics
+     */
+    getStats(query: OrderQueryDTO): Promise<{ totalRevenue: number; orderCount: number }>;
+
+    /**
      * Find all payments with pagination and filters
      */
     findAllPayments(query: PaymentQueryDTO): Promise<PaginatedResponseDTO<PaymentResponseDTO>>;

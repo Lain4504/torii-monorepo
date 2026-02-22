@@ -102,7 +102,7 @@ export function CreateUserSheet({
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        mode: 'onSubmit',
+        mode: 'onChange',
         defaultValues: {
             displayName: '',
             email: '',
@@ -173,7 +173,7 @@ export function CreateUserSheet({
     const currentRole = form.watch('role');
     const displayName = form.watch('displayName');
     const email = form.watch('email');
-    const detailsValid = displayName && email && !form.formState.errors.displayName && !form.formState.errors.email;
+    const detailsValid = !!displayName && !!email;
 
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>

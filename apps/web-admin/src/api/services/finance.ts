@@ -10,6 +10,14 @@ export function useOrders(params: OrderQueryDTO) {
     });
 }
 
+export function useOrderStats(params: OrderQueryDTO) {
+    return useQuery({
+        queryKey: ['orders-stats', params],
+        queryFn: () => orderApi.getOrderStats(params),
+        staleTime: 30000,
+    });
+}
+
 export function useOrder(id: string) {
     return useQuery({
         queryKey: ['orders', id],
