@@ -41,6 +41,7 @@ export const learningNav: NavItem[] = [
     { name: 'Assessment', href: '/assessment', icon: Award },
     { name: 'AI Sensei', href: '/ai-sensei/chat', icon: Bot },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
+    { name: 'Sổ tay từ vựng', href: '/dashboard/notes', icon: FileText },
 ]
 
 export const communityNav: NavItem[] = [
@@ -54,7 +55,6 @@ export const progressNav: NavItem[] = [
     { name: 'Cửa hàng quà tặng', href: '/dashboard/rewards', icon: Gift },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
     { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
-    { name: 'Ghi chú', href: '/dashboard/notes', icon: FileText },
     // { name: 'Thống kê', href: '/dashboard/statistics', icon: TrendingUp }, // Replaced by Analytics
 ]
 
