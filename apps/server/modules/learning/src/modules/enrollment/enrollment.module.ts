@@ -3,6 +3,7 @@ import { PrismaModule, NatsClientModule } from '@server/shared';
 import { EnrollmentService } from '@server/learning/modules/enrollment/enrollment.service';
 import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
 import { EnrollmentExpirationScheduler } from '@server/learning/modules/enrollment/enrollment-expiration.scheduler';
+import { EnrollmentProfile } from '@server/learning/infrastructure/mappings/enrollment.profile';
 
 import { ENROLLMENT_SERVICE_TOKEN, ENROLLMENT_REPOSITORY_TOKEN } from '@server/learning/interfaces';
 import { CourseModule } from '@server/learning/modules/course/course.module';
@@ -31,6 +32,7 @@ import { CertificateModule } from '@server/learning/modules/certificate/certific
             useClass: EnrollmentRepository,
         },
         EnrollmentExpirationScheduler,
+        EnrollmentProfile,
     ],
     exports: [ENROLLMENT_SERVICE_TOKEN, ENROLLMENT_REPOSITORY_TOKEN],
 })

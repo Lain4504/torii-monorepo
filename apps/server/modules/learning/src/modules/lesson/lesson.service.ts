@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import type { Lesson } from '@prisma/generated';
 
 import type {
@@ -35,6 +37,7 @@ export class LessonService implements ILessonService {
     private readonly enrollmentService: IEnrollmentService,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
+    @InjectMapper() private readonly mapper: Mapper,
   ) { }
 
   /**
@@ -83,24 +86,7 @@ export class LessonService implements ILessonService {
    * Map Lesson entity to LessonResponseDTO
    */
   private toLessonResponseDTO(lesson: Lesson): LessonResponseDTO {
-    return {
-      id: lesson.id,
-      moduleId: lesson.moduleId,
-      title: lesson.title,
-      contentType: lesson.contentType as any,
-      videoUrl: lesson.videoUrl || undefined,
-      videoDuration: lesson.videoDuration || undefined,
-      articleContent: lesson.articleContent || undefined,
-      aiMetadata: (lesson.aiMetadata as any) || undefined,
-      orderIndex: lesson.orderIndex,
-      isPreview: lesson.isPreview,
-      isUnlocked: lesson.isUnlocked,
-      status: (lesson as any).status || 'published',
-      createdBy: lesson.createdBy || undefined,
-      createdAt: lesson.createdAt,
-      updatedAt: lesson.updatedAt,
-      deletedAt: lesson.deletedAt || undefined,
-    };
+    return this.mapper.map<Lesson, LessonResponseDTO>(lesson, 'Lesson', 'LessonResponseDTO');
   }
 
   /**

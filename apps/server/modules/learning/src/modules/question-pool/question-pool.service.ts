@@ -6,6 +6,8 @@ import {
     BadRequestException,
     ForbiddenException,
 } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import type { QuestionPool } from '@prisma/generated';
 
 import type {
@@ -31,23 +33,14 @@ export class QuestionPoolService implements IQuestionPoolService {
     constructor(
         @Inject(QUESTION_POOL_REPOSITORY_TOKEN)
         private readonly questionPoolRepository: IQuestionPoolRepository,
+        @InjectMapper() private readonly mapper: Mapper,
     ) { }
 
     /**
      * Map QuestionPool entity to QuestionPoolResponseDTO
      */
     private toQuestionPoolDto(pool: QuestionPool): QuestionPoolResponseDTO {
-        return {
-            id: pool.id,
-            name: pool.name,
-            description: pool.description || undefined,
-            courseId: pool.courseId || undefined,
-            lessonId: pool.lessonId || undefined,
-            jlptLevel: pool.jlptLevel as any,
-            createdBy: pool.createdBy || undefined,
-            createdAt: pool.createdAt,
-            updatedAt: pool.updatedAt,
-        };
+        return this.mapper.map<QuestionPool, QuestionPoolResponseDTO>(pool, 'QuestionPool', 'QuestionPoolResponseDTO');
     }
 
     /**

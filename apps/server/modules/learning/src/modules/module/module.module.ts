@@ -5,6 +5,7 @@ import { ModuleRepository } from '@server/learning/modules/module/module.reposit
 import { MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { MODULE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { CourseModule } from '@server/learning/modules/course/course.module';
+import { ModuleProfile } from '@server/learning/infrastructure/mappings/module.profile';
 
 /**
  * Module Feature Module
@@ -24,6 +25,7 @@ import { CourseModule } from '@server/learning/modules/course/course.module';
       provide: MODULE_SERVICE_TOKEN,
       useClass: ModuleService,
     },
+    ModuleProfile,
   ],
   exports: [MODULE_SERVICE_TOKEN, MODULE_REPOSITORY_TOKEN],
 })
