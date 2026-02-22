@@ -59,7 +59,7 @@ const auditLogsApi = {
         };
     },
     async getEntityActivity(entity: string, entityId: string, limit: number = 20) {
-        const res = await apiClient.post<StandardApiResponse<AuditLog[]>>(`/api/admin/audit-logs/entity/${entity}/${entityId}/search`, { limit });
+        const res = await apiClient.get<StandardApiResponse<AuditLog[]>>(`/api/admin/audit-logs/entity/${entity}/${entityId}/search`, { params: { limit } });
         return res.data.data!;
     },
 };

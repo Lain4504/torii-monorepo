@@ -3,6 +3,7 @@ import {
     Get,
     Post,
     Body,
+    Query,
     Inject,
     Req,
     UseGuards,
@@ -119,14 +120,15 @@ export class GamificationController {
         }
     }
 
-    @Post('history/search')
-    async getHistory(@Req() req: ReqWithRequester, @Body() query: any) {
+    @Get('history')
+    async getHistory(@Req() req: ReqWithRequester, @Query() query: { page?: string; limit?: string }) {
         const user = req.requester;
         try {
             const result = await firstValueFrom(
                 this.natsClient.send('gamification.getHistory', {
                     userId: user.sub,
-                    ...query
+                    page: query.page ? parseInt(query.page) : 1,
+                    limit: query.limit ? parseInt(query.limit) : 10,
                 })
             );
             return successResponse(result);

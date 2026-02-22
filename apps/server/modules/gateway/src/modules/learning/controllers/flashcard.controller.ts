@@ -45,8 +45,8 @@ export class FlashcardController {
         }
     }
 
-    @Post('search')
-    async getFlashcards(@Body(new ZodValidationPipe(flashcardQueryDTOSchema)) query: FlashcardQueryDTO, @Req() req: ReqWithRequester) {
+    @Get()
+    async getFlashcards(@Query() query: FlashcardQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

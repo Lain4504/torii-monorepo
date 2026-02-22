@@ -40,8 +40,8 @@ export class FlashcardReviewController {
         }
     }
 
-    @Post('due/search')
-    async getCardsDue(@Body() query: any, @Req() req: ReqWithRequester) {
+    @Get('due')
+    async getCardsDue(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
@@ -108,28 +108,13 @@ export class FlashcardReviewController {
         }
     }
 
-    @Get('sessions/:sessionId')
-    async getSessionById(@Param('sessionId') sessionId: string, @Req() req: ReqWithRequester) {
-        try {
-            const requester = req.requester;
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'learning.flashcard-session.getById' },
-                    { sessionId, userId: requester.sub }
-                )
-            );
-            return successResponse({ session: result });
-        } catch (error: any) {
-            throw new HttpException(error.message || 'Failed to fetch session', error.status || 400);
-        }
-    }
 
-    @Post('sessions/recent/search')
+    @Get('sessions/recent')
     async getRecentSessions(
-        @Body() body: { deckId?: string; limit?: string },
+        @Query() query: { deckId?: string; limit?: string },
         @Req() req: ReqWithRequester
     ) {
-        const { deckId, limit } = body;
+        const { deckId, limit } = query;
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
@@ -147,4 +132,21 @@ export class FlashcardReviewController {
             throw new HttpException(error.message || 'Failed to fetch recent sessions', error.status || 400);
         }
     }
+
+    @Get('sessions/:sessionId')
+    async getSessionById(@Param('sessionId') sessionId: string, @Req() req: ReqWithRequester) {
+        try {
+            const requester = req.requester;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.flashcard-session.getById' },
+                    { sessionId, userId: requester.sub }
+                )
+            );
+            return successResponse({ session: result });
+        } catch (error: any) {
+            throw new HttpException(error.message || 'Failed to fetch session', error.status || 400);
+        }
+    }
 }
+

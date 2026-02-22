@@ -56,7 +56,7 @@ export async function submitExam(sessionId: string): Promise<ExamSessionResponse
  * GET /api/exams
  */
 export async function getExams(query?: ExamQueryDTO): Promise<PaginatedApiResponse<ExamWithStatusResponseDTO>> {
-    const response = await apiClient.post<PaginatedApiResponse<ExamWithStatusResponseDTO>>('/api/exams/search', query || {});
+    const response = await apiClient.get<PaginatedApiResponse<ExamWithStatusResponseDTO>>('/api/exams', { params: query });
     return response.data;
 }
 
@@ -65,7 +65,7 @@ export async function getExams(query?: ExamQueryDTO): Promise<PaginatedApiRespon
  * GET /api/exams/attempts
  */
 export async function getExamAttempts(query?: ExamSessionQueryDTO): Promise<PaginatedApiResponse<ExamSessionWithExamResponseDTO>> {
-    const response = await apiClient.post<PaginatedApiResponse<ExamSessionWithExamResponseDTO>>('/api/exams/attempts/search', query || {});
+    const response = await apiClient.get<PaginatedApiResponse<ExamSessionWithExamResponseDTO>>('/api/exams/attempts', { params: query });
     return response.data;
 }
 
@@ -98,7 +98,7 @@ export async function getExamById(examId: string): Promise<ExamWithStatusRespons
  * GET /api/exams/:id/sessions
  */
 export async function getExamSessions(examId: string, query?: ExamSessionQueryDTO): Promise<PaginatedApiResponse<ExamSessionWithExamResponseDTO>> {
-    const response = await apiClient.post<PaginatedApiResponse<ExamSessionWithExamResponseDTO>>(`/api/exams/${examId}/sessions/search`, query || {});
+    const response = await apiClient.get<PaginatedApiResponse<ExamSessionWithExamResponseDTO>>(`/api/exams/${examId}/sessions`, { params: query });
     return response.data;
 }
 

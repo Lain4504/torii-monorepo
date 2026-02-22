@@ -20,6 +20,7 @@ import {
     GatewayAuthGuard,
     ReqWithRequester,
 } from '@server/shared';
+import type { FeedQueryDTO } from '@workspace/schemas';
 
 @Controller('api/feed')
 @UseGuards(GatewayAuthGuard)
@@ -27,8 +28,8 @@ export class FeedController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Public()
-    @Post('search')
-    async findAll(@Body() query: any, @Req() req: ReqWithRequester) {
+    @Get()
+    async findAll(@Query() query: FeedQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

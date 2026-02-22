@@ -20,7 +20,10 @@ import {
     Public,
     GatewayAuthGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { blogQueryDTOSchema } from '@workspace/schemas';
+import type { BlogQueryDTO } from '@workspace/schemas';
 
 @Controller('api/blogs')
 @UseGuards(GatewayAuthGuard)
@@ -29,7 +32,7 @@ export class BlogController {
 
     @Public()
     @Post('search')
-    async findAllBlogs(@Body() query: any) {
+    async findAllBlogs(@Body(new ZodValidationPipe(blogQueryDTOSchema)) query: BlogQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

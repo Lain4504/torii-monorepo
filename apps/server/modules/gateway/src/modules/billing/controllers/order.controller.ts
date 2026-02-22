@@ -79,14 +79,19 @@ export class OrderController {
         }
     }
 
-    @Post('wallet/balance-history/search')
-    async getBalanceHistory(@Req() req: ReqWithRequester, @Body() query: any) {
+    @Get('wallet/balance-history')
+    async getBalanceHistory(@Req() req: ReqWithRequester, @Query() query: { page?: string; limit?: string; type?: string }) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'billing.user_balance.getHistory' },
-                    { ...query, userId: requester.sub }
+                    {
+                        userId: requester.sub,
+                        page: query.page ? parseInt(query.page) : 1,
+                        limit: query.limit ? parseInt(query.limit) : 10,
+                        type: query.type,
+                    }
                 )
             );
             return successResponse(result);

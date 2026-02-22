@@ -19,14 +19,15 @@ import {
     GatewayAuthGuard,
     ReqWithRequester,
 } from '@server/shared';
+import type { WishlistQueryDTO } from '@workspace/schemas';
 
 @Controller('api/wishlists')
 @UseGuards(GatewayAuthGuard)
 export class WishlistController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Post('search')
-    async findAll(@Body() query: any) {
+    @Get()
+    async findAll(@Query() query: WishlistQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

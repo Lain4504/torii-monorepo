@@ -25,7 +25,7 @@ export const flashcardApi = {
             jlptLevel: params.jlptLevel,
         };
 
-        const response = await apiClient.post<PaginatedApiResponse<FlashcardDeckResponseDTO>>('/api/flashcard-decks/search', query);
+        const response = await apiClient.get<PaginatedApiResponse<FlashcardDeckResponseDTO>>('/api/flashcard-decks', { params: query });
         return response.data;
     },
 
@@ -59,7 +59,7 @@ export const flashcardApi = {
             isArchived: params.isArchived,
         };
 
-        const response = await apiClient.post<PaginatedApiResponse<FlashcardResponseDTO>>('/api/flashcards/search', query);
+        const response = await apiClient.get<PaginatedApiResponse<FlashcardResponseDTO>>('/api/flashcards', { params: query });
         return response.data;
     },
 

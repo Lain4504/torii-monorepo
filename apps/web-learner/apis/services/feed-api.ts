@@ -11,7 +11,7 @@ import type {
 
 export const feedApi = {
     findAll: async (params: FeedQueryDTO): Promise<FeedPaginatedResponse> => {
-        const response = await apiClient.post<PaginatedApiResponse<FeedResponseDTO>>('/api/feed/search', params);
+        const response = await apiClient.get<PaginatedApiResponse<FeedResponseDTO>>('/api/feed', { params });
         // Handle potential nested data structure from backend wrapper
         const data = response.data;
         return {

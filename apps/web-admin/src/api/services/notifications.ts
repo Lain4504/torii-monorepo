@@ -15,7 +15,7 @@ import type {
 export const notificationsApi = {
     // GET /api/notifications
     async findAll(params?: NotificationQueryDTO): Promise<PaginatedApiResponse<NotificationResponseDTO>> {
-        const response = await apiClient.post<PaginatedApiResponse<NotificationResponseDTO>>('/api/notifications/search', params);
+        const response = await apiClient.get<PaginatedApiResponse<NotificationResponseDTO>>('/api/notifications', { params });
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to fetch notifications');
         }

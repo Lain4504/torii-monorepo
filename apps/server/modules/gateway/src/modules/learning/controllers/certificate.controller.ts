@@ -31,9 +31,8 @@ import {
 export class CertificateController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Post('search')
-    @UsePipes(new ZodValidationPipe(certificateQueryDTOSchema))
-    async findAll(@Body() query: CertificateQueryDTO, @Req() req: ReqWithRequester) {
+    @Get()
+    async findAll(@Query() query: CertificateQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             query.userId = requester.sub;

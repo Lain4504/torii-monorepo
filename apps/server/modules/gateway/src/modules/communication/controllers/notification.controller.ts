@@ -34,10 +34,10 @@ import {
 export class NotificationController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Post('search')
+    @Get()
     async findAll(
         @Req() req: ReqWithRequester,
-        @Body(new ZodValidationPipe(notificationQueryDTOSchema)) query: NotificationQueryDTO,
+        @Query() query: NotificationQueryDTO,
     ) {
         try {
             const userId = req.requester?.sub;
@@ -47,10 +47,6 @@ export class NotificationController {
                     { userId, query },
                 ),
             );
-            // The service returns PaginatedResponseDTO. existing users controller behaves as if this needs wrapping.
-            // But verify if successPaginatedResponse is compatible with what service returns.
-            // If service returns { data: [], meta: {} }, successPaginatedResponse({ data: [], meta: {} }) -> { success: true, data: { data: [], meta: {} } }
-            // This matches strict frontend expectation of response.data.success.
             return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error?.message || 'Failed to fetch notifications');

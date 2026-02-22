@@ -58,9 +58,9 @@ export class ReviewController {
         }
     }
 
-    @Post(':courseId/reviews/search')
+    @Get(':courseId/reviews')
     @Public()
-    async getReviewsByCourse(@Param('courseId') courseId: string, @Body() query: any) {
+    async getReviewsByCourse(@Param('courseId') courseId: string, @Query() query: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -74,9 +74,9 @@ export class ReviewController {
         }
     }
 
-    @Post('reviews/search')
+    @Get('reviews')
     @Public()
-    async getAllReviews(@Body() query: any) {
+    async getAllReviews(@Query() query: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

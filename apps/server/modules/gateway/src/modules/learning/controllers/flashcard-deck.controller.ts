@@ -45,8 +45,8 @@ export class FlashcardDeckController {
         }
     }
 
-    @Post('search')
-    async findAllDecks(@Body(new ZodValidationPipe(flashcardDeckQueryDTOSchema)) query: FlashcardDeckQueryDTO, @Req() req: ReqWithRequester) {
+    @Get()
+    async findAllDecks(@Query() query: FlashcardDeckQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

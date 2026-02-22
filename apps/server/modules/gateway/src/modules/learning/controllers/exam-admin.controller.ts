@@ -16,9 +16,13 @@ import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
     errorResponse,
+    successPaginatedResponse,
     GatewayAuthGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { examQueryDTOSchema, examSessionQueryDTOSchema } from '@workspace/schemas';
+import type { ExamQueryDTO, ExamSessionQueryDTO } from '@workspace/schemas';
 
 @Controller('api/admin/exams')
 @UseGuards(GatewayAuthGuard)
@@ -26,7 +30,7 @@ export class ExamAdminController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('search')
-    async findAll(@Body() query: any) {
+    async findAll(@Body(new ZodValidationPipe(examQueryDTOSchema)) query: ExamQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -34,7 +38,7 @@ export class ExamAdminController {
                     query
                 )
             );
-            return successResponse(result);
+            return successPaginatedResponse(result);
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to fetch exams');
         }
@@ -135,7 +139,7 @@ export class ExamAdminController {
     }
 
     @Post(':id/attempts/search')
-    async getQuizAttempts(@Param('id') id: string, @Body() query: any) {
+    async getQuizAttempts(@Param('id') id: string, @Body(new ZodValidationPipe(examSessionQueryDTOSchema)) query: ExamSessionQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

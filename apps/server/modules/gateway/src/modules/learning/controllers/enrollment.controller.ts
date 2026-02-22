@@ -18,7 +18,10 @@ import {
     successPaginatedResponse,
     GatewayAuthGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { enrollmentQueryDTOSchema } from '@workspace/schemas';
+import type { EnrollmentQueryDTO } from '@workspace/schemas';
 
 @Controller('api/enrollments')
 @UseGuards(GatewayAuthGuard)
@@ -66,7 +69,7 @@ export class EnrollmentController {
     }
 
     @Post('search')
-    async findAll(@Body() query: any) {
+    async findAll(@Body(new ZodValidationPipe(enrollmentQueryDTOSchema)) query: EnrollmentQueryDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

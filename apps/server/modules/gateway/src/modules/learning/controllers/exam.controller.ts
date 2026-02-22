@@ -28,8 +28,8 @@ import type { ExamQueryDTO, ExamSessionQueryDTO } from '@workspace/schemas';
 export class ExamController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Post('search')
-    async findAll(@Body(new ZodValidationPipe(examQueryDTOSchema)) query: ExamQueryDTO, @Req() req: ReqWithRequester) {
+    @Get()
+    async findAll(@Query() query: ExamQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
@@ -44,8 +44,8 @@ export class ExamController {
         }
     }
 
-    @Post('attempts/search')
-    async getExamAttempts(@Body(new ZodValidationPipe(examSessionQueryDTOSchema)) query: ExamSessionQueryDTO, @Req() req: ReqWithRequester) {
+    @Get('attempts')
+    async getExamAttempts(@Query() query: ExamSessionQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
@@ -128,8 +128,8 @@ export class ExamController {
         }
     }
 
-    @Post(':id/sessions/search')
-    async getExamSessions(@Param('id') examId: string, @Body(new ZodValidationPipe(examSessionQueryDTOSchema)) query: ExamSessionQueryDTO, @Req() req: ReqWithRequester) {
+    @Get(':id/sessions')
+    async getExamSessions(@Param('id') examId: string, @Query() query: ExamSessionQueryDTO, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

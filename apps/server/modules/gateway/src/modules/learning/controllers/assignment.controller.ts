@@ -32,6 +32,7 @@ import {
     updateAssignmentDto,
     queryAssignmentsDto
 } from '@workspace/schemas';
+import type { QueryAssignmentsDto } from '@workspace/schemas';
 
 @Controller('api/assignments')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -53,7 +54,7 @@ export class AssignmentController {
     }
 
     @Post('search')
-    async findAll(@Body(new ZodValidationPipe(queryAssignmentsDto)) query: any, @Req() req: ReqWithRequester) {
+    async findAll(@Body(new ZodValidationPipe(queryAssignmentsDto)) query: QueryAssignmentsDto, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.assignment.findAll' },

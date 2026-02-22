@@ -28,8 +28,8 @@ export class CommentController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Public()
-    @Post('search')
-    async findAllComments(@Body() query: any, @Req() req: ReqWithRequester) {
+    @Get()
+    async findAllComments(@Query() query: any, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const userId = requester?.sub;
