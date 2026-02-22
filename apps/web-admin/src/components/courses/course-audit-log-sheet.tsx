@@ -1,5 +1,5 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@workspace/ui/components/sheet';
-import { format } from 'date-fns';
+import { formatDateTime } from '@/lib/format-utils';
 import { type AuditLog, useEntityActivity } from "@/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
@@ -60,7 +60,7 @@ function LogItem({ log }: { log: AuditLog }) {
                         </Badge>
                         <span className="text-[10px] font-medium text-muted-foreground/50 flex items-center gap-1">
                             <Clock className="size-3" />
-                            {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm')}
+                            {formatDateTime(log.createdAt, 'yyyy-MM-dd HH:mm')}
                         </span>
                     </div>
                     <p className="text-sm font-semibold text-foreground leading-tight">

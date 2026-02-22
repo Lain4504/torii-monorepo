@@ -21,8 +21,7 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatRelativeTime } from '@/lib/format-utils';
 
 export function SecurityTab() {
     const { data: status, isLoading } = use2FAStatus();
@@ -86,7 +85,7 @@ export function SecurityTab() {
                                     <ItemContent>
                                         <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Đã Bật</ItemTitle>
                                         <ItemDescription className="text-sm font-semibold text-foreground">
-                                            {formatDistanceToNow(new Date(status.enabledAt), { addSuffix: true, locale: vi })}
+                                            {formatRelativeTime(status.enabledAt)}
                                         </ItemDescription>
                                     </ItemContent>
                                 </Item>
@@ -96,7 +95,7 @@ export function SecurityTab() {
                                     <ItemContent>
                                         <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Sử Dụng Lần Cuối</ItemTitle>
                                         <ItemDescription className="text-sm font-semibold text-foreground">
-                                            {formatDistanceToNow(new Date(status.lastUsedAt), { addSuffix: true, locale: vi })}
+                                            {formatRelativeTime(status.lastUsedAt)}
                                         </ItemDescription>
                                     </ItemContent>
                                 </Item>

@@ -1,5 +1,7 @@
-import { format } from "date-fns"
+import { format, formatDistanceToNow, subDays } from "date-fns"
 import { vi } from "date-fns/locale"
+import { formatInTimeZone } from "date-fns-tz"
+export { vi }
 
 export const generateSlug = (text: string | undefined): string => {
     if (!text) return '';
@@ -37,26 +39,33 @@ export function formatCurrency(amount: number | string | undefined | null): stri
     }).format(value)
 }
 
-export function formatDateTime(date: Date | string | number | undefined | null, formatStr: string = "HH:mm dd/MM/yyyy"): string {
+export function formatTimeZone(date: Date | string | number | undefined | null, formatStr: string, timeZone: string = "Asia/Ho_Chi_Minh"): string {
     if (!date) return "--"
     try {
-        const d = new Date(date)
-        // Convert to Vietnam time (UTC+7) representation
-        const vnDate = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }))
-        return format(vnDate, formatStr, { locale: vi })
+        return formatInTimeZone(date, timeZone, formatStr, { locale: vi });
     } catch (e) {
         return "--"
     }
 }
 
+export function formatDateTime(date: Date | string | number | undefined | null, formatStr: string = "HH:mm dd/MM/yyyy"): string {
+    return formatTimeZone(date, formatStr, "Asia/Ho_Chi_Minh")
+}
+
 export function formatDate(date: Date | string | number | undefined | null, formatStr: string = "dd/MM/yyyy"): string {
+    return formatDateTime(date, formatStr)
+}
+
+export function formatRelativeTime(date: Date | string | number | undefined | null): string {
     if (!date) return "--"
     try {
         const d = new Date(date)
-        // Convert to Vietnam time (UTC+7) representation
-        const vnDate = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }))
-        return format(vnDate, formatStr, { locale: vi })
+        return formatDistanceToNow(d, { addSuffix: true, locale: vi })
     } catch (e) {
         return "--"
     }
+}
+
+export function subtractDays(date: Date | string | number, amount: number): Date {
+    return subDays(new Date(date), amount);
 }

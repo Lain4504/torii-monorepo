@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { formatDateTime } from '@/lib/format-utils';
 import {
   MoreVertical,
   Pencil,
@@ -116,7 +116,7 @@ export const getAssignmentsColumns = ({
         return (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock className="size-3" />
-            {format(new Date(date as string), 'dd/MM/yyyy HH:mm')}
+            {formatDateTime(date as string, 'dd/MM/yyyy HH:mm')}
           </div>
         );
       },

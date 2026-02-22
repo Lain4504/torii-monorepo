@@ -44,8 +44,7 @@ import {
     liveSessionsApi
 } from '@/api/services/live-sessions';
 import type { ModuleResponseDTO, LessonResponseDTO, AssignmentResponseDTO } from '@workspace/schemas';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatDateTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 import {
     useAssignments,
@@ -477,8 +476,8 @@ export default function CourseDetailPage() {
                                                 </TableCell>
                                                 <TableCell className="border-r border-border/30">
                                                     <div className="text-sm">
-                                                        <p className="font-medium">{format(new Date(session.scheduledAt), 'HH:mm', { locale: vi })}</p>
-                                                        <p className="text-xs text-muted-foreground">{format(new Date(session.scheduledAt), 'EEEE, dd/MM/yyyy', { locale: vi })}</p>
+                                                        <p className="font-medium">{formatDateTime(session.scheduledAt, 'HH:mm')}</p>
+                                                        <p className="text-xs text-muted-foreground">{formatDateTime(session.scheduledAt, 'EEEE, dd/MM/yyyy')}</p>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="border-r border-border/30">

@@ -32,6 +32,7 @@ import {
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "../../api/services/analytics"
+import { formatDateTime } from "@/lib/format-utils"
 import { reportApi } from "../../api/services/reports"
 import {
     AreaChart,
@@ -226,7 +227,7 @@ export default function RevenueAnalytics() {
                                         </div>
                                     </td>
                                     <td className="py-4 px-4 text-sm font-semibold">{formatCurrency(Number(sale.amount))}</td>
-                                    <td className="py-4 px-4 text-xs text-muted-foreground">{new Date(sale.date).toLocaleString('vi-VN')}</td>
+                                    <td className="py-4 px-4 text-xs text-muted-foreground">{formatDateTime(sale.date, 'dd/MM/yyyy HH:mm')}</td>
                                     <td className="py-4 px-4">
                                         <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-none">Hoàn tất</Badge>
                                     </td>

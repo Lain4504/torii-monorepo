@@ -18,8 +18,7 @@ import { Monitor, Smartphone, MapPin, AlertCircle, Loader2 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/api/services/sessions';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatRelativeTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 
 export function SessionsTab() {
@@ -108,7 +107,7 @@ export function SessionsTab() {
                                                 {session.ipAddress}
                                             </div>
                                             <p className="text-xs text-muted-foreground/60">
-                                                Hoạt động: {formatDistanceToNow(new Date(session.createdAt), { addSuffix: true, locale: vi })}
+                                                Hoạt động: {formatRelativeTime(session.createdAt)}
                                                 <span className="text-emerald-600 font-medium ml-2">· Đang hoạt động</span>
                                             </p>
                                         </ItemDescription>

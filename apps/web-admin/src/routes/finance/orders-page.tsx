@@ -14,8 +14,7 @@ import {
   CreditCard, RotateCcw, ShieldCheck, TrendingUp, Activity, Search, Calendar as CalendarIcon
 } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatDateTime, formatCurrency, vi } from '@/lib/format-utils';
 import { Calendar } from '@workspace/ui/components/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
 import {
@@ -40,7 +39,6 @@ import {
 } from "@workspace/ui/components/dropdown-menu";
 import { MoreHorizontal, Eye, FileText, XCircle } from 'lucide-react';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
-import { formatCurrency } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
 
 export default function OrdersPage() {
@@ -176,7 +174,7 @@ export default function OrdersPage() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                    {startDate ? format(new Date(startDate), "dd/MM/yyyy") : <span>Chọn ngày</span>}
+                    {startDate ? formatDateTime(startDate, "dd/MM/yyyy") : <span>Chọn ngày</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -184,7 +182,7 @@ export default function OrdersPage() {
                     mode="single"
                     selected={startDate ? new Date(startDate) : undefined}
                     onSelect={(date) => {
-                      setStartDate(date ? format(date, "yyyy-MM-dd") : '');
+                      setStartDate(date ? formatDateTime(date, "yyyy-MM-dd") : '');
                       setPage(1);
                     }}
                     initialFocus
@@ -205,7 +203,7 @@ export default function OrdersPage() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                    {endDate ? format(new Date(endDate), "dd/MM/yyyy") : <span>Chọn ngày</span>}
+                    {endDate ? formatDateTime(endDate, "dd/MM/yyyy") : <span>Chọn ngày</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -213,7 +211,7 @@ export default function OrdersPage() {
                     mode="single"
                     selected={endDate ? new Date(endDate) : undefined}
                     onSelect={(date) => {
-                      setEndDate(date ? format(date, "yyyy-MM-dd") : '');
+                      setEndDate(date ? formatDateTime(date, "yyyy-MM-dd") : '');
                       setPage(1);
                     }}
                     initialFocus
@@ -337,9 +335,9 @@ export default function OrdersPage() {
                       <div className="flex flex-col items-center">
                         <div className="flex items-center gap-1">
                           <Clock className="size-3" />
-                          {format(new Date(order.createdAt), 'dd/MM/yyyy')}
+                          {formatDateTime(order.createdAt, 'dd/MM/yyyy')}
                         </div>
-                        <span> {format(new Date(order.createdAt), 'HH:mm')}</span>
+                        <span> {formatDateTime(order.createdAt, 'HH:mm')}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">

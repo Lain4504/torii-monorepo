@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { format, subDays } from 'date-fns';
+import { formatDateTime, subtractDays } from '@/lib/format-utils';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Badge } from '@workspace/ui/components/badge';
@@ -142,7 +142,7 @@ function AuditLogDetailsSheet({ log }: { log: AuditLog }) {
                             <SheetTitle className="text-xl font-bold">Chi tiết Nhật ký Hệ thống</SheetTitle>
                             <SheetDescription className="flex items-center gap-2 text-xs font-medium text-muted-foreground/60">
                                 <Clock className="size-3.5" />
-                                {format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss')}
+                                {formatDateTime(log.createdAt, 'dd/MM/yyyy HH:mm:ss')}
                             </SheetDescription>
                         </div>
                         <CopyButton text={JSON.stringify(log, null, 2)} label="toàn bộ nhật ký" />
@@ -279,8 +279,8 @@ export function AuditLogsPage() {
 
     const [page, setPage] = useState(1);
     const [dateRange, setDateRange] = useState({
-        startDate: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
-        endDate: format(new Date(), 'yyyy-MM-dd'),
+        startDate: formatDateTime(subtractDays(new Date(), 30), 'yyyy-MM-dd'),
+        endDate: formatDateTime(new Date(), 'yyyy-MM-dd'),
     });
 
     const filters = {
@@ -406,7 +406,7 @@ export function AuditLogsPage() {
                                             {(page - 1) * 10 + index + 1}
                                         </TableCell>
                                         <TableCell className="text-xs font-mono text-muted-foreground">
-                                            {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
+                                            {formatDateTime(log.createdAt, 'yyyy-MM-dd HH:mm:ss')}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-col">

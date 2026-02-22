@@ -19,8 +19,7 @@ import {
     liveSessionsApi
 } from '@/api/services/live-sessions';
 import { useCourse } from '@/api/services/courses';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatDateTime } from '@/lib/format-utils';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -211,8 +210,8 @@ export default function CourseLiveSessionsPage() {
                                     </TableCell>
                                     <TableCell>
                                         <div className="text-sm">
-                                            <p className="font-medium">{format(new Date(session.scheduledAt), 'HH:mm', { locale: vi })}</p>
-                                            <p className="text-xs text-muted-foreground">{format(new Date(session.scheduledAt), 'EEEE, dd/MM/yyyy', { locale: vi })}</p>
+                                            <p className="font-medium">{formatDateTime(session.scheduledAt, 'HH:mm')}</p>
+                                            <p className="text-xs text-muted-foreground">{formatDateTime(session.scheduledAt, 'EEEE, dd/MM/yyyy')}</p>
                                         </div>
                                     </TableCell>
                                     <TableCell>

@@ -21,8 +21,7 @@ import {
   type RoomInfo,
   type PastRoomInfo
 } from '@/api/services/rooms';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatDateTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 import { PageHeader } from '@/components/common/page-header';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -86,7 +85,7 @@ export default function RoomsPage() {
     const creationTime = room.creationTimeMillis || room.creationTime || Date.now().toString();
     const createdAt = new Date(parseInt(creationTime));
     const isValidDate = !isNaN(createdAt.getTime());
-    return isValidDate ? format(createdAt, 'HH:mm - dd/MM/yyyy', { locale: vi }) : 'N/A';
+    return isValidDate ? formatDateTime(createdAt, 'HH:mm - dd/MM/yyyy') : 'N/A';
   };
 
   return (
@@ -330,7 +329,7 @@ function PastRoomRow({ room, idx, formatDuration, formatFileSize }: {
           </div>
         </TableCell>
         <TableCell>
-          <span className="text-sm">{isValidDate ? format(startTime, 'dd/MM/yyyy HH:mm', { locale: vi }) : 'N/A'}</span>
+          <span className="text-sm">{isValidDate ? formatDateTime(startTime, 'dd/MM/yyyy HH:mm') : 'N/A'}</span>
         </TableCell>
         <TableCell>
           <span className="text-sm font-medium">{formatDuration(room.roomDuration)}</span>

@@ -9,8 +9,7 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { MoreVertical, Eye, Pencil, Trash } from 'lucide-react';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatDateTime } from '@/lib/format-utils';
 
 interface GetQuestionsColumnsOptions {
     onView: (question: QuestionResponseDTO) => void;
@@ -76,7 +75,7 @@ export function getPoolQuestionsColumns({
             header: 'Thời gian',
             cell: ({ row }) => (
                 <span className="text-center text-xs text-muted-foreground block">
-                    {format(new Date(row.original.updatedAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                    {formatDateTime(row.original.updatedAt, 'dd/MM/yyyy HH:mm')}
                 </span>
             ),
             size: 160,

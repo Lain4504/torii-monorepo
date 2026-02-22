@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
-import { format, formatDistanceToNow } from 'date-fns'
+import { formatDateTime, formatRelativeTime } from '@/lib/format-utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -82,8 +82,8 @@ function mapNotificationToUI(notification: NotificationResponseDTO): Notificatio
     id: notification.id,
     title: notification.title,
     message: notification.message,
-    time: formatDistanceToNow(createdAt, { addSuffix: true }),
-    date: format(createdAt, 'dd/MM/yyyy'),
+    time: formatRelativeTime(createdAt),
+    date: formatDateTime(createdAt, 'dd/MM/yyyy'),
     read: notification.isRead,
     type: mapNotificationType(notification.notificationType),
     node: mapNotificationNode(notification.notificationType),

@@ -11,7 +11,7 @@ import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
-import { format } from 'date-fns';
+import { formatDateTime } from '@/lib/format-utils';
 import { Mail, Shield, Clock, Activity, Fingerprint, Terminal, AlertTriangle, Zap, Lock } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import {
@@ -137,7 +137,7 @@ export function ViewUserSheet({
                                             <ItemContent>
                                                 <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground">{item.label}</ItemTitle>
                                                 <ItemDescription className="text-xs font-medium">
-                                                    {format(new Date(item.value), 'PPpp')}
+                                                    {formatDateTime(item.value, 'PPpp')}
                                                 </ItemDescription>
                                             </ItemContent>
                                         </Item>

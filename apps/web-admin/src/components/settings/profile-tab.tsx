@@ -14,8 +14,7 @@ import {
 } from '@workspace/ui/components/item';
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { User, Mail, Calendar, Shield } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatRelativeTime } from '@/lib/format-utils';
 import { useAppSelector } from '@/hooks/hooks';
 
 export function ProfileTab() {
@@ -83,7 +82,7 @@ export function ProfileTab() {
                             <ItemContent>
                                 <ItemTitle className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tham Gia Từ</ItemTitle>
                                 <ItemDescription className="text-sm font-semibold text-foreground">
-                                    {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true, locale: vi })}
+                                    {formatRelativeTime(user.createdAt)}
                                 </ItemDescription>
                             </ItemContent>
                         </Item>
