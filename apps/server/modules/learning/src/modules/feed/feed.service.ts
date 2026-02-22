@@ -21,27 +21,6 @@ export class FeedService {
         @InjectMapper() private readonly mapper: Mapper,
     ) { }
 
-    private toResponseDTO(feed: any): FeedResponseDTO {
-        return {
-            id: feed.id,
-            title: feed.title,
-            content: feed.content,
-            authorId: feed.authorId,
-            tags: feed.tags,
-            viewCount: feed.viewCount,
-            likes: feed._count?.likes ?? feed.likeCount ?? 0,
-            comments: feed._count?.comments ?? feed.commentCount ?? 0,
-            createdAt: feed.createdAt,
-            updatedAt: feed.updatedAt,
-            author: feed.author ? {
-                id: feed.author.id,
-                displayName: feed.author.displayName,
-                avatarUrl: feed.author.avatarUrl
-            } : undefined,
-            isLiked: false,
-        };
-    }
-
     async createFeed(userId: string, dto: FeedCreateDTO): Promise<FeedResponseDTO> {
         const feed = await this.feedRepository.create({
             title: dto.title,
@@ -51,7 +30,7 @@ export class FeedService {
         });
 
         const created = await this.feedRepository.findById(feed.id);
-        return this.toResponseDTO(created!);
+        return this.mapper.map<any, FeedResponseDTO>(created!, 'Feed', 'FeedResponseDTO');
     }
 
     async findAllFeeds(query: FeedQueryDTO, currentUserId?: string): Promise<FeedPaginatedResponse> {
@@ -101,7 +80,7 @@ export class FeedService {
         ]);
 
         const dtos = await Promise.all(items.map(async item => {
-            const dto = this.toResponseDTO(item);
+            const dto = this.mapper.map<any, FeedResponseDTO>(item, 'Feed', 'FeedResponseDTO');
             if (currentUserId) {
                 const count = await this.prisma.feedUserLike.count({
                     where: { feedId: item.id, userId: currentUserId }
@@ -127,7 +106,7 @@ export class FeedService {
         // Increment view count
         await this.feedRepository.update(id, { viewCount: { increment: 1 } });
 
-        const dto = this.toResponseDTO(feed);
+        const dto = this.mapper.map<any, FeedResponseDTO>(feed, 'Feed', 'FeedResponseDTO');
         if (currentUserId) {
             const count = await this.prisma.feedUserLike.count({
                 where: { feedId: id, userId: currentUserId }

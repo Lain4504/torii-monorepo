@@ -6,6 +6,8 @@ import {
     BadRequestException,
     Inject,
 } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import {
     LiveSessionCreateDTO,
     LiveSessionResponseDTO,
@@ -61,6 +63,7 @@ export class LiveSessionService implements ILiveSessionService {
         private readonly prisma: PrismaService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
+        @InjectMapper() private readonly mapper: Mapper,
     ) { }
 
     /**
@@ -71,33 +74,17 @@ export class LiveSessionService implements ILiveSessionService {
         return requester.permissions.includes('*') || requester.permissions.includes(permission);
     }
 
-    private toLiveSessionResponseDTO(session: LiveSession): LiveSessionResponseDTO {
-        return {
-            id: session.id,
-            courseId: session.courseId,
-            lecturerId: session.lecturerId,
-            title: session.title,
-            description: session.description,
-            scheduledAt: session.scheduledAt,
-            duration: session.duration,
-            status: session.status,
-            meetingId: session.meetingId,
-            createdAt: session.createdAt,
-            updatedAt: session.updatedAt,
-        };
-    }
-
     async findOne(id: string): Promise<LiveSessionResponseDTO> {
         const session = await this.liveSessionRepository.findById(id);
         if (!session) {
             throw new NotFoundException(`Live session with id ${id} not found`);
         }
-        return this.toLiveSessionResponseDTO(session);
+        return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');
     }
 
     async findByCourseId(courseId: string): Promise<LiveSessionResponseDTO[]> {
         const sessions = await this.liveSessionRepository.findByCourseId(courseId);
-        return sessions.map((s) => this.toLiveSessionResponseDTO(s));
+        return sessions.map((s) => this.mapper.map<any, LiveSessionResponseDTO>(s, 'LiveSession', 'LiveSessionResponseDTO'));
     }
 
     async bulkCreate(requester: Requester, dto: LiveSessionBulkCreateDTO): Promise<LiveSessionResponseDTO[]> {
@@ -132,7 +119,7 @@ export class LiveSessionService implements ILiveSessionService {
             createdSessions.push(session);
         }
 
-        return createdSessions.map((s) => this.toLiveSessionResponseDTO(s));
+        return createdSessions.map((s) => this.mapper.map<any, LiveSessionResponseDTO>(s, 'LiveSession', 'LiveSessionResponseDTO'));
     }
 
     async create(requester: Requester, dto: LiveSessionCreateDTO): Promise<LiveSessionResponseDTO> {
@@ -159,7 +146,7 @@ export class LiveSessionService implements ILiveSessionService {
             lecturerId: dto.lecturerId,
         });
 
-        return this.toLiveSessionResponseDTO(session);
+        return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');
     }
 
     async update(requester: Requester, id: string, dto: LiveSessionUpdateDTO): Promise<LiveSessionResponseDTO> {
@@ -183,7 +170,7 @@ export class LiveSessionService implements ILiveSessionService {
         if (dto.meetingId !== undefined) updateData.meetingId = dto.meetingId;
 
         const updated = await this.liveSessionRepository.update(id, updateData);
-        return this.toLiveSessionResponseDTO(updated);
+        return this.mapper.map<any, LiveSessionResponseDTO>(updated, 'LiveSession', 'LiveSessionResponseDTO');
     }
 
     async delete(requester: Requester, id: string): Promise<{ message: string }> {
@@ -306,7 +293,7 @@ export class LiveSessionService implements ILiveSessionService {
             status: LiveSessionStatus.LIVE,
             meetingId: roomId,
         });
-        return this.toLiveSessionResponseDTO(updated);
+        return this.mapper.map<any, LiveSessionResponseDTO>(updated, 'LiveSession', 'LiveSessionResponseDTO');
     }
 
     async endSession(requester: Requester, id: string): Promise<LiveSessionResponseDTO> {
@@ -336,7 +323,7 @@ export class LiveSessionService implements ILiveSessionService {
         }
 
         const updated = await this.liveSessionRepository.update(id, { status: LiveSessionStatus.ENDED });
-        return this.toLiveSessionResponseDTO(updated);
+        return this.mapper.map<any, LiveSessionResponseDTO>(updated, 'LiveSession', 'LiveSessionResponseDTO');
     }
 
     async joinSession(requester: Requester, id: string): Promise<LiveSessionJoinResponseDTO> {

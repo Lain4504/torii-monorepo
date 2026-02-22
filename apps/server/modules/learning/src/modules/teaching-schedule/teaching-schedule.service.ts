@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, ConflictException, Inject } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import { PrismaService } from '@server/shared';
 import {
     TeachingScheduleCreateDTO,
@@ -12,7 +14,10 @@ import { ITeachingScheduleService } from '@server/learning/interfaces/services/i
 
 @Injectable()
 export class TeachingScheduleService implements ITeachingScheduleService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        @InjectMapper() private readonly mapper: Mapper,
+    ) { }
 
     async checkAvailability(
         lecturerId: string,
@@ -86,7 +91,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         // Generate live sessions for the next 8 weeks
         await this.generateLiveSessions(schedule.id, 8);
 
-        return this.toResponseDTO(schedule);
+        return this.mapper.map<any, TeachingScheduleResponseDTO>(schedule, 'TeachingSchedule', 'TeachingScheduleResponseDTO');
     }
 
     async findByCourse(courseId: string): Promise<TeachingScheduleResponseDTO[]> {
@@ -94,7 +99,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             where: { courseId },
             include: { lecturer: true, course: true },
         });
-        return schedules.map(s => this.toResponseDTO(s));
+        return schedules.map(s => this.mapper.map<any, TeachingScheduleResponseDTO>(s, 'TeachingSchedule', 'TeachingScheduleResponseDTO'));
     }
 
     async findByLecturer(lecturerId: string): Promise<TeachingScheduleResponseDTO[]> {
@@ -102,7 +107,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             where: { lecturerId },
             include: { lecturer: true, course: true },
         });
-        return schedules.map(s => this.toResponseDTO(s));
+        return schedules.map(s => this.mapper.map<any, TeachingScheduleResponseDTO>(s, 'TeachingSchedule', 'TeachingScheduleResponseDTO'));
     }
 
     async removeSchedule(requester: Requester, id: string): Promise<void> {
@@ -146,7 +151,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             },
         });
 
-        return this.toRequestResponseDTO(request);
+        return this.mapper.map<any, ScheduleRequestResponseDTO>(request, 'LiveSessionScheduleRequest', 'ScheduleRequestResponseDTO');
     }
 
     async getPendingRequests(): Promise<ScheduleRequestResponseDTO[]> {
@@ -154,7 +159,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             where: { status: 'pending' },
             include: { lecturer: true, course: true },
         });
-        return requests.map(r => this.toRequestResponseDTO(r));
+        return requests.map(r => this.mapper.map<any, ScheduleRequestResponseDTO>(r, 'LiveSessionScheduleRequest', 'ScheduleRequestResponseDTO'));
     }
 
     async handleRequest(requester: Requester, requestId: string, action: 'approve' | 'reject'): Promise<void> {
@@ -266,41 +271,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
     }
 
     private hasPermission(requester: Requester, permission: string): boolean {
-        // This should use an ACL service, but for now we follow the pattern in LiveSessionService
         return requester.role === 'admin' || requester.role === 'staff' || requester.role === 'lecturer';
-    }
-
-    private toResponseDTO(s: any): TeachingScheduleResponseDTO {
-        return {
-            id: s.id,
-            courseId: s.courseId,
-            lecturerId: s.lecturerId,
-            dayOfWeek: s.dayOfWeek,
-            startTime: s.startTime,
-            duration: s.duration,
-            createdAt: s.createdAt,
-            updatedAt: s.updatedAt,
-            course: s.course ? { id: s.course.id, title: s.course.title } : undefined,
-            lecturer: s.lecturer ? { id: s.lecturer.id, displayName: s.lecturer.displayName } : undefined,
-        };
-    }
-
-    private toRequestResponseDTO(r: any): ScheduleRequestResponseDTO {
-        return {
-            id: r.id,
-            lecturerId: r.lecturerId,
-            originalScheduleId: r.originalScheduleId,
-            courseId: r.courseId,
-            dayOfWeek: r.dayOfWeek,
-            startTime: r.startTime,
-            duration: r.duration,
-            reason: r.reason,
-            status: r.status,
-            createdAt: r.createdAt,
-            updatedAt: r.updatedAt,
-            lecturer: r.lecturer ? { id: r.lecturer.id, displayName: r.lecturer.displayName } : undefined,
-            course: r.course ? { id: r.course.id, title: r.course.title } : undefined,
-        };
     }
 }
 
