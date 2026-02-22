@@ -4,6 +4,7 @@ import { NotebookService } from '@server/learning/modules/notebook/notebook.serv
 import { NotebookRepository } from '@server/learning/modules/notebook/notebook.repository';
 import { NOTEBOOK_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-notebook.repository';
 import { NOTEBOOK_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-notebook.service';
+import { NotebookProfile } from '@server/learning/infrastructure/mappings/notebook.profile';
 
 @Module({
     imports: [SharedModule],
@@ -16,6 +17,7 @@ import { NOTEBOOK_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-n
             provide: NOTEBOOK_SERVICE_TOKEN,
             useClass: NotebookService,
         },
+        NotebookProfile,
     ],
     exports: [NOTEBOOK_SERVICE_TOKEN, NOTEBOOK_REPOSITORY_TOKEN],
 })

@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { NOTEBOOK_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-notebook.repository';
 import type { INotebookRepository } from '@server/learning/interfaces/repositories/i-notebook.repository';
 import type {
@@ -20,37 +22,9 @@ export class NotebookService implements INotebookService {
     constructor(
         @Inject(NOTEBOOK_REPOSITORY_TOKEN)
         private readonly notebookRepo: INotebookRepository,
+        @InjectMapper()
+        private readonly mapper: Mapper,
     ) { }
-
-    // ── Mapping helpers ─────────────────────────────────────────
-
-    private toEntryDTO(entry: any): NoteEntryResponseDTO {
-        return {
-            id: entry.id,
-            notebookId: entry.notebookId,
-            word: entry.word,
-            phonetic: entry.phonetic || undefined,
-            meaning: entry.meaning,
-            note: entry.note || undefined,
-            partOfSpeech: entry.partOfSpeech || 'other',
-            createdAt: entry.createdAt instanceof Date ? entry.createdAt.toISOString() : entry.createdAt,
-            updatedAt: entry.updatedAt instanceof Date ? entry.updatedAt.toISOString() : entry.updatedAt,
-        };
-    }
-
-    private toNotebookDTO(notebook: any): NotebookResponseDTO {
-        return {
-            id: notebook.id,
-            userId: notebook.userId,
-            name: notebook.name,
-            description: notebook.description || undefined,
-            isPublic: notebook.isPublic,
-            entryCount: notebook.entryCount,
-            entries: (notebook.entries || []).map((e: any) => this.toEntryDTO(e)),
-            createdAt: notebook.createdAt instanceof Date ? notebook.createdAt.toISOString() : notebook.createdAt,
-            updatedAt: notebook.updatedAt instanceof Date ? notebook.updatedAt.toISOString() : notebook.updatedAt,
-        };
-    }
 
     // ── Ownership check ──────────────────────────────────────────
 
@@ -88,7 +62,7 @@ export class NotebookService implements INotebookService {
             });
 
             this.logger.log(`Notebook created: ${notebook.id} by user ${userId}`);
-            return this.toNotebookDTO({ ...notebook, entries: [] });
+            return this.mapper.map({ ...notebook, entries: [] }, 'Notebook', 'NotebookResponseDTO');
         } catch (error: any) {
             if (error instanceof RpcException) throw error;
             this.logger.error('Error creating notebook', error);
@@ -114,7 +88,7 @@ export class NotebookService implements INotebookService {
             include: { entries: { orderBy: { createdAt: 'asc' } } },
         });
 
-        return notebooks.map(n => this.toNotebookDTO(n));
+        return this.mapper.mapArray(notebooks, 'Notebook', 'NotebookResponseDTO');
     }
 
     async findPublicNotebooks(params: { search?: string; excludeUserId?: string }): Promise<NotebookResponseDTO[]> {
@@ -138,7 +112,7 @@ export class NotebookService implements INotebookService {
             include: { entries: { orderBy: { createdAt: 'asc' } } },
         });
 
-        return notebooks.map(n => this.toNotebookDTO(n));
+        return this.mapper.mapArray(notebooks, 'Notebook', 'NotebookResponseDTO');
     }
 
     async findOneNotebook(id: string, userId: string): Promise<NotebookResponseDTO> {
@@ -155,7 +129,7 @@ export class NotebookService implements INotebookService {
             throw new RpcException({ status: 403, message: 'You do not have permission to access this notebook' });
         }
 
-        return this.toNotebookDTO(notebook);
+        return this.mapper.map(notebook, 'Notebook', 'NotebookResponseDTO');
     }
 
     async updateNotebook(id: string, data: UpdateNotebookDTO, userId: string): Promise<NotebookResponseDTO> {
@@ -184,7 +158,7 @@ export class NotebookService implements INotebookService {
             });
 
             this.logger.log(`Notebook updated: ${id} by user ${userId}`);
-            return this.toNotebookDTO(full);
+            return this.mapper.map(full, 'Notebook', 'NotebookResponseDTO');
         } catch (error: any) {
             if (error instanceof RpcException) throw error;
             throw new RpcException({ status: 500, message: `Failed to update notebook: ${error?.message}` });
@@ -220,7 +194,7 @@ export class NotebookService implements INotebookService {
             // Increment entryCount
             await this.notebookRepo.update(notebookId, { entryCount: { increment: 1 } });
 
-            return this.toEntryDTO(entry);
+            return this.mapper.map(entry, 'NoteEntry', 'NoteEntryResponseDTO');
         } catch (error: any) {
             if (error instanceof RpcException) throw error;
             throw new RpcException({ status: 400, message: `Failed to add entry: ${error?.message}` });
@@ -244,7 +218,7 @@ export class NotebookService implements INotebookService {
                 ...(data.partOfSpeech !== undefined && { partOfSpeech: data.partOfSpeech }),
             });
 
-            return this.toEntryDTO(updated);
+            return this.mapper.map(updated, 'NoteEntry', 'NoteEntryResponseDTO');
         } catch (error: any) {
             if (error instanceof RpcException) throw error;
             throw new RpcException({ status: 400, message: `Failed to update entry: ${error?.message}` });

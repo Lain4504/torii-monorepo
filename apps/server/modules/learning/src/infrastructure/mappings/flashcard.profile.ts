@@ -2,13 +2,16 @@ import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { createMap, forMember, mapFrom } from '@automapper/core';
-import type { Flashcard } from '@prisma/generated';
-import { FlashcardGenerationMethod } from '@workspace/schemas';
-import type { FlashcardResponseDTO } from '@workspace/schemas';
+import type { Flashcard, FlashcardDeck } from '@prisma/generated';
+import {
+    FlashcardResponseDTO,
+    FlashcardDeckResponseDTO,
+    FlashcardDifficulty,
+} from '@workspace/schemas';
 
 /**
  * Flashcard AutoMapper Profile
- * Maps Flashcard entity (Prisma) to FlashcardResponseDTO
+ * Maps Flashcard and FlashcardDeck entities (Prisma) to DTOs
  */
 @Injectable()
 export class FlashcardProfile extends AutomapperProfile {
@@ -18,133 +21,123 @@ export class FlashcardProfile extends AutomapperProfile {
 
     override get profile() {
         return (mapper: Mapper) => {
-            createMap<Flashcard, FlashcardResponseDTO>(
+            // Helper for difficulty level
+            const toDifficultyLevel = (difficulty: string): FlashcardDifficulty => {
+                switch (difficulty?.toLowerCase()) {
+                    case 'easy':
+                        return FlashcardDifficulty.EASY;
+                    case 'medium':
+                        return FlashcardDifficulty.MEDIUM;
+                    case 'hard':
+                        return FlashcardDifficulty.HARD;
+                    default:
+                        return FlashcardDifficulty.DIFFICULTY_UNSPECIFIED;
+                }
+            };
+
+            // Mapping for Flashcard
+            createMap(
                 mapper,
                 'Flashcard',
                 'FlashcardResponseDTO',
                 forMember(
-                    (dest) => dest.id,
-                    mapFrom((src) => src.id),
+                    (dest: FlashcardResponseDTO) => dest.difficulty,
+                    mapFrom((src: Flashcard) => toDifficultyLevel(src.difficulty)),
                 ),
                 forMember(
-                    (dest) => dest.deckId,
-                    mapFrom((src) => src.deckId),
+                    (dest: FlashcardResponseDTO) => dest.exampleSentence,
+                    mapFrom((src: Flashcard) => src.exampleSentence || undefined),
                 ),
                 forMember(
-                    (dest) => dest.frontText,
-                    mapFrom((src) => src.frontText),
+                    (dest: FlashcardResponseDTO) => dest.pronunciation,
+                    mapFrom((src: Flashcard) => src.pronunciation || undefined),
                 ),
                 forMember(
-                    (dest) => dest.backText,
-                    mapFrom((src) => src.backText),
+                    (dest: FlashcardResponseDTO) => dest.imageUrl,
+                    mapFrom((src: Flashcard) => src.imageUrl || undefined),
                 ),
                 forMember(
-                    (dest) => dest.exampleSentence,
-                    mapFrom((src) => src.exampleSentence || undefined),
+                    (dest: FlashcardResponseDTO) => dest.audioUrl,
+                    mapFrom((src: Flashcard) => src.audioUrl || undefined),
                 ),
                 forMember(
-                    (dest) => dest.pronunciation,
-                    mapFrom((src) => src.pronunciation || undefined),
+                    (dest: FlashcardResponseDTO) => dest.furigana,
+                    mapFrom((src: Flashcard) => src.furigana || undefined),
                 ),
                 forMember(
-                    (dest) => dest.imageUrl,
-                    mapFrom((src) => src.imageUrl || undefined),
+                    (dest: FlashcardResponseDTO) => dest.kanji,
+                    mapFrom((src: Flashcard) => src.kanji || undefined),
                 ),
                 forMember(
-                    (dest) => dest.audioUrl,
-                    mapFrom((src) => src.audioUrl || undefined),
-                ),
-                forMember(
-                    (dest) => dest.tags,
-                    mapFrom((src) => (src.tags as string[]) || []),
-                ),
-                forMember(
-                    (dest) => dest.difficulty,
-                    mapFrom((src) => src.difficulty as any),
-                ),
-                // Japanese-specific fields
-                forMember(
-                    (dest) => dest.furigana,
-                    mapFrom((src) => src.furigana || undefined),
-                ),
-                forMember(
-                    (dest) => dest.kanji,
-                    mapFrom((src) => src.kanji || undefined),
-                ),
-                forMember(
-                    (dest) => dest.partOfSpeech,
+                    (dest: FlashcardResponseDTO) => dest.partOfSpeech,
                     mapFrom((src) => src.partOfSpeech || undefined),
                 ),
                 forMember(
-                    (dest) => dest.wordJlptLevel,
-                    mapFrom((src) => src.wordJlptLevel || undefined),
+                    (dest: FlashcardResponseDTO) => dest.wordJlptLevel,
+                    mapFrom((src: Flashcard) => src.wordJlptLevel || undefined),
                 ),
                 forMember(
-                    (dest) => dest.meanings,
-                    mapFrom((src) => (src.meanings as { meaning: string; examples: string[] }[]) || []),
-                ),
-                // AI Integration fields
-                forMember(
-                    (dest) => dest.aiGenerated,
-                    mapFrom((src) => src.aiGenerated || false),
+                    (dest: FlashcardResponseDTO) => dest.meanings,
+                    mapFrom((src: Flashcard) => (src.meanings as any) || []),
                 ),
                 forMember(
-                    (dest) => dest.sourceDocumentId,
-                    mapFrom((src) => src.sourceDocumentId || undefined),
+                    (dest: FlashcardResponseDTO) => dest.sourceDocumentId,
+                    mapFrom((src: Flashcard) => src.sourceDocumentId || undefined),
                 ),
                 forMember(
-                    (dest) => dest.generationMethod,
-                    mapFrom((src) => (src.generationMethod as any) || FlashcardGenerationMethod.MANUAL),
+                    (dest: FlashcardResponseDTO) => dest.generationMetadata,
+                    mapFrom((src: Flashcard) => (src.generationMetadata as any) || {}),
                 ),
                 forMember(
-                    (dest) => dest.generationMetadata,
-                    mapFrom((src) => (src.generationMetadata as any) || {}),
-                ),
-                // Metadata
-                forMember(
-                    (dest) => dest.notes,
-                    mapFrom((src) => src.notes || undefined),
+                    (dest: FlashcardResponseDTO) => dest.notes,
+                    mapFrom((src: Flashcard) => src.notes || undefined),
                 ),
                 forMember(
-                    (dest) => dest.isArchived,
-                    mapFrom((src) => src.isArchived || false),
-                ),
-                // SRS / Review stats
-                forMember(
-                    (dest) => dest.nextReviewDate,
-                    mapFrom((src) => src.nextReviewDate || undefined),
+                    (dest: FlashcardResponseDTO) => dest.nextReviewDate,
+                    mapFrom((src: Flashcard) => src.nextReviewDate || undefined),
                 ),
                 forMember(
-                    (dest) => dest.intervalDays,
-                    mapFrom((src) => src.intervalDays || 0),
+                    (dest: FlashcardResponseDTO) => dest.lastReviewDate,
+                    mapFrom((src: Flashcard) => src.lastReviewDate || undefined),
                 ),
                 forMember(
-                    (dest) => dest.easeFactor,
-                    mapFrom((src) => Number(src.easeFactor) || 2.5),
+                    (dest: FlashcardResponseDTO) => dest.easeFactor,
+                    mapFrom((src: Flashcard) => Number(src.easeFactor)),
+                ),
+            );
+
+            // Mapping for FlashcardDeck
+            createMap(
+                mapper,
+                'FlashcardDeck',
+                'FlashcardDeckResponseDTO',
+                forMember(
+                    (dest: FlashcardDeckResponseDTO) => dest.description,
+                    mapFrom((src: FlashcardDeck) => src.description || undefined),
                 ),
                 forMember(
-                    (dest) => dest.reviewCount,
-                    mapFrom((src) => src.reviewCount || 0),
+                    (dest: FlashcardDeckResponseDTO) => dest.jlptLevel,
+                    mapFrom((src: FlashcardDeck) => src.jlptLevel || undefined),
                 ),
                 forMember(
-                    (dest) => dest.correctCount,
-                    mapFrom((src) => src.correctCount || 0),
+                    (dest: FlashcardDeckResponseDTO) => dest.srsSettings,
+                    mapFrom((src: FlashcardDeck) => (src.srsSettings as any) || undefined),
                 ),
                 forMember(
-                    (dest) => dest.lastReviewDate,
-                    mapFrom((src) => src.lastReviewDate || undefined),
+                    (dest: FlashcardDeckResponseDTO) => dest.aiSettings,
+                    mapFrom((src: FlashcardDeck) => (src.aiSettings as any) || undefined),
                 ),
                 forMember(
-                    (dest) => dest.timesStudied,
-                    mapFrom((src) => src.timesStudied || 0),
+                    (dest: FlashcardDeckResponseDTO) => dest.sourceType,
+                    mapFrom((src: FlashcardDeck) => src.sourceType || 'manual'),
                 ),
                 forMember(
-                    (dest) => dest.createdAt,
-                    mapFrom((src) => src.createdAt),
+                    (dest: FlashcardDeckResponseDTO) => dest.lastStudiedAt,
+                    mapFrom((src: FlashcardDeck) => src.lastStudiedAt || undefined),
                 ),
                 forMember(
-                    (dest) => dest.updatedAt,
-                    mapFrom((src) => src.updatedAt),
+                    (dest: FlashcardDeckResponseDTO) => dest.masteryPercentage,
+                    mapFrom((src: FlashcardDeck) => (src.masteryPercentage ? Number(src.masteryPercentage) : undefined)),
                 ),
             );
         };
