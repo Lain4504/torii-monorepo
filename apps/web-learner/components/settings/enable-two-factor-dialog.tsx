@@ -14,15 +14,9 @@ import {
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { toast } from "@workspace/ui/components/sonner";
-import {
-  Smartphone,
-  QrCode,
-  Key,
-  Download,
-  Copy,
-  Check,
-  Loader2,
-} from "lucide-react";
+import { Smartphone, QrCode, Key, Download, Copy, Check } from 'lucide-react';
+import { Spinner } from '@workspace/ui/components/spinner';
+import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field';
 import {
   useGenerateTotpSecret,
   useEnableTotp,
@@ -180,7 +174,7 @@ export function EnableTwoFactorDialog({
             >
               {generateMutation.isPending ? (
                 <>
-                  <Loader2 className="size-4 animate-spin opacity-70" />
+                  <Spinner className="size-4 animate-spin opacity-70" />
                   Đang tạo...
                 </>
               ) : (
@@ -207,10 +201,10 @@ export function EnableTwoFactorDialog({
             </div>
 
             {/* Manual Entry */}
-            <div className="space-y-3">
-              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/70">
+            <Field className="space-y-3">
+              <FieldLabel className="text-muted-foreground/70">
                 Hoặc nhập khóa này thủ công:
-              </label>
+              </FieldLabel>
               <div className="flex gap-2">
                 <Input
                   value={secret}
@@ -231,7 +225,7 @@ export function EnableTwoFactorDialog({
                   )}
                 </Button>
               </div>
-            </div>
+            </Field>
 
             {/* Verification Form */}
             <form
@@ -239,27 +233,22 @@ export function EnableTwoFactorDialog({
               className="space-y-5"
             >
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-foreground ml-1">
-                  Nhập mã 6 chữ số từ ứng dụng
-                </label>
                 <Controller
                   name="code"
                   control={form.control}
                   render={({ field, fieldState }) => (
-                    <div className="space-y-2">
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="code">Nhập mã 6 chữ số từ ứng dụng</FieldLabel>
                       <Input
                         {...field}
+                        id="code"
                         placeholder="000000"
                         maxLength={6}
                         className="h-14 text-center text-2xl font-mono tracking-widest rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
                         autoComplete="off"
                       />
-                      {fieldState.error && (
-                        <p className="text-[10px] font-medium text-rose-500 ml-1">
-                          {fieldState.error.message}
-                        </p>
-                      )}
-                    </div>
+                      <FieldError errors={[fieldState.error]} />
+                    </Field>
                   )}
                 />
               </div>
@@ -271,7 +260,7 @@ export function EnableTwoFactorDialog({
               >
                 {enableMutation.isPending ? (
                   <>
-                    <Loader2 className="size-4 animate-spin opacity-70" />
+                    <Spinner className="size-4 animate-spin opacity-70" />
                     Đang xác thực...
                   </>
                 ) : (
@@ -340,8 +329,8 @@ export function EnableTwoFactorDialog({
               </Button>
             </div>
 
-            <Button 
-              onClick={handleFinish} 
+            <Button
+              onClick={handleFinish}
               className="w-full h-12 rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
             >
               Tôi đã lưu mã dự phòng
@@ -349,6 +338,6 @@ export function EnableTwoFactorDialog({
           </div>
         )}
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }

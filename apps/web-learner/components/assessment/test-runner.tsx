@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, Loader2, Timer, AlertCircle } from "lucide-react"
+import { CheckCircle2, Timer, AlertCircle } from 'lucide-react'
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
@@ -11,6 +11,7 @@ import { agentApi } from "@/apis/services/agent-api"
 import { AgentTestGenerationResponseDTO as TestGenerationResponse, AgentTestEvaluationResponseDTO as TestEvaluationResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export function TestRunner() {
     const [step, setStep] = React.useState<"setup" | "test" | "result">("setup")
@@ -106,7 +107,7 @@ export function TestRunner() {
                     </CardContent>
                     <CardFooter>
                         <Button onClick={handleStart} className="w-full" disabled={isLoading}>
-                            {isLoading ? <><Loader2 className="mr-2 size-4 animate-spin" /> Generating...</> : "Start Test"}
+                            {isLoading ? <><Spinner className="mr-2 size-4 animate-spin" /> Generating...</> : "Start Test"}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -150,7 +151,7 @@ export function TestRunner() {
 
                 <div className="flex justify-end">
                     <Button onClick={handleSubmit} disabled={isLoading || Object.keys(answers).length < testData.questions.length}>
-                        {isLoading ? <><Loader2 className="mr-2 size-4 animate-spin" /> Submitting...</> : "Submit Test"}
+                        {isLoading ? <><Spinner className="mr-2 size-4 animate-spin" /> Submitting...</> : "Submit Test"}
                     </Button>
                 </div>
             </div>

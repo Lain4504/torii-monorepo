@@ -9,7 +9,8 @@ import {
     DialogTitle,
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import { Spinner } from '@workspace/ui/components/spinner'
 
 interface RevokeSessionDialogProps {
     open: boolean;
@@ -59,7 +60,7 @@ export function RevokeSessionDialog({
                     >
                         {isPending ? (
                             <div className="flex items-center gap-2">
-                                <Loader2 className="size-3 animate-spin" />
+                                <Spinner className="size-3 animate-spin" />
                                 Đang xử lý...
                             </div>
                         ) : (

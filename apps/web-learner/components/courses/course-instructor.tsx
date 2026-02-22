@@ -121,7 +121,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                     Mang đến trải nghiệm học tiếng Nhật hiện đại, đơn giản và cực kỳ hiệu quả thông qua lộ trình cá nhân hóa.
                                 </p>
 
-                                <Button variant="outline" className="h-9 px-4 rounded-lg text-xs font-bold border-border hover:bg-muted transition-all">
+                                <Button variant="outline" size="sm" className="rounded-lg font-bold border-border hover:bg-muted transition-all">
                                     Xem hồ sơ chi tiết
                                     <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                 </Button>

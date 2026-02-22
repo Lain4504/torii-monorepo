@@ -8,6 +8,7 @@ import { Gift, Star, Ticket, ArrowRight, CheckCircle2, AlertCircle, TrendingUp }
 import { useGamificationProfile, useRewards, useRedeemPoints } from '@/apis/services/gamification-api'
 import { useMyCoupons } from '@/apis/services/coupon-api'
 import { toast } from 'sonner'
+import { Button } from '@workspace/ui/components/button'
 import { useState } from 'react'
 import {
     Dialog,
@@ -159,7 +160,7 @@ export default function RewardsPage() {
                                 }}>
                                     Sao chép
                                 </Button>
-                            </div>
+                            </Card>
                         ))}
                     </div>
                 ) : (

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Library, ArrowRight, Loader2, ExternalLink, PlayCircle, BookOpen, FileText } from "lucide-react"
+import { Library, ArrowRight, ExternalLink, PlayCircle, BookOpen, FileText } from 'lucide-react'
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -11,10 +11,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
+import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { agentApi } from "@/apis/services/agent-api"
 import { AgentResourceRecommendationResponseDTO as ResourceRecommendationResponse } from "@workspace/schemas"
 import { Card, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export function ResourceRecommender() {
     const [topic, setTopic] = React.useState("")
@@ -57,16 +59,16 @@ export function ResourceRecommender() {
             {/* Input Section */}
             <div className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-6">
                 <div className="grid md:grid-cols-[1fr,200px] gap-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Chủ đề cần tìm</label>
+                    <Field className="space-y-2">
+                        <FieldLabel>Chủ đề cần tìm</FieldLabel>
                         <Input
                             placeholder="Ví dụ: JLPT N3 Grammar, Business Japanese, Keigo..."
                             value={topic}
                             onChange={(e) => setTopic(e.target.value)}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Loại tài liệu</label>
+                    </Field>
+                    <Field className="space-y-2">
+                        <FieldLabel>Loại tài liệu</FieldLabel>
                         <Select value={type} onValueChange={setType}>
                             <SelectTrigger>
                                 <SelectValue />
@@ -79,7 +81,7 @@ export function ResourceRecommender() {
                                 <SelectItem value="tool">Công cụ (Tool)</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                 </div>
 
                 <div className="flex justify-end">
@@ -89,7 +91,7 @@ export function ResourceRecommender() {
                         className="px-6 font-semibold min-w-[140px]"
                     >
                         {isLoading ? (
-                            <><Loader2 className="mr-2 size-4 animate-spin" /> Searching...</>
+                            <><Spinner className="mr-2 size-4 animate-spin" /> Searching...</>
                         ) : (
                             <>
                                 Find Resources <ArrowRight className="ml-2 size-4" />

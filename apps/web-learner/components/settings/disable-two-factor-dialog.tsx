@@ -12,9 +12,11 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
+import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
-import { AlertTriangle, Lock, Loader2 } from 'lucide-react';
+import { AlertTriangle, Lock } from 'lucide-react';
 import { useDisableTotp } from '@/apis/services/two-factor-auth-api';
+import { Spinner } from '@workspace/ui/components/spinner'
 
 const disableSchema = z.object({
     password: z.string().min(1, 'Mật khẩu là bắt buộc'),
@@ -82,28 +84,25 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
                     {/* Password Form */}
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-foreground ml-1">
-                                Xác nhận mật khẩu của bạn
-                            </label>
                             <Controller
                                 name="password"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
-                                    <div className="space-y-2">
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="password">Xác nhận mật khẩu của bạn</FieldLabel>
                                         <div className="relative group">
                                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
                                             <Input
                                                 {...field}
+                                                id="password"
                                                 type="password"
                                                 placeholder="Nhập mật khẩu của bạn"
                                                 className="h-12 pl-11 rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
                                                 autoComplete="current-password"
                                             />
                                         </div>
-                                        {fieldState.error && (
-                                            <p className="text-[10px] font-medium text-rose-500 ml-1">{fieldState.error.message}</p>
-                                        )}
-                                    </div>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
                                 )}
                             />
                         </div>
@@ -127,7 +126,7 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
                             >
                                 {disableMutation.isPending ? (
                                     <>
-                                        <Loader2 className="size-4 animate-spin opacity-70" />
+                                        <Spinner className="size-4 animate-spin opacity-70" />
                                         <span className="text-xs font-medium">Đang tắt...</span>
                                     </>
                                 ) : (

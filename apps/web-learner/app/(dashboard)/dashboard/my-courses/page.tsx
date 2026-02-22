@@ -21,6 +21,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { LiveSessionBlock } from '@/components/courses/live-session-block'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
+import { learningProgressApi, MyCourseResponse, LearningStats } from '@/apis/services/learning-progress-api'
 
 export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
@@ -145,8 +146,8 @@ export default function MyCoursesPage() {
             {/* Courses Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCourses.map((course) => (
-                    <Card 
-                        key={course.id} 
+                    <Card
+                        key={course.id}
                         onClick={() => {
                             if (course.expiresAt && new Date(course.expiresAt) < new Date()) {
                                 setExpiredCourse({ title: course.title, slug: course.slug })
@@ -225,13 +226,13 @@ export default function MyCoursesPage() {
 
                             <div className="pt-2">
                                 {course.expiresAt && new Date(course.expiresAt) < new Date() ? (
-                                    <Button 
+                                    <Button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setExpiredCourse({ title: course.title, slug: course.slug })
                                         }}
-                        className="w-full text-xs font-bold bg-destructive hover:bg-destructive/90 shadow-sm"
-                    >
+                                        className="w-full text-xs font-bold bg-destructive hover:bg-destructive/90 shadow-sm"
+                                    >
                                         Gia hạn khóa học
                                         <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                     </Button>
@@ -258,7 +259,7 @@ export default function MyCoursesPage() {
                         <EmptyTitle>Không tìm thấy khóa học</EmptyTitle>
                         <EmptyDescription>Bạn chưa đăng ký khóa học nào hoặc không tìm thấy kết quả phù hợp.</EmptyDescription>
                         <Link href="/courses">
-                    <Button className="mt-4 font-bold" variant="outline">Khám phá khóa học</Button>
+                            <Button className="mt-4 font-bold" variant="outline">Khám phá khóa học</Button>
                         </Link>
                     </EmptyContent>
                 </Empty>

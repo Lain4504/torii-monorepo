@@ -10,12 +10,13 @@ import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { Separator } from '@workspace/ui/components/separator'
 import { toast } from '@workspace/ui/components/sonner'
-import { Loader2, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { cn } from '@workspace/ui/lib/utils'
 import { useGoogleAuth } from '@/apis/services/auth-api'
 import { useEffect as useCleanup } from 'react'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 const registerFormSchema = z
     .object({
@@ -230,7 +231,7 @@ export function RegisterForm() {
                 />
 
                 <Button type="submit" className="w-full" disabled={isLoading || googleLoading}>
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
                     Đăng ký
                 </Button>
             </form>
@@ -249,7 +250,7 @@ export function RegisterForm() {
                 disabled={isLoading || googleLoading}
             >
                 {googleLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Spinner className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />

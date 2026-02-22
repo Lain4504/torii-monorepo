@@ -4,17 +4,19 @@ import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { commentApi } from '@/apis/services/comment-api'
 import type { CommentResponseDTO } from '@workspace/schemas'
-import { User, Heart, Reply, MoreHorizontal, Loader2, Send, Edit, Trash } from 'lucide-react'
+import { User, Heart, Reply, MoreHorizontal, Send, Edit, Trash } from 'lucide-react'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyHeader } from '@workspace/ui/components/empty'
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import Link from 'next/link'
 import { toast } from '@workspace/ui/components/sonner'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 interface CommentSectionProps {
     blogId?: string
@@ -219,7 +221,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
             <div className="space-y-4">
                 {loading ? (
                     <div className="py-16 flex justify-center">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        <Spinner className="w-8 h-8 text-primary animate-spin" />
                     </div>
                 ) : rootComments.length > 0 ? (
                     rootComments.map(comment => (
@@ -240,8 +242,18 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
                         />
                     ))
                 ) : (
-                    <div className="text-center py-8 text-muted-foreground text-sm">
-                        Chưa có bình luận nào. Hãy là người đầu tiên!
+                    <div className="py-12 flex justify-center bg-muted/5 rounded-2xl border border-dashed border-border/50">
+                        <Empty>
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon" className="bg-background shadow-sm border border-border">
+                                    <User className="text-muted-foreground w-6 h-6" />
+                                </EmptyMedia>
+                                <EmptyTitle className="text-base font-bold text-foreground">Bạn hãy lên tiếng!</EmptyTitle>
+                                <EmptyDescription className="text-sm text-muted-foreground">
+                                    Chưa có bình luận nào. Hãy là người đầu tiên!
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
                     </div>
                 )}
             </div>
@@ -506,7 +518,7 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
                     className="flex-shrink-0 w-9 h-9 rounded-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed flex items-center justify-center transition-colors"
                 >
                     {submitting ? (
-                        <Loader2 className="w-4 h-4 text-white animate-spin" />
+                        <Spinner className="w-4 h-4 text-white animate-spin" />
                     ) : submitLabel ? (
                         <span className="text-xs text-white px-2 font-medium">{submitLabel}</span>
                     ) : (

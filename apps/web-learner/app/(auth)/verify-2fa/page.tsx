@@ -13,6 +13,7 @@ import { Smartphone, ArrowLeft, Key } from 'lucide-react';
 import { authApi } from '@/apis/services/auth-api';
 import { useAppDispatch } from '@/hooks/hooks';
 import { checkAuth } from '@/store/slices/authSlice';
+import { Input } from '@workspace/ui/components/input';
 
 const verifyCodeSchema = z.object({
     code: z.string().min(1, 'Code is required'),

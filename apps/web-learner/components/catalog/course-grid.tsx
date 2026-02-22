@@ -3,9 +3,10 @@
 import { CourseCard } from "./course-card"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@workspace/ui/components/pagination"
 import { useCourses } from "./useCourses"
-import { Inbox, Loader2, Search } from "lucide-react"
+import { Inbox, Search } from 'lucide-react'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { cn } from "@workspace/ui/lib/utils";
+import { Spinner } from '@workspace/ui/components/spinner'
 
 interface CourseGridProps {
     searchQuery?: string
@@ -46,7 +47,7 @@ export function CourseGrid({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
                         <div key={i} className="aspect-[4/5] rounded-2xl bg-muted/20 animate-pulse flex items-center justify-center">
-                            <Loader2 className="w-8 h-8 text-muted-foreground/20 animate-spin" />
+                            <Spinner className="w-8 h-8 text-muted-foreground/20 animate-spin" />
                         </div>
                     ))}
                 </div>

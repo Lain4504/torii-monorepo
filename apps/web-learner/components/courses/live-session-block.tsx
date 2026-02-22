@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@workspace/ui/components/button'
-import { Video, Loader2 } from 'lucide-react'
+import { Video } from 'lucide-react'
 import { liveSessionApi } from '@/apis/services/live-session-api'
 import type { LiveSessionResponseDTO } from '@workspace/schemas'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { toast } from '@workspace/ui/components/sonner'
 import { cn } from '@workspace/ui/lib/utils'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 const MEET_URL = typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com') : 'https://meet.torii.com'
 
@@ -60,7 +61,7 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
     if (loading) {
         return (
             <div className={cn('flex items-center justify-center py-4 text-muted-foreground', className)}>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Spinner className="w-5 h-5 animate-spin" />
             </div>
         )
     }
@@ -108,7 +109,7 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
                                     disabled={!!joiningId}
                                 >
                                     {joiningId === session.id ? (
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        <Spinner className="w-3.5 h-3.5 animate-spin" />
                                     ) : (
                                         <Video className="w-3.5 h-3.5" />
                                     )}

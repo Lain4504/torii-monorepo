@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { BarChart, BookOpen, Clock, Trophy, Loader2 } from "lucide-react"
+import { BarChart, BookOpen, Clock, Trophy } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { learningProgressApi, LearningStats } from "@/apis/services/learning-progress-api"
 import { ProgressChart } from "./progress-chart"
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export function LegacyAnalytics() {
     const [stats, setStats] = React.useState<LearningStats | null>(null)
@@ -54,7 +55,7 @@ export function LegacyAnalytics() {
     }, [])
 
     if (isLoading) {
-        return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+        return <div className="flex h-96 items-center justify-center"><Spinner className="h-8 w-8 animate-spin text-muted-foreground" /></div>
     }
 
     return (

@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Badge } from '@workspace/ui/components/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { Clock, GraduationCap, ChevronRight, Sparkles, Loader2 } from 'lucide-react'
+import { Clock, GraduationCap, ChevronRight, Sparkles } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { courseApi } from '@/apis/services/course-api'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 const formatPrice = (price: number, isFree: boolean) =>
     isFree ? 'Miễn phí' : `${Number(price).toLocaleString('vi-VN')} VNĐ`
@@ -69,7 +70,7 @@ export default function LiveClassesPage() {
             <div className="container max-w-6xl mx-auto px-4 py-12">
                 {loading ? (
                     <div className="flex items-center justify-center py-24">
-                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        <Spinner className="w-8 h-8 animate-spin text-primary" />
                     </div>
                 ) : error ? (
                     <div className="p-4 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>

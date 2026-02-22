@@ -9,7 +9,7 @@ import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Loader2, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react'
+import { Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useResetPassword, useVerifyResetToken } from '@/apis/services/auth-api'
 import Link from 'next/link'
@@ -225,7 +225,7 @@ function ResetPasswordFormContent() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading || strengthScore < 4}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
                 Thiết lập mật khẩu
             </Button>
         </form>

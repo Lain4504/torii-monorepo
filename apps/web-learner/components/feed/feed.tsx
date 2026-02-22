@@ -7,8 +7,9 @@ import { feedApi } from '@/apis/services/feed-api'
 import type { FeedResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { CommentSection } from '../blog/comment-section'
-import { Loader2, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 const CATEGORIES = [
     { id: 'ALL', label: 'Tất cả' },
@@ -171,7 +172,7 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
             )}
 
             {loading ? (
-                <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary w-8 h-8" /></div>
+                <div className="flex justify-center py-10"><Spinner className="animate-spin text-primary w-8 h-8" /></div>
             ) : (
                 <div className="space-y-4">
                     {posts.map(post => (
@@ -219,7 +220,7 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
                                 disabled={loadingMore}
                                 className="text-sm text-primary hover:underline font-medium flex items-center gap-2 disabled:opacity-50"
                             >
-                                {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                                {loadingMore && <Spinner className="w-4 h-4 animate-spin" />}
                                 Xem thêm câu hỏi cũ hơn
                             </button>
                         </div>

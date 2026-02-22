@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import type { BlogResponseDTO } from '@workspace/schemas'
 import { Badge } from '@workspace/ui/components/badge'
+import { Card, CardContent } from '@workspace/ui/components/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Separator } from '@workspace/ui/components/separator'
 
@@ -17,7 +18,7 @@ export function BlogCard({ blog }: BlogCardProps) {
 
     return (
         <Link href={`/blog/${blog.id}`} className="block group">
-            <article className="flex flex-col sm:flex-row gap-0 overflow-hidden rounded-xl border bg-card hover:border-primary/40 transition-colors">
+            <Card className="flex flex-col sm:flex-row gap-0 overflow-hidden hover:border-primary/40 transition-colors border-0 sm:border">
                 {/* Thumbnail */}
                 <div className="relative w-full sm:w-56 shrink-0 aspect-video sm:aspect-auto overflow-hidden bg-muted">
                     <img
@@ -35,7 +36,7 @@ export function BlogCard({ blog }: BlogCardProps) {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 p-5 flex flex-col gap-3">
+                <CardContent className="flex-1 p-5 flex flex-col gap-3">
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                             <Calendar className="w-3.5 h-3.5" />
@@ -75,8 +76,8 @@ export function BlogCard({ blog }: BlogCardProps) {
                             Đọc bài <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                     </div>
-                </div>
-            </article>
+                </CardContent>
+            </Card>
         </Link>
     )
 }

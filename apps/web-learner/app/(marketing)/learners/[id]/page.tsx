@@ -152,7 +152,7 @@ export default function PublicLearnerProfilePage() {
                             <ShieldCheck className="h-4 w-4" />
                             <span>Bạn đang xem hồ sơ của chính mình</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="h-8 gap-2 hover:bg-primary/10" onClick={() => window.location.href = '/dashboard/profile'}>
+                        <Button variant="ghost" size="sm" className="gap-2 hover:bg-primary/10" onClick={() => window.location.href = '/dashboard/profile'}>
                             <Settings className="h-3.5 w-3.5" />
                             Quản lý hồ sơ
                         </Button>

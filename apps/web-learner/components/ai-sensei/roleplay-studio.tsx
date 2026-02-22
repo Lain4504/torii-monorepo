@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Drama, RefreshCw, Clapperboard, Loader2 } from "lucide-react"
+import { Drama, RefreshCw, Clapperboard } from 'lucide-react'
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
@@ -15,6 +15,7 @@ import {
 } from "@workspace/ui/components/select"
 import { agentApi } from "@/apis/services/agent-api"
 import { AgentConversationSimulationResponseDTO as ConversationSimulationResponse } from "@workspace/schemas"
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export function RoleplayStudio() {
     const [scenario, setScenario] = React.useState("")
@@ -103,7 +104,7 @@ export function RoleplayStudio() {
                                         onClick={handleGenerate}
                                         disabled={!scenario.trim() || isLoading}
                                     >
-                                        {isLoading ? <Loader2 className="size-4 animate-spin" /> : "Tạo"}
+                                        {isLoading ? <Spinner className="size-4 animate-spin" /> : "Tạo"}
                                     </Button>
                                 </div>
                             </div>

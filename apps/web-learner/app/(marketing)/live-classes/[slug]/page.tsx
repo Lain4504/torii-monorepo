@@ -6,18 +6,7 @@ import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import {
-    Calendar,
-    ArrowRight,
-    ArrowLeft,
-    Star,
-    BookOpen,
-    GraduationCap,
-    CheckCircle2,
-    Sparkles,
-    Loader2,
-    Video,
-} from 'lucide-react'
+import { Calendar, ArrowRight, ArrowLeft, Star, BookOpen, GraduationCap, CheckCircle2, Sparkles, Video } from 'lucide-react'
 import { courseApi } from '@/apis/services/course-api'
 import { liveSessionApi } from '@/apis/services/live-session-api'
 import type { CourseResponseDTO } from '@workspace/schemas'
@@ -25,6 +14,7 @@ import type { LiveSessionResponseDTO } from '@workspace/schemas'
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 const formatPrice = (price: number, isFree: boolean) =>
     isFree ? 'Miễn phí' : `${Number(price).toLocaleString('vi-VN')} VNĐ`
@@ -81,7 +71,7 @@ export default function LiveClassDetailPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                <Spinner className="w-10 h-10 animate-spin text-primary" />
             </div>
         )
     }

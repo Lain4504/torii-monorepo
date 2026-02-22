@@ -11,6 +11,7 @@ import type { CourseResponseDTO } from '@workspace/schemas'
 import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/apis/services/review-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
+import { Field, FieldLabel } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { cn } from '@workspace/ui/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
@@ -270,24 +271,24 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                                         </DialogDescription>
                                                     </DialogHeader>
                                                     <div className="space-y-6 py-4">
-                                                        <div className="flex flex-col items-center gap-4">
-                                                            <label className="text-sm font-medium text-muted-foreground">Mức độ hài lòng của bạn</label>
+                                                        <Field className="flex flex-col items-center gap-4">
+                                                            <FieldLabel className="text-muted-foreground">Mức độ hài lòng của bạn</FieldLabel>
                                                             <div className="flex gap-2">
                                                                 {renderStars(newRating, true, 8)}
                                                             </div>
                                                             <span className="text-sm font-medium text-primary h-5">
                                                                 {newRating > 0 ? ['Rất kém', 'Cần cải thiện', 'Tốt', 'Rất tốt', 'Tuyệt vời'][newRating - 1] : ''}
                                                             </span>
-                                                        </div>
-                                                        <div className="space-y-3">
-                                                            <label className="text-sm font-medium text-foreground">Nhận xét chi tiết</label>
+                                                        </Field>
+                                                        <Field className="space-y-3">
+                                                            <FieldLabel>Nhận xét chi tiết</FieldLabel>
                                                             <Textarea
                                                                 value={newComment}
                                                                 onChange={(e) => setNewComment(e.target.value)}
                                                                 placeholder="Chia sẻ cảm nhận của bạn về học liệu, giảng viên hoặc trải nghiệm..."
                                                                 className="min-h-[120px] rounded-xl resize-none text-sm"
                                                             />
-                                                        </div>
+                                                        </Field>
                                                     </div>
                                                     <DialogFooter>
                                                         <Button variant="ghost" onClick={() => setShowReviewForm(false)} className="rounded-xl font-bold">Hủy</Button>

@@ -95,7 +95,7 @@ export default function SettingsPage() {
                                     <Switch id={item.id} defaultChecked={item.checked} className="data-[state=checked]:bg-primary" />
                                 </div>
                             ))}
-                        </div>
+                        </Card>
                     </div>
 
                     {/* Privacy & Language */}
@@ -127,7 +127,7 @@ export default function SettingsPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                        </div>
+                        </Card>
                     </div>
 
                     {/* Security - Import SecurityTab component */}
@@ -149,7 +149,7 @@ export default function SettingsPage() {
                                     Xóa tài khoản
                                 </Button>
                             </div>
-                        </div>
+                        </Card>
                     </div>
                 </TabsContent>
 

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Layers, ArrowRight, Loader2, RotateCw } from "lucide-react"
+import { Layers, ArrowRight, RotateCw } from 'lucide-react'
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -11,9 +11,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
+import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { agentApi } from "@/apis/services/agent-api"
 import { AgentFlashcardResponseDTO as FlashcardResponse } from "@workspace/schemas"
 import { Card, CardContent } from "@workspace/ui/components/card"
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export function FlashcardGenerator() {
     const [topic, setTopic] = React.useState("")
@@ -59,16 +61,16 @@ export function FlashcardGenerator() {
             {/* Input Section */}
             <div className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-4">
                 <div className="grid md:grid-cols-[1fr,200px] gap-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Chủ đề</label>
+                    <Field className="space-y-2">
+                        <FieldLabel>Chủ đề</FieldLabel>
                         <Input
                             placeholder="Ví dụ: Đồ ăn, Du lịch, Business Email..."
                             value={topic}
                             onChange={(e) => setTopic(e.target.value)}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Trình độ</label>
+                    </Field>
+                    <Field className="space-y-2">
+                        <FieldLabel>Trình độ</FieldLabel>
                         <Select value={level} onValueChange={(v: any) => setLevel(v)}>
                             <SelectTrigger>
                                 <SelectValue />
@@ -81,7 +83,7 @@ export function FlashcardGenerator() {
                                 <SelectItem value="N1">N1 (Cao cấp)</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                 </div>
 
                 <div className="flex justify-end pt-2">
@@ -91,7 +93,7 @@ export function FlashcardGenerator() {
                         className="px-6 font-semibold min-w-[140px]"
                     >
                         {isLoading ? (
-                            <><Loader2 className="mr-2 size-4 animate-spin" /> Creating...</>
+                            <><Spinner className="mr-2 size-4 animate-spin" /> Creating...</>
                         ) : (
                             <>
                                 Create Deck <ArrowRight className="ml-2 size-4" />

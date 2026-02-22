@@ -95,7 +95,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                     {/* Dropdown Menu */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button variant="ghost" size="icon">
                                 <MoreVertical className="w-4 h-4" />
                             </Button>
                         </DropdownMenuTrigger>
@@ -160,7 +160,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                     <Button
                         variant="ghost"
                         size="sm"
-                        className={`gap-2 h-8 px-2 ${post.isLiked ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'text-muted-foreground hover:text-primary'}`}
+                        className={`gap-2 ${post.isLiked ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'text-muted-foreground hover:text-primary'}`}
                         onClick={(e) => {
                             e.stopPropagation();
                             onLike?.(post.id);
@@ -172,7 +172,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="gap-2 h-8 px-2 text-muted-foreground hover:text-primary"
+                        className="gap-2 text-muted-foreground hover:text-primary"
                         onClick={(e) => {
                             e.stopPropagation();
                             onComment?.(post.id);

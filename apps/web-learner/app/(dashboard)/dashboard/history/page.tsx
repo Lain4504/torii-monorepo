@@ -4,6 +4,7 @@ import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@
 import { Card, CardContent } from '@workspace/ui/components/card'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
+import { Calendar, BookOpen, Clock, ArrowRight, ChevronRight } from 'lucide-react'
 
 import { useLearningHistory } from '../../../../apis/services/learning-progress-api'
 import { Button } from '@workspace/ui/components/button'
@@ -84,7 +85,7 @@ export default function HistoryPage() {
                                                 {item.duration}
                                             </span>
                                         </div>
-                                        <Link 
+                                        <Link
                                             href={item.isExpired ? `/courses/${item.slug}` : `/courses/${item.slug}/learn`}
                                             onClick={() => {
                                                 if (item.isExpired) {

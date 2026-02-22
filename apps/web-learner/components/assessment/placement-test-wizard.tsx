@@ -1,12 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { ChevronRight, Loader2, Sparkles, BookOpen, Trophy } from "lucide-react"
+import { ChevronRight, Sparkles, BookOpen, Trophy } from 'lucide-react'
 import { useRouter } from "next/navigation"
 import { Button } from "@workspace/ui/components/button"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { toast } from "@workspace/ui/components/sonner"
 import { cn } from "@workspace/ui/lib/utils"
+import { Spinner } from '@workspace/ui/components/spinner'
 
 // Types
 interface Question {
@@ -183,7 +184,7 @@ export function PlacementTestWizard() {
                 <div className="relative">
                     <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
                     <div className="relative bg-background p-4 rounded-full border border-border shadow-lg">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        <Spinner className="w-8 h-8 text-primary animate-spin" />
                     </div>
                 </div>
                 <p className="text-lg font-medium text-muted-foreground animate-pulse">

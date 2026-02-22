@@ -6,6 +6,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/apis/services/session-api';
 import { toast } from '@workspace/ui/components/sonner';
+import { Clock, LogOut } from 'lucide-react';
 
 // Child components
 import { SessionsInfoBanner } from './sessions-info-banner';

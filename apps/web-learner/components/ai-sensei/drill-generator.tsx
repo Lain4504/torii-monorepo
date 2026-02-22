@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Dumbbell, ArrowRight, Loader2, CheckCircle2, XCircle, HelpCircle } from "lucide-react"
+import { Dumbbell, ArrowRight, CheckCircle2, XCircle, HelpCircle } from 'lucide-react'
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -11,12 +11,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
+import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { agentApi } from "@/apis/services/agent-api"
 import { AgentDrillResponseDTO as DrillResponse } from "@workspace/schemas"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
 import { cn } from "@workspace/ui/lib/utils"
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export function DrillGenerator() {
     const [topic, setTopic] = React.useState("")
@@ -66,8 +68,8 @@ export function DrillGenerator() {
             {/* Input Section */}
             <div className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-6">
                 <div className="grid md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Kỹ năng</label>
+                    <Field className="space-y-2">
+                        <FieldLabel>Kỹ năng</FieldLabel>
                         <Select value={type} onValueChange={setType}>
                             <SelectTrigger>
                                 <SelectValue />
@@ -79,17 +81,17 @@ export function DrillGenerator() {
                                 <SelectItem value="reading">Đọc hiểu (Reading)</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Chủ đề</label>
+                    </Field>
+                    <Field className="space-y-2">
+                        <FieldLabel>Chủ đề</FieldLabel>
                         <Input
                             placeholder="Ví dụ: Particles, Family, Travel..."
                             value={topic}
                             onChange={(e) => setTopic(e.target.value)}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Trình độ</label>
+                    </Field>
+                    <Field className="space-y-2">
+                        <FieldLabel>Trình độ</FieldLabel>
                         <Select value={difficulty} onValueChange={(v: any) => setDifficulty(v)}>
                             <SelectTrigger>
                                 <SelectValue />
@@ -102,7 +104,7 @@ export function DrillGenerator() {
                                 <SelectItem value="N1">N1 (Advanced)</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Field>
                 </div>
 
                 <div className="flex justify-end">
@@ -112,7 +114,7 @@ export function DrillGenerator() {
                         className="px-6 font-semibold min-w-[140px]"
                     >
                         {isLoading ? (
-                            <><Loader2 className="mr-2 size-4 animate-spin" /> Generating...</>
+                            <><Spinner className="mr-2 size-4 animate-spin" /> Generating...</>
                         ) : (
                             <>
                                 Generate Drill <ArrowRight className="ml-2 size-4" />

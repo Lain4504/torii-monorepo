@@ -1,13 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Languages, ArrowRightLeft, Loader2, Copy, Sparkles } from "lucide-react"
+import { Languages, ArrowRightLeft, Copy, Sparkles } from 'lucide-react'
 import { Button } from "@workspace/ui/components/button"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { agentApi } from "@/apis/services/agent-api"
 import { AgentTranslateResponseDTO as TranslateResponse } from "@workspace/schemas"
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export function TranslatorView() {
     // Default to Japanese -> English
@@ -66,7 +67,7 @@ export function TranslatorView() {
                         </SelectContent>
                     </Select>
 
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={swapLanguages}>
+                    <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={swapLanguages}>
                         <ArrowRightLeft className="size-3.5" />
                     </Button>
 
@@ -98,7 +99,7 @@ export function TranslatorView() {
                         <span className="text-xs font-medium text-muted-foreground">{input.length} ký tự</span>
                         <div className="flex gap-2">
                             {input && (
-                                <Button variant="ghost" size="sm" onClick={() => setInput("")} className="h-8 px-3 text-muted-foreground hover:text-foreground">
+                                <Button variant="ghost" size="sm" onClick={() => setInput("")} className="px-3 text-muted-foreground hover:text-foreground">
                                     Xóa
                                 </Button>
                             )}
@@ -108,7 +109,7 @@ export function TranslatorView() {
                                 onClick={handleTranslate}
                                 disabled={!input.trim() || isLoading}
                             >
-                                {isLoading ? <Loader2 className="size-3.5 animate-spin mr-2" /> : <Sparkles className="size-3.5 mr-2" />}
+                                {isLoading ? <Spinner className="size-3.5 animate-spin mr-2" /> : <Sparkles className="size-3.5 mr-2" />}
                                 Dịch
                             </Button>
                         </div>
@@ -136,7 +137,7 @@ export function TranslatorView() {
                             )}
 
                             <div className="flex-none p-4 flex justify-end border-t border-border/50">
-                                <Button variant="outline" size="sm" className="h-8 gap-2">
+                                <Button variant="outline" size="sm" className="gap-2">
                                     <Copy className="size-3.5" /> Sao chép
                                 </Button>
                             </div>

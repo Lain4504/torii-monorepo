@@ -8,8 +8,9 @@ import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
-import { Loader2, CheckCircle2 } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { useResendVerification } from '@/apis/services/auth-api'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 const resendSchema = z.object({
     email: z.string().email('Email không hợp lệ'),
@@ -80,7 +81,7 @@ export function ResendVerificationForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
                 Gửi lại mã xác thực
             </Button>
         </form>

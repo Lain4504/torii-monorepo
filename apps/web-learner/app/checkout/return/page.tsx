@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
-import { CheckCircle2, XCircle, Loader2, ArrowRight, RefreshCcw } from 'lucide-react'
+import { CheckCircle2, XCircle, ArrowRight, RefreshCcw } from 'lucide-react'
 import { orderApi } from '@/apis/services/order-api'
 import { OrderStatus } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { toast } from '@workspace/ui/components/sonner'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export default function CheckoutReturnPage() {
     const router = useRouter()
@@ -88,7 +89,7 @@ export default function CheckoutReturnPage() {
                             </div>
                         ) : (
                             <div className="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center animate-in zoom-in duration-500">
-                                <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+                                <Spinner className="w-10 h-10 text-amber-500 animate-spin" />
                             </div>
                         )}
                     </div>

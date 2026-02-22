@@ -107,7 +107,7 @@ export function Header() {
                         {/* Theme Toggle */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="hidden sm:flex h-8 w-8">
+                                <Button variant="ghost" size="icon" className="hidden sm:flex">
                                     <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                                     <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                                     <span className="sr-only">Toggle theme</span>
@@ -124,7 +124,7 @@ export function Header() {
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full p-0">
+                                    <Button variant="ghost" size="icon" className="rounded-full p-0">
                                         <Avatar className="h-8 w-8">
                                             <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                                                 {user?.displayName?.[0]?.toUpperCase() || 'U'}
@@ -174,7 +174,7 @@ export function Header() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="lg:hidden h-8 w-8"
+                            className="lg:hidden"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
                             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -217,8 +217,8 @@ export function Header() {
                             <span className="text-sm text-muted-foreground">Giao diện</span>
                             <Button
                                 variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
+                                size="icon"
+                                className="p-0"
                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                             >
                                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

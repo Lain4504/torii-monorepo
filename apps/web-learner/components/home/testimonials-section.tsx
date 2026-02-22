@@ -3,6 +3,7 @@
 import { Star, Quote, Heart, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Separator } from '@workspace/ui/components/separator'
+import { Card, CardContent } from '@workspace/ui/components/card'
 import { useQuery } from '@tanstack/react-query'
 import { reviewApi } from '@/apis/services/review-api'
 
@@ -78,46 +79,48 @@ export function TestimonialsSection() {
 
                 <div className="grid md:grid-cols-3 gap-4 mb-12">
                     {reviews.map((t, i) => (
-                        <div key={i} className="relative bg-card rounded-xl p-6 border flex flex-col">
-                            <Quote className="absolute top-4 right-4 w-6 h-6 text-border" />
+                        <Card key={i} className="relative flex flex-col">
+                            <CardContent className="p-6 flex flex-col h-full">
+                                <Quote className="absolute top-4 right-4 w-6 h-6 text-border" />
 
-                            <div className="flex gap-0.5 mb-4">
-                                {[...Array(t.rating)].map((_, j) => (
-                                    <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                ))}
-                            </div>
-
-                            <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-5">
-                                "{t.content}"
-                            </p>
-
-                            <Separator className="mb-4" />
-
-                            <div className="flex items-center gap-3">
-                                <Avatar className="w-9 h-9">
-                                    <AvatarImage src={t.avatarUrl} />
-                                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                                        {t.avatar}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="text-sm font-semibold">{t.name}</p>
-                                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                                <div className="flex gap-0.5 mb-4">
+                                    {[...Array(t.rating)].map((_, j) => (
+                                        <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                    ))}
                                 </div>
-                            </div>
-                        </div>
+
+                                <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-5">
+                                    "{t.content}"
+                                </p>
+
+                                <Separator className="mb-4" />
+
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="w-9 h-9">
+                                        <AvatarImage src={t.avatarUrl} />
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                            {t.avatar}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="text-sm font-semibold">{t.name}</p>
+                                        <p className="text-xs text-muted-foreground">{t.role}</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     ))}
                 </div>
 
                 {/* Stats Row */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-xl border bg-card">
+                <Card className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8">
                     {stats.map((s, i) => (
                         <div key={i} className="text-center space-y-1">
                             <p className="text-2xl font-bold">{s.value}</p>
                             <p className="text-xs text-muted-foreground">{s.label}</p>
                         </div>
                     ))}
-                </div>
+                </Card>
             </div>
         </section>
     )

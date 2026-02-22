@@ -265,12 +265,12 @@ export default function SupportPage() {
                                                     #{ticket.id.slice(0, 8)}
                                                 </TableCell>
                                                 <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-foreground"
-                        onClick={() => handleViewDetail(ticket.id)}
-                    >
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-muted-foreground hover:text-foreground"
+                                                        onClick={() => handleViewDetail(ticket.id)}
+                                                    >
                                                         <ChevronRight className="w-4 h-4" />
                                                     </Button>
                                                 </TableCell>
@@ -371,19 +371,17 @@ export default function SupportPage() {
 
                     <DialogFooter className="flex-col sm:flex-row gap-3">
                         <Button
-                    <Button
-                        variant="outline"
-                        className="flex-1 font-bold sm:order-1"
-                        onClick={() => setIsCreateOpen(false)}
-                    >
+                            variant="outline"
+                            className="flex-1 font-bold sm:order-1"
+                            onClick={() => setIsCreateOpen(false)}
+                        >
                             Hủy bỏ
                         </Button>
                         <Button
-                    <Button
-                        className="flex-1 font-bold sm:order-2"
-                        onClick={handleCreateTicket}
-                        disabled={createTicketMutation.isPending}
-                    >
+                            className="flex-1 font-bold sm:order-2"
+                            onClick={handleCreateTicket}
+                            disabled={createTicketMutation.isPending}
+                        >
                             {createTicketMutation.isPending ? 'Đang gửi...' : 'Gửi yêu cầu'}
                         </Button>
                     </DialogFooter>

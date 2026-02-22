@@ -160,7 +160,7 @@ export default function NotificationsPage() {
                         size="sm"
                         onClick={() => markAllAsReadMutation.mutate()}
                         disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-                        className="rounded-xl h-9 px-4 text-xs font-bold border-border shadow-sm hover:bg-muted transition-all cursor-pointer disabled:opacity-50"
+                        className="rounded-xl font-bold border-border shadow-sm hover:bg-muted transition-all cursor-pointer disabled:opacity-50"
                     >
                         <Check className="w-3.5 h-3.5 mr-1.5" />
                         {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đánh dấu tất cả đã đọc'}
@@ -198,9 +198,10 @@ export default function NotificationsPage() {
                     <Button
                         key={btn.id}
                         variant={filter === btn.id ? "default" : "outline"}
+                        size="sm"
                         onClick={() => setFilter(btn.id as any)}
                         className={cn(
-                            "rounded-full h-8 px-4 text-xs font-bold transition-all cursor-pointer",
+                            "rounded-full font-bold transition-all cursor-pointer",
                             filter === btn.id
                                 ? "bg-primary text-primary-foreground hover:bg-primary/90"
                                 : "text-muted-foreground hover:bg-muted"
@@ -265,7 +266,7 @@ export default function NotificationsPage() {
 
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="rounded-lg h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-muted">
+                                                    <Button variant="ghost" size="icon" className="rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-muted">
                                                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
                                                     </Button>
                                                 </DropdownMenuTrigger>

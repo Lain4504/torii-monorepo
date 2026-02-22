@@ -1,4 +1,5 @@
 import { UserPlus, Compass, BookOpen, GraduationCap, ChevronRight } from 'lucide-react'
+import { Card } from '@workspace/ui/components/card'
 
 const steps = [
     {
@@ -40,9 +41,9 @@ export function HowItWorksSection() {
                     {steps.map((step, i) => (
                         <div key={i} className="flex flex-col items-center text-center group">
                             <div className="relative mb-5">
-                                <div className="w-16 h-16 rounded-xl border bg-card flex items-center justify-center">
+                                <Card className="w-16 h-16 flex items-center justify-center">
                                     <step.icon className="w-7 h-7 text-primary" />
-                                </div>
+                                </Card>
                                 <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
                                     {i + 1}
                                 </div>
