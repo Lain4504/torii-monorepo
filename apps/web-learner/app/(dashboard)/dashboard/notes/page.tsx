@@ -284,7 +284,7 @@ export default function NotesPage() {
         reader.onload = (evt) => {
             try {
                 const data = evt.target?.result
-                const workbook = XLSX.read(data, { type: 'binary' })
+                const workbook = XLSX.read(data, { type: 'array' })
                 const sheetName = workbook.SheetNames[0]
                 const sheet = workbook.Sheets[sheetName]
                 const rows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
@@ -294,23 +294,37 @@ export default function NotesPage() {
                 for (let i = 1; i < rows.length; i++) {
                     const row = rows[i]
                     if (!row || !row[0]) continue
+                    const word = String(row[0] || '').trim()
+                    const meaning = String(row[2] || '').trim()
+                    if (!word) continue
                     entries.push({
                         id: generateId(),
-                        word: String(row[0] || '').trim(),
+                        word,
                         phonetic: String(row[1] || '').trim(),
-                        meaning: String(row[2] || '').trim(),
+                        meaning,
                         note: String(row[3] || '').trim(),
                         partOfSpeech: String(row[4] || 'noun').trim(),
                         createdAt: new Date().toISOString(),
                     })
                 }
-                setImportPreview(entries.filter(e => e.word && e.meaning))
-                if (entries.length === 0) toast.error('Không tìm thấy dữ liệu trong file')
+
+                const validEntries = entries.filter(e => e.word)
+                if (validEntries.length === 0) {
+                    toast.error('Không tìm thấy dữ liệu. Hãy kiểm tra file có đúng định dạng chưa (xem hướng dẫn bên dưới)')
+                } else {
+                    const missingMeaning = validEntries.filter(e => !e.meaning).length
+                    if (missingMeaning > 0) {
+                        toast.warning(`${missingMeaning} từ chưa có nghĩa (cột C), bạn có thể bổ sung sau`)
+                    }
+                    setImportPreview(validEntries)
+                }
             } catch {
                 toast.error('Không thể đọc file, vui lòng kiểm tra lại định dạng')
             }
         }
-        reader.readAsBinaryString(file)
+        reader.readAsArrayBuffer(file)
+        // Reset input so selecting the same file again always triggers onChange
+        if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
     const handleConfirmImport = () => {
@@ -650,11 +664,46 @@ export default function NotesPage() {
                                 Nhập từ Excel
                             </DialogTitle>
                             <DialogDescription className="text-sm text-muted-foreground">
-                                File Excel cần có các cột theo thứ tự: <strong>Từ | Phonetic | Nghĩa | Ghi chú | Từ loại</strong>
+                                Chọn file Excel hoặc CSV để nhập từ vào sổ tay
                             </DialogDescription>
                         </DialogHeader>
 
                         <div className="space-y-4 py-2">
+                            {/* Format guide */}
+                            <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">📋 Định dạng file Excel</p>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-xs border-collapse">
+                                        <thead>
+                                            <tr className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/60">
+                                                <td className="pr-3 pb-1.5">Cột A <span className="text-destructive">*</span></td>
+                                                <td className="pr-3 pb-1.5">Cột B</td>
+                                                <td className="pr-3 pb-1.5">Cột C</td>
+                                                <td className="pr-3 pb-1.5">Cột D</td>
+                                                <td className="pb-1.5">Cột E</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr className="text-[10px] font-bold text-muted-foreground border-b border-border/50">
+                                                <td className="pr-3 pb-1.5">Từ vựng</td>
+                                                <td className="pr-3 pb-1.5">Phonetic</td>
+                                                <td className="pr-3 pb-1.5">Nghĩa</td>
+                                                <td className="pr-3 pb-1.5">Ghi chú</td>
+                                                <td className="pb-1.5">Từ loại</td>
+                                            </tr>
+                                            <tr className="text-xs text-foreground/70">
+                                                <td className="pr-3 pt-1.5 font-bold">食べる</td>
+                                                <td className="pr-3 pt-1.5">taberu</td>
+                                                <td className="pr-3 pt-1.5">Ăn</td>
+                                                <td className="pr-3 pt-1.5">Câu ví dụ</td>
+                                                <td className="pt-1.5">verb_ichidan</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground/50">Dòng đầu tiên là tiêu đề (sẽ bị bỏ qua). Chỉ cần cột A là bắt buộc.</p>
+                            </div>
+
                             {/* Upload zone */}
                             <div
                                 onClick={() => fileInputRef.current?.click()}
