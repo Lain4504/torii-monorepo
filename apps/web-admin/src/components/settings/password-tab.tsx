@@ -90,7 +90,7 @@ export function PasswordTab() {
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid} className="space-y-1.5">
-                                        <FieldLabel htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80">
+                                        <FieldLabel htmlFor={field.name}>
                                             Mật khẩu hiện tại
                                         </FieldLabel>
                                         <div className="relative">
@@ -100,7 +100,7 @@ export function PasswordTab() {
                                                 id={field.name}
                                                 type={showCurrentPassword ? 'text' : 'password'}
                                                 placeholder="Nhập mật khẩu hiện tại"
-                                                className="h-11 pl-10 pr-10 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                                                className="pl-10 pr-10"
                                                 autoComplete="current-password"
                                             />
                                             <Button
@@ -121,7 +121,7 @@ export function PasswordTab() {
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid} className="space-y-1.5">
-                                        <FieldLabel htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80">
+                                        <FieldLabel htmlFor={field.name}>
                                             Mật khẩu mới
                                         </FieldLabel>
                                         <div className="relative">
@@ -131,7 +131,7 @@ export function PasswordTab() {
                                                 id={field.name}
                                                 type={showNewPassword ? 'text' : 'password'}
                                                 placeholder="Nhập mật khẩu mới"
-                                                className="h-11 pl-10 pr-10 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                                                className="pl-10 pr-10"
                                                 autoComplete="new-password"
                                             />
                                             <Button
@@ -152,7 +152,7 @@ export function PasswordTab() {
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid} className="space-y-1.5">
-                                        <FieldLabel htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80">
+                                        <FieldLabel htmlFor={field.name}>
                                             Xác nhận mật khẩu mới
                                         </FieldLabel>
                                         <div className="relative">
@@ -162,7 +162,7 @@ export function PasswordTab() {
                                                 id={field.name}
                                                 type={showConfirmPassword ? 'text' : 'password'}
                                                 placeholder="Xác nhận lại mật khẩu mới"
-                                                className="h-11 pl-10 pr-10 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                                                className="pl-10 pr-10"
                                                 autoComplete="new-password"
                                             />
                                             <Button

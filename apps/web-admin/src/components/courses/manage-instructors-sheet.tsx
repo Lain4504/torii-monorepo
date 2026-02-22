@@ -14,7 +14,7 @@ import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Badge } from '@workspace/ui/components/badge';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
-import { Loader2, User as UserIcon, Trash2, Crown, Users, Plus } from 'lucide-react';
+import { Loader2, User as UserIcon, Trash2, Crown, Plus } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { type CourseResponseDTO, UserRole, InstructorRole } from '@workspace/schemas';
 import { useUsers } from '@/api/services/users';
@@ -99,38 +99,27 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
                 {!course ? (
                     <div className="flex-1 flex items-center justify-center">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </div>
                 ) : (
                     <>
-                        <SheetHeader className="px-8 py-6 border-b border-border/10">
-                            <div className="relative flex items-center gap-4">
-                                <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
-                                    <Users className="h-5 w-5" />
-                                </div>
-                                <div className="space-y-0.5">
-                                    <SheetTitle className="text-xl font-bold tracking-tight text-foreground">
-                                        Quản lý Giảng viên
-                                    </SheetTitle>
-                                    <SheetDescription className="text-xs font-medium text-muted-foreground/60">
-                                        Phân công cho khóa học <span className="text-foreground font-semibold">{course.title}</span>
-                                    </SheetDescription>
-                                </div>
-                            </div>
+                        <SheetHeader>
+                            <SheetTitle>Quản lý Giảng viên</SheetTitle>
+                            <SheetDescription>
+                                Phân công cho khóa học {course.title}
+                            </SheetDescription>
                         </SheetHeader>
 
-                        <ScrollArea className="flex-1 h-full px-8 py-8">
-                            <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                        <ScrollArea className="flex-1">
+                            <div className="space-y-6 p-6">
 
-                                {/* Current Instructors */}
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50 flex items-center gap-2">
-                                        <Users className="h-3.5 w-3.5" />
+                                    <h3 className="text-sm font-semibold">
                                         Đội ngũ Hiện tại
-                                    </h4>
+                                    </h3>
 
                                     {loadingInstructors ? (
                                         <div className="flex items-center justify-center py-12 rounded-3xl border border-border/40 bg-muted/5">
@@ -201,17 +190,15 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                     )}
                                 </div>
 
-                                <div className="space-y-6 pt-6 relative">
-                                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
-
-                                    <div className="space-y-4 p-6 rounded-2xl bg-muted/20 border border-border/10">
+                                <div className="space-y-6 pt-6 border-t border-border/40">
+                                    <div className="space-y-4">
                                         <Field className="space-y-2.5">
                                             <FieldLabel htmlFor="lecturer-select" className="text-xs font-bold text-muted-foreground/70 ml-1 uppercase tracking-wider">Thêm giảng viên</FieldLabel>
                                             <Select
                                                 value={selectedLecturerId}
                                                 onValueChange={setSelectedLecturerId}
                                             >
-                                                <SelectTrigger id="lecturer-select" className="h-11 border-border/40 bg-background hover:bg-background/80 focus:ring-primary/20 rounded-xl transition-all shadow-sm">
+                                                <SelectTrigger id="lecturer-select" className="">
                                                     <SelectValue placeholder="Chọn giảng viên..." />
                                                 </SelectTrigger>
                                                 <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">
@@ -236,7 +223,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                 value={selectedRole}
                                                 onValueChange={(val) => setSelectedRole(val as InstructorRole)}
                                             >
-                                                <SelectTrigger id="role-select" className="h-11 border-border/40 bg-background hover:bg-background/80 focus:ring-primary/20 rounded-xl transition-all shadow-sm">
+                                                <SelectTrigger id="role-select" className="">
                                                     <SelectValue placeholder="Chọn vai trò..." />
                                                 </SelectTrigger>
                                                 <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">
@@ -279,7 +266,6 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                 </div>
                             </div>
                         </ScrollArea>
-                        <div className="h-6 bg-gradient-to-t from-background/50 to-transparent pointer-events-none absolute bottom-0 left-0 right-0 z-20" />
                     </>
                 )}
             </SheetContent>

@@ -44,12 +44,12 @@ export function PoolsTable({
             <Table className="min-w-[1000px] border-collapse bg-transparent">
                 <TableHeader className="bg-muted/30 border-b border-border">
                     <TableRow className="hover:bg-transparent border-none">
-                        <TableHead className="w-12 px-4 h-11">#</TableHead>
-                        <TableHead className="px-4 h-11">Tên bộ câu hỏi</TableHead>
-                        <TableHead className="px-4 h-11">Mô tả</TableHead>
-                        <TableHead className="px-4 h-11">Cấp độ</TableHead>
-                        <TableHead className="px-4 h-11">Câu hỏi</TableHead>
-                        <TableHead className="w-12 px-4 h-11 text-right">Thao tác</TableHead>
+                        <TableHead className="w-12 px-4">#</TableHead>
+                        <TableHead className="px-4">Tên bộ câu hỏi</TableHead>
+                        <TableHead className="px-4">Mô tả</TableHead>
+                        <TableHead className="px-4">Cấp độ</TableHead>
+                        <TableHead className="px-4">Câu hỏi</TableHead>
+                        <TableHead className="w-12 px-4 text-right">Thao tác</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

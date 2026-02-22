@@ -66,7 +66,7 @@ export function EditUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chỉnh sửa người dùng</SheetTitle>
                     <SheetDescription>
@@ -139,7 +139,6 @@ export function EditUserSheet({
                             />
                         </div>
                     </ScrollArea>
-
                     <SheetFooter>
                         <Button
                             type="button"

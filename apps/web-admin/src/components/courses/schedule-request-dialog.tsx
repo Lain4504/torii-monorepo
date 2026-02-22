@@ -26,7 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@workspace/ui/components/textarea';
 import { useCreateScheduleRequest, useCheckAvailabilityQuery } from '@/api/services/live-sessions';
 import { toast } from '@workspace/ui/components/sonner';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface ScheduleRequestDialogProps {
@@ -108,12 +108,10 @@ export function ScheduleRequestDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[95vw] sm:w-[500px] !max-w-[500px] rounded-[2rem] border-none shadow-2xl">
+            <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-sans font-black italic uppercase tracking-tight text-primary">
-                        Yêu Cầu Thay Đổi Lịch
-                    </DialogTitle>
-                    <DialogDescription className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <DialogTitle>Yêu Cầu Thay Đổi Lịch</DialogTitle>
+                    <DialogDescription>
                         Đề xuất thời gian mới cho lịch dạy cố định của bạn.
                     </DialogDescription>
                 </DialogHeader>
@@ -132,7 +130,7 @@ export function ScheduleRequestDialog({
                                             defaultValue={field.value?.toString()}
                                         >
                                             <FormControl>
-                                                <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none font-medium text-xs">
+                                                <SelectTrigger className="">
                                                     <SelectValue placeholder="Chọn ngày" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -158,7 +156,7 @@ export function ScheduleRequestDialog({
                                         <FormControl>
                                             <Input
                                                 type="time"
-                                                className="h-11 rounded-xl bg-muted/30 border-none font-medium text-xs"
+                                                className=""
                                                 {...field}
                                             />
                                         </FormControl>
@@ -177,7 +175,7 @@ export function ScheduleRequestDialog({
                                     <FormControl>
                                         <Input
                                             type="number"
-                                            className="h-11 rounded-xl bg-muted/30 border-none font-medium text-xs"
+                                            className=""
                                             {...field}
                                             onChange={(e) => field.onChange(parseInt(e.target.value))}
                                         />
@@ -223,21 +221,22 @@ export function ScheduleRequestDialog({
                             </div>
                         </div>
 
-                        <DialogFooter className="pt-2">
+                        <DialogFooter className="gap-2 sm:gap-0 mt-4">
                             <Button
                                 type="button"
-                                variant="ghost"
+                                variant="outline"
                                 onClick={() => onOpenChange(false)}
-                                className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-widest"
                             >
                                 Hủy bỏ
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={!isAvailable || isChecking || createMutation.isPending}
-                                className="h-11 px-8 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:shadow-lg transition-all"
                             >
-                                {createMutation.isPending ? "Đang gửi..." : "Gửi yêu cầu"}
+                                {createMutation.isPending && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Gửi yêu cầu
                             </Button>
                         </DialogFooter>
                     </form>

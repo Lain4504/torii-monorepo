@@ -65,7 +65,7 @@ export function NavMain({
                     const isItemActive = item.url === "/" ? pathname === "/" : pathname.startsWith(item.url)
                     const hasSubItems = item.items && item.items.length > 0
 
-                    let menuButton = (
+                    const menuButton = (
                         <SidebarMenuButton
                             tooltip={isCollapsed ? undefined : item.title}
                             className={cn(

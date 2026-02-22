@@ -102,11 +102,11 @@ export default function UserAnalytics() {
 
             <div className="grid gap-6 md:grid-cols-12">
                 {/* Registration Growth Chart */}
-                <Card className="md:col-span-12 lg:col-span-8 rounded-2xl border-border/40 shadow-sm bg-card overflow-hidden">
+                <Card className="md:col-span-12 lg:col-span-8 overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-bold uppercase tracking-tight">Tăng trưởng <span className="text-primary">Đăng ký</span></CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Thống kê học viên mới theo tháng</CardDescription>
+                            <CardTitle>Tăng trưởng <span className="text-primary">Đăng ký</span></CardTitle>
+                            <CardDescription>Thống kê học viên mới theo tháng</CardDescription>
                         </div>
                         <Calendar className="size-4 text-muted-foreground/20" />
                     </CardHeader>
@@ -130,10 +130,10 @@ export default function UserAnalytics() {
                 </Card>
 
                 {/* Audience Mix */}
-                <Card className="md:col-span-12 lg:col-span-4 rounded-2xl border-border/40 shadow-sm bg-card">
+                <Card className="md:col-span-12 lg:col-span-4">
                     <CardHeader>
-                        <CardTitle className="text-lg font-bold uppercase tracking-tight">Cơ cấu <span className="text-purple-500">Vai trò</span></CardTitle>
-                        <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Phân loại người dùng hệ thống</CardDescription>
+                        <CardTitle>Cơ cấu <span className="text-purple-500">Vai trò</span></CardTitle>
+                        <CardDescription>Phân loại người dùng hệ thống</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {userStats?.roles.sort((a, b) => b.count - a.count).map((role, i) => (
@@ -159,11 +159,11 @@ export default function UserAnalytics() {
 
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Daily Momentum */}
-                <Card className="rounded-2xl border-border/40 shadow-sm bg-card overflow-hidden">
+                <Card className="overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-bold uppercase tracking-tight">Xung nhịp <span className="text-emerald-500">Hoạt động</span></CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Tương tác hệ thống trong 14 ngày qua</CardDescription>
+                            <CardTitle>Hoạt động</CardTitle>
+                            <CardDescription>Tương tác hệ thống trong 14 ngày qua</CardDescription>
                         </div>
                         <Zap className="size-4 text-emerald-500 animate-pulse" />
                     </CardHeader>
@@ -193,11 +193,11 @@ export default function UserAnalytics() {
                 </Card>
 
                 {/* Geographical Distribution Mock */}
-                <Card className="rounded-2xl border-border/40 shadow-sm bg-card">
+                <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-bold uppercase tracking-tight">Vị trí <span className="text-blue-500">Người học</span></CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Phân bổ học viên theo khu vực chính</CardDescription>
+                            <CardTitle>Vị trí <span className="text-blue-500">Người học</span></CardTitle>
+                            <CardDescription>Phân bổ học viên theo khu vực chính</CardDescription>
                         </div>
                         <MapPin className="size-4 text-blue-500" />
                     </CardHeader>
@@ -210,13 +210,13 @@ export default function UserAnalytics() {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </div >
     )
 }
 
 function AnalyticsCard({ title, value, sub, icon: Icon, colorClass }: any) {
     return (
-        <Card className="rounded-2xl border-border/40 shadow-sm bg-card group overflow-hidden">
+        <Card className="group overflow-hidden">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className={cn("p-2.5 rounded-xl transition-all", colorClass)}>

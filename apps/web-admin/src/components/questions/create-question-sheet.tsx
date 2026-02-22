@@ -127,7 +127,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Tạo Câu Hỏi Mới</SheetTitle>
                     <SheetDescription>
@@ -142,17 +142,18 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                 name="questionText"
                                 control={control}
                                 render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Nội dung câu hỏi *</FieldLabel>
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>Nội dung câu hỏi *</FieldLabel>
                                         <div className="relative">
                                             <Textarea
+                                                id={field.name}
                                                 {...field}
                                                 placeholder="Nhập nội dung câu hỏi..."
-                                                className="min-h-[100px] rounded-xl bg-background border-border hover:border-primary/50 focus-visible:ring-primary/20 text-sm transition-all resize-none p-4 pr-10"
+                                                className="min-h-[100px] pr-10"
                                             />
                                             <FileText className="absolute right-3.5 top-3.5 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
                                         </div>
-                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                        <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
                             />
@@ -162,21 +163,21 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     name="questionType"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Loại câu hỏi *</FieldLabel>
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Loại câu hỏi *</FieldLabel>
                                             <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                                <SelectTrigger id={field.name}>
                                                     <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-xl p-1">
-                                                    <SelectItem value={QuestionType.MULTIPLE_CHOICE} className="rounded-lg text-sm cursor-pointer">Trắc nghiệm</SelectItem>
-                                                    <SelectItem value={QuestionType.TRUE_FALSE} className="rounded-lg text-sm cursor-pointer">Đúng/Sai</SelectItem>
-                                                    <SelectItem value={QuestionType.FILL_BLANK} className="rounded-lg text-sm cursor-pointer">Điền vào chỗ trống</SelectItem>
-                                                    <SelectItem value={QuestionType.MATCHING} className="rounded-lg text-sm cursor-pointer">Ghép cặp</SelectItem>
-                                                    <SelectItem value={QuestionType.ESSAY} className="rounded-lg text-sm cursor-pointer">Tự luận</SelectItem>
+                                                <SelectContent>
+                                                    <SelectItem value={QuestionType.MULTIPLE_CHOICE}>Trắc nghiệm</SelectItem>
+                                                    <SelectItem value={QuestionType.TRUE_FALSE}>Đúng/Sai</SelectItem>
+                                                    <SelectItem value={QuestionType.FILL_BLANK}>Điền vào chỗ trống</SelectItem>
+                                                    <SelectItem value={QuestionType.MATCHING}>Ghép cặp</SelectItem>
+                                                    <SelectItem value={QuestionType.ESSAY}>Tự luận</SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                            {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -185,20 +186,20 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     name="category"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Danh mục *</FieldLabel>
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Danh mục *</FieldLabel>
                                             <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                                <SelectTrigger id={field.name}>
                                                     <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-xl p-1">
-                                                    <SelectItem value={QuestionCategory.VOCAB} className="rounded-lg text-sm cursor-pointer">Từ vựng</SelectItem>
-                                                    <SelectItem value={QuestionCategory.GRAMMAR} className="rounded-lg text-sm cursor-pointer">Ngữ pháp</SelectItem>
-                                                    <SelectItem value={QuestionCategory.READING} className="rounded-lg text-sm cursor-pointer">Đọc hiểu</SelectItem>
-                                                    <SelectItem value={QuestionCategory.LISTENING} className="rounded-lg text-sm cursor-pointer">Nghe hiểu</SelectItem>
+                                                <SelectContent>
+                                                    <SelectItem value={QuestionCategory.VOCAB}>Từ vựng</SelectItem>
+                                                    <SelectItem value={QuestionCategory.GRAMMAR}>Ngữ pháp</SelectItem>
+                                                    <SelectItem value={QuestionCategory.READING}>Đọc hiểu</SelectItem>
+                                                    <SelectItem value={QuestionCategory.LISTENING}>Nghe hiểu</SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                            {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -209,21 +210,21 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     name="jlptLevel"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Cấp độ JLPT</FieldLabel>
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Cấp độ JLPT</FieldLabel>
                                             <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                                <SelectTrigger id={field.name}>
                                                     <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-xl p-1">
-                                                    <SelectItem value={QuestionJlptLevel.N5} className="rounded-lg text-sm cursor-pointer">N5</SelectItem>
-                                                    <SelectItem value={QuestionJlptLevel.N4} className="rounded-lg text-sm cursor-pointer">N4</SelectItem>
-                                                    <SelectItem value={QuestionJlptLevel.N3} className="rounded-lg text-sm cursor-pointer">N3</SelectItem>
-                                                    <SelectItem value={QuestionJlptLevel.N2} className="rounded-lg text-sm cursor-pointer">N2</SelectItem>
-                                                    <SelectItem value={QuestionJlptLevel.N1} className="rounded-lg text-sm cursor-pointer">N1</SelectItem>
+                                                <SelectContent>
+                                                    <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
+                                                    <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
+                                                    <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
+                                                    <SelectItem value={QuestionJlptLevel.N2}>N2</SelectItem>
+                                                    <SelectItem value={QuestionJlptLevel.N1}>N1</SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                            {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -232,19 +233,19 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     name="difficulty"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Độ khó</FieldLabel>
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Độ khó</FieldLabel>
                                             <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                                <SelectTrigger id={field.name}>
                                                     <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-xl p-1">
-                                                    <SelectItem value={QuestionDifficultyLevel.EASY} className="rounded-lg text-sm cursor-pointer">Dễ</SelectItem>
-                                                    <SelectItem value={QuestionDifficultyLevel.MEDIUM} className="rounded-lg text-sm cursor-pointer">Trung bình</SelectItem>
-                                                    <SelectItem value={QuestionDifficultyLevel.HARD} className="rounded-lg text-sm cursor-pointer">Khó</SelectItem>
+                                                <SelectContent>
+                                                    <SelectItem value={QuestionDifficultyLevel.EASY}>Dễ</SelectItem>
+                                                    <SelectItem value={QuestionDifficultyLevel.MEDIUM}>Trung bình</SelectItem>
+                                                    <SelectItem value={QuestionDifficultyLevel.HARD}>Khó</SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                            {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -254,22 +255,22 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                 name="poolId"
                                 control={control}
                                 render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Nhóm câu hỏi (Tùy chọn)</FieldLabel>
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>Nhóm câu hỏi (Tùy chọn)</FieldLabel>
                                         <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
-                                            <SelectTrigger className="h-10 px-4 rounded-xl border-border bg-background hover:border-primary/50 transition-all text-sm">
+                                            <SelectTrigger id={field.name}>
                                                 <SelectValue placeholder="Chọn nhóm câu hỏi" />
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-xl p-1 max-h-[250px]">
-                                                <SelectItem value="none" className="rounded-lg text-sm cursor-pointer italic">Không chỉ định</SelectItem>
+                                            <SelectContent>
+                                                <SelectItem value="none">Không chỉ định</SelectItem>
                                                 {poolsData?.data?.map((pool) => (
-                                                    <SelectItem key={pool.id} value={pool.id} className="rounded-lg text-sm cursor-pointer">
+                                                    <SelectItem key={pool.id} value={pool.id}>
                                                         {pool.name}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                        <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
                             />
@@ -288,14 +289,14 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                         control={control}
                                         rules={{ required: "Bắt buộc phải có tệp âm thanh cho câu hỏi nghe hiểu" }}
                                         render={({ field, fieldState }) => (
-                                            <Field>
+                                            <Field data-invalid={fieldState.invalid}>
                                                 <FileUpload
                                                     onUploadComplete={(url) => field.onChange(url)}
                                                     accept="audio/*"
                                                     label="Bấm để tải tệp âm thanh"
                                                     currentValue={field.value}
                                                 />
-                                                {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                                <FieldError errors={[fieldState.error]} />
                                             </Field>
                                         )}
                                     />
@@ -321,7 +322,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                                     value={options[key] || ''}
                                                     onChange={(e) => setOptions({ ...options, [key]: e.target.value })}
                                                     placeholder={`Nhập nội dung lựa chọn ${key}...`}
-                                                    className="h-10 px-4 rounded-xl border-border bg-background focus-visible:ring-primary/20 text-sm transition-all flex-1"
+                                                    className="flex-1"
                                                 />
                                                 {optionKeys.length > 2 && (
                                                     <Button
@@ -340,7 +341,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                             type="button"
                                             variant="outline"
                                             onClick={addOption}
-                                            className="w-full h-10 rounded-xl border-dashed hover:bg-muted/30 text-xs font-semibold mt-2"
+                                            className="w-full border-dashed mt-2"
                                         >
                                             <Plus className="h-4 w-4 mr-2" />
                                             Thêm lựa chọn
@@ -354,22 +355,23 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     name="correctAnswer"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Đáp án đúng *</FieldLabel>
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Đáp án đúng *</FieldLabel>
                                             <div className="relative">
                                                 <Input
+                                                    id={field.name}
                                                     {...field}
                                                     placeholder={(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) ? "Ví dụ: A" : "Nhập nội dung đáp án đúng"}
-                                                    className="h-10 px-4 pr-10 rounded-xl border-emerald-500/30 bg-emerald-500/5 focus-visible:ring-emerald-500/20 text-sm uppercase"
+                                                    className="pr-10"
                                                 />
                                                 <CheckCircle2 className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600/50 pointer-events-none" />
                                             </div>
                                             {(questionType === QuestionType.MULTIPLE_CHOICE || questionType === QuestionType.LISTENING) && (
-                                                <p className="text-[11px] text-muted-foreground/70 ml-1 mt-1.5 italic">
+                                                <p className="text-xs text-muted-foreground mt-1.5">
                                                     * Phải khớp với một trong các ký tự lựa chọn (A, B, C,...)
                                                 </p>
                                             )}
-                                            {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -378,17 +380,18 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     name="explanation"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel className="text-sm font-semibold mb-1.5 ml-0.5">Giải thích đáp án</FieldLabel>
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Giải thích đáp án</FieldLabel>
                                             <div className="relative">
                                                 <Textarea
+                                                    id={field.name}
                                                     {...field}
                                                     placeholder="Nhập giải thích cho đáp án..."
-                                                    className="min-h-[80px] rounded-xl bg-background border-border hover:border-primary/50 focus-visible:ring-primary/20 text-sm transition-all resize-none p-4 pr-10"
+                                                    className="min-h-[80px] pr-10"
                                                 />
                                                 <BrainCircuit className="absolute right-3.5 top-3.5 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
                                             </div>
-                                            {fieldState.error && <FieldError className="text-xs text-destructive mt-1.5 ml-0.5 font-medium">{fieldState.error.message}</FieldError>}
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -396,6 +399,12 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                         </div>
                     </ScrollArea>
                     <SheetFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}>
+                            Hủy bỏ
+                        </Button>
                         <Button
                             type="submit"
                             disabled={createQuestion.isPending}>
@@ -410,12 +419,6 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                                     Khởi tạo câu hỏi
                                 </>
                             )}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}>
-                            Hủy bỏ
                         </Button>
                     </SheetFooter>
                 </form>

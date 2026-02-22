@@ -129,11 +129,11 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Chỉnh Sửa Bài Học</SheetTitle>
                     <SheetDescription>
-                        Cập nhật chi tiết bài học mã: {lesson.id.substring(0, 8)}...
+                        Cập nhật nội dung cho bài học {lesson.id.substring(0, 8)}...
                     </SheetDescription>
                 </SheetHeader>
 
@@ -290,6 +290,13 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
 
                     <SheetFooter>
                         <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Hủy Bỏ
+                        </Button>
+                        <Button
                             type="submit"
                             disabled={uploading || !isDirty}
                         >
@@ -304,13 +311,6 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                     Lưu Thay Đổi
                                 </>
                             )}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

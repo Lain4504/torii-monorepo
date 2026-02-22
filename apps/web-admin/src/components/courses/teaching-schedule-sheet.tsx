@@ -232,7 +232,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                             </FormLabel>
                                             <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className="rounded-xl border-border/40 h-11">
+                                                    <SelectTrigger className="">
                                                         <SelectValue placeholder="Chọn giảng viên..." />
                                                     </SelectTrigger>
                                                 </FormControl>
@@ -304,7 +304,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                                     <Input
                                                         type="time"
                                                         {...field}
-                                                        className="rounded-xl border-border/40 h-11"
+                                                        className=""
                                                     />
                                                 </FormControl>
                                                 <FormMessage className="text-[10px] pl-1 font-bold" />
@@ -324,7 +324,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                                         type="number"
                                                         {...field}
                                                         onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                                        className="rounded-xl border-border/40 h-11"
+                                                        className=""
                                                     />
                                                 </FormControl>
                                                 <FormMessage className="text-[10px] pl-1 font-bold" />

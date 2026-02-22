@@ -35,11 +35,11 @@ export function QuestionsTable({
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted-foreground/5 hover:bg-muted-foreground/5">
-                        <TableHead className="w-12 h-11 px-6">#</TableHead>
-                        <TableHead className="h-11 px-4">Câu hỏi</TableHead>
-                        <TableHead className="h-11 px-4 w-32">Cấp độ</TableHead>
-                        <TableHead className="h-11 px-4 w-32">Ngày tạo</TableHead>
-                        <TableHead className="w-12 h-11 px-6 text-right">Thao tác</TableHead>
+                        <TableHead className="w-12 px-6">#</TableHead>
+                        <TableHead className="px-4">Câu hỏi</TableHead>
+                        <TableHead className="px-4 w-32">Cấp độ</TableHead>
+                        <TableHead className="px-4 w-32">Ngày tạo</TableHead>
+                        <TableHead className="w-12 px-6 text-right">Thao tác</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

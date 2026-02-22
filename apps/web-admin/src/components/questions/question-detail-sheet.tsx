@@ -4,7 +4,9 @@ import {
     SheetHeader,
     SheetTitle,
     SheetDescription,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Badge } from '@workspace/ui/components/badge';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { QuestionDifficultyLevel, QuestionType } from '@workspace/schemas';
@@ -12,10 +14,8 @@ import {
     FileText,
     CheckCircle2,
     BrainCircuit,
-    Calendar,
     AlignLeft,
     Headphones,
-    Target,
     Zap,
     MessageSquareQuote
 } from 'lucide-react';
@@ -52,43 +52,30 @@ export function QuestionDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
-                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
-                    <div className="flex items-center justify-between mb-4">
-                        <Badge variant="outline" className="rounded-full px-3 py-1 bg-primary/5 text-primary border-primary/20 text-[10px] font-bold tracking-widest uppercase">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <div className="flex items-center justify-between mb-2">
+                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
                             JLPT {question.jlptLevel || 'GLOBAL'}
                         </Badge>
-                        <div className="flex items-center gap-2">
-                            <Badge variant="outline" className={cn(
-                                "rounded-full px-3 py-1 border-none text-[10px] font-bold uppercase",
-                                question.difficulty === QuestionDifficultyLevel.HARD ? "bg-rose-500/10 text-rose-600" :
-                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? "bg-amber-500/10 text-amber-600" :
-                                        "bg-emerald-500/10 text-emerald-600"
-                            )}>
-                                {question.difficulty === QuestionDifficultyLevel.HARD ? "Mức độ: Khó" :
-                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? "Mức độ: Trung bình" : "Mức độ: Dễ"}
-                            </Badge>
-                        </div>
+                        <Badge variant="outline" className={cn(
+                            "border-none",
+                            question.difficulty === QuestionDifficultyLevel.HARD ? "bg-rose-500/10 text-rose-600" :
+                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? "bg-amber-500/10 text-amber-600" :
+                                    "bg-emerald-500/10 text-emerald-600"
+                        )}>
+                            {question.difficulty === QuestionDifficultyLevel.HARD ? "Khó" :
+                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? "Trung bình" : "Dễ"}
+                        </Badge>
                     </div>
-
-                    <div className="space-y-1">
-                        <SheetTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                            <Target className="size-5 text-primary opacity-40" />
-                            Chi Tiết Câu Hỏi
-                        </SheetTitle>
-                        <SheetDescription className="text-sm font-medium text-muted-foreground/60 flex items-center gap-3">
-                            <span>Mã số: <span className="font-mono text-primary/60">{question.id.slice(0, 12)}...</span></span>
-                            <span className="size-1 rounded-full bg-border" />
-                            <span className="flex items-center gap-1.5 uppercase font-bold text-[10px] tracking-wider">
-                                <Calendar className="size-3" />
-                                {new Date(question.createdAt).toLocaleDateString('vi-VN')}
-                            </span>
-                        </SheetDescription>
-                    </div>
+                    <SheetTitle>Chi Tiết Câu Hỏi</SheetTitle>
+                    <SheetDescription>
+                        Mã số: {question.id.substring(0, 12)}... • {new Date(question.createdAt).toLocaleDateString('vi-VN')}
+                    </SheetDescription>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    <div className="p-8 space-y-10">
+                <ScrollArea className="flex-1">
+                    <div className="space-y-10 p-6">
                         {/* Question Section */}
                         <section className="space-y-4">
                             <div className="flex items-center gap-2 text-primary">
@@ -116,24 +103,26 @@ export function QuestionDetailSheet({
                             </section>
                         )}
                     </div>
-                </div>
+                </ScrollArea>
 
-                <div className="p-8 border-t border-border bg-muted/5 flex items-center justify-between gap-4">
-                    <div className="flex gap-4 items-center">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Loại</span>
-                            <span className="text-xs font-bold text-foreground">{question.questionType}</span>
+                <SheetFooter className="border-t bg-muted/5">
+                    <div className="w-full flex items-center justify-between">
+                        <div className="flex gap-4 items-center">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Loại</span>
+                                <span className="text-xs font-bold text-foreground">{question.questionType}</span>
+                            </div>
+                            <div className="w-px h-6 bg-border" />
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chuyên môn</span>
+                                <span className="text-xs font-bold text-foreground">{question.category || 'Chung'}</span>
+                            </div>
                         </div>
-                        <div className="w-px h-6 bg-border" />
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chuyên môn</span>
-                            <span className="text-xs font-bold text-foreground">{question.category || 'Chung'}</span>
-                        </div>
+                        <Badge variant="outline" className="bg-emerald-500/5 text-emerald-600 border-emerald-500/10 font-bold text-[10px] uppercase">
+                            Sẵn sàng sử dụng
+                        </Badge>
                     </div>
-                    <Badge variant="outline" className="rounded-lg bg-emerald-500/5 text-emerald-600 border-emerald-500/10 px-3 py-1 font-bold text-[10px] uppercase">
-                        Sẵn sàng sử dụng
-                    </Badge>
-                </div>
+                </SheetFooter>
             </SheetContent>
         </Sheet>
     );

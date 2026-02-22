@@ -45,7 +45,7 @@ export function ViewUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chi tiết người dùng</SheetTitle>
                     <SheetDescription>

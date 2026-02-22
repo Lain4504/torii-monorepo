@@ -139,7 +139,7 @@ export function CreateAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+      <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Tạo Bài Tập Mới</SheetTitle>
           <SheetDescription>
@@ -156,9 +156,9 @@ export function CreateAssignmentSheet({
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs font-bold uppercase tracking-wider">Tiêu đề bài tập</FormLabel>
+                      <FormLabel>Tiêu đề bài tập</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nhập tiêu đề..." {...field} className="rounded-xl" />
+                        <Input placeholder="Nhập tiêu đề..." {...field} className="" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -170,7 +170,7 @@ export function CreateAssignmentSheet({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs font-bold uppercase tracking-wider">Mô tả & Yêu cầu</FormLabel>
+                      <FormLabel>Mô tả & Yêu cầu</FormLabel>
                       <FormControl>
                         <TiptapEditor
                           content={field.value}
@@ -189,7 +189,7 @@ export function CreateAssignmentSheet({
                   name="instructions"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+                      <FormLabel className="flex items-center gap-2">
                         <Info className="h-3 w-3" />
                         Ghi chú bổ sung
                       </FormLabel>
@@ -213,10 +213,10 @@ export function CreateAssignmentSheet({
                     name="type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs font-bold uppercase tracking-wider">Loại bài nộp</FormLabel>
+                        <FormLabel>Loại bài nộp</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="rounded-xl">
+                            <SelectTrigger className="">
                               <SelectValue placeholder="Chọn loại bài nộp" />
                             </SelectTrigger>
                           </FormControl>
@@ -236,9 +236,9 @@ export function CreateAssignmentSheet({
                     name="dueDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs font-bold uppercase tracking-wider">Hạn nộp</FormLabel>
+                        <FormLabel>Hạn nộp</FormLabel>
                         <FormControl>
-                          <Input type="datetime-local" {...field} className="rounded-xl" />
+                          <Input type="datetime-local" {...field} className="" />
                         </FormControl>
                         <FormDescription className="text-[10px]">Để trống nếu không có hạn nộp</FormDescription>
                         <FormMessage />
@@ -253,13 +253,13 @@ export function CreateAssignmentSheet({
                     name="maxScore"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs font-bold uppercase tracking-wider">Điểm tối đa</FormLabel>
+                        <FormLabel>Điểm tối đa</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             {...field}
                             onChange={(e) => field.onChange(Number(e.target.value))}
-                            className="rounded-xl"
+                            className=""
                           />
                         </FormControl>
                         <FormMessage />
@@ -272,13 +272,13 @@ export function CreateAssignmentSheet({
                     name="passingScore"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs font-bold uppercase tracking-wider">Điểm đạt</FormLabel>
+                        <FormLabel>Điểm đạt</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             {...field}
                             onChange={(e) => field.onChange(Number(e.target.value))}
-                            className="rounded-xl"
+                            className=""
                           />
                         </FormControl>
                         <FormMessage />
@@ -288,7 +288,7 @@ export function CreateAssignmentSheet({
                 </div>
 
                 <div className="space-y-4 border rounded-2xl p-4 bg-muted/30">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cấu hình nộp muộn</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground">Cấu hình nộp muộn</h3>
 
                   <FormField
                     control={form.control}
@@ -302,7 +302,7 @@ export function CreateAssignmentSheet({
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel className="text-xs font-bold uppercase tracking-wider">Cho phép nộp muộn</FormLabel>
+                          <FormLabel>Cho phép nộp muộn</FormLabel>
                           <FormDescription className="text-[10px]">Học viên vẫn có thể nộp sau khi hết hạn</FormDescription>
                         </div>
                       </FormItem>
@@ -337,7 +337,7 @@ export function CreateAssignmentSheet({
 
                 {(form.watch("type") === AssignmentType.FILE || form.watch("type") === AssignmentType.BOTH) && (
                   <div className="space-y-4 border rounded-2xl p-4 bg-muted/30">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cấu hình tệp đính kèm</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground">Cấu hình tệp đính kèm</h3>
 
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
@@ -345,14 +345,14 @@ export function CreateAssignmentSheet({
                         name="maxFileSize"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs font-bold uppercase tracking-wider">Dung lượng tối đa (MB)</FormLabel>
+                            <FormLabel>Dung lượng tối đa (MB)</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 placeholder="Nhập dung lượng"
                                 value={field.value ? field.value / 1048576 : ""}
                                 onChange={(e) => field.onChange(Number(e.target.value) * 1048576)}
-                                className="rounded-xl"
+                                className=""
                               />
                             </FormControl>
                             <FormMessage />
@@ -364,13 +364,13 @@ export function CreateAssignmentSheet({
                         name="maxFiles"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs font-bold uppercase tracking-wider">Số lượng tối đa</FormLabel>
+                            <FormLabel>Số lượng tối đa</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 {...field}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="rounded-xl"
+                                className=""
                               />
                             </FormControl>
                             <FormMessage />
@@ -384,7 +384,7 @@ export function CreateAssignmentSheet({
                 <div className="space-y-4 border rounded-2xl p-6 bg-primary/5 border-primary/10">
                   <div className="flex items-center gap-2">
                     <Paperclip className="h-4 w-4 text-primary" />
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Tài liệu bài tập</h3>
+                    <h3 className="text-sm font-medium text-primary">Tài liệu bài tập</h3>
                   </div>
                   <p className="text-[10px] text-muted-foreground/60 uppercase tracking-tight">
                     Tải lên các tài liệu hướng dẫn, tệp mẫu cho bài tập này (PDF, Word, Zip,...)

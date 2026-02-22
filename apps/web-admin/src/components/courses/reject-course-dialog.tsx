@@ -22,7 +22,7 @@ import { Textarea } from "@workspace/ui/components/textarea";
 import { useRejectCourse } from "@/api/services/courses";
 import type { CourseResponseDTO } from "@workspace/schemas";
 import { toast } from "@workspace/ui/components/sonner";
-import { Loader2, XCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
     reason: z.string().min(10, {
@@ -69,12 +69,9 @@ export function RejectCourseDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[95vw] sm:w-[500px] !max-w-[500px] border-destructive/20 bg-background/95 backdrop-blur-xl">
+            <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-destructive font-sans italic text-xl">
-                        <XCircle className="w-5 h-5" />
-                        Từ chối khóa học
-                    </DialogTitle>
+                    <DialogTitle>Từ chối khóa học</DialogTitle>
                     <DialogDescription>
                         Bạn có chắc chắn muốn từ chối khóa học{' '}
                         <span className="font-semibold text-foreground">

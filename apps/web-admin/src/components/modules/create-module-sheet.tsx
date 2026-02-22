@@ -184,6 +184,12 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
 
                     <SheetFooter>
                         <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}>
+                            Hủy Bỏ
+                        </Button>
+                        <Button
                             type="submit"
                             disabled={isSubmitting}>
                             {isSubmitting ? (
@@ -197,12 +203,6 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                     Tạo Học Phần
                                 </>
                             )}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleClose}>
-                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

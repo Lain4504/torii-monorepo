@@ -195,6 +195,12 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
 
                     <SheetFooter>
                         <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}>
+                            Hủy Bỏ
+                        </Button>
+                        <Button
                             type="submit"
                             disabled={isSubmitting}>
                             {isSubmitting ? (
@@ -208,12 +214,6 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                     Lưu Thay Đổi
                                 </>
                             )}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}>
-                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

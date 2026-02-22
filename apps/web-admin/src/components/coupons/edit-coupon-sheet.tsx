@@ -121,7 +121,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Chỉnh Sửa Coupon</SheetTitle>
                     <SheetDescription>
@@ -154,7 +154,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             id="code"
                                             {...register('code')}
                                             disabled={true} // Code should not be editable ideally, or strict check
-                                            className="h-11 px-4 rounded-xl font-mono uppercase tracking-widest font-bold placeholder:normal-case bg-muted/20"
+                                            className="font-mono uppercase tracking-widest font-bold placeholder:normal-case bg-muted/20"
                                         />
                                     </Field>
                                     <Field>
@@ -164,7 +164,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                         <Input
                                             id="name"
                                             {...register('name', { required: 'Tên chiến dịch là bắt buộc' })}
-                                            className="h-11 px-4 rounded-xl"
+                                            className=""
                                         />
                                         {errors.name && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.name.message}</FieldError>}
                                     </Field>
@@ -191,7 +191,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                         control={control}
                                         render={({ field }) => (
                                             <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="h-11 px-4 rounded-xl">
+                                                <SelectTrigger className="">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent className="rounded-xl">
@@ -221,7 +221,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             control={control}
                                             render={({ field }) => (
                                                 <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="h-11 px-4 rounded-xl">
+                                                    <SelectTrigger className="">
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-xl">
@@ -243,7 +243,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                                 type="number"
                                                 min="0"
                                                 {...register('discountValue', { valueAsNumber: true, required: true, min: 1 })}
-                                                className="h-11 pl-10 pr-4 rounded-xl font-mono font-bold"
+                                                className="pl-10 font-mono font-bold"
                                             />
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                                                 {discountType === CouponDiscountType.PERCENTAGE ? <Percent className="size-4" /> : <DollarSign className="size-4" />}
@@ -263,7 +263,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             min="0"
                                             {...register('maxDiscountAmount', { valueAsNumber: true })}
                                             placeholder="Không giới hạn"
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                     </Field>
                                 )}
@@ -277,7 +277,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                         type="number"
                                         min="0"
                                         {...register('minOrderAmount', { valueAsNumber: true })}
-                                        className="h-11 px-4 rounded-xl font-mono"
+                                        className="font-mono"
                                     />
                                 </Field>
                             </div>
@@ -299,7 +299,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             min="0"
                                             {...register('usageLimit', { valueAsNumber: true })}
                                             placeholder="Không giới hạn"
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                     </Field>
                                     <Field>
@@ -311,7 +311,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             type="number"
                                             min="1"
                                             {...register('userUsageLimit', { valueAsNumber: true, min: 1 })}
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                     </Field>
                                 </div>
@@ -332,7 +332,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             <Input
                                                 type="date"
                                                 {...register('validFrom', { valueAsDate: true })}
-                                                className="h-11 px-4 rounded-xl"
+                                                className=""
                                                 defaultValue={new Date(coupon.validFrom).toISOString().split('T')[0]}
                                             />
                                             <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -347,7 +347,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             <Input
                                                 type="date"
                                                 {...register('validUntil', { valueAsDate: true })}
-                                                className="h-11 px-4 rounded-xl"
+                                                className=""
                                                 defaultValue={new Date(coupon.validUntil).toISOString().split('T')[0]}
                                             />
                                             <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />

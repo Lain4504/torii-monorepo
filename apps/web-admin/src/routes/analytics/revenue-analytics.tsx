@@ -135,11 +135,11 @@ export default function RevenueAnalytics() {
 
             {/* Main Charts */}
             <div className="grid gap-6 md:grid-cols-12">
-                <Card className="md:col-span-8 rounded-2xl border-border/40 shadow-sm bg-card overflow-hidden">
+                <Card className="md:col-span-8 overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-bold uppercase tracking-tight">Biểu đồ <span className="text-primary">Tăng trưởng</span></CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Doanh thu 6 tháng gần nhất</CardDescription>
+                            <CardTitle>Biểu đồ <span className="text-primary">Tăng trưởng</span></CardTitle>
+                            <CardDescription>Doanh thu 6 tháng gần nhất</CardDescription>
                         </div>
                     </CardHeader>
                     <CardContent className="h-[400px]">
@@ -161,10 +161,10 @@ export default function RevenueAnalytics() {
                     </CardContent>
                 </Card>
 
-                <Card className="md:col-span-4 rounded-2xl border-border/40 shadow-sm bg-card">
+                <Card className="md:col-span-4">
                     <CardHeader>
-                        <CardTitle className="text-lg font-bold uppercase tracking-tight">Doanh thu <span className="text-emerald-500">Cấp độ</span></CardTitle>
-                        <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Báo cáo theo trình độ JLPT (N5 - N1)</CardDescription>
+                        <CardTitle>Doanh thu <span className="text-emerald-500">Cấp độ</span></CardTitle>
+                        <CardDescription>Báo cáo theo trình độ JLPT (N5 - N1)</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -242,7 +242,7 @@ export default function RevenueAnalytics() {
 
 function RevenueCard({ title, value, sub, icon: Icon, trend, trendUp, inverseColor }: any) {
     return (
-        <Card className="rounded-2xl border-border/40 shadow-sm bg-card group overflow-hidden relative">
+        <Card className="group overflow-hidden relative">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className="p-2.5 rounded-xl bg-muted/50 group-hover:bg-primary/10 group-hover:text-primary transition-all">

@@ -16,6 +16,7 @@ import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import { Checkbox } from '@workspace/ui/components/checkbox';
 import {
     Field,
     FieldLabel,
@@ -117,11 +118,11 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Tạo Bài Học Mới</SheetTitle>
                     <SheetDescription>
-                        Tạo một bài học mới và cấu hình nội dung cho học phần {moduleId.substring(0, 8)}...
+                        Cấu hình nội dung bài học mới cho học phần {moduleId.substring(0, 8)}...
                     </SheetDescription>
                 </SheetHeader>
 
@@ -236,12 +237,10 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                                         name="isPreview"
                                         render={({ field }) => (
                                             <div className="flex items-center gap-2">
-                                                <input
-                                                    type="checkbox"
+                                                <Checkbox
                                                     id={field.name}
                                                     checked={field.value}
-                                                    onChange={(e) => field.onChange(e.target.checked)}
-                                                    className="size-4"
+                                                    onCheckedChange={field.onChange}
                                                 />
                                                 <label htmlFor={field.name} className="text-sm font-medium">Xem Thử Công Khai</label>
                                             </div>
@@ -253,12 +252,10 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                                         name="isUnlocked"
                                         render={({ field }) => (
                                             <div className="flex items-center gap-2">
-                                                <input
-                                                    type="checkbox"
+                                                <Checkbox
                                                     id={field.name}
                                                     checked={field.value}
-                                                    onChange={(e) => field.onChange(e.target.checked)}
-                                                    className="size-4"
+                                                    onCheckedChange={field.onChange}
                                                 />
                                                 <label htmlFor={field.name} className="text-sm font-medium">Mở Khóa Truy Cập</label>
                                             </div>
@@ -272,6 +269,13 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                     </ScrollArea>
 
                     <SheetFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                        >
+                            Hủy Bỏ
+                        </Button>
                         <Button
                             type="submit"
                             disabled={uploading || !isDirty}
@@ -287,13 +291,6 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                                     Tạo Bài Học
                                 </>
                             )}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleClose}
-                        >
-                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

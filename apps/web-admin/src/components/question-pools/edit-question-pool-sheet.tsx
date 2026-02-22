@@ -109,14 +109,14 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                     name="name"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2">
-                                            <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Tên Kho Đề *</FieldLabel>
+                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Tên Kho Đề *</FieldLabel>
                                             <Input
+                                                id={field.name}
                                                 {...field}
                                                 placeholder="VD: Từ vựng N5 - Bài 1"
-                                                className="h-12 px-4 rounded-xl bg-background border-border hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
                                             />
-                                            {fieldState.error && <FieldError className="text-xs font-medium text-destructive ml-1 mt-1.5">{fieldState.error.message}</FieldError>}
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -125,14 +125,15 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                     name="description"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2">
-                                            <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Mô Tả Tóm Tắt</FieldLabel>
+                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Mô Tả Tóm Tắt</FieldLabel>
                                             <Textarea
+                                                id={field.name}
                                                 {...field}
                                                 placeholder="Nhập mô tả cụ thể cho kho đề..."
-                                                className="min-h-[120px] p-4 rounded-xl bg-background border-border hover:bg-muted/30 focus-visible:ring-primary/20 transition-all text-sm resize-none"
+                                                className="min-h-[120px]"
                                             />
-                                            {fieldState.error && <FieldError className="text-xs font-medium text-destructive ml-1 mt-1.5">{fieldState.error.message}</FieldError>}
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -142,22 +143,22 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                         name="courseId"
                                         control={control}
                                         render={({ field, fieldState }) => (
-                                            <Field className="space-y-2">
-                                                <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Khóa Học Liên Kết</FieldLabel>
+                                            <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name}>Khóa Học Liên Kết</FieldLabel>
                                                 <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
-                                                    <SelectTrigger className="h-12 px-4 rounded-xl bg-background border-border hover:bg-muted/30 transition-all text-sm font-medium">
+                                                    <SelectTrigger id={field.name}>
                                                         <SelectValue placeholder="Chọn khóa học" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="rounded-xl border-border shadow-2xl p-1 max-h-[250px]">
-                                                        <SelectItem value="none" className="rounded-lg text-xs italic text-muted-foreground/60">Không chỉ định</SelectItem>
+                                                    <SelectContent>
+                                                        <SelectItem value="none">Không chỉ định</SelectItem>
                                                         {coursesData?.data?.map((course) => (
-                                                            <SelectItem key={course.id} value={course.id} className="rounded-lg text-xs font-medium">
+                                                            <SelectItem key={course.id} value={course.id}>
                                                                 {course.title}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                {fieldState.error && <FieldError className="text-xs font-medium text-destructive ml-1 mt-1.5">{fieldState.error.message}</FieldError>}
+                                                <FieldError errors={[fieldState.error]} />
                                             </Field>
                                         )}
                                     />
@@ -166,33 +167,31 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                         name="jlptLevel"
                                         control={control}
                                         render={({ field, fieldState }) => (
-                                            <Field className="space-y-2">
-                                                <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Cấp Độ JLPT</FieldLabel>
+                                            <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name}>Cấp Độ JLPT</FieldLabel>
                                                 <Select value={field.value || 'none'} onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}>
-                                                    <SelectTrigger className="h-12 px-4 rounded-xl bg-background border-border hover:bg-muted/30 transition-all text-sm font-medium">
+                                                    <SelectTrigger id={field.name}>
                                                         <SelectValue placeholder="Chọn JLPT" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="rounded-xl border-border shadow-2xl p-1">
-                                                        <SelectItem value="none" className="rounded-lg text-xs italic text-muted-foreground/60">Không chỉ định</SelectItem>
+                                                    <SelectContent>
+                                                        <SelectItem value="none">Không chỉ định</SelectItem>
                                                         {[QuestionJlptLevel.N1, QuestionJlptLevel.N2, QuestionJlptLevel.N3, QuestionJlptLevel.N4, QuestionJlptLevel.N5].map(level => (
-                                                            <SelectItem key={level} value={level} className="rounded-lg text-xs font-medium">{level}</SelectItem>
+                                                            <SelectItem key={level} value={level}>{level}</SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                {fieldState.error && <FieldError className="text-xs font-medium text-destructive ml-1 mt-1.5">{fieldState.error.message}</FieldError>}
+                                                <FieldError errors={[fieldState.error]} />
                                             </Field>
                                         )}
                                     />
                                 </div>
 
                                 {selectedCourse && (
-                                    <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-start gap-4 animate-in fade-in zoom-in-95 duration-300">
-                                        <div className="p-2 rounded-lg bg-primary/10 text-primary mt-0.5">
-                                            <Info className="size-4" />
-                                        </div>
+                                    <div className="p-4 bg-muted/50 rounded-lg flex items-start gap-4">
+                                        <Info className="size-4 text-primary mt-1" />
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Khóa học hiện tại</p>
-                                            <p className="text-sm text-foreground font-bold leading-tight">{selectedCourse.title}</p>
+                                            <p className="text-xs font-medium text-muted-foreground">Khóa học hiện tại</p>
+                                            <p className="text-sm font-medium leading-tight">{selectedCourse.title}</p>
                                         </div>
                                     </div>
                                 )}
@@ -201,6 +200,12 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                     </ScrollArea>
 
                     <SheetFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}>
+                            Hủy Bỏ
+                        </Button>
                         <Button
                             type="submit"
                             disabled={updatePool.isPending}>
@@ -215,12 +220,6 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                     Lưu Thay Đổi
                                 </>
                             )}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}>
-                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

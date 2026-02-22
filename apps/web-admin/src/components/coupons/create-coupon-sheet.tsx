@@ -96,7 +96,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Tạo Coupon Mới</SheetTitle>
                     <SheetDescription>
@@ -119,7 +119,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             id="code"
                                             {...register('code', { required: 'Mã coupon là bắt buộc' })}
                                             placeholder="VD: SALE50, SUMMER2024"
-                                            className="h-11 px-4 rounded-xl font-mono uppercase tracking-widest font-bold placeholder:normal-case"
+                                            className="font-mono uppercase tracking-widest font-bold placeholder:normal-case"
                                         />
                                         {errors.code && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.code.message}</FieldError>}
                                     </Field>
@@ -131,7 +131,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             id="name"
                                             {...register('name', { required: 'Tên chiến dịch là bắt buộc' })}
                                             placeholder="VD: Siêu sale mùa hè"
-                                            className="h-11 px-4 rounded-xl"
+                                            className=""
                                         />
                                         {errors.name && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.name.message}</FieldError>}
                                     </Field>
@@ -167,7 +167,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             control={control}
                                             render={({ field }) => (
                                                 <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="h-11 px-4 rounded-xl">
+                                                    <SelectTrigger className="">
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-xl">
@@ -189,7 +189,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                                 type="number"
                                                 min="0"
                                                 {...register('discountValue', { valueAsNumber: true, required: true, min: 1 })}
-                                                className="h-11 pl-10 pr-4 rounded-xl font-mono font-bold"
+                                                className="pl-10 font-mono font-bold"
                                             />
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                                                 {discountType === CouponDiscountType.PERCENTAGE ? <Percent className="size-4" /> : <DollarSign className="size-4" />}
@@ -209,7 +209,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             min="0"
                                             {...register('maxDiscountAmount', { valueAsNumber: true })}
                                             placeholder="Không giới hạn"
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                         <p className="text-[10px] text-muted-foreground mt-1.5 ml-1">Để trống nếu không giới hạn số tiền giảm.</p>
                                     </Field>
@@ -225,7 +225,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                         min="0"
                                         {...register('minOrderAmount', { valueAsNumber: true })}
                                         placeholder="0"
-                                        className="h-11 px-4 rounded-xl font-mono"
+                                        className="font-mono"
                                     />
                                 </Field>
                             </div>
@@ -247,7 +247,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             min="0"
                                             {...register('usageLimit', { valueAsNumber: true })}
                                             placeholder="Không giới hạn"
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                     </Field>
                                     <Field>
@@ -260,7 +260,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             min="1"
                                             {...register('userUsageLimit', { valueAsNumber: true, min: 1 })}
                                             defaultValue={1}
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                     </Field>
                                 </div>
@@ -281,7 +281,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             <Input
                                                 type="date"
                                                 {...register('validFrom', { valueAsDate: true })}
-                                                className="h-11 px-4 rounded-xl"
+                                                className=""
                                                 defaultValue={new Date().toISOString().split('T')[0]}
                                             />
                                             <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -296,7 +296,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             <Input
                                                 type="date"
                                                 {...register('validUntil', { valueAsDate: true })}
-                                                className="h-11 px-4 rounded-xl"
+                                                className=""
                                                 defaultValue={defaultValidUntil.toISOString().split('T')[0]}
                                             />
                                             <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />

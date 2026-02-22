@@ -100,11 +100,11 @@ export default function LearningAnalytics() {
 
             <div className="grid gap-6 md:grid-cols-12">
                 {/* Popular Courses Table */}
-                <Card className="md:col-span-12 lg:col-span-8 rounded-2xl border-border/40 shadow-sm bg-card">
+                <Card className="md:col-span-12 lg:col-span-8">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-bold uppercase tracking-tight">Khóa học <span className="text-primary">Phổ biến</span></CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Top 5 khóa học có lượng đăng ký nhiều nhất</CardDescription>
+                            <CardTitle>Khóa học <span className="text-primary">Phổ biến</span></CardTitle>
+                            <CardDescription>Top 5 khóa học có lượng đăng ký nhiều nhất</CardDescription>
                         </div>
                         <TrendingUp className="size-4 text-primary opacity-20" />
                     </CardHeader>
@@ -139,10 +139,10 @@ export default function LearningAnalytics() {
                 </Card>
 
                 {/* Completion Pie Chart */}
-                <Card className="md:col-span-12 lg:col-span-4 rounded-2xl border-border/40 shadow-sm bg-card">
+                <Card className="md:col-span-12 lg:col-span-4">
                     <CardHeader>
-                        <CardTitle className="text-lg font-bold uppercase tracking-tight">Tỉ lệ <span className="text-emerald-500">Hoàn thành</span></CardTitle>
-                        <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Cơ cấu trạng thái khóa học</CardDescription>
+                        <CardTitle>Tỉ lệ <span className="text-emerald-500">Hoàn thành</span></CardTitle>
+                        <CardDescription>Cơ cấu trạng thái khóa học</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center">
                         <div className="h-[250px] w-full relative">
@@ -186,11 +186,11 @@ export default function LearningAnalytics() {
             </div>
 
             {/* Course Level Breakdown */}
-            <Card className="rounded-2xl border-border/40 shadow-sm bg-card overflow-hidden">
-                <CardHeader className="flex flex-row items-center justify-between bg-muted/5 border-b border-border/40 py-6">
+            <Card>
+                <CardHeader>
                     <div>
-                        <CardTitle className="text-lg font-bold uppercase tracking-tight">Phân bổ <span className="text-primary">Khóa học</span></CardTitle>
-                        <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Số lượng khóa chương trình theo cấp độ JLPT</CardDescription>
+                        <CardTitle>Phân bổ <span className="text-primary">Khóa học</span></CardTitle>
+                        <CardDescription>Số lượng khóa chương trình theo cấp độ JLPT</CardDescription>
                     </div>
                 </CardHeader>
                 <CardContent className="h-[350px] pt-8">
@@ -228,7 +228,7 @@ export default function LearningAnalytics() {
 
 function AnalyticsCard({ title, value, sub, icon: Icon, colorClass }: any) {
     return (
-        <Card className="rounded-2xl border-border/40 shadow-sm bg-card group overflow-hidden">
+        <Card className="group overflow-hidden">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className={cn("p-2.5 rounded-xl transition-all", colorClass)}>

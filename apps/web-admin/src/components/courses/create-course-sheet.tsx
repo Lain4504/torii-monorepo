@@ -162,481 +162,489 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
-                <SheetHeader>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col gap-0 p-0 sm:max-h-screen">
+                <SheetHeader className="p-6 pb-2">
                     <SheetTitle>Tạo Khóa Học Mới</SheetTitle>
                     <SheetDescription>
                         Nhập thông tin chi tiết khóa học và chương trình giảng dạy bên dưới.
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
-                        <div className="space-y-6 p-6">
+                <ScrollArea className="flex-1">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6 pt-4" noValidate>
 
-                            {/* Basic Information */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
-                                    <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
-                                        Thông Tin Cơ Bản
-                                    </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
-                                </div>
+                        {/* Basic Information */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 pb-2 border-b border-border/40">
+                                <div className="h-px flex-1 bg-border/20" />
+                                <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
+                                    Thông Tin Cơ Bản
+                                </h3>
+                                <div className="h-px flex-1 bg-border/20" />
+                            </div>
 
+                            <Field>
+                                <FieldLabel htmlFor="title" className="">
+                                    Tên Khóa Học <span className="text-destructive">*</span>
+                                </FieldLabel>
+                                <Input
+                                    id="title"
+                                    {...register('title')}
+                                    placeholder="Nhập tên khóa học..."
+                                    className="mt-1"
+                                />
+                                {errors.title && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.title.message}</FieldError>}
+                            </Field>
+
+                            <Field>
+                                <FieldLabel htmlFor="description" className="">
+                                    Mô Tả <span className="text-destructive">*</span>
+                                </FieldLabel>
+                                <Textarea
+                                    id="description"
+                                    {...register('description')}
+                                    placeholder="Nhập mô tả chi tiết khóa học..."
+                                    rows={4}
+                                    className="mt-1 resize-none"
+                                />
+                                {errors.description && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.description.message}</FieldError>}
+                            </Field>
+
+                            <div className="grid grid-cols-2 gap-6">
                                 <Field>
-                                    <FieldLabel htmlFor="title" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                        Tên Khóa Học <span className="text-destructive">*</span>
+                                    <FieldLabel htmlFor="price" className="">
+                                        Học Phí <span className="text-destructive">*</span>
                                     </FieldLabel>
                                     <Input
-                                        id="title"
-                                        {...register('title')}
-                                        placeholder="Nhập tên khóa học..."
-                                        className="mt-1"
+                                        id="price"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        {...register('price', { valueAsNumber: true })}
+                                        disabled={isFree}
+                                        placeholder="0.00"
+                                        className="mt-1 font-mono tracking-tight"
                                     />
-                                    {errors.title && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.title.message}</FieldError>}
+                                    {errors.price && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.price.message}</FieldError>}
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel htmlFor="description" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                        Mô Tả <span className="text-destructive">*</span>
+                                    <FieldLabel htmlFor="jlptLevel" className="">
+                                        Trình Độ JLPT
+                                    </FieldLabel>
+                                    <Controller
+                                        name="jlptLevel"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select value={field.value || ''} onValueChange={field.onChange}>
+                                                <SelectTrigger id="jlptLevel" className="mt-1">
+                                                    <SelectValue placeholder="Chọn Trình Độ" />
+                                                </SelectTrigger>
+                                                <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
+                                                    {Object.values(JlptLevel).map((level) => (
+                                                        <SelectItem key={level} value={level} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
+                                                            {level}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    />
+                                    {errors.jlptLevel && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.jlptLevel.message}</FieldError>}
+                                </Field>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-6">
+                                <Field>
+                                    <FieldLabel htmlFor="shortDescription" className="">
+                                        Mô Tả Ngắn
                                     </FieldLabel>
                                     <Textarea
-                                        id="description"
-                                        {...register('description')}
-                                        placeholder="Nhập mô tả chi tiết khóa học..."
-                                        rows={4}
+                                        id="shortDescription"
+                                        {...register('shortDescription')}
+                                        placeholder="Tóm tắt ngắn gọn hiển thị trên thẻ..."
+                                        rows={3}
                                         className="mt-1 resize-none"
                                     />
-                                    {errors.description && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.description.message}</FieldError>}
+                                    {errors.shortDescription && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.shortDescription.message}</FieldError>}
                                 </Field>
 
-                                <div className="grid grid-cols-2 gap-6">
-                                    <Field>
-                                        <FieldLabel htmlFor="price" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Học Phí <span className="text-destructive">*</span>
-                                        </FieldLabel>
-                                        <Input
-                                            id="price"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            {...register('price', { valueAsNumber: true })}
-                                            disabled={isFree}
-                                            placeholder="0.00"
-                                            className="mt-1 font-mono tracking-tight"
-                                        />
-                                        {errors.price && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.price.message}</FieldError>}
-                                    </Field>
-
-                                    <Field>
-                                        <FieldLabel htmlFor="jlptLevel" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Trình Độ JLPT
-                                        </FieldLabel>
-                                        <Controller
-                                            name="jlptLevel"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Select value={field.value || ''} onValueChange={field.onChange}>
-                                                    <SelectTrigger id="jlptLevel" className="mt-1">
-                                                        <SelectValue placeholder="Chọn Trình Độ" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
-                                                        {Object.values(JlptLevel).map((level) => (
-                                                            <SelectItem key={level} value={level} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                                {level}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            )}
-                                        />
-                                        {errors.jlptLevel && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.jlptLevel.message}</FieldError>}
-                                    </Field>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-6">
-                                    <Field>
-                                        <FieldLabel htmlFor="shortDescription" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Mô Tả Ngắn
-                                        </FieldLabel>
-                                        <Textarea
-                                            id="shortDescription"
-                                            {...register('shortDescription')}
-                                            placeholder="Tóm tắt ngắn gọn hiển thị trên thẻ..."
-                                            rows={3}
-                                            className="mt-1 resize-none"
-                                        />
-                                        {errors.shortDescription && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.shortDescription.message}</FieldError>}
-                                    </Field>
-
-                                    <Field>
-                                        <FieldLabel htmlFor="type" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Loại Khóa Học
-                                        </FieldLabel>
-                                        <Controller
-                                            name="type"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger id="type" className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus:ring-primary/20 text-sm font-medium transition-all">
-                                                        <SelectValue placeholder="Chọn loại khóa học" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
-                                                        <SelectItem value="vod" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                            Video theo yêu cầu (VOD)
-                                                        </SelectItem>
-                                                        <SelectItem value="live" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                            Phát trực tiếp
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            )}
-                                        />
-                                    </Field>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-6">
-                                    <Field>
-                                        <FieldLabel htmlFor="discountPrice" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Giá Khuyến Mãi
-                                        </FieldLabel>
-                                        <Input
-                                            id="discountPrice"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            {...register('discountPrice', { valueAsNumber: true })}
-                                            disabled={isFree}
-                                            placeholder="0.00"
-                                            className="mt-1 font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
-                                        />
-                                        {errors.discountPrice && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.discountPrice.message}</FieldError>}
-                                    </Field>
-
-                                    <Field>
-                                        <FieldLabel htmlFor="durationWeeks" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Thời Lượng (Tuần)
-                                        </FieldLabel>
-                                        <Input
-                                            id="durationWeeks"
-                                            type="number"
-                                            min="0"
-                                            max="26"
-                                            {...register('durationWeeks', { valueAsNumber: true })}
-                                            placeholder="Tối đa 26 tuần (6 tháng)"
-                                            className="mt-1 font-mono"
-                                        />
-                                        <p className="text-[10px] text-muted-foreground/60 mt-1.5 ml-1">
-                                            Thời lượng nội dung chương trình học.
-                                        </p>
-                                    </Field>
-                                </div>
-
-                                {/* VOD: Thời hạn truy cập */}
-                                {courseType === 'vod' && (
-                                    <Field>
-                                        <FieldLabel htmlFor="expirationMonths" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Thời Hạn Truy Cập (Tháng)
-                                        </FieldLabel>
-                                        <Input
-                                            id="expirationMonths"
-                                            type="number"
-                                            min="1"
-                                            max="6"
-                                            {...register('expirationMonths' as any, { valueAsNumber: true })}
-                                            placeholder="1-6 tháng (mặc định 6)"
-                                            className="mt-1 font-mono"
-                                        />
-                                        <p className="text-[10px] text-muted-foreground/60 mt-1.5 ml-1 leading-relaxed">
-                                            Hạn truy cập mặc định cho mô hình "Mua cả khóa". <br />
-                                            Học viên cần gia hạn nếu muốn xem lại sau thời gian này.
-                                        </p>
-                                        {watch('durationWeeks') && watch('expirationMonths') && (watch('expirationMonths') as any) < Math.ceil((watch('durationWeeks') || 0) / 4) && (
-                                            <p className="text-[10px] text-amber-500 font-medium mt-1 ml-1 animate-pulse">
-                                                ⚠️ Cảnh báo: Thời gian truy cập ngắn hơn thời lượng nội dung!
-                                            </p>
+                                <Field>
+                                    <FieldLabel htmlFor="type" className="">
+                                        Loại Khóa Học
+                                    </FieldLabel>
+                                    <Controller
+                                        name="type"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <SelectTrigger id="type" className="">
+                                                    <SelectValue placeholder="Chọn loại khóa học" />
+                                                </SelectTrigger>
+                                                <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
+                                                    <SelectItem value="vod" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
+                                                        Video theo yêu cầu (VOD)
+                                                    </SelectItem>
+                                                    <SelectItem value="live" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
+                                                        Phát trực tiếp
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         )}
-                                    </Field>
-                                )}
+                                    />
+                                </Field>
+                            </div>
 
-                                {/* WebRTC: Ngày khai giảng, kết thúc, hạn đăng ký */}
-                                {courseType === 'live' && (
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3 pb-1 border-b border-border/40">
-                                            <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">Lịch Học</h3>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-6">
-                                            <Field>
-                                                <FieldLabel htmlFor="startDate" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                                    Ngày Khai Giảng
-                                                </FieldLabel>
-                                                <Input
-                                                    id="startDate"
-                                                    type="datetime-local"
-                                                    {...register('startDate' as any)}
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
-                                                />
-                                            </Field>
-                                            <Field>
-                                                <FieldLabel htmlFor="expiresAt" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                                    Ngày Kết Thúc Khóa Học
-                                                </FieldLabel>
-                                                <Input
-                                                    id="expiresAt"
-                                                    type="datetime-local"
-                                                    {...register('expiresAt' as any)}
-                                                    className="mt-1"
-                                                />
-                                            </Field>
-                                        </div>
+                            <div className="grid grid-cols-2 gap-6">
+                                <Field>
+                                    <FieldLabel htmlFor="discountPrice" className="">
+                                        Giá Khuyến Mãi
+                                    </FieldLabel>
+                                    <Input
+                                        id="discountPrice"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        {...register('discountPrice', { valueAsNumber: true })}
+                                        disabled={isFree}
+                                        placeholder="0.00"
+                                        className="mt-1 font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
+                                    />
+                                    {errors.discountPrice && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.discountPrice.message}</FieldError>}
+                                </Field>
+
+                                <Field>
+                                    <FieldLabel htmlFor="durationWeeks" className="">
+                                        Thời Lượng (Tuần)
+                                    </FieldLabel>
+                                    <Input
+                                        id="durationWeeks"
+                                        type="number"
+                                        min="0"
+                                        max="26"
+                                        {...register('durationWeeks', { valueAsNumber: true })}
+                                        placeholder="Tối đa 26 tuần (6 tháng)"
+                                        className="mt-1 font-mono"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground/60 mt-1.5 ml-1">
+                                        Thời lượng nội dung chương trình học.
+                                    </p>
+                                </Field>
+                            </div>
+
+                            {/* VOD: Thời hạn truy cập */}
+                            {courseType === 'vod' && (
+                                <Field>
+                                    <FieldLabel htmlFor="expirationMonths" className="">
+                                        Thời Hạn Truy Cập (Tháng)
+                                    </FieldLabel>
+                                    <Input
+                                        id="expirationMonths"
+                                        type="number"
+                                        min="1"
+                                        max="6"
+                                        {...register('expirationMonths' as any, { valueAsNumber: true })}
+                                        placeholder="1-6 tháng (mặc định 6)"
+                                        className="mt-1 font-mono"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground/60 mt-1.5 ml-1 leading-relaxed">
+                                        Hạn truy cập mặc định cho mô hình "Mua cả khóa". <br />
+                                        Học viên cần gia hạn nếu muốn xem lại sau thời gian này.
+                                    </p>
+                                    {watch('durationWeeks') && watch('expirationMonths') && (watch('expirationMonths') as any) < Math.ceil((watch('durationWeeks') || 0) / 4) && (
+                                        <p className="text-[10px] text-amber-500 font-medium mt-1 ml-1 animate-pulse">
+                                            ⚠️ Cảnh báo: Thời gian truy cập ngắn hơn thời lượng nội dung!
+                                        </p>
+                                    )}
+                                </Field>
+                            )}
+
+                            {/* WebRTC: Ngày khai giảng, kết thúc, hạn đăng ký */}
+                            {courseType === 'live' && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3 pb-1 border-b border-border/40">
+                                        <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">Lịch Học</h3>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-6">
                                         <Field>
-                                            <FieldLabel htmlFor="registrationClosedAt" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                                Hạn Đăng Ký <span className="text-rose-500">*</span>
+                                            <FieldLabel htmlFor="startDate" className="">
+                                                Ngày Khai Giảng
                                             </FieldLabel>
                                             <Input
-                                                id="registrationClosedAt"
+                                                id="startDate"
                                                 type="datetime-local"
-                                                {...register('registrationClosedAt' as any)}
+                                                {...register('startDate' as any)}
+                                                className=""
+                                            />
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel htmlFor="expiresAt" className="">
+                                                Ngày Kết Thúc Khóa Học
+                                            </FieldLabel>
+                                            <Input
+                                                id="expiresAt"
+                                                type="datetime-local"
+                                                {...register('expiresAt' as any)}
                                                 className="mt-1"
                                             />
                                         </Field>
                                     </div>
-                                )}
-
-                                <div className="grid grid-cols-2 gap-6">
                                     <Field>
-                                        <FieldLabel htmlFor="isFree" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Giá Cả
+                                        <FieldLabel htmlFor="registrationClosedAt" className="">
+                                            Hạn Đăng Ký <span className="text-rose-500">*</span>
                                         </FieldLabel>
-                                        <Controller
-                                            name="isFree"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all"
-                                                    onClick={() => {
-                                                        const newValue = !field.value;
-                                                        field.onChange(newValue);
-                                                        if (newValue) {
-                                                            setValue('price', 0);
-                                                            setValue('discountPrice', 0);
-                                                        }
-                                                    }}>
-                                                    <input
-                                                        id="isFree"
-                                                        type="checkbox"
-                                                        checked={field.value} // Controlled checked attribute
-                                                        onChange={(e) => {
-                                                            field.onChange(e.target.checked);
-                                                            if (e.target.checked) {
-                                                                setValue('price', 0);
-                                                                setValue('discountPrice', 0);
-                                                            }
-                                                        }}
-                                                        className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
-                                                    />
-                                                    <span className="text-xs font-medium text-foreground/80">
-                                                        Truy cập mở / Khóa học miễn phí
-                                                    </span>
-                                                </div>
-                                            )}
+                                        <Input
+                                            id="registrationClosedAt"
+                                            type="datetime-local"
+                                            {...register('registrationClosedAt' as any)}
+                                            className="mt-1"
                                         />
                                     </Field>
                                 </div>
+                            )}
 
-                                <div className="space-y-6 pt-6">
-                                    <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                        <div className="h-px flex-1 bg-border/20" />
-                                        <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
-                                            Chương Trình Học
-                                        </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
-                                    </div>
-
+                            <div className="grid grid-cols-2 gap-6">
+                                <Field>
+                                    <FieldLabel htmlFor="isFree" className="">
+                                        Giá Cả
+                                    </FieldLabel>
                                     <Controller
-                                        name="tags"
+                                        name="isFree"
                                         control={control}
                                         render={({ field }) => (
-                                            <Field>
-                                                <FieldLabel htmlFor="tags" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                                    Thẻ (Tags)
-                                                </FieldLabel>
-                                                <Input
-                                                    id="tags"
-                                                    value={(field.value || []).join(', ')}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value
-                                                                .split(',')
-                                                                .map((t) => t.trim())
-                                                                .filter(Boolean),
-                                                        )
+                                            <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all"
+                                                onClick={() => {
+                                                    const newValue = !field.value;
+                                                    field.onChange(newValue);
+                                                    if (newValue) {
+                                                        setValue('price', 0);
+                                                        setValue('discountPrice', 0);
                                                     }
-                                                    placeholder="ví dụ: JLPT, Ngữ pháp, Sơ cấp (phân cách bằng dấu phẩy)"
-                                                    className="mt-1"
+                                                }}>
+                                                <input
+                                                    id="isFree"
+                                                    type="checkbox"
+                                                    checked={field.value} // Controlled checked attribute
+                                                    onChange={(e) => {
+                                                        field.onChange(e.target.checked);
+                                                        if (e.target.checked) {
+                                                            setValue('price', 0);
+                                                            setValue('discountPrice', 0);
+                                                        }
+                                                    }}
+                                                    className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
                                                 />
-                                            </Field>
+                                                <span className="text-xs font-medium text-foreground/80">
+                                                    Truy cập mở / Khóa học miễn phí
+                                                </span>
+                                            </div>
                                         )}
                                     />
-
-                                    <Controller
-                                        name="learningOutcomes"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Field>
-                                                <FieldLabel htmlFor="learningOutcomes" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                                    Mục Tiêu Khóa Học
-                                                </FieldLabel>
-                                                <Textarea
-                                                    id="learningOutcomes"
-                                                    value={Array.isArray(field.value) ? field.value.join('\n') : ''}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value
-                                                                .split('\n')
-                                                                .map((line) => line.trim())
-                                                                .filter(Boolean),
-                                                        )
-                                                    }
-                                                    placeholder="Nhập mỗi mục tiêu một dòng..."
-                                                    rows={4}
-                                                    className="mt-1 resize-none"
-                                                />
-                                            </Field>
-                                        )}
-                                    />
-
-                                    <Controller
-                                        name="requirements"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Field>
-                                                <FieldLabel htmlFor="requirements" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                                    Yêu Cầu
-                                                </FieldLabel>
-                                                <Textarea
-                                                    id="requirements"
-                                                    value={Array.isArray(field.value) ? field.value.join('\n') : ''}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value
-                                                                .split('\n')
-                                                                .map((line) => line.trim())
-                                                                .filter(Boolean),
-                                                        )
-                                                    }
-                                                    placeholder="Nhập mỗi yêu cầu một dòng..."
-                                                    rows={4}
-                                                    className="mt-1 resize-none"
-                                                />
-                                            </Field>
-                                        )}
-                                    />
-                                </div>
+                                </Field>
                             </div>
 
-                            {/* Media Files */}
                             <div className="space-y-6 pt-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
                                     <div className="h-px flex-1 bg-border/20" />
                                     <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
-                                        Phương Tiện
+                                        Chương Trình Học
                                     </h3>
                                     <div className="h-px flex-1 bg-border/20" />
                                 </div>
 
-                                <Field>
-                                    <FieldLabel htmlFor="thumbnail" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                        Ảnh Bìa
-                                    </FieldLabel>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="relative flex-1">
-                                                <Input
-                                                    id="thumbnail"
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={handleThumbnailChange}
-                                                    className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
-                                                />
-                                                <ImageIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
-                                            </div>
-                                            {thumbnailFile && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => setThumbnailFile(null)}
-                                                    className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            )}
-                                        </div>
-                                        {thumbnailFile && (
-                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                                                <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                                                    <ImageIcon className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-bold text-foreground truncate">{thumbnailFile.name}</p>
-                                                    <p className="text-[10px] text-muted-foreground font-mono">{(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </Field>
+                                <Controller
+                                    name="tags"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor="tags" className="">
+                                                Thẻ (Tags)
+                                            </FieldLabel>
+                                            <Input
+                                                id="tags"
+                                                value={(field.value || []).join(', ')}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value
+                                                            .split(',')
+                                                            .map((t) => t.trim())
+                                                            .filter(Boolean),
+                                                    )
+                                                }
+                                                placeholder="ví dụ: JLPT, Ngữ pháp, Sơ cấp (phân cách bằng dấu phẩy)"
+                                                className="mt-1"
+                                            />
+                                        </Field>
+                                    )}
+                                />
 
-                                <Field>
-                                    <FieldLabel htmlFor="video" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                        Video Giới Thiệu
-                                    </FieldLabel>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="relative flex-1">
-                                                <Input
-                                                    id="video"
-                                                    type="file"
-                                                    accept="video/*"
-                                                    onChange={handleVideoChange}
-                                                    className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
-                                                />
-                                                <Film className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
-                                            </div>
-                                            {videoFile && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => setVideoFile(null)}
-                                                    className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            )}
-                                        </div>
-                                        {videoFile && (
-                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                                                <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                                                    <Film className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-bold text-foreground truncate">{videoFile.name}</p>
-                                                    <p className="text-[10px] text-muted-foreground font-mono">{(videoFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </Field>
+                                <Controller
+                                    name="learningOutcomes"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor="learningOutcomes" className="">
+                                                Mục Tiêu Khóa Học
+                                            </FieldLabel>
+                                            <Textarea
+                                                id="learningOutcomes"
+                                                value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value
+                                                            .split('\n')
+                                                            .map((line) => line.trim())
+                                                            .filter(Boolean),
+                                                    )
+                                                }
+                                                placeholder="Nhập mỗi mục tiêu một dòng..."
+                                                rows={4}
+                                                className="mt-1 resize-none"
+                                            />
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="requirements"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor="requirements" className="">
+                                                Yêu Cầu
+                                            </FieldLabel>
+                                            <Textarea
+                                                id="requirements"
+                                                value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value
+                                                            .split('\n')
+                                                            .map((line) => line.trim())
+                                                            .filter(Boolean),
+                                                    )
+                                                }
+                                                placeholder="Nhập mỗi yêu cầu một dòng..."
+                                                rows={4}
+                                                className="mt-1 resize-none"
+                                            />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Media Files */}
+                        <div className="space-y-6 pt-6">
+                            <div className="flex items-center gap-3 pb-2 border-b border-border/40">
+                                <div className="h-px flex-1 bg-border/20" />
+                                <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
+                                    Phương Tiện
+                                </h3>
+                                <div className="h-px flex-1 bg-border/20" />
                             </div>
 
-                            {/* AI & Metadata */}
+                            <Field>
+                                <FieldLabel htmlFor="thumbnail" className="">
+                                    Ảnh Bìa
+                                </FieldLabel>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="relative flex-1">
+                                            <Input
+                                                id="thumbnail"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleThumbnailChange}
+                                                className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
+                                            />
+                                            <ImageIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
+                                        </div>
+                                        {thumbnailFile && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setThumbnailFile(null)}
+                                                className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {thumbnailFile && (
+                                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                                            <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                                                <ImageIcon className="h-4 w-4" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-bold text-foreground truncate">{thumbnailFile.name}</p>
+                                                <p className="text-[10px] text-muted-foreground font-mono">{(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </Field>
 
+                            <Field>
+                                <FieldLabel htmlFor="video" className="">
+                                    Video Giới Thiệu
+                                </FieldLabel>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="relative flex-1">
+                                            <Input
+                                                id="video"
+                                                type="file"
+                                                accept="video/*"
+                                                onChange={handleVideoChange}
+                                                className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
+                                            />
+                                            <Film className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
+                                        </div>
+                                        {videoFile && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setVideoFile(null)}
+                                                className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {videoFile && (
+                                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                                            <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                                                <Film className="h-4 w-4" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-bold text-foreground truncate">{videoFile.name}</p>
+                                                <p className="text-[10px] text-muted-foreground font-mono">{(videoFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </Field>
                         </div>
-                    </ScrollArea>
 
-                    {/* Footer */}
+                        {/* AI & Metadata */}
+
+                        {/* End of Form Elements */}
+                    </form>
+                </ScrollArea>
+                <div className="p-6 pt-2 w-full border-t">
                     <SheetFooter>
                         <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                            disabled={uploading}>
+                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
+                            Hủy Bỏ
+                        </Button>
+                        <Button
                             type="submit"
+                            onClick={handleSubmit(onSubmit)}
                             disabled={uploading || !isDirty}>
                             {uploading ? (
                                 <>
@@ -650,16 +658,8 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                 </>
                             )}
                         </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleClose}
-                            disabled={uploading}>
-                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
-                            Hủy Bỏ
-                        </Button>
                     </SheetFooter>
-                </form>
+                </div>
             </SheetContent>
         </Sheet>
     );

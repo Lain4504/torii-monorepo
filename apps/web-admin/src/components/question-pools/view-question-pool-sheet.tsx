@@ -125,9 +125,9 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
 
                 <SheetFooter>
                     <Button
-                        onClick={handleViewQuestions}>
-                        <FileQuestion className="h-4 w-4 mr-2" />
-                        Xem Câu Hỏi
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}>
+                        Đóng
                     </Button>
                     <Button
                         variant="outline"
@@ -138,9 +138,9 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
                         Chỉnh sửa
                     </Button>
                     <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}>
-                        Đóng
+                        onClick={handleViewQuestions}>
+                        <FileQuestion className="h-4 w-4 mr-2" />
+                        Xem Câu Hỏi
                     </Button>
                 </SheetFooter>
             </SheetContent>
