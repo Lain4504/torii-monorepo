@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
-import { cn } from '@workspace/ui/lib/utils';
 
 interface TicketsColumnsProps {
     onView: (ticket: TicketResponseDTO) => void;

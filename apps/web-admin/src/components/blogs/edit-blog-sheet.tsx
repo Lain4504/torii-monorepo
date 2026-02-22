@@ -15,6 +15,7 @@ import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
+import { Separator } from '@workspace/ui/components/separator';
 import {
     Select,
     SelectContent,

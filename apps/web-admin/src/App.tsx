@@ -28,7 +28,6 @@ import CourseLiveSessionsPage from '@/routes/courses/course-live-sessions-page.t
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import OrdersPage from '@/routes/finance/orders-page.tsx'
-import TransactionsPage from '@/routes/finance/payments-page.tsx'
 
 import NotificationsPage from '@/routes/settings/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
@@ -107,7 +106,6 @@ function App() {
 
                   <Route element={<RoutePermissionGuard permission="payment.manage" />}>
                     <Route path="orders" element={<OrdersPage />} />
-                    <Route path="transactions" element={<TransactionsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="report.view" />}>

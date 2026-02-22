@@ -83,17 +83,17 @@ export default function CourseReviewsPage() {
                 />
 
                 <Card className="overflow-hidden">
-                <CardContent className="p-0">
+                    <CardContent className="p-0">
 
-                                    <ReviewsTable
-                                        data={reviews}
-                                        isLoading={isLoading}
-                                        onView={openDetail}
-                                        page={page}
-                                        limit={10}
-                                    />
-                                
-                </CardContent>
+                        <ReviewsTable
+                            data={reviews as any}
+                            isLoading={isLoading}
+                            onView={openDetail}
+                            page={page}
+                            limit={10}
+                        />
+
+                    </CardContent>
                 </Card>
 
                 <SmartPagination
