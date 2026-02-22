@@ -144,7 +144,7 @@ export function EditQuestionDialog({ open, onOpenChange, question }: EditQuestio
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chỉnh Sửa Câu Hỏi</SheetTitle>
                     <SheetDescription>

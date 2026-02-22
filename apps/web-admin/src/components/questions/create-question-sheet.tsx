@@ -127,7 +127,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo Câu Hỏi Mới</SheetTitle>
                     <SheetDescription>

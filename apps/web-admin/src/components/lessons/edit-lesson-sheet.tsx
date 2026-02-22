@@ -129,7 +129,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chỉnh Sửa Bài Học</SheetTitle>
                     <SheetDescription>

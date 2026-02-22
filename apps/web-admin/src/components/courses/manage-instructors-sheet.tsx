@@ -99,7 +99,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 {!course ? (
                     <div className="flex-1 flex items-center justify-center min-h-0">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

@@ -118,7 +118,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo Bài Học Mới</SheetTitle>
                     <SheetDescription>

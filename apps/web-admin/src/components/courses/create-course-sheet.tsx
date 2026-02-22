@@ -162,7 +162,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo Khóa Học Mới</SheetTitle>
                     <SheetDescription>

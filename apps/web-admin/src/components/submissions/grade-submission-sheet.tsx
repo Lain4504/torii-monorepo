@@ -171,7 +171,7 @@ export function GradeSubmissionSheet({
               </div>
 
               <Form {...form}>
-                <form id="grade-form" onSubmit={form.handleSubmit(onGrade)} className="space-y-6">
+                <form id="grade-form" onSubmit={form.handleSubmit(onGrade)} className="space-y-6 flex flex-col overflow-hidden">
                   <div className="p-5 rounded-2xl bg-muted/10 border border-border/40 space-y-6">
                     <FormField
                       control={form.control}

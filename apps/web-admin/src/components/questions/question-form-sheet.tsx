@@ -172,7 +172,7 @@ export function QuestionFormSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>
                         {isEdit ? 'Cập Nhật Câu Hỏi' : 'Tạo Câu Hỏi Mới'}

@@ -146,7 +146,7 @@ export function EditAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
+      <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
         <SheetHeader>
           <SheetTitle>Chỉnh Sửa Bài Tập</SheetTitle>
           <SheetDescription>
@@ -157,7 +157,7 @@ export function EditAssignmentSheet({
         <ScrollArea className="flex-1 min-h-0">
           <div className="p-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex flex-col overflow-hidden">
                 <FormField
                   control={form.control}
                   name="title"
