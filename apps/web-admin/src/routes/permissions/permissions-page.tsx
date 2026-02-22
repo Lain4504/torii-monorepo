@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Loader2, RotateCcw, Zap, Cpu, Lock } from 'lucide-react';
+import { Loader2, RotateCcw, Zap } from 'lucide-react';
 import {
     useFetchPermissions,
     useRoles,
@@ -19,6 +19,8 @@ import {
 } from "@workspace/ui/components/table";
 import { useQueries } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
+import { Card } from '@workspace/ui/components/card';
+import { Badge } from '@workspace/ui/components/badge';
 
 import { PageHeader } from '@/components/common/page-header';
 
@@ -164,126 +166,97 @@ export function PermissionsPage() {
 
 
             {/* Matrix Table */}
-            <div className="rounded-xl bg-card border border-border shadow-sm overflow-hidden">
-                <div className="relative overflow-x-auto">
-                    <Table className="min-w-full border-collapse">
-                        <TableHeader className="bg-muted/30">
-                            {/* Permission Category Row */}
-                            <TableRow className="hover:bg-transparent border-b border-border/50">
-                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r border-border h-12 px-6">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                                        Vai trò / Chức năng
+            <div className="rounded-xl border bg-card overflow-hidden">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="sticky left-0 z-40 bg-muted/50 border-r w-[200px]">
+                                Vai trò / Quyền hạn
+                            </TableHead>
+                            {permissions && Object.entries(permissions.byCategory).map(([category, perms]) => (
+                                <TableHead
+                                    key={category}
+                                    colSpan={perms.length}
+                                    className="text-center bg-muted/30 border-r"
+                                >
+                                    <span className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+                                        {category}
                                     </span>
                                 </TableHead>
-                                {permissions && Object.entries(permissions.byCategory).map(([category, perms]) => (
-                                    <TableHead
-                                        key={category}
-                                        colSpan={perms.length}
-                                        className="text-center border-r border-border/50 bg-primary/[0.02] py-2 last:border-r-0"
-                                    >
-                                        <div className="flex items-center justify-center gap-2">
-                                            <Cpu className="size-3 text-primary/40" />
-                                            <span className="text-[10px] font-bold uppercase tracking-tight text-primary/70">
-                                                {category}
-                                            </span>
-                                        </div>
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                            {/* Individual Permission Row */}
-                            <TableRow className="hover:bg-transparent border-b border-border/50">
-                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r border-border h-16">
-                                    {/* Empty corner cell */}
+                            ))}
+                        </TableRow>
+                        <TableRow>
+                            <TableHead className="sticky left-0 z-40 bg-muted/50 border-r" />
+                            {permissions && permissions.all.map((perm) => (
+                                <TableHead
+                                    key={perm.code}
+                                    className={cn(
+                                        "min-w-[150px] text-center border-r align-top py-4",
+                                        groupBoundaries.has(perm.code) && "border-r-muted-foreground/30"
+                                    )}
+                                >
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-xs font-medium leading-tight text-foreground">
+                                            {perm.description}
+                                        </span>
+                                        <span className="text-[10px] font-mono text-muted-foreground">
+                                            {perm.code.split('.').pop()}
+                                        </span>
+                                    </div>
                                 </TableHead>
-                                {permissions && permissions.all.map((perm) => (
-                                    <TableHead
-                                        key={perm.code}
-                                        className={cn(
-                                            "min-w-[150px] max-w-[200px] px-4 py-3 border-r border-border/10 text-center align-top",
-                                            groupBoundaries.has(perm.code) && "border-r border-primary/20"
-                                        )}
-                                    >
-                                        <div className="flex flex-col items-center gap-1.5 mt-1">
-                                            <span className="text-[10px] font-bold leading-relaxed text-foreground/80 break-words w-full">
-                                                {perm.description}
-                                            </span>
-                                            <span className="text-[8px] font-mono text-muted-foreground/30 uppercase tracking-tighter">
-                                                {perm.code.split('.').pop()}
-                                            </span>
+                            ))}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {roles?.map((role) => {
+                            const isLearner = role.code === 'learner';
+                            return (
+                                <TableRow
+                                    key={role.code}
+                                    className={cn(isLearner && "bg-muted/30")}
+                                >
+                                    <TableCell className={cn(
+                                        "sticky left-0 z-30 bg-card border-r font-medium",
+                                        isLearner && "bg-muted/30"
+                                    )}>
+                                        <div className="flex flex-col">
+                                            <span>{role.name}</span>
+                                            <span className="text-[10px] text-muted-foreground uppercase">{role.code}</span>
                                         </div>
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {roles?.map((role) => {
-                                const isLearner = role.code === 'learner';
-                                return (
-                                    <TableRow
-                                        key={role.code}
-                                        className={cn(
-                                            "transition-colors group",
-                                            isLearner ? "bg-muted/10" : "hover:bg-muted/20"
-                                        )}
-                                    >
-                                        <TableCell className={cn(
-                                            "sticky left-0 z-30 bg-card border-r border-border min-w-[200px] px-6 py-4 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors",
-                                            !isLearner && "group-hover:bg-muted/30"
-                                        )}>
-                                            <div className="flex flex-col gap-0.5">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{role.name}</span>
-                                                    {isLearner && <Lock className="size-3 text-muted-foreground/40" />}
-                                                </div>
-                                                <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-wider">{role.code}</span>
+                                    </TableCell>
+                                    {permissions?.all.map((perm) => (
+                                        <TableCell
+                                            key={perm.code}
+                                            className={cn(
+                                                "p-0 border-r",
+                                                groupBoundaries.has(perm.code) && "border-r-muted-foreground/30"
+                                            )}
+                                        >
+                                            <div className="flex items-center justify-center p-4">
+                                                <Checkbox
+                                                    checked={matrix[role.code]?.has(perm.code)}
+                                                    onCheckedChange={() => !isLearner && handleToggle(role.code, perm.code)}
+                                                    disabled={isLearner}
+                                                />
                                             </div>
                                         </TableCell>
-                                        {permissions?.all.map((perm) => (
-                                            <TableCell
-                                                key={perm.code}
-                                                className={cn(
-                                                    "text-center p-0 border-r border-border/10",
-                                                    groupBoundaries.has(perm.code) && "border-r border-primary/20"
-                                                )}
-                                            >
-                                                <label
-                                                    className={cn(
-                                                        "flex items-center justify-center w-full h-16 transition-colors",
-                                                        !isLearner ? "cursor-pointer hover:bg-primary/[0.03]" : "cursor-default opacity-80"
-                                                    )}
-                                                >
-                                                    <Checkbox
-                                                        checked={matrix[role.code]?.has(perm.code)}
-                                                        onCheckedChange={() => !isLearner && handleToggle(role.code, perm.code)}
-                                                        className={cn(
-                                                            "size-4.5 rounded border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-sm",
-                                                            isLearner && "pointer-events-none opacity-100"
-                                                        )}
-                                                    />
-                                                </label>
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </div>
-                <div className="px-6 py-3 bg-muted/10 border-t border-border/50">
-                    <p className="text-[10px] text-muted-foreground/60 flex items-center gap-2">
-                        <Lock className="size-3" />
-                        Lưu ý: Các thay đổi chỉ có hiệu lực sau khi bạn nhấn "Lưu thay đổi". Di chuột để xem chi tiết từng quyền hạn.
-                    </p>
-                </div>
+                                    ))}
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
             </div>
 
             {/* Sticky Action Footer */}
             {hasChanges() && (
-                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 duration-500 w-full max-w-md px-4">
-                    <div className="bg-background border border-border shadow-2xl rounded-2xl p-2 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 ml-3">
-                            <div className="size-2 rounded-full bg-primary animate-pulse" />
-                            <span className="text-[11px] font-bold text-foreground uppercase tracking-wider">Có thay đổi chưa lưu</span>
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <Card className="flex flex-row items-center justify-between p-2 shadow-2xl ring-1 ring-border border-none">
+                        <div className="flex items-center gap-3 px-2">
+                            <Badge variant="secondary" className="bg-primary/10 text-primary border-none animate-pulse">
+                                Có thay đổi
+                            </Badge>
+                            <span className="text-xs font-medium text-muted-foreground">Chưa lưu thay đổi</span>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -292,27 +265,26 @@ export function PermissionsPage() {
                                 size="sm"
                                 onClick={handleReset}
                                 disabled={updateMutation.isPending}
-                                className="h-9 rounded-xl px-4 text-[11px] font-semibold text-muted-foreground hover:bg-muted"
                             >
                                 <RotateCcw className="size-3.5 mr-2" />
-                                <span className="font-bold uppercase tracking-widest">Hoàn tác</span>
+                                Hoàn tác
                             </Button>
                             <Button
                                 onClick={handleSave}
                                 disabled={updateMutation.isPending}
-                                className="h-9 rounded-xl px-6 bg-primary text-primary-foreground text-[11px] font-semibold shadow-md active:scale-95 transition-all"
+                                size="sm"
                             >
                                 {updateMutation.isPending ? (
                                     <Loader2 className="size-3.5 animate-spin" />
                                 ) : (
                                     <>
-                                        <Zap className="size-3.5 mr-2 fill-primary-foreground" />
-                                        <span className="font-bold uppercase tracking-widest">Lưu thay đổi</span>
+                                        <Zap className="size-3.5 mr-2 fill-current" />
+                                        Lưu thay đổi
                                     </>
                                 )}
                             </Button>
                         </div>
-                    </div>
+                    </Card>
                 </div>
             )}
         </div>

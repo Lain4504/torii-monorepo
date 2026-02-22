@@ -73,67 +73,66 @@ export function QuestionsTable({
 
     return (
         <Table>
-            <TableHeader className="bg-muted/30 border-b border-border">
-                <TableRow className="hover:bg-transparent border-none">
-                    <TableHead className="h-12 text-xs font-bold text-muted-foreground px-6 w-12 uppercase tracking-wider">#</TableHead>
-                    <TableHead className="h-12 text-xs font-bold text-muted-foreground px-4 uppercase tracking-wider">Câu hỏi & Đáp án</TableHead>
-                    <TableHead className="h-12 text-xs font-bold text-muted-foreground px-4 w-32 uppercase tracking-wider">Cấp độ</TableHead>
-                    <TableHead className="h-12 text-xs font-bold text-muted-foreground px-4 w-40 uppercase tracking-wider">Thời gian cập nhật</TableHead>
-                    <TableHead className="text-right h-12 text-xs font-bold text-muted-foreground px-6 w-32 uppercase tracking-wider">Thao tác</TableHead>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="w-12 text-center">#</TableHead>
+                    <TableHead>Câu hỏi & Đáp án</TableHead>
+                    <TableHead className="w-32 text-center">Cấp độ</TableHead>
+                    <TableHead className="w-40 text-center">Thời gian</TableHead>
+                    <TableHead className="w-12 text-right">Thao tác</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {data.map((question, idx) => (
-                    <TableRow key={question.id} className="group border-b border-border/50 hover:bg-muted/20 transition-colors">
-                        <TableCell className="px-6 py-4 tabular-nums text-xs text-muted-foreground/40 font-mono italic">
-                            {String(idx + 1).padStart(2, '0')}
+                    <TableRow key={question.id} className="group cursor-pointer" onClick={() => onView(question)}>
+                        <TableCell className="text-center font-medium text-muted-foreground">
+                            {idx + 1}
                         </TableCell>
-                        <TableCell className="px-4 py-4">
-                            <div className="space-y-1">
-                                <p className="text-sm font-bold text-foreground line-clamp-2 leading-relaxed tracking-tight group-hover:text-primary transition-colors">
+                        <TableCell>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-sm font-medium line-clamp-2">
                                     {question.questionText}
                                 </p>
-                                <div className="flex flex-wrap gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div className="flex flex-wrap gap-1">
                                     {Object.entries(question.options || {}).slice(0, 4).map(([key, value]: [string, any], oIdx: number) => (
-                                        <span
+                                        <Badge
                                             key={oIdx}
-                                            className={`text-[9px] px-1.5 py-0.5 rounded border ${(question.correctAnswer === key) ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-muted/30 border-border/10 text-muted-foreground/50'}`}
+                                            variant={question.correctAnswer === key ? "default" : "outline"}
+                                            className="text-[9px] font-normal"
                                         >
-                                            {key}. {String(value).slice(0, 20)}...
-                                        </span>
+                                            {key}. {String(value).slice(0, 20)}
+                                        </Badge>
                                     ))}
                                 </div>
                             </div>
                         </TableCell>
-                        <TableCell className="px-4 py-4">
-                            <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-lg border-primary/20 bg-primary/5 text-primary">
+                        <TableCell className="text-center">
+                            <Badge variant="secondary">
                                 {question.jlptLevel || 'GLOBAL'}
                             </Badge>
                         </TableCell>
-                        <TableCell className="px-4 py-4">
-                            <span className="text-xs text-muted-foreground tabular-nums">
-                                {format(new Date(question.updatedAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
-                            </span>
+                        <TableCell className="text-center text-xs text-muted-foreground">
+                            {format(new Date(question.updatedAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
                         </TableCell>
-                        <TableCell className="px-6 py-4 text-right">
+                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="size-8 rounded-lg hover:bg-muted opacity-40 group-hover:opacity-100 transition-opacity">
-                                        <MoreVertical className="size-4" />
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                        <MoreVertical className="h-4 w-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl min-w-[160px] p-1.5">
-                                    <DropdownMenuItem onClick={() => onView(question)} className="rounded-lg gap-2 py-2 cursor-pointer">
-                                        <Eye className="size-3.5 opacity-40" />
-                                        <span className="font-bold text-xs uppercase tracking-wider">Xem chi tiết</span>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => onView(question)}>
+                                        <Eye className="size-4 mr-2" />
+                                        Xem chi tiết
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => onEdit(question)} className="rounded-lg gap-2 py-2 cursor-pointer">
-                                        <Pencil className="size-3.5 opacity-40" />
-                                        <span className="font-bold text-xs uppercase tracking-wider">Chỉnh sửa</span>
+                                    <DropdownMenuItem onClick={() => onEdit(question)}>
+                                        <Pencil className="size-4 mr-2" />
+                                        Chỉnh sửa
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => onDelete(question)} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2 cursor-pointer">
-                                        <Trash className="size-3.5 opacity-40" />
-                                        <span className="font-bold text-xs uppercase tracking-wider">Xóa</span>
+                                    <DropdownMenuItem onClick={() => onDelete(question)} className="text-destructive">
+                                        <Trash className="size-4 mr-2" />
+                                        Xóa
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>

@@ -1,8 +1,21 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+} from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
+import {
+    Field,
+    FieldGroup,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
 import { KeyRound, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -48,19 +61,14 @@ export function PasswordTab() {
 
     return (
         <div className="space-y-4">
-            <div className="rounded-xl border bg-card">
+            <Card>
                 {/* Header */}
-                <div className="flex items-center gap-3 p-5 border-b border-border">
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                        <KeyRound className="size-4" />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-semibold text-foreground">Đổi Mật Khẩu</h3>
-                        <p className="text-xs text-muted-foreground">Cập nhật mật khẩu để bảo mật tài khoản</p>
-                    </div>
-                </div>
+                <CardHeader>
+                    <CardTitle>Đổi Mật Khẩu</CardTitle>
+                    <CardDescription>Cập nhật mật khẩu để bảo mật tài khoản</CardDescription>
+                </CardHeader>
 
-                <div className="p-5 space-y-5">
+                <CardContent className="space-y-5">
                     {/* Security Tips */}
                     <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 flex gap-3">
                         <AlertCircle className="size-4 text-blue-600 shrink-0 mt-0.5" />
@@ -75,109 +83,114 @@ export function PasswordTab() {
                     </div>
 
                     {/* Password Form */}
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <Controller
-                            name="currentPassword"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-muted-foreground/80">
-                                        Mật khẩu hiện tại
-                                    </label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
-                                        <Input
-                                            {...field}
-                                            type={showCurrentPassword ? 'text' : 'password'}
-                                            placeholder="Nhập mật khẩu hiện tại"
-                                            className="h-10 pl-10 pr-10"
-                                            autoComplete="current-password"
-                                        />
-                                        <Button
-                                            type="button" variant="ghost" size="icon"
-                                            className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
-                                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                        >
-                                            {showCurrentPassword ? <EyeOff className="size-4 text-muted-foreground/60" /> : <Eye className="size-4 text-muted-foreground/60" />}
-                                        </Button>
-                                    </div>
-                                    {fieldState.error && <p className="text-xs text-destructive">{fieldState.error.message}</p>}
-                                </div>
-                            )}
-                        />
-
-                        <Controller
-                            name="newPassword"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-muted-foreground/80">
-                                        Mật khẩu mới
-                                    </label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
-                                        <Input
-                                            {...field}
-                                            type={showNewPassword ? 'text' : 'password'}
-                                            placeholder="Nhập mật khẩu mới"
-                                            className="h-10 pl-10 pr-10"
-                                            autoComplete="new-password"
-                                        />
-                                        <Button
-                                            type="button" variant="ghost" size="icon"
-                                            className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
-                                            onClick={() => setShowNewPassword(!showNewPassword)}
-                                        >
-                                            {showNewPassword ? <EyeOff className="size-4 text-muted-foreground/60" /> : <Eye className="size-4 text-muted-foreground/60" />}
-                                        </Button>
-                                    </div>
-                                    {fieldState.error && <p className="text-xs text-destructive">{fieldState.error.message}</p>}
-                                </div>
-                            )}
-                        />
-
-                        <Controller
-                            name="confirmPassword"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-muted-foreground/80">
-                                        Xác nhận mật khẩu mới
-                                    </label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
-                                        <Input
-                                            {...field}
-                                            type={showConfirmPassword ? 'text' : 'password'}
-                                            placeholder="Xác nhận lại mật khẩu mới"
-                                            className="h-10 pl-10 pr-10"
-                                            autoComplete="new-password"
-                                        />
-                                        <Button
-                                            type="button" variant="ghost" size="icon"
-                                            className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        >
-                                            {showConfirmPassword ? <EyeOff className="size-4 text-muted-foreground/60" /> : <Eye className="size-4 text-muted-foreground/60" />}
-                                        </Button>
-                                    </div>
-                                    {fieldState.error && <p className="text-xs text-destructive">{fieldState.error.message}</p>}
-                                </div>
-                            )}
-                        />
-
-                        <div className="pt-1">
-                            <Button type="submit" size="sm" disabled={isLoading} className="w-full">
-                                {isLoading ? (
-                                    <><Loader2 className="size-4 mr-2 animate-spin" /> Đang cập nhật...</>
-                                ) : (
-                                    <><KeyRound className="size-4 mr-2" /> Cập Nhật Mật Khẩu</>
+                    <form onSubmit={form.handleSubmit(onSubmit)}>
+                        <FieldGroup className="space-y-4">
+                            <Controller
+                                name="currentPassword"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                                        <FieldLabel htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80">
+                                            Mật khẩu hiện tại
+                                        </FieldLabel>
+                                        <div className="relative">
+                                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                                            <Input
+                                                {...field}
+                                                id={field.name}
+                                                type={showCurrentPassword ? 'text' : 'password'}
+                                                placeholder="Nhập mật khẩu hiện tại"
+                                                className="h-11 pl-10 pr-10 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                                                autoComplete="current-password"
+                                            />
+                                            <Button
+                                                type="button" variant="ghost" size="icon"
+                                                className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
+                                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            >
+                                                {showCurrentPassword ? <EyeOff className="size-4 text-muted-foreground/60" /> : <Eye className="size-4 text-muted-foreground/60" />}
+                                            </Button>
+                                        </div>
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
                                 )}
-                            </Button>
-                        </div>
+                            />
+
+                            <Controller
+                                name="newPassword"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                                        <FieldLabel htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80">
+                                            Mật khẩu mới
+                                        </FieldLabel>
+                                        <div className="relative">
+                                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                                            <Input
+                                                {...field}
+                                                id={field.name}
+                                                type={showNewPassword ? 'text' : 'password'}
+                                                placeholder="Nhập mật khẩu mới"
+                                                className="h-11 pl-10 pr-10 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                                                autoComplete="new-password"
+                                            />
+                                            <Button
+                                                type="button" variant="ghost" size="icon"
+                                                className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
+                                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                            >
+                                                {showNewPassword ? <EyeOff className="size-4 text-muted-foreground/60" /> : <Eye className="size-4 text-muted-foreground/60" />}
+                                            </Button>
+                                        </div>
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="confirmPassword"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="space-y-1.5">
+                                        <FieldLabel htmlFor={field.name} className="text-xs font-semibold text-muted-foreground/80">
+                                            Xác nhận mật khẩu mới
+                                        </FieldLabel>
+                                        <div className="relative">
+                                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                                            <Input
+                                                {...field}
+                                                id={field.name}
+                                                type={showConfirmPassword ? 'text' : 'password'}
+                                                placeholder="Xác nhận lại mật khẩu mới"
+                                                className="h-11 pl-10 pr-10 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                                                autoComplete="new-password"
+                                            />
+                                            <Button
+                                                type="button" variant="ghost" size="icon"
+                                                className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            >
+                                                {showConfirmPassword ? <EyeOff className="size-4 text-muted-foreground/60" /> : <Eye className="size-4 text-muted-foreground/60" />}
+                                            </Button>
+                                        </div>
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
+
+                            <div className="pt-1">
+                                <Button type="submit" disabled={isLoading} className="w-full" size="lg">
+                                    {isLoading ? (
+                                        <><Loader2 className="size-4 mr-2 animate-spin" /> Đang cập nhật...</>
+                                    ) : (
+                                        <><KeyRound className="size-4 mr-2" /> Cập Nhật Mật Khẩu</>
+                                    )}
+                                </Button>
+                            </div>
+                        </FieldGroup>
                     </form>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

@@ -93,15 +93,15 @@ export default function TicketsPage() {
                         isLoading={isLoading}
                         onView={handleViewTicket}
                     />
-
-                    <SmartPagination
-                        page={page}
-                        totalPages={totalPages}
-                        totalItems={data?.total || 0}
-                        onPageChange={handlePageChange}
-                        itemName="yêu cầu"
-                    />
                 </div>
+
+                <SmartPagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalItems={data?.total || 0}
+                    onPageChange={handlePageChange}
+                    itemName="yêu cầu"
+                />
             </div>
 
             {/* Ticket Detail Detail Detail Sheet */}

@@ -24,100 +24,98 @@ interface ReviewsTableProps {
 
 export function ReviewsTable({ data, isLoading, onView, page = 1, limit = 10 }: ReviewsTableProps) {
     return (
-        <div className="overflow-x-auto">
-            <Table className="border-collapse min-w-[1000px] bg-transparent">
-                <TableHeader className="bg-muted/30 border-b border-border">
-                    <TableRow className="border-b border-border/50 hover:bg-transparent">
-                        <TableHead className="w-12 h-11 text-xs font-semibold text-muted-foreground px-4 text-center">#</TableHead>
-                        <TableHead className="w-[220px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Người dùng</TableHead>
-                        <TableHead className="w-[250px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Khóa học</TableHead>
-                        <TableHead className="w-[140px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Đánh giá</TableHead>
-                        <TableHead className="w-[160px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6">Ngày</TableHead>
-                        <TableHead className="w-[100px] h-11 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-6 text-right">Chi tiết</TableHead>
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="w-12 text-center">#</TableHead>
+                    <TableHead>Người dùng</TableHead>
+                    <TableHead>Khóa học</TableHead>
+                    <TableHead>Đánh giá</TableHead>
+                    <TableHead>Ngày</TableHead>
+                    <TableHead className="text-right">Chi tiết</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                        <TableRow key={index}>
+                            <TableCell><Skeleton className="h-4 w-4 mx-auto" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-36" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-44" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                            <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                        </TableRow>
+                    ))
+                ) : data.length === 0 ? (
+                    <TableRow>
+                        <TableCell colSpan={6} className="h-[400px] text-center">
+                            <Empty>
+                                <EmptyMedia>
+                                    <AlertCircle className="size-8 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Không tìm thấy đánh giá</EmptyTitle>
+                                    <EmptyDescription>Thử điều chỉnh bộ lọc hoặc tìm kiếm của bạn</EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
+                        </TableCell>
                     </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {isLoading ? (
-                        Array.from({ length: 5 }).map((_, index) => (
-                            <TableRow key={index} className="border-b border-border/50">
-                                <TableCell className="px-4 py-4"><Skeleton className="h-4 w-4 mx-auto" /></TableCell>
-                                <TableCell className="px-6 py-4"><Skeleton className="h-4 w-36" /></TableCell>
-                                <TableCell className="px-6 py-4"><Skeleton className="h-4 w-44" /></TableCell>
-                                <TableCell className="px-6 py-4"><Skeleton className="h-4 w-20" /></TableCell>
-                                <TableCell className="px-6 py-4"><Skeleton className="h-4 w-28" /></TableCell>
-                                <TableCell className="px-6 py-4"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
-                            </TableRow>
-                        ))
-                    ) : data.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={6} className="h-[400px] text-center">
-                                <Empty>
-                                    <EmptyMedia>
-                                        <AlertCircle className="size-8 text-muted-foreground" />
-                                    </EmptyMedia>
-                                    <EmptyContent>
-                                        <EmptyTitle>Không tìm thấy đánh giá</EmptyTitle>
-                                        <EmptyDescription>Thử điều chỉnh bộ lọc hoặc tìm kiếm của bạn</EmptyDescription>
-                                    </EmptyContent>
-                                </Empty>
+                ) : (
+                    data.map((review: any, index: number) => (
+                        <TableRow key={review.id}>
+                            <TableCell className="text-center font-medium text-muted-foreground/60">
+                                {(page - 1) * limit + index + 1}
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-9 w-9">
+                                        <AvatarImage src={review.user.avatarUrl} />
+                                        <AvatarFallback>
+                                            {review.user.displayName.substring(0, 2).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col">
+                                        <span className="font-medium text-sm">{review.user.displayName}</span>
+                                        <span className="text-xs text-muted-foreground">Học viên</span>
+                                    </div>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <span className="text-sm text-foreground/80" title={review.courseTitle || review.courseId}>
+                                    {review.courseTitle || review.courseId}
+                                </span>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex items-center gap-0.5">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            className={`w-3.5 h-3.5 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
+                                        />
+                                    ))}
+                                    <span className="ml-2 text-xs font-medium text-amber-600">{review.rating}.0</span>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <span className="text-xs text-muted-foreground">
+                                    {formatDateTime(review.createdAt)}
+                                </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => onView(review.id)}
+                                >
+                                    <Eye className="h-4 w-4" />
+                                </Button>
                             </TableCell>
                         </TableRow>
-                    ) : (
-                        data.map((review: any, index: number) => (
-                            <TableRow key={review.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
-                                <TableCell className="py-4 px-4 text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
-                                    {(page - 1) * limit + index + 1}
-                                </TableCell>
-                                <TableCell className="py-4 px-6">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-9 w-9 rounded-lg border border-border/40 bg-muted/20">
-                                            <AvatarImage src={review.user.avatarUrl} />
-                                            <AvatarFallback className="text-[10px] font-black bg-primary/10 text-primary">
-                                                {review.user.displayName.substring(0, 2).toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex flex-col gap-0.5">
-                                            <span className="font-bold text-sm text-foreground/90 group-hover:text-primary transition-colors tracking-tight">{review.user.displayName}</span>
-                                            <span className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/40 italic">Học viên</span>
-                                        </div>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="py-4 px-6">
-                                    <span className="text-sm font-medium text-foreground/80 truncate max-w-[220px] block font-sans italic" title={review.courseTitle || review.courseId}>
-                                        {review.courseTitle || review.courseId}
-                                    </span>
-                                </TableCell>
-                                <TableCell className="py-4 px-6">
-                                    <div className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-amber-500/5 border border-amber-500/10 w-fit">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`w-2.5 h-2.5 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
-                                            />
-                                        ))}
-                                        <span className="ml-1.5 text-[10px] font-black text-amber-600/80 tabular-nums tracking-tighter">{review.rating}.0</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="py-4 px-6">
-                                    <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/40">
-                                        {formatDateTime(review.createdAt)}
-                                    </span>
-                                </TableCell>
-                                <TableCell className="py-4 px-6 text-right">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-all"
-                                        onClick={() => onView(review.id)}
-                                    >
-                                        <Eye className="h-4 w-4" />
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
-        </div>
+                    ))
+                )}
+            </TableBody>
+        </Table>
     );
 }

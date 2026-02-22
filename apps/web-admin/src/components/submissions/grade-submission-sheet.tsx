@@ -13,7 +13,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription
+  SheetDescription,
+  SheetFooter
 } from "@workspace/ui/components/sheet";
 import {
   Form,
@@ -97,7 +98,7 @@ export function GradeSubmissionSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:w-[700px] !max-w-[700px] h-full flex flex-col p-0 border-l border-border/50 shadow-2xl overflow-hidden outline-none text-left">
+      <SheetContent className="flex flex-col p-0 overflow-hidden text-left">
         <SheetHeader className="p-6 border-b border-border/40 bg-muted/5">
           <div className="flex items-center gap-3 mb-1">
             <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight uppercase">
@@ -228,27 +229,26 @@ export function GradeSubmissionSheet({
           </div>
         </div>
 
-        <div className="p-6 border-t border-border/40 bg-muted/5">
-          <div className="flex items-center justify-between gap-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onReturn}
-              disabled={returnMutation.isPending || gradeMutation.isPending}
-              className="flex-1 h-11 rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 font-bold uppercase text-xs tracking-wide">
-              {returnMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Trả lại bài
-            </Button>
-            <Button
-              type="submit"
-              form="grade-form"
-              disabled={gradeMutation.isPending || returnMutation.isPending}
-              className="flex-[2] h-11 rounded-xl font-bold uppercase text-xs tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
-              {gradeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Hoàn tất chấm điểm
-            </Button>
-          </div>
-        </div>
+        <SheetFooter>
+          <Button
+            type="submit"
+            form="grade-form"
+            disabled={gradeMutation.isPending || returnMutation.isPending}
+          >
+            {gradeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Hoàn tất chấm điểm
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onReturn}
+            disabled={returnMutation.isPending || gradeMutation.isPending}
+            className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-100"
+          >
+            {returnMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Trả lại bài
+          </Button>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

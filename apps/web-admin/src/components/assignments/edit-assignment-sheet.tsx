@@ -8,7 +8,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription
+  SheetDescription,
+  SheetFooter
 } from "@workspace/ui/components/sheet";
 import {
   Form,
@@ -145,17 +146,15 @@ export function EditAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:w-[800px] !max-w-[800px] h-full flex flex-col gap-0 p-0 overflow-hidden">
-        <SheetHeader className="p-6 border-b shrink-0">
-          <SheetTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
-            Chỉnh sửa <span className="text-primary not-italic">Bài Tập</span>
-          </SheetTitle>
-          <SheetDescription className="text-xs uppercase tracking-widest text-muted-foreground/50">
-            Mã: {assignment?.id.substring(0, 8)}...
+      <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+        <SheetHeader>
+          <SheetTitle>Chỉnh Sửa Bài Tập</SheetTitle>
+          <SheetDescription>
+            Cập nhật các thông số cho bài tập của học viên
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 min-h-0 w-full">
+        <ScrollArea className="flex-1">
           <div className="p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -422,23 +421,31 @@ export function EditAssignmentSheet({
                   />
                 </div>
 
-                <div className="pt-4 flex justify-end gap-2 border-t">
+                <SheetFooter>
+                  <Button
+                    type="submit"
+                    disabled={updateMutation.isPending}
+                  >
+                    {updateMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang lưu...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Lưu thay đổi
+                      </>
+                    )}
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => onOpenChange(false)}
-                    className="rounded-xl font-sans font-bold italic text-xs uppercase">
-                    Hủy
+                  >
+                    Hủy Bỏ
                   </Button>
-                  <Button
-                    type="submit"
-                    disabled={updateMutation.isPending}
-                    className="rounded-xl font-sans font-bold italic text-xs uppercase bg-primary text-primary-foreground">
-                    {updateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    <Save className="mr-2 h-4 w-4" />
-                    Lưu thay đổi
-                  </Button>
-                </div>
+                </SheetFooter>
               </form>
             </Form>
           </div>

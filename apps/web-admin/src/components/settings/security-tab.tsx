@@ -1,8 +1,15 @@
 import { useState } from 'react';
-import { Shield, Smartphone, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Shield, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { use2FAStatus } from '@/api/services/two-factor-auth';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+} from '@workspace/ui/components/card';
 import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';
@@ -33,26 +40,23 @@ export function SecurityTab() {
     return (
         <div className="space-y-4">
             {/* 2FA Card */}
-            <div className="rounded-xl border bg-card">
-                <div className="flex items-center justify-between gap-3 p-5 border-b border-border">
-                    <div className="flex items-center gap-3">
-                        <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                            <Smartphone className="size-4" />
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div className="grid gap-1">
+                            <CardTitle>Xác Thực Hai Yếu Tố</CardTitle>
+                            <CardDescription>Thêm lớp bảo mật bổ sung cho tài khoản</CardDescription>
                         </div>
-                        <div>
-                            <h3 className="text-sm font-semibold text-foreground">Xác Thực Hai Yếu Tố</h3>
-                            <p className="text-xs text-muted-foreground">Thêm lớp bảo mật bổ sung cho tài khoản</p>
-                        </div>
+                        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide shrink-0 ${isEnabled
+                            ? 'bg-emerald-500/10 text-emerald-600'
+                            : 'bg-muted text-muted-foreground'
+                            }`}>
+                            {isEnabled ? 'Đã Bật' : 'Đã Tắt'}
+                        </span>
                     </div>
-                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide shrink-0 ${isEnabled
-                        ? 'bg-emerald-500/10 text-emerald-600'
-                        : 'bg-muted text-muted-foreground'
-                        }`}>
-                        {isEnabled ? 'Đã Bật' : 'Đã Tắt'}
-                    </span>
-                </div>
+                </CardHeader>
 
-                <div className="p-5 space-y-4">
+                <CardContent className="space-y-4">
                     {/* Status Info when enabled */}
                     {isEnabled && status && (
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -116,18 +120,17 @@ export function SecurityTab() {
                     {/* Actions */}
                     <div className="flex flex-wrap gap-2 pt-1">
                         {!isEnabled ? (
-                            <Button size="sm" onClick={() => setShowEnableDialog(true)}>
+                            <Button onClick={() => setShowEnableDialog(true)} size="lg">
                                 <Shield className="size-4 mr-2" />
                                 Bật Xác Thực Hai Yếu Tố
                             </Button>
                         ) : (
                             <>
-                                <Button size="sm" variant="outline" onClick={() => setShowBackupCodesDialog(true)}>
+                                <Button variant="outline" onClick={() => setShowBackupCodesDialog(true)}>
                                     <RefreshCw className="size-4 mr-2" />
                                     Tạo Mã Dự Phòng
                                 </Button>
                                 <Button
-                                    size="sm"
                                     variant="outline"
                                     onClick={() => setShowDisableDialog(true)}
                                     className="border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive"
@@ -138,8 +141,8 @@ export function SecurityTab() {
                             </>
                         )}
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Dialogs */}
             <EnableTwoFactorDialog open={showEnableDialog} onOpenChange={setShowEnableDialog} />

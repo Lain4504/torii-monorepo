@@ -8,6 +8,7 @@ import {
     SheetHeader,
     SheetTitle,
     SheetDescription,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
 import {
     Field,
@@ -27,7 +28,6 @@ import {
     ChevronRight,
     User,
     ArrowLeft,
-    ScanFace,
     Sparkles,
     ShieldCheck,
     BadgeCheck
@@ -176,26 +176,14 @@ export function CreateUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>
-            <SheetContent className="w-full sm:w-[550px] !max-w-[550px] p-0 flex flex-col">
-                {/* Header */}
-                <SheetHeader className="px-6 py-6 border-b">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                            <ScanFace className="size-5" />
-                        </div>
-                        <div className="flex-1">
-                            <SheetTitle>Thêm người dùng mới</SheetTitle>
-                            <SheetDescription>
-                                {currentStep === 1
-                                    ? 'Bước 01: Thông tin cá nhân'
-                                    : 'Bước 02: Phân quyền vai trò'}
-                            </SheetDescription>
-                        </div>
-                        <div className="flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded-full border">
-                            <div className={cn("size-1.5 rounded-full", currentStep === 1 ? "bg-primary w-4" : "bg-muted-foreground/30")} />
-                            <div className={cn("size-1.5 rounded-full", currentStep === 2 ? "bg-primary w-4" : "bg-muted-foreground/30")} />
-                        </div>
-                    </div>
+            <SheetContent className="flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Thêm người dùng mới</SheetTitle>
+                    <SheetDescription>
+                        {currentStep === 1
+                            ? 'Bước 01: Thông tin cá nhân'
+                            : 'Bước 02: Phân quyền vai trò'}
+                    </SheetDescription>
                 </SheetHeader>
 
                 <form
@@ -380,15 +368,9 @@ export function CreateUserSheet({
                         )}
                     </div>
 
-                    <div className="px-6 py-4 border-t flex items-center justify-end gap-3">
+                    <SheetFooter>
                         {currentStep === 1 ? (
                             <>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => handleOpenChange(false)}>
-                                    Hủy
-                                </Button>
                                 <Button
                                     type="button"
                                     onClick={(e) => {
@@ -396,23 +378,25 @@ export function CreateUserSheet({
                                         e.stopPropagation();
                                         handleNextToRole();
                                     }}
-                                    disabled={!detailsValid}>
+                                    disabled={!detailsValid}
+                                >
                                     Tiếp tục
                                     <ChevronRight className="ml-2 size-3.5" />
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => handleOpenChange(false)}
+                                >
+                                    Hủy Bỏ
                                 </Button>
                             </>
                         ) : (
                             <>
                                 <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={handleBackToDetails}
-                                    disabled={createInternalUser.isPending}>
-                                    Quay lại
-                                </Button>
-                                <Button
                                     type="submit"
-                                    disabled={createInternalUser.isPending}>
+                                    disabled={createInternalUser.isPending}
+                                >
                                     {createInternalUser.isPending ? (
                                         <>
                                             <Loader2 className="mr-2 size-3.5 animate-spin" />
@@ -420,9 +404,17 @@ export function CreateUserSheet({
                                         </>
                                     ) : 'Tạo người dùng'}
                                 </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleBackToDetails}
+                                    disabled={createInternalUser.isPending}
+                                >
+                                    Quay lại
+                                </Button>
                             </>
                         )}
-                    </div>
+                    </SheetFooter>
                 </form>
             </SheetContent>
         </Sheet>

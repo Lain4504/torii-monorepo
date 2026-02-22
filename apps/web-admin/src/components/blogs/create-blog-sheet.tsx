@@ -28,7 +28,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, UploadCloud, X, FileText } from 'lucide-react';
+import { Loader2, UploadCloud, X } from 'lucide-react';
 import { BlogStatus, type BlogCreateDTO } from '@workspace/schemas';
 import { useCreateBlog } from '@/api/services/blog.ts';
 import { toast } from '@workspace/ui/components/sonner';
@@ -192,26 +192,17 @@ export function CreateBlogSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
-                <SheetHeader className="px-6 py-6 border-b border-border">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-primary/10 text-primary">
-                            <FileText className="h-6 w-6" />
-                        </div>
-                        <div className="space-y-1">
-                            <SheetTitle className="text-xl font-bold text-foreground">
-                                Tạo bài viết mới
-                            </SheetTitle>
-                            <SheetDescription className="text-sm text-muted-foreground">
-                                Điền thông tin chi tiết để tạo bài viết mới.
-                            </SheetDescription>
-                        </div>
-                    </div>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Tạo bài viết mới</SheetTitle>
+                    <SheetDescription>
+                        Điền thông tin chi tiết để tạo bài viết mới.
+                    </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 min-h-0">
-                    <ScrollArea className="flex-1 min-h-0">
-                        <div className="p-6 space-y-8">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1">
+                        <div className="space-y-6 p-6">
                             {/* Basic Information */}
                             <div className="space-y-6">
                                 <div className="space-y-1">

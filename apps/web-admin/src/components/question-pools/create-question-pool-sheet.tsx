@@ -12,6 +12,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import {
     Field,
     FieldLabel,
@@ -74,31 +75,17 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
-                <SheetHeader className="px-6 py-6 border-b border-border/10">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
-                                <Plus className="size-4" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <SheetTitle className="text-xl font-bold tracking-tight">
-                                    Tạo Kho Đề Mới
-                                </SheetTitle>
-                                <p className="text-xs font-medium text-muted-foreground/60">
-                                    Xây dựng ngân hàng câu hỏi thông minh
-                                </p>
-                            </div>
-                        </div>
-                        <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
-                            Thiết lập các thông tin cơ bản để bắt đầu quản lý kho lưu trữ câu hỏi.
-                        </SheetDescription>
-                    </div>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Tạo Kho Đề Mới</SheetTitle>
+                    <SheetDescription>
+                        Thiết lập các thông tin cơ bản để bắt đầu quản lý kho lưu trữ câu hỏi.
+                    </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
-                    <div className="flex-1 overflow-y-auto">
-                        <div className="px-8 py-8 space-y-8">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1">
+                        <div className="space-y-6 p-6">
                             <div className="space-y-6">
                                 <Controller
                                     name="name"
@@ -193,23 +180,12 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                                 )}
                             </div>
                         </div>
-                    </div>
+                    </ScrollArea>
 
-                    <SheetFooter className="p-6 border-t border-border/10 bg-muted/5 flex-row justify-end space-x-3">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => {
-                                reset();
-                                onOpenChange(false);
-                            }}
-                            className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
-                            Hủy Bỏ
-                        </Button>
+                    <SheetFooter>
                         <Button
                             type="submit"
-                            disabled={createPool.isPending}
-                            className="h-11 px-8 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                            disabled={createPool.isPending}>
                             {createPool.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -221,6 +197,15 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                                     Khởi Tạo Kho Đề
                                 </>
                             )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                                reset();
+                                onOpenChange(false);
+                            }}>
+                            Hủy Bỏ
                         </Button>
                     </SheetFooter>
                 </form>

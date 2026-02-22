@@ -96,26 +96,17 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[600px] !max-w-[600px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background space-y-0">
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5">
-                    <div className="relative flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
-                            <Ticket className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase">
-                                Tạo Coupon Mới
-                            </SheetTitle>
-                            <SheetDescription className="text-xs font-medium text-muted-foreground/60">
-                                Thiết lập mã giảm giá mới cho hệ thống.
-                            </SheetDescription>
-                        </div>
-                    </div>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Tạo Coupon Mới</SheetTitle>
+                    <SheetDescription>
+                        Thiết lập mã giảm giá mới cho hệ thống.
+                    </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative">
-                    <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-8 space-y-8">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1">
+                        <div className="space-y-6 p-6">
 
                             {/* Basic Info */}
                             <div className="space-y-6">

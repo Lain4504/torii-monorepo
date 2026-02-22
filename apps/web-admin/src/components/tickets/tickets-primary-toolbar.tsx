@@ -31,14 +31,14 @@ export function TicketsPrimaryToolbar({
     onStatusChange,
 }: TicketsPrimaryToolbarProps) {
     return (
-        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
+        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
             <div className="relative flex-1 group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <Input
                     placeholder="Tìm kiếm theo tiêu đề, email, ID..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-10 pl-9 rounded-lg border-border bg-background focus-visible:ring-primary/20 transition-all text-sm placeholder:text-muted-foreground/50"
+                    className="pl-10"
                 />
             </div>
 

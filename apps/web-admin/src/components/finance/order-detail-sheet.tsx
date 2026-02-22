@@ -4,6 +4,7 @@ import {
     SheetHeader,
     SheetTitle,
     SheetDescription,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
@@ -13,7 +14,6 @@ import {
     CheckCircle2,
     XCircle,
     AlertCircle,
-    Receipt,
     ExternalLink,
     RotateCcw
 } from 'lucide-react';
@@ -82,19 +82,16 @@ export function OrderDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-2xl flex flex-col p-0 overflow-hidden">
-                <SheetHeader className="px-6 py-4 border-b">
-                    <div className="flex items-center gap-2">
-                        <Receipt className="h-5 w-5 text-primary" />
-                        <SheetTitle>Chi tiết Đơn hàng</SheetTitle>
-                    </div>
+            <SheetContent className="flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Chi tiết Đơn hàng</SheetTitle>
                     <SheetDescription>
-                        Mã đơn hàng: <span className="font-mono font-medium text-foreground">{order.id}</span>
+                        Mã đơn hàng: {order.id}
                     </SheetDescription>
                 </SheetHeader>
 
                 <ScrollArea className="flex-1">
-                    <div className="p-6 space-y-8">
+                    <div className="space-y-8 p-6">
                         {/* Status Section */}
                         <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
                             <div className="flex items-center gap-3">
@@ -111,8 +108,8 @@ export function OrderDetailSheet({
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-1">
                                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Khách hàng</p>
-                                <p className="text-sm font-semibold">{order.userName || 'Chưa cập nhật'}</p>
-                                <p className="text-xs text-muted-foreground">{order.userEmail || order.userId}</p>
+                                <p className="text-sm font-semibold">{(order as any).userName || 'Chưa cập nhật'}</p>
+                                <p className="text-xs text-muted-foreground">{(order as any).userEmail || order.userId}</p>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Ngày tạo</p>
@@ -172,15 +169,17 @@ export function OrderDetailSheet({
                     </div>
                 </ScrollArea>
 
-                <div className="flex items-center justify-end gap-3 p-6 border-t bg-muted/50">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Đóng</Button>
+                <SheetFooter>
                     {order.metadata?.checkoutUrl && (
                         <Button onClick={() => window.open(order.metadata.checkoutUrl, '_blank')}>
                             <ExternalLink className="mr-2 h-4 w-4" />
                             Trang thanh toán
                         </Button>
                     )}
-                </div>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Đóng
+                    </Button>
+                </SheetFooter>
             </SheetContent>
         </Sheet>
     );

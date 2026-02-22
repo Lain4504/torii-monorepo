@@ -1,0 +1,20 @@
+# Antigravity Rules
+
+## Shadcn UI & Styling
+- **Priority**: Always use `shadcn/ui` components as provided in the project.
+- **No Custom Tailwind**: Avoid adding custom Tailwind CSS utility classes for styling that deviates from standard `shadcn/ui` patterns. Use pure code as per official `shadcn/ui` examples.
+- **Consistent Layout**: Use standard spacing and padding (e.g., `space-y-6`, `p-6`) across all forms and sheets.
+
+## Sheet Component Guidelines
+- **No Global Modification**: Do NOT modify the base `Sheet` components in the UI package (e.g., `@workspace/ui/components/sheet.tsx`).
+- **Local Sizing**: Sizing must be handled in the component where the `Sheet` is used.
+- **Responsive Width**: Use `className="w-full sm:max-w-[800px]"` on `SheetContent` to ensure full width on mobile and 800px width on desktop devices.
+- **Structure**:
+    - `SheetHeader` should contain `SheetTitle` and `SheetDescription`.
+    - Main content should be wrapped in a `ScrollArea` with a inner container having `className="space-y-6 p-6"`.
+    - `SheetFooter` should be placed outside the `ScrollArea` if a sticky footer is required.
+
+## Code Quality
+- **Cleanup**: Proactively remove unused imports, icons (Lucide), and variables after refactoring.
+- **Linting**: Ensure no lint errors remain after modifications.
+- **Standardized Forms**: Use `react-hook-form` with `zod` resolvers and standard `Field`, `FieldLabel`, `FieldError` components from the UI package.

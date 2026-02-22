@@ -161,15 +161,15 @@ export default function TransactionsPage() {
                         <TableBody>
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, i) => (
-                                    <TableRow key={i} className="border-b border-border/50">
-                                        <TableCell colSpan={5} className="py-4 px-6">
-                                            <Skeleton className="h-5 w-full bg-muted/20 rounded-md" />
+                                    <TableRow key={i}>
+                                        <TableCell colSpan={5}>
+                                            <Skeleton className="h-5 w-full" />
                                         </TableCell>
                                     </TableRow>
                                 ))
                             ) : transactions.length === 0 ? (
                                 <TableRow className="hover:bg-transparent">
-                                    <TableCell colSpan={5} className="py-20">
+                                    <TableCell colSpan={5} className="py-20 text-center">
                                         <Empty>
                                             <EmptyMedia>
                                                 <Info className="size-6" />
@@ -195,28 +195,26 @@ export default function TransactionsPage() {
                                     >
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                <Globe className="size-3 text-primary/50" />
-                                                <span className="text-xs font-bold text-foreground/70 uppercase">{tx.gateway || 'KHÔNG XÁC ĐỊNH'}</span>
+                                                <Globe className="size-3 text-muted-foreground" />
+                                                <span className="text-xs font-medium uppercase">{tx.gateway || 'N/A'}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <code className="text-[10px] font-bold font-mono bg-primary/5 text-primary px-1.5 py-0.5 rounded inline-block border border-primary/10">
+                                            <code className="text-xs font-mono">
                                                 {tx.transactionId || tx.id.slice(0, 8)}
                                             </code>
                                         </TableCell>
-                                        <TableCell className="text-center">
-                                            <span className="text-sm font-bold tabular-nums">
-                                                {formatCurrency(tx.amount || 0)}
-                                            </span>
+                                        <TableCell className="text-center font-medium">
+                                            {formatCurrency(tx.amount || 0)}
                                         </TableCell>
                                         <TableCell className="text-center">
-                                            <Badge className={cn("text-[9px] uppercase font-bold px-2 py-0.5 border shadow-none", getStatusColor(tx.status))}>
+                                            <Badge variant="outline" className={cn("text-[10px] uppercase font-medium", getStatusColor(tx.status))}>
                                                 {getStatusLabel(tx.status)}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex items-center justify-end gap-1.5 text-muted-foreground/60 text-xs font-medium tabular-nums">
-                                                <Clock className="size-3 opacity-50" />
+                                        <TableCell className="text-right text-xs text-muted-foreground">
+                                            <div className="flex items-center justify-end gap-1.5">
+                                                <Clock className="size-3" />
                                                 {formatDateTime(tx.processedAt)}
                                             </div>
                                         </TableCell>

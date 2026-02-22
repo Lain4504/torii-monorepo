@@ -15,7 +15,6 @@ import { Textarea } from '@workspace/ui/components/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
-import { Badge } from '@workspace/ui/components/badge';
 import {
     Field,
     FieldLabel,
@@ -27,7 +26,6 @@ import { courseUpdateDTOSchema, type CourseUpdateDTO, JlptLevel } from '@workspa
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateCourse } from "@/api/services/courses.ts";
 import { storageApi } from '@/api/services/storage-api.ts';
-import { cn } from '@workspace/ui/lib/utils';
 import { Loader2 } from 'lucide-react';
 
 type UpdateCourseFormData = CourseUpdateDTO;
@@ -170,31 +168,17 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
                 <SheetHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <SheetTitle>Chỉnh Sửa Khóa Học</SheetTitle>
-                            <SheetDescription>
-                                Cập nhật thông tin chi tiết và cấu hình khóa học.
-                            </SheetDescription>
-                        </div>
-                        <Badge
-                            variant="secondary"
-                            className={cn(
-                                "px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider shadow-sm",
-                                course.status === 'published'
-                                    ? "border-emerald-500/20 text-emerald-600 bg-emerald-500/10"
-                                    : "border-muted-foreground/20 text-muted-foreground bg-muted/30"
-                            )}>
-                            {course.status}
-                        </Badge>
-                    </div>
+                    <SheetTitle>Chỉnh Sửa Khóa Học</SheetTitle>
+                    <SheetDescription>
+                        Cập nhật thông tin chi tiết và cấu hình khóa học.
+                    </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative">
-                    <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
+                <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1">
+                        <div className="space-y-6 p-6">
                             {/* Key Metrics */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-5 rounded-2xl bg-background border border-border transition-all shadow-sm">

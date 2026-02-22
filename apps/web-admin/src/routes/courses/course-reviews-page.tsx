@@ -87,15 +87,15 @@ export default function CourseReviewsPage() {
                         page={page}
                         limit={10}
                     />
-
-                    <SmartPagination
-                        page={page}
-                        totalPages={totalPages}
-                        totalItems={data?.total || 0}
-                        onPageChange={setPage}
-                        itemName="đánh giá"
-                    />
                 </div>
+
+                <SmartPagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalItems={data?.total || 0}
+                    onPageChange={setPage}
+                    itemName="đánh giá"
+                />
             </div>
 
             {/* Detail View Dialog */}

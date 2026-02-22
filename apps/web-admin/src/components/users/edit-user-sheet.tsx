@@ -1,12 +1,6 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-} from '@workspace/ui/components/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@workspace/ui/components/sheet';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
@@ -18,7 +12,7 @@ import {
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { UserRole } from '@workspace/schemas';
-import { Loader2, User, Mail, ShieldCheck, UserCog } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { userAdminUpdateDTOSchema, type UserAdminUpdateDTO } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useUpdateUser } from "@/api/services/users.ts";
@@ -68,43 +62,33 @@ export function EditUserSheet({
         }
     };
 
+    if (!user) return null;
+
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[600px] !max-w-[600px] p-0 flex flex-col">
-                <SheetHeader className="px-6 py-6 border-b">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                            <UserCog className="size-5 text-foreground" />
-                        </div>
-                        <div className="flex-1">
-                            <SheetTitle>Chỉnh sửa người dùng</SheetTitle>
-                            <SheetDescription>
-                                Cập nhật thông tin và quyền hạn truy cập
-                            </SheetDescription>
-                        </div>
-                    </div>
+            <SheetContent className="flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Chỉnh sửa người dùng</SheetTitle>
+                    <SheetDescription>
+                        Cập nhật thông tin và quyền hạn truy cập của {user.displayName}
+                    </SheetDescription>
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
                     <ScrollArea className="flex-1">
-                        <div className="px-6 py-8 space-y-6">
+                        <div className="space-y-6 p-6">
                             <Controller
                                 control={control}
                                 name="displayName"
                                 render={({ field, fieldState }) => (
-                                    <Field data-invalid={fieldState.invalid} className="space-y-2">
-                                        <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold">
-                                            <User className="size-3.5 text-muted-foreground" />
-                                            Họ và tên
-                                        </FieldLabel>
+                                    <Field data-invalid={fieldState.invalid} className="space-y-1">
+                                        <FieldLabel htmlFor={field.name}>Họ và tên</FieldLabel>
                                         <Input
                                             id={field.name}
                                             {...field}
-                                            autoFocus
                                             placeholder="Nhập họ và tên đầy đủ"
-                                            className="h-10"
                                         />
-                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                        <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
                             />
@@ -113,19 +97,15 @@ export function EditUserSheet({
                                 control={control}
                                 name="email"
                                 render={({ field, fieldState }) => (
-                                    <Field data-invalid={fieldState.invalid} className="space-y-2">
-                                        <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold">
-                                            <Mail className="size-3.5 text-muted-foreground" />
-                                            Địa chỉ Email
-                                        </FieldLabel>
+                                    <Field data-invalid={fieldState.invalid} className="space-y-1">
+                                        <FieldLabel htmlFor={field.name}>Địa chỉ Email</FieldLabel>
                                         <Input
                                             id={field.name}
                                             {...field}
                                             type="email"
                                             placeholder="example@torii.edu.vn"
-                                            className="h-10"
                                         />
-                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                        <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
                             />
@@ -134,16 +114,13 @@ export function EditUserSheet({
                                 control={control}
                                 name="role"
                                 render={({ field, fieldState }) => (
-                                    <Field data-invalid={fieldState.invalid} className="space-y-2">
-                                        <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-semibold">
-                                            <ShieldCheck className="size-3.5 text-muted-foreground" />
-                                            Vai trò
-                                        </FieldLabel>
+                                    <Field data-invalid={fieldState.invalid} className="space-y-1">
+                                        <FieldLabel htmlFor={field.name}>Vai trò</FieldLabel>
                                         <Select
                                             value={field.value}
                                             onValueChange={field.onChange}
                                         >
-                                            <SelectTrigger id={field.name} className="h-10">
+                                            <SelectTrigger id={field.name}>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -156,14 +133,14 @@ export function EditUserSheet({
                                                 <SelectItem value={UserRole.ADMIN}>Quản trị viên (Admin)</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                        <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
                             />
                         </div>
                     </ScrollArea>
 
-                    <div className="px-6 py-4 border-t flex items-center justify-end gap-3">
+                    <SheetFooter>
                         <Button
                             type="button"
                             variant="outline"
@@ -183,7 +160,7 @@ export function EditUserSheet({
                                 "Lưu thay đổi"
                             )}
                         </Button>
-                    </div>
+                    </SheetFooter>
                 </form>
             </SheetContent>
         </Sheet>

@@ -1,7 +1,14 @@
-import { useAppSelector } from '@/hooks/hooks';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+} from '@workspace/ui/components/card';
 import { User, Mail, Calendar, Shield } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useAppSelector } from '@/hooks/hooks';
 
 export function ProfileTab() {
     const user = useAppSelector((state) => state.auth.user);
@@ -17,18 +24,13 @@ export function ProfileTab() {
     return (
         <div className="space-y-4">
             {/* Profile Info Card */}
-            <div className="rounded-xl border bg-card">
-                <div className="flex items-center gap-3 p-5 border-b border-border">
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                        <User className="size-4" />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-semibold text-foreground">Thông Tin Hồ Sơ</h3>
-                        <p className="text-xs text-muted-foreground">Chi tiết tài khoản và thông tin cá nhân của bạn</p>
-                    </div>
-                </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Thông Tin Hồ Sơ</CardTitle>
+                    <CardDescription>Chi tiết tài khoản và thông tin cá nhân của bạn</CardDescription>
+                </CardHeader>
 
-                <div className="p-5 grid gap-3 sm:grid-cols-2">
+                <CardContent className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                             <User className="size-3" />
@@ -66,8 +68,8 @@ export function ProfileTab() {
                             </p>
                         </div>
                     )}
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Email Verification Status */}
             <div className={`rounded-xl border p-4 flex gap-3 ${user.verifiedAt

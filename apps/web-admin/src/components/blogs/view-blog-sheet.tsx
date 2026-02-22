@@ -4,14 +4,15 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
 import { Badge } from '@workspace/ui/components/badge';
+import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
 import type { BlogResponseDTO } from '@workspace/schemas';
-import { Calendar, Eye, MessageCircle, FileText, User } from 'lucide-react';
-import { cn } from '@workspace/ui/lib/utils';
+import { Calendar, Eye, MessageCircle, User } from 'lucide-react';
 
 interface ViewBlogSheetProps {
     open: boolean;
@@ -28,40 +29,16 @@ export function ViewBlogSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
-                    <div className="relative flex items-center justify-between z-10">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
-                                <FileText className="h-6 w-6" />
-                            </div>
-                            <div className="space-y-1">
-                                <SheetTitle className="text-2xl font-bold tracking-tight">
-                                    Xem chi tiết <span className="text-primary">Bài viết</span>
-                                </SheetTitle>
-                                <SheetDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                                    Mã: <span className="font-mono text-primary">{blog.id.substring(0, 8)}</span>
-                                </SheetDescription>
-                            </div>
-                        </div>
-                        <Badge
-                            variant="outline"
-                            className={cn(
-                                "px-3 py-1.5 uppercase tracking-widest text-[10px] font-black border-2",
-                                blog.status === 'published'
-                                    ? "border-emerald-500/20 text-emerald-500 bg-emerald-500/10"
-                                    : blog.status === 'draft'
-                                        ? "border-blue-500/20 text-blue-500 bg-blue-500/10"
-                                        : "border-muted-foreground/20 text-muted-foreground bg-muted/10"
-                            )}>
-                            {blog.status}
-                        </Badge>
-                    </div>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Xem chi tiết bài viết</SheetTitle>
+                    <SheetDescription>
+                        Mã bài viết: {blog.id.substring(0, 8)}...
+                    </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1 min-h-0">
-                    <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
+                <ScrollArea className="flex-1">
+                    <div className="space-y-6 p-6">
 
                         {/* Key Metrics */}
                         <div className="grid grid-cols-3 gap-4">
@@ -231,6 +208,11 @@ export function ViewBlogSheet({
                         </div>
                     </div>
                 </ScrollArea>
+                <SheetFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Đóng
+                    </Button>
+                </SheetFooter>
             </SheetContent>
         </Sheet>
     );

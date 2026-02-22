@@ -8,9 +8,19 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
+  DialogClose,
 } from "@workspace/ui/components/dialog";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldError,
+  FieldDescription,
+  FieldTitle,
+} from "@workspace/ui/components/field";
 import { toast } from "@workspace/ui/components/sonner";
 import {
   Smartphone,
@@ -136,7 +146,7 @@ export function EnableTwoFactorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <Smartphone className="size-5 text-primary" />
@@ -152,192 +162,201 @@ export function EnableTwoFactorDialog({
 
         {/* Step 1: Generate */}
         {step === "generate" && (
-          <div className="space-y-6 py-4">
-            <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-              <div className="flex gap-3">
-                <Smartphone className="size-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">
-                    You'll need an authenticator app
-                  </p>
-                  <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                    Download an authenticator app like Google Authenticator,
-                    Authy, or Microsoft Authenticator on your phone.
-                  </p>
+          <>
+            <div className="space-y-6">
+              <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
+                <div className="flex gap-3">
+                  <Smartphone className="size-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">
+                      Bạn cần một ứng dụng xác thực
+                    </p>
+                    <p className="text-xs text-muted-foreground/60 leading-relaxed">
+                      Tải xuống ứng dụng xác thực như Google Authenticator,
+                      Authy, hoặc Microsoft Authenticator trên điện thoại của bạn.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <Button
-              onClick={handleGenerate}
-              disabled={generateMutation.isPending}
-              className="w-full gap-2 rounded-lg"
-            >
-              {generateMutation.isPending ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <QrCode className="size-4" />
-                  Generate QR Code
-                </>
-              )}
-            </Button>
-          </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Hủy Bỏ</Button>
+              </DialogClose>
+              <Button
+                onClick={handleGenerate}
+                disabled={generateMutation.isPending}
+              >
+                {generateMutation.isPending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Đang tạo...
+                  </>
+                ) : (
+                  <>
+                    <QrCode className="size-4" />
+                    Tạo mã QR
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </>
         )}
 
         {/* Step 2: Verify */}
         {step === "verify" && (
-          <div className="space-y-6 py-4">
-            {/* QR Code */}
-            <div className="flex flex-col items-center space-y-4">
-              <div className="rounded-xl border-2 border-border/20 bg-white p-4">
-                <img src={qrCodeUrl} alt="QR Code" className="size-48" />
-              </div>
-              <p className="text-xs text-center text-muted-foreground/60 max-w-sm">
-                Scan this QR code with your authenticator app
-              </p>
-            </div>
-
-            {/* Manual Entry */}
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground/60">
-                Or enter this key manually:
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  value={secret}
-                  readOnly
-                  className="font-mono text-xs rounded-lg bg-muted/20"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={copySecret}
-                  className="shrink-0 rounded-lg"
-                >
-                  {copiedSecret ? (
-                    <Check className="size-4 text-emerald-600" />
-                  ) : (
-                    <Copy className="size-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {/* Verification Form */}
-            <form
-              onSubmit={form.handleSubmit(handleVerify)}
-              className="space-y-4"
-            >
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Enter the 6-digit code from your app
-                </label>
-                <Controller
-                  name="code"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <div className="space-y-1">
-                      <Input
-                        {...field}
-                        placeholder="000000"
-                        maxLength={6}
-                        className="text-center text-2xl font-mono tracking-widest rounded-lg"
-                        autoComplete="off"
-                      />
-                      {fieldState.error && (
-                        <p className="text-xs text-rose-500">
-                          {fieldState.error.message}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                />
+          <form
+            onSubmit={form.handleSubmit(handleVerify)}
+          >
+            <FieldGroup className="space-y-6">
+              {/* QR Code */}
+              <div className="flex flex-col items-center space-y-4">
+                <div className="rounded-xl border-2 border-border/20 bg-white p-4">
+                  <img src={qrCodeUrl} alt="QR Code" className="size-48" />
+                </div>
+                <FieldDescription className="text-center">
+                  Quét mã QR này bằng ứng dụng xác thực của bạn
+                </FieldDescription>
               </div>
 
+              {/* Manual Entry */}
+              <Field className="space-y-2">
+                <FieldTitle>Hoặc nhập mã khóa thủ công:</FieldTitle>
+                <div className="flex gap-2">
+                  <Input
+                    value={secret}
+                    readOnly
+                    className="font-mono text-xs bg-muted/20"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={copySecret}
+                  >
+                    {copiedSecret ? (
+                      <Check className="size-4 text-emerald-600" />
+                    ) : (
+                      <Copy className="size-4" />
+                    )}
+                  </Button>
+                </div>
+              </Field>
+
+              {/* Verification Form */}
+              <Controller
+                name="code"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="space-y-2">
+                    <FieldLabel htmlFor={field.name} className="text-sm font-medium">
+                      Nhập mã 6 số từ ứng dụng
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      placeholder="000000"
+                      maxLength={6}
+                      className="text-center text-2xl font-mono tracking-widest"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+
+            <DialogFooter className="mt-6">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setStep("generate")}
+              >
+                Quay lại
+              </Button>
               <Button
                 type="submit"
                 disabled={enableMutation.isPending}
-                className="w-full gap-2 rounded-lg"
               >
                 {enableMutation.isPending ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    Verifying...
+                    Đang xác thực...
                   </>
                 ) : (
                   <>
                     <Key className="size-4" />
-                    Verify and Enable
+                    Xác thực và Bật
                   </>
                 )}
               </Button>
-            </form>
-          </div>
+            </DialogFooter>
+          </form>
         )}
 
         {/* Step 3: Backup Codes */}
         {step === "backup" && (
-          <div className="space-y-6 py-4">
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
-              <div className="flex gap-3">
-                <Key className="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-foreground">
-                    Lưu các mã dự phòng này
-                  </p>
-                  <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                    Mỗi mã chỉ có thể sử dụng một lần. Lưu chúng ở nơi an toàn
-                    trong trường hợp bạn mất quyền truy cập vào ứng dụng xác thực.
-                  </p>
+          <>
+            <div className="space-y-6">
+              <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
+                <div className="flex gap-3">
+                  <Key className="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground">
+                      Lưu các mã dự phòng này
+                    </p>
+                    <p className="text-xs text-muted-foreground/60 leading-relaxed">
+                      Mỗi mã chỉ có thể sử dụng một lần. Lưu chúng ở nơi an toàn
+                      trong trường hợp bạn mất quyền truy cập vào ứng dụng xác thực.
+                    </p>
+                  </div>
                 </div>
+              </div>
+
+              {/* Backup Codes Grid */}
+              <div className="grid grid-cols-2 gap-2 p-4 rounded-lg border border-border/20 bg-muted/20">
+                {backupCodes.map((code, index) => (
+                  <div
+                    key={index}
+                    className="rounded-md bg-background px-3 py-2 text-center font-mono text-sm font-medium"
+                  >
+                    {code}
+                  </div>
+                ))}
+              </div>
+
+              {/* Sub-Actions */}
+              <div className="flex gap-2">
+                <Button
+                  onClick={copyBackupCodes}
+                  variant="outline"
+                  className="flex-1 gap-2"
+                >
+                  {copiedCodes ? (
+                    <Check className="size-4 text-emerald-600" />
+                  ) : (
+                    <Copy className="size-4" />
+                  )}
+                  Sao chép mã
+                </Button>
+                <Button
+                  onClick={downloadBackupCodes}
+                  variant="outline"
+                  className="flex-1 gap-2"
+                >
+                  <Download className="size-4" />
+                  Tải xuống
+                </Button>
               </div>
             </div>
 
-            {/* Backup Codes Grid */}
-            <div className="grid grid-cols-2 gap-2 p-4 rounded-lg border border-border/20 bg-muted/20">
-              {backupCodes.map((code, index) => (
-                <div
-                  key={index}
-                  className="rounded-md bg-background px-3 py-2 text-center font-mono text-sm font-medium"
-                >
-                  {code}
-                </div>
-              ))}
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <Button
-                onClick={copyBackupCodes}
-                variant="outline"
-                className="flex-1 gap-2 rounded-lg"
-              >
-                {copiedCodes ? (
-                  <Check className="size-4 text-emerald-600" />
-                ) : (
-                  <Copy className="size-4" />
-                )}
-                Sao chép mã
+            <DialogFooter className="mt-6">
+              <Button onClick={handleFinish} className="w-full">
+                Tôi đã lưu mã dự phòng
               </Button>
-              <Button
-                onClick={downloadBackupCodes}
-                variant="outline"
-                className="flex-1 gap-2 rounded-lg"
-              >
-                <Download className="size-4" />
-                Tải xuống
-              </Button>
-            </div>
-
-            <Button onClick={handleFinish} className="w-full rounded-lg">
-              Tôi đã lưu mã dự phòng
-            </Button>
-          </div>
+            </DialogFooter>
+          </>
         )}
       </DialogContent>
     </Dialog>

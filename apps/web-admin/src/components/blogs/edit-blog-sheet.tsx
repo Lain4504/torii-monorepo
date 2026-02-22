@@ -16,7 +16,6 @@ import { Textarea } from '@workspace/ui/components/textarea';
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
-import { Badge } from '@workspace/ui/components/badge';
 import {
     Select,
     SelectContent,
@@ -29,12 +28,11 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, X, FileText, Save, Calendar, Eye, MessageCircle } from 'lucide-react';
+import { Loader2, X, Save, Calendar, Eye, MessageCircle } from 'lucide-react';
 import { blogUpdateDTOSchema, BlogStatus, type BlogUpdateDTO, type BlogResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { useUpdateBlog } from "@/api/services/blog.ts";
-import { cn } from '@workspace/ui/lib/utils';
 
 const editBlogSchema = blogUpdateDTOSchema.omit({
     tags: true,
@@ -190,40 +188,17 @@ export function EditBlogSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
-                <SheetHeader className="px-6 py-6 border-b border-border">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-xl bg-primary/10 text-primary">
-                                <FileText className="h-6 w-6" />
-                            </div>
-                            <div className="space-y-1">
-                                <SheetTitle className="text-xl font-bold text-foreground">
-                                    Chỉnh sửa bài viết
-                                </SheetTitle>
-                                <SheetDescription className="text-sm text-muted-foreground flex items-center gap-2">
-                                    Mã: <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{blog.id.substring(0, 8)}</span>
-                                </SheetDescription>
-                            </div>
-                        </div>
-                        <Badge
-                            variant="outline"
-                            className={cn(
-                                "px-2.5 py-0.5 text-xs font-semibold border-transparent",
-                                blog.status === 'published'
-                                    ? "bg-emerald-500/10 text-emerald-600"
-                                    : blog.status === 'draft'
-                                        ? "bg-blue-500/10 text-blue-600"
-                                        : "bg-muted text-muted-foreground"
-                            )}>
-                            {blog.status === 'published' ? 'Đã xuất bản' : blog.status === 'draft' ? 'Bản nháp' : 'Lưu trữ'}
-                        </Badge>
-                    </div>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Chỉnh sửa bài viết</SheetTitle>
+                    <SheetDescription>
+                        Cập nhật thông tin chi tiết và nội dung bài viết.
+                    </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 min-h-0">
-                    <ScrollArea className="flex-1 min-h-0">
-                        <div className="p-6 space-y-8">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1">
+                        <div className="space-y-6 p-6">
 
                             {/* Key Metrics */}
                             <div className="grid grid-cols-3 gap-4">
@@ -456,8 +431,7 @@ export function EditBlogSheet({
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => onOpenChange(false)}
-                            className="h-10 px-6">
+                            onClick={() => onOpenChange(false)}>
                             Hủy bỏ
                         </Button>
                     </SheetFooter>

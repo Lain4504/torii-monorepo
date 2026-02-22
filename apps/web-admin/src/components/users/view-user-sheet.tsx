@@ -4,13 +4,15 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
 import { Badge } from '@workspace/ui/components/badge';
+import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
 import { format } from 'date-fns';
-import { Mail, Shield, Clock, Activity, Fingerprint, ScanEye, Terminal, AlertTriangle, Zap, Lock } from 'lucide-react';
+import { Mail, Shield, Clock, Activity, Fingerprint, Terminal, AlertTriangle, Zap, Lock } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface ViewUserSheetProps {
@@ -43,23 +45,16 @@ export function ViewUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[500px] !max-w-[500px] flex flex-col p-0">
-                <SheetHeader className="px-6 py-6 border-b">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                            <ScanEye className="size-5 text-foreground" />
-                        </div>
-                        <div className="flex-1">
-                            <SheetTitle>Chi tiết người dùng</SheetTitle>
-                            <SheetDescription>
-                                Thông tin chi tiết tài khoản và lịch sử hoạt động
-                            </SheetDescription>
-                        </div>
-                    </div>
+            <SheetContent className="flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Chi tiết người dùng</SheetTitle>
+                    <SheetDescription>
+                        Thông tin chi tiết tài khoản và lịch sử hoạt động
+                    </SheetDescription>
                 </SheetHeader>
 
                 <ScrollArea className="flex-1">
-                    <div className="px-6 py-8 space-y-8">
+                    <div className="space-y-6 p-6">
                         {/* User Profile */}
                         <div className="flex items-center gap-6 p-6 rounded-lg border bg-card">
                             <Avatar className="h-16 w-16 rounded-full border">
@@ -140,6 +135,11 @@ export function ViewUserSheet({
                         </div>
                     </div>
                 </ScrollArea>
+                <SheetFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Đóng
+                    </Button>
+                </SheetFooter>
             </SheetContent>
         </Sheet>
     );

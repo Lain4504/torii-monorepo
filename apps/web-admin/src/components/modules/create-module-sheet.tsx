@@ -21,7 +21,7 @@ import {
 } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateModule } from "@/api/services/modules.ts";
-import { Layers, AlignLeft, Clock, Hash, Loader2, Plus, Box } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 
 const getCreateModuleSchema = (existingTitles: string[] = []) =>
     moduleCreateDTOSchema.extend({
@@ -98,53 +98,31 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
-
-                {/* Header Section with Ambient Glow */}
-                {/* Header Section */}
-                <SheetHeader className="px-6 py-6 border-b border-border/10 flex-shrink-0">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
-                                <Box className="size-4" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <SheetTitle className="text-xl font-bold tracking-tight">
-                                    Tạo Học Phần Mới
-                                </SheetTitle>
-                                <p className="text-xs font-medium text-muted-foreground/60">
-                                    Khóa học: <span className="text-foreground">{courseTitle || 'Chưa có tên'}</span>
-                                </p>
-                            </div>
-                        </div>
-                        <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
-                            Tổ chức nội dung khóa học bằng cách tạo các học phần mới.
-                        </SheetDescription>
-                    </div>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Tạo Học Phần Mới</SheetTitle>
+                    <SheetDescription>
+                        Khóa học: {courseTitle || 'Chưa có tên'}
+                    </SheetDescription>
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-8 space-y-8">
+                    <ScrollArea className="flex-1">
+                        <div className="space-y-6 p-6">
                             <input type="hidden" {...register('courseId')} />
 
                             <Controller
                                 control={control}
                                 name="title"
                                 render={({ field, fieldState }) => (
-                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
-                                            <Layers className="size-3.5" />
-                                            Tên Học Phần
-                                        </FieldLabel>
-                                        <div className="relative">
-                                            <Input
-                                                {...field}
-                                                placeholder="VD: Bài 1 - Giới thiệu về ngữ pháp"
-                                                className="h-11 pl-4 pr-4 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
-                                            />
-                                        </div>
-                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
+                                    <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>Tên Học Phần</FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            {...field}
+                                            placeholder="VD: Bài 1 - Giới thiệu về ngữ pháp"
+                                        />
+                                        <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
                             />
@@ -153,38 +131,33 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                 control={control}
                                 name="description"
                                 render={({ field, fieldState }) => (
-                                    <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
-                                            <AlignLeft className="size-3.5" />
-                                            Mô Tả
-                                        </FieldLabel>
+                                    <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor={field.name}>Mô Tả</FieldLabel>
                                         <Textarea
+                                            id={field.name}
                                             {...field}
                                             placeholder="Mô tả ngắn gọn nội dung học viên sẽ học..."
-                                            className="min-h-[100px] p-4 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-medium text-sm leading-relaxed"
+                                            className="min-h-[100px]"
                                         />
-                                        <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
+                                        <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
                             />
 
-                            <div className="grid grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 gap-4">
                                 <Controller
                                     control={control}
                                     name="orderIndex"
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
-                                                <Hash className="size-3.5" />
-                                                Thứ Tự
-                                            </FieldLabel>
+                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Thứ Tự</FieldLabel>
                                             <Input
+                                                id={field.name}
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                className="h-11 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -193,18 +166,15 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                     control={control}
                                     name="durationMinutes"
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
-                                                <Clock className="size-3.5" />
-                                                Thời Lượng (phút)
-                                            </FieldLabel>
+                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Thời Lượng (phút)</FieldLabel>
                                             <Input
+                                                id={field.name}
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                className="h-11 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
@@ -213,21 +183,21 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                     </ScrollArea>
 
                     <SheetFooter>
-                            <Button
-                                type="submit"
-                                disabled={isSubmitting}>
-                                {isSubmitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Đang tạo...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Tạo Học Phần
-                                    </>
-                                )}
-                            </Button>
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}>
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Đang tạo...
+                                </>
+                            ) : (
+                                <>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Tạo Học Phần
+                                </>
+                            )}
+                        </Button>
                         <Button
                             type="button"
                             variant="outline"

@@ -162,7 +162,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background space-y-0">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo Khóa Học Mới</SheetTitle>
                     <SheetDescription>
@@ -170,9 +170,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative">
-                    <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1">
+                        <div className="space-y-6 p-6">
 
                             {/* Basic Information */}
                             <div className="space-y-6">

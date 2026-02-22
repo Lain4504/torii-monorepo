@@ -130,16 +130,16 @@ export default function CouponsPage() {
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                     />
-
-                    {/* Pagination */}
-                    <SmartPagination
-                        page={page}
-                        totalPages={totalPages}
-                        totalItems={data?.total || 0}
-                        onPageChange={handlePageChange}
-                        itemName="mã giảm giá"
-                    />
                 </div>
+
+                {/* Pagination */}
+                <SmartPagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalItems={data?.total || 0}
+                    onPageChange={handlePageChange}
+                    itemName="mã giảm giá"
+                />
             </div>
 
 

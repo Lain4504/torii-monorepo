@@ -4,6 +4,7 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
+    SheetDescription,
     SheetFooter,
 } from '@workspace/ui/components/sheet';
 import { Button } from '@workspace/ui/components/button';
@@ -11,6 +12,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Separator } from '@workspace/ui/components/separator';
 import { BookOpen, GraduationCap, Calendar, FileQuestion } from 'lucide-react';
 import type { QuestionPoolResponseDTO } from '@workspace/schemas';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 
 interface ViewQuestionPoolDialogProps {
     open: boolean;
@@ -31,27 +33,16 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
-                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
-                                <FileQuestion className="size-4" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <SheetTitle className="text-xl font-bold tracking-tight">
-                                    Chi Tiết Kho Đề
-                                </SheetTitle>
-                                <p className="text-xs font-medium text-muted-foreground/60 italic uppercase tracking-widest">
-                                    Thông tin định danh & Phân loại
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Chi Tiết Kho Đề</SheetTitle>
+                    <SheetDescription>
+                        Thông tin định danh & Phân loại kho đề.
+                    </SheetDescription>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto">
-                    <div className="px-8 py-8 space-y-10">
+                <ScrollArea className="flex-1">
+                    <div className="space-y-6 p-6">
                         <section className="space-y-4">
                             <div className="flex items-center gap-2 text-primary opacity-60">
                                 <BookOpen className="size-4" />
@@ -130,32 +121,26 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
                             </div>
                         </section>
                     </div>
-                </div>
+                </ScrollArea>
 
-                <SheetFooter className="p-6 border-t border-border/10 bg-muted/5 flex-row justify-end space-x-3">
+                <SheetFooter>
                     <Button
-                        variant="ghost"
-                        onClick={() => onOpenChange(false)}
-                        className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider"
-                    >
-                        Đóng
+                        onClick={handleViewQuestions}>
+                        <FileQuestion className="h-4 w-4 mr-2" />
+                        Xem Câu Hỏi
                     </Button>
                     <Button
                         variant="outline"
                         onClick={() => {
                             onOpenChange(false);
                             onEdit(pool);
-                        }}
-                        className="h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider"
-                    >
+                        }}>
                         Chỉnh sửa
                     </Button>
                     <Button
-                        onClick={handleViewQuestions}
-                        className="h-11 px-8 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                        <FileQuestion className="h-4 w-4 mr-2" />
-                        Xem Câu Hỏi
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}>
+                        Đóng
                     </Button>
                 </SheetFooter>
             </SheetContent>

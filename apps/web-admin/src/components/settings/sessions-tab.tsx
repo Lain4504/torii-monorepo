@@ -1,4 +1,11 @@
-import { Clock, Monitor, Smartphone, MapPin, AlertCircle, Loader2 } from 'lucide-react';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+} from '@workspace/ui/components/card';
+import { Monitor, Smartphone, MapPin, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/api/services/sessions';
@@ -31,19 +38,13 @@ export function SessionsTab() {
 
     return (
         <div className="space-y-4">
-            <div className="rounded-xl border bg-card">
-                {/* Header */}
-                <div className="flex items-center gap-3 p-5 border-b border-border">
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                        <Clock className="size-4" />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-semibold text-foreground">Phiên Đăng Nhập</h3>
-                        <p className="text-xs text-muted-foreground">Quản lý các phiên đăng nhập trên các thiết bị</p>
-                    </div>
-                </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Phiên Đăng Nhập</CardTitle>
+                    <CardDescription>Quản lý các phiên đăng nhập trên các thiết bị</CardDescription>
+                </CardHeader>
 
-                <div className="p-5 space-y-4">
+                <CardContent className="space-y-4">
                     {/* Info Banner */}
                     <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 flex gap-3">
                         <AlertCircle className="size-4 text-blue-600 shrink-0 mt-0.5" />
@@ -139,8 +140,8 @@ export function SessionsTab() {
                                 : 'Đăng Xuất Tất Cả Các Phiên Khác'}
                         </Button>
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

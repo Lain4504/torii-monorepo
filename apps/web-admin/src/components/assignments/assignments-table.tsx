@@ -16,6 +16,7 @@ import {
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useState } from 'react';
 import { FileQuestion } from 'lucide-react';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 import type { AssignmentResponseDTO } from '@workspace/schemas';
 import { getAssignmentsColumns } from './assignments-columns.tsx';
@@ -58,13 +59,13 @@ export function AssignmentsTable({
     });
 
     return (
-        <Table className="min-w-[1000px] border-collapse bg-transparent">
-            <TableHeader className="bg-muted/30 border-b border-border">
+        <Table>
+            <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
+                    <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">
+                                <TableHead key={header.id}>
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -80,10 +81,10 @@ export function AssignmentsTable({
             <TableBody>
                 {isLoading ? (
                     Array.from({ length: 5 }).map((_, index) => (
-                        <TableRow key={index} className="border-b border-border/50 hover:bg-transparent">
+                        <TableRow key={index}>
                             {columns.map((_, colIndex) => (
-                                <TableCell key={colIndex} className="py-3 px-4">
-                                    <Skeleton className="h-4 w-full bg-muted/20" />
+                                <TableCell key={colIndex}>
+                                    <Skeleton className="h-4 w-full" />
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -93,10 +94,9 @@ export function AssignmentsTable({
                         <TableRow
                             key={row.id}
                             data-state={row.getIsSelected() && 'selected'}
-                            className="border-b border-border/50 hover:bg-muted/30 transition-colors group"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
+                                <TableCell key={cell.id}>
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
@@ -106,22 +106,22 @@ export function AssignmentsTable({
                         </TableRow>
                     ))
                 ) : (
-                    <TableRow className="hover:bg-transparent border-none">
+                    <TableRow className="hover:bg-transparent">
                         <TableCell
                             colSpan={columns.length}
-                            className="h-[300px] text-center p-0"
+                            className="h-[300px] text-center"
                         >
-                            <div className="flex flex-col items-center justify-center p-8">
-                                <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground/30 mb-4">
-                                    <FileQuestion className="size-8" />
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-lg font-sans font-bold italic uppercase tracking-tight text-foreground/50">Không tìm thấy bài tập</p>
-                                    <p className="text-sm text-muted-foreground/40">
+                            <Empty>
+                                <EmptyMedia>
+                                    <FileQuestion className="size-8 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Không tìm thấy bài tập</EmptyTitle>
+                                    <EmptyDescription>
                                         Chưa có bài tập nào được tạo cho khóa học này.
-                                    </p>
-                                </div>
-                            </div>
+                                    </EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
                         </TableCell>
                     </TableRow>
                 )}

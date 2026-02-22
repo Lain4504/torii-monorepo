@@ -59,13 +59,13 @@ export function CouponsTable({
     });
 
     return (
-        <Table className="min-w-[1000px] border-collapse bg-transparent">
-            <TableHeader className="bg-muted/30 border-b border-border">
+        <Table>
+            <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
+                    <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => {
                             return (
-                                <TableHead key={header.id} className="h-11 text-xs font-semibold text-muted-foreground px-4">
+                                <TableHead key={header.id}>
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -81,10 +81,10 @@ export function CouponsTable({
             <TableBody>
                 {isLoading ? (
                     Array.from({ length: 5 }).map((_, index) => (
-                        <TableRow key={index} className="border-b border-border/50 hover:bg-transparent">
+                        <TableRow key={index}>
                             {columns.map((_, colIndex) => (
-                                <TableCell key={colIndex} className="py-3 px-4">
-                                    <Skeleton className="h-4 w-full bg-muted/20" />
+                                <TableCell key={colIndex}>
+                                    <Skeleton className="h-4 w-full" />
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -94,10 +94,9 @@ export function CouponsTable({
                         <TableRow
                             key={row.id}
                             data-state={row.getIsSelected() && 'selected'}
-                            className="border-b border-border/50 hover:bg-muted/30 transition-colors group"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap">
+                                <TableCell key={cell.id}>
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
@@ -107,10 +106,10 @@ export function CouponsTable({
                         </TableRow>
                     ))
                 ) : (
-                    <TableRow className="hover:bg-transparent border-none">
+                    <TableRow className="hover:bg-transparent">
                         <TableCell
                             colSpan={columns.length}
-                            className="h-[400px] text-center p-0"
+                            className="h-[400px] text-center"
                         >
                             <Empty>
                                 <EmptyMedia>
