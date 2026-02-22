@@ -135,6 +135,14 @@ describe('BlogService', () => {
             await expect(service.createBlog(createDto))
                 .rejects.toThrow(NotFoundException);
         });
+        it('should sanitize manually provided slug', async () => {
+            const dtoWithMessySlug = { ...createDto, slug: 'My Messy Slug!!' };
+            await service.createBlog(dtoWithMessySlug);
+
+            expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({
+                slug: expect.stringMatching(/^my-messy-slug-\d{4}-\d{2}-\d{2}/),
+            }));
+        });
     });
 
     describe('findAllBlogs', () => {

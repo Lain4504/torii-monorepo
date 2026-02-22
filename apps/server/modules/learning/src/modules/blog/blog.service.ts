@@ -60,7 +60,7 @@ export class BlogService implements IBlogService {
    */
   async createBlog(dto: BlogCreateDTO): Promise<BlogResponseDTO> {
     // Auto-generate slug from title if not provided
-    const baseSlug = dto.slug || generateSlug(dto.title);
+    const baseSlug = generateSlug(dto.slug || dto.title);
 
     // Auto-generate unique slug if slug already exists
     const slug = await this.ensureUniqueSlug(
@@ -221,7 +221,7 @@ export class BlogService implements IBlogService {
     // If title is being updated, regenerate slug
     let slug = existing.slug;
     if (dto.title && dto.title !== existing.title) {
-      const baseSlug = dto.slug || generateSlug(dto.title);
+      const baseSlug = generateSlug(dto.slug || dto.title);
       slug = await this.ensureUniqueSlug(
         baseSlug,
         async (slugToCheck) => {
@@ -235,7 +235,7 @@ export class BlogService implements IBlogService {
       if (slugExists) {
         throw new BadRequestException(`Blog with slug "${dto.slug}" already exists`);
       }
-      slug = dto.slug;
+      slug = generateSlug(dto.slug);
     }
 
     const updateData: Prisma.BlogUpdateInput = { ...dto };

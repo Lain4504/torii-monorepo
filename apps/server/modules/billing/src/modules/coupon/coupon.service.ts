@@ -165,7 +165,24 @@ export class CouponService {
         minOrderAmount?: number;
         validDurationDays?: number;
     }) {
-        const code = this.generateRandomCode();
+        let code = '';
+        let isUnique = false;
+        let attempts = 0;
+
+        while (!isUnique && attempts < 10) {
+            code = this.generateRandomCode();
+            const existing = await this.couponRepository.findByCode(code);
+            if (!existing) {
+                isUnique = true;
+            }
+            attempts++;
+        }
+
+        if (!isUnique) {
+            this.logger.error('Failed to generate a unique coupon code after 10 attempts');
+            throw new InternalServerErrorException('Failed to generate a unique coupon code');
+        }
+
         const now = new Date();
         const validUntil = new Date();
         validUntil.setDate(now.getDate() + (data.validDurationDays || 30));
