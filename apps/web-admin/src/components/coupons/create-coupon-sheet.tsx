@@ -18,7 +18,11 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { X, Ticket, Calendar as CalendarIcon, Percent, DollarSign } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
+import { Calendar } from '@workspace/ui/components/calendar';
+import { cn } from '@workspace/ui/lib/utils';
+import { format } from 'date-fns';
+import { X, Ticket, CalendarIcon, Percent, DollarSign } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { CouponDiscountType, type CouponCreateDTO } from '@workspace/schemas';
 import { useCreateCoupon } from "@/api/services/coupons";
@@ -80,8 +84,8 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                 minOrderAmount: data.minOrderAmount ? Number(data.minOrderAmount) : undefined,
                 usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
                 userUsageLimit: Number(data.userUsageLimit || 1),
-                validFrom: new Date(data.validFrom),
-                validUntil: new Date(data.validUntil)
+                validFrom: data.validFrom,
+                validUntil: data.validUntil
             });
 
             toast.success('Đã tạo coupon', {
@@ -274,35 +278,75 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                 </h3>
 
                                 <div className="grid grid-cols-2 gap-6">
-                                    <Field>
-                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Bắt Đầu
-                                        </FieldLabel>
-                                        <div className="relative">
-                                            <Input
-                                                type="date"
-                                                {...register('validFrom', { valueAsDate: true })}
-                                                className=""
-                                                defaultValue={new Date().toISOString().split('T')[0]}
-                                            />
-                                            <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                                        </div>
-                                    </Field>
+                                    <Controller
+                                        control={control}
+                                        name="validFrom"
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                    Bắt Đầu
+                                                </FieldLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full justify-start text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                                            {field.value ? format(field.value, "PPP") : <span>Chọn ngày</span>}
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                {errors.validFrom && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.validFrom.message}</FieldError>}
+                                            </Field>
+                                        )}
+                                    />
 
-                                    <Field>
-                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Kết Thúc
-                                        </FieldLabel>
-                                        <div className="relative">
-                                            <Input
-                                                type="date"
-                                                {...register('validUntil', { valueAsDate: true })}
-                                                className=""
-                                                defaultValue={defaultValidUntil.toISOString().split('T')[0]}
-                                            />
-                                            <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                                        </div>
-                                    </Field>
+                                    <Controller
+                                        control={control}
+                                        name="validUntil"
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                    Kết Thúc
+                                                </FieldLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full justify-start text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                                            {field.value ? format(field.value, "PPP") : <span>Chọn ngày</span>}
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                {errors.validUntil && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.validUntil.message}</FieldError>}
+                                            </Field>
+                                        )}
+                                    />
                                 </div>
                             </div>
                         </div>

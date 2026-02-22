@@ -44,7 +44,7 @@ export const getTicketsColumns = ({ onView, page = 1, limit = 10 }: TicketsColum
                 [TicketType.ERROR_REPORT]: 'Báo lỗi',
             };
             return (
-                <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-tighter px-2 py-0 border-primary/20 text-primary/60 bg-primary/5">
+                <Badge variant="secondary" className="px-2 py-0">
                     {labelMap[type] || type}
                 </Badge>
             );
@@ -70,26 +70,36 @@ export const getTicketsColumns = ({ onView, page = 1, limit = 10 }: TicketsColum
         header: 'Trạng thái',
         cell: ({ row }) => {
             const status = row.original.status as TicketStatus;
-            const getStatusInfo = (status: TicketStatus) => {
+            const getStatusBadge = (status: TicketStatus) => {
                 switch (status) {
                     case TicketStatus.APPROVED:
-                        return { label: 'Thành công', color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', icon: <CheckCircle2 className="w-3 h-3" /> };
+                        return (
+                            <Badge variant="default" className="gap-1.5 px-2 py-0.5">
+                                <CheckCircle2 className="w-3 h-3" /> Thành công
+                            </Badge>
+                        );
                     case TicketStatus.REJECTED:
-                        return { label: 'Từ chối', color: 'bg-red-500/10 text-red-600 border-red-500/20', icon: <XCircle className="w-3 h-3" /> };
+                        return (
+                            <Badge variant="destructive" className="gap-1.5 px-2 py-0.5">
+                                <XCircle className="w-3 h-3" /> Từ chối
+                            </Badge>
+                        );
                     case TicketStatus.PROCESSING:
-                        return { label: 'Đang xử lý', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20', icon: <Clock className="w-3 h-3" /> };
+                        return (
+                            <Badge variant="secondary" className="gap-1.5 px-2 py-0.5">
+                                <Clock className="w-3 h-3" /> Đang xử lý
+                            </Badge>
+                        );
                     case TicketStatus.PENDING:
                     default:
-                        return { label: 'Chờ xử lý', color: 'bg-amber-500/10 text-amber-600 border-amber-500/20', icon: <AlertCircle className="w-3 h-3" /> };
+                        return (
+                            <Badge variant="outline" className="gap-1.5 px-2 py-0.5">
+                                <AlertCircle className="w-3 h-3" /> Chờ xử lý
+                            </Badge>
+                        );
                 }
             };
-            const info = getStatusInfo(status);
-            return (
-                <div className={cn("inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase border", info.color)}>
-                    {info.icon}
-                    {info.label}
-                </div>
-            );
+            return getStatusBadge(status);
         },
     },
     {

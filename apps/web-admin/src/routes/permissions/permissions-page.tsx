@@ -324,7 +324,7 @@ export function PermissionsPage() {
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
                     <Card className="flex flex-row items-center justify-between p-2 shadow-2xl ring-1 ring-border border-none">
                         <div className="flex items-center gap-3 px-2">
-                            <Badge variant="secondary" className="bg-primary/10 text-primary border-none animate-pulse">
+                            <Badge variant="secondary" className="animate-pulse">
                                 Có thay đổi
                             </Badge>
                             <span className="text-xs font-medium text-muted-foreground">Chưa lưu thay đổi</span>

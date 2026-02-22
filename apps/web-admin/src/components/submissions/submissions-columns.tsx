@@ -80,25 +80,25 @@ export const getSubmissionsColumns = ({
         switch (status) {
           case SubmissionStatus.DRAFT:
             return (
-              <Badge className="bg-muted text-muted-foreground hover:bg-muted border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="outline">
                 Nháp
               </Badge>
             );
           case SubmissionStatus.SUBMITTED:
             return (
-              <Badge className="bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-none rounded-lg text-[10px] font-bold uppercase whitespace-nowrap">
+              <Badge variant="secondary" className="whitespace-nowrap">
                 Chờ chấm
               </Badge>
             );
           case SubmissionStatus.GRADED:
             return (
-              <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="default">
                 Đã chấm
               </Badge>
             );
           case SubmissionStatus.RETURNED:
             return (
-              <Badge className="bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="destructive">
                 Đã trả lại
               </Badge>
             );

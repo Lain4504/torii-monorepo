@@ -62,7 +62,7 @@ export function QuestionDetailSheet({
             <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <div className="flex items-center justify-between mb-2">
-                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                        <Badge variant="secondary">
                             JLPT {question.jlptLevel || 'GLOBAL'}
                         </Badge>
                         <Badge

@@ -164,7 +164,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                             <div className="flex items-center gap-2">
                                                                 <p className="text-sm font-semibold text-foreground">{instructor.lecturer?.displayName}</p>
                                                                 {instructor.isPrimary && (
-                                                                    <Badge variant="secondary" className="h-4 px-1.5 rounded-md bg-amber-500/10 text-amber-600 border-amber-500/20 text-[9px] font-bold uppercase tracking-wider">
+                                                                    <Badge variant="default" className="h-4 px-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider">
                                                                         Chủ nhiệm
                                                                     </Badge>
                                                                 )}

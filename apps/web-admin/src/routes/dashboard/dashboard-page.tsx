@@ -339,7 +339,7 @@ function LecturerDashboard() {
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[100px] -z-10 rounded-full" />
         <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="space-y-4">
-            <Badge variant="outline" className="text-xs font-semibold bg-primary/10 text-primary border-none">PHỔ BIẾN</Badge>
+            <Badge variant="secondary" className="text-xs font-semibold">PHỔ BIẾN</Badge>
             <h2 className="text-4xl font-bold tracking-tight">Masterclass <span className="text-primary">Kaiwa N4</span></h2>
             <p className="text-sm font-semibold text-muted-foreground/70">Bắt đầu sau: <span className="text-primary animate-pulse">24 phút 32 giây</span></p>
             <div className="flex gap-4 pt-2">

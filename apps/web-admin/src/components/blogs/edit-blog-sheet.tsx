@@ -15,7 +15,6 @@ import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { Separator } from '@workspace/ui/components/separator';
 import {
     Select,
     SelectContent,
@@ -28,7 +27,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { X, Save, Calendar, Eye, MessageCircle } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 import { blogUpdateDTOSchema, BlogStatus, type BlogUpdateDTO, type BlogResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
@@ -201,38 +200,6 @@ export function EditBlogSheet({
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
 
-                            {/* Key Metrics */}
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="p-4 rounded-xl border border-border bg-card shadow-sm">
-                                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                                        <Eye className="h-4 w-4" />
-                                        <span className="text-xs font-medium">Lượt xem</span>
-                                    </div>
-                                    <div className="text-2xl font-bold text-foreground">
-                                        {blog.viewCount || 0}
-                                    </div>
-                                </div>
-                                <div className="p-4 rounded-xl border border-border bg-card shadow-sm">
-                                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                                        <MessageCircle className="h-4 w-4" />
-                                        <span className="text-xs font-medium">Bình luận</span>
-                                    </div>
-                                    <div className="text-2xl font-bold text-foreground">
-                                        {blog.commentCount || 0}
-                                    </div>
-                                </div>
-                                <div className="p-4 rounded-xl border border-border bg-card shadow-sm">
-                                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                                        <Calendar className="h-4 w-4" />
-                                        <span className="text-xs font-medium">Cập nhật</span>
-                                    </div>
-                                    <div className="text-sm font-medium text-foreground">
-                                        {new Date(blog.updatedAt).toLocaleDateString()}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <Separator />
 
                             {/* Form Fields */}
                             <div className="space-y-6">

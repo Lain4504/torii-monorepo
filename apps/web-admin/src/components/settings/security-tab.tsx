@@ -54,7 +54,7 @@ export function SecurityTab() {
                             <CardTitle>Xác Thực Hai Yếu Tố</CardTitle>
                             <CardDescription>Thêm lớp bảo mật bổ sung cho tài khoản</CardDescription>
                         </div>
-                        <Badge variant={isEnabled ? 'default' : 'secondary'} className={isEnabled ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-600" : ""}>
+                        <Badge variant={isEnabled ? 'default' : 'secondary'}>
                             {isEnabled ? 'Đã Bật' : 'Đã Tắt'}
                         </Badge>
                     </div>

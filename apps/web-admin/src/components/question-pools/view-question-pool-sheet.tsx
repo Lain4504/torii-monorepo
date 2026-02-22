@@ -74,7 +74,7 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
                                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Cấp độ JLPT</p>
                                     <div>
                                         {pool.jlptLevel ? (
-                                            <Badge variant="outline" className="rounded-lg px-3 py-1 font-bold text-primary bg-primary/5 border-primary/20">
+                                            <Badge variant="secondary">
                                                 {pool.jlptLevel}
                                             </Badge>
                                         ) : (
@@ -112,7 +112,7 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
                             <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-between">
                                 <span className="text-sm font-medium text-muted-foreground">Khóa học liên quan:</span>
                                 {pool.courseId ? (
-                                    <Badge variant="outline" className="rounded-lg bg-emerald-500/5 text-emerald-600 border-emerald-500/10 font-bold">
+                                    <Badge variant="default">
                                         Đã liên kết
                                     </Badge>
                                 ) : (

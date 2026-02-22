@@ -9,11 +9,12 @@ import {
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
-import { Label } from '@workspace/ui/components/label';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { QuestionStatus, QuestionDifficultyLevel, QuestionType, QuestionCategory } from '@workspace/schemas';
 import { FileText, Tag, CheckCircle2, BrainCircuit, Layers, Hash, Calendar, AlignLeft, Headphones } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@workspace/ui/components/item';
+import { Separator } from '@workspace/ui/components/separator';
 
 interface ViewQuestionDialogProps {
     open: boolean;
@@ -41,175 +42,174 @@ export function ViewQuestionDialog({
                 <ScrollArea className="flex-1 min-h-0">
                     <div className="p-6 space-y-6">
                         {/* Status Bar */}
-                        <div className="grid grid-cols-3 gap-4 bg-muted/20 p-4 rounded-xl border border-border/50">
-                            <div className="space-y-1.5 border-r border-border/50">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Trạng thái</span>
-                                <div className="flex">
-                                    <Badge
-                                        className={cn(
-                                            "rounded-md text-[10px] font-bold px-2 py-0 border shadow-none",
-                                            question.status === QuestionStatus.ACTIVE
-                                                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                                                : "bg-muted text-muted-foreground border-border"
-                                        )}
-                                    >
-                                        {question.status === QuestionStatus.ACTIVE ? "Đang hoạt động" : question.status}
-                                    </Badge>
-                                </div>
-                            </div>
-                            <div className="space-y-1.5 border-r border-border/50 pl-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Lượt sử dụng</span>
-                                <div className="flex items-center gap-1.5">
-                                    <Hash className="h-3.5 w-3.5 text-primary/70" />
-                                    <span className="text-sm font-bold">{question.usageCount} <span className="text-xs font-normal text-muted-foreground">lần</span></span>
-                                </div>
-                            </div>
-                            <div className="space-y-1.5 pl-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Ngày tạo</span>
-                                <div className="flex items-center gap-1.5">
-                                    <Calendar className="h-3.5 w-3.5 text-primary/70" />
-                                    <span className="text-sm font-bold">{new Date(question.createdAt).toLocaleDateString('vi-VN')}</span>
-                                </div>
-                            </div>
+                        <div className="grid grid-cols-3 gap-4">
+                            <Item variant="outline" className="p-3">
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground/80">Trạng thái</ItemTitle>
+                                    <ItemDescription>
+                                        <Badge
+                                            variant={question.status === QuestionStatus.ACTIVE ? "default" : "secondary"}
+                                            className="rounded-md text-[10px] font-bold px-2 py-0 border shadow-none"
+                                        >
+                                            {question.status === QuestionStatus.ACTIVE ? "Đang hoạt động" : question.status}
+                                        </Badge>
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
+                            <Item variant="outline" className="p-3">
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1.5">
+                                        <Hash className="size-3" /> Lượt sử dụng
+                                    </ItemTitle>
+                                    <ItemDescription className="text-sm font-bold">{question.usageCount} <span className="text-xs font-normal text-muted-foreground">lần</span></ItemDescription>
+                                </ItemContent>
+                            </Item>
+                            <Item variant="outline" className="p-3">
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1.5">
+                                        <Calendar className="size-3" /> Ngày tạo
+                                    </ItemTitle>
+                                    <ItemDescription className="text-sm font-bold">{new Date(question.createdAt).toLocaleDateString('vi-VN')}</ItemDescription>
+                                </ItemContent>
+                            </Item>
                         </div>
 
                         {/* Question Text */}
-                        <div className="space-y-3">
-                            <Label className="text-xs font-bold text-muted-foreground flex items-center gap-2">
-                                <FileText className="h-4 w-4" />
-                                Nội dung câu hỏi
-                            </Label>
-                            <div className="text-base font-medium text-foreground p-5 rounded-xl bg-muted/5 border border-border/80 leading-relaxed">
-                                {question.questionText}
-                            </div>
-                        </div>
+                        <Item variant="outline">
+                            <ItemMedia><FileText className="size-4" /></ItemMedia>
+                            <ItemContent>
+                                <ItemTitle>Nội dung câu hỏi</ItemTitle>
+                                <ItemDescription className="text-base font-medium text-foreground leading-relaxed pt-1">
+                                    {question.questionText}
+                                </ItemDescription>
+                            </ItemContent>
+                        </Item>
+
 
                         {/* Audio Player */}
                         {((question.category === QuestionCategory.LISTENING || question.questionType === QuestionType.LISTENING) && question.metadata?.audioUrl) && (
-                            <div className="space-y-3">
-                                <Label className="text-xs font-bold text-muted-foreground flex items-center gap-2">
-                                    <Headphones className="h-4 w-4" />
-                                    Tệp âm thanh bài nghe
-                                </Label>
-                                <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
-                                    <audio controls className="w-full h-10 outline-none">
-                                        <source src={question.metadata.audioUrl} type="audio/mpeg" />
-                                        Trình duyệt không hỗ trợ nghe audio.
-                                    </audio>
-                                </div>
-                            </div>
+                            <Item variant="outline">
+                                <ItemMedia><Headphones className="size-4" /></ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>Tệp âm thanh bài nghe</ItemTitle>
+                                    <div className="pt-2">
+                                        <audio controls className="w-full h-10 outline-none">
+                                            <source src={question.metadata.audioUrl} type="audio/mpeg" />
+                                            Trình duyệt không hỗ trợ nghe audio.
+                                        </audio>
+                                    </div>
+                                </ItemContent>
+                            </Item>
                         )}
 
-                        {/* Metadata Grid */}
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-3">
-                                <Label className="text-xs font-bold text-muted-foreground flex items-center gap-2">
-                                    <Tag className="h-4 w-4" />
-                                    Phân loại & Danh mục
-                                </Label>
-                                <div className="space-y-2 p-4 rounded-xl bg-muted/5 border border-border/50">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground">Loại câu hỏi</span>
-                                        <span className="text-xs font-bold uppercase">{question.questionType.replace('_', ' ')}</span>
-                                    </div>
-                                    <div className="h-px bg-border/50 w-full" />
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground">Chuyên môn</span>
-                                        <span className="text-xs font-bold uppercase">{question.category || 'N/A'}</span>
-                                    </div>
-                                </div>
-                            </div>
+                        <Separator />
 
-                            <div className="space-y-3">
-                                <Label className="text-xs font-bold text-muted-foreground flex items-center gap-2">
-                                    <Layers className="h-4 w-4" />
-                                    Đặc tính kỹ thuật
-                                </Label>
-                                <div className="space-y-2 p-4 rounded-xl bg-muted/5 border border-border/50">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground">Cấp độ JLPT</span>
-                                        <Badge variant="outline" className="text-[10px] font-bold bg-primary/5 text-primary border-primary/20">
-                                            {question.jlptLevel || 'N/A'}
-                                        </Badge>
+                        {/* Metadata Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <Item variant="outline">
+                                <ItemMedia><Tag className="size-4" /></ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>Phân loại & Danh mục</ItemTitle>
+                                    <div className="space-y-2 pt-2 text-xs">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">Loại câu hỏi</span>
+                                            <span className="font-bold uppercase">{question.questionType.replace('_', ' ')}</span>
+                                        </div>
+                                        <Separator />
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">Chuyên môn</span>
+                                            <span className="font-bold uppercase">{question.category || 'N/A'}</span>
+                                        </div>
                                     </div>
-                                    <div className="h-px bg-border/50 w-full" />
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground">Độ khó</span>
-                                        <Badge variant="outline" className={cn(
-                                            "text-[10px] font-bold border-none",
-                                            question.difficulty === QuestionDifficultyLevel.HARD ? "bg-rose-500/10 text-rose-600" :
-                                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? "bg-amber-500/10 text-amber-600" :
-                                                    "bg-emerald-500/10 text-emerald-600"
-                                        )}>
-                                            {question.difficulty === QuestionDifficultyLevel.HARD ? "Khó" :
-                                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? "Trung bình" : "Dễ"}
-                                        </Badge>
+                                </ItemContent>
+                            </Item>
+
+                            <Item variant="outline">
+                                <ItemMedia><Layers className="size-4" /></ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>Đặc tính kỹ thuật</ItemTitle>
+                                    <div className="space-y-2 pt-2 text-xs">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">Cấp độ JLPT</span>
+                                            <Badge variant="secondary">
+                                                {question.jlptLevel || 'N/A'}
+                                            </Badge>
+                                        </div>
+                                        <Separator />
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">Độ khó</span>
+                                            <Badge
+                                                variant={question.difficulty === QuestionDifficultyLevel.HARD ? "destructive" : "outline"}
+                                                className="text-[10px] font-bold border-none"
+                                            >
+                                                {question.difficulty === QuestionDifficultyLevel.HARD ? "Khó" :
+                                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? "Trung bình" : "Dễ"}
+                                            </Badge>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                </ItemContent>
+                            </Item>
                         </div>
 
                         {/* Options */}
                         {question.options && Object.keys(question.options).length > 0 && (
-                            <div className="space-y-3">
-                                <Label className="text-xs font-bold text-muted-foreground flex items-center gap-2">
-                                    <AlignLeft className="h-4 w-4" />
-                                    Các phương án trả lời
-                                </Label>
-                                <div className="grid grid-cols-1 gap-2.5">
-                                    {Object.entries(question.options).map(([key, value]) => {
-                                        const isCorrect = key === question.correctAnswer;
-                                        return (
-                                            <div
-                                                key={key}
-                                                className={cn(
-                                                    "flex items-center gap-3 p-3.5 rounded-xl border transition-all",
-                                                    isCorrect
-                                                        ? "bg-emerald-500/5 border-emerald-500/40"
-                                                        : "bg-muted/5 border-border/50"
-                                                )}
-                                            >
-                                                <div className={cn(
-                                                    "h-8 w-8 flex items-center justify-center rounded-lg font-bold text-xs shrink-0",
-                                                    isCorrect ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground border border-border"
-                                                )}>
-                                                    {key}
-                                                </div>
-                                                <div className="flex-1 text-sm font-medium min-h-0">{value}</div>
-                                                {isCorrect && (
-                                                    <Badge className="bg-emerald-500 text-[9px] font-bold py-0.5 border-none shadow-none">ĐÁP ÁN ĐÚNG</Badge>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+                            <Item variant="outline">
+                                <ItemMedia><AlignLeft className="size-4" /></ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>Các phương án trả lời</ItemTitle>
+                                    <div className="grid grid-cols-1 gap-2.5 pt-2">
+                                        {Object.entries(question.options).map(([key, value]) => {
+                                            const isCorrect = key === question.correctAnswer;
+                                            return (
+                                                <Item key={key} variant={isCorrect ? 'default' : 'outline'} className={cn(isCorrect ? "bg-emerald-500/5 border-emerald-500/30" : "")}>
+                                                    <ItemMedia>
+                                                        <div className={cn(
+                                                            "h-8 w-8 flex items-center justify-center rounded-lg font-bold text-xs shrink-0",
+                                                            isCorrect ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground border border-border"
+                                                        )}>
+                                                            {key}
+                                                        </div>
+                                                    </ItemMedia>
+                                                    <ItemContent>
+                                                        <ItemDescription className="flex items-center justify-between gap-2">
+                                                            <span>{value}</span>
+                                                            {isCorrect && (
+                                                                <Badge variant="default" className="text-[9px] px-1.5 py-0 h-5">ĐÚNG</Badge>
+                                                            )}
+                                                        </ItemDescription>
+                                                    </ItemContent>
+                                                </Item>
+                                            );
+                                        })}
+                                    </div>
+                                </ItemContent>
+                            </Item>
                         )}
 
-                        {/* Correct Answer (if not redundant with options) */}
+                        {/* Correct Answer */}
                         {(!question.options || Object.keys(question.options).length === 0) && (
-                            <div className="space-y-3">
-                                <Label className="text-xs font-bold text-muted-foreground flex items-center gap-2">
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    Đáp án đúng
-                                </Label>
-                                <div className="text-lg font-bold text-emerald-600 p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
-                                    {question.correctAnswer || 'N/A'}
-                                </div>
-                            </div>
+                            <Item variant="outline">
+                                <ItemMedia><CheckCircle2 className="size-4" /></ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>Đáp án đúng</ItemTitle>
+                                    <ItemDescription className="text-lg font-bold text-emerald-600 pt-1">
+                                        {question.correctAnswer || 'N/A'}
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
                         )}
 
                         {/* Explanation */}
                         {question.explanation && (
-                            <div className="space-y-3 pb-6">
-                                <Label className="text-xs font-bold text-muted-foreground flex items-center gap-2">
-                                    <BrainCircuit className="h-4 w-4" />
-                                    Giải thích đáp án
-                                </Label>
-                                <div className="text-sm font-medium text-muted-foreground/80 leading-relaxed whitespace-pre-wrap p-5 rounded-xl bg-muted/5 border border-border/80 italic">
-                                    "{question.explanation}"
-                                </div>
-                            </div>
+                            <Item variant="outline">
+                                <ItemMedia><BrainCircuit className="size-4" /></ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>Giải thích đáp án</ItemTitle>
+                                    <ItemDescription className="text-sm font-medium text-muted-foreground/80 leading-relaxed whitespace-pre-wrap pt-1 italic">
+                                        "{question.explanation}"
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
                         )}
                     </div>
                 </ScrollArea>

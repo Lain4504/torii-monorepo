@@ -14,7 +14,7 @@ import { useQuestionsByPool } from '@/api/services/questions';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { PageHeader } from '@/components/common/page-header';
-import { QuestionsTable } from '@/components/question-pools/questions-table.tsx';
+import { PoolQuestionsTable } from '@/components/question-pools/pool-questions-table';
 import { QuestionFormSheet } from '@/components/questions/question-form-sheet';
 import { QuestionDetailSheet } from '@/components/questions/question-detail-sheet';
 import { DeleteQuestionDialog } from '@/components/questions/delete-question-dialog.tsx';
@@ -105,7 +105,7 @@ export default function PoolDetailPage() {
                 </div>
 
                 <Card>
-                    <QuestionsTable
+                    <PoolQuestionsTable
                         data={filteredQuestions}
                         isLoading={isLoadingQuestions}
                         onView={setViewingQuestion}
