@@ -170,7 +170,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                                     <SelectTrigger className="">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="rounded-xl">
+                                                    <SelectContent>
                                                         <SelectItem value={CouponDiscountType.PERCENTAGE}>Theo phần trăm (%)</SelectItem>
                                                         <SelectItem value={CouponDiscountType.FIXED_AMOUNT}>Số tiền cố định (VND)</SelectItem>
                                                     </SelectContent>

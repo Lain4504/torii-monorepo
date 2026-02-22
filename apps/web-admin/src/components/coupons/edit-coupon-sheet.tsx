@@ -194,7 +194,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                                 <SelectTrigger className="">
                                                     <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-xl">
+                                                <SelectContent>
                                                     <SelectItem value={CouponStatus.ACTIVE}>Đang hoạt động</SelectItem>
                                                     <SelectItem value={CouponStatus.INACTIVE}>Ngừng hoạt động</SelectItem>
                                                     <SelectItem value={CouponStatus.EXPIRED}>Đã hết hạn</SelectItem>
@@ -224,7 +224,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                                     <SelectTrigger className="">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="rounded-xl">
+                                                    <SelectContent>
                                                         <SelectItem value={CouponDiscountType.PERCENTAGE}>Theo phần trăm (%)</SelectItem>
                                                         <SelectItem value={CouponDiscountType.FIXED_AMOUNT}>Số tiền cố định (VND)</SelectItem>
                                                     </SelectContent>

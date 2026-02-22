@@ -201,7 +201,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                 <SelectTrigger id="lecturer-select" className="">
                                                     <SelectValue placeholder="Chọn giảng viên..." />
                                                 </SelectTrigger>
-                                                <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">
+                                                <SelectContent>
                                                     {availableLecturers.map((lecturer) => (
                                                         <SelectItem key={lecturer.id} value={lecturer.id} className="rounded-lg cursor-pointer text-xs font-medium py-2.5 focus:bg-primary/5 focus:text-primary">
                                                             <span className="mr-2">{lecturer.displayName}</span>
@@ -226,7 +226,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                 <SelectTrigger id="role-select" className="">
                                                     <SelectValue placeholder="Chọn vai trò..." />
                                                 </SelectTrigger>
-                                                <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">
+                                                <SelectContent>
                                                     <SelectItem value={InstructorRole.MAIN} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Giảng viên chính</SelectItem>
                                                     <SelectItem value={InstructorRole.ASSISTANT} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Trợ giảng</SelectItem>
                                                     <SelectItem value={InstructorRole.RECORDER} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Người ghi hình (VOD)</SelectItem>

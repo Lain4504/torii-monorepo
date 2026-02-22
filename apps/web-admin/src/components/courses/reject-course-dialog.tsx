@@ -10,14 +10,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog";
+import { Controller } from "react-hook-form";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@workspace/ui/components/form";
+    Field,
+    FieldError,
+    FieldLabel,
+} from "@workspace/ui/components/field";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { useRejectCourse } from "@/api/services/courses";
 import type { CourseResponseDTO } from "@workspace/schemas";
@@ -81,47 +79,44 @@ export function RejectCourseDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <Form {...(form as any)}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control as any}
-                            name="reason"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Lý do từ chối & Phản hồi</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="Nhập lý do từ chối và hướng dẫn chỉnh sửa..."
-                                            className="min-h-[120px] resize-none"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <Controller
+                        control={form.control as any}
+                        name="reason"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Lý do từ chối & Phản hồi</FieldLabel>
+                                <Textarea
+                                    id={field.name}
+                                    placeholder="Nhập lý do từ chối và hướng dẫn chỉnh sửa..."
+                                    className="min-h-[120px] resize-none"
+                                    {...field}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
-                        <DialogFooter className="gap-2 sm:gap-0">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => onOpenChange(false)}
-                            >
-                                Hủy bỏ
-                            </Button>
-                            <Button
-                                type="submit"
-                                variant="destructive"
-                                disabled={mutation.isPending}
-                            >
-                                {mutation.isPending && (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                )}
-                                Xác nhận Từ chối
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
+                    <DialogFooter className="gap-2 sm:gap-0 mt-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Hủy bỏ
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="destructive"
+                            disabled={mutation.isPending}
+                        >
+                            {mutation.isPending && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            Xác nhận Từ chối
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );

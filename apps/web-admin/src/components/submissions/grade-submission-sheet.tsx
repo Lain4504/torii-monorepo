@@ -16,14 +16,13 @@ import {
   SheetDescription,
   SheetFooter
 } from "@workspace/ui/components/sheet";
+import { Controller } from "react-hook-form";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@workspace/ui/components/form";
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@workspace/ui/components/field";
 import { Input } from "@workspace/ui/components/input";
 import { Button } from "@workspace/ui/components/button";
 import { Textarea } from "@workspace/ui/components/textarea";
@@ -114,12 +113,12 @@ export function GradeSubmissionSheet({
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto min-h-0">
-          <div className="p-6 space-y-8">
+          <div className="p-6 space-y-6">
             {/* Submission Content */}
             <section className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-                <FileText className="size-4 text-primary" />
-                <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Nội dung bài nộp</h3>
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <FileText className="size-4" />
+                <h3 className="text-sm font-semibold">Nội dung bài nộp</h3>
               </div>
 
               {submission.textAnswer && (
@@ -164,67 +163,63 @@ export function GradeSubmissionSheet({
             </section>
 
             {/* Grading Form */}
-            <section className="space-y-6">
-              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-                <PenLine className="size-4 text-primary" />
-                <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Đánh giá & Chấm điểm</h3>
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <PenLine className="size-4" />
+                <h3 className="text-sm font-semibold">Đánh giá & Chấm điểm</h3>
               </div>
 
-              <Form {...form}>
-                <form id="grade-form" onSubmit={form.handleSubmit(onGrade)} className="space-y-6 flex flex-col overflow-hidden">
-                  <div className="p-5 rounded-2xl bg-muted/10 border border-border/40 space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="score"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Điểm số</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                {...field}
-                                value={field.value || ''}
-                                onChange={e => {
-                                  const input = e.target.value;
-                                  field.onChange(input === '' ? 0 : parseFloat(input));
-                                }}
-                                className="rounded-xl pr-12 font-black text-2xl h-14 bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all"
-                                placeholder="0"
-                                min="0"
-                                max={maxScore}
-                                step="0.5"
-                              />
-                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-muted-foreground/40 italic">
-                                / {maxScore} điểm
-                              </span>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+              <form id="grade-form" onSubmit={form.handleSubmit(onGrade)} className="space-y-6 flex flex-col overflow-hidden">
+                <FieldGroup>
+                  <Controller
+                    control={form.control}
+                    name="score"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Điểm số</FieldLabel>
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            id={field.name}
+                            {...field}
+                            value={field.value || ''}
+                            onChange={e => {
+                              const input = e.target.value;
+                              field.onChange(input === '' ? 0 : parseFloat(input));
+                            }}
+                            className="pr-16"
+                            placeholder="0"
+                            min="0"
+                            max={maxScore}
+                            step="0.5"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                            / {maxScore}
+                          </span>
+                        </div>
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="feedback"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Phản hồi</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              {...field}
-                              className="min-h-[120px] rounded-xl resize-none bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all text-sm leading-relaxed"
-                              placeholder="Nhập nhận xét chi tiết..."
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </form>
-              </Form>
+                  <Controller
+                    control={form.control}
+                    name="feedback"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Phản hồi</FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          {...field}
+                          className="min-h-[120px]"
+                          placeholder="Nhập nhận xét chi tiết..."
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+                </FieldGroup>
+              </form>
             </section>
           </div>
         </div>

@@ -25,7 +25,8 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { toast } from '@workspace/ui/components/sonner';
 import { PageHeader } from '@/components/common/page-header';
-import { PageLoading } from '@workspace/ui/components/page-loading';
+import { Skeleton } from '@workspace/ui/components/skeleton';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import {
   Table,
   TableBody,
@@ -34,6 +35,9 @@ import {
   TableHeader,
   TableRow,
 } from '@workspace/ui/components/table';
+
+const ACTIVE_COLS = 8;
+const PAST_COLS = 8;
 
 export default function RoomsPage() {
   const [activeTab, setActiveTab] = useState<'active' | 'past'>('active');
@@ -127,36 +131,58 @@ export default function RoomsPage() {
 
         {/* Active Rooms Tab */}
         <TabsContent value="active" className="space-y-4">
-          {isLoadingActive ? (
-            <PageLoading text="Đang tải danh sách phòng..." />
-          ) : activeRooms?.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-              <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
-                <WifiOff className="size-6" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold">Không có phòng hoạt động</h3>
-                <p className="text-sm text-muted-foreground">Các phòng học live sẽ xuất hiện ở đây khi có buổi học đang diễn ra.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border bg-card overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Tên phòng</TableHead>
-                    <TableHead>Thời gian bắt đầu</TableHead>
-                    <TableHead>Đã chạy</TableHead>
-                    <TableHead>Số người tối đa</TableHead>
-                    <TableHead>Ghi hình</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
+          <div className="rounded-xl border bg-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">#</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead>Tên phòng</TableHead>
+                  <TableHead>Thời gian bắt đầu</TableHead>
+                  <TableHead>Đã chạy</TableHead>
+                  <TableHead>Số người tối đa</TableHead>
+                  <TableHead>Ghi hình</TableHead>
+                  <TableHead className="text-right">Thao tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoadingActive ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-4" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                      <TableCell>
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-40" />
+                          <Skeleton className="h-3 w-28" />
+                        </div>
+                      </TableCell>
+                      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : activeRooms?.length === 0 ? (
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={ACTIVE_COLS} className="h-[400px] text-center">
+                      <Empty>
+                        <EmptyMedia>
+                          <WifiOff className="size-8 text-muted-foreground" />
+                        </EmptyMedia>
+                        <EmptyContent>
+                          <EmptyTitle>Không có phòng hoạt động</EmptyTitle>
+                          <EmptyDescription>
+                            Các phòng học live sẽ xuất hiện ở đây khi có buổi học đang diễn ra.
+                          </EmptyDescription>
+                        </EmptyContent>
+                      </Empty>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {activeRooms?.map((room, idx) => (
-                    <TableRow key={room.roomId} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                ) : (
+                  activeRooms?.map((room, idx) => (
+                    <TableRow key={room.roomId} className="hover:bg-muted/30 transition-colors">
                       <TableCell className="font-mono text-xs text-muted-foreground">{idx + 1}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -164,7 +190,7 @@ export default function RoomsPage() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                           </span>
-                          <Badge variant="destructive" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
+                          <Badge variant="destructive" className="text-[9px] font-black uppercase tracking-widest">
                             Live Now
                           </Badge>
                         </div>
@@ -185,7 +211,7 @@ export default function RoomsPage() {
                         <span className="text-sm">{room.maxParticipants} người</span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={room.allowRecording ? "default" : "outline"} className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
+                        <Badge variant={room.allowRecording ? 'default' : 'outline'} className="text-[9px] font-black uppercase tracking-widest">
                           {room.allowRecording ? 'Đang ghi' : 'Không ghi'}
                         </Badge>
                       </TableCell>
@@ -193,7 +219,6 @@ export default function RoomsPage() {
                         <Button
                           variant="destructive"
                           size="sm"
-                          className="rounded-lg h-8 px-4 text-[10px] font-bold uppercase tracking-widest gap-1.5"
                           onClick={() => handleEndRoom(room.roomId, room.roomTitle)}
                         >
                           <StopCircle className="size-3" />
@@ -201,50 +226,72 @@ export default function RoomsPage() {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </TabsContent>
 
         {/* Past Rooms Tab */}
         <TabsContent value="past" className="space-y-4">
-          {isLoadingPast ? (
-            <PageLoading text="Đang tải lịch sử phòng..." />
-          ) : pastRoomsData?.roomsList?.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-              <div className="size-12 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
-                <Archive className="size-6" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold">Chưa có lịch sử phòng học</h3>
-                <p className="text-sm text-muted-foreground">Lịch sử các buổi học đã kết thúc sẽ được lưu trữ tại đây.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border bg-card overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                    <TableHead>Tên phòng</TableHead>
-                    <TableHead>Ngày</TableHead>
-                    <TableHead>Thời lượng</TableHead>
-                    <TableHead>Người tham gia</TableHead>
-                    <TableHead>Recordings</TableHead>
-                    <TableHead>Analytics</TableHead>
+          <div className="rounded-xl border bg-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">#</TableHead>
+                  <TableHead className="w-12"></TableHead>
+                  <TableHead>Tên phòng</TableHead>
+                  <TableHead>Ngày</TableHead>
+                  <TableHead>Thời lượng</TableHead>
+                  <TableHead>Người tham gia</TableHead>
+                  <TableHead>Recordings</TableHead>
+                  <TableHead>Analytics</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoadingPast ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-4" /></TableCell>
+                      <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                      <TableCell>
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-40" />
+                          <Skeleton className="h-3 w-28" />
+                        </div>
+                      </TableCell>
+                      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-12" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : pastRoomsData?.roomsList?.length === 0 ? (
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={PAST_COLS} className="h-[400px] text-center">
+                      <Empty>
+                        <EmptyMedia>
+                          <Archive className="size-8 text-muted-foreground" />
+                        </EmptyMedia>
+                        <EmptyContent>
+                          <EmptyTitle>Chưa có lịch sử phòng học</EmptyTitle>
+                          <EmptyDescription>
+                            Lịch sử các buổi học đã kết thúc sẽ được lưu trữ tại đây.
+                          </EmptyDescription>
+                        </EmptyContent>
+                      </Empty>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pastRoomsData?.roomsList?.map((room, idx) => (
+                ) : (
+                  pastRoomsData?.roomsList?.map((room, idx) => (
                     <PastRoomRow key={room.sid} room={room} idx={idx} formatDuration={formatDuration} formatFileSize={formatFileSize} />
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

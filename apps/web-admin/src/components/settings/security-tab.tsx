@@ -10,6 +10,14 @@ import {
     CardDescription,
     CardContent,
 } from '@workspace/ui/components/card';
+import {
+    Item,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
+import { Badge } from '@workspace/ui/components/badge';
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';
@@ -47,74 +55,75 @@ export function SecurityTab() {
                             <CardTitle>Xác Thực Hai Yếu Tố</CardTitle>
                             <CardDescription>Thêm lớp bảo mật bổ sung cho tài khoản</CardDescription>
                         </div>
-                        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide shrink-0 ${isEnabled
-                            ? 'bg-emerald-500/10 text-emerald-600'
-                            : 'bg-muted text-muted-foreground'
-                            }`}>
+                        <Badge variant={isEnabled ? 'default' : 'secondary'} className={isEnabled ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-600" : ""}>
                             {isEnabled ? 'Đã Bật' : 'Đã Tắt'}
-                        </span>
+                        </Badge>
                     </div>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
                     {/* Status Info when enabled */}
                     {isEnabled && status && (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
-                                <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Phương Thức</p>
-                                <p className="text-sm font-semibold text-foreground">
-                                    {status.method === 'totp' ? 'Ứng dụng xác thực' : 'Không xác định'}
-                                </p>
-                            </div>
-                            <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
-                                <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Mã Dự Phòng</p>
-                                <p className="text-sm font-semibold text-foreground">
-                                    Còn {status.backupCodesRemaining || 0} mã
-                                </p>
-                            </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <Item variant="outline">
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Phương Thức</ItemTitle>
+                                    <ItemDescription className="text-sm font-semibold text-foreground">
+                                        {status.method === 'totp' ? 'Ứng dụng xác thực' : 'Không xác định'}
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
+                            <Item variant="outline">
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Mã Dự Phòng</ItemTitle>
+                                    <ItemDescription className="text-sm font-semibold text-foreground">
+                                        Còn {status.backupCodesRemaining || 0} mã
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
                             {status.enabledAt && (
-                                <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Đã Bật</p>
-                                    <p className="text-sm font-semibold text-foreground">
-                                        {formatDistanceToNow(new Date(status.enabledAt), { addSuffix: true, locale: vi })}
-                                    </p>
-                                </div>
+                                <Item variant="outline">
+                                    <ItemContent>
+                                        <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Đã Bật</ItemTitle>
+                                        <ItemDescription className="text-sm font-semibold text-foreground">
+                                            {formatDistanceToNow(new Date(status.enabledAt), { addSuffix: true, locale: vi })}
+                                        </ItemDescription>
+                                    </ItemContent>
+                                </Item>
                             )}
                             {status.lastUsedAt && (
-                                <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Sử Dụng Lần Cuối</p>
-                                    <p className="text-sm font-semibold text-foreground">
-                                        {formatDistanceToNow(new Date(status.lastUsedAt), { addSuffix: true, locale: vi })}
-                                    </p>
-                                </div>
+                                <Item variant="outline">
+                                    <ItemContent>
+                                        <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Sử Dụng Lần Cuối</ItemTitle>
+                                        <ItemDescription className="text-sm font-semibold text-foreground">
+                                            {formatDistanceToNow(new Date(status.lastUsedAt), { addSuffix: true, locale: vi })}
+                                        </ItemDescription>
+                                    </ItemContent>
+                                </Item>
                             )}
                         </div>
                     )}
 
                     {/* Info banner when disabled */}
                     {!isEnabled && (
-                        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 flex gap-3">
-                            <Shield className="size-4 text-blue-600 shrink-0 mt-0.5" />
-                            <div className="space-y-1">
-                                <p className="text-sm font-semibold text-foreground">Bảo vệ tài khoản với 2FA</p>
-                                <p className="text-xs text-muted-foreground leading-relaxed">
-                                    Xác thực hai yếu tố thêm một lớp bảo mật bằng cách yêu cầu mã từ điện thoại của bạn cùng với mật khẩu.
-                                </p>
-                            </div>
-                        </div>
+                        <Alert className="border-blue-500/20 bg-blue-500/5 text-blue-600">
+                            <Shield className="size-4" />
+                            <AlertTitle className="text-foreground">Bảo vệ tài khoản với 2FA</AlertTitle>
+                            <AlertDescription className="text-muted-foreground">
+                                Xác thực hai yếu tố thêm một lớp bảo mật bằng cách yêu cầu mã từ điện thoại của bạn cùng với mật khẩu.
+                            </AlertDescription>
+                        </Alert>
                     )}
 
                     {/* Low backup codes warning */}
                     {isEnabled && status && status.backupCodesRemaining !== undefined && status.backupCodesRemaining < 3 && (
-                        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 flex gap-3">
-                            <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
-                            <div className="space-y-1">
-                                <p className="text-sm font-semibold text-foreground">Sắp hết mã dự phòng</p>
-                                <p className="text-xs text-muted-foreground leading-relaxed">
-                                    Bạn chỉ còn {status.backupCodesRemaining} mã dự phòng. Hãy cân nhắc tạo bộ mã mới.
-                                </p>
-                            </div>
-                        </div>
+                        <Alert variant="destructive" className="border-amber-500/20 bg-amber-500/5 text-amber-600">
+                            <AlertTriangle className="size-4" />
+                            <AlertTitle className="text-foreground">Sắp hết mã dự phòng</AlertTitle>
+                            <AlertDescription className="text-muted-foreground">
+                                Bạn chỉ còn {status.backupCodesRemaining} mã dự phòng. Hãy cân nhắc tạo bộ mã mới.
+                            </AlertDescription>
+                        </Alert>
                     )}
 
                     {/* Actions */}

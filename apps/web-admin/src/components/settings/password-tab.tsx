@@ -16,6 +16,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { toast } from '@workspace/ui/components/sonner';
 import { KeyRound, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -70,17 +71,17 @@ export function PasswordTab() {
 
                 <CardContent className="space-y-5">
                     {/* Security Tips */}
-                    <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 flex gap-3">
-                        <AlertCircle className="size-4 text-blue-600 shrink-0 mt-0.5" />
-                        <div className="space-y-1">
-                            <p className="text-sm font-semibold text-foreground">Mẹo bảo mật mật khẩu</p>
+                    <Alert className="border-blue-500/20 bg-blue-500/5 text-blue-600">
+                        <AlertCircle className="size-4" />
+                        <AlertTitle className="text-foreground">Mẹo bảo mật mật khẩu</AlertTitle>
+                        <AlertDescription className="text-muted-foreground">
                             <ul className="space-y-0.5 text-xs text-muted-foreground">
                                 <li>• Sử dụng ít nhất 8 ký tự</li>
                                 <li>• Bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt</li>
                                 <li>• Tránh sử dụng thông tin cá nhân</li>
                             </ul>
-                        </div>
-                    </div>
+                        </AlertDescription>
+                    </Alert>
 
                     {/* Password Form */}
                     <form onSubmit={form.handleSubmit(onSubmit)}>

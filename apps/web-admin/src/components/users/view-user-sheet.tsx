@@ -14,6 +14,13 @@ import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
 import { format } from 'date-fns';
 import { Mail, Shield, Clock, Activity, Fingerprint, Terminal, AlertTriangle, Zap, Lock } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
+import {
+    Item,
+    ItemMedia,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
 
 interface ViewUserSheetProps {
     open: boolean;
@@ -78,26 +85,32 @@ export function ViewUserSheet({
 
                         {/* Role & Status */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 rounded-lg border bg-muted/20 space-y-2">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Shield className="size-3.5" />
-                                    <span className="text-[10px] font-bold uppercase tracking-wider">Vai trò</span>
-                                </div>
-                                <Badge variant="secondary" className="w-full justify-center capitalize">
-                                    {user.role}
-                                </Badge>
-                            </div>
+                            <Item variant="outline">
+                                <ItemMedia>
+                                    <Shield className="size-4" />
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground">Vai trò</ItemTitle>
+                                    <ItemDescription>
+                                        <Badge variant="secondary" className="capitalize">{user.role}</Badge>
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
 
-                            <div className="p-4 rounded-lg border bg-muted/20 space-y-2">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Activity className="size-3.5" />
-                                    <span className="text-[10px] font-bold uppercase tracking-wider">Trạng thái</span>
-                                </div>
-                                <Badge variant="outline" className={cn("w-full justify-center capitalize", status.includes('cấm') || status.includes('xóa') ? "border-destructive text-destructive" : "")}>
-                                    <StatusIcon className="size-3 mr-1.5" />
-                                    {status}
-                                </Badge>
-                            </div>
+                            <Item variant="outline">
+                                <ItemMedia>
+                                    <Activity className="size-4" />
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground">Trạng thái</ItemTitle>
+                                    <ItemDescription>
+                                        <Badge variant="outline" className={cn(status.includes('cấm') || status.includes('xóa') ? "border-destructive text-destructive" : "")}>
+                                            <StatusIcon className="size-3 mr-1.5" />
+                                            {status}
+                                        </Badge>
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
                         </div>
 
                         {/* Timeline */}
@@ -117,19 +130,17 @@ export function ViewUserSheet({
                                 ]
                                     .filter(Boolean)
                                     .map((item: any, i) => (
-                                        <div key={i} className="flex items-center gap-4 p-3 rounded-md border bg-muted/5">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background border shadow-sm">
-                                                <item.icon className="size-3.5 text-muted-foreground" />
-                                            </div>
-                                            <div className="flex-1 min-w-0 min-h-0">
-                                                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                                                    {item.label}
-                                                </p>
-                                                <p className="text-xs font-medium truncate">
+                                        <Item key={i} variant="outline">
+                                            <ItemMedia>
+                                                <item.icon className="size-4" />
+                                            </ItemMedia>
+                                            <ItemContent>
+                                                <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground">{item.label}</ItemTitle>
+                                                <ItemDescription className="text-xs font-medium">
                                                     {format(new Date(item.value), 'PPpp')}
-                                                </p>
-                                            </div>
-                                        </div>
+                                                </ItemDescription>
+                                            </ItemContent>
+                                        </Item>
                                     ))}
                             </div>
                         </div>

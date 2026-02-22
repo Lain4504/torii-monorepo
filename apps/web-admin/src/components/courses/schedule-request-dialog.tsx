@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     type ScheduleRequestCreateDTO,
@@ -13,13 +13,10 @@ import {
     DialogDescription
 } from '@workspace/ui/components/dialog';
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from '@workspace/ui/components/form';
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
@@ -101,7 +98,7 @@ export function ScheduleRequestDialog({
             toast.success('Đã gửi yêu cầu thay đổi lịch dạy. Vui lòng chờ quản trị viên phê duyệt.');
             onOpenChange(false);
             form.reset();
-        } catch (error) {
+        } catch {
             toast.error('Có lỗi xảy ra khi gửi yêu cầu');
         }
     };
@@ -116,131 +113,134 @@ export function ScheduleRequestDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6 py-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control as any}
-                                name="dayOfWeek"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Ngày trong tuần</FormLabel>
-                                        <Select
-                                            onValueChange={(val) => field.onChange(parseInt(val))}
-                                            defaultValue={field.value?.toString()}
+                <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6 py-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <Controller
+                            name="dayOfWeek"
+                            control={form.control as any}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor="dayOfWeek">Ngày trong tuần</FieldLabel>
+                                    <Select
+                                        onValueChange={(val) => field.onChange(parseInt(val))}
+                                        defaultValue={field.value?.toString()}
+                                    >
+                                        <SelectTrigger
+                                            id="dayOfWeek"
+                                            aria-invalid={fieldState.invalid}
                                         >
-                                            <FormControl>
-                                                <SelectTrigger className="">
-                                                    <SelectValue placeholder="Chọn ngày" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent className="rounded-xl">
-                                                {DAYS.map((day) => (
-                                                    <SelectItem key={day.value} value={day.value} className="text-xs font-medium">
-                                                        {day.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage className="text-[10px]" />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control as any}
-                                name="startTime"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Giờ bắt đầu</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="time"
-                                                className=""
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage className="text-[10px]" />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <FormField
-                            control={form.control as any}
-                            name="duration"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Thời lượng (phút)</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            className=""
-                                            {...field}
-                                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                        />
-                                    </FormControl>
-                                    <FormMessage className="text-[10px]" />
-                                </FormItem>
+                                            <SelectValue placeholder="Chọn ngày" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {DAYS.map((day) => (
+                                                <SelectItem key={day.value} value={day.value}>
+                                                    {day.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
                             )}
                         />
 
-                        <FormField
+                        <Controller
+                            name="startTime"
                             control={form.control as any}
-                            name="reason"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Lý do thay đổi</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="Vui lòng cung cấp lý do để quản trị viên dễ dàng phê duyệt..."
-                                            className="min-h-[100px] rounded-2xl bg-muted/30 border-none font-medium resize-none p-4 text-xs"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage className="text-[10px]" />
-                                </FormItem>
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor="startTime">Giờ bắt đầu</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id="startTime"
+                                        type="time"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
                             )}
                         />
+                    </div>
 
-                        {/* Conflict Status */}
-                        <div className={cn(
-                            "p-4 rounded-2xl flex items-center gap-3 transition-colors duration-300",
-                            isAvailable ? "bg-emerald-50 text-emerald-700" : "bg-destructive/10 text-destructive"
-                        )}>
-                            {isAvailable ? <CheckCircle2 className="size-5 shrink-0" /> : <AlertCircle className="size-5 shrink-0" />}
-                            <div className="space-y-0.5 text-xs">
-                                <p className="font-bold uppercase tracking-tight">
-                                    {isAvailable ? "Thời gian khả dụng" : "Xung đột lịch trình"}
-                                </p>
-                                <p className="text-[10px] opacity-80 leading-snug">
-                                    {isAvailable
-                                        ? "Bạn có thể yêu cầu thay đổi sang khung giờ này."
-                                        : "Bạn đã có một lịch dạy khác trùng lặp với thời gian này."}
-                                </p>
-                            </div>
+                    <Controller
+                        name="duration"
+                        control={form.control as any}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor="duration">Thời lượng (phút)</FieldLabel>
+                                <Input
+                                    {...field}
+                                    id="duration"
+                                    type="number"
+                                    aria-invalid={fieldState.invalid}
+                                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
+                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            </Field>
+                        )}
+                    />
+
+                    <Controller
+                        name="reason"
+                        control={form.control as any}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor="reason">Lý do thay đổi</FieldLabel>
+                                <Textarea
+                                    {...field}
+                                    id="reason"
+                                    placeholder="Vui lòng cung cấp lý do để quản trị viên dễ dàng phê duyệt..."
+                                    className="min-h-[100px] resize-none"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            </Field>
+                        )}
+                    />
+
+                    {/* Conflict Status */}
+                    <div className={cn(
+                        "p-4 rounded-lg border flex items-center gap-3 transition-colors",
+                        isAvailable ? "border-border" : "border-destructive/30 bg-destructive/5 text-destructive"
+                    )}>
+                        {isChecking ? (
+                            <Loader2 className="size-5 shrink-0 animate-spin text-muted-foreground" />
+                        ) : isAvailable ? (
+                            <CheckCircle2 className="size-5 shrink-0 text-muted-foreground" />
+                        ) : (
+                            <AlertCircle className="size-5 shrink-0" />
+                        )}
+                        <div className="space-y-0.5 text-xs">
+                            <p className="font-semibold">
+                                {isChecking ? 'Đang kiểm tra...' : isAvailable ? 'Thời gian khả dụng' : 'Xung đột lịch trình'}
+                            </p>
+                            <p className="text-muted-foreground text-[11px]">
+                                {isAvailable
+                                    ? 'Bạn có thể yêu cầu thay đổi sang khung giờ này.'
+                                    : 'Bạn đã có một lịch dạy khác trùng lặp với thời gian này.'}
+                            </p>
                         </div>
+                    </div>
 
-                        <DialogFooter className="gap-2 sm:gap-0 mt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => onOpenChange(false)}
-                            >
-                                Hủy bỏ
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={!isAvailable || isChecking || createMutation.isPending}
-                            >
-                                {createMutation.isPending && (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                )}
-                                Gửi yêu cầu
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Hủy bỏ
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={!isAvailable || isChecking || createMutation.isPending}
+                        >
+                            {createMutation.isPending && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            Gửi yêu cầu
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );

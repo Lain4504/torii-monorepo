@@ -25,7 +25,14 @@ import {
     AlertTriangle,
     Loader2,
 } from 'lucide-react';
-import { cn } from '@workspace/ui/lib/utils';
+import {
+    Item,
+    ItemMedia,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
+import { Alert, AlertDescription } from '@workspace/ui/components/alert';
 
 interface TicketDetailSheetProps {
     ticket: TicketResponseDTO | null;
@@ -89,18 +96,22 @@ export function TicketDetailSheet({
                                 <User className="size-3" />
                                 Thông tin người gửi
                             </h4>
-                            <div className="grid grid-cols-2 gap-4 bg-muted/5 p-5 rounded-[2rem] border border-border/10 shadow-inner">
-                                <div className="space-y-1">
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">Họ và tên</p>
-                                    <p className="text-sm font-bold truncate">{ticket.user?.displayName || 'N/A'}</p>
-                                </div>
-                                <div className="space-y-1 border-l border-border/10 pl-4">
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">Email liên hệ</p>
-                                    <p className="text-sm font-bold truncate flex items-center gap-1.5">
-                                        <Mail className="size-3 text-primary/40" />
-                                        {ticket.user?.email || 'N/A'}
-                                    </p>
-                                </div>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <Item variant="outline">
+                                    <ItemContent>
+                                        <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Họ và tên</ItemTitle>
+                                        <ItemDescription className="text-sm font-bold text-foreground truncate">{ticket.user?.displayName || 'N/A'}</ItemDescription>
+                                    </ItemContent>
+                                </Item>
+                                <Item variant="outline">
+                                    <ItemMedia>
+                                        <Mail className="size-4" />
+                                    </ItemMedia>
+                                    <ItemContent>
+                                        <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Email liên hệ</ItemTitle>
+                                        <ItemDescription className="text-sm font-bold text-foreground truncate">{ticket.user?.email || 'N/A'}</ItemDescription>
+                                    </ItemContent>
+                                </Item>
                             </div>
                         </section>
 
@@ -111,29 +122,27 @@ export function TicketDetailSheet({
                                     <Tag className="size-3" />
                                     Chi tiết kỹ thuật
                                 </h4>
-                                <Badge className={cn(
-                                    "text-[9px] font-black uppercase tracking-widest",
-                                    ticket.type === TicketType.REFUND ? "bg-amber-500/10 text-amber-600" : "bg-primary/10 text-primary"
-                                )}>
+                                <Badge variant={ticket.type === TicketType.REFUND ? 'secondary' : 'default'}>
                                     {ticket.type}
                                 </Badge>
                             </div>
-                            <div className="bg-muted/5 p-5 rounded-[2rem] border border-border/10 shadow-inner space-y-3">
+                            <div className="space-y-3">
                                 {isRefund && (
-                                    <div className="flex items-center justify-between p-3 bg-amber-500/5 rounded-2xl border border-amber-500/10">
-                                        <div className="flex items-center gap-2 text-amber-600">
-                                            <AlertTriangle className="size-4" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">Khóa học hoàn tiền:</span>
-                                        </div>
-                                        <span className="text-xs font-mono font-bold">{(ticket.metadata as any)?.courseId?.slice(0, 12)}</span>
-                                    </div>
+                                    <Alert variant="destructive" className="border-amber-500/20 bg-amber-500/5 text-amber-700">
+                                        <AlertTriangle className="size-4" />
+                                        <AlertDescription className="font-bold">
+                                            Khóa học hoàn tiền: <span className="font-mono">{(ticket.metadata as any)?.courseId?.slice(0, 12)}</span>
+                                        </AlertDescription>
+                                    </Alert>
                                 )}
-                                <div className="p-4 bg-background/50 rounded-2xl border border-border/10">
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2">Nội dung yêu cầu</p>
-                                    <p className="text-sm leading-relaxed font-medium text-foreground/80">
-                                        {ticket.description}
-                                    </p>
-                                </div>
+                                <Item variant="outline">
+                                    <ItemContent>
+                                        <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Nội dung yêu cầu</ItemTitle>
+                                        <ItemDescription className="text-sm leading-relaxed font-medium text-foreground/80">
+                                            {ticket.description}
+                                        </ItemDescription>
+                                    </ItemContent>
+                                </Item>
                             </div>
                         </section>
 
@@ -141,20 +150,22 @@ export function TicketDetailSheet({
                         <section className="space-y-4">
                             <h4 className="text-[10px] font-black uppercase tracking-[3px] text-emerald-500/50 flex items-center gap-2">
                                 <Clock className="size-3" />
-                                Phản hồi & Xử lý
+                                Phản hồi &amp; Xử lý
                             </h4>
                             <div className="space-y-3">
                                 <Textarea
                                     placeholder="Nhập lời nhắn gửi đến học viên hoặc lý do từ chối..."
-                                    className="min-h-[120px] bg-muted/5 border-border/10 rounded-[1.5rem] p-5 text-sm font-medium focus:ring-1 ring-primary/20 shadow-inner resize-none transition-all focus:bg-background"
+                                    className="min-h-[120px] resize-none"
                                     value={response}
                                     onChange={(e) => setResponse(e.target.value)}
                                     disabled={ticket.status !== TicketStatus.PENDING && ticket.status !== TicketStatus.PROCESSING}
                                 />
                                 {ticket.status !== TicketStatus.PENDING && ticket.status !== TicketStatus.PROCESSING && (
-                                    <div className="p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 italic text-xs text-emerald-700/70 text-center font-medium">
-                                        Ticket này đã được đóng với trạng thái: {ticket.status}
-                                    </div>
+                                    <Alert className="border-emerald-500/20 bg-emerald-500/5 text-emerald-700">
+                                        <AlertDescription>
+                                            Ticket này đã được đóng với trạng thái: <strong>{ticket.status}</strong>
+                                        </AlertDescription>
+                                    </Alert>
                                 )}
                             </div>
                         </section>

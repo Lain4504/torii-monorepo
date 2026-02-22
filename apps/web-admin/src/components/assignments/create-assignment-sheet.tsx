@@ -10,17 +10,18 @@ import {
   SheetDescription,
   SheetFooter
 } from "@workspace/ui/components/sheet";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription
-} from "@workspace/ui/components/form";
+import { Controller } from "react-hook-form";
 import { Input } from "@workspace/ui/components/input";
 import { Button } from "@workspace/ui/components/button";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldDescription,
+  FieldSet,
+  FieldLegend,
+} from "@workspace/ui/components/field";
 import {
   Select,
   SelectContent,
@@ -148,291 +149,266 @@ export function CreateAssignmentSheet({
         </SheetHeader>
 
         <ScrollArea className="flex-1 min-h-0">
-          <div className="p-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex flex-col overflow-hidden">
-                <FormField
+          <div className="space-y-6 p-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex flex-col overflow-hidden">
+              <FieldGroup>
+                <Controller
                   control={form.control}
                   name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tiêu đề bài tập</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nhập tiêu đề..." {...field} className="" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Tiêu đề bài tập</FieldLabel>
+                      <Input placeholder="Nhập tiêu đề..." id={field.name} {...field} />
+                      <FieldError errors={[fieldState.error]} />
+                    </Field>
                   )}
                 />
 
-                <FormField
+                <Controller
                   control={form.control}
                   name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mô tả & Yêu cầu</FormLabel>
-                      <FormControl>
-                        <TiptapEditor
-                          content={field.value}
-                          onChange={field.onChange}
-                          placeholder="Nhập yêu cầu chi tiết cho bài tập..."
-                          className="min-h-[200px]"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Mô tả & Yêu cầu</FieldLabel>
+                      <TiptapEditor
+                        content={field.value}
+                        onChange={field.onChange}
+                        placeholder="Nhập yêu cầu chi tiết cho bài tập..."
+                        className="min-h-[200px]"
+                      />
+                      <FieldError errors={[fieldState.error]} />
+                    </Field>
                   )}
                 />
 
-                <FormField
+                <Controller
                   control={form.control}
                   name="instructions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Info className="h-3 w-3" />
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name} className="flex items-center gap-2">
+                        <Info className="size-4" />
                         Ghi chú bổ sung
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Nhập ghi chú hoặc hướng dẫn ngắn gọn..."
-                          {...field}
-                          className="rounded-xl bg-muted/20"
-                          rows={3}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-[10px]">Hiển thị như một ghi chú nhanh cho học viên</FormDescription>
-                      <FormMessage />
-                    </FormItem>
+                      </FieldLabel>
+                      <Textarea
+                        placeholder="Nhập ghi chú hoặc hướng dẫn ngắn gọn..."
+                        id={field.name}
+                        {...field}
+                        rows={3}
+                      />
+                      <FieldDescription>Hiển thị như một ghi chú nhanh cho học viên</FieldDescription>
+                      <FieldError errors={[fieldState.error]} />
+                    </Field>
                   )}
                 />
 
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
+                  <Controller
                     control={form.control}
                     name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Loại bài nộp</FormLabel>
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Loại bài nộp</FieldLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="">
-                              <SelectValue placeholder="Chọn loại bài nộp" />
-                            </SelectTrigger>
-                          </FormControl>
+                          <SelectTrigger id={field.name}>
+                            <SelectValue placeholder="Chọn loại bài nộp" />
+                          </SelectTrigger>
                           <SelectContent>
                             <SelectItem value={AssignmentType.TEXT}>Văn bản (Text)</SelectItem>
                             <SelectItem value={AssignmentType.FILE}>Tải tệp (File)</SelectItem>
                             <SelectItem value={AssignmentType.BOTH}>Cả hai (Both)</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage />
-                      </FormItem>
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
                     )}
                   />
 
-                  <FormField
+                  <Controller
                     control={form.control}
                     name="dueDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hạn nộp</FormLabel>
-                        <FormControl>
-                          <Input type="datetime-local" {...field} className="" />
-                        </FormControl>
-                        <FormDescription className="text-[10px]">Để trống nếu không có hạn nộp</FormDescription>
-                        <FormMessage />
-                      </FormItem>
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Hạn nộp</FieldLabel>
+                        <Input type="datetime-local" id={field.name} {...field} />
+                        <FieldDescription>Để trống nếu không có hạn nộp</FieldDescription>
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
                     )}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
+                  <Controller
                     control={form.control}
                     name="maxScore"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Điểm tối đa</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                            className=""
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Điểm tối đa</FieldLabel>
+                        <Input
+                          type="number"
+                          id={field.name}
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
                     )}
                   />
 
-                  <FormField
+                  <Controller
                     control={form.control}
                     name="passingScore"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Điểm đạt</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                            className=""
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Điểm đạt</FieldLabel>
+                        <Input
+                          type="number"
+                          id={field.name}
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
                     )}
                   />
                 </div>
 
-                <div className="space-y-4 border rounded-2xl p-4 bg-muted/30">
-                  <h3 className="text-sm font-medium text-muted-foreground">Cấu hình nộp muộn</h3>
-
-                  <FormField
-                    control={form.control}
-                    name="allowLateSubmission"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
+                <FieldSet>
+                  <FieldLegend>Cấu hình nộp muộn</FieldLegend>
+                  <FieldGroup>
+                    <Controller
+                      control={form.control}
+                      name="allowLateSubmission"
+                      render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid} className="flex flex-row items-start space-x-3 space-y-0">
                           <Checkbox
+                            id={field.name}
                             checked={field.value}
                             onCheckedChange={field.onChange}
                           />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Cho phép nộp muộn</FormLabel>
-                          <FormDescription className="text-[10px]">Học viên vẫn có thể nộp sau khi hết hạn</FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
+                          <div className="space-y-1 leading-none">
+                            <FieldLabel htmlFor={field.name}>Cho phép nộp muộn</FieldLabel>
+                            <FieldDescription>Học viên vẫn có thể nộp sau khi hết hạn</FieldDescription>
+                          </div>
+                        </Field>
+                      )}
+                    />
 
-                  {form.watch("allowLateSubmission") && (
-                    <FormField
-                      control={form.control}
-                      name="latePenaltyPercent"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs font-medium tracking-tight">Mức phạt (Gợi ý %)</FormLabel>
-                          <FormControl>
+                    {form.watch("allowLateSubmission") && (
+                      <Controller
+                        control={form.control}
+                        name="latePenaltyPercent"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>Mức phạt (Gợi ý %)</FieldLabel>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="number"
+                                id={field.name}
                                 {...field}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="rounded-xl w-24"
+                                className="w-24"
                               />
                               <span className="text-sm font-bold">%</span>
                             </div>
-                          </FormControl>
-                          <FormDescription className="text-[10px]">Dùng để hiển thị gợi ý trừ điểm khi giảng viên chấm bài</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </div>
-
-                {(form.watch("type") === AssignmentType.FILE || form.watch("type") === AssignmentType.BOTH) && (
-                  <div className="space-y-4 border rounded-2xl p-4 bg-muted/30">
-                    <h3 className="text-sm font-medium text-muted-foreground">Cấu hình tệp đính kèm</h3>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="maxFileSize"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Dung lượng tối đa (MB)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Nhập dung lượng"
-                                value={field.value ? field.value / 1048576 : ""}
-                                onChange={(e) => field.onChange(Number(e.target.value) * 1048576)}
-                                className=""
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                            <FieldDescription>Dùng để hiển thị gợi ý trừ điểm khi giảng viên chấm bài</FieldDescription>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
                         )}
                       />
-                      <FormField
+                    )}
+                  </FieldGroup>
+                </FieldSet>
+
+                {(form.watch("type") === AssignmentType.FILE || form.watch("type") === AssignmentType.BOTH) && (
+                  <FieldSet>
+                    <FieldLegend>Cấu hình tệp đính kèm</FieldLegend>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <Controller
+                        control={form.control}
+                        name="maxFileSize"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>Dung lượng tối đa (MB)</FieldLabel>
+                            <Input
+                              type="number"
+                              id={field.name}
+                              placeholder="Nhập dung lượng"
+                              value={field.value ? field.value / 1048576 : ""}
+                              onChange={(e) => field.onChange(Number(e.target.value) * 1048576)}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
+                        )}
+                      />
+                      <Controller
                         control={form.control}
                         name="maxFiles"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Số lượng tối đa</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
-                                className=""
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>Số lượng tối đa</FieldLabel>
+                            <Input
+                              type="number"
+                              id={field.name}
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
                         )}
                       />
                     </div>
-                  </div>
+                  </FieldSet>
                 )}
 
-                <div className="space-y-4 border rounded-2xl p-6 bg-primary/5 border-primary/10">
-                  <div className="flex items-center gap-2">
-                    <Paperclip className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-medium text-primary">Tài liệu bài tập</h3>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-tight">
-                    Tải lên các tài liệu hướng dẫn, tệp mẫu cho bài tập này (PDF, Word, Zip,...)
-                  </p>
-
-                  <FormField
+                <FieldSet>
+                  <FieldLegend className="flex items-center gap-2">
+                    <Paperclip className="size-4" />
+                    Tài liệu bài tập
+                  </FieldLegend>
+                  <FieldDescription>Tải lên các tài liệu hướng dẫn, tệp mẫu cho bài tập này (PDF, Word, Zip,...)</FieldDescription>
+                  <Controller
                     control={form.control}
                     name="attachmentUrls"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <MultiFileUpload
-                            onUploadChange={field.onChange}
-                            currentUrls={field.value}
-                            label="Tải tài liệu đính kèm"
-                            maxFiles={5}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <MultiFileUpload
+                          onUploadChange={field.onChange}
+                          currentUrls={field.value}
+                          label="Tải tài liệu đính kèm"
+                          maxFiles={5}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
                     )}
                   />
-                </div>
+                </FieldSet>
+              </FieldGroup>
 
-                <SheetFooter>
-                  <Button
-                    type="submit"
-                    disabled={createMutation.isPending}
-                  >
-                    {createMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Đang tạo...
-                      </>
-                    ) : (
-                      "Tạo bài tập"
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => onOpenChange(false)}
-                  >
-                    Hủy Bỏ
-                  </Button>
-                </SheetFooter>
-              </form>
-            </Form>
+              <SheetFooter>
+                <Button
+                  type="submit"
+                  disabled={createMutation.isPending}
+                >
+                  {createMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Đang tạo...
+                    </>
+                  ) : (
+                    "Tạo bài tập"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Hủy Bỏ
+                </Button>
+              </SheetFooter>
+            </form>
           </div>
         </ScrollArea>
       </SheetContent>

@@ -32,20 +32,28 @@ import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "../../api/services/analytics"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { Badge } from "@workspace/ui/components/badge"
+import { ButtonGroup } from "@workspace/ui/components/button-group"
 
 // --- Real-world Operational Dashboards ---
 
-function StatsCard({ title, value, sub, icon: Icon, trend, colorClass, highlight }: any) {
+function StatsCard({ title, value, sub, icon: Icon, trend, highlight }: {
+  title: string;
+  value: string | number;
+  sub: string;
+  icon: React.ElementType;
+  trend?: string;
+  highlight?: boolean;
+}) {
   return (
     <Card className={cn(
-      "group relative overflow-hidden rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-all duration-300 shadow-sm hover:shadow-md",
-      highlight && "ring-1 ring-primary/20 bg-primary/[0.01]"
+      "group relative overflow-hidden transition-all duration-300",
+      highlight && "ring-1 ring-primary/20"
     )}>
       <CardHeader className="flex flex-row items-center justify-between pb-4 space-y-0">
         <div className="space-y-1">
           <p className="text-xs font-semibold text-muted-foreground">{title}</p>
         </div>
-        <div className={cn("p-2.5 rounded-lg bg-muted/50 text-muted-foreground/50 group-hover:bg-primary/5 group-hover:text-primary transition-colors duration-300", colorClass)}>
+        <div className={cn("p-2.5 rounded-lg bg-muted/50 text-muted-foreground/50 group-hover:bg-primary/5 group-hover:text-primary transition-colors duration-300")}>
           <Icon className="size-4.5" />
         </div>
       </CardHeader>
@@ -54,10 +62,10 @@ function StatsCard({ title, value, sub, icon: Icon, trend, colorClass, highlight
         <div className="flex items-baseline gap-2">
           <h3 className="text-3xl font-bold tracking-tight text-foreground">{value}</h3>
           {trend && (
-            <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded-md mb-0.5">
+            <Badge variant="secondary" className="text-[10px]">
               <ArrowUpRight className="size-3" />
               {trend}
-            </div>
+            </Badge>
           )}
         </div>
         <p className="text-xs font-medium text-muted-foreground/60 mt-1">
@@ -88,7 +96,6 @@ function AdminDashboard() {
           value={overview?.pendingRefunds || 0}
           sub="Cần xử lý ngay lập tức"
           icon={AlertCircle}
-          colorClass="text-rose-500 bg-rose-500/10"
           highlight={Number(overview?.pendingRefunds) > 0}
         />
         <StatsCard
@@ -96,7 +103,6 @@ function AdminDashboard() {
           value={overview?.pendingApprovals || 0}
           sub="Đang chờ kiểm định nội dung"
           icon={FileSearch}
-          colorClass="text-amber-500 bg-amber-500/10"
           highlight={Number(overview?.pendingApprovals) > 0}
         />
         <StatsCard
@@ -104,7 +110,6 @@ function AdminDashboard() {
           value={overview?.activeRooms || 0}
           sub="Phiên live đang diễn ra"
           icon={Video}
-          colorClass="text-emerald-500 bg-emerald-500/10"
         />
         <StatsCard
           title="Doanh thu Hôm nay"
@@ -112,7 +117,6 @@ function AdminDashboard() {
           sub="Cập nhật 5 phút trước"
           icon={DollarSign}
           trend="+5%"
-          colorClass="text-primary bg-primary/10"
         />
       </div>
 
@@ -292,10 +296,10 @@ function StaffDashboard() {
   return (
     <div className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <StatsCard title="Chờ Phê duyệt" value={overview?.pendingApprovals || 0} sub="Khóa học đang chờ rà soát" icon={Zap} highlight={Number(overview?.pendingApprovals) > 0} colorClass="text-rose-500 bg-rose-500/10" />
-        <StatsCard title="Lịch Live" value={overview?.activeRooms || 0} sub="Buổi dạy trực tiếp hôm nay" icon={Calendar} colorClass="text-blue-500 bg-blue-500/10" />
-        <StatsCard title="Ticket Mới" value={overview?.pendingTickets || 0} sub="Cần phản hồi hỗ trợ" icon={MessageSquare} highlight={Number(overview?.pendingTickets) > 0} colorClass="text-amber-500 bg-amber-500/10" />
-        <StatsCard title="Người dùng" value={overview?.totalUsers || 0} sub="Học viên đã tham gia" icon={Users} colorClass="text-primary bg-primary/10" />
+        <StatsCard title="Chờ Phê duyệt" value={overview?.pendingApprovals || 0} sub="Khóa học đang chờ rà soát" icon={Zap} highlight={Number(overview?.pendingApprovals) > 0} />
+        <StatsCard title="Lịch Live" value={overview?.activeRooms || 0} sub="Buổi dạy trực tiếp hôm nay" icon={Calendar} />
+        <StatsCard title="Ticket Mới" value={overview?.pendingTickets || 0} sub="Cần phản hồi hỗ trợ" icon={MessageSquare} highlight={Number(overview?.pendingTickets) > 0} />
+        <StatsCard title="Người dùng" value={overview?.totalUsers || 0} sub="Học viên đã tham gia" icon={Users} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-1000">
@@ -353,9 +357,9 @@ function LecturerDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <StatsCard title="Bài tập cần chấm" value="12" sub="Học viên đang chờ kết quả" icon={Target} colorClass="text-amber-500 bg-amber-500/10" highlight />
-        <StatsCard title="Câu hỏi chưa trả lời" value="05" sub="Tương tác mới từ bài giảng" icon={MessageSquare} colorClass="text-primary bg-primary/10" highlight />
-        <StatsCard title="Lượt xem mới" value="1.2k" sub="Hiệu suất video trong 24h" icon={Activity} colorClass="text-blue-500 bg-blue-500/10" />
+        <StatsCard title="Bài tập cần chấm" value="12" sub="Học viên đang chờ kết quả" icon={Target} highlight />
+        <StatsCard title="Câu hỏi chưa trả lời" value="05" sub="Tương tác mới từ bài giảng" icon={MessageSquare} highlight />
+        <StatsCard title="Lượt xem mới" value="1.2k" sub="Hiệu suất video trong 24h" icon={Activity} />
       </div>
     </div>
   )
@@ -401,21 +405,21 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title={`${getGreeting()}, ${user?.displayName?.split(' ')[0] || 'ADMIN'}`}
-        subtitle={`Bảng chỉ huy trung tâm Torii Admin • v4.2.0-stable`}
+        subtitle={`Bảng chỉ huy trung tâm Torii Admin`}
         actions={
           <div className="flex items-center gap-3">
-            <div className="flex bg-muted p-1 rounded-xl border">
-              <Button variant="ghost" asChild size="sm">
+            <ButtonGroup>
+              <Button variant="outline" asChild size="sm">
                 <Link to="/analytics/revenue">Tài chính</Link>
               </Button>
-              <Button variant="ghost" asChild size="sm">
+              <Button variant="outline" asChild size="sm">
                 <Link to="/analytics/learning">Học tập</Link>
               </Button>
-              <Button variant="ghost" asChild size="sm">
+              <Button variant="outline" asChild size="sm">
                 <Link to="/analytics/users">Học viên</Link>
               </Button>
-            </div>
-            <Button size="lg" className="group">
+            </ButtonGroup>
+            <Button size="sm">
               <Zap className="size-4 mr-2" />
               Lệnh nhanh
             </Button>

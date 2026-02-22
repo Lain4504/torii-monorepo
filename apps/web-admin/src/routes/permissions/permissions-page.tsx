@@ -141,14 +141,76 @@ export function PermissionsPage() {
     };
 
     if (rolesLoading || permsLoading || (roles && isAnyRolePermsLoading)) {
+        // Approximate shape: 4 roles × 12 permissions in 3 categories
+        const SKEL_ROLES = 4;
+        const SKEL_PERMS = 12;
+        const SKEL_CATS = 3;
+        const permsPerCat = Math.floor(SKEL_PERMS / SKEL_CATS);
+
         return (
             <div className="flex flex-col gap-8">
-                <div className="space-y-4">
-                    <Skeleton className="h-10 w-64 rounded-xl" />
-                    <Skeleton className="h-5 w-96 rounded-lg" />
-                </div>
-                <div className="rounded-xl border bg-card p-6">
-                    <Skeleton className="h-[400px] w-full rounded-xl" />
+                <PageHeader
+                    title="Quản lý Quyền truy cập"
+                    subtitle="Kiểm soát quyền truy cập chi tiết hệ thống"
+                    stats={[{ label: "Tổng số vai trò", value: "—" }]}
+                />
+
+                <div className="rounded-xl border bg-card overflow-hidden">
+                    <Table>
+                        <TableHeader>
+                            {/* Row 1: Category group headers */}
+                            <TableRow>
+                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r w-[200px]">
+                                    Vai trò / Quyền hạn
+                                </TableHead>
+                                {Array.from({ length: SKEL_CATS }).map((_, i) => (
+                                    <TableHead
+                                        key={i}
+                                        colSpan={permsPerCat}
+                                        className="text-center bg-muted/30 border-r"
+                                    >
+                                        <Skeleton className="h-3 w-20 mx-auto" />
+                                    </TableHead>
+                                ))}
+                            </TableRow>
+                            {/* Row 2: Individual permission name headers */}
+                            <TableRow>
+                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r" />
+                                {Array.from({ length: SKEL_PERMS }).map((_, i) => (
+                                    <TableHead
+                                        key={i}
+                                        className="min-w-[120px] text-center border-r align-top py-4"
+                                    >
+                                        <div className="flex flex-col gap-1.5 items-center">
+                                            <Skeleton className="h-3 w-16" />
+                                            <Skeleton className="h-2.5 w-10" />
+                                        </div>
+                                    </TableHead>
+                                ))}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {Array.from({ length: SKEL_ROLES }).map((_, i) => (
+                                <TableRow key={i}>
+                                    {/* Role name cell */}
+                                    <TableCell className="sticky left-0 z-30 bg-card border-r">
+                                        <div className="flex flex-col gap-1.5">
+                                            <Skeleton className="h-4 w-24" />
+                                            <Skeleton className="h-2.5 w-16" />
+                                        </div>
+                                    </TableCell>
+                                    {/* Checkbox cells */}
+                                    {Array.from({ length: SKEL_PERMS }).map((_, j) => (
+                                        <TableCell key={j} className="p-0 border-r">
+                                            <div className="flex items-center justify-center p-4">
+                                                <Skeleton className="h-4 w-4 rounded-sm" />
+                                            </div>
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
         );

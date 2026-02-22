@@ -293,7 +293,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     <SelectTrigger id={field.name} className="mt-1" aria-invalid={fieldState.invalid}>
                                                         <SelectValue placeholder="Chọn Trình Độ" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
+                                                    <SelectContent>
                                                         {Object.values(JlptLevel).map((level) => (
                                                             <SelectItem key={level} value={level} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">{level}</SelectItem>
                                                         ))}
@@ -338,7 +338,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                     <SelectTrigger id={field.name} className="mt-1" aria-invalid={fieldState.invalid}>
                                                         <SelectValue placeholder="Chọn loại khóa học" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
+                                                    <SelectContent>
                                                         <SelectItem value="vod" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Video theo yêu cầu (VOD)</SelectItem>
                                                         <SelectItem value="live" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">Phát trực tiếp</SelectItem>
                                                     </SelectContent>

@@ -21,6 +21,15 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { Loader2, Image as ImageIcon, Film, X, UploadCloud } from 'lucide-react';
+import { Checkbox } from '@workspace/ui/components/checkbox';
+import {
+    Item,
+    ItemMedia,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
+
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
@@ -241,11 +250,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     <SelectTrigger id="jlptLevel" className="mt-1">
                                                         <SelectValue placeholder="Chọn Trình Độ" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
+                                                    <SelectContent>
                                                         {Object.values(JlptLevel).map((level) => (
-                                                            <SelectItem key={level} value={level} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                                {level}
-                                                            </SelectItem>
+                                                            <SelectItem key={level} value={level}>{level}</SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
@@ -282,13 +289,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     <SelectTrigger id="type" className="">
                                                         <SelectValue placeholder="Chọn loại khóa học" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
-                                                        <SelectItem value="vod" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                            Video theo yêu cầu (VOD)
-                                                        </SelectItem>
-                                                        <SelectItem value="live" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                            Phát trực tiếp
-                                                        </SelectItem>
+                                                    <SelectContent>
+                                                        <SelectItem value="vod">Video theo yêu cầu (VOD)</SelectItem>
+                                                        <SelectItem value="live">Phát trực tiếp</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             )}
@@ -413,31 +416,21 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             name="isFree"
                                             control={control}
                                             render={({ field }) => (
-                                                <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all"
-                                                    onClick={() => {
-                                                        const newValue = !field.value;
-                                                        field.onChange(newValue);
-                                                        if (newValue) {
-                                                            setValue('price', 0);
-                                                            setValue('discountPrice', 0);
-                                                        }
-                                                    }}>
-                                                    <input
+                                                <div className="flex items-center gap-3 mt-1.5">
+                                                    <Checkbox
                                                         id="isFree"
-                                                        type="checkbox"
-                                                        checked={field.value} // Controlled checked attribute
-                                                        onChange={(e) => {
-                                                            field.onChange(e.target.checked);
-                                                            if (e.target.checked) {
+                                                        checked={field.value}
+                                                        onCheckedChange={(checked) => {
+                                                            field.onChange(checked);
+                                                            if (checked) {
                                                                 setValue('price', 0);
                                                                 setValue('discountPrice', 0);
                                                             }
                                                         }}
-                                                        className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
                                                     />
-                                                    <span className="text-xs font-medium text-foreground/80">
+                                                    <label htmlFor="isFree" className="text-sm font-medium cursor-pointer">
                                                         Truy cập mở / Khóa học miễn phí
-                                                    </span>
+                                                    </label>
                                                 </div>
                                             )}
                                         />
@@ -573,15 +566,15 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             )}
                                         </div>
                                         {thumbnailFile && (
-                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                                                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                                            <Item variant="outline">
+                                                <ItemMedia>
                                                     <ImageIcon className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1 min-w-0 min-h-0">
-                                                    <p className="text-xs font-bold text-foreground truncate">{thumbnailFile.name}</p>
-                                                    <p className="text-[10px] text-muted-foreground font-mono">{(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                                </div>
-                                            </div>
+                                                </ItemMedia>
+                                                <ItemContent>
+                                                    <ItemTitle className="text-xs font-bold truncate">{thumbnailFile.name}</ItemTitle>
+                                                    <ItemDescription>{(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB</ItemDescription>
+                                                </ItemContent>
+                                            </Item>
                                         )}
                                     </div>
                                 </Field>
@@ -614,15 +607,15 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             )}
                                         </div>
                                         {videoFile && (
-                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                                                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                                            <Item variant="outline">
+                                                <ItemMedia>
                                                     <Film className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1 min-w-0 min-h-0">
-                                                    <p className="text-xs font-bold text-foreground truncate">{videoFile.name}</p>
-                                                    <p className="text-[10px] text-muted-foreground font-mono">{(videoFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                                </div>
-                                            </div>
+                                                </ItemMedia>
+                                                <ItemContent>
+                                                    <ItemTitle className="text-xs font-bold truncate">{videoFile.name}</ItemTitle>
+                                                    <ItemDescription>{(videoFile.size / 1024 / 1024).toFixed(2)} MB</ItemDescription>
+                                                </ItemContent>
+                                            </Item>
                                         )}
                                     </div>
                                 </Field>

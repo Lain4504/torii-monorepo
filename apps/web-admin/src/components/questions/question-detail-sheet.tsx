@@ -20,6 +20,13 @@ import {
     MessageSquareQuote
 } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
+import { Alert, AlertDescription } from '@workspace/ui/components/alert';
+import {
+    Item,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
 
 interface QuestionDetailSheetProps {
     open: boolean;
@@ -58,14 +65,14 @@ export function QuestionDetailSheet({
                         <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
                             JLPT {question.jlptLevel || 'GLOBAL'}
                         </Badge>
-                        <Badge variant="outline" className={cn(
-                            "border-none",
-                            question.difficulty === QuestionDifficultyLevel.HARD ? "bg-rose-500/10 text-rose-600" :
-                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? "bg-amber-500/10 text-amber-600" :
-                                    "bg-emerald-500/10 text-emerald-600"
-                        )}>
-                            {question.difficulty === QuestionDifficultyLevel.HARD ? "Khó" :
-                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? "Trung bình" : "Dễ"}
+                        <Badge
+                            variant={
+                                question.difficulty === QuestionDifficultyLevel.HARD ? 'destructive' :
+                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'secondary' : 'outline'
+                            }
+                        >
+                            {question.difficulty === QuestionDifficultyLevel.HARD ? 'Khó' :
+                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'Trung bình' : 'Dễ'}
                         </Badge>
                     </div>
                     <SheetTitle>Chi Tiết Câu Hỏi</SheetTitle>
@@ -82,9 +89,14 @@ export function QuestionDetailSheet({
                                 <FileText className="size-4" />
                                 <h3 className="text-sm font-bold uppercase tracking-wider">Nội dung câu hỏi</h3>
                             </div>
-                            <div className="text-lg font-medium text-foreground p-6 rounded-2xl bg-muted/5 border border-border/80 leading-relaxed shadow-sm italic">
-                                "{question.questionText}"
-                            </div>
+                            <Item variant="outline">
+                                <ItemContent>
+                                    <ItemTitle className="text-muted-foreground">Nội dung câu hỏi</ItemTitle>
+                                    <ItemDescription className="text-base font-medium text-foreground leading-relaxed italic">
+                                        "{question.questionText}"
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
                         </section>
 
                         {/* Specific Content */}
@@ -97,15 +109,18 @@ export function QuestionDetailSheet({
                                     <BrainCircuit className="size-4" />
                                     <h3 className="text-sm font-bold uppercase tracking-wider">Giải thích học thuật</h3>
                                 </div>
-                                <div className="text-sm font-medium text-muted-foreground/80 leading-relaxed p-6 rounded-2xl bg-amber-500/5 border border-amber-500/10 italic">
-                                    {question.explanation}
-                                </div>
+                                <Alert>
+                                    <BrainCircuit className="size-4" />
+                                    <AlertDescription className="leading-relaxed italic">
+                                        {question.explanation}
+                                    </AlertDescription>
+                                </Alert>
                             </section>
                         )}
                     </div>
                 </ScrollArea>
 
-                <SheetFooter className="border-t bg-muted/5">
+                <SheetFooter className="border-t">
                     <div className="w-full flex items-center justify-between">
                         <div className="flex gap-4 items-center">
                             <div className="flex flex-col">
@@ -118,7 +133,7 @@ export function QuestionDetailSheet({
                                 <span className="text-xs font-bold text-foreground">{question.category || 'Chung'}</span>
                             </div>
                         </div>
-                        <Badge variant="outline" className="bg-emerald-500/5 text-emerald-600 border-emerald-500/10 font-bold text-[10px] uppercase">
+                        <Badge variant="secondary">
                             Sẵn sàng sử dụng
                         </Badge>
                     </div>
@@ -156,28 +171,28 @@ function MultipleChoiceContent({ question }: { question: QuestionResponseDTO }) 
                         <div
                             key={key}
                             className={cn(
-                                "flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 group",
+                                "flex items-center gap-4 p-4 rounded-lg border transition-all",
                                 isCorrect
-                                    ? "bg-emerald-500/5 border-emerald-500/40 shadow-sm"
-                                    : "bg-muted/5 border-border/50 hover:border-primary/30"
+                                    ? "bg-card border-primary/30"
+                                    : "bg-card"
                             )}
                         >
                             <div className={cn(
-                                "size-9 flex items-center justify-center rounded-xl font-bold text-sm shrink-0 transition-all duration-300",
+                                "size-8 flex items-center justify-center rounded-md font-bold text-sm shrink-0",
                                 isCorrect
-                                    ? "bg-emerald-500 text-white shadow-emerald-500/20 shadow-lg scale-105"
-                                    : "bg-background text-muted-foreground border border-border group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20"
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted text-muted-foreground"
                             )}>
                                 {key}
                             </div>
                             <div className={cn(
-                                "flex-1 text-sm font-medium transition-colors duration-300",
-                                isCorrect ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                                "flex-1 text-sm font-medium",
+                                isCorrect ? "text-foreground" : "text-muted-foreground"
                             )}>
                                 {value}
                             </div>
                             {isCorrect && (
-                                <Zap className="size-4 text-emerald-500 fill-emerald-500 animate-pulse" />
+                                <Zap className="size-4 text-primary" />
                             )}
                         </div>
                     );
@@ -194,12 +209,12 @@ function FillBlankContent({ question }: { question: QuestionResponseDTO }) {
                 <MessageSquareQuote className="size-4" />
                 <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án điền khuyết</h3>
             </div>
-            <div className="p-8 rounded-2xl bg-emerald-500/5 border-2 border-dashed border-emerald-500/20 flex flex-col items-center justify-center text-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600/60">Đáp án chính xác</span>
-                <div className="text-2xl font-bold text-emerald-600 font-mono tracking-tight underline decoration-emerald-500/30 underline-offset-8">
-                    {question.correctAnswer}
-                </div>
-            </div>
+            <Item variant="outline">
+                <ItemContent>
+                    <ItemTitle className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Đáp án chính xác</ItemTitle>
+                    <ItemDescription className="text-2xl font-bold font-mono">{question.correctAnswer}</ItemDescription>
+                </ItemContent>
+            </Item>
         </section>
     );
 }
@@ -214,17 +229,17 @@ function TrueFalseContent({ question }: { question: QuestionResponseDTO }) {
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className={cn(
-                    "p-6 rounded-2xl border flex flex-col items-center gap-2 transition-all",
-                    isTrue ? "bg-emerald-500/10 border-emerald-500/40 opacity-100" : "bg-muted/5 border-border/50 opacity-40"
+                    "p-6 rounded-lg border flex flex-col items-center gap-2 transition-all",
+                    isTrue ? "border-primary/30" : "opacity-40"
                 )}>
-                    <CheckCircle2 className={cn("size-8", isTrue ? "text-emerald-500" : "text-muted-foreground")} />
+                    <CheckCircle2 className={cn("size-8", isTrue ? "text-primary" : "text-muted-foreground")} />
                     <span className="font-bold text-sm uppercase">Đúng (True)</span>
                 </div>
                 <div className={cn(
-                    "p-6 rounded-2xl border flex flex-col items-center gap-2 transition-all",
-                    !isTrue ? "bg-rose-500/10 border-rose-500/40 opacity-100" : "bg-muted/5 border-border/50 opacity-40"
+                    "p-6 rounded-lg border flex flex-col items-center gap-2 transition-all",
+                    !isTrue ? "border-destructive/30" : "opacity-40"
                 )}>
-                    <XCircleIcon className={cn("size-8", !isTrue ? "text-rose-500" : "text-muted-foreground")} />
+                    <XCircleIcon className={cn("size-8", !isTrue ? "text-destructive" : "text-muted-foreground")} />
                     <span className="font-bold text-sm uppercase">Sai (False)</span>
                 </div>
             </div>
@@ -239,9 +254,13 @@ function EssayContent({ question }: { question: QuestionResponseDTO }) {
                 <AlignLeft className="size-4" />
                 <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án mẫu / Gợi ý</h3>
             </div>
-            <div className="p-6 rounded-2xl bg-muted/5 border border-border/80 leading-relaxed text-sm text-foreground">
-                {question.correctAnswer || "Chưa thiết lập đáp án mẫu cho câu hỏi tự luận này."}
-            </div>
+            <Item variant="outline">
+                <ItemContent>
+                    <ItemDescription className="leading-relaxed text-sm text-foreground">
+                        {question.correctAnswer || "Chưa thiết lập đáp án mẫu cho câu hỏi tự luận này."}
+                    </ItemDescription>
+                </ItemContent>
+            </Item>
         </section>
     );
 }
@@ -253,11 +272,13 @@ function DefaultQuestionContent({ question }: { question: QuestionResponseDTO })
                 <CheckCircle2 className="size-4" />
                 <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án hệ thống</h3>
             </div>
-            <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-center">
-                <div className="text-xl font-bold text-emerald-600">
-                    {question.correctAnswer || 'N/A'}
-                </div>
-            </div>
+            <Item variant="outline">
+                <ItemContent>
+                    <ItemDescription className="text-xl font-bold font-mono">
+                        {question.correctAnswer || 'N/A'}
+                    </ItemDescription>
+                </ItemContent>
+            </Item>
         </section>
     );
 }
