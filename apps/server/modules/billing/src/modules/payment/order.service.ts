@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import {
     type OrderCreateDTO,
     type OrderQueryDTO,
@@ -35,6 +37,8 @@ export class OrderService implements IOrderService {
         private readonly couponService: CouponService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
+        @InjectMapper()
+        private readonly mapper: Mapper,
     ) { }
 
     /**
@@ -85,43 +89,11 @@ export class OrderService implements IOrderService {
     }
 
     private toOrderDto(o: any): OrderResponseDTO {
-        return {
-            id: o.id,
-            userId: o.userId,
-            userEmail: o.user?.email,
-            userName: o.user?.displayName,
-            amount: Number(o.amount),
-            currency: o.currency,
-            paymentMethod: o.paymentMethod as PaymentMethod,
-            paymentGateway: o.paymentGateway || undefined,
-            transactionId: o.transactionId || undefined,
-            gatewayTransactionId: o.gatewayTransactionId || undefined,
-            status: o.status as OrderStatus,
-            orderType: o.orderType as OrderType,
-            enrollmentId: o.enrollmentId || undefined,
-            couponId: o.couponId || undefined,
-            description: o.description || undefined,
-            metadata: o.metadata || {},
-            completedAt: o.completedAt || undefined,
-            failedAt: o.failedAt || undefined,
-            createdAt: o.createdAt,
-            updatedAt: o.updatedAt,
-        };
+        return this.mapper.map(o, 'Order', 'OrderResponseDTO');
     }
 
     private toPaymentDto(p: any): PaymentResponseDTO {
-        return {
-            id: p.id,
-            orderId: p.orderId || undefined,
-            transactionId: p.transactionId || undefined,
-            gateway: p.gateway || undefined,
-            amount: p.amount ? Number(p.amount) : undefined,
-            currency: p.currency,
-            content: p.content || undefined,
-            status: p.status || undefined,
-            rawResponse: p.rawResponse || {},
-            processedAt: p.processedAt,
-        };
+        return this.mapper.map(p, 'Payment', 'PaymentResponseDTO');
     }
 
     /**

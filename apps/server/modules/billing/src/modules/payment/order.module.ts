@@ -6,6 +6,8 @@ import { PayOSService } from './payos.service';
 import { PaymentCron } from './payment.cron';
 import { ORDER_SERVICE_TOKEN, ORDER_REPOSITORY_TOKEN } from '@server/billing/interfaces';
 import { CouponModule } from '@server/billing/modules/coupon/coupon.module';
+import { OrderProfile } from '@server/billing/infrastructure/mappings/order.profile';
+import { PaymentProfile } from '@server/billing/infrastructure/mappings/payment.profile';
 
 /**
  * Order Module (Handling Orders and Payments)
@@ -25,6 +27,8 @@ import { CouponModule } from '@server/billing/modules/coupon/coupon.module';
             provide: ORDER_REPOSITORY_TOKEN,
             useClass: OrderRepository,
         },
+        OrderProfile,
+        PaymentProfile,
     ],
     exports: [ORDER_SERVICE_TOKEN, ORDER_REPOSITORY_TOKEN, PayOSService],
 })
