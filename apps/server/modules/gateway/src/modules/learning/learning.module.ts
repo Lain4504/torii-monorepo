@@ -28,6 +28,7 @@ import { CouponController } from './controllers/coupon.controller';
 import { AssignmentController } from './controllers/assignment.controller';
 import { SubmissionController } from './controllers/submission.controller';
 import { CertificateController } from './controllers/certificate.controller';
+import { NotebookController } from './controllers/notebook.controller';
 
 /**
  * Learning Module for Gateway
@@ -64,6 +65,7 @@ import { CertificateController } from './controllers/certificate.controller';
         AssignmentController,
         SubmissionController,
         CertificateController,
+        NotebookController,
     ],
 })
 export class LearningModule { }

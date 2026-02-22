@@ -18,6 +18,7 @@ import { FlashcardProfile } from '@server/learning/infrastructure/mappings/flash
     imports: [SharedModule, FlashcardDeckModule, NatsClientModule],
     controllers: [],
     providers: [
+        FlashcardProfile,
         {
             provide: FLASHCARD_REPOSITORY_TOKEN,
             useClass: FlashcardRepository,
@@ -39,7 +40,6 @@ import { FlashcardProfile } from '@server/learning/infrastructure/mappings/flash
             useClass: FlashcardReviewSessionService,
         },
         SrsAlgorithmService,
-        FlashcardProfile,
     ],
     exports: [
         FLASHCARD_SERVICE_TOKEN,

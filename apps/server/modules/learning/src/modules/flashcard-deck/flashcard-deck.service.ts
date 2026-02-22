@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
-import type { Mapper } from '@automapper/core';
+import { Mapper } from '@automapper/core';
 import { UserRole } from '@workspace/schemas';
 import type {
   FlashcardDeckCreateDTO,
@@ -25,12 +25,6 @@ export class FlashcardDeckService implements IFlashcardDeckService {
     @InjectMapper() private readonly mapper: Mapper,
   ) { }
 
-  /**
-   * Map FlashcardDeck entity to FlashcardDeckResponseDTO
-   */
-  private toFlashcardDeckResponseDTO(deck: any): FlashcardDeckResponseDTO {
-    return this.mapper.map<any, FlashcardDeckResponseDTO>(deck, 'FlashcardDeck', 'FlashcardDeckResponseDTO');
-  }
 
   /**
    * Verify that a deck belongs to a specific user
@@ -93,7 +87,7 @@ export class FlashcardDeckService implements IFlashcardDeckService {
 
       this.logger.log(`Flashcard deck created: ${deck.id} by user ${userId}`);
 
-      return this.toFlashcardDeckResponseDTO(deck);
+      return this.mapper.map(deck, 'FlashcardDeck', 'FlashcardDeckResponseDTO');
     } catch (error: any) {
       this.logger.error('Error creating flashcard deck', error);
       throw new RpcException({
@@ -144,7 +138,7 @@ export class FlashcardDeckService implements IFlashcardDeckService {
       const totalPages = Math.ceil(total / limit);
 
       return {
-        data: decks.map((deck) => this.toFlashcardDeckResponseDTO(deck)),
+        data: this.mapper.mapArray(decks, 'FlashcardDeck', 'FlashcardDeckResponseDTO'),
         total,
         page,
         limit,
@@ -161,7 +155,7 @@ export class FlashcardDeckService implements IFlashcardDeckService {
 
   async findOneDeck(id: string, userId: string): Promise<FlashcardDeckResponseDTO> {
     const deck = await this.verifyDeckOwnership(userId, id);
-    return this.toFlashcardDeckResponseDTO(deck);
+    return this.mapper.map(deck, 'FlashcardDeck', 'FlashcardDeckResponseDTO');
   }
 
   /**
@@ -189,7 +183,7 @@ export class FlashcardDeckService implements IFlashcardDeckService {
 
       this.logger.log(`Flashcard deck updated: ${deckId} by user ${userId}`);
 
-      return this.toFlashcardDeckResponseDTO(deck);
+      return this.mapper.map(deck, 'FlashcardDeck', 'FlashcardDeckResponseDTO');
     } catch (error: any) {
       if (error instanceof RpcException) throw error;
       this.logger.error('Error updating flashcard deck', error);
