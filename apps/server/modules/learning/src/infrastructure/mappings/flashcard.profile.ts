@@ -81,7 +81,7 @@ export class FlashcardProfile extends AutomapperProfile {
                 ),
                 forMember(
                     (dest) => dest.meanings,
-                    mapFrom((src) => (src.meanings as string[]) || []),
+                    mapFrom((src) => (src.meanings as { meaning: string; examples: string[] }[]) || []),
                 ),
                 // AI Integration fields
                 forMember(
