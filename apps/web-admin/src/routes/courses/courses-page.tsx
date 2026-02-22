@@ -19,6 +19,7 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { toast } from '@workspace/ui/components/sonner';
 import { Plus, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function CoursesPage() {
   const navigate = useNavigate();
@@ -133,27 +134,31 @@ export default function CoursesPage() {
           onJlptLevelFilterChange={setJlptLevelFilter}
         />
 
-        <div className="rounded-xl border bg-card overflow-hidden">
-          <CoursesTable
-            data={courses}
-            onEdit={setEditingCourse}
-            onDelete={setDeletingCourse}
+        <Card className="overflow-hidden">
+              <CardContent className="p-0">
 
-            onTitleClick={(course) => navigate(`/courses/${course.id}`)}
-            onModules={(course) => navigate(`/courses/${course.id}`)}
-            onManageInstructors={setManagingInstructorsCourse}
-            onPublish={setPublishingCourse}
-            onReject={setRejectingCourse}
-            onViewAuditLog={setViewingAuditLogCourse}
-            onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
-            onSubmitForReview={handleSubmitForReview}
-            onUnpublish={handleUnpublish}
-            can={can}
-            page={page}
-            limit={queryParams.limit || 10}
-            isLoading={isLoading}
-          />
-        </div>
+                        <CoursesTable
+                          data={courses}
+                          onEdit={setEditingCourse}
+                          onDelete={setDeletingCourse}
+
+                          onTitleClick={(course) => navigate(`/courses/${course.id}`)}
+                          onModules={(course) => navigate(`/courses/${course.id}`)}
+                          onManageInstructors={setManagingInstructorsCourse}
+                          onPublish={setPublishingCourse}
+                          onReject={setRejectingCourse}
+                          onViewAuditLog={setViewingAuditLogCourse}
+                          onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
+                          onSubmitForReview={handleSubmitForReview}
+                          onUnpublish={handleUnpublish}
+                          can={can}
+                          page={page}
+                          limit={queryParams.limit || 10}
+                          isLoading={isLoading}
+                        />
+                      
+              </CardContent>
+              </Card>
 
         {/* Pagination */}
         <SmartPagination

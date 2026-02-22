@@ -28,13 +28,13 @@ import {
   Key,
   Download,
   Copy,
-  Check,
-  Loader2,
+  Check
 } from "lucide-react";
 import {
   useGenerateTotpSecret,
   useEnableTotp,
 } from "@/api/services/two-factor-auth";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const verifyCodeSchema = z.object({
   code: z
@@ -190,7 +190,7 @@ export function EnableTwoFactorDialog({
               >
                 {generateMutation.isPending ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" />
+                    <Spinner />
                     Đang tạo...
                   </>
                 ) : (
@@ -281,7 +281,7 @@ export function EnableTwoFactorDialog({
               >
                 {enableMutation.isPending ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" />
+                    <Spinner />
                     Đang xác thực...
                   </>
                 ) : (

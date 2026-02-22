@@ -23,7 +23,8 @@ import {
 
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateModule } from "@/api/services/modules.ts";
-import { Loader2, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const getUpdateModuleSchema = (existingTitles: string[] = []) =>
     moduleUpdateDTOSchema.extend({
@@ -205,7 +206,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                             disabled={isSubmitting}>
                             {isSubmitting ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang lưu...
                                 </>
                             ) : (

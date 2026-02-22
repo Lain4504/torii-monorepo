@@ -20,7 +20,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Save, X, BrainCircuit, FileText, CheckCircle2, AlignLeft, Headphones, Plus } from 'lucide-react';
+import { Save, X, BrainCircuit, FileText, CheckCircle2, AlignLeft, Headphones, Plus } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateQuestion } from '@/api/services/questions.ts';
 import { useQuestionPools } from '@/api/services/question-pools.ts';
@@ -34,6 +34,7 @@ import {
     type QuestionResponseDTO,
 } from '@workspace/schemas';
 import type { z } from 'zod';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 type EditQuestionFormData = z.input<typeof questionCreateDTOSchema>;
 
@@ -427,7 +428,7 @@ export function EditQuestionDialog({ open, onOpenChange, question }: EditQuestio
                             disabled={updateQuestion.isPending}>
                             {updateQuestion.isPending ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang xử lý...
                                 </>
                             ) : (

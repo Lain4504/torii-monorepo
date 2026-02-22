@@ -21,13 +21,13 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import {
-    Loader2,
     Plus,
     X,
     AlignLeft,
     Headphones,
     Save
 } from 'lucide-react';
+import { Spinner } from '@workspace/ui/components/spinner';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateQuestion, useUpdateQuestion } from '@/api/services/questions.ts';
 import { useQuestionPools } from '@/api/services/question-pools.ts';
@@ -454,7 +454,7 @@ export function QuestionFormSheet({
                             disabled={isLoading}>
                             {isLoading ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang xử lý...
                                 </>
                             ) : (

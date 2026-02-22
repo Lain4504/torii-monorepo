@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Loader2, RotateCcw, Zap } from 'lucide-react';
+import { RotateCcw, Zap } from 'lucide-react';
 import {
     useFetchPermissions,
     useRoles,
@@ -19,10 +19,11 @@ import {
 } from "@workspace/ui/components/table";
 import { useQueries } from '@tanstack/react-query';
 import { apiClient } from '@/api/api-client.ts';
-import { Card } from '@workspace/ui/components/card';
+import { Card, CardContent } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
 
 import { PageHeader } from '@/components/common/page-header';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 export function PermissionsPage() {
     // Data fetching
@@ -155,63 +156,67 @@ export function PermissionsPage() {
                     stats={[{ label: "Tổng số vai trò", value: "—" }]}
                 />
 
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <Table>
-                        <TableHeader>
-                            {/* Row 1: Category group headers */}
-                            <TableRow>
-                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r w-[200px]">
-                                    Vai trò / Quyền hạn
-                                </TableHead>
-                                {Array.from({ length: SKEL_CATS }).map((_, i) => (
-                                    <TableHead
-                                        key={i}
-                                        colSpan={permsPerCat}
-                                        className="text-center bg-muted/30 border-r"
-                                    >
-                                        <Skeleton className="h-3 w-20 mx-auto" />
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                            {/* Row 2: Individual permission name headers */}
-                            <TableRow>
-                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r" />
-                                {Array.from({ length: SKEL_PERMS }).map((_, i) => (
-                                    <TableHead
-                                        key={i}
-                                        className="min-w-[120px] text-center border-r align-top py-4"
-                                    >
-                                        <div className="flex flex-col gap-1.5 items-center">
-                                            <Skeleton className="h-3 w-16" />
-                                            <Skeleton className="h-2.5 w-10" />
-                                        </div>
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {Array.from({ length: SKEL_ROLES }).map((_, i) => (
-                                <TableRow key={i}>
-                                    {/* Role name cell */}
-                                    <TableCell className="sticky left-0 z-30 bg-card border-r">
-                                        <div className="flex flex-col gap-1.5">
-                                            <Skeleton className="h-4 w-24" />
-                                            <Skeleton className="h-2.5 w-16" />
-                                        </div>
-                                    </TableCell>
-                                    {/* Checkbox cells */}
-                                    {Array.from({ length: SKEL_PERMS }).map((_, j) => (
-                                        <TableCell key={j} className="p-0 border-r">
-                                            <div className="flex items-center justify-center p-4">
-                                                <Skeleton className="h-4 w-4 rounded-sm" />
-                                            </div>
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                <Card className="overflow-hidden">
+                <CardContent className="p-0">
+
+                                    <Table>
+                                        <TableHeader>
+                                            {/* Row 1: Category group headers */}
+                                            <TableRow>
+                                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r w-[200px]">
+                                                    Vai trò / Quyền hạn
+                                                </TableHead>
+                                                {Array.from({ length: SKEL_CATS }).map((_, i) => (
+                                                    <TableHead
+                                                        key={i}
+                                                        colSpan={permsPerCat}
+                                                        className="text-center bg-muted/30 border-r"
+                                                    >
+                                                        <Skeleton className="h-3 w-20 mx-auto" />
+                                                    </TableHead>
+                                                ))}
+                                            </TableRow>
+                                            {/* Row 2: Individual permission name headers */}
+                                            <TableRow>
+                                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r" />
+                                                {Array.from({ length: SKEL_PERMS }).map((_, i) => (
+                                                    <TableHead
+                                                        key={i}
+                                                        className="min-w-[120px] text-center border-r align-top py-4"
+                                                    >
+                                                        <div className="flex flex-col gap-1.5 items-center">
+                                                            <Skeleton className="h-3 w-16" />
+                                                            <Skeleton className="h-2.5 w-10" />
+                                                        </div>
+                                                    </TableHead>
+                                                ))}
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {Array.from({ length: SKEL_ROLES }).map((_, i) => (
+                                                <TableRow key={i}>
+                                                    {/* Role name cell */}
+                                                    <TableCell className="sticky left-0 z-30 bg-card border-r">
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <Skeleton className="h-4 w-24" />
+                                                            <Skeleton className="h-2.5 w-16" />
+                                                        </div>
+                                                    </TableCell>
+                                                    {/* Checkbox cells */}
+                                                    {Array.from({ length: SKEL_PERMS }).map((_, j) => (
+                                                        <TableCell key={j} className="p-0 border-r">
+                                                            <div className="flex items-center justify-center p-4">
+                                                                <Skeleton className="h-4 w-4 rounded-sm" />
+                                                            </div>
+                                                        </TableCell>
+                                                    ))}
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                
+                </CardContent>
+                </Card>
             </div>
         );
     }
@@ -228,87 +233,91 @@ export function PermissionsPage() {
 
 
             {/* Matrix Table */}
-            <div className="rounded-xl border bg-card overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="sticky left-0 z-40 bg-muted/50 border-r w-[200px]">
-                                Vai trò / Quyền hạn
-                            </TableHead>
-                            {permissions && Object.entries(permissions.byCategory).map(([category, perms]) => (
-                                <TableHead
-                                    key={category}
-                                    colSpan={perms.length}
-                                    className="text-center bg-muted/30 border-r"
-                                >
-                                    <span className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
-                                        {category}
-                                    </span>
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                        <TableRow>
-                            <TableHead className="sticky left-0 z-40 bg-muted/50 border-r" />
-                            {permissions && permissions.all.map((perm) => (
-                                <TableHead
-                                    key={perm.code}
-                                    className={cn(
-                                        "min-w-[150px] text-center border-r align-top py-4",
-                                        groupBoundaries.has(perm.code) && "border-r-muted-foreground/30"
-                                    )}
-                                >
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-xs font-medium leading-tight text-foreground">
-                                            {perm.description}
-                                        </span>
-                                        <span className="text-[10px] font-mono text-muted-foreground">
-                                            {perm.code.split('.').pop()}
-                                        </span>
-                                    </div>
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {roles?.map((role) => {
-                            const isLearner = role.code === 'learner';
-                            return (
-                                <TableRow
-                                    key={role.code}
-                                    className={cn(isLearner && "bg-muted/30")}
-                                >
-                                    <TableCell className={cn(
-                                        "sticky left-0 z-30 bg-card border-r font-medium",
-                                        isLearner && "bg-muted/30"
-                                    )}>
-                                        <div className="flex flex-col">
-                                            <span>{role.name}</span>
-                                            <span className="text-[10px] text-muted-foreground uppercase">{role.code}</span>
-                                        </div>
-                                    </TableCell>
-                                    {permissions?.all.map((perm) => (
-                                        <TableCell
-                                            key={perm.code}
-                                            className={cn(
-                                                "p-0 border-r",
-                                                groupBoundaries.has(perm.code) && "border-r-muted-foreground/30"
-                                            )}
-                                        >
-                                            <div className="flex items-center justify-center p-4">
-                                                <Checkbox
-                                                    checked={matrix[role.code]?.has(perm.code)}
-                                                    onCheckedChange={() => !isLearner && handleToggle(role.code, perm.code)}
-                                                    disabled={isLearner}
-                                                />
-                                            </div>
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                </Table>
-            </div>
+            <Card className="overflow-hidden">
+            <CardContent className="p-0">
+
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="sticky left-0 z-40 bg-muted/50 border-r w-[200px]">
+                                            Vai trò / Quyền hạn
+                                        </TableHead>
+                                        {permissions && Object.entries(permissions.byCategory).map(([category, perms]) => (
+                                            <TableHead
+                                                key={category}
+                                                colSpan={perms.length}
+                                                className="text-center bg-muted/30 border-r"
+                                            >
+                                                <span className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+                                                    {category}
+                                                </span>
+                                            </TableHead>
+                                        ))}
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableHead className="sticky left-0 z-40 bg-muted/50 border-r" />
+                                        {permissions && permissions.all.map((perm) => (
+                                            <TableHead
+                                                key={perm.code}
+                                                className={cn(
+                                                    "min-w-[150px] text-center border-r align-top py-4",
+                                                    groupBoundaries.has(perm.code) && "border-r-muted-foreground/30"
+                                                )}
+                                            >
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-xs font-medium leading-tight text-foreground">
+                                                        {perm.description}
+                                                    </span>
+                                                    <span className="text-[10px] font-mono text-muted-foreground">
+                                                        {perm.code.split('.').pop()}
+                                                    </span>
+                                                </div>
+                                            </TableHead>
+                                        ))}
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {roles?.map((role) => {
+                                        const isLearner = role.code === 'learner';
+                                        return (
+                                            <TableRow
+                                                key={role.code}
+                                                className={cn(isLearner && "bg-muted/30")}
+                                            >
+                                                <TableCell className={cn(
+                                                    "sticky left-0 z-30 bg-card border-r font-medium",
+                                                    isLearner && "bg-muted/30"
+                                                )}>
+                                                    <div className="flex flex-col">
+                                                        <span>{role.name}</span>
+                                                        <span className="text-[10px] text-muted-foreground uppercase">{role.code}</span>
+                                                    </div>
+                                                </TableCell>
+                                                {permissions?.all.map((perm) => (
+                                                    <TableCell
+                                                        key={perm.code}
+                                                        className={cn(
+                                                            "p-0 border-r",
+                                                            groupBoundaries.has(perm.code) && "border-r-muted-foreground/30"
+                                                        )}
+                                                    >
+                                                        <div className="flex items-center justify-center p-4">
+                                                            <Checkbox
+                                                                checked={matrix[role.code]?.has(perm.code)}
+                                                                onCheckedChange={() => !isLearner && handleToggle(role.code, perm.code)}
+                                                                disabled={isLearner}
+                                                            />
+                                                        </div>
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        
+            </CardContent>
+            </Card>
 
             {/* Sticky Action Footer */}
             {hasChanges() && (
@@ -337,7 +346,7 @@ export function PermissionsPage() {
                                 size="sm"
                             >
                                 {updateMutation.isPending ? (
-                                    <Loader2 className="size-3.5 animate-spin" />
+                                    <Spinner className="size-3.5" />
                                 ) : (
                                     <>
                                         <Zap className="size-3.5 mr-2 fill-current" />

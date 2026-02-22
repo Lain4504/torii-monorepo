@@ -20,7 +20,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Image as ImageIcon, Film, X, UploadCloud } from 'lucide-react';
+import { Image as ImageIcon, Film, X, UploadCloud } from 'lucide-react';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import {
     Item,
@@ -34,7 +34,7 @@ import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
 import { useCreateCourse } from "@/api/services/courses.ts";
-
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface CreateCourseSheetProps {
     open: boolean;
@@ -428,9 +428,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                             }
                                                         }}
                                                     />
-                                                    <label htmlFor="isFree" className="text-sm font-medium cursor-pointer">
+                                                    <FieldLabel htmlFor="isFree" className="cursor-pointer mb-0">
                                                         Truy cập mở / Khóa học miễn phí
-                                                    </label>
+                                                    </FieldLabel>
                                                 </div>
                                             )}
                                         />
@@ -639,7 +639,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                             disabled={uploading || !isDirty}>
                             {uploading ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang tạo...
                                 </>
                             ) : (

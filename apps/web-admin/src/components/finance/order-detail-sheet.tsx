@@ -8,6 +8,8 @@ import {
 } from '@workspace/ui/components/sheet';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
+import { Spinner } from '@workspace/ui/components/spinner';
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import {
     ShieldCheck,
     Clock,
@@ -139,14 +141,21 @@ export function OrderDetailSheet({
 
                             {isLoadingPayments ? (
                                 <div className="py-8 flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                                    <Clock className="h-5 w-5 animate-spin" />
+                                    <Spinner className="h-5 w-5" />
                                     <p className="text-xs uppercase font-bold tracking-widest">Đang tải...</p>
                                 </div>
                             ) : !paymentsData?.data?.length ? (
-                                <div className="p-8 text-center border rounded-lg border-dashed">
-                                    <AlertCircle className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
-                                    <p className="text-sm text-muted-foreground">Chưa có dữ liệu giao dịch</p>
-                                </div>
+                                <Empty>
+                                    <EmptyMedia>
+                                        <AlertCircle className="h-8 w-8 text-muted-foreground/20" />
+                                    </EmptyMedia>
+                                    <EmptyContent>
+                                        <EmptyTitle>Chưa có dữ liệu giao dịch</EmptyTitle>
+                                        <EmptyDescription>
+                                            Lịch sử giao dịch chưa được ghi nhận.
+                                        </EmptyDescription>
+                                    </EmptyContent>
+                                </Empty>
                             ) : (
                                 <div className="space-y-3">
                                     {paymentsData.data.map((payment) => (

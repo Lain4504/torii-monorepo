@@ -1,7 +1,7 @@
 'use client'
 
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@workspace/ui/components/empty'
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { Clock, ChevronRight, Calendar, BookOpen, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 
@@ -62,7 +62,7 @@ export default function HistoryPage() {
                     <div key={item.id} className="relative pl-12 group">
                         <div className="absolute left-3 top-2 w-4 h-4 rounded-full bg-background border-2 border-primary group-hover:scale-125 transition-transform z-10" />
 
-                        <Card className="border-border bg-card shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden border-l-4 border-l-primary/40 rounded-2xl">
+                        <Card className="hover:shadow-md transition-all cursor-pointer overflow-hidden border-l-4 border-l-primary/40">
                             <CardContent className="p-5">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="space-y-1.5 flex-1">
@@ -108,10 +108,15 @@ export default function HistoryPage() {
             </div>
 
             {historyItems.length === 0 && (
-                <div className="py-20 text-center space-y-4 rounded-2xl border border-dashed border-border bg-muted/5">
-                    <Clock className="w-12 h-12 text-muted-foreground/30 mx-auto" />
-                    <p className="text-sm text-muted-foreground font-medium">Chưa có lịch sử học tập</p>
-                </div>
+                <Empty>
+                    <EmptyMedia variant="icon" className="bg-muted/20">
+                        <Clock className="size-8 text-muted-foreground/30" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Chưa có lịch sử học tập</EmptyTitle>
+                        <EmptyDescription>Bắt đầu học để ghi lại tiến trình của bạn.</EmptyDescription>
+                    </EmptyContent>
+                </Empty>
             )}
         </div>
     )

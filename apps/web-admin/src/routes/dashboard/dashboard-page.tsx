@@ -250,7 +250,7 @@ function OperationItem({ icon: Icon, title, desc, tag, tagColor, time, link }: a
       <div className="text-right shrink-0">
         <p className="text-[10px] font-medium text-muted-foreground/40 mb-1">{time}</p>
         <Link to={link}>
-          <Button variant="ghost" size="sm" className="h-8 px-3 text-xs font-semibold hover:bg-primary/5 hover:text-primary">Xử lý</Button>
+          <Button variant="ghost" size="sm" className="font-semibold hover:bg-primary/5 hover:text-primary">Xử lý</Button>
         </Link>
       </div>
     </div>

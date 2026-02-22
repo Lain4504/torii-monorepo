@@ -14,6 +14,7 @@ import { DeleteQuestionPoolDialog } from '@/components/question-pools/delete-que
 import { PoolsPrimaryToolbar } from '@/components/question-pools/pools-primary-toolbar.tsx';
 import { PoolsTable } from '@/components/question-pools/pools-table.tsx';
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function QuestionPoolsPage() {
     const navigate = useNavigate();
@@ -97,17 +98,21 @@ export default function QuestionPoolsPage() {
                     onJlptLevelFilterChange={setJlptLevelFilter}
                 />
 
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <PoolsTable
-                        data={pools}
-                        isLoading={isLoading}
-                        page={page}
-                        limit={limit}
-                        onView={(pool) => navigate(`/question-bank/${pool.id}`)}
-                        onEdit={setEditingPool}
-                        onDelete={setDeletingPool}
-                    />
-                </div>
+                <Card className="overflow-hidden">
+                <CardContent className="p-0">
+
+                                    <PoolsTable
+                                        data={pools}
+                                        isLoading={isLoading}
+                                        page={page}
+                                        limit={limit}
+                                        onView={(pool) => navigate(`/question-bank/${pool.id}`)}
+                                        onEdit={setEditingPool}
+                                        onDelete={setDeletingPool}
+                                    />
+                                
+                </CardContent>
+                </Card>
 
                 <SmartPagination
                     page={page}

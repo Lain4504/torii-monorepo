@@ -6,6 +6,7 @@ import { courseApi } from '@/apis/services/course-api'
 import { BookOpen, AlertCircle } from 'lucide-react'
 import { useCheckEnrollment, useUpgradeCourseVersion } from '@/apis/services/enrollment-api'
 import { Button } from '@workspace/ui/components/button'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export default function UnifiedLearningPage() {
     const params = useParams()
@@ -61,7 +62,7 @@ export default function UnifiedLearningPage() {
         return (
             <div className="flex items-center justify-center h-screen bg-background">
                 <div className="flex flex-col items-center gap-2">
-                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <Spinner size="lg" />
                     <p className="text-muted-foreground text-sm">Đang tải...</p>
                 </div>
             </div>

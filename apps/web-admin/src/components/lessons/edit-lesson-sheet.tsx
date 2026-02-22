@@ -25,7 +25,8 @@ import { storageApi } from '@/api/services/storage-api';
 import { LessonContentType, lessonUpdateDTOSchema, type LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateLesson } from "@/api/services/lesson";
-import { Loader2, Save, Video } from 'lucide-react';
+import { Save, Video } from 'lucide-react';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const updateLessonSchema = lessonUpdateDTOSchema;
 
@@ -264,7 +265,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                                     checked={field.value}
                                                     onCheckedChange={field.onChange}
                                                 />
-                                                <label htmlFor={field.name} className="text-sm font-medium">Xem Thử Công Khai</label>
+                                                <FieldLabel htmlFor={field.name} className="cursor-pointer mb-0">Xem Thử Công Khai</FieldLabel>
                                             </div>
                                         )}
                                     />
@@ -279,7 +280,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                                     checked={field.value}
                                                     onCheckedChange={field.onChange}
                                                 />
-                                                <label htmlFor={field.name} className="text-sm font-medium">Mở Khóa Truy Cập</label>
+                                                <FieldLabel htmlFor={field.name} className="cursor-pointer mb-0">Mở Khóa Truy Cập</FieldLabel>
                                             </div>
                                         )}
                                     />
@@ -302,7 +303,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                         >
                             {uploading ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang đồng bộ...
                                 </>
                             ) : (

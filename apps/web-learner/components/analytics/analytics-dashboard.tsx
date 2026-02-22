@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp, Target, AlertTriangle, FileText, Download, Loader2, Sparkles } from "lucide-react"
+import { TrendingUp, Target, AlertTriangle, FileText, Download, Sparkles } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { ProgressChart } from "./progress-chart"
 import { StudyPath } from "./study-path"
@@ -37,7 +38,7 @@ export function AnalyticsDashboard() {
     }, [])
 
     if (isLoading) {
-        return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+        return <div className="flex h-96 items-center justify-center"><Spinner className="size-8 text-muted-foreground" /></div>
     }
 
     return (

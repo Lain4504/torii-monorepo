@@ -18,10 +18,11 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, X, Ticket, Calendar as CalendarIcon, Percent, DollarSign } from 'lucide-react';
+import { X, Ticket, Calendar as CalendarIcon, Percent, DollarSign } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { CouponDiscountType, type CouponCreateDTO } from '@workspace/schemas';
 import { useCreateCoupon } from "@/api/services/coupons";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface CreateCouponSheetProps {
     open: boolean;
@@ -313,7 +314,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                             disabled={createMutation.isPending || !isDirty}>
                             {createMutation.isPending ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang tạo...
                                 </>
                             ) : (

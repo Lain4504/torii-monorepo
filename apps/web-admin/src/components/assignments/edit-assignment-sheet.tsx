@@ -38,8 +38,9 @@ import type { UpdateAssignmentDto, AssignmentResponseDTO } from "@workspace/sche
 import { AssignmentType } from "@workspace/schemas";
 import { useUpdateAssignment } from "@/api/services/assignments";
 import { toast } from "@workspace/ui/components/sonner";
-import { Loader2, Paperclip, Info, Save } from "lucide-react";
+import { Paperclip, Info, Save } from "lucide-react";
 import { Textarea } from "@workspace/ui/components/textarea";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface EditAssignmentSheetProps {
   assignment: AssignmentResponseDTO | null;
@@ -218,7 +219,7 @@ export function EditAssignmentSheet({
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel htmlFor={field.name}>Loại bài nộp</FieldLabel>
                         <Select onValueChange={field.onChange} value={field.value || AssignmentType.TEXT}>
-                          <SelectTrigger id={field.name} className="">
+                          <SelectTrigger id={field.name}>
                             <SelectValue placeholder="Chọn loại bài nộp" />
                           </SelectTrigger>
                           <SelectContent>
@@ -238,7 +239,7 @@ export function EditAssignmentSheet({
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel htmlFor={field.name}>Hạn nộp</FieldLabel>
-                        <Input type="datetime-local" id={field.name} {...field} value={field.value || ""} className="" />
+                        <Input type="datetime-local" id={field.name} {...field} value={field.value || ""} />
                         <FieldDescription>Để trống nếu không có hạn nộp</FieldDescription>
                         <FieldError errors={[fieldState.error]} />
                       </Field>
@@ -405,7 +406,7 @@ export function EditAssignmentSheet({
                 >
                   {updateMutation.isPending ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Spinner className="mr-2" />
                       Đang lưu...
                     </>
                   ) : (

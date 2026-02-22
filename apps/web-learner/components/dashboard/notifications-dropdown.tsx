@@ -1,5 +1,6 @@
 'use client'
 
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { Bell, Check } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import {
@@ -181,15 +182,15 @@ export function NotificationsDropdown() {
                             ))}
                         </div>
                     ) : (
-                        <div className="py-12 text-center space-y-3">
-                            <div className="w-12 h-12 rounded-xl bg-muted/30 mx-auto flex items-center justify-center border border-border/10">
+                        <Empty className="py-12 border-none">
+                            <EmptyMedia variant="icon" className="bg-muted/30 border border-border/10">
                                 <Bell className="size-5 text-muted-foreground/30" />
-                            </div>
-                            <div className="space-y-1">
-                                <h3 className="text-xs font-semibold text-foreground">Không có thông báo mới</h3>
-                                <p className="text-[10px] text-muted-foreground/50 font-medium">Bạn đã cập nhật tất cả thông tin.</p>
-                            </div>
-                        </div>
+                            </EmptyMedia>
+                            <EmptyContent>
+                                <EmptyTitle className="text-xs">Không có thông báo mới</EmptyTitle>
+                                <EmptyDescription className="text-[10px]">Bạn đã cập nhật tất cả thông tin.</EmptyDescription>
+                            </EmptyContent>
+                        </Empty>
                     )}
                 </div>
 

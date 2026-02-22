@@ -1,8 +1,9 @@
 'use client'
 
+import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from '@workspace/ui/components/empty';
 import { useState } from 'react';
-import { Clock, LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { Spinner } from '@workspace/ui/components/spinner';
 import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/apis/services/session-api';
 import { toast } from '@workspace/ui/components/sonner';
 
@@ -44,7 +45,7 @@ export function SessionsManagement() {
     if (isLoading) {
         return (
             <div className="flex h-[200px] items-center justify-center">
-                <Loader2 className="size-8 animate-spin text-primary" />
+                <Spinner className="size-8 text-primary" />
             </div>
         );
     }
@@ -72,9 +73,12 @@ export function SessionsManagement() {
                     ))}
 
                     {sessions?.length === 0 && (
-                        <div className="p-10 text-center text-muted-foreground text-sm italic">
-                            Không tìm thấy dữ liệu phiên hoạt động.
-                        </div>
+                        <Empty className="border-none">
+                            <EmptyContent>
+                                <EmptyTitle>Không tìm thấy phiên</EmptyTitle>
+                                <EmptyDescription>Không có dữ liệu phiên hoạt động.</EmptyDescription>
+                            </EmptyContent>
+                        </Empty>
                     )}
                 </div>
 
@@ -84,11 +88,11 @@ export function SessionsManagement() {
                         variant="ghost"
                         onClick={() => setIsRevokeOtherOpen(true)}
                         disabled={revokeOtherMutation.isPending || (sessions?.length || 0) <= 1}
-                        className="w-full rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive h-10 font-bold text-xs uppercase tracking-wider transition-all duration-200"
+                        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive h-10 font-bold text-xs uppercase tracking-wider transition-all duration-200"
                     >
                         {revokeOtherMutation.isPending ? (
                             <div className="flex items-center gap-2">
-                                <Loader2 className="size-3 animate-spin" />
+                                <Spinner className="size-3" />
                                 Đang xử lý...
                             </div>
                         ) : (

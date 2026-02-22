@@ -70,7 +70,7 @@ export const getAssignmentsColumns = ({
       cell: ({ row }) => {
         const type = row.getValue('type') as AssignmentType;
         return (
-          <Badge variant="outline" className="rounded-lg text-[10px] font-bold uppercase py-0.5">
+          <Badge variant="outline" className="font-bold uppercase">
             {type === AssignmentType.TEXT && "Văn bản"}
             {type === AssignmentType.FILE && "Tệp tin"}
             {type === AssignmentType.BOTH && "Cả hai"}
@@ -86,19 +86,19 @@ export const getAssignmentsColumns = ({
         switch (status) {
           case AssignmentStatus.DRAFT:
             return (
-              <Badge className="bg-muted text-muted-foreground hover:bg-muted border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="secondary" className="font-bold uppercase">
                 Nháp
               </Badge>
             );
           case AssignmentStatus.PUBLISHED:
             return (
-              <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="default" className="font-bold uppercase">
                 Đã công bố
               </Badge>
             );
           case AssignmentStatus.CLOSED:
             return (
-              <Badge className="bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="destructive" className="font-bold uppercase">
                 Đã đóng
               </Badge>
             );
@@ -139,32 +139,32 @@ export const getAssignmentsColumns = ({
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted/50 rounded-lg">
+              <Button variant="ghost" size="icon">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px] rounded-xl border-border/10 bg-card/80 backdrop-blur-xl">
-              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground p-3">
+            <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuLabel>
                 Thao tác
               </DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onViewSubmissions(assignment)} className="p-3 cursor-pointer">
+              <DropdownMenuItem onClick={() => onViewSubmissions(assignment)}>
                 <Users className="mr-2 h-4 w-4" />
                 <span>Xem bài nộp</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(assignment)} className="p-3 cursor-pointer">
+              <DropdownMenuItem onClick={() => onEdit(assignment)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 <span>Chỉnh sửa</span>
               </DropdownMenuItem>
               {assignment.status === AssignmentStatus.DRAFT && (
-                <DropdownMenuItem onClick={() => onPublish(assignment)} className="p-3 cursor-pointer text-emerald-500 focus:text-emerald-500">
+                <DropdownMenuItem onClick={() => onPublish(assignment)} className="text-emerald-500 focus:text-emerald-500">
                   <Send className="mr-2 h-4 w-4" />
                   <span>Công bố bài tập</span>
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator className="bg-border/10" />
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => onDelete(assignment)}
-                className="p-3 cursor-pointer text-rose-500 focus:text-rose-500"
+                className="text-rose-500 focus:text-rose-500"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 <span>Xóa bài tập</span>

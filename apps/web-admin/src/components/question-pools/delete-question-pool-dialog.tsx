@@ -9,10 +9,11 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { Button } from '@workspace/ui/components/button';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useDeleteQuestionPool } from '@/api/services/question-pools.ts';
 import type { QuestionPoolResponseDTO } from '@workspace/schemas';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface DeleteQuestionPoolDialogProps {
     open: boolean;
@@ -64,7 +65,7 @@ export function DeleteQuestionPoolDialog({ open, onOpenChange, pool }: DeleteQue
                         disabled={deletePool.isPending}
                     >
                         {deletePool.isPending ? (
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner />
                         ) : (
                             "Xóa kho đề"
                         )}

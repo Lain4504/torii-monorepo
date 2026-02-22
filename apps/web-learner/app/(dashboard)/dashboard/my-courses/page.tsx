@@ -5,6 +5,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
 import { Input } from '@workspace/ui/components/input'
 import { Badge } from '@workspace/ui/components/badge'
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@workspace/ui/components/empty'
 import {
     Search,
     PlayCircle,
@@ -13,12 +14,11 @@ import {
     Award,
     TrendingUp,
     ChevronRight,
-    Loader2,
     Video
 } from 'lucide-react'
+import { Spinner } from '@workspace/ui/components/spinner'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { learningProgressApi, type MyCourseResponse, type LearningStats } from '@/apis/services/learning-progress-api'
 import { LiveSessionBlock } from '@/components/courses/live-session-block'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
 
@@ -68,7 +68,7 @@ export default function MyCoursesPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <Spinner className="size-8 text-primary" />
             </div>
         )
     }
@@ -119,7 +119,7 @@ export default function MyCoursesPage() {
                         variant={filter === 'all' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('all')}
-                        className="rounded-lg text-xs font-bold px-4 h-8 transition-all"
+                        className="font-bold px-4"
                     >
                         Tất cả
                     </Button>
@@ -127,7 +127,7 @@ export default function MyCoursesPage() {
                         variant={filter === 'in-progress' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('in-progress')}
-                        className="rounded-lg text-xs font-bold px-4 h-8 transition-all"
+                        className="font-bold px-4"
                     >
                         Đang học
                     </Button>
@@ -135,7 +135,7 @@ export default function MyCoursesPage() {
                         variant={filter === 'completed' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('completed')}
-                        className="rounded-lg text-xs font-bold px-4 h-8 transition-all"
+                        className="font-bold px-4"
                     >
                         Đã xong
                     </Button>
@@ -230,14 +230,14 @@ export default function MyCoursesPage() {
                                             e.stopPropagation();
                                             setExpiredCourse({ title: course.title, slug: course.slug })
                                         }}
-                                        className="w-full rounded-xl h-10 text-xs font-bold bg-destructive hover:bg-destructive/90 transition-all shadow-sm"
-                                    >
+                        className="w-full text-xs font-bold bg-destructive hover:bg-destructive/90 shadow-sm"
+                    >
                                         Gia hạn khóa học
                                         <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                     </Button>
                                 ) : (
                                     <Link href={`/courses/${course.slug}/learn`} className="w-full" onClick={(e) => e.stopPropagation()}>
-                                        <Button className="w-full rounded-xl h-10 text-xs font-bold hover:bg-primary/90 transition-all shadow-sm">
+                                        <Button className="w-full text-xs font-bold hover:bg-primary/90 shadow-sm">
                                             {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
                                             <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                         </Button>
@@ -250,18 +250,18 @@ export default function MyCoursesPage() {
             </div>
 
             {filteredCourses.length === 0 && (
-                <div className="py-20 text-center space-y-4 rounded-2xl border border-dashed border-border bg-muted/5">
-                    <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto">
-                        <Search className="w-8 h-8 text-muted-foreground/40" />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-foreground">Không tìm thấy khóa học</h3>
-                        <p className="text-sm text-muted-foreground mt-1">Bạn chưa đăng ký khóa học nào hoặc không tìm thấy kết quả phù hợp.</p>
+                <Empty>
+                    <EmptyMedia variant="icon" className="bg-muted/20">
+                        <Search className="size-8 text-muted-foreground/40" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Không tìm thấy khóa học</EmptyTitle>
+                        <EmptyDescription>Bạn chưa đăng ký khóa học nào hoặc không tìm thấy kết quả phù hợp.</EmptyDescription>
                         <Link href="/courses">
-                            <Button className="mt-4 rounded-xl font-bold" variant="outline">Khám phá khóa học</Button>
+                    <Button className="mt-4 font-bold" variant="outline">Khám phá khóa học</Button>
                         </Link>
-                    </div>
-                </div>
+                    </EmptyContent>
+                </Empty>
             )}
             <CourseExpirationModal
                 isOpen={!!expiredCourse}

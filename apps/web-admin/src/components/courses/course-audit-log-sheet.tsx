@@ -81,7 +81,7 @@ function LogItem({ log }: { log: AuditLog }) {
                 {(log.oldValues || log.newValues || (log.metadata && Object.keys(log.metadata).length > 0)) && (
                     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                         <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-7 px-2 -ml-1 text-[10px] text-primary hover:bg-primary/5 font-bold uppercase tracking-wide gap-1">
+                            <Button variant="ghost" size="sm" className="-ml-1 text-primary hover:bg-primary/5 font-bold uppercase tracking-wide gap-1">
                                 <ChevronDown className={cn("size-3 transition-transform duration-200", isOpen && "rotate-180")} />
                                 {isOpen ? "Ẩn chi tiết" : "Xem chi tiết dữ liệu"}
                             </Button>

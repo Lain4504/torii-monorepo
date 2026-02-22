@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Card } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import {
     Plus,
@@ -103,7 +104,7 @@ export default function PoolDetailPage() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border bg-card overflow-hidden">
+                <Card>
                     <QuestionsTable
                         data={filteredQuestions}
                         isLoading={isLoadingQuestions}
@@ -111,7 +112,7 @@ export default function PoolDetailPage() {
                         onEdit={setEditingQuestion}
                         onDelete={setDeletingQuestion}
                     />
-                </div>
+                </Card>
             </div>
 
             {/* Sheets & Dialogs */}

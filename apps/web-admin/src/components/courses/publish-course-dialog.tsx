@@ -12,11 +12,12 @@ import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 
-import { Loader2, CheckCircle2, AlertCircle, AlertTriangle, BookOpen, Users, Layers, Rocket, ShieldCheck, XCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, AlertTriangle, BookOpen, Users, Layers, Rocket, ShieldCheck, XCircle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { cn } from '@workspace/ui/lib/utils';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface PublishCourseDialogProps {
     open: boolean;
@@ -249,7 +250,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
                     >
                         {publishMutation.isPending ? (
                             <>
-                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                <Spinner className="mr-2 h-3.5 w-3.5" />
                                 Đang xuất bản...
                             </>
                         ) : (

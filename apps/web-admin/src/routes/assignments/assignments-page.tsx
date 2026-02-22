@@ -22,6 +22,7 @@ import {
 import { BookOpen, Search } from 'lucide-react';
 import type { AssignmentResponseDTO } from '@workspace/schemas';
 import { AssignmentStatus } from '@workspace/schemas';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function AssignmentsPage() {
     const navigate = useNavigate();
@@ -136,16 +137,20 @@ export default function AssignmentsPage() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <AssignmentsTable
-                        data={assignmentsData?.data || []}
-                        isLoading={isLoading}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onPublish={handlePublish}
-                        onViewSubmissions={handleViewSubmissions}
-                    />
-                </div>
+                <Card className="overflow-hidden">
+                <CardContent className="p-0">
+
+                                    <AssignmentsTable
+                                        data={assignmentsData?.data || []}
+                                        isLoading={isLoading}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        onPublish={handlePublish}
+                                        onViewSubmissions={handleViewSubmissions}
+                                    />
+                                
+                </CardContent>
+                </Card>
 
                 <SmartPagination
                     page={page}

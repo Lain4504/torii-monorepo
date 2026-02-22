@@ -47,7 +47,9 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { Card } from '@workspace/ui/components/card';
+import { Field, FieldLabel } from '@workspace/ui/components/field';
 
 export default function SupportPage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -195,7 +197,7 @@ export default function SupportPage() {
                     </div>
                     <Button
                         onClick={() => setIsCreateOpen(true)}
-                        className="h-10 w-full sm:w-auto px-4 rounded-xl font-bold shadow-sm"
+                        className="w-full sm:w-auto font-bold shadow-sm"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Gửi yêu cầu mới
@@ -263,12 +265,12 @@ export default function SupportPage() {
                                                     #{ticket.id.slice(0, 8)}
                                                 </TableCell>
                                                 <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
-                                                        onClick={() => handleViewDetail(ticket.id)}
-                                                    >
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-foreground"
+                        onClick={() => handleViewDetail(ticket.id)}
+                    >
                                                         <ChevronRight className="w-4 h-4" />
                                                     </Button>
                                                 </TableCell>
@@ -276,16 +278,16 @@ export default function SupportPage() {
                                         );
                                     }) : (
                                         <TableRow>
-                                            <TableCell colSpan={5} className="h-[200px] text-center p-0">
-                                                <div className="py-8 text-center space-y-4">
-                                                    <div className="mx-auto w-12 h-12 rounded-full bg-muted/20 flex items-center justify-center">
-                                                        <HelpCircle className="w-6 h-6 text-muted-foreground" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium text-foreground">Bạn chưa gửi yêu cầu hỗ trợ nào.</p>
-                                                        <p className="text-sm text-muted-foreground mt-1">Chúng tôi luôn sẵn sàng lắng nghe bạn.</p>
-                                                    </div>
-                                                </div>
+                                            <TableCell colSpan={5} className="h-[200px] text-center">
+                                                <Empty>
+                                                    <EmptyMedia>
+                                                        <HelpCircle className="size-6 text-muted-foreground" />
+                                                    </EmptyMedia>
+                                                    <EmptyContent>
+                                                        <EmptyTitle>Bạn chưa gửi yêu cầu hỗ trợ nào.</EmptyTitle>
+                                                        <EmptyDescription>Chúng tôi luôn sẵn sàng lắng nghe bạn.</EmptyDescription>
+                                                    </EmptyContent>
+                                                </Empty>
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -309,8 +311,8 @@ export default function SupportPage() {
                     </DialogHeader>
 
                     <div className="grid gap-6 py-4">
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase text-muted-foreground">Phân loại</label>
+                        <Field>
+                            <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Phân loại</FieldLabel>
                             <Select
                                 value={newTicketType}
                                 onValueChange={(val) => setNewTicketType(val as TicketType)}
@@ -324,11 +326,11 @@ export default function SupportPage() {
                                     <SelectItem value={TicketType.ERROR_REPORT}>⚠️ Báo lỗi ứng dụng</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
 
                         {newTicketType === TicketType.REFUND && (
-                            <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-                                <label className="text-xs font-semibold uppercase text-muted-foreground">Khóa học cần hoàn tiền</label>
+                            <Field className="animate-in slide-in-from-top-2 duration-300">
+                                <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Khóa học cần hoàn tiền</FieldLabel>
                                 <Select
                                     onValueChange={setNewTicketCourseId}
                                 >
@@ -343,43 +345,45 @@ export default function SupportPage() {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </Field>
                         )}
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase text-muted-foreground">Tiêu đề</label>
+                        <Field>
+                            <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Tiêu đề</FieldLabel>
                             <Input
                                 placeholder="VD: Không vào được bài học số 5"
                                 className="h-10 rounded-lg text-sm"
                                 value={newTicketSubject}
                                 onChange={(e) => setNewTicketSubject(e.target.value)}
                             />
-                        </div>
+                        </Field>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase text-muted-foreground">Nội dung chi tiết</label>
+                        <Field>
+                            <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Nội dung chi tiết</FieldLabel>
                             <Textarea
                                 placeholder="Mô tả cụ thể vấn đề bạn cần giúp đỡ..."
                                 className="min-h-[120px] rounded-xl text-sm p-4 resize-none"
                                 value={newTicketDescription}
                                 onChange={(e) => setNewTicketDescription(e.target.value)}
                             />
-                        </div>
+                        </Field>
                     </div>
 
                     <DialogFooter className="flex-col sm:flex-row gap-3">
                         <Button
-                            variant="outline"
-                            className="flex-1 h-10 rounded-xl font-bold sm:order-1"
-                            onClick={() => setIsCreateOpen(false)}
-                        >
+                    <Button
+                        variant="outline"
+                        className="flex-1 font-bold sm:order-1"
+                        onClick={() => setIsCreateOpen(false)}
+                    >
                             Hủy bỏ
                         </Button>
                         <Button
-                            className="flex-1 h-10 rounded-xl font-bold sm:order-2"
-                            onClick={handleCreateTicket}
-                            disabled={createTicketMutation.isPending}
-                        >
+                    <Button
+                        className="flex-1 font-bold sm:order-2"
+                        onClick={handleCreateTicket}
+                        disabled={createTicketMutation.isPending}
+                    >
                             {createTicketMutation.isPending ? 'Đang gửi...' : 'Gửi yêu cầu'}
                         </Button>
                     </DialogFooter>
@@ -456,7 +460,8 @@ export default function SupportPage() {
                             </div>
 
                             <Button
-                                className="w-full h-11 rounded-xl font-bold shadow-sm"
+                                size="lg"
+                                className="w-full font-bold shadow-sm"
                                 onClick={() => setIsDetailOpen(false)}
                             >
                                 Đóng hội thoại

@@ -22,8 +22,8 @@ import {
     Heart,
     User,
     FileText,
-    Loader2,
 } from 'lucide-react'
+import { Spinner } from '@workspace/ui/components/spinner'
 import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { profileApi, type UpdateProfileDTO } from '@/apis/services/profile-api'
@@ -238,14 +238,14 @@ export default function ProfilePage() {
                         </AvatarFallback>
                     </Avatar>
                     <Button
-                        size="icon"
                         variant="secondary"
                         onClick={handleAvatarClick}
                         disabled={isUploadingAvatar}
-                        className="absolute bottom-0 right-0 rounded-full w-9 h-9 shadow-md border border-border cursor-pointer bg-background hover:bg-muted disabled:opacity-50"
+                        size="icon"
+                        className="absolute bottom-0 right-0 w-9 h-9 shadow-md border border-border cursor-pointer bg-background hover:bg-muted disabled:opacity-50 rounded-full"
                     >
                         {isUploadingAvatar ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Spinner className="size-4" />
                         ) : (
                             <Camera className="w-4 h-4" />
                         )}
@@ -304,11 +304,12 @@ export default function ProfilePage() {
                                 Hồ sơ cá nhân
                             </h2>
                             {!isEditing ? (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setIsEditing(true)}
-                                    className="h-9 px-4 text-xs font-bold rounded-xl transition-all"
-                                >
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setIsEditing(true)}
+                                        size="sm"
+                                        className="font-bold transition-all"
+                                    >
                                     Chỉnh sửa
                                 </Button>
                             ) : (
@@ -316,18 +317,20 @@ export default function ProfilePage() {
                                     <Button
                                         variant="ghost"
                                         onClick={() => setIsEditing(false)}
-                                        className="h-9 text-xs font-bold rounded-xl"
+                                        size="sm"
+                                        className="font-bold"
                                     >
                                         Hủy
                                     </Button>
                                     <Button
                                         onClick={handleSave}
                                         disabled={updateProfileMutation.isPending}
-                                        className="h-9 px-5 text-xs font-bold rounded-xl bg-primary text-white disabled:opacity-50"
+                                        size="sm"
+                                        className="font-bold bg-primary text-white disabled:opacity-50"
                                     >
                                         {updateProfileMutation.isPending ? (
                                             <>
-                                                <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                                <Spinner className="size-3 mr-2" />
                                                 Đang lưu...
                                             </>
                                         ) : (

@@ -9,10 +9,11 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { Button } from '@workspace/ui/components/button';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useDeleteBlog } from "@/api/services/blog.ts";
 import type { BlogResponseDTO } from '@workspace/schemas';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface DeleteBlogDialogProps {
     open: boolean;
@@ -68,7 +69,7 @@ export function DeleteBlogDialog({
                         disabled={deleteBlog.isPending}
                     >
                         {deleteBlog.isPending ? (
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner />
                         ) : (
                             "Xóa bài viết"
                         )}

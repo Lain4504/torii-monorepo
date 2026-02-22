@@ -10,7 +10,8 @@ import { Switch } from '@workspace/ui/components/switch'
 import { Input } from '@workspace/ui/components/input'
 import { Label } from '@workspace/ui/components/label'
 import { Textarea } from '@workspace/ui/components/textarea'
-import { Loader2, ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2, Gift, TicketPercent, ArrowRight, Sparkles, BookOpen, Users } from 'lucide-react'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2, Gift, TicketPercent, ArrowRight, Sparkles, BookOpen, Users } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/apis/services/course-api'
 import { orderApi } from '@/apis/services/order-api'
@@ -354,7 +355,7 @@ export default function CheckoutPage() {
                                         <div className="space-y-1.5">
                                             <Label className="text-xs font-medium text-muted-foreground">Email người nhận</Label>
                                             <Input
-                                                className="bg-background border-border/40 rounded-lg h-10 focus:ring-2 focus:ring-pink-500/20"
+                                                className="bg-background border-border/40 h-10 focus:ring-2 focus:ring-pink-500/20"
                                                 placeholder="friend@example.com"
                                                 value={recipientEmail}
                                                 onChange={(e) => setRecipientEmail(e.target.value)}
@@ -363,7 +364,7 @@ export default function CheckoutPage() {
                                                 <div className="mt-1.5 px-1 animate-in fade-in duration-300">
                                                     {recipientStatus === 'checking' && (
                                                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                                            <Spinner className="size-3" />
                                                             <span>Đang kiểm tra tài khoản...</span>
                                                         </div>
                                                     )}
@@ -391,7 +392,7 @@ export default function CheckoutPage() {
                                         <div className="space-y-1.5">
                                             <Label className="text-xs font-medium text-muted-foreground">Lời nhắn</Label>
                                             <Textarea
-                                                className="bg-background border-border/40 rounded-lg resize-none focus:ring-2 focus:ring-pink-500/20"
+                                                className="bg-background border-border/40 resize-none focus:ring-2 focus:ring-pink-500/20"
                                                 placeholder="Chúc bạn học tốt..."
                                                 value={giftMessage}
                                                 onChange={(e) => setGiftMessage(e.target.value)}
@@ -415,7 +416,7 @@ export default function CheckoutPage() {
                                         <div className="relative flex-1">
                                             <Input
                                                 placeholder="Nhập mã giảm giá"
-                                                className="h-10 rounded-lg bg-background border-border/40 pl-3 font-mono uppercase placeholder:font-sans placeholder:normal-case focus:ring-2 focus:ring-emerald-500/20"
+                                                className="h-10 bg-background border-border/40 pl-3 font-mono uppercase placeholder:font-sans placeholder:normal-case focus:ring-2 focus:ring-emerald-500/20"
                                                 value={couponCode}
                                                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                                                 disabled={!!appliedCoupon}
@@ -424,12 +425,13 @@ export default function CheckoutPage() {
                                         {appliedCoupon ? (
                                             <Button
                                                 variant="ghost"
+                                                size="icon"
                                                 onClick={() => {
                                                     setAppliedCoupon(null)
                                                     setCouponDiscount(0)
                                                     setCouponCode('')
                                                 }}
-                                                className="h-10 w-10 rounded-lg text-destructive hover:bg-destructive/10"
+                                                className="text-destructive hover:bg-destructive/10"
                                             >
                                                 <X className="w-4 h-4" />
                                             </Button>
@@ -437,9 +439,9 @@ export default function CheckoutPage() {
                                             <Button
                                                 onClick={handleApplyCoupon}
                                                 disabled={isCheckingCoupon || !couponCode}
-                                                className="h-10 px-5 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all font-medium"
+                                                className="bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all font-medium"
                                             >
-                                                {isCheckingCoupon ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Áp dụng'}
+                                                {isCheckingCoupon ? <Spinner className="size-4" /> : 'Áp dụng'}
                                             </Button>
                                         )}
                                     </div>
@@ -482,11 +484,12 @@ export default function CheckoutPage() {
                                 <Button
                                     onClick={handlePayment}
                                     disabled={isCreatingLink || (isGift && recipientStatus === 'enrolled')}
-                                    className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-semibold shadow-sm hover:shadow transition-all"
+                                    size="lg"
+                                    className="w-full font-semibold shadow-sm hover:shadow transition-all"
                                 >
                                     {isCreatingLink ? (
                                         <>
-                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                            <Spinner className="size-4 mr-2" />
                                             Đang xử lý...
                                         </>
                                     ) : (

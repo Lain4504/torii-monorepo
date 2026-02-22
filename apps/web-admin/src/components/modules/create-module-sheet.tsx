@@ -21,7 +21,8 @@ import {
 } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateModule } from "@/api/services/modules.ts";
-import { Loader2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const getCreateModuleSchema = (existingTitles: string[] = []) =>
     moduleCreateDTOSchema.extend({
@@ -194,7 +195,7 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                             disabled={isSubmitting}>
                             {isSubmitting ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang tạo...
                                 </>
                             ) : (

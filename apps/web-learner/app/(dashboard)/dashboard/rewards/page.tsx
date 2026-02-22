@@ -1,7 +1,7 @@
 'use client'
 
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@workspace/ui/components/empty'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@workspace/ui/components/card'
-import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Gift, Star, Ticket, ArrowRight, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react'
@@ -63,7 +63,7 @@ export default function RewardsPage() {
                     <p className="text-muted-foreground mt-2">Dùng điểm tích lũy để đổi lấy các ưu đãi đặc quyền.</p>
                 </div>
 
-                <div className="bg-primary/5 border border-primary/10 rounded-2xl px-6 py-4 flex items-center gap-4 shadow-sm">
+                <div className="bg-primary/5 border border-primary/10 rounded-xl px-6 py-4 flex items-center gap-4 shadow-sm">
                     <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center">
                         <Star className="size-6 text-primary fill-primary" />
                     </div>
@@ -136,7 +136,7 @@ export default function RewardsPage() {
                 {coupons && coupons.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {coupons.map((coupon: any) => (
-                            <div key={coupon.id} className="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+                            <Card key={coupon.id} className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-4 w-full">
                                     <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                                         <CheckCircle2 className="size-6 text-primary" />
@@ -163,9 +163,15 @@ export default function RewardsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-muted/30 rounded-2xl p-10 text-center border-2 border-dashed border-border">
-                        <p className="text-muted-foreground font-medium">Bạn chưa có mã giảm giá nào. Hãy tích lũy điểm và đổi quà nhé!</p>
-                    </div>
+                    <Empty>
+                        <EmptyMedia variant="icon" className="bg-muted/20">
+                            <Ticket className="size-8 text-muted-foreground/30" />
+                        </EmptyMedia>
+                        <EmptyContent>
+                            <EmptyTitle>Chưa có mã giảm giá</EmptyTitle>
+                            <EmptyDescription>Hãy tích lũy điểm và đổi quà nhé!</EmptyDescription>
+                        </EmptyContent>
+                    </Empty>
                 )}
             </div>
 

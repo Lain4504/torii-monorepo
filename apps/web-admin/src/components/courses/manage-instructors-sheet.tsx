@@ -2,19 +2,28 @@ import { useState } from 'react';
 import { useBoolean } from '@workspace/ui/hooks/use-boolean';
 import { useAssignLecturer, useCourseInstructors, useUnassignLecturer, useUpdatePrimaryInstructor } from '@/api/services/course-instructors';
 import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyMedia,
+    EmptyTitle,
+} from '@workspace/ui/components/empty';
+import {
     Sheet,
     SheetContent,
     SheetDescription,
     SheetHeader,
     SheetTitle,
 } from '@workspace/ui/components/sheet';
+import { Spinner } from '@workspace/ui/components/spinner';
+
 import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Badge } from '@workspace/ui/components/badge';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
-import { Loader2, User as UserIcon, Trash2, Crown, Plus } from 'lucide-react';
+import { User as UserIcon, Trash2, Crown, Plus } from 'lucide-react';
+import { Badge } from '@workspace/ui/components/badge';
 import { toast } from '@workspace/ui/components/sonner';
 import { type CourseResponseDTO, UserRole, InstructorRole } from '@workspace/schemas';
 import { useUsers } from '@/api/services/users';
@@ -102,7 +111,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
             <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 {!course ? (
                     <div className="flex-1 flex items-center justify-center min-h-0">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        <Spinner className="h-8 w-8 text-muted-foreground" />
                     </div>
                 ) : (
                     <>
@@ -123,18 +132,20 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
                                     {loadingInstructors ? (
                                         <div className="flex items-center justify-center py-12 rounded-3xl border border-border/40 bg-muted/5">
-                                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/50" />
+                                            <Spinner className="h-6 w-6 text-muted-foreground/50" />
                                         </div>
                                     ) : !instructors || instructors.length === 0 ? (
-                                        <div className="rounded-2xl border border-dashed border-muted-foreground/20 p-8 text-center bg-muted/5">
-                                            <UserIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground/20" />
-                                            <p className="text-sm font-bold uppercase tracking-wide text-muted-foreground/60">
-                                                Chưa có giảng viên
-                                            </p>
-                                            <p className="text-[10px] uppercase font-bold text-muted-foreground/40 mt-1 tracking-widest">
-                                                Vui lòng phân công giảng viên bên dưới
-                                            </p>
-                                        </div>
+                                        <Empty>
+                                            <EmptyMedia>
+                                                <UserIcon className="h-10 w-10 text-muted-foreground/20" />
+                                            </EmptyMedia>
+                                            <EmptyContent>
+                                                <EmptyTitle>Chưa có giảng viên</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Vui lòng phân công giảng viên bên dưới
+                                                </EmptyDescription>
+                                            </EmptyContent>
+                                        </Empty>
                                     ) : (
                                         <div className="space-y-3">
                                             {instructors.map((instructor) => (
@@ -241,9 +252,9 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                 onCheckedChange={(checked: boolean) => isPrimary.setValue(checked)}
                                                 className="h-4 w-4 rounded border-border/40 text-primary focus:ring-primary/20"
                                             />
-                                            <label htmlFor="is-primary" className="text-xs font-medium text-foreground/80 cursor-pointer select-none">
+                                            <FieldLabel htmlFor="is-primary" className="text-xs font-medium text-foreground/80 cursor-pointer select-none mb-0">
                                                 Đặt làm giảng viên chủ nhiệm
-                                            </label>
+                                            </FieldLabel>
                                         </div>
 
                                         <Button
@@ -252,7 +263,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                             className="w-full rounded-xl h-11 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transition-all">
                                             {assignMutation.isPending ? (
                                                 <>
-                                                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                                    <Spinner className="mr-2 h-3.5 w-3.5" />
                                                     Đang xử lý...
                                                 </>
                                             ) : (

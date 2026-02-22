@@ -16,6 +16,7 @@ import {
   SheetDescription,
   SheetFooter
 } from "@workspace/ui/components/sheet";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { Controller } from "react-hook-form";
 import {
   Field,
@@ -28,9 +29,10 @@ import { Button } from "@workspace/ui/components/button";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { useGradeSubmission, useReturnSubmission } from "@/api/services/submissions";
 import { toast } from "@workspace/ui/components/sonner";
-import { Loader2, FileText, Download, ExternalLink, PenLine } from "lucide-react";
+import { FileText, Download, ExternalLink, PenLine } from "lucide-react";
 
 import { Badge } from "@workspace/ui/components/badge";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface GradeSubmissionSheetProps {
   open: boolean;
@@ -112,7 +114,7 @@ export function GradeSubmissionSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-6 space-y-6">
             {/* Submission Content */}
             <section className="space-y-4">
@@ -222,7 +224,7 @@ export function GradeSubmissionSheet({
               </form>
             </section>
           </div>
-        </div>
+        </ScrollArea>
 
         <SheetFooter>
           <Button
@@ -230,7 +232,7 @@ export function GradeSubmissionSheet({
             form="grade-form"
             disabled={gradeMutation.isPending || returnMutation.isPending}
           >
-            {gradeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {gradeMutation.isPending && <Spinner className="mr-2" />}
             Hoàn tất chấm điểm
           </Button>
           <Button
@@ -240,7 +242,7 @@ export function GradeSubmissionSheet({
             disabled={returnMutation.isPending || gradeMutation.isPending}
             className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-100"
           >
-            {returnMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {returnMutation.isPending && <Spinner className="mr-2" />}
             Trả lại bài
           </Button>
         </SheetFooter>

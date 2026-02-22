@@ -78,7 +78,7 @@ export function getPoolsColumns({
         {
             id: 'questionCount',
             header: () => <span className="text-center block">Số lượng</span>,
-            cell: ({ row }) => (
+            cell: ({ row: _row }) => (
                 <div className="flex items-center justify-center gap-2">
                     <FileQuestion className="size-3.5 text-muted-foreground" />
                     <span className="text-sm font-medium">—</span>
@@ -95,7 +95,7 @@ export function getPoolsColumns({
                     <div className="text-right" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Button variant="ghost" size="icon">
                                     <MoreVertical className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>

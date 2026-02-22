@@ -18,8 +18,9 @@ import {
 } from '@workspace/ui/components/field';
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { toast } from '@workspace/ui/components/sonner';
-import { KeyRound, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { KeyRound, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const passwordSchema = z.object({
     currentPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
@@ -182,7 +183,7 @@ export function PasswordTab() {
                             <div className="pt-1">
                                 <Button type="submit" disabled={isLoading} className="w-full" size="lg">
                                     {isLoading ? (
-                                        <><Loader2 className="size-4 mr-2 animate-spin" /> Đang cập nhật...</>
+                                        <><Spinner className="mr-2" /> Đang cập nhật...</>
                                     ) : (
                                         <><KeyRound className="size-4 mr-2" /> Cập Nhật Mật Khẩu</>
                                     )}

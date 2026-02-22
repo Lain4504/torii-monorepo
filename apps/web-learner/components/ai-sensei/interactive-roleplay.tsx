@@ -21,6 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
+import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { agentApi } from "@/apis/services/agent-api"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -599,48 +600,48 @@ export function InteractiveRoleplay() {
                                     Chọn giọng đọc và kiểm tra âm thanh.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Giọng đọc (Voice)</label>
-                                    <Select value={selectedVoiceURI} onValueChange={setSelectedVoiceURI}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Chọn giọng đọc..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="server-voice" className="font-medium text-orange-600 dark:text-orange-400">
-                                                Server (Google - Cơ bản)
-                                            </SelectItem>
-                                            <SelectItem value="ja-JP-NanamiNeural" className="font-medium text-indigo-600 dark:text-indigo-400">
-                                                Server (Nanami - Nữ, Tự nhiên)
-                                            </SelectItem>
-                                            <SelectItem value="ja-JP-KeitaNeural" className="font-medium text-blue-600 dark:text-blue-400">
-                                                Server (Keita - Nam, Tự nhiên)
-                                            </SelectItem>
+                                <div className="space-y-4 py-4">
+                                    <Field>
+                                        <FieldLabel className="text-sm font-medium">Giọng đọc (Voice)</FieldLabel>
+                                        <Select value={selectedVoiceURI} onValueChange={setSelectedVoiceURI}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Chọn giọng đọc..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="server-voice" className="font-medium text-orange-600 dark:text-orange-400">
+                                                    Server (Google - Cơ bản)
+                                                </SelectItem>
+                                                <SelectItem value="ja-JP-NanamiNeural" className="font-medium text-indigo-600 dark:text-indigo-400">
+                                                    Server (Nanami - Nữ, Tự nhiên)
+                                                </SelectItem>
+                                                <SelectItem value="ja-JP-KeitaNeural" className="font-medium text-blue-600 dark:text-blue-400">
+                                                    Server (Keita - Nam, Tự nhiên)
+                                                </SelectItem>
 
-                                            <div className="mx-2 my-2 text-xs text-muted-foreground font-medium uppercase tracking-wider op-70">
-                                                Giọng từ trình duyệt của bạn:
-                                            </div>
+                                                <div className="mx-2 my-2 text-xs text-muted-foreground font-medium uppercase tracking-wider op-70">
+                                                    Giọng từ trình duyệt của bạn:
+                                                </div>
 
-                                            {availableVoices.length === 0 ? (
-                                                <SelectItem value="none" disabled>Không tìm thấy giọng đọc nào</SelectItem>
-                                            ) : (
-                                                availableVoices.map(voice => (
-                                                    <SelectItem key={voice.voiceURI} value={voice.voiceURI}>
-                                                        {voice.name} ({voice.lang})
-                                                    </SelectItem>
-                                                ))
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                    <p className="text-xs text-muted-foreground">
-                                        Nếu trình duyệt không có giọng đọc tiếng Nhật, hãy chọn "Server Voice".
-                                    </p>
+                                                {availableVoices.length === 0 ? (
+                                                    <SelectItem value="none" disabled>Không tìm thấy giọng đọc nào</SelectItem>
+                                                ) : (
+                                                    availableVoices.map(voice => (
+                                                        <SelectItem key={voice.voiceURI} value={voice.voiceURI}>
+                                                            {voice.name} ({voice.lang})
+                                                        </SelectItem>
+                                                    ))
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-xs text-muted-foreground">
+                                            Nếu trình duyệt không có giọng đọc tiếng Nhật, hãy chọn "Server Voice".
+                                        </p>
+                                    </Field>
+
+                                    <Button onClick={testVoice} className="w-full" variant="secondary">
+                                        <Play className="size-4 mr-2" /> Nghe thử giọng nói
+                                    </Button>
                                 </div>
-
-                                <Button onClick={testVoice} className="w-full" variant="secondary">
-                                    <Play className="size-4 mr-2" /> Nghe thử giọng nói
-                                </Button>
-                            </div>
                         </DialogContent>
                     </Dialog>
 

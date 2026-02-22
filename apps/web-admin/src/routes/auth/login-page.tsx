@@ -9,9 +9,11 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { toast } from '@workspace/ui/components/sonner';
-import { Eye, EyeOff, Loader2, ShieldCheck } from 'lucide-react';
-import { Checkbox } from "@workspace/ui/components/checkbox";
+import { Field, FieldError, FieldLabel } from '@workspace/ui/components/field';
+import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@workspace/ui/components/card";
+import { Checkbox } from '@workspace/ui/components/checkbox';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -79,102 +81,98 @@ export default function LoginPage() {
 
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center bg-muted/20 p-6 md:p-10">
-      <div className="w-full max-w-sm flex flex-col gap-6">
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-            <ShieldCheck className="size-8" />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center text-center mb-6">
+          <div className="p-3 rounded-full bg-primary mb-4">
+            <ShieldCheck className="size-8 text-primary-foreground" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight">Torii Admin</h1>
+          <h1 className="text-2xl font-bold">Torii Admin</h1>
         </div>
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Đăng nhập</CardTitle>
+            <CardTitle>Đăng nhập</CardTitle>
             <CardDescription>
-              Vui lòng nhập thông tin để truy cập hệ thống
+              Vui lòng nhập thông tin để truy cập hệ thống.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-              <div className="grid gap-6">
-                <Controller
-                  name="email"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <div className="grid gap-2">
-                      <Label htmlFor={field.name}>Địa chỉ Email</Label>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Địa chỉ Email</FieldLabel>
+                    <Input
+                      {...field}
+                      placeholder="admin@torii.academy"
+                      type="email"
+                      autoComplete="email"
+                    />
+                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel>Mật khẩu</FieldLabel>
+                      <Button
+                        type="button"
+                        variant="link"
+                        size="sm"
+                        onClick={() => navigate('/forgot-password')}
+                        className="h-auto p-0"
+                      >
+                        Quên mật khẩu?
+                      </Button>
+                    </div>
+                    <div className="relative">
                       <Input
                         {...field}
-                        id={field.name}
-                        placeholder="admin@torii.academy"
-                        type="email"
-                        autoComplete="email"
-                        required
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        autoComplete="current-password"
                       />
-                      {fieldState.invalid && <p className="text-xs text-destructive">{fieldState.error?.message}</p>}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      </Button>
                     </div>
-                  )}
-                />
-
-                <Controller
-                  name="password"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <div className="grid gap-2">
-                      <div className="flex items-center">
-                        <Label htmlFor={field.name}>Mật khẩu</Label>
-                        <button
-                          type="button"
-                          onClick={() => navigate('/forgot-password')}
-                          className="ml-auto inline-block text-sm text-primary underline-offset-4 hover:underline"
-                        >
-                          Quên mật khẩu?
-                        </button>
-                      </div>
-                      <div className="relative">
-                        <Input
-                          {...field}
-                          id={field.name}
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          autoComplete="current-password"
-                          required
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                        </Button>
-                      </div>
-                      {fieldState.invalid && <p className="text-xs text-destructive">{fieldState.error?.message}</p>}
-                    </div>
-                  )}
-                />
-
-                <div className="flex items-center gap-2">
-                  <Checkbox id="remember" />
-                  <Label htmlFor="remember" className="font-normal text-muted-foreground">Duy trì đăng nhập</Label>
-                </div>
-
-                {error && (
-                  <div className="rounded-md bg-destructive/15 text-destructive p-3 text-sm">
-                    {error}
-                  </div>
+                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                  </Field>
                 )}
+              />
 
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                  Đăng nhập
-                </Button>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="remember" />
+                <Label htmlFor="remember" className="font-normal">Duy trì đăng nhập</Label>
               </div>
+
+              {error && (
+                <div className="rounded-md bg-destructive/15 text-destructive p-3 text-sm font-medium">
+                  {error}
+                </div>
+              )}
+
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Spinner className="mr-2" />}
+                Đăng nhập
+              </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex justify-center text-xs text-muted-foreground">
+          <CardFooter className="justify-center text-xs text-muted-foreground">
             © 2026 TORII HOLDINGS
           </CardFooter>
         </Card>

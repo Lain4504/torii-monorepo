@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Card, CardContent } from '@workspace/ui/components/card';
 import {
   Table,
   TableBody,
@@ -129,22 +130,24 @@ export default function OrdersPage() {
           { label: 'Trạng thái Hệ thống', value: 'Ổn định', sub: 'Độ trễ < 12ms', icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
           { label: 'Bảo mật', value: 'Hoạt động', sub: '99.9% Tỷ lệ an toàn', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
         ].map((stat, i) => (
-          <div key={i}
-            className="group p-6 rounded-xl border bg-card hover:border-primary/20 transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className={cn("p-2 rounded-lg", stat.bg, stat.color)}>
-                <stat.icon className="size-4" />
+          <Card key={i}
+            className="group hover:border-primary/20 transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className={cn("p-2 rounded-lg", stat.bg, stat.color)}>
+                  <stat.icon className="size-4" />
+                </div>
+                <div className="size-1.5 rounded-full bg-emerald-500" />
               </div>
-              <div className="size-1.5 rounded-full bg-emerald-500" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{stat.label}</h3>
-              <div className="flex items-baseline gap-2">
-                <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
-                <p className="text-[10px] font-medium text-muted-foreground/40">{stat.sub}</p>
+              <div className="space-y-1">
+                <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{stat.label}</h3>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground/40">{stat.sub}</p>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
@@ -257,125 +260,127 @@ export default function OrdersPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-xl border bg-card overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px] text-center">#</TableHead>
-                <TableHead>Dữ liệu Đơn hàng</TableHead>
-                <TableHead className="text-center font-bold">Số tiền</TableHead>
-                <TableHead className="text-center">Dịch vụ</TableHead>
-                <TableHead className="text-center">Trạng thái</TableHead>
-                <TableHead className="text-center">Ngày ghi nhận</TableHead>
-                <TableHead className="w-[80px] text-center">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="h-[400px] text-center">
-                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                      <RotateCcw className="h-8 w-8 animate-spin" />
-                      <p>Đang tải dữ liệu...</p>
-                    </div>
-                  </TableCell>
+                  <TableHead className="w-[80px] text-center">#</TableHead>
+                  <TableHead>Dữ liệu Đơn hàng</TableHead>
+                  <TableHead className="text-center font-bold">Số tiền</TableHead>
+                  <TableHead className="text-center">Dịch vụ</TableHead>
+                  <TableHead className="text-center">Trạng thái</TableHead>
+                  <TableHead className="text-center">Ngày ghi nhận</TableHead>
+                  <TableHead className="w-[80px] text-center">Thao tác</TableHead>
                 </TableRow>
-              ) : orders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-[400px] text-center">
-                    <Empty>
-                      <EmptyMedia>
-                        <CreditCard className="size-8 text-muted-foreground" />
-                      </EmptyMedia>
-                      <EmptyContent>
-                        <EmptyTitle>Không tìm thấy giao dịch</EmptyTitle>
-                        <EmptyDescription>
-                          Chưa có dữ liệu giao dịch nào được ghi nhận.
-                        </EmptyDescription>
-                      </EmptyContent>
-                    </Empty>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                orders.map((order, index) => (
-                  <TableRow
-                    key={order.id}
-                    className="group"
-                  >
-                    <TableCell className="text-center font-medium text-muted-foreground">
-                      {(page - 1) * 10 + index + 1}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground">
-                            {order.id.slice(0, 8)}...
-                          </span>
-                          <span className="text-xs text-muted-foreground">Khách hàng: {(order as any).userName || (order as any).userEmail || order.userId}</span>
-                        </div>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-[400px] text-center">
+                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                        <RotateCcw className="h-8 w-8 animate-spin" />
+                        <p>Đang tải dữ liệu...</p>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-center font-medium">
-                      {formatCurrency(order.amount)}
-                    </TableCell>
-                    <TableCell className="text-center text-xs">
-                      <div className="flex flex-col items-center gap-1">
-                        <Badge variant="outline" className="font-normal">
-                          {order.paymentMethod}
-                        </Badge>
-                        <span className="text-muted-foreground">{order.orderType}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge className={cn("font-medium", getStatusColor(order.status))} variant="outline">
-                        {getStatusLabel(order.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center text-xs text-muted-foreground">
-                      <div className="flex flex-col items-center">
-                        <div className="flex items-center gap-1">
-                          <Clock className="size-3" />
-                          {formatDateTime(order.createdAt, 'dd/MM/yyyy')}
-                        </div>
-                        <span> {formatDateTime(order.createdAt, 'HH:mm')}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setSelectedOrder(order);
-                              setIsSheetOpen(true);
-                            }}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            Xem chi tiết
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Xuất hóa đơn
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
-                            <XCircle className="mr-2 h-4 w-4" />
-                            Hủy đơn hàng
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ) : orders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-[400px] text-center">
+                      <Empty>
+                        <EmptyMedia>
+                          <CreditCard className="size-8 text-muted-foreground" />
+                        </EmptyMedia>
+                        <EmptyContent>
+                          <EmptyTitle>Không tìm thấy giao dịch</EmptyTitle>
+                          <EmptyDescription>
+                            Chưa có dữ liệu giao dịch nào được ghi nhận.
+                          </EmptyDescription>
+                        </EmptyContent>
+                      </Empty>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  orders.map((order, index) => (
+                    <TableRow
+                      key={order.id}
+                      className="group"
+                    >
+                      <TableCell className="text-center font-medium text-muted-foreground">
+                        {(page - 1) * 10 + index + 1}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground">
+                              {order.id.slice(0, 8)}...
+                            </span>
+                            <span className="text-xs text-muted-foreground">Khách hàng: {(order as any).userName || (order as any).userEmail || order.userId}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center font-medium">
+                        {formatCurrency(order.amount)}
+                      </TableCell>
+                      <TableCell className="text-center text-xs">
+                        <div className="flex flex-col items-center gap-1">
+                          <Badge variant="outline" className="font-normal">
+                            {order.paymentMethod}
+                          </Badge>
+                          <span className="text-muted-foreground">{order.orderType}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge className={cn("font-medium", getStatusColor(order.status))} variant="outline">
+                          {getStatusLabel(order.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center text-xs text-muted-foreground">
+                        <div className="flex flex-col items-center">
+                          <div className="flex items-center gap-1">
+                            <Clock className="size-3" />
+                            {formatDateTime(order.createdAt, 'dd/MM/yyyy')}
+                          </div>
+                          <span> {formatDateTime(order.createdAt, 'HH:mm')}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedOrder(order);
+                                setIsSheetOpen(true);
+                              }}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              Xem chi tiết
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <FileText className="mr-2 h-4 w-4" />
+                              Xuất hóa đơn
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive">
+                              <XCircle className="mr-2 h-4 w-4" />
+                              Hủy đơn hàng
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
         {/* Pagination */}
         <SmartPagination

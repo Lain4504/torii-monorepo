@@ -18,6 +18,10 @@ import {
 import { SubmissionsTable } from "@/components/submissions/submissions-table";
 import { GradeSubmissionSheet } from "@/components/submissions/grade-submission-sheet";
 import { PageHeader } from "@/components/common/page-header";
+import { Card, CardHeader, CardTitle, CardContent } from "@workspace/ui/components/card";
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@workspace/ui/components/item";
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from "@workspace/ui/components/empty";
+
 
 
 export default function SubmissionsPage() {
@@ -57,17 +61,21 @@ export default function SubmissionsPage() {
 
   if (!assignment) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
-        <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
-          <AlertCircle className="size-6" />
-        </div>
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold">Không tìm thấy bài tập</h2>
-          <p className="text-sm text-muted-foreground">Bài tập bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
-        </div>
-        <Button onClick={() => navigate("/assignments")} variant="outline">
-          Quay lại danh sách
-        </Button>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Empty>
+          <EmptyMedia>
+            <AlertCircle className="size-8" />
+          </EmptyMedia>
+          <EmptyContent>
+            <EmptyTitle>Không tìm thấy bài tập</EmptyTitle>
+            <EmptyDescription>
+              Bài tập bạn yêu cầu không tồn tại hoặc đã bị xóa.
+            </EmptyDescription>
+            <Button onClick={() => navigate("/assignments")} variant="outline" className="mt-4">
+              Quay lại danh sách
+            </Button>
+          </EmptyContent>
+        </Empty>
       </div>
     );
   }
@@ -104,43 +112,48 @@ export default function SubmissionsPage() {
       </div>
 
       {/* Assignment Info Banner */}
-      <div className="rounded-xl border bg-card p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <Badge variant="secondary">
-                {assignment.type === AssignmentType.TEXT && "Văn bản"}
-                {assignment.type === AssignmentType.FILE && "Tệp tin"}
-                {assignment.type === AssignmentType.BOTH && "Văn bản & Tệp tin"}
-              </Badge>
-              <span className="text-xs font-mono text-muted-foreground">Mã: {assignment.id.slice(0, 8)}</span>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div className="space-y-1">
+              <CardTitle>{assignment.title}</CardTitle>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">
+                  {assignment.type === AssignmentType.TEXT && "Văn bản"}
+                  {assignment.type === AssignmentType.FILE && "Tệp tin"}
+                  {assignment.type === AssignmentType.BOTH && "Văn bản & Tệp tin"}
+                </Badge>
+                <span className="text-sm font-mono text-muted-foreground">ID: {assignment.id.slice(0, 8)}</span>
+              </div>
             </div>
-            <h2 className="text-xl font-bold">{assignment.title}</h2>
+            <Item variant="outline" className="shrink-0 md:min-w-[250px]">
+              <ItemMedia>
+                <Clock className="size-4" />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>Hạn nộp bài</ItemTitle>
+                <ItemDescription className="font-semibold">
+                  {assignment.dueDate ? new Date(assignment.dueDate).toLocaleString('vi-VN') : 'Không giới hạn'}
+                </ItemDescription>
+              </ItemContent>
+            </Item>
           </div>
-
-          <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-xl border border-border">
-            <div className="p-2 bg-primary/10 rounded-lg text-primary">
-              <Clock className="size-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Hạn nộp bài</p>
-              <p className="text-sm font-semibold">
-                {assignment.dueDate ? new Date(assignment.dueDate).toLocaleString('vi-VN') : 'Không giới hạn'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
 
       {/* Submissions Table */}
-      <div className="rounded-xl border bg-card overflow-hidden">
-        <SubmissionsTable
-          data={submissions || []}
-          isLoading={isLoadingSubmissions}
-          onGrade={handleGrade}
-          onView={handleView}
-        />
-      </div>
+      <Card className="overflow-hidden">
+          <CardContent className="p-0">
+
+                  <SubmissionsTable
+                    data={submissions || []}
+                    isLoading={isLoadingSubmissions}
+                    onGrade={handleGrade}
+                    onView={handleView}
+                  />
+                
+          </CardContent>
+          </Card>
 
       <GradeSubmissionSheet
         open={showGradeSheet}

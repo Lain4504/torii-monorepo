@@ -28,11 +28,12 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, X, Save, Calendar, Eye, MessageCircle } from 'lucide-react';
+import { X, Save, Calendar, Eye, MessageCircle } from 'lucide-react';
 import { blogUpdateDTOSchema, BlogStatus, type BlogUpdateDTO, type BlogResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api.ts';
 import { useUpdateBlog } from "@/api/services/blog.ts";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const editBlogSchema = blogUpdateDTOSchema.omit({
     tags: true,
@@ -418,7 +419,7 @@ export function EditBlogSheet({
                             disabled={uploading || (!isDirty && !coverImageFile)}>
                             {uploading ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang đồng bộ...
                                 </>
                             ) : (

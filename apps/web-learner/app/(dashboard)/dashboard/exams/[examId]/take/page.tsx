@@ -22,6 +22,7 @@ import {
     AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { toast } from "@workspace/ui/components/sonner"
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { AlertCircle } from "lucide-react"
 
 // Type helper for resume data (schema includes these fields but types may not be updated)
@@ -315,10 +316,12 @@ export default function TakeExamPage() {
     if (questions.length === 0) {
         return (
             <div className="flex items-center justify-center h-screen bg-background">
-                <div className="text-center">
-                    <p className="text-muted-foreground mb-4">Không có câu hỏi nào</p>
-                    <Button onClick={() => router.push('/exams')}>Quay lại</Button>
-                </div>
+                <Empty>
+                    <EmptyContent>
+                        <EmptyTitle>Không có câu hỏi nào</EmptyTitle>
+                        <Button onClick={() => router.push('/exams')}>Quay lại</Button>
+                    </EmptyContent>
+                </Empty>
             </div>
         )
     }

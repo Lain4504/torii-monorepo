@@ -14,13 +14,13 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, actions, stats, className }: PageHeaderProps) {
     return (
-        <div className={cn("flex flex-col md:flex-row md:items-end justify-between gap-6 px-1", className)}>
-            <div className="flex flex-col gap-1">
+        <div className={cn("flex flex-col md:flex-row md:items-end justify-between gap-4", className)}>
+            <div className="space-y-1">
                 <h1 className="text-2xl font-bold tracking-tight text-foreground">
                     {title}
                 </h1>
                 {subtitle && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground">
                         {subtitle}
                     </p>
                 )}
@@ -28,21 +28,23 @@ export function PageHeader({ title, subtitle, actions, stats, className }: PageH
 
             <div className="flex items-center gap-4">
                 {stats && stats.length > 0 && (
-                    <div className="hidden lg:flex items-center gap-4">
+                    <div className="hidden lg:flex items-center gap-2">
                         {stats.map((stat, index) => (
                             <div
                                 key={index}
                                 className={cn(
-                                    "flex flex-col items-end px-4",
-                                    index < stats.length - 1 && "border-r border-border/40"
+                                    "flex items-center gap-4 px-4",
+                                    index < stats.length - 1 && "border-r"
                                 )}
                             >
-                                <span className="text-xs text-muted-foreground">
-                                    {stat.label}
-                                </span>
-                                <span className="text-xl font-semibold text-foreground tabular-nums">
-                                    {stat.value}
-                                </span>
+                                <div className="text-right">
+                                    <p className="text-sm text-muted-foreground">
+                                        {stat.label}
+                                    </p>
+                                    <p className="text-xl font-semibold text-foreground">
+                                        {stat.value}
+                                    </p>
+                                </div>
                             </div>
                         ))}
                     </div>

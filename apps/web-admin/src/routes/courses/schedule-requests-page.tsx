@@ -1,3 +1,4 @@
+import { Card } from '@workspace/ui/components/card';
 import {
     usePendingScheduleRequests,
     useHandleScheduleRequest
@@ -58,7 +59,7 @@ export default function ScheduleRequestsPage() {
                 ]}
             />
 
-            <div className="rounded-xl border bg-card overflow-hidden">
+            <Card>
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -192,7 +193,7 @@ export default function ScheduleRequestsPage() {
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </Card>
         </div>
     );
 }

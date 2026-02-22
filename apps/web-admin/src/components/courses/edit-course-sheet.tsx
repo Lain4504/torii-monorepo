@@ -12,6 +12,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
+import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
@@ -26,7 +27,7 @@ import { courseUpdateDTOSchema, type CourseUpdateDTO, JlptLevel } from '@workspa
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateCourse } from "@/api/services/courses.ts";
 import { storageApi } from '@/api/services/storage-api.ts';
-import { Loader2 } from 'lucide-react';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 type UpdateCourseFormData = CourseUpdateDTO;
 
@@ -356,31 +357,21 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                 <FieldLabel htmlFor="isFree" className="">
                                                     Giá Cả
                                                 </FieldLabel>
-                                                <div className="flex items-center gap-3 mt-1 cursor-pointer"
-                                                    onClick={() => {
-                                                        const newValue = !field.value;
-                                                        field.onChange(newValue);
-                                                        if (newValue) {
-                                                            setValue('price', 0);
-                                                            setValue('discountPrice', 0);
-                                                        }
-                                                    }}>
-                                                    <input
+                                                <div className="flex items-center gap-3 mt-1.5">
+                                                    <Checkbox
                                                         id="isFree"
-                                                        type="checkbox"
-                                                        checked={!!field.value}
-                                                        onChange={(e) => {
-                                                            field.onChange(e.target.checked);
-                                                            if (e.target.checked) {
+                                                        checked={field.value}
+                                                        onCheckedChange={(checked) => {
+                                                            field.onChange(checked);
+                                                            if (checked) {
                                                                 setValue('price', 0);
                                                                 setValue('discountPrice', 0);
                                                             }
                                                         }}
-                                                        className="mt-1 h-4 w-4 rounded border-border/60 text-primary focus:ring-primary/20 cursor-pointer accent-primary"
                                                     />
-                                                    <span className="text-xs font-medium text-foreground/80">
+                                                    <FieldLabel htmlFor="isFree" className="cursor-pointer mb-0">
                                                         Truy cập mở / Khóa học miễn phí
-                                                    </span>
+                                                    </FieldLabel>
                                                 </div>
                                             </Field>
                                         )}
@@ -740,7 +731,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                             disabled={uploading || (!isDirty && !thumbnailFile && !videoFile)}>
                             {uploading ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang lưu...
                                 </>
                             ) : (

@@ -14,6 +14,7 @@ import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
 import { Plus, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function QuestionsPage() {
     const [page, setPage] = useState(1);
@@ -157,21 +158,25 @@ export default function QuestionsPage() {
             />
 
             {/* Table */}
-            <div className="rounded-xl border bg-card overflow-hidden">
-                <QuestionsTable
-                    data={questions}
-                    onView={setViewingQuestion}
-                    onEdit={setEditingQuestion}
-                    onDelete={setDeletingQuestion}
-                    onApprove={handleApprove}
-                    onDeactivate={handleDeactivate}
-                    onReject={handleReject}
-                    onSendForReview={handleSendForReview}
-                    page={page}
-                    limit={queryParams.limit || 10}
-                    isLoading={isLoading}
-                />
-            </div>
+            <Card className="overflow-hidden">
+            <CardContent className="p-0">
+
+                            <QuestionsTable
+                                data={questions}
+                                onView={setViewingQuestion}
+                                onEdit={setEditingQuestion}
+                                onDelete={setDeletingQuestion}
+                                onApprove={handleApprove}
+                                onDeactivate={handleDeactivate}
+                                onReject={handleReject}
+                                onSendForReview={handleSendForReview}
+                                page={page}
+                                limit={queryParams.limit || 10}
+                                isLoading={isLoading}
+                            />
+                        
+            </CardContent>
+            </Card>
 
             <SmartPagination
                 page={page}

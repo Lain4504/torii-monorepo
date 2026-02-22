@@ -7,12 +7,13 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { toast } from '@workspace/ui/components/sonner';
-import { Loader2, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, ArrowLeft } from 'lucide-react';
 import { apiClient } from '@/api/api-client';
 import type { StandardApiResponse } from '@workspace/schemas';
 import { useAppDispatch } from '@/hooks/hooks';
 import { setAuthenticated, setUser } from '@/store/slices/auth-slice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const verifyCodeSchema = z.object({
     code: z.string().min(1, 'Vui lòng nhập mã xác thực'),
@@ -122,81 +123,76 @@ export default function TwoFactorVerifyPage() {
     }
 
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center bg-muted/20 p-6 md:p-10">
-            <div className="w-full max-w-sm flex flex-col gap-6">
-                <div className="flex flex-col items-center gap-2">
-                    <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-                        <ShieldCheck className="size-8" />
+        <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+            <div className="w-full max-w-sm">
+                <div className="flex flex-col items-center text-center mb-6">
+                    <div className="p-3 rounded-full bg-primary mb-4">
+                        <ShieldCheck className="size-8 text-primary-foreground" />
                     </div>
-                    <h1 className="text-xl font-bold tracking-tight">Torii Admin</h1>
+                    <h1 className="text-2xl font-bold">Torii Admin</h1>
                 </div>
 
                 <Card>
                     <CardHeader className="text-center">
-                        <CardTitle className="text-2xl">Xác thực 2 lớp</CardTitle>
+                        <CardTitle>Xác thực 2 lớp</CardTitle>
                         <CardDescription>
                             {useBackupCode
-                                ? 'Nhập mã dự phòng 8 ký tự'
+                                ? 'Nhập mã dự phòng 8 ký tự của bạn'
                                 : 'Nhập mã 6 chữ số từ ứng dụng xác thực'}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-                            <div className="grid gap-6">
-                                <Controller
-                                    name="code"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <div className="grid gap-2">
-                                            <Label htmlFor={field.name} className="sr-only">
-                                                Mã OTP
-                                            </Label>
-                                            <Input
-                                                {...field}
-                                                id={field.name}
-                                                placeholder={useBackupCode ? "XXXXXXXX" : "000000"}
-                                                maxLength={useBackupCode ? 8 : 6}
-                                                className="text-center text-2xl tracking-[0.2em] font-mono"
-                                                autoComplete="off"
-                                                autoFocus
-                                            />
-                                            {fieldState.invalid && <p className="text-xs text-destructive text-center">{fieldState.error?.message}</p>}
-                                        </div>
-                                    )}
-                                />
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <Controller
+                                name="code"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <div className="space-y-2 text-center">
+                                        <Label htmlFor={field.name} className="sr-only">Mã OTP</Label>
+                                        <Input
+                                            {...field}
+                                            id={field.name}
+                                            placeholder={useBackupCode ? "XXXXXXXX" : "000000"}
+                                            maxLength={useBackupCode ? 8 : 6}
+                                            className="text-center text-2xl tracking-[0.5em] font-mono h-12"
+                                            autoComplete="off"
+                                            autoFocus
+                                        />
+                                        {fieldState.error && <p className="text-sm text-destructive">{fieldState.error?.message}</p>}
+                                    </div>
+                                )}
+                            />
 
-                                <Button type="submit" className="w-full" disabled={isLoading}>
-                                    {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                                    Xác thực
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading && <Spinner className="mr-2" />}
+                                Xác thực
+                            </Button>
+
+                            <div className="text-center">
+                                <Button
+                                    type="button"
+                                    variant="link"
+                                    onClick={() => {
+                                        const nextState = !useBackupCode;
+                                        setUseBackupCode(nextState);
+                                        form.reset({ code: '', isBackup: nextState });
+                                    }}
+                                    className="text-sm"
+                                >
+                                    {useBackupCode ? 'Sử dụng ứng dụng xác thực' : 'Sử dụng mã dự phòng'}
                                 </Button>
-
-                                <div className="text-center text-sm">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            const nextState = !useBackupCode;
-                                            setUseBackupCode(nextState);
-                                            form.reset({
-                                                code: '',
-                                                isBackup: nextState,
-                                            });
-                                        }}
-                                        className="text-primary underline-offset-4 hover:underline"
-                                    >
-                                        {useBackupCode ? 'Sử dụng ứng dụng xác thực' : 'Sử dụng mã dự phòng'}
-                                    </button>
-                                </div>
                             </div>
                         </form>
 
-                        <div className="mt-6 text-center text-sm">
-                            <button
+                        <div className="mt-4 text-center">
+                            <Button
+                                variant="link"
                                 onClick={handleBackToLogin}
-                                className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                                className="text-sm text-muted-foreground"
                             >
                                 <ArrowLeft className="mr-2 size-4" />
                                 Quay lại đăng nhập
-                            </button>
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>

@@ -34,6 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from '@workspace/ui/components/table';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 const ACTIVE_COLS = 8;
 const PAST_COLS = 8;
@@ -51,7 +52,7 @@ export default function RoomsPage() {
     try {
       await endRoomMutation.mutateAsync(roomId);
       toast.success('Đã kết thúc phòng học');
-    } catch (error) {
+    } catch {
       toast.error('Không thể kết thúc phòng học');
     }
   };
@@ -73,7 +74,7 @@ export default function RoomsPage() {
   };
 
   const calculateDuration = (room: RoomInfo) => {
-    const creationTime = room.creationTimeMillis || room.creationTime || Date.now().toString();
+    const creationTime = room.creationTimeMillis || room.creationTime || '0';
     const createdAt = new Date(parseInt(creationTime));
     const now = new Date();
     const isValidDate = !isNaN(createdAt.getTime());
@@ -82,7 +83,7 @@ export default function RoomsPage() {
   };
 
   const formatCreatedAt = (room: RoomInfo) => {
-    const creationTime = room.creationTimeMillis || room.creationTime || Date.now().toString();
+    const creationTime = room.creationTimeMillis || room.creationTime || '0';
     const createdAt = new Date(parseInt(creationTime));
     const isValidDate = !isNaN(createdAt.getTime());
     return isValidDate ? formatDateTime(createdAt, 'HH:mm - dd/MM/yyyy') : 'N/A';
@@ -130,167 +131,175 @@ export default function RoomsPage() {
 
         {/* Active Rooms Tab */}
         <TabsContent value="active" className="space-y-4">
-          <div className="rounded-xl border bg-card overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">#</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead>Tên phòng</TableHead>
-                  <TableHead>Thời gian bắt đầu</TableHead>
-                  <TableHead>Đã chạy</TableHead>
-                  <TableHead>Số người tối đa</TableHead>
-                  <TableHead>Ghi hình</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingActive ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell><Skeleton className="h-4 w-4" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                      <TableCell>
-                        <div className="space-y-1.5">
-                          <Skeleton className="h-4 w-40" />
-                          <Skeleton className="h-3 w-28" />
-                        </div>
-                      </TableCell>
-                      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                      <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
-                    </TableRow>
-                  ))
-                ) : activeRooms?.length === 0 ? (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={ACTIVE_COLS} className="h-[400px] text-center">
-                      <Empty>
-                        <EmptyMedia>
-                          <WifiOff className="size-8 text-muted-foreground" />
-                        </EmptyMedia>
-                        <EmptyContent>
-                          <EmptyTitle>Không có phòng hoạt động</EmptyTitle>
-                          <EmptyDescription>
-                            Các phòng học live sẽ xuất hiện ở đây khi có buổi học đang diễn ra.
-                          </EmptyDescription>
-                        </EmptyContent>
-                      </Empty>
-                    </TableCell>
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Tên phòng</TableHead>
+                    <TableHead>Thời gian bắt đầu</TableHead>
+                    <TableHead>Đã chạy</TableHead>
+                    <TableHead>Số người tối đa</TableHead>
+                    <TableHead>Ghi hình</TableHead>
+                    <TableHead className="text-right">Thao tác</TableHead>
                   </TableRow>
-                ) : (
-                  activeRooms?.map((room, idx) => (
-                    <TableRow key={room.roomId} className="hover:bg-muted/30 transition-colors">
-                      <TableCell className="font-mono text-xs text-muted-foreground">{idx + 1}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                          </span>
-                          <Badge variant="destructive" className="text-[9px] font-black uppercase tracking-widest">
-                            Live Now
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <p className="font-semibold text-sm">{room.roomTitle}</p>
-                          <p className="text-[10px] text-muted-foreground font-mono">Mã: {room.roomId}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">{formatCreatedAt(room)}</span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm font-medium">{calculateDuration(room)} phút</span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">{room.maxParticipants} người</span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={room.allowRecording ? 'default' : 'outline'} className="text-[9px] font-black uppercase tracking-widest">
-                          {room.allowRecording ? 'Đang ghi' : 'Không ghi'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleEndRoom(room.roomId, room.roomTitle)}
-                        >
-                          <StopCircle className="size-3" />
-                          Kết thúc
-                        </Button>
+                </TableHeader>
+                <TableBody>
+                  {isLoadingActive ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton className="h-4 w-4" /></TableCell>
+                        <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                        <TableCell>
+                          <div className="space-y-1.5">
+                            <Skeleton className="h-4 w-40" />
+                            <Skeleton className="h-3 w-28" />
+                          </div>
+                        </TableCell>
+                        <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                        <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
+                      </TableRow>
+                    ))
+                  ) : activeRooms?.length === 0 ? (
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell colSpan={ACTIVE_COLS} className="h-[400px] text-center">
+                        <Empty>
+                          <EmptyMedia>
+                            <WifiOff className="size-8 text-muted-foreground" />
+                          </EmptyMedia>
+                          <EmptyContent>
+                            <EmptyTitle>Không có phòng hoạt động</EmptyTitle>
+                            <EmptyDescription>
+                              Các phòng học live sẽ xuất hiện ở đây khi có buổi học đang diễn ra.
+                            </EmptyDescription>
+                          </EmptyContent>
+                        </Empty>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ) : (
+                    activeRooms?.map((room, idx) => (
+                      <TableRow key={room.roomId} className="hover:bg-muted/30 transition-colors">
+                        <TableCell className="font-mono text-xs text-muted-foreground">{idx + 1}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                            </span>
+                            <Badge variant="destructive" className="text-[9px] font-black uppercase tracking-widest">
+                              Live Now
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <p className="font-semibold text-sm">{room.roomTitle}</p>
+                            <p className="text-[10px] text-muted-foreground font-mono">Mã: {room.roomId}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">{formatCreatedAt(room)}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm font-medium">{calculateDuration(room)} phút</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">{room.maxParticipants} người</span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={room.allowRecording ? 'default' : 'outline'} className="text-[9px] font-black uppercase tracking-widest">
+                            {room.allowRecording ? 'Đang ghi' : 'Không ghi'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleEndRoom(room.roomId, room.roomTitle)}
+                          >
+                            <StopCircle className="size-3" />
+                            Kết thúc
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Past Rooms Tab */}
         <TabsContent value="past" className="space-y-4">
-          <div className="rounded-xl border bg-card overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">#</TableHead>
-                  <TableHead className="w-12"></TableHead>
-                  <TableHead>Tên phòng</TableHead>
-                  <TableHead>Ngày</TableHead>
-                  <TableHead>Thời lượng</TableHead>
-                  <TableHead>Người tham gia</TableHead>
-                  <TableHead>Recordings</TableHead>
-                  <TableHead>Analytics</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingPast ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell><Skeleton className="h-4 w-4" /></TableCell>
-                      <TableCell><Skeleton className="h-8 w-8" /></TableCell>
-                      <TableCell>
-                        <div className="space-y-1.5">
-                          <Skeleton className="h-4 w-40" />
-                          <Skeleton className="h-3 w-28" />
-                        </div>
-                      </TableCell>
-                      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-8" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-12" /></TableCell>
-                    </TableRow>
-                  ))
-                ) : pastRoomsData?.roomsList?.length === 0 ? (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={PAST_COLS} className="h-[400px] text-center">
-                      <Empty>
-                        <EmptyMedia>
-                          <Archive className="size-8 text-muted-foreground" />
-                        </EmptyMedia>
-                        <EmptyContent>
-                          <EmptyTitle>Chưa có lịch sử phòng học</EmptyTitle>
-                          <EmptyDescription>
-                            Lịch sử các buổi học đã kết thúc sẽ được lưu trữ tại đây.
-                          </EmptyDescription>
-                        </EmptyContent>
-                      </Empty>
-                    </TableCell>
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead className="w-12"></TableHead>
+                    <TableHead>Tên phòng</TableHead>
+                    <TableHead>Ngày</TableHead>
+                    <TableHead>Thời lượng</TableHead>
+                    <TableHead>Người tham gia</TableHead>
+                    <TableHead>Recordings</TableHead>
+                    <TableHead>Analytics</TableHead>
                   </TableRow>
-                ) : (
-                  pastRoomsData?.roomsList?.map((room, idx) => (
-                    <PastRoomRow key={room.sid} room={room} idx={idx} formatDuration={formatDuration} formatFileSize={formatFileSize} />
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {isLoadingPast ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton className="h-4 w-4" /></TableCell>
+                        <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                        <TableCell>
+                          <div className="space-y-1.5">
+                            <Skeleton className="h-4 w-40" />
+                            <Skeleton className="h-3 w-28" />
+                          </div>
+                        </TableCell>
+                        <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                        <TableCell><Skeleton className="h-5 w-12" /></TableCell>
+                      </TableRow>
+                    ))
+                  ) : pastRoomsData?.roomsList?.length === 0 ? (
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell colSpan={PAST_COLS} className="h-[400px] text-center">
+                        <Empty>
+                          <EmptyMedia>
+                            <Archive className="size-8 text-muted-foreground" />
+                          </EmptyMedia>
+                          <EmptyContent>
+                            <EmptyTitle>Chưa có lịch sử phòng học</EmptyTitle>
+                            <EmptyDescription>
+                              Lịch sử các buổi học đã kết thúc sẽ được lưu trữ tại đây.
+                            </EmptyDescription>
+                          </EmptyContent>
+                        </Empty>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pastRoomsData?.roomsList?.map((room, idx) => (
+                      <PastRoomRow key={room.sid} room={room} idx={idx} formatDuration={formatDuration} formatFileSize={formatFileSize} />
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
@@ -370,7 +379,7 @@ function PastRoomRow({ room, idx, formatDuration, formatFileSize }: {
                         <p className="text-[10px] text-muted-foreground font-mono">Mã: {room.analyticsFileId}</p>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" className="rounded-lg text-[10px] font-bold uppercase">
+                    <Button variant="outline" size="xs" className="uppercase">
                       <Download className="size-3 mr-1.5" />
                       Tải xuống
                     </Button>
@@ -397,7 +406,7 @@ function PastRoomRow({ room, idx, formatDuration, formatFileSize }: {
                             </p>
                           </div>
                         </div>
-                        <Button variant="ghost" size="sm" className="rounded-lg text-[10px] font-bold uppercase shrink-0">
+                        <Button variant="ghost" size="xs" className="uppercase shrink-0">
                           <Download className="size-3 mr-1.5" />
                           Tải
                         </Button>

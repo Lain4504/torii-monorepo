@@ -12,10 +12,10 @@ import {
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { UserRole } from '@workspace/schemas';
-import { Loader2 } from 'lucide-react';
 import { userAdminUpdateDTOSchema, type UserAdminUpdateDTO } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useUpdateUser } from "@/api/services/users.ts";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 type UpdateUserFormData = UserAdminUpdateDTO;
 
@@ -152,7 +152,7 @@ export function EditUserSheet({
                             disabled={updateUser.isPending}>
                             {updateUser.isPending ? (
                                 <>
-                                    <Loader2 className="size-4 animate-spin mr-2" />
+                                    <Spinner className="mr-2" />
                                     Đang lưu...
                                 </>
                             ) : (

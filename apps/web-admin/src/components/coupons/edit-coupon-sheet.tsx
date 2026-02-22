@@ -19,11 +19,12 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, X, Ticket, Calendar as CalendarIcon, Percent, DollarSign, AlertCircle } from 'lucide-react';
+import { X, Ticket, Calendar as CalendarIcon, Percent, DollarSign, AlertCircle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { CouponDiscountType, CouponStatus, type CouponResponseDTO, type CouponUpdateDTO } from '@workspace/schemas';
 import { useUpdateCoupon } from "@/api/services/coupons";
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface EditCouponSheetProps {
     open: boolean;
@@ -364,7 +365,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                             disabled={updateMutation.isPending || !isDirty}>
                             {updateMutation.isPending ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang lưu...
                                 </>
                             ) : (

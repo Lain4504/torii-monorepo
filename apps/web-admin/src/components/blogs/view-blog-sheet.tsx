@@ -121,7 +121,7 @@ export function ViewBlogSheet({
 
                             {/* Content */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground ml-1">Nội dung</label>
+                                <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground ml-1">Nội dung</h4>
                                 <div className="rounded-lg border bg-background overflow-hidden">
                                     <TiptapEditor content={blog.content} mode="readonly" className="min-h-[400px]" />
                                 </div>
@@ -163,7 +163,7 @@ export function ViewBlogSheet({
                             {/* Cover Image */}
                             {blog.coverImageUrl && (
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground ml-1">Ảnh bìa</label>
+                                    <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground ml-1">Ảnh bìa</h4>
                                     <div className="rounded-lg overflow-hidden border aspect-video relative">
                                         <img src={blog.coverImageUrl} alt="Cover" className="object-cover w-full h-full" />
                                     </div>

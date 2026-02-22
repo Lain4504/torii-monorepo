@@ -1,7 +1,8 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import {ArrowUpDown, Pencil, Trash, FileText, Clock, Eye as EyeIcon, MoreVertical} from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, FileText, Eye as EyeIcon, MoreVertical } from 'lucide-react';
+import { Badge } from '@workspace/ui/components/badge';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -10,7 +11,7 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { formatDateTime } from '@/lib/format-utils';
-import { cn } from "@workspace/ui/lib/utils";
+
 import { Can } from "@/lib/guard/can";
 
 const columnHelper = createColumnHelper<BlogResponseDTO>();
@@ -39,7 +40,7 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
         header: () => <div className="text-center">#</div>,
         cell: ({ row }) => {
             const stt = (page - 1) * limit + row.index + 1;
-            return <div className="text-center font-black italic text-muted-foreground/30 tabular-nums text-[10px]">0{stt}</div>;
+            return <div className="text-center font-medium text-muted-foreground">{stt}</div>;
         },
         size: 60,
     }),
@@ -49,53 +50,53 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group"
                 >
                     Tiêu đề
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: (info) => (
-            <div className="flex items-center gap-3 group/title">
-                <div className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover/title:bg-primary group-hover/title:text-white transition-all">
-                    <FileText className="size-4" />
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                    <FileText className="size-5 text-muted-foreground" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="font-bold text-foreground text-lg group-hover/title:text-primary transition-colors line-clamp-1">{info.getValue()}</span>
-                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-0.5">Mã: {info.row.original.id.slice(0, 8)}</span>
+                    <span className="font-semibold text-foreground line-clamp-1">{info.getValue()}</span>
+                    <span className="text-xs text-muted-foreground">ID: {info.row.original.id.slice(0, 8)}</span>
                 </div>
             </div>
         ),
     }),
     columnHelper.accessor('author', {
-        header: () => <div className="px-1 text-[9px] font-black uppercase tracking-[0.2em]">Tác giả</div>,
+        header: 'Tác giả',
         cell: (info) => {
             const author = info.getValue();
             return (
-                <div className="text-[11px] font-bold text-foreground/80 lowercase">
-                    {author?.displayName || 'Không xác định'}
+                <div className="font-medium text-muted-foreground">
+                    {author?.displayName || 'N/A'}
                 </div>
             );
         },
         size: 120,
     }),
     columnHelper.accessor('status', {
-        header: () => <div className="px-1 text-[9px] font-black uppercase tracking-[0.2em]">Trạng thái</div>,
+        header: 'Trạng thái',
         cell: (info) => {
             const status = info.getValue() as string;
-            const colors = {
-                published: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-                draft: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-                archived: 'bg-muted/10 text-muted-foreground border-border/20'
-            };
-            const colorClass = colors[status as keyof typeof colors] || 'bg-muted/10 text-muted-foreground border-border/20';
-
             return (
-                <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm", colorClass)}>
-                    <div className={cn("size-1 rounded-full mr-2", status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-current')} />
+                <Badge
+                    variant={
+                        status === 'published'
+                            ? 'default'
+                            : status === 'draft'
+                                ? 'secondary'
+                                : 'outline'
+                    }
+                    className="uppercase"
+                >
                     {getStatusLabel(status)}
-                </div>
+                </Badge>
             );
         },
         size: 120,
@@ -106,17 +107,15 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
                     Lượt xem
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: (info) => (
-            <div className="flex flex-col items-center">
-                <div className="font-bold text-xl leading-none text-primary">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5 uppercase">Lượt xem</div>
+            <div className="text-center font-medium text-muted-foreground">
+                {info.getValue() || 0}
             </div>
         ),
         size: 100,
@@ -127,17 +126,15 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
                     Bình luận
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: (info) => (
-            <div className="flex flex-col items-center">
-                <div className="font-bold text-xl leading-none text-amber-500">{info.getValue() || 0}</div>
-                <div className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1.5 uppercase">Bình luận</div>
+            <div className="text-center font-medium text-muted-foreground">
+                {info.getValue() || 0}
             </div>
         ),
         size: 100,
@@ -148,18 +145,16 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-10 px-4 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
                     Ngày đăng
-                    <ArrowUpDown className="ml-2 h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: (info) => {
             const date = info.getValue();
             return (
-                <div className="flex items-center justify-center gap-2 text-muted-foreground/40 tabular-nums text-[10px] font-bold italic">
-                    <Clock className="size-3 opacity-40" />
+                <div className="text-center text-muted-foreground text-sm">
                     {date ? formatDateTime(date) : '-'}
                 </div>
             );
@@ -168,7 +163,6 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
     }),
     columnHelper.display({
         id: 'actions',
-        header: () => <div className="text-center text-[9px] font-black uppercase tracking-[0.2em]">Quản lý</div>,
         cell: ({ row }) => {
             const blog = row.original;
 
@@ -178,40 +172,38 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="h-10 w-10 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/20"
+                                className="h-8 w-8 p-0"
                             >
                                 <span className="sr-only">Menu Thao tác</span>
-                                <MoreVertical className="h-4 w-4 opacity-40 group-hover:opacity-100" />
+                                <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-[220px] border-border/20 shadow-2xl bg-background/80 backdrop-blur-3xl rounded-lg p-2"
+                            className="w-[220px]"
                         >
                             <DropdownMenuItem
                                 onClick={() => onView(blog)}
-                                className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                             >
-                                <EyeIcon className="h-4 w-4 opacity-30" />
+                                <EyeIcon className="h-4 w-4 mr-2" />
                                 <span>Xem Chi tiết</span>
                             </DropdownMenuItem>
 
                             <Can permission="blog.manage">
                                 <DropdownMenuItem
                                     onClick={() => onEdit(blog)}
-                                    className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"
                                 >
-                                    <Pencil className="h-4 w-4 opacity-30" />
+                                    <Pencil className="h-4 w-4 mr-2" />
                                     <span>Chỉnh sửa Nội dung</span>
                                 </DropdownMenuItem>
 
-                                <DropdownMenuSeparator className="bg-border/20 mx-2" />
+                                <DropdownMenuSeparator />
 
                                 <DropdownMenuItem
                                     onClick={() => onDelete(blog)}
-                                    className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer flex gap-3"
+                                    className="text-destructive focus:text-destructive"
                                 >
-                                    <Trash className="h-4 w-4 opacity-30" />
+                                    <Trash className="h-4 w-4 mr-2" />
                                     <span>Xóa bài viết</span>
                                 </DropdownMenuItem>
                             </Can>

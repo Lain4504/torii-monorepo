@@ -26,7 +26,8 @@ import { storageApi } from '@/api/services/storage-api.ts';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateLesson } from "@/api/services/lesson";
-import { Loader2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const createLessonSchema = lessonCreateDTOSchema;
 
@@ -242,7 +243,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                                                     checked={field.value}
                                                     onCheckedChange={field.onChange}
                                                 />
-                                                <label htmlFor={field.name} className="text-sm font-medium">Xem Thử Công Khai</label>
+                                                <FieldLabel htmlFor={field.name} className="cursor-pointer mb-0">Xem Thử Công Khai</FieldLabel>
                                             </div>
                                         )}
                                     />
@@ -257,7 +258,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                                                     checked={field.value}
                                                     onCheckedChange={field.onChange}
                                                 />
-                                                <label htmlFor={field.name} className="text-sm font-medium">Mở Khóa Truy Cập</label>
+                                                <FieldLabel htmlFor={field.name} className="cursor-pointer mb-0">Mở Khóa Truy Cập</FieldLabel>
                                             </div>
                                         )}
                                     />
@@ -282,7 +283,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                         >
                             {uploading ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang xử lý...
                                 </>
                             ) : (

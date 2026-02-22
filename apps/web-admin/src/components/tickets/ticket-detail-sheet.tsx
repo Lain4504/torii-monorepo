@@ -22,8 +22,7 @@ import {
     Mail,
     Tag,
     Clock,
-    AlertTriangle,
-    Loader2,
+    AlertTriangle
 } from 'lucide-react';
 import {
     Item,
@@ -33,6 +32,7 @@ import {
     ItemDescription,
 } from '@workspace/ui/components/item';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface TicketDetailSheetProps {
     ticket: TicketResponseDTO | null;
@@ -178,7 +178,7 @@ export function TicketDetailSheet({
                             disabled={updateStatusMutation.isPending}
                         >
                             {updateStatusMutation.isPending ? (
-                                <Loader2 className="size-4 mr-2 animate-spin" />
+                                <Spinner className="mr-2" />
                             ) : (
                                 <CheckCircle2 className="size-4 mr-2" />
                             )}

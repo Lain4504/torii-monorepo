@@ -14,12 +14,13 @@ import {
     ItemActions,
 } from '@workspace/ui/components/item';
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
-import { Monitor, Smartphone, MapPin, AlertCircle, Loader2 } from 'lucide-react';
+import { Monitor, Smartphone, MapPin, AlertCircle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/api/services/sessions';
 import { formatRelativeTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 export function SessionsTab() {
     const { data: sessions, isLoading } = useSessions();
@@ -120,7 +121,7 @@ export function SessionsTab() {
                                                 onClick={() => handleRevoke(session.id)}
                                                 disabled={revokeMutation.isPending}
                                             >
-                                                {revokeMutation.isPending ? <Loader2 className="size-3 animate-spin" /> : 'Đăng Xuất'}
+                                                {revokeMutation.isPending ? <Spinner className="size-3" /> : 'Đăng Xuất'}
                                             </Button>
                                         )}
                                     </ItemActions>
@@ -145,7 +146,7 @@ export function SessionsTab() {
                             className="w-full border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive disabled:opacity-40"
                         >
                             {revokeOtherMutation.isPending
-                                ? <><Loader2 className="size-3 mr-2 animate-spin" /> Đang xử lý...</>
+                                ? <><Spinner className="size-3 mr-2" /> Đang xử lý...</>
                                 : 'Đăng Xuất Tất Cả Các Phiên Khác'}
                         </Button>
                     </div>

@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { Card } from '@workspace/ui/components/card';
 import {
     Table,
     TableBody,
@@ -147,7 +148,7 @@ export default function TransactionsPage() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border bg-card overflow-hidden">
+                <Card>
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -223,7 +224,7 @@ export default function TransactionsPage() {
                             )}
                         </TableBody>
                     </Table>
-                </div>
+                </Card>
 
                 {/* Pagination */}
                 <SmartPagination
@@ -289,7 +290,7 @@ export default function TransactionsPage() {
                             </div>
 
                             <div className="p-6 border-t border-border/10 bg-muted/5">
-                                <Button className="w-full h-11 rounded-xl font-bold uppercase tracking-wide text-xs shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all" onClick={() => setIsSheetOpen(false)}>Đóng chi tiết</Button>
+                                <Button size="lg" className="w-full rounded-xl font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all" onClick={() => setIsSheetOpen(false)}>Đóng chi tiết</Button>
                             </div>
                         </div>
                     )}

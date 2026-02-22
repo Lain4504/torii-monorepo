@@ -22,7 +22,6 @@ import {
     GraduationCap,
     Users,
     Mail,
-    Loader2,
     BookOpen,
     MessageCircle,
     TrendingUp,
@@ -38,6 +37,7 @@ import { toast } from 'sonner';
 import { useCreateInternalUser } from "@/api/services/users.ts";
 import { useState } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const internalRoles = [
     {
@@ -388,7 +388,7 @@ export function CreateUserSheet({
                                 >
                                     {createInternalUser.isPending ? (
                                         <>
-                                            <Loader2 className="mr-2 size-3.5 animate-spin" />
+                                            <Spinner className="mr-2 size-3.5" />
                                             Đang tạo...
                                         </>
                                     ) : 'Tạo người dùng'}

@@ -14,6 +14,7 @@ import { useBoolean } from "@workspace/ui/hooks/use-boolean";
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { UserPlus, ShieldCheck } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function LearnersPage() {
     const [page, setPage] = useState(1);
@@ -39,6 +40,7 @@ export default function LearnersPage() {
     });
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPage(1);
     }, [debouncedSearch]);
 
@@ -104,17 +106,21 @@ export default function LearnersPage() {
                 />
 
                 {/* Table container */}
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <UsersTable
-                        data={users}
-                        onEdit={setEditingUser}
-                        onDelete={setDeletingUser}
-                        onView={setViewingUser}
-                        page={page}
-                        limit={limit}
-                        isLoading={isLoading}
-                    />
-                </div>
+                <Card className="overflow-hidden">
+                    <CardContent className="p-0">
+
+                        <UsersTable
+                            data={users}
+                            onEdit={setEditingUser}
+                            onDelete={setDeletingUser}
+                            onView={setViewingUser}
+                            page={page}
+                            limit={limit}
+                            isLoading={isLoading}
+                        />
+
+                    </CardContent>
+                </Card>
 
                 {/* Footer / Pagination */}
                 <SmartPagination

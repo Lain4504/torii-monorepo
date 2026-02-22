@@ -20,7 +20,7 @@ import { Textarea } from "@workspace/ui/components/textarea";
 import { useRejectCourse } from "@/api/services/courses";
 import type { CourseResponseDTO } from "@workspace/schemas";
 import { toast } from "@workspace/ui/components/sonner";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const formSchema = z.object({
     reason: z.string().min(10, {
@@ -111,7 +111,7 @@ export function RejectCourseDialog({
                             disabled={mutation.isPending}
                         >
                             {mutation.isPending && (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <Spinner className="mr-2" />
                             )}
                             Xác nhận Từ chối
                         </Button>

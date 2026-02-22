@@ -149,7 +149,7 @@ export default function NotificationsPage() {
       />
 
       {/* Filter Tabs */}
-      <Tabs value={filter} onValueChange={(v) => { setFilter(v as any); setPage(1); }}>
+      <Tabs value={filter} onValueChange={(v) => { setFilter(v as 'all' | 'unread'); setPage(1); }}>
         <TabsList>
           <TabsTrigger value="all">Tất cả</TabsTrigger>
           <TabsTrigger value="unread">
@@ -221,7 +221,7 @@ export default function NotificationsPage() {
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
+                          <Button variant="ghost" size="icon" className="shrink-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
                             <MoreVertical className="size-4" />
                           </Button>
                         </DropdownMenuTrigger>

@@ -11,8 +11,9 @@ import {
 import type { LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useDeleteLesson } from "@/api/services/lesson.ts";
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface DeleteLessonDialogProps {
     lesson: LessonResponseDTO | null;
@@ -63,7 +64,7 @@ export function DeleteLessonDialog({ lesson, open, onOpenChange }: DeleteLessonD
                         disabled={deleteLesson.isPending}
                     >
                         {deleteLesson.isPending ? (
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner />
                         ) : (
                             "Xóa bài học"
                         )}

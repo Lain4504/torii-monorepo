@@ -7,6 +7,14 @@ import {
     CardHeader,
     CardTitle,
 } from "@workspace/ui/components/card"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@workspace/ui/components/table"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Input } from "@workspace/ui/components/input"
@@ -27,8 +35,7 @@ import {
     CreditCard,
     ArrowDownRight,
     Filter,
-    Download,
-    Loader2,
+    Download
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "../../api/services/analytics"
@@ -54,6 +61,7 @@ import {
 } from "@workspace/ui/components/chart"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { PageHeader } from "@/components/common/page-header"
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const revenueChartConfig = {
     total: {
@@ -84,17 +92,17 @@ export default function RevenueAnalytics() {
                 ]}
                 actions={
                     <>
-                        <Button variant="outline">
-                            <Filter />
-                            Lọc dữ liệu
-                        </Button>
-                        <ExportReportDialog />
-                        <Button
-                            onClick={() => refetch()}
-                        >
-                            Làm mới
-                            <RefreshCw className={cn(isLoading && "animate-spin")} />
-                        </Button>
+                    <Button variant="outline">
+                        <Filter className="mr-2 size-4" />
+                        Lọc dữ liệu
+                    </Button>
+                    <ExportReportDialog />
+                    <Button
+                        onClick={() => refetch()}
+                    >
+                        <RefreshCw className={cn("mr-2 size-4", isLoading && "animate-spin")} />
+                        Làm mới
+                    </Button>
                     </>
                 }
             />
@@ -137,12 +145,10 @@ export default function RevenueAnalytics() {
             {/* Main Charts */}
             <div className="grid gap-6 md:grid-cols-12">
                 <Card className="md:col-span-8 overflow-hidden">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle>Biểu đồ <span className="text-primary">Tăng trưởng</span></CardTitle>
-                            <CardDescription>Doanh thu 6 tháng gần nhất</CardDescription>
-                        </div>
-                    </CardHeader>
+                <CardHeader>
+                    <CardTitle>Biểu đồ Tăng trưởng</CardTitle>
+                    <CardDescription>Doanh thu 6 tháng gần nhất</CardDescription>
+                </CardHeader>
                     <CardContent className="h-[400px]">
                         <ChartContainer config={revenueChartConfig} className="w-full h-full">
                             <AreaChart data={overview?.growthData || []}>
@@ -163,10 +169,10 @@ export default function RevenueAnalytics() {
                 </Card>
 
                 <Card className="md:col-span-4">
-                    <CardHeader>
-                        <CardTitle>Doanh thu <span className="text-emerald-500">Cấp độ</span></CardTitle>
-                        <CardDescription>Báo cáo theo trình độ JLPT (N5 - N1)</CardDescription>
-                    </CardHeader>
+                <CardHeader>
+                    <CardTitle>Doanh thu theo Cấp độ</CardTitle>
+                    <CardDescription>Báo cáo theo trình độ JLPT (N5 - N1)</CardDescription>
+                </CardHeader>
                     <CardContent className="h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={revenueByLevelData} layout="vertical">
@@ -198,73 +204,65 @@ export default function RevenueAnalytics() {
             </div>
 
             {/* Recent Transactions Table */}
-            <div className="rounded-xl border bg-card overflow-hidden">
-                <div className="p-6 border-b">
-                    <h3 className="text-lg font-semibold">Giao dịch Gần đây</h3>
-                    <p className="text-sm text-muted-foreground">Chi tiết các đơn hàng vừa hoàn thành</p>
-                </div>
-                <div className="relative overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b bg-muted/30">
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Đơn hàng</th>
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Khách hàng</th>
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Số tiền</th>
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Thời gian</th>
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Giao dịch Gần đây</CardTitle>
+                    <CardDescription>Chi tiết các đơn hàng vừa hoàn thành</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Đơn hàng</TableHead>
+                                <TableHead>Khách hàng</TableHead>
+                                <TableHead>Số tiền</TableHead>
+                                <TableHead>Thời gian</TableHead>
+                                <TableHead>Trạng thái</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {overview?.recentSales.map((sale, i) => (
-                                <tr key={i} className="hover:bg-muted/30 transition-colors">
-                                    <td className="py-4 px-4">
-                                        <span className="text-xs font-mono font-medium">#{sale.id.slice(-8).toUpperCase()}</span>
-                                    </td>
-                                    <td className="py-4 px-4">
-                                        <div className="space-y-0.5">
-                                            <p className="text-sm font-semibold">{sale.userName}</p>
-                                            <p className="text-xs text-muted-foreground">{sale.userEmail}</p>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-4 text-sm font-semibold">{formatCurrency(Number(sale.amount))}</td>
-                                    <td className="py-4 px-4 text-xs text-muted-foreground">{formatDateTime(sale.date, 'dd/MM/yyyy HH:mm')}</td>
-                                    <td className="py-4 px-4">
-                                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-none">Hoàn tất</Badge>
-                                    </td>
-                                </tr>
+                                <TableRow key={i}>
+                                    <TableCell className="font-mono">{sale.id.slice(-8).toUpperCase()}</TableCell>
+                                    <TableCell>
+                                        <div className="font-medium">{sale.userName}</div>
+                                        <div className="text-xs text-muted-foreground">{sale.userEmail}</div>
+                                    </TableCell>
+                                    <TableCell className="font-semibold">{formatCurrency(Number(sale.amount))}</TableCell>
+                                    <TableCell className="text-muted-foreground">{formatDateTime(sale.date, 'dd/MM/yyyy HH:mm')}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">Hoàn tất</Badge>
+                                    </TableCell>
+                                </TableRow>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
         </div>
     )
 }
 
 function RevenueCard({ title, value, sub, icon: Icon, trend, trendUp, inverseColor }: any) {
     return (
-        <Card className="group overflow-hidden relative">
-            <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="p-2.5 rounded-xl bg-muted/50 group-hover:bg-primary/10 group-hover:text-primary transition-all">
-                        <Icon className="size-5" />
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{title}</CardTitle>
+                <Icon className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{value}</div>
+                <p className="text-xs text-muted-foreground">{sub}</p>
+                {trend && (
+                    <div className={cn(
+                        "flex items-center gap-1 text-xs mt-1",
+                        trendUp ? (inverseColor ? "text-rose-500" : "text-emerald-500") :
+                            (inverseColor ? "text-emerald-500" : "text-rose-500")
+                    )}>
+                        <span>{trend}</span>
+                        <ArrowUpRight className={cn("size-4", !trendUp && "rotate-90")} />
                     </div>
-                    {trend && (
-                        <div className={cn(
-                            "flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-md",
-                            trendUp ? (inverseColor ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500") :
-                                (inverseColor ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500")
-                        )}>
-                            {trend}
-                            <ArrowUpRight className={cn("size-3", !trendUp && "rotate-90")} />
-                        </div>
-                    )}
-                </div>
-                <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">{title}</p>
-                    <h3 className="text-2xl font-black tracking-tight text-foreground">{value}</h3>
-                    <p className="text-[9px] font-medium text-muted-foreground/60 pt-1 uppercase italic border-l-2 border-border/30 pl-3">{sub}</p>
-                </div>
+                )}
             </CardContent>
         </Card>
     )
@@ -299,17 +297,17 @@ function ExportReportDialog() {
                     Xuất báo cáo
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent>
                 <DialogHeader>
-                    <DialogTitle className="uppercase tracking-widest text-lg font-bold">Xuất báo cáo</DialogTitle>
-                    <DialogDescription className="text-xs">
-                        Chọn khoảng thời gian và loại báo cáo để xuất dưới dạng tập tin Excel phục vụ đối soát và quản trị.
+                    <DialogTitle>Xuất báo cáo</DialogTitle>
+                    <DialogDescription>
+                        Chọn khoảng thời gian và loại báo cáo để xuất dưới dạng tập tin Excel.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                <div className="space-y-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="start-date" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-0.5">Từ ngày</Label>
+                            <Label htmlFor="start-date">Từ ngày</Label>
                             <Input
                                 id="start-date"
                                 type="date"
@@ -318,7 +316,7 @@ function ExportReportDialog() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="end-date" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-0.5">Đến ngày</Label>
+                            <Label htmlFor="end-date">Đến ngày</Label>
                             <Input
                                 id="end-date"
                                 type="date"
@@ -327,48 +325,48 @@ function ExportReportDialog() {
                             />
                         </div>
                     </div>
-                    <div className="space-y-2 mt-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block ml-0.5">Loại báo cáo</Label>
+                    <div className="space-y-2">
+                        <Label>Loại báo cáo</Label>
                         <Button
                             variant="outline"
-                            className="w-full justify-start h-auto p-4 gap-4"
+                            className="w-full justify-start h-auto p-4"
                             onClick={() => handleExport("revenue")}
                             disabled={!!isExporting}
                         >
-                            <div className="bg-amber-500/10 text-amber-500 p-2 rounded-lg shrink-0">
-                                {isExporting === "revenue" ? <Loader2 className="size-4 animate-spin" /> : <TrendingUp className="size-4" />}
+                            <div className="bg-amber-500/10 text-amber-500 p-2 rounded-lg">
+                                {isExporting === "revenue" ? <Spinner /> : <TrendingUp className="size-4" />}
                             </div>
-                            <div className="flex flex-col items-start gap-1 text-left">
-                                <span className="font-bold">Báo cáo Doanh thu</span>
-                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Thống kê hiệu suất bán khóa học và doanh thu quy đổi.</span>
+                            <div className="ml-4 text-left">
+                                <p className="font-semibold">Báo cáo Doanh thu</p>
+                                <p className="text-xs text-muted-foreground">Thống kê hiệu suất bán khóa học.</p>
                             </div>
                         </Button>
                         <Button
                             variant="outline"
-                            className="w-full justify-start h-auto p-4 gap-4"
+                            className="w-full justify-start h-auto p-4"
                             onClick={() => handleExport("orders")}
                             disabled={!!isExporting}
                         >
-                            <div className="bg-emerald-500/10 text-emerald-500 p-2 rounded-lg shrink-0">
-                                {isExporting === "orders" ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />}
+                            <div className="bg-emerald-500/10 text-emerald-500 p-2 rounded-lg">
+                                {isExporting === "orders" ? <Spinner /> : <CreditCard className="size-4" />}
                             </div>
-                            <div className="flex flex-col items-start gap-1 text-left">
-                                <span className="font-bold">Nhật ký Đơn hàng</span>
-                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Chi tiết các giao dịch thanh toán thành công.</span>
+                            <div className="ml-4 text-left">
+                                <p className="font-semibold">Nhật ký Đơn hàng</p>
+                                <p className="text-xs text-muted-foreground">Chi tiết các giao dịch thanh toán.</p>
                             </div>
                         </Button>
                         <Button
                             variant="outline"
-                            className="w-full justify-start h-auto p-4 gap-4"
+                            className="w-full justify-start h-auto p-4"
                             onClick={() => handleExport("balance")}
                             disabled={!!isExporting}
                         >
-                            <div className="bg-blue-500/10 text-blue-500 p-2 rounded-lg shrink-0">
-                                {isExporting === "balance" ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
+                            <div className="bg-blue-500/10 text-blue-500 p-2 rounded-lg">
+                                {isExporting === "balance" ? <Spinner /> : <RefreshCw className="size-4" />}
                             </div>
-                            <div className="flex flex-col items-start gap-1 text-left">
-                                <span className="font-bold">Biến động Số dư</span>
-                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Lịch sử nạp, trừ và hoàn trả coin của học viên.</span>
+                            <div className="ml-4 text-left">
+                                <p className="font-semibold">Biến động Số dư</p>
+                                <p className="text-xs text-muted-foreground">Lịch sử nạp, trừ và hoàn trả coin.</p>
                             </div>
                         </Button>
                     </div>

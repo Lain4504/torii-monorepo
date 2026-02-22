@@ -23,8 +23,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@workspace/ui/components/textarea';
 import { useCreateScheduleRequest, useCheckAvailabilityQuery } from '@/api/services/live-sessions';
 import { toast } from '@workspace/ui/components/sonner';
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface ScheduleRequestDialogProps {
     open: boolean;
@@ -204,7 +205,7 @@ export function ScheduleRequestDialog({
                         isAvailable ? "border-border" : "border-destructive/30 bg-destructive/5 text-destructive"
                     )}>
                         {isChecking ? (
-                            <Loader2 className="size-5 shrink-0 animate-spin text-muted-foreground" />
+                            <Spinner className="size-5 shrink-0 text-muted-foreground" />
                         ) : isAvailable ? (
                             <CheckCircle2 className="size-5 shrink-0 text-muted-foreground" />
                         ) : (
@@ -235,7 +236,7 @@ export function ScheduleRequestDialog({
                             disabled={!isAvailable || isChecking || createMutation.isPending}
                         >
                             {createMutation.isPending && (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <Spinner className="mr-2" />
                             )}
                             Gửi yêu cầu
                         </Button>

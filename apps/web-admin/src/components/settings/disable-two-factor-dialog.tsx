@@ -19,8 +19,9 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
-import { AlertTriangle, Lock, Loader2 } from 'lucide-react';
+import { AlertTriangle, Lock } from 'lucide-react';
 import { useDisableTotp } from '@/api/services/two-factor-auth';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const disableSchema = z.object({
     password: z.string().min(1, 'Password is required'),
@@ -124,7 +125,7 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
                         >
                             {disableMutation.isPending ? (
                                 <>
-                                    <Loader2 className="size-4 animate-spin" />
+                                    <Spinner />
                                     Đang tắt...
                                 </>
                             ) : (

@@ -6,6 +6,7 @@ import { EditUserSheet } from '@/components/users/edit-user-sheet.tsx';
 import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
 import type { UserResponseDTO } from '@workspace/schemas';
+import { Card } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
@@ -44,6 +45,7 @@ export default function PersonnelPage() {
     });
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPage(1);
     }, [debouncedSearch, targetRole]);
 
@@ -111,7 +113,7 @@ export default function PersonnelPage() {
                 />
 
                 {/* Table container */}
-                <div className="rounded-xl border bg-card overflow-hidden">
+                <Card>
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
@@ -121,7 +123,7 @@ export default function PersonnelPage() {
                         limit={limit}
                         isLoading={isLoading}
                     />
-                </div>
+                </Card>
 
                 {/* Footer / Pagination */}
                 <SmartPagination

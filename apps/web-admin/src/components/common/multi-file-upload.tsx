@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { Upload, X, Loader2, FileText, Paperclip } from 'lucide-react';
+import { Upload, X, FileText, Paperclip } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/api/services/storage-api';
 import { cn } from '@workspace/ui/lib/utils';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface MultiFileUploadProps {
     onUploadChange: (urls: string[]) => void;
@@ -97,15 +98,16 @@ export function MultiFileUpload({
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3">
             <div
                 className={cn(
-                    "border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-3 transition-all cursor-pointer group bg-muted/5",
-                    isDragging ? "border-primary bg-primary/5 shadow-inner" : "border-border/20 hover:border-primary/50 hover:bg-muted/10",
+                    "border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-all cursor-pointer group bg-muted/30",
+                    "hover:border-primary hover:bg-muted",
+                    isDragging && "border-primary bg-primary/10",
                     (disabled || isUploading || urls.length >= maxFiles) && "opacity-50 cursor-not-allowed"
                 )}
                 onClick={() => !disabled && !isUploading && urls.length < maxFiles && fileInputRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); !disabled && !isUploading && setIsDragging(true); }}
+                onDragOver={(e) => { e.preventDefault(); if (!disabled && !isUploading) setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
             >
@@ -119,49 +121,43 @@ export function MultiFileUpload({
                     disabled={disabled || isUploading || urls.length >= maxFiles}
                 />
                 
-                <div className={cn(
-                    "p-4 rounded-2xl transition-all",
-                    isDragging ? "bg-primary/20 scale-110" : "bg-primary/10 group-hover:bg-primary/20"
-                )}>
+                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-background group-hover:bg-primary/10 transition-colors">
                     {isUploading ? (
-                        <Loader2 className="h-6 w-6 text-primary animate-spin" />
+                        <Spinner className="h-6 w-6 text-primary" />
                     ) : (
-                        <Upload className={cn(
-                            "h-6 w-6 transition-colors",
-                            isDragging ? "text-primary" : "text-primary/70 group-hover:text-primary"
-                        )} />
+                        <Upload className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                     )}
                 </div>
 
-                <div className="text-center space-y-1">
-                    <p className="text-sm font-bold tracking-tight">
+                <div className="text-center">
+                    <p className="text-sm font-semibold">
                         {isUploading ? 'Đang tải lên...' : label}
                     </p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
-                        Kéo thả hoặc click để chọn tệp (Tối đa {maxFiles})
+                    <p className="text-xs text-muted-foreground">
+                        Kéo thả hoặc click để chọn (Tối đa {maxFiles})
                     </p>
                 </div>
             </div>
 
             {urls.length > 0 && (
-                <div className="grid gap-2">
+                <div className="grid gap-3">
                     {urls.map((url, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 rounded-xl border border-border/10 bg-muted/5 group/item hover:bg-muted/10 transition-colors animate-in fade-in slide-in-from-top-1 duration-200">
-                            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                <FileText className="h-5 w-5 text-primary" />
+                        <div key={index} className="flex items-center gap-3 p-2 rounded-md border bg-background group/item">
+                            <div className="p-2 bg-muted rounded-md">
+                                <FileText className="h-5 w-5 text-muted-foreground" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-xs font-bold truncate pr-2">{getFileName(url)}</p>
-                                <div className="flex items-center gap-2">
-                                    <Paperclip className="h-3 w-3 text-muted-foreground/40" />
-                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Đã sẵn sàng</span>
+                                <p className="text-sm font-medium truncate">{getFileName(url)}</p>
+                                <div className="flex items-center gap-1.5">
+                                    <Paperclip className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground">Sẵn sàng</span>
                                 </div>
                             </div>
                             <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-lg opacity-0 group-hover/item:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                                className="h-8 w-8 rounded-md opacity-50 group-hover/item:opacity-100 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleRemove(url);

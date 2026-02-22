@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { ArrowRight, Loader2, Sparkles } from "lucide-react"
+import { ArrowRight, Sparkles } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
@@ -88,7 +89,7 @@ export function PlacementTest() {
                 </div>
 
                 <Button size="lg" onClick={handleStart} disabled={isLoading} className="px-8 h-12 text-lg">
-                    {isLoading ? <><Loader2 className="mr-2 size-5 animate-spin" /> Preparing...</> : "Start Assessment"}
+                    {isLoading ? <><Spinner className="mr-2 size-5" /> Preparing...</> : "Start Assessment"}
                 </Button>
             </div>
         )
@@ -144,7 +145,7 @@ export function PlacementTest() {
                         disabled={isLoading || Object.keys(answers).length < testData.questions.length}
                         className="min-w-[160px]"
                     >
-                        {isLoading ? <><Loader2 className="mr-2 size-5 animate-spin" /> Analyzing...</> : "Submit Answers"}
+                        {isLoading ? <><Spinner className="mr-2 size-5" /> Analyzing...</> : "Submit Answers"}
                     </Button>
                 </div>
             </div>

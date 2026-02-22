@@ -11,9 +11,10 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@workspace/ui/components/sheet';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 import { formatDateTime } from '@/lib/format-utils';
-import { Loader2, Star, Info } from 'lucide-react';
+import { Star, Info } from 'lucide-react';
 import { ReviewsPrimaryToolbar } from '@/components/reviews/reviews-primary-toolbar';
 import { ReviewsTable } from '@/components/reviews/reviews-table';
 import { PageHeader } from '@/components/common/page-header';
@@ -24,6 +25,8 @@ import {
     EmptyTitle,
     EmptyDescription,
 } from '@workspace/ui/components/empty';
+import { Spinner } from "@workspace/ui/components/spinner";
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function CourseReviewsPage() {
     const [page, setPage] = useState(1);
@@ -79,15 +82,19 @@ export default function CourseReviewsPage() {
                     }}
                 />
 
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <ReviewsTable
-                        data={reviews}
-                        isLoading={isLoading}
-                        onView={openDetail}
-                        page={page}
-                        limit={10}
-                    />
-                </div>
+                <Card className="overflow-hidden">
+                <CardContent className="p-0">
+
+                                    <ReviewsTable
+                                        data={reviews}
+                                        isLoading={isLoading}
+                                        onView={openDetail}
+                                        page={page}
+                                        limit={10}
+                                    />
+                                
+                </CardContent>
+                </Card>
 
                 <SmartPagination
                     page={page}
@@ -100,85 +107,87 @@ export default function CourseReviewsPage() {
 
             {/* Detail View Dialog */}
             <Sheet open={viewDialogOpen} onOpenChange={handleOpenChange}>
-                <SheetContent className="w-full sm:w-[500px] !max-w-[500px] border-l border-border/50 shadow-2xl bg-background p-0 h-full flex flex-col">
-                    <SheetHeader className="p-6 border-b border-border/10 shrink-0">
+                <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                    <SheetHeader>
                         <SheetTitle>Chi tiết đánh giá</SheetTitle>
                         <SheetDescription>
                             Xem nội dung đầy đủ của đánh giá
                         </SheetDescription>
                     </SheetHeader>
 
-                    <div className="p-6 flex-1 overflow-y-auto">
-                        {isLoadingDetail ? (
-                            <div className="flex flex-col items-center justify-center py-10 gap-2">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
-                                <p className="text-xs text-muted-foreground">Đang tải thông tin...</p>
-                            </div>
-                        ) : reviewDetail ? (
-                            <div className="space-y-4">
-                                {/* User Info */}
-                                <div className="flex items-center gap-3">
-                                    <Avatar className="h-10 w-10 rounded-lg border border-border/40">
-                                        <AvatarImage src={reviewDetail.user.avatarUrl} />
-                                        <AvatarFallback className="text-sm font-bold bg-primary/10 text-primary">
-                                            {reviewDetail.user.displayName.substring(0, 2).toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <h3 className="font-semibold text-sm text-foreground">{reviewDetail.user.displayName}</h3>
-                                        <p className="text-xs text-muted-foreground">Học viên</p>
-                                    </div>
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="space-y-6 p-6">
+                            {isLoadingDetail ? (
+                                <div className="flex flex-col items-center justify-center py-10 gap-2">
+                                    <Spinner className="h-8 w-8 text-primary/60" />
+                                    <p className="text-xs text-muted-foreground">Đang tải thông tin...</p>
                                 </div>
-
-                                {/* Course & Rating */}
-                                <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-2">
-                                    <div className="flex justify-between items-start">
+                            ) : reviewDetail ? (
+                                <div className="space-y-4">
+                                    {/* User Info */}
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="h-10 w-10 rounded-lg border border-border/40">
+                                            <AvatarImage src={reviewDetail.user.avatarUrl} />
+                                            <AvatarFallback className="text-sm font-bold bg-primary/10 text-primary">
+                                                {reviewDetail.user.displayName.substring(0, 2).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
                                         <div>
-                                            <p className="text-xs font-medium text-muted-foreground mb-0.5">Khóa học</p>
-                                            <p className="text-sm font-semibold text-foreground">
-                                                {reviewDetail.courseTitle || reviewDetail.courseId}
+                                            <h3 className="font-semibold text-sm text-foreground">{reviewDetail.user.displayName}</h3>
+                                            <p className="text-xs text-muted-foreground">Học viên</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Course & Rating */}
+                                    <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-2">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="text-xs font-medium text-muted-foreground mb-0.5">Khóa học</p>
+                                                <p className="text-sm font-semibold text-foreground">
+                                                    {reviewDetail.courseTitle || reviewDetail.courseId}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col items-end gap-1">
+                                                <div className="flex items-center gap-0.5">
+                                                    {Array.from({ length: 5 }).map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className={`w-3.5 h-3.5 ${i < reviewDetail.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {formatDateTime(reviewDetail.createdAt)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Comment Content */}
+                                    <div>
+                                        <p className="text-xs font-medium text-muted-foreground mb-1.5">Nội dung đánh giá</p>
+                                        <div className="bg-muted/20 rounded-lg p-3 border border-border/30">
+                                            <p className="text-sm text-foreground/80 leading-relaxed">
+                                                "{reviewDetail.comment || "Không có nội dung"}"
                                             </p>
                                         </div>
-                                        <div className="flex flex-col items-end gap-1">
-                                            <div className="flex items-center gap-0.5">
-                                                {Array.from({ length: 5 }).map((_, i) => (
-                                                    <Star
-                                                        key={i}
-                                                        className={`w-3.5 h-3.5 ${i < reviewDetail.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
-                                                    />
-                                                ))}
-                                            </div>
-                                            <span className="text-xs text-muted-foreground">
-                                                {formatDateTime(reviewDetail.createdAt)}
-                                            </span>
-                                        </div>
                                     </div>
                                 </div>
+                            ) : (
+                                <Empty className="border-none">
+                                    <EmptyMedia>
+                                        <Info className="size-6 text-muted-foreground" />
+                                    </EmptyMedia>
+                                    <EmptyContent>
+                                        <EmptyTitle>Không tìm thấy</EmptyTitle>
+                                        <EmptyDescription>Không tìm thấy thông tin đánh giá.</EmptyDescription>
+                                    </EmptyContent>
+                                </Empty>
+                            )}
+                        </div>
+                    </ScrollArea>
 
-                                {/* Comment Content */}
-                                <div>
-                                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Nội dung đánh giá</p>
-                                    <div className="bg-muted/20 rounded-lg p-3 border border-border/30">
-                                        <p className="text-sm text-foreground/80 leading-relaxed">
-                                            "{reviewDetail.comment || "Không có nội dung"}"
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <Empty className="border-none">
-                                <EmptyMedia>
-                                    <Info className="size-6 text-muted-foreground" />
-                                </EmptyMedia>
-                                <EmptyContent>
-                                    <EmptyTitle>Không tìm thấy</EmptyTitle>
-                                    <EmptyDescription>Không tìm thấy thông tin đánh giá.</EmptyDescription>
-                                </EmptyContent>
-                            </Empty>
-                        )}
-                    </div>
-
-                    <SheetFooter className="p-6 border-t border-border/10 shrink-0 bg-muted/5">
+                    <SheetFooter>
                         <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
                             Đóng
                         </Button>

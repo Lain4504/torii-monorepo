@@ -6,9 +6,10 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@workspace/ui/components/button';
-import { Input } from '@workspace/ui/components/input';
+import { Field, FieldLabel } from '@workspace/ui/components/field';
+import { Spinner } from '@workspace/ui/components/spinner';
 import { toast } from '@workspace/ui/components/sonner';
-import { Smartphone, ArrowLeft, Loader2, Key } from 'lucide-react';
+import { Smartphone, ArrowLeft, Key } from 'lucide-react';
 import { authApi } from '@/apis/services/auth-api';
 import { useAppDispatch } from '@/hooks/hooks';
 import { checkAuth } from '@/store/slices/authSlice';
@@ -169,10 +170,10 @@ export default function TwoFactorVerifyPage() {
                                     name="code"
                                     control={form.control}
                                     render={({ field, fieldState }) => (
-                                        <div className="space-y-2">
-                                            <label htmlFor={field.name} className="flex items-center gap-2 text-xs font-medium text-foreground ml-1">
+                                        <Field className="space-y-2">
+                                            <FieldLabel htmlFor={field.name} className="flex items-center gap-2 text-xs font-medium text-foreground ml-1">
                                                 {useBackupCode ? 'Mã dự phòng' : 'Mã xác thực'}
-                                            </label>
+                                            </FieldLabel>
                                             <div className="relative group">
                                                 {useBackupCode ? (
                                                     <Key className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
@@ -190,7 +191,7 @@ export default function TwoFactorVerifyPage() {
                                                 />
                                                 {fieldState.invalid && <p className="text-[10px] font-medium text-rose-500 mt-1.5 ml-1">{fieldState.error?.message}</p>}
                                             </div>
-                                        </div>
+                                        </Field>
                                     )}
                                 />
                             </div>
@@ -215,12 +216,13 @@ export default function TwoFactorVerifyPage() {
 
                             <Button
                                 type="submit"
-                                className="w-full h-12 rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+                                size="lg"
+                                className="w-full font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
                                 disabled={isLoading}
                             >
                                 {isLoading ? (
                                     <>
-                                        <Loader2 className="mr-2 size-4 animate-spin opacity-70" />
+                                        <Spinner className="mr-2 size-4 opacity-70" />
                                         Đang xác thực...
                                     </>
                                 ) : (

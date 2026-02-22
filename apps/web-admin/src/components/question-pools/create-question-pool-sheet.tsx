@@ -18,7 +18,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Plus, Info } from 'lucide-react';
+import { Plus, Info } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateQuestionPool } from '@/api/services/question-pools.ts';
 import { useCourses } from '@/api/services/courses.ts';
@@ -27,6 +27,7 @@ import {
     questionPoolCreateDTOSchema,
 } from '@workspace/schemas';
 import type { z } from 'zod';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 type CreateQuestionPoolFormData = z.input<typeof questionPoolCreateDTOSchema>;
 
@@ -196,7 +197,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                             disabled={createPool.isPending}>
                             {createPool.isPending ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang Xử Lý...
                                 </>
                             ) : (

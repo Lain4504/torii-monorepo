@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { Upload, X, Loader2, FileAudio } from 'lucide-react';
+import { Upload, X, FileAudio } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import axios from 'axios';
 import { apiClient } from '@/api/api-client';
 import { cn } from '@workspace/ui/lib/utils';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface FileUploadProps {
     onUploadComplete: (url: string) => void;
@@ -132,7 +133,7 @@ export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Uplo
                 <div
                     className={cn(
                         "border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer group",
-                        isDragging ? "border-primary bg-primary/5" : "border-border/30 hover:bg-muted/5",
+                        isDragging ? "border-primary bg-primary/10" : "border-border hover:bg-muted",
                         disabled && "opacity-50 cursor-not-allowed"
                     )}
                     onClick={() => !disabled && fileInputRef.current?.click()}
@@ -150,39 +151,33 @@ export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Uplo
                         disabled={disabled || isUploading}
                     />
                     {isUploading ? (
-                        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                        <Spinner className="h-8 w-8 text-primary" />
                     ) : (
-                        <Upload className={cn(
-                            "h-8 w-8 transition-colors",
-                            isDragging ? "text-primary" : "text-muted-foreground/50 group-hover:text-primary/70"
-                        )} />
+                        <Upload className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
                     )}
                     <div className="text-center">
-                        <span className={cn(
-                            "text-xs font-medium transition-colors block",
-                            isDragging ? "text-primary" : "text-muted-foreground/70 group-hover:text-foreground"
-                        )}>
+                        <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                             {isUploading ? 'Uploading...' : label}
                         </span>
-                        <span className="text-[10px] text-muted-foreground/40 mt-1 block">
+                        <p className="text-xs text-muted-foreground/70 mt-1">
                             Drag & drop or click to browse
-                        </span>
+                        </p>
                     </div>
                 </div>
             ) : (
-                <div className="relative p-4 rounded-xl border border-border/20 bg-muted/5 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <div className="relative p-3 rounded-lg border bg-muted/50 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
                         <FileAudio className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium truncate">{previewUrl.split('/').pop()}</p>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Uploaded</p>
+                        <p className="text-sm font-medium truncate">{previewUrl.split('/').pop()}</p>
+                        <p className="text-xs text-muted-foreground">Upload complete</p>
                     </div>
                     <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 rounded-lg hover:bg-rose-500/10 hover:text-rose-500"
+                        className="h-8 w-8 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         onClick={handleRemove}
                         disabled={disabled}
                     >

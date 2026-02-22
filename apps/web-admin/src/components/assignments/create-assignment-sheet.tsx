@@ -37,8 +37,9 @@ import type { CreateAssignmentDto } from "@workspace/schemas";
 import { AssignmentType } from "@workspace/schemas";
 import { useCreateAssignment } from "@/api/services/assignments";
 import { toast } from "@workspace/ui/components/sonner";
-import { Loader2, Paperclip, Info } from "lucide-react";
+import { Paperclip, Info } from "lucide-react";
 import { Textarea } from "@workspace/ui/components/textarea";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface CreateAssignmentSheetProps {
   open: boolean;
@@ -393,7 +394,7 @@ export function CreateAssignmentSheet({
                 >
                   {createMutation.isPending ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Spinner className="mr-2" />
                       Đang tạo...
                     </>
                   ) : (

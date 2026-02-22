@@ -28,13 +28,14 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, UploadCloud, X } from 'lucide-react';
+import { UploadCloud, X } from 'lucide-react';
 import { BlogStatus, type BlogCreateDTO } from '@workspace/schemas';
 import { useCreateBlog } from '@/api/services/blog.ts';
 import { toast } from '@workspace/ui/components/sonner';
 import { useAppSelector } from '@/hooks/hooks.ts';
 import { selectUser } from '@/store/slices/auth-slice.ts';
 import { storageApi } from '@/api/services/storage-api.ts';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const createBlogSchema = z.object({
     title: z.string().min(1),
@@ -403,7 +404,7 @@ export function CreateBlogSheet({
                             disabled={uploading || createBlog.isPending}>
                             {uploading || createBlog.isPending ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang lưu...
                                 </>
                             ) : (

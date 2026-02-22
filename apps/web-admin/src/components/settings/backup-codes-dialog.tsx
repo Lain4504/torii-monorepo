@@ -10,8 +10,9 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { toast } from '@workspace/ui/components/sonner';
-import { Key, Download, Copy, Check, Loader2, AlertTriangle } from 'lucide-react';
+import { Key, Download, Copy, Check, AlertTriangle } from 'lucide-react';
 import { useRegenerateBackupCodes } from '@/api/services/two-factor-auth';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface BackupCodesDialogProps {
     open: boolean;
@@ -94,7 +95,7 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                                 >
                                     {regenerateMutation.isPending ? (
                                         <>
-                                            <Loader2 className="size-4 animate-spin" />
+                                            <Spinner />
                                             Đang tạo...
                                         </>
                                     ) : (
