@@ -98,7 +98,7 @@ export function GradeSubmissionSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex flex-col p-0 overflow-hidden text-left">
+      <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0 overflow-hidden text-left">
         <SheetHeader className="p-6 border-b border-border/40 bg-muted/5">
           <div className="flex items-center gap-3 mb-1">
             <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight uppercase">

@@ -33,7 +33,7 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chi Tiết Kho Đề</SheetTitle>
                     <SheetDescription>
@@ -41,7 +41,7 @@ export function ViewQuestionPoolDialog({ open, onOpenChange, pool, onEdit }: Vie
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-6 p-6">
                         <section className="space-y-4">
                             <div className="flex items-center gap-2 text-primary opacity-60">

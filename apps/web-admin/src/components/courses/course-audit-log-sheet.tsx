@@ -127,7 +127,7 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
 
     return (
         <Sheet open={!!courseId} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Lịch sử Kiểm duyệt</SheetTitle>
                     <SheetDescription>
@@ -135,7 +135,7 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-6 p-6">
                         {isLoading ? (
                             <div className="space-y-8 pl-8 relative">

@@ -29,7 +29,7 @@ export function ViewBlogSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Xem chi tiết bài viết</SheetTitle>
                     <SheetDescription>
@@ -37,7 +37,7 @@ export function ViewBlogSheet({
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-6 p-6">
 
                         {/* Key Metrics */}
@@ -86,11 +86,11 @@ export function ViewBlogSheet({
                         {/* Content Sections */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                <div className="h-px flex-1 bg-border/20" />
+                                <div className="h-px flex-1 bg-border/20 min-h-0" />
                                 <h3 className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/40 text-center">
                                     Chi tiết bài viết
                                 </h3>
-                                <div className="h-px flex-1 bg-border/20" />
+                                <div className="h-px flex-1 bg-border/20 min-h-0" />
                             </div>
 
                             {/* Title */}
@@ -181,11 +181,11 @@ export function ViewBlogSheet({
                             {/* Timestamps */}
                             <div className="space-y-6 pt-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/20">
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">
                                         Dữ liệu hệ thống
                                     </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-6">

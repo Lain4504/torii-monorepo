@@ -30,7 +30,7 @@ export function ViewQuestionDialog({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chi Tiết Câu Hỏi</SheetTitle>
                     <SheetDescription>
@@ -38,7 +38,7 @@ export function ViewQuestionDialog({
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="p-6 space-y-6">
                         {/* Status Bar */}
                         <div className="grid grid-cols-3 gap-4 bg-muted/20 p-4 rounded-xl border border-border/50">
@@ -175,7 +175,7 @@ export function ViewQuestionDialog({
                                                 )}>
                                                     {key}
                                                 </div>
-                                                <div className="flex-1 text-sm font-medium">{value}</div>
+                                                <div className="flex-1 text-sm font-medium min-h-0">{value}</div>
                                                 {isCorrect && (
                                                     <Badge className="bg-emerald-500 text-[9px] font-bold py-0.5 border-none shadow-none">ĐÁP ÁN ĐÚNG</Badge>
                                                 )}

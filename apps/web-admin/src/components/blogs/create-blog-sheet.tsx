@@ -192,7 +192,7 @@ export function CreateBlogSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo bài viết mới</SheetTitle>
                     <SheetDescription>
@@ -201,7 +201,7 @@ export function CreateBlogSheet({
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             {/* Basic Information */}
                             <div className="space-y-6">
@@ -360,7 +360,7 @@ export function CreateBlogSheet({
                                     </FieldLabel>
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="relative flex-1">
+                                            <div className="relative flex-1 min-h-0">
                                                 <Input
                                                     id="cover-image-upload"
                                                     type="file"

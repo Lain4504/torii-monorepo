@@ -118,7 +118,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Tạo Bài Học Mới</SheetTitle>
                     <SheetDescription>
@@ -127,7 +127,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden">
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             {/* Basic Info */}
                             <div className="space-y-4">

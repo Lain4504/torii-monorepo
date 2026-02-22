@@ -177,7 +177,7 @@ export function CreateUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Thêm Người Dùng Mới</SheetTitle>
                     <SheetDescription>
@@ -189,7 +189,7 @@ export function CreateUserSheet({
 
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col flex-1 overflow-hidden"
+                    className="flex flex-col flex-1 overflow-hidden min-h-0"
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             if (currentStep === 1) {
@@ -203,7 +203,7 @@ export function CreateUserSheet({
                         }
                     }}
                 >
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             {currentStep === 1 ? (
                                 <div className="space-y-6">
@@ -286,7 +286,7 @@ export function CreateUserSheet({
                                                             )}>
                                                                 <Icon className="size-5" />
                                                             </div>
-                                                            <div className="flex-1">
+                                                            <div className="flex-1 min-h-0">
                                                                 <div className="flex items-center justify-between">
                                                                     <span className="font-semibold text-sm">{role.label}</span>
                                                                     {isSelected && <BadgeCheck className="size-4 text-primary" />}
@@ -336,7 +336,7 @@ export function CreateUserSheet({
                                                                 )}>
                                                                     <Icon className="size-3.5" />
                                                                 </div>
-                                                                <div className="flex-1">
+                                                                <div className="flex-1 min-h-0">
                                                                     <div className="flex items-center gap-2">
                                                                         <span className="font-semibold text-xs">{variant.label}</span>
                                                                         {isSelected && <ShieldCheck className="size-3 text-primary" />}

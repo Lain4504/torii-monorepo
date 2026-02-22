@@ -82,7 +82,7 @@ export function OrderDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chi tiết Đơn hàng</SheetTitle>
                     <SheetDescription>
@@ -90,7 +90,7 @@ export function OrderDetailSheet({
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-8 p-6">
                         {/* Status Section */}
                         <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">

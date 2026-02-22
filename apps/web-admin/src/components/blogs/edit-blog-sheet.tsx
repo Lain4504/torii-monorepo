@@ -188,7 +188,7 @@ export function EditBlogSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chỉnh sửa bài viết</SheetTitle>
                     <SheetDescription>
@@ -197,7 +197,7 @@ export function EditBlogSheet({
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
 
                             {/* Key Metrics */}
@@ -373,7 +373,7 @@ export function EditBlogSheet({
                                         <FieldLabel htmlFor="cover-image-upload">Ảnh bìa</FieldLabel>
                                         <div className="space-y-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="relative flex-1">
+                                                <div className="relative flex-1 min-h-0">
                                                     <Input
                                                         id="cover-image-upload"
                                                         type="file"

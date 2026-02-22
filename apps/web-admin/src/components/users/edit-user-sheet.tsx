@@ -66,7 +66,7 @@ export function EditUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chỉnh sửa người dùng</SheetTitle>
                     <SheetDescription>
@@ -74,8 +74,8 @@ export function EditUserSheet({
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0" noValidate>
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             <Controller
                                 control={control}

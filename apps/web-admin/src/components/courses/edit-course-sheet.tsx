@@ -168,7 +168,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Chỉnh Sửa Khóa Học</SheetTitle>
                     <SheetDescription>
@@ -176,8 +176,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col flex-1 overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
+                <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col flex-1 overflow-hidden min-h-0" noValidate>
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             {/* Key Metrics */}
                             <div className="grid grid-cols-2 gap-4">
@@ -210,11 +210,11 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                             {/* Form Fields */}
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                         Thông Tin Cơ Bản
                                     </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                 </div>
 
                                 <Controller
@@ -539,11 +539,11 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                        <div className="h-px flex-1 bg-border/20" />
+                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
                                         <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                             Chương Trình Học
                                         </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
+                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     </div>
 
                                     <Controller
@@ -630,11 +630,11 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 {/* Media Upload */}
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                        <div className="h-px flex-1 bg-border/20" />
+                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
                                         <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                             Phương Tiện
                                         </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
+                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     </div>
 
                                     <Field className="space-y-2">
@@ -643,7 +643,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         </FieldLabel>
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="relative flex-1">
+                                                <div className="relative flex-1 min-h-0">
                                                     <Input
                                                         id="thumbnail-upload"
                                                         type="file"
@@ -684,7 +684,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         </FieldLabel>
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="relative flex-1">
+                                                <div className="relative flex-1 min-h-0">
                                                     <Input
                                                         id="video-upload"
                                                         type="file"

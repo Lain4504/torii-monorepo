@@ -154,7 +154,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] overflow-y-auto bg-background/95 backdrop-blur-xl border-l border-border/40">
+            <SheetContent className="!w-full sm:!w-[800px] !max-w-[800px] overflow-y-auto bg-background/95 backdrop-blur-xl border-l border-border/40">
                 <SheetHeader className="pb-6 border-b border-border/20">
                     <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight">
                         Lịch dạy <span className="text-primary not-italic">Cố định</span>
@@ -175,7 +175,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                 {schedules.map((schedule) => (
                                     <Card key={schedule.id} className="p-4 rounded-2xl border-border/40 bg-muted/20 hover:bg-muted/30 transition-colors">
                                         <div className="flex items-start justify-between gap-4">
-                                            <div className="flex-1 space-y-2">
+                                            <div className="flex-1 space-y-2 min-h-0">
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant="outline" className="text-[10px] font-bold uppercase">
                                                         {DAYS_OF_WEEK[schedule.dayOfWeek]}

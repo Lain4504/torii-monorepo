@@ -73,7 +73,7 @@ export function TicketDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>{ticket.subject}</SheetTitle>
                     <SheetDescription>
@@ -81,7 +81,7 @@ export function TicketDetailSheet({
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-6 p-6">
                         {/* User Info Section */}
                         <section className="space-y-4">

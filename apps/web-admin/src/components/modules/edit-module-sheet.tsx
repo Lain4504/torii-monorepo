@@ -98,7 +98,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chỉnh Sửa Học Phần</SheetTitle>
                     <SheetDescription>
@@ -107,7 +107,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             <input type="hidden" {...register('courseId')} />
 

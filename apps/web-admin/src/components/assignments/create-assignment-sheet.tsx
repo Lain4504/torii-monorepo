@@ -139,7 +139,7 @@ export function CreateAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
+      <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Tạo Bài Tập Mới</SheetTitle>
           <SheetDescription>
@@ -147,7 +147,7 @@ export function CreateAssignmentSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

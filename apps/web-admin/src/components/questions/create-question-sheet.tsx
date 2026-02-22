@@ -127,7 +127,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Tạo Câu Hỏi Mới</SheetTitle>
                     <SheetDescription>
@@ -136,7 +136,7 @@ export function CreateQuestionDialog({ open, onOpenChange, defaultPoolId }: Crea
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             <Controller
                                 name="questionText"

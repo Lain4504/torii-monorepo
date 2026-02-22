@@ -162,7 +162,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col overflow-y-auto">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>Tạo Khóa Học Mới</SheetTitle>
                     <SheetDescription>
@@ -170,18 +170,18 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0" noValidate>
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
 
                             {/* Basic Information */}
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                         Thông Tin Cơ Bản
                                     </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                 </div>
 
                                 <Field>
@@ -446,11 +446,11 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                        <div className="h-px flex-1 bg-border/20" />
+                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
                                         <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                             Chương Trình Học
                                         </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
+                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     </div>
 
                                     <Controller
@@ -538,11 +538,11 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                             {/* Media Files */}
                             <div className="space-y-6 pt-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                         Phương Tiện
                                     </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                 </div>
 
                                 <Field>
@@ -551,7 +551,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                     </FieldLabel>
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="relative flex-1">
+                                            <div className="relative flex-1 min-h-0">
                                                 <Input
                                                     id="thumbnail"
                                                     type="file"
@@ -577,7 +577,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                 <div className="p-2 rounded-xl bg-primary/10 text-primary">
                                                     <ImageIcon className="h-4 w-4" />
                                                 </div>
-                                                <div className="flex-1 min-w-0">
+                                                <div className="flex-1 min-w-0 min-h-0">
                                                     <p className="text-xs font-bold text-foreground truncate">{thumbnailFile.name}</p>
                                                     <p className="text-[10px] text-muted-foreground font-mono">{(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB</p>
                                                 </div>
@@ -592,7 +592,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                     </FieldLabel>
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="relative flex-1">
+                                            <div className="relative flex-1 min-h-0">
                                                 <Input
                                                     id="video"
                                                     type="file"
@@ -618,7 +618,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                 <div className="p-2 rounded-xl bg-primary/10 text-primary">
                                                     <Film className="h-4 w-4" />
                                                 </div>
-                                                <div className="flex-1 min-w-0">
+                                                <div className="flex-1 min-w-0 min-h-0">
                                                     <p className="text-xs font-bold text-foreground truncate">{videoFile.name}</p>
                                                     <p className="text-[10px] text-muted-foreground font-mono">{(videoFile.size / 1024 / 1024).toFixed(2)} MB</p>
                                                 </div>

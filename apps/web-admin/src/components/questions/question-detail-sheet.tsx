@@ -52,7 +52,7 @@ export function QuestionDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <div className="flex items-center justify-between mb-2">
                         <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
@@ -74,7 +74,7 @@ export function QuestionDetailSheet({
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-10 p-6">
                         {/* Question Section */}
                         <section className="space-y-4">

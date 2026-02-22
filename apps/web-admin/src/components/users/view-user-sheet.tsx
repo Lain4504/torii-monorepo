@@ -45,7 +45,7 @@ export function ViewUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chi tiết người dùng</SheetTitle>
                     <SheetDescription>
@@ -53,7 +53,7 @@ export function ViewUserSheet({
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-6 p-6">
                         {/* User Profile */}
                         <div className="flex items-center gap-6 p-6 rounded-lg border bg-card">
@@ -62,7 +62,7 @@ export function ViewUserSheet({
                                     {user.displayName?.charAt(0).toUpperCase() || 'U'}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 min-h-0">
                                 <h3 className="text-lg font-semibold truncate">{user.displayName}</h3>
                                 <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
                                     <Mail className="size-3.5" />
@@ -121,7 +121,7 @@ export function ViewUserSheet({
                                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background border shadow-sm">
                                                 <item.icon className="size-3.5 text-muted-foreground" />
                                             </div>
-                                            <div className="flex-1 min-w-0">
+                                            <div className="flex-1 min-w-0 min-h-0">
                                                 <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                                                     {item.label}
                                                 </p>

@@ -75,7 +75,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo Kho Đề Mới</SheetTitle>
                     <SheetDescription>
@@ -84,7 +84,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             <div className="space-y-6">
                                 <Controller
