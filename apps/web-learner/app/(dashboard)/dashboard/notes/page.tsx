@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import {
     FileText, Search, MoreHorizontal, Plus, BookOpen, Upload,
     X, ChevronLeft, BrainCircuit, Trash2, Globe, Lock,
     FileSpreadsheet, Pencil, Layers, Hash, CheckCircle2,
-    ArrowRight
+    ArrowRight, Loader2
 } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
 import { Button } from '@workspace/ui/components/button'
@@ -35,28 +35,12 @@ import { Switch } from '@workspace/ui/components/switch'
 import { useAppSelector } from '@/hooks/hooks'
 import * as XLSX from 'xlsx'
 import { NotebookFlashcardStudy } from '@/components/flashcard/notebook-flashcard-study'
+import { notebookApi, type NotebookDTO, type NoteEntryDTO } from '@/apis/services/notebook-api'
 
 // ============ TYPES ============
-interface NoteEntry {
-    id: string
-    word: string
-    phonetic: string
-    meaning: string
-    note: string
-    partOfSpeech: string
-    createdAt: string
-}
-
-interface Notebook {
-    id: string
-    name: string
-    description?: string
-    isPublic: boolean
-    entries: NoteEntry[]
-    createdAt: string
-    updatedAt: string
-    userId: string
-}
+// Re-export types with local aliases for backward compat
+type Notebook = NotebookDTO
+type NoteEntry = NoteEntryDTO
 
 const PART_OF_SPEECH_OPTIONS = [
     { value: 'noun', label: '名詞 - Danh từ' },
@@ -72,36 +56,14 @@ const PART_OF_SPEECH_OPTIONS = [
     { value: 'other', label: 'その他 - Khác' },
 ]
 
-const STORAGE_KEY = 'torii_notebooks'
-
-// ============ HELPERS ============
-function loadNotebooks(): Notebook[] {
-    if (typeof window === 'undefined') return []
-    try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-    } catch {
-        return []
-    }
-}
-
-function saveNotebooks(notebooks: Notebook[]) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notebooks))
-}
-
-function generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-}
-
-function getPublicNotebooks(notebooks: Notebook[], currentUserId: string): Notebook[] {
-    return notebooks.filter(n => n.isPublic && n.userId !== currentUserId)
-}
-
 // ============ MAIN PAGE ============
 export default function NotesPage() {
     const { user } = useAppSelector((state) => state.auth)
-    const userId = user?.id || 'guest'
+    const userId = user?.id || ''
 
-    const [notebooks, setNotebooks] = useState<Notebook[]>([])
+    const [myNotebooks, setMyNotebooks] = useState<Notebook[]>([])
+    const [publicNotebooks, setPublicNotebooks] = useState<Notebook[]>([])
+    const [isLoading, setIsLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
     const [activeNotebook, setActiveNotebook] = useState<Notebook | null>(null)
     const [entrySearch, setEntrySearch] = useState('')
@@ -111,6 +73,9 @@ export default function NotesPage() {
     const [isAddWordOpen, setIsAddWordOpen] = useState(false)
     const [isImportOpen, setIsImportOpen] = useState(false)
     const [isStudyMode, setIsStudyMode] = useState(false)
+
+    // Loading states
+    const [isSaving, setIsSaving] = useState(false)
 
     // Create notebook form
     const [newNotebookName, setNewNotebookName] = useState('')
@@ -124,17 +89,30 @@ export default function NotesPage() {
 
     // Import Excel
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const [importPreview, setImportPreview] = useState<NoteEntry[]>([])
+    const [importPreview, setImportPreview] = useState<Omit<NoteEntry, 'id' | 'notebookId' | 'createdAt' | 'updatedAt'>[]>([])
     const [importFileName, setImportFileName] = useState('')
 
-
+    // ---- LOAD DATA ----
+    const loadData = useCallback(async () => {
+        if (!userId) return
+        try {
+            setIsLoading(true)
+            const [mine, pub] = await Promise.all([
+                notebookApi.getMyNotebooks(),
+                notebookApi.getPublicNotebooks(),
+            ])
+            setMyNotebooks(mine)
+            setPublicNotebooks(pub)
+        } catch (err: any) {
+            toast.error('Không thể tải dữ liệu sổ tay')
+        } finally {
+            setIsLoading(false)
+        }
+    }, [userId])
 
     useEffect(() => {
-        setNotebooks(loadNotebooks())
-    }, [])
-
-    const myNotebooks = notebooks.filter(n => n.userId === userId)
-    const publicNotebooks = notebooks.filter(n => n.isPublic && n.userId !== userId)
+        loadData()
+    }, [loadData])
 
     const filteredMyNotebooks = myNotebooks.filter(n =>
         n.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -149,123 +127,140 @@ export default function NotesPage() {
     ) || []
 
     // ---- CREATE NOTEBOOK ----
-    const handleCreateNotebook = () => {
+    const handleCreateNotebook = async () => {
         const trimmedName = newNotebookName.trim()
-        if (!trimmedName) {
-            setNameError('Vui lòng nhập tên sổ tay')
-            return
-        }
-        const duplicate = myNotebooks.find(n => n.name.toLowerCase() === trimmedName.toLowerCase())
-        if (duplicate) {
-            setNameError('Bạn đã có sổ tay với tên này rồi')
-            return
-        }
+        if (!trimmedName) { setNameError('Vui lòng nhập tên sổ tay'); return }
 
-        const notebook: Notebook = {
-            id: generateId(),
-            name: trimmedName,
-            description: newNotebookDesc.trim() || undefined,
-            isPublic: newNotebookPublic,
-            entries: [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            userId,
+        try {
+            setIsSaving(true)
+            const notebook = await notebookApi.createNotebook({
+                name: trimmedName,
+                description: newNotebookDesc.trim() || undefined,
+                isPublic: newNotebookPublic,
+            })
+            setMyNotebooks(prev => [notebook, ...prev])
+            setIsCreateOpen(false)
+            setNewNotebookName('')
+            setNewNotebookDesc('')
+            setNewNotebookPublic(false)
+            setNameError('')
+            toast.success('Đã tạo sổ tay mới!')
+            setActiveNotebook(notebook)
+        } catch (err: any) {
+            const msg = err?.response?.data?.message || err?.message || 'Tạo sổ tay thất bại'
+            setNameError(msg)
+        } finally {
+            setIsSaving(false)
         }
-        const updated = [...notebooks, notebook]
-        setNotebooks(updated)
-        saveNotebooks(updated)
-        setIsCreateOpen(false)
-        setNewNotebookName('')
-        setNewNotebookDesc('')
-        setNewNotebookPublic(false)
-        setNameError('')
-        toast.success('Đã tạo sổ tay mới!')
-        // Open the new notebook
-        setActiveNotebook(notebook)
     }
 
     // ---- DELETE NOTEBOOK ----
-    const handleDeleteNotebook = (id: string) => {
-        const updated = notebooks.filter(n => n.id !== id)
-        setNotebooks(updated)
-        saveNotebooks(updated)
-        if (activeNotebook?.id === id) setActiveNotebook(null)
-        toast.success('Đã xóa sổ tay')
+    const handleDeleteNotebook = async (id: string) => {
+        try {
+            await notebookApi.deleteNotebook(id)
+            setMyNotebooks(prev => prev.filter(n => n.id !== id))
+            if (activeNotebook?.id === id) setActiveNotebook(null)
+            toast.success('Đã xóa sổ tay')
+        } catch {
+            toast.error('Xóa sổ tay thất bại')
+        }
     }
 
     // ---- TOGGLE PUBLIC ----
-    const handleTogglePublic = (notebookId: string) => {
-        const updated = notebooks.map(n => {
-            if (n.id === notebookId) return { ...n, isPublic: !n.isPublic, updatedAt: new Date().toISOString() }
-            return n
-        })
-        setNotebooks(updated)
-        saveNotebooks(updated)
-        const nb = updated.find(n => n.id === notebookId)
-        if (activeNotebook?.id === notebookId) setActiveNotebook(nb || null)
-        toast.success(nb?.isPublic ? 'Sổ tay đã được công khai' : 'Sổ tay đã chuyển sang riêng tư')
+    const handleTogglePublic = async (notebookId: string) => {
+        const nb = myNotebooks.find(n => n.id === notebookId)
+        if (!nb) return
+        try {
+            const updated = await notebookApi.updateNotebook(notebookId, { isPublic: !nb.isPublic })
+            setMyNotebooks(prev => prev.map(n => n.id === notebookId ? updated : n))
+            if (activeNotebook?.id === notebookId) setActiveNotebook(updated)
+            toast.success(updated.isPublic ? 'Sổ tay đã được công khai' : 'Sổ tay đã chuyển sang riêng tư')
+        } catch {
+            toast.error('Cập nhật thất bại')
+        }
     }
 
     // ---- ADD / EDIT WORD ----
-    const handleSaveWord = () => {
-        if (!wordForm.word.trim()) {
-            toast.error('Vui lòng nhập từ')
-            return
-        }
-        if (!wordForm.meaning.trim()) {
-            toast.error('Vui lòng nhập nghĩa của từ')
-            return
-        }
+    const handleSaveWord = async () => {
+        if (!wordForm.word.trim()) { toast.error('Vui lòng nhập từ'); return }
+        if (!wordForm.meaning.trim()) { toast.error('Vui lòng nhập nghĩa của từ'); return }
         if (!activeNotebook) return
 
-        const entry: NoteEntry = {
-            id: editingEntry?.id || generateId(),
-            word: wordForm.word.trim(),
-            phonetic: wordForm.phonetic.trim(),
-            meaning: wordForm.meaning.trim(),
-            note: wordForm.note.trim(),
-            partOfSpeech: wordForm.partOfSpeech,
-            createdAt: editingEntry?.createdAt || new Date().toISOString(),
+        try {
+            setIsSaving(true)
+            if (editingEntry) {
+                // Update
+                const updated = await notebookApi.updateEntry(activeNotebook.id, editingEntry.id, {
+                    word: wordForm.word.trim(),
+                    phonetic: wordForm.phonetic.trim() || undefined,
+                    meaning: wordForm.meaning.trim(),
+                    note: wordForm.note.trim() || undefined,
+                    partOfSpeech: wordForm.partOfSpeech,
+                })
+                const updatedNotebook = {
+                    ...activeNotebook,
+                    entries: activeNotebook.entries.map(e => e.id === editingEntry.id ? updated : e),
+                }
+                setActiveNotebook(updatedNotebook)
+                setMyNotebooks(prev => prev.map(n => n.id === activeNotebook.id ? updatedNotebook : n))
+                toast.success('Đã cập nhật từ')
+            } else {
+                // Create
+                const entry = await notebookApi.addEntry(activeNotebook.id, {
+                    word: wordForm.word.trim(),
+                    phonetic: wordForm.phonetic.trim() || undefined,
+                    meaning: wordForm.meaning.trim(),
+                    note: wordForm.note.trim() || undefined,
+                    partOfSpeech: wordForm.partOfSpeech,
+                })
+                const updatedNotebook = {
+                    ...activeNotebook,
+                    entries: [...activeNotebook.entries, entry],
+                    entryCount: activeNotebook.entryCount + 1,
+                }
+                setActiveNotebook(updatedNotebook)
+                setMyNotebooks(prev => prev.map(n => n.id === activeNotebook.id ? updatedNotebook : n))
+                toast.success('Đã thêm từ mới!')
+            }
+
+            setIsAddWordOpen(false)
+            setWordForm({ word: '', phonetic: '', meaning: '', note: '', partOfSpeech: 'noun' })
+            setEditingEntry(null)
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || 'Lưu từ thất bại')
+        } finally {
+            setIsSaving(false)
         }
-
-        const updatedEntries = editingEntry
-            ? activeNotebook.entries.map(e => e.id === editingEntry.id ? entry : e)
-            : [...activeNotebook.entries, entry]
-
-        const updatedNotebook = { ...activeNotebook, entries: updatedEntries, updatedAt: new Date().toISOString() }
-        const updated = notebooks.map(n => n.id === activeNotebook.id ? updatedNotebook : n)
-        setNotebooks(updated)
-        saveNotebooks(updated)
-        setActiveNotebook(updatedNotebook)
-
-        setIsAddWordOpen(false)
-        setWordForm({ word: '', phonetic: '', meaning: '', note: '', partOfSpeech: 'noun' })
-        setEditingEntry(null)
-        toast.success(editingEntry ? 'Đã cập nhật từ' : 'Đã thêm từ mới!')
     }
 
     const openEditEntry = (entry: NoteEntry) => {
         setEditingEntry(entry)
         setWordForm({
             word: entry.word,
-            phonetic: entry.phonetic,
+            phonetic: entry.phonetic || '',
             meaning: entry.meaning,
-            note: entry.note,
+            note: entry.note || '',
             partOfSpeech: entry.partOfSpeech,
         })
         setIsAddWordOpen(true)
     }
 
     // ---- DELETE WORD ----
-    const handleDeleteEntry = (entryId: string) => {
+    const handleDeleteEntry = async (entryId: string) => {
         if (!activeNotebook) return
-        const updatedEntries = activeNotebook.entries.filter(e => e.id !== entryId)
-        const updatedNotebook = { ...activeNotebook, entries: updatedEntries, updatedAt: new Date().toISOString() }
-        const updated = notebooks.map(n => n.id === activeNotebook.id ? updatedNotebook : n)
-        setNotebooks(updated)
-        saveNotebooks(updated)
-        setActiveNotebook(updatedNotebook)
-        toast.success('Đã xóa từ')
+        try {
+            await notebookApi.deleteEntry(activeNotebook.id, entryId)
+            const updatedNotebook = {
+                ...activeNotebook,
+                entries: activeNotebook.entries.filter(e => e.id !== entryId),
+                entryCount: Math.max(0, activeNotebook.entryCount - 1),
+            }
+            setActiveNotebook(updatedNotebook)
+            setMyNotebooks(prev => prev.map(n => n.id === activeNotebook.id ? updatedNotebook : n))
+            toast.success('Đã xóa từ')
+        } catch {
+            toast.error('Xóa từ thất bại')
+        }
     }
 
     // ---- IMPORT EXCEL ----
@@ -286,25 +281,21 @@ export default function NotesPage() {
                 const data = evt.target?.result
                 const workbook = XLSX.read(data, { type: 'array' })
                 const sheetName = workbook.SheetNames[0]
-                const sheet = workbook.Sheets[sheetName]
-                const rows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
+                const sheet = workbook.Sheets[sheetName!]
+                const rows: any[] = XLSX.utils.sheet_to_json(sheet!, { header: 1 })
 
-                // Skip header row, process data rows
-                const entries: NoteEntry[] = []
+                const entries: typeof importPreview = []
                 for (let i = 1; i < rows.length; i++) {
                     const row = rows[i]
                     if (!row || !row[0]) continue
                     const word = String(row[0] || '').trim()
-                    const meaning = String(row[2] || '').trim()
                     if (!word) continue
                     entries.push({
-                        id: generateId(),
                         word,
-                        phonetic: String(row[1] || '').trim(),
-                        meaning,
-                        note: String(row[3] || '').trim(),
+                        phonetic: String(row[1] || '').trim() || undefined,
+                        meaning: String(row[2] || '').trim(),
+                        note: String(row[3] || '').trim() || undefined,
                         partOfSpeech: String(row[4] || 'noun').trim(),
-                        createdAt: new Date().toISOString(),
                     })
                 }
 
@@ -323,27 +314,31 @@ export default function NotesPage() {
             }
         }
         reader.readAsArrayBuffer(file)
-        // Reset input so selecting the same file again always triggers onChange
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
-    const handleConfirmImport = () => {
+    const handleConfirmImport = async () => {
         if (!activeNotebook || importPreview.length === 0) return
-        const updatedEntries = [...activeNotebook.entries, ...importPreview]
-        const updatedNotebook = { ...activeNotebook, entries: updatedEntries, updatedAt: new Date().toISOString() }
-        const updated = notebooks.map(n => n.id === activeNotebook.id ? updatedNotebook : n)
-        setNotebooks(updated)
-        saveNotebooks(updated)
-        setActiveNotebook(updatedNotebook)
-        setIsImportOpen(false)
-        setImportPreview([])
-        setImportFileName('')
-        if (fileInputRef.current) fileInputRef.current.value = ''
-        toast.success(`Đã nhập ${importPreview.length} từ thành công!`)
-    }
+        try {
+            setIsSaving(true)
+            const result = await notebookApi.bulkCreateEntries(activeNotebook.id, importPreview)
 
-    // ---- STUDY MODE ----
-    // Inline flashcard study — no API, no dialog needed
+            // Reload the active notebook to get updated entries
+            const updated = await notebookApi.getNotebook(activeNotebook.id)
+            setActiveNotebook(updated)
+            setMyNotebooks(prev => prev.map(n => n.id === activeNotebook.id ? updated : n))
+
+            setIsImportOpen(false)
+            setImportPreview([])
+            setImportFileName('')
+            if (fileInputRef.current) fileInputRef.current.value = ''
+            toast.success(`Đã nhập ${result.count} từ thành công!`)
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || 'Import thất bại')
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     const posLabel = (val: string) => PART_OF_SPEECH_OPTIONS.find(o => o.value === val)?.label || val
 
@@ -362,6 +357,7 @@ export default function NotesPage() {
 
     // ============ RENDER: NOTEBOOK DETAIL VIEW ============
     if (activeNotebook) {
+        const isOwner = activeNotebook.userId === userId
         return (
             <div className="space-y-6 animate-in fade-in duration-500 pb-20">
                 {/* Back + Header */}
@@ -400,7 +396,7 @@ export default function NotesPage() {
                         </div>
 
                         <div className="flex items-center gap-2 flex-wrap">
-                            {activeNotebook.userId === userId && (
+                            {isOwner && (
                                 <>
                                     <Button
                                         variant="outline"
@@ -468,37 +464,39 @@ export default function NotesPage() {
                             <p className="text-sm text-muted-foreground">Bạn muốn thêm từ vào sổ tay này bằng cách nào?</p>
                         </div>
 
-                        <div className="grid sm:grid-cols-2 gap-4 w-full max-w-lg">
-                            <Card
-                                className="border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group rounded-2xl"
-                                onClick={() => setIsImportOpen(true)}
-                            >
-                                <CardContent className="p-6 flex flex-col items-center gap-3 text-center">
-                                    <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500/20 transition-colors">
-                                        <FileSpreadsheet className="size-6" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm text-foreground">Nhập từ Excel</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5">Tải lên file .xlsx hoặc .csv</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                        {isOwner && (
+                            <div className="grid sm:grid-cols-2 gap-4 w-full max-w-lg">
+                                <Card
+                                    className="border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group rounded-2xl"
+                                    onClick={() => setIsImportOpen(true)}
+                                >
+                                    <CardContent className="p-6 flex flex-col items-center gap-3 text-center">
+                                        <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500/20 transition-colors">
+                                            <FileSpreadsheet className="size-6" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-sm text-foreground">Nhập từ Excel</p>
+                                            <p className="text-xs text-muted-foreground mt-0.5">Tải lên file .xlsx hoặc .csv</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
-                            <Card
-                                className="border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group rounded-2xl"
-                                onClick={() => { setEditingEntry(null); setWordForm({ word: '', phonetic: '', meaning: '', note: '', partOfSpeech: 'noun' }); setIsAddWordOpen(true) }}
-                            >
-                                <CardContent className="p-6 flex flex-col items-center gap-3 text-center">
-                                    <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600 group-hover:bg-blue-500/20 transition-colors">
-                                        <Plus className="size-6" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm text-foreground">Thêm từ mới</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5">Nhập từng từ thủ công</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
+                                <Card
+                                    className="border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group rounded-2xl"
+                                    onClick={() => { setEditingEntry(null); setWordForm({ word: '', phonetic: '', meaning: '', note: '', partOfSpeech: 'noun' }); setIsAddWordOpen(true) }}
+                                >
+                                    <CardContent className="p-6 flex flex-col items-center gap-3 text-center">
+                                        <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600 group-hover:bg-blue-500/20 transition-colors">
+                                            <Plus className="size-6" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-sm text-foreground">Thêm từ mới</p>
+                                            <p className="text-xs text-muted-foreground mt-0.5">Nhập từng từ thủ công</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     /* Word List */
@@ -542,7 +540,7 @@ export default function NotesPage() {
                                             </div>
                                         </div>
 
-                                        {activeNotebook.userId === userId && (
+                                        {isOwner && (
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button
@@ -650,7 +648,10 @@ export default function NotesPage() {
 
                         <DialogFooter className="gap-2">
                             <Button variant="outline" onClick={() => setIsAddWordOpen(false)} className="rounded-xl">Hủy</Button>
-                            <Button onClick={handleSaveWord} className="rounded-xl font-bold px-6">Xong</Button>
+                            <Button onClick={handleSaveWord} className="rounded-xl font-bold px-6" disabled={isSaving}>
+                                {isSaving && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
+                                Xong
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
@@ -754,16 +755,15 @@ export default function NotesPage() {
                             <Button variant="outline" onClick={() => setIsImportOpen(false)} className="rounded-xl">Hủy</Button>
                             <Button
                                 onClick={handleConfirmImport}
-                                disabled={importPreview.length === 0}
+                                disabled={importPreview.length === 0 || isSaving}
                                 className="rounded-xl font-bold"
                             >
+                                {isSaving && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
                                 Nhập {importPreview.length > 0 ? `${importPreview.length} từ` : ''}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-
-                {/* Flashcard dialog removed — now uses inline study mode */}
             </div>
         )
     }
@@ -800,88 +800,95 @@ export default function NotesPage() {
                 </div>
             </div>
 
-            <Tabs defaultValue="my">
-                <TabsList className="h-10 rounded-xl bg-muted/50 p-1">
-                    <TabsTrigger value="my" className="rounded-lg text-xs font-bold uppercase tracking-wider px-4">
-                        Sổ tay của tôi
-                        {myNotebooks.length > 0 && (
-                            <span className="ml-2 px-1.5 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-black">{myNotebooks.length}</span>
-                        )}
-                    </TabsTrigger>
-                    <TabsTrigger value="explore" className="rounded-lg text-xs font-bold uppercase tracking-wider px-4">
-                        Khám phá
-                        {publicNotebooks.length > 0 && (
-                            <span className="ml-2 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[10px] font-black">{publicNotebooks.length}</span>
-                        )}
-                    </TabsTrigger>
-                </TabsList>
-
-                {/* MY NOTEBOOKS */}
-                <TabsContent value="my" className="mt-6">
-                    {filteredMyNotebooks.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl bg-muted/5">
-                            <div className="p-4 rounded-full bg-muted/20 mb-4">
-                                <BookOpen className="size-8 text-muted-foreground/40" />
-                            </div>
-                            {myNotebooks.length === 0 ? (
-                                <>
-                                    <h3 className="text-lg font-bold text-foreground">Bạn chưa có sổ tay nào</h3>
-                                    <p className="text-sm text-muted-foreground mt-1 mb-4">Tạo sổ tay đầu tiên để bắt đầu ghi chép từ vựng.</p>
-                                    <Button onClick={() => setIsCreateOpen(true)} className="rounded-xl font-bold">
-                                        <Plus className="size-4 mr-2" />Tạo sổ tay đầu tiên
-                                    </Button>
-                                </>
-                            ) : (
-                                <>
-                                    <h3 className="text-lg font-bold text-foreground">Không tìm thấy kết quả</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">Thử tìm kiếm với từ khóa khác.</p>
-                                </>
+            {/* Loading skeleton */}
+            {isLoading ? (
+                <div className="flex items-center justify-center py-20">
+                    <Loader2 className="size-8 animate-spin text-muted-foreground/50" />
+                </div>
+            ) : (
+                <Tabs defaultValue="my">
+                    <TabsList className="h-10 rounded-xl bg-muted/50 p-1">
+                        <TabsTrigger value="my" className="rounded-lg text-xs font-bold uppercase tracking-wider px-4">
+                            Sổ tay của tôi
+                            {myNotebooks.length > 0 && (
+                                <span className="ml-2 px-1.5 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-black">{myNotebooks.length}</span>
                             )}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredMyNotebooks.map(nb => (
-                                <NotebookCard
-                                    key={nb.id}
-                                    notebook={nb}
-                                    isOwner
-                                    onOpen={() => { setActiveNotebook(nb); setEntrySearch('') }}
-                                    onDelete={() => handleDeleteNotebook(nb.id)}
-                                    onTogglePublic={() => handleTogglePublic(nb.id)}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
+                        </TabsTrigger>
+                        <TabsTrigger value="explore" className="rounded-lg text-xs font-bold uppercase tracking-wider px-4">
+                            Khám phá
+                            {publicNotebooks.length > 0 && (
+                                <span className="ml-2 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[10px] font-black">{publicNotebooks.length}</span>
+                            )}
+                        </TabsTrigger>
+                    </TabsList>
 
-                {/* EXPLORE */}
-                <TabsContent value="explore" className="mt-6">
-                    {filteredPublicNotebooks.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl bg-muted/5">
-                            <div className="p-4 rounded-full bg-muted/20 mb-4">
-                                <Globe className="size-8 text-muted-foreground/40" />
+                    {/* MY NOTEBOOKS */}
+                    <TabsContent value="my" className="mt-6">
+                        {filteredMyNotebooks.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl bg-muted/5">
+                                <div className="p-4 rounded-full bg-muted/20 mb-4">
+                                    <BookOpen className="size-8 text-muted-foreground/40" />
+                                </div>
+                                {myNotebooks.length === 0 ? (
+                                    <>
+                                        <h3 className="text-lg font-bold text-foreground">Bạn chưa có sổ tay nào</h3>
+                                        <p className="text-sm text-muted-foreground mt-1 mb-4">Tạo sổ tay đầu tiên để bắt đầu ghi chép từ vựng.</p>
+                                        <Button onClick={() => setIsCreateOpen(true)} className="rounded-xl font-bold">
+                                            <Plus className="size-4 mr-2" />Tạo sổ tay đầu tiên
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h3 className="text-lg font-bold text-foreground">Không tìm thấy kết quả</h3>
+                                        <p className="text-sm text-muted-foreground mt-1">Thử tìm kiếm với từ khóa khác.</p>
+                                    </>
+                                )}
                             </div>
-                            <h3 className="text-lg font-bold text-foreground">Chưa có sổ tay công khai</h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                                Các sổ tay được chia sẻ từ cộng đồng sẽ xuất hiện ở đây.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredPublicNotebooks.map(nb => (
-                                <NotebookCard
-                                    key={nb.id}
-                                    notebook={nb}
-                                    isOwner={false}
-                                    onOpen={() => { setActiveNotebook(nb); setEntrySearch('') }}
-                                    onDelete={() => { }}
-                                    onTogglePublic={() => { }}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-            </Tabs>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredMyNotebooks.map(nb => (
+                                    <NotebookCard
+                                        key={nb.id}
+                                        notebook={nb}
+                                        isOwner
+                                        onOpen={() => { setActiveNotebook(nb); setEntrySearch('') }}
+                                        onDelete={() => handleDeleteNotebook(nb.id)}
+                                        onTogglePublic={() => handleTogglePublic(nb.id)}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </TabsContent>
+
+                    {/* EXPLORE */}
+                    <TabsContent value="explore" className="mt-6">
+                        {filteredPublicNotebooks.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl bg-muted/5">
+                                <div className="p-4 rounded-full bg-muted/20 mb-4">
+                                    <Globe className="size-8 text-muted-foreground/40" />
+                                </div>
+                                <h3 className="text-lg font-bold text-foreground">Chưa có sổ tay công khai</h3>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    Các sổ tay được chia sẻ từ cộng đồng sẽ xuất hiện ở đây.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredPublicNotebooks.map(nb => (
+                                    <NotebookCard
+                                        key={nb.id}
+                                        notebook={nb}
+                                        isOwner={false}
+                                        onOpen={() => { setActiveNotebook(nb); setEntrySearch('') }}
+                                        onDelete={() => { }}
+                                        onTogglePublic={() => { }}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </TabsContent>
+                </Tabs>
+            )}
 
             {/* ---- DIALOG: Create Notebook ---- */}
             <Dialog open={isCreateOpen} onOpenChange={v => { setIsCreateOpen(v); if (!v) setNameError('') }}>
@@ -933,7 +940,10 @@ export default function NotesPage() {
 
                     <DialogFooter className="gap-2">
                         <Button variant="outline" onClick={() => setIsCreateOpen(false)} className="rounded-xl">Hủy</Button>
-                        <Button onClick={handleCreateNotebook} className="rounded-xl font-bold px-6">Tạo sổ tay</Button>
+                        <Button onClick={handleCreateNotebook} className="rounded-xl font-bold px-6" disabled={isSaving}>
+                            {isSaving && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
+                            Tạo sổ tay
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -956,7 +966,7 @@ function NotebookCard({
     onTogglePublic: () => void
 }) {
     const lastUpdated = new Date(notebook.updatedAt).toLocaleDateString('vi-VN')
-    const wordCount = notebook.entries.length
+    const wordCount = notebook.entryCount
 
     return (
         <Card className="group relative overflow-hidden transition-all hover:shadow-lg bg-card border-border rounded-2xl h-full shadow-sm flex flex-col cursor-pointer"

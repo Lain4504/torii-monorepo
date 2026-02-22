@@ -34,6 +34,9 @@ import { ExamModule } from '@server/learning/modules/exam/exam.module';
 import { FlashcardDeckModule } from '@server/learning/modules/flashcard-deck/flashcard-deck.module';
 import { FlashcardModule } from '@server/learning/modules/flashcard/flashcard.module';
 
+// Notebook Module
+import { NotebookModule } from '@server/learning/modules/notebook/notebook.module';
+
 // Gamification Module
 import { GamificationModule } from '@server/learning/modules/gamification/gamification.module';
 
@@ -64,6 +67,7 @@ import { AnalyticsHandler } from '@server/learning/interfaces/nats/analytics.han
 import { AssignmentHandler } from '@server/learning/interfaces/nats/assignment.handler';
 import { SubmissionHandler } from '@server/learning/interfaces/nats/submission.handler';
 import { CertificateHandler } from '@server/learning/interfaces/nats/certificate.handler';
+import { NotebookHandler } from '@server/learning/interfaces/nats/notebook.handler';
 
 import { AssignmentModule } from '@server/learning/modules/assignment/assignment.module';
 import { SubmissionModule } from '@server/learning/modules/submission/submission.module';
@@ -106,6 +110,9 @@ import { SubmissionModule } from '@server/learning/modules/submission/submission
     FlashcardDeckModule,
     FlashcardModule,
 
+    // Notebook Module
+    NotebookModule,
+
     // Gamification Module
     GamificationModule,
   ],
@@ -137,6 +144,7 @@ import { SubmissionModule } from '@server/learning/modules/submission/submission
     AssignmentHandler,
     SubmissionHandler,
     CertificateHandler,
+    NotebookHandler,
   ],
   providers: [
     {
