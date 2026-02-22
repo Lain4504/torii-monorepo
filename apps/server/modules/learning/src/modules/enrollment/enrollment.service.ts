@@ -1,6 +1,8 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 
 import {
     type EnrollmentCreateDTO,
@@ -32,6 +34,7 @@ export class EnrollmentService implements IEnrollmentService {
         private readonly certificateService: ICertificateService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
+        @InjectMapper() private readonly mapper: Mapper,
     ) { }
 
     /**
@@ -128,26 +131,7 @@ export class EnrollmentService implements IEnrollmentService {
     }
 
     private toEnrollmentDto(e: any): EnrollmentResponseDTO {
-        return {
-            id: e.id,
-            userId: e.userId,
-            courseId: e.courseId,
-            versionId: e.versionId || undefined,
-            enrollmentDate: e.enrollmentDate,
-            completionStatus: e.completionStatus,
-            completionPercentage: Number(e.completionPercentage),
-            lastAccessedAt: e.lastAccessedAt || undefined,
-            completedAt: e.completedAt || undefined,
-            paymentId: e.paymentId || undefined,
-            couponAppliedId: e.couponAppliedId || undefined,
-            finalPrice: Number(e.finalPrice),
-            isGift: e.isGift || false,
-            giftMessage: e.giftMessage || undefined,
-            senderId: e.senderId || undefined,
-            expiresAt: e.expiresAt || undefined,
-            createdAt: e.createdAt,
-            updatedAt: e.updatedAt,
-        };
+        return this.mapper.map<any, EnrollmentResponseDTO>(e, 'Enrollment', 'EnrollmentResponseDTO');
     }
 
     /**

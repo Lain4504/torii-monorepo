@@ -4,6 +4,7 @@ import { QuestionService } from '@server/learning/modules/question/question.serv
 import { QuestionRepository } from '@server/learning/modules/question/question.repository';
 import { QUESTION_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-question.repository';
 import { QUESTION_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-question.service';
+import { QuestionProfile } from '@server/learning/infrastructure/mappings/question.profile';
 
 /**
  * Question Feature Module
@@ -20,6 +21,7 @@ import { QUESTION_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-q
             provide: QUESTION_SERVICE_TOKEN,
             useClass: QuestionService,
         },
+        QuestionProfile,
     ],
     exports: [QUESTION_SERVICE_TOKEN, QUESTION_REPOSITORY_TOKEN],
 })

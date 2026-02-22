@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import { UserRole } from '@workspace/schemas';
 import type {
   FlashcardDeckCreateDTO,
@@ -20,31 +22,14 @@ export class FlashcardDeckService implements IFlashcardDeckService {
     @Inject(FLASHCARD_DECK_REPOSITORY_TOKEN)
     private readonly deckRepository: IFlashcardDeckRepository,
     private readonly prisma: PrismaService, // Keep for some direct operations if needed
+    @InjectMapper() private readonly mapper: Mapper,
   ) { }
 
   /**
    * Map FlashcardDeck entity to FlashcardDeckResponseDTO
    */
   private toFlashcardDeckResponseDTO(deck: any): FlashcardDeckResponseDTO {
-    return {
-      id: deck.id,
-      userId: deck.userId,
-      name: deck.name,
-      description: deck.description || undefined,
-      jlptLevel: deck.jlptLevel || undefined,
-      isPublic: deck.isPublic,
-      tags: deck.tags || [],
-      cardCount: deck.cardCount,
-      studiedCount: deck.studiedCount,
-      srsSettings: deck.srsSettings || undefined,
-      aiSettings: deck.aiSettings || undefined,
-      sourceType: deck.sourceType || 'manual',
-      lastStudiedAt: deck.lastStudiedAt || undefined,
-      totalStudyTime: deck.totalStudyTime || 0,
-      masteryPercentage: deck.masteryPercentage ? Number(deck.masteryPercentage) : undefined,
-      createdAt: deck.createdAt,
-      updatedAt: deck.updatedAt,
-    };
+    return this.mapper.map<any, FlashcardDeckResponseDTO>(deck, 'FlashcardDeck', 'FlashcardDeckResponseDTO');
   }
 
   /**

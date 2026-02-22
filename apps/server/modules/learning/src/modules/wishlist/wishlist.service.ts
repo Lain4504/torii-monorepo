@@ -1,4 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import {
   type WishlistCreateDTO,
   type WishlistQueryDTO,
@@ -19,15 +21,11 @@ export class WishlistService implements IWishlistService {
 
   constructor(
     private readonly wishlistRepository: WishlistRepository,
+    @InjectMapper() private readonly mapper: Mapper,
   ) { }
 
   private toWishlistDto(w: any): WishlistResponseDTO {
-    return {
-      id: w.id,
-      userId: w.userId,
-      courseId: w.courseId,
-      addedAt: w.addedAt,
-    };
+    return this.mapper.map<any, WishlistResponseDTO>(w, 'Wishlist', 'WishlistResponseDTO');
   }
 
   /**

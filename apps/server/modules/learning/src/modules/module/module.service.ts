@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import type { Module as CourseModule } from '@prisma/generated';
 
 import type {
@@ -31,6 +33,7 @@ export class ModuleService implements IModuleService {
     private readonly courseService: ICourseService,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
+    @InjectMapper() private readonly mapper: Mapper,
   ) { }
 
   /**
@@ -68,20 +71,7 @@ export class ModuleService implements IModuleService {
    * Map Module entity to ModuleResponseDTO
    */
   private toModuleResponseDTO(module: CourseModule): ModuleResponseDTO {
-    return {
-      id: module.id,
-      courseId: module.courseId,
-      title: module.title,
-      description: module.description || undefined,
-      aiMetadata: (module.aiMetadata as any) || undefined,
-      orderIndex: module.orderIndex,
-      status: (module as any).status || 'published',
-      durationMinutes: module.durationMinutes || undefined,
-      createdBy: module.createdBy || undefined,
-      createdAt: module.createdAt,
-      updatedAt: module.updatedAt,
-      deletedAt: module.deletedAt || undefined,
-    };
+    return this.mapper.map<CourseModule, ModuleResponseDTO>(module, 'Module', 'ModuleResponseDTO');
   }
 
   /**
