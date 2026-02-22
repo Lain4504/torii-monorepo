@@ -2,7 +2,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { EXAM_SERVICE_TOKEN, IExamService } from '@server/learning/interfaces/services/i-exam.service';
-import { ExamQueryDTO, ExamCreateDTO, ExamUpdateDTO, ExamSessionAnswersDTO, ExamSessionQueryDTO } from '@workspace/schemas';
+import { ExamQueryDTO, ExamCreateDTO, ExamUpdateDTO, ExamSessionAnswersDTO, ExamSessionQueryDTO, Requester, UserRole } from '@workspace/schemas';
 
 @Controller()
 export class ExamHandler {
@@ -68,30 +68,30 @@ export class ExamHandler {
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.create' })
-    async createAdmin(@Payload() data: ExamCreateDTO & { userId: string, userRole: string }) {
+    async createAdmin(@Payload() data: ExamCreateDTO & { userId: string, userRole: UserRole }) {
         const { userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+        const requester: Requester = { sub: userId, role: userRole, permissions: [] };
         return this.examService.create(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.update' })
-    async updateAdmin(@Payload() data: ExamUpdateDTO & { id: string, userId: string, userRole: string }) {
+    async updateAdmin(@Payload() data: ExamUpdateDTO & { id: string, userId: string, userRole: UserRole }) {
         const { id, userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+        const requester: Requester = { sub: userId, role: userRole, permissions: [] };
         return this.examService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.delete' })
-    async deleteAdmin(@Payload() data: { id: string, userId: string, userRole: string }) {
+    async deleteAdmin(@Payload() data: { id: string, userId: string, userRole: UserRole }) {
         const { id, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+        const requester: Requester = { sub: userId, role: userRole, permissions: [] };
         return this.examService.delete(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.publish' })
-    async publishAdmin(@Payload() data: { id: string, userId: string, userRole: string }) {
+    async publishAdmin(@Payload() data: { id: string, userId: string, userRole: UserRole }) {
         const { id, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+        const requester: Requester = { sub: userId, role: userRole, permissions: [] };
         return this.examService.publish(requester, id);
     }
 

@@ -55,8 +55,12 @@ export class NotificationHandler {
     }
 
     @MessagePattern({ cmd: 'communication.notification.findAll' })
-    async findAll(@Payload() payload: { userId: string; query: any }) {
-        return this.notificationService.findAll(payload.userId, payload.query);
+    async findAll(@Payload() payload: { userId: string; query: { page?: number; limit?: number; isRead?: boolean;[key: string]: any } }) {
+        return this.notificationService.findAll(payload.userId, {
+            page: payload.query.page ?? 1,
+            limit: payload.query.limit ?? 10,
+            isRead: payload.query.isRead,
+        });
     }
 
     @MessagePattern({ cmd: 'communication.notification.getUnreadCount' })

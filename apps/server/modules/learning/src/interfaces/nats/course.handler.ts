@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { COURSE_SERVICE_TOKEN, ICourseService } from '@server/learning/interfaces/services';
-import { CourseCreateDTO, CourseUpdateDTO, Requester } from '@workspace/schemas';
+import { CourseCreateDTO, CourseUpdateDTO, Requester, UserRole } from '@workspace/schemas';
 
 @Controller()
 export class CourseHandler {
@@ -14,7 +14,7 @@ export class CourseHandler {
         const { instructorId, userEmail, ...dto } = data;
         const requester: Requester & { email: string } = {
             sub: instructorId,
-            role: 'STAFF' as any,
+            role: UserRole.STAFF,
             email: userEmail,
             permissions: []
         };
@@ -52,11 +52,11 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.update' })
-    async update(@Payload() data: CourseUpdateDTO & { id: string, userId: string, userRole: string, userEmail: string, userPermissions?: string[] }) {
+    async update(@Payload() data: CourseUpdateDTO & { id: string, userId: string, userRole: UserRole, userEmail: string, userPermissions?: string[] }) {
         const { id, userId, userRole, userEmail, userPermissions, ...dto } = data;
         const requester: Requester & { email: string } = {
             sub: userId,
-            role: userRole as any,
+            role: userRole,
             email: userEmail,
             permissions: userPermissions || []
         };
@@ -64,11 +64,11 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.delete' })
-    async delete(@Payload() data: { id: string, hardDelete?: boolean, userId: string, userRole: string, userEmail: string, userPermissions?: string[] }) {
+    async delete(@Payload() data: { id: string, hardDelete?: boolean, userId: string, userRole: UserRole, userEmail: string, userPermissions?: string[] }) {
         const { id, hardDelete, userId, userRole, userEmail, userPermissions } = data;
         const requester: Requester & { email: string } = {
             sub: userId,
-            role: userRole as any,
+            role: userRole,
             email: userEmail,
             permissions: userPermissions || []
         };
@@ -76,11 +76,11 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.publish' })
-    async publish(@Payload() data: { id: string, userId: string, userRole: string, userEmail: string, userPermissions?: string[] }) {
+    async publish(@Payload() data: { id: string, userId: string, userRole: UserRole, userEmail: string, userPermissions?: string[] }) {
         const { id, userId, userRole, userEmail, userPermissions } = data;
         const requester: Requester & { email: string } = {
             sub: userId,
-            role: userRole as any,
+            role: userRole,
             email: userEmail,
             permissions: userPermissions || []
         };
@@ -88,11 +88,11 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.submitForReview' })
-    async submitForReview(@Payload() data: { id: string, userId: string, userRole: string, userEmail: string, userPermissions?: string[] }) {
+    async submitForReview(@Payload() data: { id: string, userId: string, userRole: UserRole, userEmail: string, userPermissions?: string[] }) {
         const { id, userId, userRole, userEmail, userPermissions } = data;
         const requester: Requester & { email: string } = {
             sub: userId,
-            role: userRole as any,
+            role: userRole,
             email: userEmail,
             permissions: userPermissions || []
         };
@@ -103,18 +103,18 @@ export class CourseHandler {
     async updateLiveConfig(@Payload() data: { id: string, config: any, userId: string, userPermissions?: string[] }) {
         const requester: Requester = {
             sub: data.userId,
-            role: 'LECTURER' as any,
+            role: UserRole.LECTURER,
             permissions: data.userPermissions || [],
         };
         return this.courseService.updateLiveConfig(requester, data.id, data.config);
     }
 
     @MessagePattern({ cmd: 'learning.course.unpublish' })
-    async unpublish(@Payload() data: { id: string, userId: string, userRole: string, userEmail: string, userPermissions?: string[] }) {
+    async unpublish(@Payload() data: { id: string, userId: string, userRole: UserRole, userEmail: string, userPermissions?: string[] }) {
         const { id, userId, userRole, userEmail, userPermissions } = data;
         const requester: Requester & { email: string } = {
             sub: userId,
-            role: userRole as any,
+            role: userRole,
             email: userEmail,
             permissions: userPermissions || []
         };
@@ -122,11 +122,11 @@ export class CourseHandler {
     }
 
     @MessagePattern({ cmd: 'learning.course.reject' })
-    async reject(@Payload() data: { id: string, userId: string, userRole: string, userEmail: string, reason: string, userPermissions?: string[] }) {
+    async reject(@Payload() data: { id: string, userId: string, userRole: UserRole, userEmail: string, reason: string, userPermissions?: string[] }) {
         const { id, userId, userRole, userEmail, reason, userPermissions } = data;
         const requester: Requester & { email: string } = {
             sub: userId,
-            role: userRole as any,
+            role: userRole,
             email: userEmail,
             permissions: userPermissions || []
         };
