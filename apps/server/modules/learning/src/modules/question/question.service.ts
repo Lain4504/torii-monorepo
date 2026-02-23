@@ -6,6 +6,8 @@ import {
     BadRequestException,
     ForbiddenException,
 } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import type { Question } from '@prisma/generated';
 import {
     QuestionStatus,
@@ -34,32 +36,14 @@ export class QuestionService implements IQuestionService {
     constructor(
         @Inject(QUESTION_REPOSITORY_TOKEN)
         private readonly questionRepository: IQuestionRepository,
+        @InjectMapper() private readonly mapper: Mapper,
     ) { }
 
     /**
      * Map Question entity to QuestionResponseDTO
      */
     private toQuestionDto(question: Question): QuestionResponseDTO {
-        return {
-            id: question.id,
-            poolId: question.poolId || undefined,
-            questionText: question.questionText,
-            questionType: question.questionType as QuestionType,
-            jlptLevel: question.jlptLevel as any,
-            category: question.category as any,
-            subcategory: question.subcategory || undefined,
-            difficulty: question.difficulty as any,
-            options: question.options as any,
-            correctAnswer: question.correctAnswer || undefined,
-            explanation: question.explanation || undefined,
-            metadata: question.metadata as any,
-            tags: question.tags || [],
-            createdBy: question.createdBy || undefined,
-            status: question.status as QuestionStatus,
-            usageCount: question.usageCount,
-            createdAt: question.createdAt,
-            updatedAt: question.updatedAt,
-        };
+        return this.mapper.map<Question, QuestionResponseDTO>(question, 'Question', 'QuestionResponseDTO');
     }
 
     /**

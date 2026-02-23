@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { LessonMaterialProfile } from '@server/learning/infrastructure/mappings/lesson-material.profile';
 import { NatsClientModule, SharedStorageModule } from '@server/shared';
 import { LessonMaterialService } from '@server/learning/modules/lesson-material/lesson-material.service';
 import { LessonMaterialRepository } from '@server/learning/modules/lesson-material/lesson-material.repository';
@@ -27,6 +28,7 @@ import { ModuleModule } from '@server/learning/modules/module/module.module';
             provide: LESSON_MATERIAL_SERVICE_TOKEN,
             useClass: LessonMaterialService,
         },
+        LessonMaterialProfile,
     ],
     exports: [LESSON_MATERIAL_SERVICE_TOKEN, LESSON_MATERIAL_REPOSITORY_TOKEN],
 })

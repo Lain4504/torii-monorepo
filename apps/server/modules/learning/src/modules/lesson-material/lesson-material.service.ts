@@ -1,4 +1,6 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@server/shared';
@@ -33,6 +35,7 @@ export class LessonMaterialService implements ILessonMaterialService {
         private readonly enrollmentService: IEnrollmentService,
         @Inject(MODULE_REPOSITORY_TOKEN)
         private readonly moduleRepository: IModuleRepository,
+        @InjectMapper() private readonly mapper: Mapper,
     ) { }
 
     /**
@@ -41,30 +44,6 @@ export class LessonMaterialService implements ILessonMaterialService {
     private hasPermission(requester: Requester, permission: string): boolean {
         if (!requester.permissions) return false;
         return requester.permissions.includes('*') || requester.permissions.includes(permission);
-    }
-
-    /**
-     * Map LessonMaterial entity to LessonMaterialResponseDTO
-     */
-    private toLessonMaterialResponseDTO(material: any): LessonMaterialResponseDTO {
-        return {
-            id: material.id,
-            lessonId: material.lessonId,
-            fileAssetId: material.fileAssetId,
-            type: material.type,
-            title: material.title || null,
-            orderIndex: material.orderIndex,
-            createdBy: material.createdBy,
-            createdAt: material.createdAt,
-            updatedAt: material.updatedAt,
-            fileAsset: {
-                id: material.fileAsset.id,
-                fileUrl: material.fileAsset.fileUrl,
-                mimeType: material.fileAsset.mimeType,
-                fileSize: material.fileAsset.fileSize,
-                status: material.fileAsset.status,
-            },
-        };
     }
 
     /**
@@ -195,7 +174,7 @@ export class LessonMaterialService implements ILessonMaterialService {
 
             this.logger.log(`Material uploaded for lesson ${dto.lessonId} by user ${requester.sub}`);
 
-            return this.toLessonMaterialResponseDTO(material);
+            return this.mapper.map<any, LessonMaterialResponseDTO>(material, 'LessonMaterial', 'LessonMaterialResponseDTO');
         } catch (error: any) {
             if (error instanceof NotFoundException || error instanceof BadRequestException || error instanceof ForbiddenException) {
                 throw error;
@@ -216,7 +195,7 @@ export class LessonMaterialService implements ILessonMaterialService {
         await this.checkReadAccess(lessonId, requester);
 
         const materials = await this.lessonMaterialRepository.findByLessonId(lessonId);
-        return materials.map(material => this.toLessonMaterialResponseDTO(material));
+        return materials.map(material => this.mapper.map<any, LessonMaterialResponseDTO>(material, 'LessonMaterial', 'LessonMaterialResponseDTO'));
     }
 
     /**
@@ -244,11 +223,11 @@ export class LessonMaterialService implements ILessonMaterialService {
             if (dto.type !== undefined) updateData.type = dto.type;
 
             if (Object.keys(updateData).length === 0) {
-                return this.toLessonMaterialResponseDTO(existing);
+                return this.mapper.map<any, LessonMaterialResponseDTO>(existing, 'LessonMaterial', 'LessonMaterialResponseDTO');
             }
 
             const updated = await this.lessonMaterialRepository.update(materialId, updateData);
-            return this.toLessonMaterialResponseDTO(updated);
+            return this.mapper.map<any, LessonMaterialResponseDTO>(updated, 'LessonMaterial', 'LessonMaterialResponseDTO');
         } catch (error: any) {
             this.logger.error('Error updating lesson material', error);
             throw new BadRequestException(`Failed to update material: ${error?.message || 'Unknown error'}`);

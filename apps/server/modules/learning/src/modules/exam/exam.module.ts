@@ -4,6 +4,7 @@ import { ExamService } from '@server/learning/modules/exam/exam.service';
 import { ExamRepository } from '@server/learning/modules/exam/exam.repository';
 import { EXAM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-exam.repository';
 import { EXAM_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-exam.service';
+import { ExamProfile } from '@server/learning/infrastructure/mappings/exam.profile';
 
 /**
  * Exam Feature Module
@@ -21,6 +22,7 @@ import { EXAM_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-exam.
             provide: EXAM_SERVICE_TOKEN,
             useClass: ExamService,
         },
+        ExamProfile,
     ],
     exports: [EXAM_SERVICE_TOKEN, EXAM_REPOSITORY_TOKEN],
 })

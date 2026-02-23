@@ -2,6 +2,8 @@ import { Injectable, Logger, Inject } from "@nestjs/common";
 import { RpcException } from '@nestjs/microservices';
 import { PrismaService } from "@server/shared";
 import { FlashcardDifficulty, FlashcardGenerationMethod } from "@workspace/schemas";
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { SrsAlgorithmService } from '@server/learning/modules/flashcard/srs-algorithm.service';
 import type {
     FlashcardCreateDTO,
@@ -63,6 +65,7 @@ export class FlashcardService implements IFlashcardService {
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         private readonly prisma: PrismaService, // Still used for complex multi-table ops like initial progress
         private readonly srsAlgorithm: SrsAlgorithmService,
+        @InjectMapper() private readonly mapper: Mapper,
     ) {
     }
 
@@ -204,7 +207,7 @@ export class FlashcardService implements IFlashcardService {
                 }
             });
 
-            return this.mapToProto(flashcard);
+            return this.mapper.map(flashcard, 'Flashcard', 'FlashcardResponseDTO');
         } catch (error: any) {
             if (error instanceof RpcException) {
                 throw error;
@@ -295,7 +298,7 @@ export class FlashcardService implements IFlashcardService {
             ]);
 
             return {
-                data: flashcards.map(fc => this.mapToProto(fc)),
+                data: this.mapper.mapArray(flashcards, 'Flashcard', 'FlashcardResponseDTO'),
                 total,
                 page,
                 limit,
@@ -368,7 +371,7 @@ export class FlashcardService implements IFlashcardService {
 
             const updated = await this.flashcardRepository.update(id, updateData);
 
-            return this.mapToProto(updated);
+            return this.mapper.map(updated, 'Flashcard', 'FlashcardResponseDTO');
         } catch (error: any) {
             if (error instanceof RpcException) {
                 throw error;
@@ -414,7 +417,7 @@ export class FlashcardService implements IFlashcardService {
                 });
             }
 
-            return this.mapToProto(flashcard);
+            return this.mapper.map(flashcard, 'Flashcard', 'FlashcardResponseDTO');
         } catch (error: any) {
             if (error instanceof RpcException) throw error;
             this.logger.error(`Error getting flashcard by id: ${error.message}`, error.stack);
@@ -477,43 +480,5 @@ export class FlashcardService implements IFlashcardService {
         };
     }
 
-    private mapToProto(fc: any): FlashcardResponseDTO {
-        return {
-            id: fc.id,
-            deckId: fc.deckId,
-            frontText: fc.frontText,
-            backText: fc.backText,
-            exampleSentence: fc.exampleSentence || undefined,
-            pronunciation: fc.pronunciation || undefined,
-            imageUrl: fc.imageUrl || undefined,
-            audioUrl: fc.audioUrl || undefined,
-            tags: fc.tags || [],
-            difficulty: toDifficultyLevel(fc.difficulty),
-            // Japanese-specific fields
-            furigana: fc.furigana || undefined,
-            kanji: fc.kanji || undefined,
-            partOfSpeech: fc.partOfSpeech || undefined,
-            wordJlptLevel: fc.wordJlptLevel || undefined,
-            meanings: fc.meanings || [],
-            // AI Integration fields
-            aiGenerated: fc.aiGenerated || false,
-            sourceDocumentId: fc.sourceDocumentId || undefined,
-            generationMethod: fc.generationMethod || FlashcardGenerationMethod.MANUAL,
-            generationMetadata: fc.generationMetadata || {},
-            // Metadata
-            notes: fc.notes || undefined,
-            isArchived: fc.isArchived || false,
-            // Global stats (for compatibility/analytics)
-            nextReviewDate: fc.nextReviewDate || undefined,
-            intervalDays: fc.intervalDays || 0,
-            easeFactor: Number(fc.easeFactor) || 2.5,
-            reviewCount: fc.reviewCount || 0,
-            correctCount: fc.correctCount || 0,
-            lastReviewDate: fc.lastReviewDate || undefined,
-            timesStudied: fc.timesStudied || 0,
-            createdAt: fc.createdAt,
-            updatedAt: fc.updatedAt
-        };
-    }
 }
 

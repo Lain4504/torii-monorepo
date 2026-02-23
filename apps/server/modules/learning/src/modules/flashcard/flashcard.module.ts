@@ -12,11 +12,13 @@ import { FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '@server/learning/interfaces/r
 import { FLASHCARD_REVIEW_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-review.service';
 import { FLASHCARD_REVIEW_SESSION_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-flashcard-review-session.service';
 import { FlashcardDeckModule } from '@server/learning/modules/flashcard-deck/flashcard-deck.module';
+import { FlashcardProfile } from '@server/learning/infrastructure/mappings/flashcard.profile';
 
 @Module({
     imports: [SharedModule, FlashcardDeckModule, NatsClientModule],
     controllers: [],
     providers: [
+        FlashcardProfile,
         {
             provide: FLASHCARD_REPOSITORY_TOKEN,
             useClass: FlashcardRepository,

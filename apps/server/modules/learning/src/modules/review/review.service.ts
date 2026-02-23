@@ -11,6 +11,8 @@ import { ReviewRepository } from '@server/learning/modules/review/review.reposit
 import type { IReviewService } from '@server/learning/interfaces/services';
 import type { IEnrollmentRepository } from '@server/learning/interfaces/repositories';
 import { ENROLLMENT_REPOSITORY_TOKEN } from '@server/learning/interfaces';
+import { InjectMapper } from '@automapper/nestjs';
+import type { Mapper } from '@automapper/core';
 
 @Injectable()
 export class ReviewService implements IReviewService {
@@ -20,27 +22,8 @@ export class ReviewService implements IReviewService {
     private readonly reviewRepository: ReviewRepository,
     @Inject(ENROLLMENT_REPOSITORY_TOKEN)
     private readonly enrollmentRepository: IEnrollmentRepository,
+    @InjectMapper() private readonly mapper: Mapper,
   ) { }
-
-  /**
-   * Map Review entity to ReviewResponseDTO
-   */
-  private toReviewResponseDto(review: any): ReviewResponseDTO {
-    return {
-      id: review.id,
-      userId: review.userId,
-      courseId: review.courseId,
-      rating: review.rating,
-      comment: review.comment || undefined,
-      createdAt: review.createdAt,
-      updatedAt: review.updatedAt,
-      user: {
-        id: review.user.id,
-        displayName: review.user.displayName,
-        avatarUrl: review.user.avatarUrl || undefined,
-      },
-    };
-  }
 
   /**
    * Get all reviews with pagination
@@ -87,9 +70,9 @@ export class ReviewService implements IReviewService {
 
       return {
         data: reviews.map((review) => ({
-          ...this.toReviewResponseDto(review),
-          courseTitle: review.course?.title,
-          courseSlug: (review.course as any)?.slug
+          ...this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO'),
+          courseTitle: (review as any).course?.title,
+          courseSlug: (review as any).course?.slug,
         })),
         total,
         page: pageNum,
@@ -134,7 +117,9 @@ export class ReviewService implements IReviewService {
       const totalPages = Math.ceil(total / limitNum);
 
       return {
-        data: reviews.map((review) => this.toReviewResponseDto(review)),
+        data: reviews.map((review) =>
+          this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO'),
+        ),
         total,
         page: pageNum,
         limit: limitNum,
@@ -203,7 +188,6 @@ export class ReviewService implements IReviewService {
     input: ReviewCreateDTO,
   ): Promise<ReviewResponseDTO> {
     try {
-      // Check if course exists
       const course = await this.reviewRepository.findCourse(courseId);
 
       if (!course) {
@@ -213,7 +197,6 @@ export class ReviewService implements IReviewService {
         });
       }
 
-      // Check if user is enrolled in the course
       const enrollment = await this.enrollmentRepository.findByUserAndCourse(
         userId,
         courseId,
@@ -229,7 +212,6 @@ export class ReviewService implements IReviewService {
         });
       }
 
-      // Check if user already reviewed this course
       const existingReview = await this.reviewRepository.findByUserAndCourse(
         userId,
         courseId,
@@ -242,7 +224,6 @@ export class ReviewService implements IReviewService {
         });
       }
 
-      // Create review
       const review = await this.reviewRepository.create({
         userId,
         courseId,
@@ -250,10 +231,9 @@ export class ReviewService implements IReviewService {
         comment: input.comment || null,
       });
 
-      // Update course averageRating and totalReviews
       await this.updateCourseRatingStats(courseId);
 
-      return this.toReviewResponseDto(review);
+      return this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO');
     } catch (error: any) {
       this.logger.error('Error creating review', error);
       if (error instanceof RpcException) {
@@ -286,7 +266,6 @@ export class ReviewService implements IReviewService {
       );
     } catch (error: any) {
       this.logger.error('Failed to update course rating stats', error);
-      // Don't throw - this is a background update
     }
   }
 
@@ -305,8 +284,8 @@ export class ReviewService implements IReviewService {
       }
 
       return {
-        ...this.toReviewResponseDto(review),
-        courseTitle: review.course?.title
+        ...this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO'),
+        courseTitle: (review as any).course?.title,
       };
     } catch (error: any) {
       this.logger.error(`Failed to find review ${id}`, error);
@@ -334,7 +313,6 @@ export class ReviewService implements IReviewService {
         });
       }
 
-      // Check if user owns this review
       if (review.userId !== userId) {
         throw new RpcException({
           status: 403,
@@ -346,7 +324,6 @@ export class ReviewService implements IReviewService {
 
       await this.reviewRepository.delete(reviewId);
 
-      // Update course rating stats
       await this.updateCourseRatingStats(courseId);
 
       return true;
@@ -362,4 +339,3 @@ export class ReviewService implements IReviewService {
     }
   }
 }
-
