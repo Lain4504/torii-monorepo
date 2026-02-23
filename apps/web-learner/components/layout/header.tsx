@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
 import { logout } from '@/store/slices/authSlice'
 import { Button } from '@workspace/ui/components/button'
@@ -17,7 +18,9 @@ import {
     X,
     LayoutDashboard,
     Coins,
-    Sparkles,
+    BadgeCheck,
+    Bell,
+    Heart,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
@@ -68,38 +71,35 @@ export function Header() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 max-w-7xl">
                 <div className="flex h-16 items-center justify-between gap-4">
-                    {/* Brand + Nav */}
-                    <div className="flex items-center gap-8">
-                        <Link href="/" className="flex items-center gap-3 shrink-0">
-                            <div className="size-9 rounded-lg bg-primary flex items-center justify-center">
-                                <Sparkles className="size-5 text-primary-foreground" />
-                            </div>
-                            <span className="font-bold text-lg tracking-tight">
-                                Torii <span className="text-primary">Nihongo</span>
-                            </span>
-                        </Link>
+                    {/* Brand */}
+                    <Link href="/" className="flex items-center gap-2.5 shrink-0">
+                        <Image src="/logo.png" alt="Torii Nihongo" width={36} height={36} className="rounded-lg" />
+                        <span className="font-bold text-lg tracking-tight hidden sm:inline">
+                            Torii <span className="text-primary">Nihongo</span>
+                        </span>
+                    </Link>
 
-                        <nav className="hidden lg:flex items-center gap-2">
-                            {navigation.map((item) => (
-                                <Button
-                                    key={item.name}
-                                    asChild
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-muted-foreground"
-                                >
-                                    <Link href={item.href}>
-                                        {item.name}
-                                    </Link>
-                                </Button>
-                            ))}
-                        </nav>
-                    </div>
+                    {/* Nav - Centered */}
+                    <nav className="hidden lg:flex items-center justify-center flex-1 gap-2">
+                        {navigation.map((item) => (
+                            <Button
+                                key={item.name}
+                                asChild
+                                variant="ghost"
+                                size="sm"
+                                className="text-muted-foreground hover:text-foreground font-medium transition-colors"
+                            >
+                                <Link href={item.href}>
+                                    {item.name}
+                                </Link>
+                            </Button>
+                        ))}
+                    </nav>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 shrink-0 justify-end">
                         {/* Balance */}
                         {isAuthenticated && (
                             <Link href="/dashboard/wallet" className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-md bg-muted text-xs font-bold border hover:bg-muted/80 transition-colors">
@@ -108,21 +108,6 @@ export function Header() {
                             </Link>
                         )}
 
-                        {/* Theme Toggle */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                    <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                                    <span className="sr-only">Toggle theme</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setTheme('light')}>Chế độ Sáng</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setTheme('dark')}>Chế độ Tối</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setTheme('system')}>Theo Hệ thống</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
 
                         {/* User Menu / Auth Buttons */}
                         {isAuthenticated ? (
@@ -136,35 +121,52 @@ export function Header() {
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-64">
-                                    <DropdownMenuLabel className="font-normal">
+                                <DropdownMenuContent className="w-64 p-2 shadow-md" align="end" forceMount>
+                                    <DropdownMenuLabel className="font-normal px-2 pb-3">
                                         <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-bold leading-none">{user?.displayName}</p>
-                                            <p className="text-xs text-muted-foreground truncate font-medium">{user?.email}</p>
+                                            <p className="text-sm font-bold leading-none">{user?.displayName || 'Người dùng'}</p>
+                                            <p className="text-xs leading-none text-muted-foreground font-medium">
+                                                {user?.email || 'Học viên'}
+                                            </p>
                                         </div>
                                     </DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/dashboard">
-                                                <LayoutDashboard className="mr-2 size-4" />
-                                                <span>Dashboard</span>
-                                            </Link>
+                                    <DropdownMenuSeparator className="mx-2 mb-2" />
+                                    <DropdownMenuGroup className="space-y-1">
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard')}>
+                                            <LayoutDashboard className="mr-3 size-4 text-primary" />
+                                            <span>Dashboard</span>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/dashboard/settings">
-                                                <Settings className="mr-2 size-4" />
-                                                <span>Cài đặt tài khoản</span>
-                                            </Link>
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/profile')}>
+                                            <BadgeCheck className="mr-3 size-4 text-primary" />
+                                            <span>Hồ sơ cá nhân</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/notifications')}>
+                                            <Bell className="mr-3 size-4 text-muted-foreground" />
+                                            <span>Thông báo</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/wishlist')}>
+                                            <Heart className="mr-3 size-4 text-muted-foreground" />
+                                            <span>Khóa học yêu thích</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/settings')}>
+                                            <Settings className="mr-3 size-4 text-muted-foreground" />
+                                            <span>Cài đặt tài khoản</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
-                                    <DropdownMenuSeparator />
+                                    <DropdownMenuSeparator className="mx-2 my-2" />
+                                    <DropdownMenuGroup className="space-y-1">
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                                            {theme === 'dark' ? <Sun className="mr-3 size-4 text-muted-foreground" /> : <Moon className="mr-3 size-4 text-muted-foreground" />}
+                                            <span>Đổi giao diện ({theme === 'dark' ? 'Sáng' : 'Tối'})</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator className="mx-2 my-2" />
                                     <DropdownMenuItem
                                         onClick={handleLogout}
                                         disabled={isLoggingOut}
-                                        className="text-destructive focus:text-destructive"
+                                        className="cursor-pointer text-destructive focus:text-destructive py-2 font-medium"
                                     >
-                                        <LogOut className="mr-2 size-4" />
+                                        <LogOut className="mr-3 size-4" />
                                         {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>

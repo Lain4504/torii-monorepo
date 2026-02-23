@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { GraduationCap, LayoutDashboard, History, Bot } from "lucide-react"
+import { LayoutDashboard, History, Bot } from "lucide-react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 
 import { NavMain } from "@/components/layout/nav-main"
 import { NavLearning } from "@/components/layout/nav-learning"
@@ -43,8 +44,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                             )}
                         >
-                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm shrink-0">
-                                <GraduationCap className="size-5" />
+                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg shrink-0">
+                                <Image src="/logo.png" alt="Torii Nihongo" width={32} height={32} className="rounded-lg" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
                                 <span className="truncate font-bold text-base text-foreground">Torii Nihongo</span>
@@ -58,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent className="scrollbar-none py-2">
                 {isAISenseiPath ? (
                     <>
-                         <SidebarGroup className="group-data-[collapsible=icon]:px-0">
+                        <SidebarGroup className="group-data-[collapsible=icon]:px-0">
                             <SidebarMenu>
                                 <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
                                     <SidebarMenuButton
@@ -87,7 +88,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <SidebarGroupContent>
                                 <SidebarMenu>
                                     <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
-                                        <SidebarMenuButton 
+                                        <SidebarMenuButton
                                             className={cn(
                                                 "h-10 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                                                 "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"

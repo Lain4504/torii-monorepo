@@ -1,7 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { type ReactNode } from 'react'
 import { ChevronLeft } from 'lucide-react'
-import { Separator } from '@workspace/ui/components/separator'
 import {
     Card,
     CardContent,
@@ -28,20 +28,18 @@ interface AuthLayoutProps {
 
 /** Logo dùng chung */
 export function ToriiLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
-    const iconSize = size === 'sm' ? 'size-8' : 'size-10'
-    const svgSize = size === 'sm' ? 'size-5' : 'size-6'
+    const imgSize = size === 'sm' ? 32 : 40
     const textSize = size === 'sm' ? 'text-lg' : 'text-xl'
 
     return (
         <Link href="/" className="flex items-center gap-3 group transition-opacity hover:opacity-90">
-            <div className={`${iconSize} bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20`}>
-                <svg className={`${svgSize} text-white`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M3 10h18" strokeLinecap="round" />
-                    <path d="M5 10v8" strokeLinecap="round" />
-                    <path d="M19 10v8" strokeLinecap="round" />
-                    <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-                </svg>
-            </div>
+            <Image
+                src="/logo.png"
+                alt="Torii Nihongo"
+                width={imgSize}
+                height={imgSize}
+                className="rounded-xl"
+            />
             <span className={`${textSize} font-bold tracking-tight`}>
                 Torii <span className="text-primary">Nihongo</span>
             </span>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Facebook, Youtube, Instagram, Mail, MapPin, Sparkles } from 'lucide-react'
+import Image from 'next/image'
+import { Facebook, Youtube, Instagram, Mail, MapPin } from 'lucide-react'
 import { Separator } from '@workspace/ui/components/separator'
 import { Button } from '@workspace/ui/components/button'
 
@@ -46,14 +47,12 @@ export function Footer() {
 
     return (
         <footer className="border-t bg-background pt-16 pb-12">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 max-w-7xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
                     {/* Brand */}
                     <div className="lg:col-span-2 space-y-6">
                         <Link href="/" className="flex items-center gap-3">
-                            <div className="size-9 rounded-lg bg-primary flex items-center justify-center">
-                                <Sparkles className="size-5 text-primary-foreground" />
-                            </div>
+                            <Image src="/logo.png" alt="Torii Nihongo" width={36} height={36} className="rounded-lg" />
                             <span className="font-bold text-lg tracking-tight">
                                 Torii <span className="text-primary">Nihongo</span>
                             </span>
