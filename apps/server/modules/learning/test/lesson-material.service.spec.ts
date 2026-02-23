@@ -4,6 +4,11 @@ import { LESSON_MATERIAL_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '@serv
 import { ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
+import { getMapperToken } from '@automapper/nestjs';
+
+const mockMapper = {
+    map: jest.fn().mockImplementation((val) => val),
+};
 
 describe('LessonMaterialService', () => {
     let service: LessonMaterialService;
@@ -67,6 +72,7 @@ describe('LessonMaterialService', () => {
                 { provide: MODULE_REPOSITORY_TOKEN, useValue: mockModuleRepository },
                 { provide: 'NATS_SERVICE', useValue: mockNatsClient },
                 { provide: PrismaService, useValue: mockPrisma },
+                { provide: getMapperToken(), useValue: mockMapper },
             ],
         }).compile();
 

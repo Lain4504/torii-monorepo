@@ -4,6 +4,11 @@ import { MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositorie
 import { COURSE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UserRole } from '@workspace/schemas';
+import { getMapperToken } from '@automapper/nestjs';
+
+const mockMapper = {
+    map: jest.fn().mockImplementation((val) => val),
+};
 
 describe('ModuleService', () => {
     let service: ModuleService;
@@ -41,6 +46,7 @@ describe('ModuleService', () => {
                 { provide: MODULE_REPOSITORY_TOKEN, useValue: mockModuleRepository },
                 { provide: COURSE_SERVICE_TOKEN, useValue: mockCourseService },
                 { provide: 'NATS_SERVICE', useValue: mockNatsClient },
+                { provide: getMapperToken(), useValue: mockMapper },
             ],
         }).compile();
 

@@ -30,7 +30,7 @@ describe('FeedService', () => {
     };
 
     const mockMapper = {
-        map: jest.fn(),
+        map: jest.fn().mockImplementation((val) => val),
     };
 
     beforeEach(async () => {

@@ -4,7 +4,12 @@ import { LIVE_SESSION_REPOSITORY_TOKEN, COURSE_REPOSITORY_TOKEN } from '@server/
 import { PrismaService } from '@server/shared';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { UserRole, LiveSessionStatus } from '@workspace/schemas';
+import { getMapperToken } from '@automapper/nestjs';
 import { of } from 'rxjs';
+
+const mockMapper = {
+    map: jest.fn().mockImplementation((val) => val),
+};
 
 describe('LiveSessionService', () => {
     let service: LiveSessionService;
@@ -44,6 +49,7 @@ describe('LiveSessionService', () => {
                 { provide: COURSE_REPOSITORY_TOKEN, useValue: mockCourseRepository },
                 { provide: PrismaService, useValue: mockPrismaService },
                 { provide: 'NATS_SERVICE', useValue: mockNatsClient },
+                { provide: getMapperToken(), useValue: mockMapper },
             ],
         }).compile();
 
@@ -69,10 +75,10 @@ describe('LiveSessionService', () => {
 
         it('should allow staff/admin to join without enrollment checks', async () => {
             const admin = { sub: 'admin-1', role: UserRole.ADMIN, permissions: ['*'] };
-            mockLiveSessionRepository.findById.mockResolvedValue({ 
-                id: sessionId, 
-                courseId, 
-                meetingId: 'm1', 
+            mockLiveSessionRepository.findById.mockResolvedValue({
+                id: sessionId,
+                courseId,
+                meetingId: 'm1',
                 title: 'Session',
                 status: (LiveSessionStatus as any).LIVE
             });
@@ -84,9 +90,9 @@ describe('LiveSessionService', () => {
         });
 
         it('should throw ForbiddenException if enrollment has expired', async () => {
-            mockLiveSessionRepository.findById.mockResolvedValue({ 
-                id: sessionId, 
-                courseId, 
+            mockLiveSessionRepository.findById.mockResolvedValue({
+                id: sessionId,
+                courseId,
                 meetingId: 'm1',
                 status: (LiveSessionStatus as any).LIVE
             });
@@ -103,10 +109,10 @@ describe('LiveSessionService', () => {
         it('should throw ForbiddenException if course has not started yet', async () => {
             const futureDate = new Date();
             futureDate.setDate(futureDate.getDate() + 1);
-            
-            mockLiveSessionRepository.findById.mockResolvedValue({ 
-                id: sessionId, 
-                courseId, 
+
+            mockLiveSessionRepository.findById.mockResolvedValue({
+                id: sessionId,
+                courseId,
                 meetingId: 'm1',
                 status: (LiveSessionStatus as any).LIVE
             });
@@ -125,10 +131,10 @@ describe('LiveSessionService', () => {
             const pastDate = new Date();
             pastDate.setDate(pastDate.getDate() - 1);
 
-            mockLiveSessionRepository.findById.mockResolvedValue({ 
-                id: sessionId, 
-                courseId, 
-                meetingId: 'm1', 
+            mockLiveSessionRepository.findById.mockResolvedValue({
+                id: sessionId,
+                courseId,
+                meetingId: 'm1',
                 title: 'Session',
                 status: (LiveSessionStatus as any).LIVE
             });

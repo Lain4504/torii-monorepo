@@ -92,7 +92,7 @@ describe('CommentService', () => {
                 {
                     provide: getMapperToken(),
                     useValue: {
-                        map: jest.fn(),
+                        map: jest.fn().mockImplementation((val) => val),
                     },
                 },
                 {
