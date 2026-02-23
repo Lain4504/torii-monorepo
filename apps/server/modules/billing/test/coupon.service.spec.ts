@@ -162,6 +162,30 @@ describe('CouponService', () => {
             expect(result.isValid).toBe(false);
             expect(result.message).toBe('You have reached the usage limit for this coupon');
         });
+
+        it('should handle database error during findByCode', async () => {
+            couponRepository.findByCode.mockRejectedValue(new Error('Fetch Error'));
+            await expect(service.validateCoupon('CODE', userId, 100)).rejects.toThrow('Fetch Error');
+        });
+
+        it('should handle database error during checkUserUsage', async () => {
+            couponRepository.findByCode.mockResolvedValue(mockCoupon as any);
+            couponRepository.checkUserUsage.mockRejectedValue(new Error('Usage Check Error'));
+            await expect(service.validateCoupon('CODE', userId, 100)).rejects.toThrow('Usage Check Error');
+        });
+
+        it('should be valid if now is exactly validFrom', async () => {
+            const now = new Date();
+            couponRepository.findByCode.mockResolvedValue({
+                ...mockCoupon,
+                validFrom: now,
+                validUntil: new Date(now.getTime() + 100000)
+            } as any);
+            couponRepository.checkUserUsage.mockResolvedValue(0);
+
+            const result = await service.validateCoupon('CODE', userId, 100);
+            expect(result.isValid).toBe(true);
+        });
     });
 
     describe('redeemCoupon', () => {
@@ -197,6 +221,25 @@ describe('CouponService', () => {
 
             await expect(service.redeemCoupon(code, userId, orderAmount)).rejects.toThrow(BadRequestException);
             expect(redisClient.del).toHaveBeenCalled(); // Ensure lock is released even on error
+        });
+
+        it('should throw InternalServerErrorException if coupon is missing after validation', async () => {
+            redisClient.set.mockResolvedValue('OK');
+            // Mock validateCoupon to return isValid: true but no coupon
+            jest.spyOn(service, 'validateCoupon').mockResolvedValue({ isValid: true } as any);
+
+            await expect(service.redeemCoupon(code, userId, orderAmount)).rejects.toThrow(InternalServerErrorException);
+            expect(redisClient.del).toHaveBeenCalled();
+        });
+
+        it('should throw error if incrementUsage fails and release lock', async () => {
+            redisClient.set.mockResolvedValue('OK');
+            couponRepository.findByCode.mockResolvedValue(mockCoupon as any);
+            couponRepository.checkUserUsage.mockResolvedValue(0);
+            couponRepository.incrementUsage.mockRejectedValue(new Error('Increment Failed'));
+
+            await expect(service.redeemCoupon(code, userId, orderAmount)).rejects.toThrow('Increment Failed');
+            expect(redisClient.del).toHaveBeenCalled();
         });
     });
 
@@ -284,6 +327,11 @@ describe('CouponService', () => {
                 })
             );
         });
+
+        it('should throw error if repository create fails', async () => {
+            couponRepository.create.mockRejectedValue(new Error('Creation Failed'));
+            await expect(service.createRedeemedCoupon({} as any)).rejects.toThrow('Creation Failed');
+        });
     });
 
     describe('getCouponsForUser', () => {
@@ -321,6 +369,17 @@ describe('CouponService', () => {
             const result = await service.getCouponsForUser(userId);
 
             expect(result).toHaveLength(0);
+        });
+
+        it('should throw error if findCouponsForUser fails', async () => {
+            couponRepository.findCouponsForUser.mockRejectedValue(new Error('Fetch Error'));
+            await expect(service.getCouponsForUser(userId)).rejects.toThrow('Fetch Error');
+        });
+
+        it('should throw error if checkUserUsage fails during filtering', async () => {
+            couponRepository.findCouponsForUser.mockResolvedValue([{ id: 'c1', userUsageLimit: 1 }] as any);
+            couponRepository.checkUserUsage.mockRejectedValue(new Error('Check Error'));
+            await expect(service.getCouponsForUser(userId)).rejects.toThrow('Check Error');
         });
     });
 });
