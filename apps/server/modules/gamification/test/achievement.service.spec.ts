@@ -88,6 +88,17 @@ describe('AchievementService', () => {
             expect(result[1].isUnlocked).toBe(false);
             expect(prisma.achievement.findMany).toHaveBeenCalled();
         });
+
+        it('should throw error if ensureAchievementsExist fails', async () => {
+            prisma.achievement.upsert.mockRejectedValue(new Error('Upsert Failed'));
+            await expect(service.getUserAchievements(mockUserId)).rejects.toThrow('Upsert Failed');
+        });
+
+        it('should handle failure in findMany achievements', async () => {
+            prisma.achievement.upsert.mockResolvedValue({});
+            prisma.achievement.findMany.mockRejectedValue(new Error('Fetch Error'));
+            await expect(service.getUserAchievements(mockUserId)).rejects.toThrow('Fetch Error');
+        });
     });
 
     describe('checkStreakAchievements', () => {
@@ -112,6 +123,45 @@ describe('AchievementService', () => {
 
             expect(prisma.lessonProgress.count).toHaveBeenCalled();
             expect(unlockSpy).toHaveBeenCalledWith(mockUserId, 'FIRST_LESSON');
+        });
+
+        it('should handle database error when counting lessons', async () => {
+            prisma.lessonProgress.count.mockRejectedValue(new Error('Count Error'));
+            await expect(service.checkLessonAchievements(mockUserId)).rejects.toThrow('Count Error');
+        });
+    });
+
+    describe('checkCourseAchievements', () => {
+        it('should unlock course achievements based on count', async () => {
+            prisma.enrollment.count.mockResolvedValue(1);
+            const unlockSpy = jest.spyOn(service as any, 'unlockAchievement').mockResolvedValue(undefined);
+
+            await service.checkCourseAchievements(mockUserId);
+
+            expect(prisma.enrollment.count).toHaveBeenCalled();
+            expect(unlockSpy).toHaveBeenCalledWith(mockUserId, 'FIRST_COURSE');
+        });
+
+        it('should handle database error when counting courses', async () => {
+            prisma.enrollment.count.mockRejectedValue(new Error('Course DB Error'));
+            await expect(service.checkCourseAchievements(mockUserId)).rejects.toThrow('Course DB Error');
+        });
+    });
+
+    describe('checkFlashcardAchievements', () => {
+        it('should unlock flashcard achievements based on count', async () => {
+            prisma.flashcardReview.count.mockResolvedValue(100);
+            const unlockSpy = jest.spyOn(service as any, 'unlockAchievement').mockResolvedValue(undefined);
+
+            await service.checkFlashcardAchievements(mockUserId);
+
+            expect(prisma.flashcardReview.count).toHaveBeenCalled();
+            expect(unlockSpy).toHaveBeenCalledWith(mockUserId, 'FLASHCARD_100');
+        });
+
+        it('should handle database error when counting reviews', async () => {
+            prisma.flashcardReview.count.mockRejectedValue(new Error('Flashcard DB Error'));
+            await expect(service.checkFlashcardAchievements(mockUserId)).rejects.toThrow('Flashcard DB Error');
         });
     });
 
@@ -169,6 +219,59 @@ describe('AchievementService', () => {
 
             expect(prisma.userAchievement.upsert).not.toHaveBeenCalled();
             expect(natsClient.emit).not.toHaveBeenCalled();
+        });
+
+        it('should return early if achievement findUnique returns null', async () => {
+            prisma.achievement.upsert.mockResolvedValue({});
+            prisma.achievement.findUnique.mockResolvedValue(null);
+
+            await service.unlockAchievement(mockUserId, 'INVALID_CODE');
+
+            expect(prisma.userAchievement.findUnique).not.toHaveBeenCalled();
+        });
+
+        it('should handle database error while checking existing unlock', async () => {
+            const mockAchievement = { id: 'ach-1', code: 'STREAK_3', isActive: true };
+            prisma.achievement.upsert.mockResolvedValue({});
+            prisma.achievement.findUnique.mockResolvedValue(mockAchievement);
+            prisma.userAchievement.findUnique.mockRejectedValue(new Error('Selection Error'));
+
+            await expect(service.unlockAchievement(mockUserId, 'STREAK_3')).rejects.toThrow('Selection Error');
+        });
+
+        it('should handle error during userAchievement upsert', async () => {
+            const mockAchievement = { id: 'ach-1', code: 'STREAK_3', isActive: true, rewards: {} };
+            prisma.achievement.upsert.mockResolvedValue({});
+            prisma.achievement.findUnique.mockResolvedValue(mockAchievement);
+            prisma.userAchievement.findUnique.mockResolvedValue(null);
+            prisma.userAchievement.upsert.mockRejectedValue(new Error('Update Error'));
+
+            await expect(service.unlockAchievement(mockUserId, 'STREAK_3')).rejects.toThrow('Update Error');
+        });
+
+        it('should propagate natsClient emit failure', async () => {
+            const mockAchievement = { id: 'ach-1', code: 'STREAK_3', isActive: true, title: 'T', rewards: {} };
+            prisma.achievement.upsert.mockResolvedValue({});
+            prisma.achievement.findUnique.mockResolvedValue(mockAchievement);
+            prisma.userAchievement.findUnique.mockResolvedValue(null);
+            prisma.userAchievement.upsert.mockResolvedValue({});
+            natsClient.emit.mockImplementation(() => { throw new Error('NATS Fail'); });
+
+            await expect(service.unlockAchievement(mockUserId, 'STREAK_3')).rejects.toThrow('NATS Fail');
+        });
+
+        it('should handle failure in applying rewards (gamification upsert)', async () => {
+            const mockAchievement = {
+                id: 'ach-1', code: 'STREAK_3', isActive: true, title: 'T',
+                rewards: { freezeCount: 1 }
+            };
+            prisma.achievement.upsert.mockResolvedValue({});
+            prisma.achievement.findUnique.mockResolvedValue(mockAchievement);
+            prisma.userAchievement.findUnique.mockResolvedValue(null);
+            prisma.userAchievement.upsert.mockResolvedValue({});
+            prisma.userGamification.upsert.mockRejectedValue(new Error('Rewards Error'));
+
+            await expect(service.unlockAchievement(mockUserId, 'STREAK_3')).rejects.toThrow('Rewards Error');
         });
     });
 });
