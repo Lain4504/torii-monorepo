@@ -19,7 +19,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/api/services/notifications'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notifications'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 import { PageHeader } from '@/components/common/page-header'
 

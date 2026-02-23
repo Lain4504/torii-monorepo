@@ -8,7 +8,7 @@ import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { toast } from '@workspace/ui/components/sonner';
 import { ShieldCheck, ArrowLeft } from 'lucide-react';
-import { apiClient } from '@/api/api-client';
+import { apiClient } from '@/lib/api/api-client';
 import type { StandardApiResponse } from '@workspace/schemas';
 import { useAppDispatch } from '@/hooks/hooks';
 import { setAuthenticated, setUser } from '@/store/slices/auth-slice';

@@ -9,8 +9,8 @@ import {
     Search,
 } from 'lucide-react';
 import { Input } from "@workspace/ui/components/input";
-import { useQuestionPool } from '@/api/services/question-pools';
-import { useQuestionsByPool } from '@/api/services/questions';
+import { useQuestionPool } from '@/lib/api/services/question-pools';
+import { useQuestionsByPool } from '@/lib/api/services/questions';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { PageHeader } from '@/components/common/page-header';

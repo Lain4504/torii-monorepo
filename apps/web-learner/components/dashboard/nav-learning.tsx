@@ -6,7 +6,7 @@ import { Progress } from "@workspace/ui/components/progress"
 import { cn } from "@workspace/ui/lib/utils"
 import { useState } from "react"
 import { CourseExpirationModal } from "@/components/courses/course-expiration-modal"
-import { useMyCourses } from "../../apis/services/learning-progress-api"
+import { useMyCourses } from "@/lib/api/services/learning-progress-api"
 import { SidebarGroup, SidebarGroupLabel, useSidebar } from "@workspace/ui/components/sidebar"
 
 export function NavLearning() {

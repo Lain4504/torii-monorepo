@@ -3,7 +3,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { StopCircle, ChevronDown, ChevronUp, FileVideo, BarChart3 } from "lucide-react";
 import { formatDateTime } from "@/lib/format-utils";
-import { type RoomInfo, type PastRoomInfo } from "@/api/services/rooms";
+import { type RoomInfo, type PastRoomInfo } from "@/lib/api/services/rooms";
 
 // --- Active Rooms Columns ---
 

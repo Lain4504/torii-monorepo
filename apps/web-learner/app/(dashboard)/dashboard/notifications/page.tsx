@@ -13,7 +13,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/apis/services/notification-api'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notification-api'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
 interface Notification {

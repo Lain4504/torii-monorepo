@@ -22,7 +22,7 @@ import {
 } from '@workspace/ui/components/field';
 
 import { toast } from '@workspace/ui/components/sonner';
-import { useUpdateModule } from "@/api/services/modules.ts";
+import { useUpdateModule } from "@/lib/api/services/modules.ts";
 import { Save } from 'lucide-react';
 import { Spinner } from "@workspace/ui/components/spinner";
 

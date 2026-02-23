@@ -29,7 +29,7 @@ import {
   Terminal,
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
-import { usePlatformOverview } from "../../api/services/analytics"
+import { usePlatformOverview } from "@/lib/api/services/analytics"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { Badge } from "@workspace/ui/components/badge"
 import { ButtonGroup } from "@workspace/ui/components/button-group"

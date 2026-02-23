@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
-import { useCourseAssignments, type AssignmentResponseDTO } from '@/apis/services/assignment-api';
+import { useCourseAssignments, type AssignmentResponseDTO } from '@/lib/api/services/assignment-api';
 import { AssignmentSubmission } from './assignment-submission';
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment';
 

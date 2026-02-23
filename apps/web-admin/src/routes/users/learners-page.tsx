@@ -7,7 +7,7 @@ import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { useUsers } from "@/api/services/users.ts";
+import { useUsers } from "@/lib/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 
 

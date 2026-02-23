@@ -27,7 +27,7 @@ import {
 import { Input } from "@workspace/ui/components/input";
 import { Button } from "@workspace/ui/components/button";
 import { Textarea } from "@workspace/ui/components/textarea";
-import { useGradeSubmission, useReturnSubmission } from "@/api/services/submissions";
+import { useGradeSubmission, useReturnSubmission } from "@/lib/api/services/submissions";
 import { toast } from "@workspace/ui/components/sonner";
 import { FileText, Download, ExternalLink, PenLine } from "lucide-react";
 

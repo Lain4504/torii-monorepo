@@ -22,7 +22,7 @@ import {
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
-import { useOrderPayments } from '@/api/services/finance';
+import { useOrderPayments } from '@/lib/api/services/finance';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
 

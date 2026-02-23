@@ -1,7 +1,7 @@
 import { Star, Trash2 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { cn } from '@workspace/ui/lib/utils'
-import { ReviewResponse } from '@/apis/services/review-api'
+import { ReviewResponse } from '@/lib/api/services/review-api'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ReviewItem } from './review-item'
-import { reviewApi, ReviewResponse } from '@/apis/services/review-api'
+import { reviewApi, ReviewResponse } from '@/lib/api/services/review-api'
 import { MessageSquareOff } from 'lucide-react'
 import {
     AlertDialog,

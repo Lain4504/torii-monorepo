@@ -9,7 +9,7 @@ import { CouponsPrimaryToolbar } from '@/components/coupons/coupons-primary-tool
 import { Can } from '@/lib/guard/can';
 
 
-import { useCoupons } from '@/api/services/coupons';
+import { useCoupons } from '@/lib/api/services/coupons';
 import { CouponsTable } from '@/components/coupons/coupons-table';
 import type { CouponResponseDTO } from '@workspace/schemas';
 import { CouponStatus } from '@workspace/schemas';

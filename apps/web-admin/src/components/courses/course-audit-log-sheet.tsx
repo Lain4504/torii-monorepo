@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@workspace/ui/components/sheet';
 import { formatDateTime } from '@/lib/format-utils';
-import { type AuditLog, useEntityActivity } from "@/api/services/audit-logs.ts";
+import { type AuditLog, useEntityActivity } from "@/lib/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';

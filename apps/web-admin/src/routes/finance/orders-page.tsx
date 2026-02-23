@@ -19,7 +19,7 @@ import {
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { PageHeader } from '@/components/common/page-header';
 import { OrderDetailSheet } from '@/components/finance/order-detail-sheet';
-import { useOrders, useOrderStats } from '@/api/services/finance';
+import { useOrders, useOrderStats } from '@/lib/api/services/finance';
 import { XCircle } from 'lucide-react';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { cn } from "@workspace/ui/lib/utils";

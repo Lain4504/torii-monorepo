@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '@/store';
-import { apiClient, extractErrorMessage } from '@/api/api-client.ts';
+import { apiClient, extractErrorMessage } from '@/lib/api/api-client.ts';
 import type { UserResponseDTO, UserLoginDTO } from '@workspace/schemas';
 import type { AxiosError } from 'axios';
 

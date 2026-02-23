@@ -7,7 +7,7 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Award, CheckCircle2, Download, Home, BookOpen } from 'lucide-react'
-import { courseApi } from '@/apis/services/course-api'
+import { courseApi } from '@/lib/api/services/course-api'
 
 export default function CourseCompletionPage() {
     const params = useParams()

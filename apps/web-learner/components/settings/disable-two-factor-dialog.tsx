@@ -15,7 +15,7 @@ import { Input } from '@workspace/ui/components/input';
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
 import { AlertTriangle, Lock } from 'lucide-react';
-import { useDisableTotp } from '@/apis/services/two-factor-auth-api';
+import { useDisableTotp } from '@/lib/api/services/two-factor-auth-api';
 import { Spinner } from '@workspace/ui/components/spinner'
 
 const disableSchema = z.object({

@@ -11,7 +11,7 @@ import {
 import { cn } from '@workspace/ui/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/apis/services/notification-api'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/api/services/notification-api'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
 type UINotificationType = 'info' | 'success' | 'warning' | 'error';

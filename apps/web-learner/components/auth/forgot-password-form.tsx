@@ -9,7 +9,7 @@ import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { CheckCircle2 } from 'lucide-react'
-import { useForgotPassword } from '@/apis/services/auth-api'
+import { useForgotPassword } from '@/lib/api/services/auth-api'
 import { Spinner } from '@workspace/ui/components/spinner'
 
 const forgotPasswordSchema = z.object({

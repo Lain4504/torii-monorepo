@@ -11,7 +11,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { toast } from '@workspace/ui/components/sonner';
 import { Key, Download, Copy, Check, AlertTriangle } from 'lucide-react';
-import { useRegenerateBackupCodes } from '@/api/services/two-factor-auth';
+import { useRegenerateBackupCodes } from '@/lib/api/services/two-factor-auth';
 import { Spinner } from "@workspace/ui/components/spinner";
 
 interface BackupCodesDialogProps {

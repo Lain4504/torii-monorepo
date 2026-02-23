@@ -10,7 +10,7 @@ import {
   usePastRooms,
   useEndRoom,
   type RoomInfo,
-} from '@/api/services/rooms';
+} from '@/lib/api/services/rooms';
 import { formatDateTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 import { PageHeader } from '@/components/common/page-header';

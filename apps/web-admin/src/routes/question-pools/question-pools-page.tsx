@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import type { QuestionPoolQueryDTO, QuestionPoolResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import { useQuestionPools } from "@/api/services/question-pools.ts";
+import { useQuestionPools } from "@/lib/api/services/question-pools.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { Plus, TriangleAlert } from 'lucide-react';

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLeaderboard } from '@/apis/services/gamification-api'
+import { useLeaderboard } from '@/lib/api/services/gamification-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { useAppSelector } from '@/hooks/hooks'
 

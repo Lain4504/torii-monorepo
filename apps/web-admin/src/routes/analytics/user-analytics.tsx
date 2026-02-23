@@ -16,7 +16,7 @@ import {
     MapPin
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
-import { useUserAnalytics } from "../../api/services/analytics"
+import { useUserAnalytics } from "@/lib/api/services/analytics"
 import {
     AreaChart,
     Area,

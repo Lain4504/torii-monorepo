@@ -33,7 +33,7 @@ import {
 import {
   useGenerateTotpSecret,
   useEnableTotp,
-} from "@/api/services/two-factor-auth";
+} from "@/lib/api/services/two-factor-auth";
 import { Spinner } from "@workspace/ui/components/spinner";
 
 const verifyCodeSchema = z.object({

@@ -25,8 +25,8 @@ import {
   useSaveDraft,
   assignmentApi,
   type SubmitAssignmentDto,
-} from '@/apis/services/assignment-api';
-import { storageApi } from '@/apis/services/storage-api';
+} from '@/lib/api/services/assignment-api';
+import { storageApi } from '@/lib/api/services/storage-api';
 
 interface AssignmentSubmissionProps {
   assignmentId: string;

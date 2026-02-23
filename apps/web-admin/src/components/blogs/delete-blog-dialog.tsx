@@ -11,7 +11,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useDeleteBlog } from "@/api/services/blog.ts";
+import { useDeleteBlog } from "@/lib/api/services/blog.ts";
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { Spinner } from "@workspace/ui/components/spinner";
 

@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { feedApi } from '@/apis/services/feed-api'
+import { feedApi } from '@/lib/api/services/feed-api'
 import type { FeedResponseDTO } from '@workspace/schemas'
 
 interface FeedSidebarProps {

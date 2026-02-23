@@ -1,6 +1,6 @@
 'use client'
 
-import { useExams } from '@/apis/services/exam-api'
+import { useExams } from '@/lib/api/services/exam-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Card } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'

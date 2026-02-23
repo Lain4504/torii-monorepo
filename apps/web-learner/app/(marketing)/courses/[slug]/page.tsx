@@ -4,7 +4,7 @@ import { CourseInstructor } from "@/components/courses/course-instructor"
 import { CourseReviews } from "@/components/courses/course-reviews"
 import { CourseSidebar } from "@/components/courses/course-sidebar"
 import { CheckCircle2, Sparkles, BookOpen, GraduationCap } from "lucide-react"
-import { courseApi } from "@/apis/services/course-api"
+import { courseApi } from "@/lib/api/services/course-api"
 import { notFound } from "next/navigation"
 
 interface CourseDetailPageProps {

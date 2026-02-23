@@ -17,7 +17,7 @@ import {
     FieldLabel,
 } from "@workspace/ui/components/field";
 import { Textarea } from "@workspace/ui/components/textarea";
-import { useRejectCourse } from "@/api/services/courses";
+import { useRejectCourse } from "@/lib/api/services/courses";
 import type { CourseResponseDTO } from "@workspace/schemas";
 import { toast } from "@workspace/ui/components/sonner";
 import { Spinner } from "@workspace/ui/components/spinner";

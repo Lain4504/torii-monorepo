@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { Badge } from "@workspace/ui/components/badge"
-import { useCourseAnalytics, usePlatformOverview } from "../../api/services/analytics"
+import { useCourseAnalytics, usePlatformOverview } from "@/lib/api/services/analytics"
 import {
     BarChart,
     Bar,

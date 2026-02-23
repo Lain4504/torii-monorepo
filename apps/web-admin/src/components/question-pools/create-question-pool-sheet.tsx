@@ -20,8 +20,8 @@ import {
 } from '@workspace/ui/components/field';
 import { Plus, Info } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateQuestionPool } from '@/api/services/question-pools.ts';
-import { useCourses } from '@/api/services/courses.ts';
+import { useCreateQuestionPool } from '@/lib/api/services/question-pools.ts';
+import { useCourses } from '@/lib/api/services/courses.ts';
 import {
     QuestionJlptLevel,
     questionPoolCreateDTOSchema,

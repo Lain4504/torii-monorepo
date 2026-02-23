@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 import { Separator } from '@workspace/ui/components/separator'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { useQuery } from '@tanstack/react-query'
-import { reviewApi } from '@/apis/services/review-api'
+import { reviewApi } from '@/lib/api/services/review-api'
 
 interface Testimonial {
     name: string

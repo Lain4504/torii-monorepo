@@ -35,7 +35,7 @@ import { TiptapEditor } from "@workspace/ui/components/tiptap-editor";
 import { MultiFileUpload } from "@/components/common/multi-file-upload";
 import type { CreateAssignmentDto } from "@workspace/schemas";
 import { AssignmentType } from "@workspace/schemas";
-import { useCreateAssignment } from "@/api/services/assignments";
+import { useCreateAssignment } from "@/lib/api/services/assignments";
 import { toast } from "@workspace/ui/components/sonner";
 import { Paperclip, Info } from "lucide-react";
 import { Textarea } from "@workspace/ui/components/textarea";

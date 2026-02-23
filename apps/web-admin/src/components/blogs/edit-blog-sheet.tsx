@@ -39,8 +39,8 @@ import { cn } from '@workspace/ui/lib/utils';
 import { X, Save, CalendarIcon } from 'lucide-react';
 import { blogUpdateDTOSchema, BlogStatus, type BlogUpdateDTO, type BlogResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { storageApi } from '@/api/services/storage-api.ts';
-import { useUpdateBlog } from "@/api/services/blog.ts";
+import { storageApi } from '@/lib/api/services/storage-api.ts';
+import { useUpdateBlog } from "@/lib/api/services/blog.ts";
 import { Spinner } from "@workspace/ui/components/spinner";
 
 const editBlogSchema = blogUpdateDTOSchema.omit({

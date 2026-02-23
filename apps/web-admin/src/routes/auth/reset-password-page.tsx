@@ -17,7 +17,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { authApi } from '@/api/services/auth'
+import { authApi } from '@/lib/api/services/auth'
 
 const resetPasswordSchema = z.object({
     password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),

@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@workspace/ui/components/select"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentTestGenerationResponseDTO as TestGenerationResponse, AgentTestEvaluationResponseDTO as TestEvaluationResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"

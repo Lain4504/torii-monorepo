@@ -8,7 +8,7 @@ import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { toast } from '@workspace/ui/components/sonner';
 import { CheckCircle2, ShieldCheck, ArrowLeft } from 'lucide-react';
-import { authApi } from '@/api/services/auth';
+import { authApi } from '@/lib/api/services/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { Spinner } from "@workspace/ui/components/spinner";
 

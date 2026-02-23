@@ -16,7 +16,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import { Archive, BarChart3, Download, Video } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
-import { type PastRoomInfo } from '@/api/services/rooms';
+import { type PastRoomInfo } from '@/lib/api/services/rooms';
 import { getPastRoomsColumns } from './rooms-columns';
 
 interface PastRoomsTableProps {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Shield, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 
-import { use2FAStatus } from '@/apis/services/two-factor-auth-api';
+import { use2FAStatus } from '@/lib/api/services/two-factor-auth-api';
 import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@workspace/ui/components/button'
 import { Video } from 'lucide-react'
-import { liveSessionApi } from '@/apis/services/live-session-api'
+import { liveSessionApi } from '@/lib/api/services/live-session-api'
 import type { LiveSessionResponseDTO } from '@workspace/schemas'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'

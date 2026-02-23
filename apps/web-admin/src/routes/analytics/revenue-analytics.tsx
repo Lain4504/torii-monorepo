@@ -29,9 +29,9 @@ import {
     Download
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
-import { usePlatformOverview } from "../../api/services/analytics"
+import { usePlatformOverview } from "@/lib/api/services/analytics"
 import { formatDateTime } from "@/lib/format-utils"
-import { reportApi } from "../../api/services/reports"
+import { reportApi } from "@/lib/api/services/reports"
 import {
     AreaChart,
     Area,

@@ -5,7 +5,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Award, Download, Share2, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
-import { useCertificates } from '@/apis/services/certificate-api'
+import { useCertificates } from '@/lib/api/services/certificate-api'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import type { CertificateResponseDTO } from '@workspace/schemas'
 

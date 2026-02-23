@@ -14,7 +14,7 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { UserRole } from '@workspace/schemas';
 import { userAdminUpdateDTOSchema, type UserAdminUpdateDTO } from '@workspace/schemas';
 import { toast } from 'sonner';
-import { useUpdateUser } from "@/api/services/users.ts";
+import { useUpdateUser } from "@/lib/api/services/users.ts";
 import { Spinner } from "@workspace/ui/components/spinner";
 
 type UpdateUserFormData = UserAdminUpdateDTO;

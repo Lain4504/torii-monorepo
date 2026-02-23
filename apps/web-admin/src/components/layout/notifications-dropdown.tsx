@@ -8,7 +8,7 @@ import {
 } from '@workspace/ui/components/dropdown-menu';
 import { cn } from '@workspace/ui/lib/utils';
 import { formatRelativeTime } from '@/lib/format-utils';
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/api/services/notifications';
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/api/services/notifications';
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas';
 
 // UI Notification type

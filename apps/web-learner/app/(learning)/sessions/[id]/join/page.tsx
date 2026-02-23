@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, Video } from 'lucide-react';
-import { liveSessionApi } from '@/apis/services/live-session-api';
+import { liveSessionApi } from '@/lib/api/services/live-session-api';
 import { Spinner } from '@workspace/ui/components/spinner'
 
 interface JoinSessionPageProps {

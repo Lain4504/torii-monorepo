@@ -10,7 +10,7 @@ import { Menu, X } from "lucide-react"
 import { ExamTimer } from "@/components/exams/take/exam-timer"
 import { QuestionArea, Question } from "@/components/exams/take/question-area"
 import { QuestionNavigator } from "@/components/exams/take/question-navigator"
-import { startExam, saveExamAnswers, submitExam } from "@/apis/services/exam-api"
+import { startExam, saveExamAnswers, submitExam } from "@/lib/api/services/exam-api"
 import type { ExamSessionStartResponseDTO, ExamSessionAnswersDTO } from '@workspace/schemas'
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import {

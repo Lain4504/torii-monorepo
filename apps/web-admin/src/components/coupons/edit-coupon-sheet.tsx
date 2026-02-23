@@ -26,7 +26,7 @@ import { format } from 'date-fns';
 import { X, Ticket, CalendarIcon, Percent, DollarSign, AlertCircle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { CouponDiscountType, CouponStatus, type CouponResponseDTO, type CouponUpdateDTO } from '@workspace/schemas';
-import { useUpdateCoupon } from "@/api/services/coupons";
+import { useUpdateCoupon } from "@/lib/api/services/coupons";
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 import { Spinner } from "@workspace/ui/components/spinner";
 

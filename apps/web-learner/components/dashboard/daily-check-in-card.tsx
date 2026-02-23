@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Flame, Snowflake, Calendar, TrendingUp, BookOpen } from "lucide-react";
-import { useStreak } from "@/apis/services/gamification-api";
+import { useStreak } from "@/lib/api/services/gamification-api";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { Skeleton } from "@workspace/ui/components/skeleton";

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 import { Calendar, BookOpen, Clock, ArrowRight, ChevronRight } from 'lucide-react'
 
-import { useLearningHistory } from '../../../../apis/services/learning-progress-api'
+import { useLearningHistory } from '@/lib/api/services/learning-progress-api'
 import { Button } from '@workspace/ui/components/button'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'

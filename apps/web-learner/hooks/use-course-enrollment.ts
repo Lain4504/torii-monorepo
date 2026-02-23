@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { enrollmentApi } from '@/apis/services/enrollment-api'
-import { wishlistApi } from '@/apis/services/wishlist-api'
+import { enrollmentApi } from '@/lib/api/services/enrollment-api'
+import { wishlistApi } from '@/lib/api/services/wishlist-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
 import { useRouter } from 'next/navigation'

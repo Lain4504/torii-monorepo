@@ -26,7 +26,7 @@ import {
 import type { FeedResponseDTO } from '@workspace/schemas'
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
-import { feedApi } from '@/apis/services/feed-api'
+import { feedApi } from '@/lib/api/services/feed-api'
 import { toast } from '@workspace/ui/components/sonner'
 import { FeedEditPostDialog } from './feed-edit-post-dialog'
 

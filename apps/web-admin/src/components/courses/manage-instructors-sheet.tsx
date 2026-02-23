@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useBoolean } from '@workspace/ui/hooks/use-boolean';
-import { useAssignLecturer, useCourseInstructors, useUnassignLecturer, useUpdatePrimaryInstructor } from '@/api/services/course-instructors';
+import { useAssignLecturer, useCourseInstructors, useUnassignLecturer, useUpdatePrimaryInstructor } from '@/lib/api/services/course-instructors';
 import {
     Empty,
     EmptyContent,
@@ -26,7 +26,7 @@ import { User as UserIcon, Trash2, Crown, Plus } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import { toast } from '@workspace/ui/components/sonner';
 import { type CourseResponseDTO, UserRole, InstructorRole } from '@workspace/schemas';
-import { useUsers } from '@/api/services/users';
+import { useUsers } from '@/lib/api/services/users';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Field, FieldLabel } from '@workspace/ui/components/field';
 import { cn } from '@workspace/ui/lib/utils';

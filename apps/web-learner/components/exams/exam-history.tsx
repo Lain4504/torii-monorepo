@@ -13,7 +13,7 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Eye, Inbox, FileText, Calendar, Sparkles } from "lucide-react"
-import { getExamAttempts } from "@/apis/services/exam-api"
+import { getExamAttempts } from "@/lib/api/services/exam-api"
 import type { ExamSessionWithExamResponseDTO } from '@workspace/schemas'
 import { ExamSessionStatus } from '@workspace/schemas'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Shield, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Skeleton } from '@workspace/ui/components/skeleton';
-import { use2FAStatus } from '@/api/services/two-factor-auth';
+import { use2FAStatus } from '@/lib/api/services/two-factor-auth';
 import {
     Card,
     CardHeader,

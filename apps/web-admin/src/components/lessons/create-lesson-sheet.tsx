@@ -22,10 +22,10 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { storageApi } from '@/api/services/storage-api.ts';
+import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateLesson } from "@/api/services/lesson";
+import { useCreateLesson } from "@/lib/api/services/lesson";
 import { Plus } from 'lucide-react';
 import { Spinner } from "@workspace/ui/components/spinner";
 

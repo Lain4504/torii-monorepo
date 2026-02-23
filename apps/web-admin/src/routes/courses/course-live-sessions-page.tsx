@@ -17,8 +17,8 @@ import {
     useStartLiveSession,
     useEndLiveSession,
     liveSessionsApi
-} from '@/api/services/live-sessions';
-import { useCourse } from '@/api/services/courses';
+} from '@/lib/api/services/live-sessions';
+import { useCourse } from '@/lib/api/services/courses';
 import { formatDateTime } from '@/lib/format-utils';
 import {
     DropdownMenu,

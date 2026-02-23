@@ -6,7 +6,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@workspace/ui/components/card"
 import { Progress } from "@workspace/ui/components/progress"
 import Link from "next/link"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentReadinessProfileResponseDTO as ReadinessProfileResponse } from "@workspace/schemas"
 
 export function AssessmentDashboard() {

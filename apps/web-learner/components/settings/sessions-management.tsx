@@ -4,7 +4,7 @@ import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from '@workspace/ui
 import { useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Spinner } from '@workspace/ui/components/spinner';
-import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/apis/services/session-api';
+import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/lib/api/services/session-api';
 import { toast } from '@workspace/ui/components/sonner';
 import { Clock, LogOut } from 'lucide-react';
 

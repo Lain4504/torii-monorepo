@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update layout and styling for user and module sheets">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/forgot-password-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/forgot-password-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add reset password functionality and update identity URLs" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -397,15 +390,7 @@
       <workItem from="1771723455405" duration="49000" />
       <workItem from="1771745712088" duration="114000" />
       <workItem from="1771745913938" duration="13000" />
-      <workItem from="1771816089601" duration="1130000" />
-    </task>
-    <task id="LOCAL-00806" summary="update NATS logic and improve error handling">
-      <option name="closed" value="true" />
-      <created>1770038541123</created>
-      <option name="number" value="00806" />
-      <option name="presentableId" value="LOCAL-00806" />
-      <option name="project" value="LOCAL" />
-      <updated>1770038541123</updated>
+      <workItem from="1771816089601" duration="1438000" />
     </task>
     <task id="LOCAL-00807" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
@@ -791,7 +776,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771723497169</updated>
     </task>
-    <option name="localTasksCounter" value="855" />
+    <task id="LOCAL-00855" summary="feat: add reset password functionality and update identity URLs">
+      <option name="closed" value="true" />
+      <created>1771817516446</created>
+      <option name="number" value="00855" />
+      <option name="presentableId" value="LOCAL-00855" />
+      <option name="project" value="LOCAL" />
+      <updated>1771817516446</updated>
+    </task>
+    <option name="localTasksCounter" value="856" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -826,7 +819,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update config" />
     <MESSAGE value="update config#2" />
     <MESSAGE value="refactor: simplify comments in file handling logic" />
     <MESSAGE value="refactor: streamline workspace.xml configuration" />
@@ -851,7 +843,8 @@
     <MESSAGE value="rules" />
     <MESSAGE value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
     <MESSAGE value="refactor: update layout and styling for user and module sheets" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update layout and styling for user and module sheets" />
+    <MESSAGE value="feat: add reset password functionality and update identity URLs" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add reset password functionality and update identity URLs" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

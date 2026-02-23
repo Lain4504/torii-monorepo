@@ -10,7 +10,7 @@ import {
 } from '@workspace/ui/components/alert-dialog';
 import type { LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useDeleteLesson } from "@/api/services/lesson.ts";
+import { useDeleteLesson } from "@/lib/api/services/lesson.ts";
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Spinner } from "@workspace/ui/components/spinner";

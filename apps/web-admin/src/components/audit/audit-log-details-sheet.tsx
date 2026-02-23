@@ -21,7 +21,7 @@ import { Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from '@workspace/ui/components/sonner';
 import { formatDateTime } from '@/lib/format-utils';
-import type { AuditLog } from "@/api/services/audit-logs.ts";
+import type { AuditLog } from "@/lib/api/services/audit-logs.ts";
 
 export const ENTITY_MAP: Record<string, string> = {
     user: "Người dùng",

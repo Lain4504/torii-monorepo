@@ -11,7 +11,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { toast } from 'sonner';
-import { useDeleteUser } from "@/api/services/users.ts";
+import { useDeleteUser } from "@/lib/api/services/users.ts";
 import { AlertTriangle } from 'lucide-react';
 import { Spinner } from "@workspace/ui/components/spinner";
 

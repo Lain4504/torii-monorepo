@@ -19,7 +19,7 @@ import {
     TabsList,
     TabsTrigger
 } from '@workspace/ui/components/tabs'
-import { apiClient } from '@/apis/api-client'
+import { apiClient } from '@/lib/api/api-client'
 import { format } from 'date-fns'
 
 import { useAppSelector } from '@/hooks/hooks'

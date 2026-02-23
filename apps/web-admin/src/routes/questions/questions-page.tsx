@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import type { QuestionQueryDTO, QuestionResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import { useQuestions, useApproveQuestion, useDeactivateQuestion, useRejectQuestion, useSendForReviewQuestion } from "@/api/services/questions.ts";
+import { useQuestions, useApproveQuestion, useDeactivateQuestion, useRejectQuestion, useSendForReviewQuestion } from "@/lib/api/services/questions.ts";
 import { QuestionsPrimaryToolbar } from "@/components/questions/questions-primary-toolbar.tsx";
 import { QuestionsTable } from "@/components/questions/questions-table.tsx";
 import { QuestionFormSheet } from "@/components/questions/question-form-sheet";

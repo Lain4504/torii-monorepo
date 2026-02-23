@@ -10,7 +10,7 @@ import { Field, FieldLabel } from '@workspace/ui/components/field';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { toast } from '@workspace/ui/components/sonner';
 import { Smartphone, ArrowLeft, Key } from 'lucide-react';
-import { authApi } from '@/apis/services/auth-api';
+import { authApi } from '@/lib/api/services/auth-api';
 import { useAppDispatch } from '@/hooks/hooks';
 import { checkAuth } from '@/store/slices/authSlice';
 import { Input } from '@workspace/ui/components/input';

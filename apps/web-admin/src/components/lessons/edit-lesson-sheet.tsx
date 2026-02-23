@@ -21,10 +21,10 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { storageApi } from '@/api/services/storage-api';
+import { storageApi } from '@/lib/api/services/storage-api';
 import { LessonContentType, lessonUpdateDTOSchema, type LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useUpdateLesson } from "@/api/services/lesson";
+import { useUpdateLesson } from "@/lib/api/services/lesson";
 import { Save, Video } from 'lucide-react';
 import { Spinner } from "@workspace/ui/components/spinner";
 

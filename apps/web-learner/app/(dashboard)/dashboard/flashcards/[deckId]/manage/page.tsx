@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { flashcardApi } from '@/apis/services/flashcard-api'
+import { flashcardApi } from '@/lib/api/services/flashcard-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
@@ -28,7 +28,7 @@ import {
     Info,
     Sparkles
 } from 'lucide-react'
-import { agentApi } from '@/apis/services/agent-api'
+import { agentApi } from '@/lib/api/services/agent-api'
 import {
     Dialog,
     DialogContent,

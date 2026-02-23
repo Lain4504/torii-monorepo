@@ -21,7 +21,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { LiveSessionBlock } from '@/components/courses/live-session-block'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
-import { learningProgressApi, MyCourseResponse, LearningStats } from '@/apis/services/learning-progress-api'
+import { learningProgressApi, MyCourseResponse, LearningStats } from '@/lib/api/services/learning-progress-api'
 
 export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')

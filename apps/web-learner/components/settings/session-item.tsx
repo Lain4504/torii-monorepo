@@ -4,7 +4,7 @@ import { Monitor, Smartphone, MapPin } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import type { SessionResponse } from '@/apis/services/session-api';
+import type { SessionResponse } from '@/lib/api/services/session-api';
 
 interface SessionItemProps {
     session: SessionResponse;

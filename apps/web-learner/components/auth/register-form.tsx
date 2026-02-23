@@ -14,7 +14,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { cn } from '@workspace/ui/lib/utils'
-import { useGoogleAuth } from '@/apis/services/auth-api'
+import { useGoogleAuth } from '@/lib/api/services/auth-api'
 import { useEffect as useCleanup } from 'react'
 import { Spinner } from '@workspace/ui/components/spinner'
 

@@ -20,7 +20,7 @@ import {
 } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
 import { AlertTriangle, Lock } from 'lucide-react';
-import { useDisableTotp } from '@/api/services/two-factor-auth';
+import { useDisableTotp } from '@/lib/api/services/two-factor-auth';
 import { Spinner } from "@workspace/ui/components/spinner";
 
 const disableSchema = z.object({

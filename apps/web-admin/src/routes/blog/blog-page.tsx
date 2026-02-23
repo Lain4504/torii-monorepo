@@ -8,7 +8,7 @@ import { ViewBlogSheet } from '@/components/blogs/view-blog-sheet.tsx';
 import type { BlogResponseDTO, BlogQueryDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
-import { useBlogs } from "@/api/services/blog.ts";
+import { useBlogs } from "@/lib/api/services/blog.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { Plus, TriangleAlert } from 'lucide-react';

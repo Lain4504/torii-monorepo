@@ -14,7 +14,7 @@ import {
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import { WifiOff } from 'lucide-react';
-import { type RoomInfo } from '@/api/services/rooms';
+import { type RoomInfo } from '@/lib/api/services/rooms';
 import { getActiveRoomsColumns } from './rooms-columns';
 
 interface ActiveRoomsTableProps {

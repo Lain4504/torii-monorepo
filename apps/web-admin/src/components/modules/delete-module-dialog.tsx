@@ -10,7 +10,7 @@ import {
 } from '@workspace/ui/components/alert-dialog';
 import type { ModuleResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useDeleteModule } from "@/api/services/modules.ts";
+import { useDeleteModule } from "@/lib/api/services/modules.ts";
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Spinner } from "@workspace/ui/components/spinner";

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useCourses } from "@/api/services/courses.ts";
+import { useCourses } from "@/lib/api/services/courses.ts";
 import { CoursesTable } from "@/components/courses/courses-table.tsx";
 import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
 import { usePermissions } from "@/hooks/use-permissions.ts";
@@ -7,7 +7,7 @@ import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@workspace/ui/components/pagination';
 import { cn } from '@workspace/ui/lib/utils';
 import { toast } from '@workspace/ui/components/sonner';
-import { useSubmitCourseForReview } from "@/api/services/courses.ts";
+import { useSubmitCourseForReview } from "@/lib/api/services/courses.ts";
 import { Can } from "@/lib/guard/can";
 import { Button } from '@workspace/ui/components/button';
 import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";

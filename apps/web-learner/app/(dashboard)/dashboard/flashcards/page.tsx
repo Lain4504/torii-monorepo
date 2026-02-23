@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { flashcardApi } from '@/apis/services/flashcard-api'
+import { flashcardApi } from '@/lib/api/services/flashcard-api'
 import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'
 import { Input } from '@workspace/ui/components/input'
@@ -40,7 +40,7 @@ import { Label } from '@workspace/ui/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
 import { toast } from '@workspace/ui/components/sonner'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { agentApi } from '@/apis/services/agent-api'
+import { agentApi } from '@/lib/api/services/agent-api'
 
 export default function FlashcardsPage() {
     const router = useRouter()

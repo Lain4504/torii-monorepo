@@ -7,7 +7,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, Clock, FileText, Play, History } from 'lucide-react'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { useExamById, useExamSessions } from '@/apis/services/exam-api'
+import { useExamById, useExamSessions } from '@/lib/api/services/exam-api'
 import { useMemo } from 'react'
 import { ExamSessionStatus } from '@workspace/schemas'
 

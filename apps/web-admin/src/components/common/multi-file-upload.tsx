@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Upload, X, FileText, Paperclip } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { storageApi } from '@/api/services/storage-api';
+import { storageApi } from '@/lib/api/services/storage-api';
 import { cn } from '@workspace/ui/lib/utils';
 import { Spinner } from "@workspace/ui/components/spinner";
 

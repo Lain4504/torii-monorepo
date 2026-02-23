@@ -13,7 +13,7 @@ import { Textarea } from '@workspace/ui/components/textarea';
 import { Badge } from '@workspace/ui/components/badge';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
-import { useUpdateTicketStatus } from '@/api/services/tickets-hook';
+import { useUpdateTicketStatus } from '@/lib/api/services/tickets-hook';
 import { toast } from '@workspace/ui/components/sonner';
 import {
     CheckCircle2,

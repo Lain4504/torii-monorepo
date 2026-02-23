@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useStreak, useRecordActivity, useMarkToastShown } from '@/apis/services/gamification-api';
+import { useStreak, useRecordActivity, useMarkToastShown } from '@/lib/api/services/gamification-api';
 import { Dialog, DialogContent, DialogTitle } from '@workspace/ui/components/dialog';
 import { motion } from 'framer-motion';
 import { Flame, Snowflake, Sparkles, Trophy, Target, Calendar as CalendarIcon } from 'lucide-react';

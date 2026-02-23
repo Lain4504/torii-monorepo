@@ -12,7 +12,7 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentFlashcardResponseDTO as FlashcardResponse } from "@workspace/schemas"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { Spinner } from '@workspace/ui/components/spinner'

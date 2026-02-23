@@ -21,7 +21,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { useCreateScheduleRequest, useCheckAvailabilityQuery } from '@/api/services/live-sessions';
+import { useCreateScheduleRequest, useCheckAvailabilityQuery } from '@/lib/api/services/live-sessions';
 import { toast } from '@workspace/ui/components/sonner';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';

@@ -8,7 +8,7 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
-import { useQuestionPools } from '@/api/services/question-pools.ts';
+import { useQuestionPools } from '@/lib/api/services/question-pools.ts';
 
 interface QuestionsPrimaryToolbarProps {
     search: string;

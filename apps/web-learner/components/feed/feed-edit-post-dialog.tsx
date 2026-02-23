@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@workspace/ui/components/button'
-import { feedApi } from '@/apis/services/feed-api'
+import { feedApi } from '@/lib/api/services/feed-api'
 import { toast } from '@workspace/ui/components/sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@workspace/ui/components/dialog'
 import { Textarea } from '@workspace/ui/components/textarea'

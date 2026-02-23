@@ -24,13 +24,13 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select";
 import { InstructorRole, type CourseResponseDTO } from '@workspace/schemas';
-import { useCourseInstructors } from '@/api/services/course-instructors';
+import { useCourseInstructors } from '@/lib/api/services/course-instructors';
 import {
     useTeachingSchedules,
     useAssignTeachingSchedule,
     useRemoveTeachingSchedule,
     useCheckAvailability
-} from '@/api/services/live-sessions';
+} from '@/lib/api/services/live-sessions';
 import { toast } from '@workspace/ui/components/sonner';
 import { Calendar, Clock, Trash, AlertCircle } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';

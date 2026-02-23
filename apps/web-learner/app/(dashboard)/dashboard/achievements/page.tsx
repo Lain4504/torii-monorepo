@@ -1,6 +1,6 @@
 'use client'
 
-import { useAchievements } from '@/apis/services/gamification-api'
+import { useAchievements } from '@/lib/api/services/gamification-api'
 import { Badge } from '@workspace/ui/components/badge'
 import { Progress } from '@workspace/ui/components/progress'
 import { cn } from '@workspace/ui/lib/utils'

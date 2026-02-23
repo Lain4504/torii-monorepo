@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { flashcardApi } from '@/apis/services/flashcard-api'
+import { flashcardApi } from '@/lib/api/services/flashcard-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'

@@ -18,9 +18,9 @@ import {
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 import { useQuery } from '@tanstack/react-query'
-import { learningProgressApi, useMyCourses } from '@/apis/services/learning-progress-api'
+import { learningProgressApi, useMyCourses } from '@/lib/api/services/learning-progress-api'
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
-import { useLeaderboard } from '@/apis/services/gamification-api'
+import { useLeaderboard } from '@/lib/api/services/gamification-api'
 import { LeaderboardPreview } from '@/components/dashboard/leaderboard'
 import { Star } from 'lucide-react'
 

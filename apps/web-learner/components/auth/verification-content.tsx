@@ -8,7 +8,7 @@ import { Spinner } from '@workspace/ui/components/spinner'
 import { useTimeout } from '@workspace/ui/hooks/use-timeout'
 import { useAppDispatch } from '@/hooks/hooks'
 import { fetchProfile } from '@/store/slices/authSlice'
-import { useVerifyEmail } from '@/apis/services/auth-api'
+import { useVerifyEmail } from '@/lib/api/services/auth-api'
 
 export function VerificationContent() {
     const searchParams = useSearchParams()

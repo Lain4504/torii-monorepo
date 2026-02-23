@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import { useCourses, useUnpublishCourse, useSubmitCourseForReview } from "@/api/services/courses.ts";
+import { useCourses, useUnpublishCourse, useSubmitCourseForReview } from "@/lib/api/services/courses.ts";
 import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
 import { CoursesTable } from "@/components/courses/courses-table.tsx";
 import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";

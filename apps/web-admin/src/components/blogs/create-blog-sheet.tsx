@@ -38,11 +38,11 @@ import { Calendar } from '@workspace/ui/components/calendar';
 import { format } from 'date-fns';
 import { UploadCloud, X, CalendarIcon } from 'lucide-react';
 import { BlogStatus, type BlogCreateDTO } from '@workspace/schemas';
-import { useCreateBlog } from '@/api/services/blog.ts';
+import { useCreateBlog } from '@/lib/api/services/blog.ts';
 import { toast } from '@workspace/ui/components/sonner';
 import { useAppSelector } from '@/hooks/hooks.ts';
 import { selectUser } from '@/store/slices/auth-slice.ts';
-import { storageApi } from '@/api/services/storage-api.ts';
+import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { Spinner } from "@workspace/ui/components/spinner";
 
 const createBlogSchema = z.object({

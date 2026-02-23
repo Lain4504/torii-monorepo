@@ -20,7 +20,7 @@ import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field';
 import {
   useGenerateTotpSecret,
   useEnableTotp,
-} from "@/apis/services/two-factor-auth-api";
+} from "@/lib/api/services/two-factor-auth-api";
 
 const verifyCodeSchema = z.object({
   code: z

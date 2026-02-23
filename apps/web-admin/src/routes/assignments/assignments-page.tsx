@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@workspace/ui/components/sonner';
 import { selectUser } from "@/store/slices/auth-slice";
-import { useAssignments, usePublishAssignment, useDeleteAssignment } from "@/api/services/assignments";
-import { useCourses } from "@/api/services/courses";
+import { useAssignments, usePublishAssignment, useDeleteAssignment } from "@/lib/api/services/assignments";
+import { useCourses } from "@/lib/api/services/courses";
 import { AssignmentsTable } from "@/components/assignments/assignments-table.tsx";
 import { EditAssignmentSheet } from "@/components/assignments/edit-assignment-sheet.tsx";
 

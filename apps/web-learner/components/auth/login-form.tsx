@@ -14,7 +14,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { Eye, EyeOff } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useGoogleAuth } from '@/apis/services/auth-api'
+import { useGoogleAuth } from '@/lib/api/services/auth-api'
 import { Spinner } from '@workspace/ui/components/spinner'
 
 export function LoginForm() {
@@ -152,7 +152,7 @@ export function LoginForm() {
                                 <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
                                 <Link
                                     href="/forgot-password"
-                                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                                    className="text-sm font-medium text-primary hover:underline"
                                 >
                                     Quên mật khẩu?
                                 </Link>
@@ -167,13 +167,15 @@ export function LoginForm() {
                                     aria-invalid={fieldState.invalid}
                                     className="pr-10"
                                 />
-                                <button
+                                <Button
                                     type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
-                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
+                                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                </Button>
                             </div>
                             <FieldError errors={[fieldState.error]} />
                         </Field>

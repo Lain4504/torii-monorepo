@@ -6,7 +6,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentGrammarCheckResponseDTO as GrammarCheckResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 

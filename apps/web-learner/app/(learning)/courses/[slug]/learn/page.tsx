@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { courseApi } from '@/apis/services/course-api'
+import { courseApi } from '@/lib/api/services/course-api'
 import { BookOpen, AlertCircle } from 'lucide-react'
-import { useCheckEnrollment, useUpgradeCourseVersion } from '@/apis/services/enrollment-api'
+import { useCheckEnrollment, useUpgradeCourseVersion } from '@/lib/api/services/enrollment-api'
 import { Button } from '@workspace/ui/components/button'
 import { Spinner } from '@workspace/ui/components/spinner'
 

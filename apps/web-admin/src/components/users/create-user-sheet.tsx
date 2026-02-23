@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { UserRole, adminCreateInternalUserDTOSchema } from '@workspace/schemas';
 import { toast } from 'sonner';
-import { useCreateInternalUser } from "@/api/services/users.ts";
+import { useCreateInternalUser } from "@/lib/api/services/users.ts";
 import { useState } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Spinner } from "@workspace/ui/components/spinner";

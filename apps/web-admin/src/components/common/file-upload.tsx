@@ -3,7 +3,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Upload, X, FileAudio } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import axios from 'axios';
-import { apiClient } from '@/api/api-client';
+import { apiClient } from '@/lib/api/api-client';
 import { cn } from '@workspace/ui/lib/utils';
 import { Spinner } from "@workspace/ui/components/spinner";
 

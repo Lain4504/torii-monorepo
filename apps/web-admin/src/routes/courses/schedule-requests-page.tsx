@@ -2,7 +2,7 @@ import { Card } from '@workspace/ui/components/card';
 import {
     usePendingScheduleRequests,
     useHandleScheduleRequest
-} from '@/api/services/live-sessions';
+} from '@/lib/api/services/live-sessions';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { toast } from '@workspace/ui/components/sonner';

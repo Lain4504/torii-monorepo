@@ -34,7 +34,7 @@ import {
     PaginationPrevious,
 } from "@workspace/ui/components/pagination"
 import { cn } from '@workspace/ui/lib/utils'
-import { useOrders, useOrder } from '@/apis/services/order-api'
+import { useOrders, useOrder } from '@/lib/api/services/order-api'
 import { ComponentLoading } from '@workspace/ui/components/component-loading'
 import { Separator } from '@workspace/ui/components/separator'
 import { formatDateTime, isWithinGracePeriod } from '@/utils/time-utils'

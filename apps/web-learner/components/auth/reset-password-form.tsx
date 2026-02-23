@@ -11,7 +11,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useResetPassword, useVerifyResetToken } from '@/apis/services/auth-api'
+import { useResetPassword, useVerifyResetToken } from '@/lib/api/services/auth-api'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 

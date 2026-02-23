@@ -20,7 +20,7 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateModule } from "@/api/services/modules.ts";
+import { useCreateModule } from "@/lib/api/services/modules.ts";
 import { Plus } from 'lucide-react';
 import { Spinner } from "@workspace/ui/components/spinner";
 

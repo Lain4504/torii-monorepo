@@ -34,8 +34,8 @@ import {
 } from "@workspace/ui/components/select";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { cn } from '@workspace/ui/lib/utils';
-import { useTickets, useCreateTicket, useTicket } from '@/apis/services/ticket-api';
-import { useEnrollments } from '@/apis/services/enrollment-api';
+import { useTickets, useCreateTicket, useTicket } from '@/lib/api/services/ticket-api';
+import { useEnrollments } from '@/lib/api/services/enrollment-api';
 import { ComponentLoading } from '@workspace/ui/components/component-loading';
 import { TicketType, TicketStatus } from '@workspace/schemas';
 import { toast } from 'sonner';

@@ -8,7 +8,7 @@ import { Badge } from '@workspace/ui/components/badge'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { ArrowLeft, History, Eye, Calendar, Clock } from 'lucide-react'
 import { format } from 'date-fns'
-import { useExamSessions } from '@/apis/services/exam-api'
+import { useExamSessions } from '@/lib/api/services/exam-api'
 import { ExamSessionStatus } from '@workspace/schemas'
 
 export default function ExamHistoryPage() {

@@ -34,16 +34,16 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { Badge } from '@workspace/ui/components/badge';
-import { useCourse } from '@/api/services/courses';
-import { useCourseModules } from '@/api/services/modules';
-import { useModulesLessons } from '@/api/services/lesson';
+import { useCourse } from '@/lib/api/services/courses';
+import { useCourseModules } from '@/lib/api/services/modules';
+import { useModulesLessons } from '@/lib/api/services/lesson';
 import {
     useLiveSessions,
     useDeleteLiveSession,
     useStartLiveSession,
     useEndLiveSession,
     liveSessionsApi
-} from '@/api/services/live-sessions';
+} from '@/lib/api/services/live-sessions';
 import type { ModuleResponseDTO, LessonResponseDTO, AssignmentResponseDTO } from '@workspace/schemas';
 import { formatDateTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
@@ -51,7 +51,7 @@ import {
     useAssignments,
     useDeleteAssignment,
     usePublishAssignment
-} from '@/api/services/assignments';
+} from '@/lib/api/services/assignments';
 import { CreateModuleSheet } from '@/components/modules/create-module-sheet.tsx';
 import { EditModuleSheet } from '@/components/modules/edit-module-sheet.tsx';
 const CreateLessonSheet = lazy(() => import('@/components/lessons/create-lesson-sheet.tsx').then(m => ({ default: m.CreateLessonSheet })));

@@ -6,7 +6,7 @@ import {
     useFetchPermissions,
     useRoles,
     useUpdateRolePermissions
-} from "@/api/services/permissions.ts";
+} from "@/lib/api/services/permissions.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { cn } from '@workspace/ui/lib/utils';
 import {
@@ -18,7 +18,7 @@ import {
     TableRow,
 } from "@workspace/ui/components/table";
 import { useQueries } from '@tanstack/react-query';
-import { apiClient } from '@/api/api-client.ts';
+import { apiClient } from '@/lib/api/api-client.ts';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
 

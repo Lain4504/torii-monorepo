@@ -19,7 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { CourseCard } from '@/components/catalog/course-card'
 import { Separator } from '@workspace/ui/components/separator'
-import { apiClient } from '@/apis/api-client'
+import { apiClient } from '@/lib/api/api-client'
 
 // Types
 interface InstructorProfile {

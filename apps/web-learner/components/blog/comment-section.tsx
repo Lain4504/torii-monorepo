@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
-import { commentApi } from '@/apis/services/comment-api'
+import { commentApi } from '@/lib/api/services/comment-api'
 import type { CommentResponseDTO } from '@workspace/schemas'
 import { User, Heart, Reply, MoreHorizontal, Send, Edit, Trash } from 'lucide-react'
 import {

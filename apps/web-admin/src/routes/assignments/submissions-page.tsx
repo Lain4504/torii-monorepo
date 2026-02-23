@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAssignment } from "@/api/services/assignments";
-import { useSubmissions } from "@/api/services/submissions";
+import { useAssignment } from "@/lib/api/services/assignments";
+import { useSubmissions } from "@/lib/api/services/submissions";
 import { Button } from "@workspace/ui/components/button";
 import {
   ChevronLeft,

@@ -17,7 +17,7 @@ import {
     ShieldAlert,
     Eye
 } from 'lucide-react';
-import { type AuditLog, useAuditLogs } from "@/api/services/audit-logs.ts";
+import { type AuditLog, useAuditLogs } from "@/lib/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';

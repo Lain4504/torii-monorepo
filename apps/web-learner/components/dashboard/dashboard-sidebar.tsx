@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import { Progress } from '@workspace/ui/components/progress'
-import { useMyCourses } from '../../apis/services/learning-progress-api'
+import { useMyCourses } from '@/lib/api/services/learning-progress-api'
 import { DailyCheckInCard } from './daily-check-in-card'
 import { useState } from 'react'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'

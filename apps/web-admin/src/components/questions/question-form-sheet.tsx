@@ -29,8 +29,8 @@ import {
 } from 'lucide-react';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateQuestion, useUpdateQuestion } from '@/api/services/questions.ts';
-import { useQuestionPools } from '@/api/services/question-pools.ts';
+import { useCreateQuestion, useUpdateQuestion } from '@/lib/api/services/questions.ts';
+import { useQuestionPools } from '@/lib/api/services/question-pools.ts';
 import {
     QuestionType,
     QuestionCategory,

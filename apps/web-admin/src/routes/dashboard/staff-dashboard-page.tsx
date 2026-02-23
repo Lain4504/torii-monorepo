@@ -1,4 +1,4 @@
-import { useStaffDashboard } from '@/api/services/staff-dashboard';
+import { useStaffDashboard } from '@/lib/api/services/staff-dashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Link } from 'react-router-dom';

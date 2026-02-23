@@ -13,7 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentConversationSimulationResponseDTO as ConversationSimulationResponse } from "@workspace/schemas"
 import { Spinner } from '@workspace/ui/components/spinner'
 

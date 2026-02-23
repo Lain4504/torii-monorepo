@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useReviews, useReview } from '@/api/services/reviews';
+import { useReviews, useReview } from '@/lib/api/services/reviews';
 import { Button } from '@workspace/ui/components/button';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import {

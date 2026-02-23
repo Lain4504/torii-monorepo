@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Video, ExternalLink } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { liveSessionsApi } from '@/api/services/live-sessions';
+import { liveSessionsApi } from '@/lib/api/services/live-sessions';
 import { Spinner } from "@workspace/ui/components/spinner";
 
 interface JoinSessionButtonProps {

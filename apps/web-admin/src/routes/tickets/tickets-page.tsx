@@ -4,7 +4,7 @@ import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { TicketsPrimaryToolbar } from '@/components/tickets/tickets-primary-toolbar';
-import { useTickets } from '@/api/services/tickets-hook';
+import { useTickets } from '@/lib/api/services/tickets-hook';
 import { TicketsTable } from '@/components/tickets/tickets-table';
 import { TicketDetailSheet } from '@/components/tickets/ticket-detail-sheet';
 import type { TicketResponseDTO } from '@workspace/schemas';

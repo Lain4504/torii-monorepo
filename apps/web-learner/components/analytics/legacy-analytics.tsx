@@ -3,7 +3,7 @@
 import * as React from "react"
 import { BarChart, BookOpen, Clock, Trophy } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { learningProgressApi, LearningStats } from "@/apis/services/learning-progress-api"
+import { learningProgressApi, LearningStats } from "@/lib/api/services/learning-progress-api"
 import { ProgressChart } from "./progress-chart"
 import { Spinner } from '@workspace/ui/components/spinner'
 

@@ -11,7 +11,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useDeleteQuestion } from '@/api/services/questions.ts';
+import { useDeleteQuestion } from '@/lib/api/services/questions.ts';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { Spinner } from "@workspace/ui/components/spinner";
 

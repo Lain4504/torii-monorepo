@@ -25,8 +25,8 @@ import { Users, Calendar, Save, Film, X, ImageIcon } from 'lucide-react';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { courseUpdateDTOSchema, type CourseUpdateDTO, JlptLevel } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useUpdateCourse } from "@/api/services/courses.ts";
-import { storageApi } from '@/api/services/storage-api.ts';
+import { useUpdateCourse } from "@/lib/api/services/courses.ts";
+import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { Spinner } from "@workspace/ui/components/spinner";
 
 type UpdateCourseFormData = CourseUpdateDTO;

@@ -31,9 +31,9 @@ import {
 } from '@workspace/ui/components/item';
 
 import { toast } from '@workspace/ui/components/sonner';
-import { storageApi } from '@/api/services/storage-api.ts';
+import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
-import { useCreateCourse } from "@/api/services/courses.ts";
+import { useCreateCourse } from "@/lib/api/services/courses.ts";
 import { Spinner } from "@workspace/ui/components/spinner";
 
 interface CreateCourseSheetProps {

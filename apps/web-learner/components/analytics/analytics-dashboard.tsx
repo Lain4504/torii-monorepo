@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@work
 import { ProgressChart } from "./progress-chart"
 import { StudyPath } from "./study-path"
 import { cn } from "@workspace/ui/lib/utils"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentReadinessProfileResponseDTO as ReadinessProfileResponse } from "@workspace/schemas"
 
 export function AnalyticsDashboard() {

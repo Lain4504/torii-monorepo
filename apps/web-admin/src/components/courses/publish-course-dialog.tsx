@@ -1,5 +1,5 @@
-import { usePublishCourse } from '@/api/services/courses';
-import { useCourseInstructors } from '@/api/services/course-instructors';
+import { usePublishCourse } from '@/lib/api/services/courses';
+import { useCourseInstructors } from '@/lib/api/services/course-instructors';
 import {
     Dialog,
     DialogContent,

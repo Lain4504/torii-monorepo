@@ -25,7 +25,7 @@ import { format } from 'date-fns';
 import { X, Ticket, CalendarIcon, Percent, DollarSign } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { CouponDiscountType, type CouponCreateDTO } from '@workspace/schemas';
-import { useCreateCoupon } from "@/api/services/coupons";
+import { useCreateCoupon } from "@/lib/api/services/coupons";
 import { Spinner } from "@workspace/ui/components/spinner";
 
 interface CreateCouponSheetProps {

@@ -11,7 +11,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useDeleteCourse } from "@/api/services/courses";
+import { useDeleteCourse } from "@/lib/api/services/courses";
 import { AlertTriangle } from "lucide-react";
 import { Spinner } from "@workspace/ui/components/spinner";
 

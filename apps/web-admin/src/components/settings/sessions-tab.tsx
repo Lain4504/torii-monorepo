@@ -17,7 +17,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Monitor, Smartphone, AlertCircle, LogOut } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Skeleton } from '@workspace/ui/components/skeleton';
-import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/api/services/sessions';
+import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/lib/api/services/sessions';
 import { formatRelativeTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 import { Spinner } from "@workspace/ui/components/spinner";

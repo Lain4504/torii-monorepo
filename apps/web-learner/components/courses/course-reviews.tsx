@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog'
 import { Textarea } from '@workspace/ui/components/textarea'
 import type { CourseResponseDTO } from '@workspace/schemas'
-import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/apis/services/review-api'
+import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/lib/api/services/review-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { Field, FieldLabel } from '@workspace/ui/components/field'

@@ -12,7 +12,7 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentDrillResponseDTO as DrillResponse } from "@workspace/schemas"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
