@@ -70,7 +70,19 @@ export class AssessmentService implements OnModuleInit {
                             type: q.questionType,
                             level: q.jlptLevel,
                             question: q.questionText,
-                            options: q.options as string[],
+                            options: (() => {
+                                const o = q.options;
+                                if (!o) return [];
+                                if (Array.isArray(o)) return o;
+                                if (typeof o === 'string') {
+                                    try {
+                                        const p = JSON.parse(o);
+                                        return Array.isArray(p) ? p : Object.values(p);
+                                    } catch { return []; }
+                                }
+                                if (typeof o === 'object') return Object.values(o);
+                                return [];
+                            })(),
                             correctAnswer: q.correctAnswer,
                             explanation: q.explanation
                         })),
@@ -190,7 +202,19 @@ export class AssessmentService implements OnModuleInit {
                             level: q.jlptLevel,
                             type: q.questionType,
                             question: q.questionText,
-                            options: q.options as string[],
+                            options: (() => {
+                                const o = q.options;
+                                if (!o) return [];
+                                if (Array.isArray(o)) return o;
+                                if (typeof o === 'string') {
+                                    try {
+                                        const p = JSON.parse(o);
+                                        return Array.isArray(p) ? p : Object.values(p);
+                                    } catch { return []; }
+                                }
+                                if (typeof o === 'object') return Object.values(o);
+                                return [];
+                            })(),
                             correctAnswer: q.correctAnswer,
                             explanation: q.explanation
                         })),
@@ -260,7 +284,12 @@ export class AssessmentService implements OnModuleInit {
 
                 const aiParsed = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
-                    AgentTestEvaluationResponseSchema,
+                    z.object({
+                        userId: z.string().optional(),
+                        assessedLevel: z.string().optional(),
+                        targetLevel: z.string().optional(),
+                        studyPathRecommendation: z.any().optional()
+                    }),
                     { maxRetries: 1 }
                 );
 
@@ -269,6 +298,8 @@ export class AssessmentService implements OnModuleInit {
                     assessedLevel: suggestedLevel,
                     targetLevel: aiParsed.targetLevel || levels[levels.indexOf(suggestedLevel) + 1] || 'N1',
                     scoreBreakdown,
+                    score: totalCorrect,
+                    maxScore: userAnswers.length,
                     studyPathRecommendation: aiParsed.studyPathRecommendation || {}
                 };
             }
