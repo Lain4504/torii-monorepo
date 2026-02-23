@@ -66,6 +66,25 @@ describe('StreakService', () => {
         expect(service).toBeDefined();
     });
 
+    describe('getGamificationProfile', () => {
+        it('should return profile and handle missing balance', async () => {
+            prisma.userGamification.findUnique.mockResolvedValue({
+                id: '1', userId: mockUserId, level: 1, currentXp: 0, totalXp: 0, points: 100, gems: 10,
+                currentStreak: 1, longestStreak: 1, lastActiveDate: '2024-01-01', freezeCount: 0,
+                totalActiveDays: 1, weeklyActiveCount: 1, monthlyActiveCount: 1, updatedAt: new Date()
+            });
+            prisma.userBalance.findUnique.mockResolvedValue(null);
+
+            const result = await service.getGamificationProfile(mockUserId);
+            expect(result.balance).toBe(0);
+        });
+
+        it('should throw error if database query fails', async () => {
+            prisma.userGamification.findUnique.mockRejectedValue(new Error('DB Connection Failed'));
+            await expect(service.getGamificationProfile(mockUserId)).rejects.toThrow('DB Connection Failed');
+        });
+    });
+
     describe('getStreakStatus', () => {
         it('should return streak status and check for toast', async () => {
             const today = new Date().toISOString().split('T')[0];
@@ -104,6 +123,22 @@ describe('StreakService', () => {
             expect(prisma.userGamification.create).toHaveBeenCalledWith({
                 data: { userId: mockUserId }
             });
+        });
+
+        it('should throw error if Redis fails when checking toast', async () => {
+            prisma.userGamification.findUnique.mockResolvedValue({ currentStreak: 1 });
+            redis.get.mockRejectedValue(new Error('Redis Down'));
+            activityService.getWeeklyActiveDates.mockResolvedValue([]);
+
+            await expect(service.getStreakStatus(mockUserId)).rejects.toThrow('Redis Down');
+        });
+
+        it('should throw error if ActivityService fails', async () => {
+            prisma.userGamification.findUnique.mockResolvedValue({ currentStreak: 1 });
+            redis.get.mockResolvedValue(null);
+            activityService.getWeeklyActiveDates.mockRejectedValue(new Error('Activity Service Error'));
+
+            await expect(service.getStreakStatus(mockUserId)).rejects.toThrow('Activity Service Error');
         });
     });
 
@@ -185,6 +220,33 @@ describe('StreakService', () => {
 
             expect(result.newStreak).toBe(1);
         });
+
+        it('should reset streak if missed 3 or more days even if having freeze', async () => {
+            const threeDaysAgo = new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0];
+            prisma.userGamification.findUnique.mockResolvedValue({
+                lastActiveDate: threeDaysAgo,
+                currentStreak: 10,
+                longestStreak: 10,
+                freezeCount: 5,
+            });
+
+            const result = await service.recordActivity(mockUserId);
+
+            expect(result.newStreak).toBe(1);
+            expect(prisma.userGamification.update).toHaveBeenCalledWith(expect.objectContaining({
+                data: expect.objectContaining({ freezeCount: 5 }) // Freeze not used
+            }));
+        });
+
+        it('should throw error if update operation fails', async () => {
+            prisma.userGamification.findUnique.mockResolvedValue({
+                lastActiveDate: yesterday,
+                currentStreak: 5,
+            });
+            prisma.userGamification.update.mockRejectedValue(new Error('Update Failed'));
+
+            await expect(service.recordActivity(mockUserId)).rejects.toThrow('Update Failed');
+        });
     });
 
     describe('checkStreaksDaily', () => {
@@ -227,6 +289,18 @@ describe('StreakService', () => {
                 where: { id: 'gam-2' },
                 data: { currentStreak: 0 }
             }));
+        });
+
+        it('should handle database error while fetching users', async () => {
+            prisma.userGamification.findMany.mockRejectedValue(new Error('Fetch Error'));
+            await expect(service.checkStreaksDaily()).rejects.toThrow('Fetch Error');
+        });
+
+        it('should handle database error during individual user update', async () => {
+            prisma.userGamification.findMany.mockResolvedValue([{ id: 'g1', userId: 'u1', freezeCount: 0 }]);
+            prisma.userGamification.update.mockRejectedValue(new Error('Internal Update Error'));
+
+            await expect(service.checkStreaksDaily()).rejects.toThrow('Internal Update Error');
         });
     });
 });
