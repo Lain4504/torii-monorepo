@@ -20,6 +20,7 @@ export function PlacementTest() {
     const [testData, setTestData] = React.useState<PlacementTestResponse | null>(null)
     const [answers, setAnswers] = React.useState<Record<string, string>>({})
     const [result, setResult] = React.useState<PlacementEvaluationResponse | null>(null)
+    const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
 
     const handleStart = async () => {
         setIsLoading(true)
@@ -28,6 +29,7 @@ export function PlacementTest() {
             setTestData(data)
             setStep("test")
             setAnswers({})
+            setCurrentQuestionIndex(0)
         } catch (error) {
             console.error(error)
         } finally {
@@ -39,7 +41,18 @@ export function PlacementTest() {
         if (!testData) return
         setIsLoading(true)
         try {
-            const evaluation = await agentApi.assessment.evaluatePlacementTest(testData.testId, answers)
+            // Map answers to the format expected by the backend
+            const formattedAnswers = Object.entries(answers).map(([questionId, userAnswer]) => {
+                const question = testData.questions.find(q => q.id === questionId)
+                return {
+                    questionId,
+                    level: question?.level || "N5",
+                    userAnswer,
+                    correctAnswer: question?.correctAnswer || 0
+                }
+            })
+
+            const evaluation = await agentApi.assessment.evaluatePlacementTest(testData.testId, formattedAnswers)
             setResult(evaluation)
             setStep("result")
         } catch (error) {
@@ -102,76 +115,101 @@ export function PlacementTest() {
     }
 
     if (step === "test" && testData) {
-        const progress = (Object.keys(answers).length / testData.questions.length) * 100
+        const totalQuestions = testData.questions.length
+        const progress = (Object.keys(answers).length / totalQuestions) * 100
+        const currentQuestion = testData.questions[currentQuestionIndex]
+
+        const handleNext = () => {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                setCurrentQuestionIndex(prev => prev + 1)
+            }
+        }
+
+        const handlePrevious = () => {
+            if (currentQuestionIndex > 0) {
+                setCurrentQuestionIndex(prev => prev - 1)
+            }
+        }
+
+        if (!currentQuestion) return null
 
         return (
-            <div className="max-w-4xl mx-auto py-16 px-6 space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-500">
-                <div className="space-y-6 max-w-2xl mx-auto">
-                    <div className="flex justify-between items-end">
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Progress Counter</p>
-                            <h3 className="text-2xl font-bold text-foreground">
-                                Question {Object.keys(answers).length} <span className="text-muted-foreground/40 text-lg font-medium mx-1">/</span> {testData.questions.length}
-                            </h3>
-                        </div>
-                        <span className="text-4xl font-bold text-primary/30 tracking-tighter">{Math.round(progress)}%</span>
+            <div className="max-w-3xl mx-auto py-8 space-y-8">
+                <div className="space-y-2">
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>Progress</span>
+                        <span>{Object.keys(answers).length} / {totalQuestions} Answered</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
                     </div>
                     <Progress value={progress} className="h-2.5 rounded-full" />
                 </div>
 
-                <div className="space-y-10">
-                    {testData.questions.map((q, i) => (
-                        <Card key={q.id || i} className="border-border/50 overflow-hidden shadow-none rounded-3xl">
-                            <CardHeader className="bg-muted/30 p-8">
-                                <CardTitle className="text-2xl font-bold leading-tight flex gap-6 items-start">
-                                    <span className="flex-none bg-foreground text-background size-10 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg">
-                                        {i + 1}
-                                    </span>
-                                    {q.question}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-8">
-                                <RadioGroup value={answers[q.id]} onValueChange={(val) => handleAnswer(q.id, val)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {q.options?.map((opt: string, idx: number) => (
-                                        <div key={idx} className="relative">
-                                            <RadioGroupItem value={opt} id={`${q.id}-${idx}`} className="sr-only" />
-                                            <Label
-                                                htmlFor={`${q.id}-${idx}`}
-                                                className={cn(
-                                                    "group flex items-center gap-4 rounded-2xl border-2 p-5 cursor-pointer transition-all duration-300",
-                                                    answers[q.id] === opt
-                                                        ? "border-primary bg-primary/5 ring-4 ring-primary/5"
-                                                        : "border-border hover:border-primary/40 hover:bg-muted/50"
-                                                )}
-                                            >
-                                                <div className={cn(
-                                                    "size-9 rounded-xl flex items-center justify-center text-sm font-bold transition-all shrink-0",
-                                                    answers[q.id] === opt ? "bg-primary text-primary-foreground shadow-lg scale-110" : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
-                                                )}>
-                                                    {String.fromCharCode(65 + idx)}
-                                                </div>
-                                                <span className={cn(
-                                                    "flex-1 font-bold text-base transition-colors",
-                                                    answers[q.id] === opt ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                                                )}>{opt}</span>
-                                            </Label>
-                                        </div>
-                                    ))}
-                                </RadioGroup>
-                            </CardContent>
-                        </Card>
-                    ))}
+                <div className="space-y-8 min-h-[400px]">
+                    <Card className="overflow-hidden">
+                        <CardHeader className="bg-muted/30 pb-4">
+                            <CardTitle className="text-lg font-medium leading-relaxed flex gap-4">
+                                <span className="flex-none bg-background border size-8 rounded-lg flex items-center justify-center text-sm font-bold shadow-sm text-muted-foreground">
+                                    {currentQuestionIndex + 1}
+                                </span>
+                                {currentQuestion.question}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-6">
+                            <RadioGroup key={currentQuestion.id} value={answers[currentQuestion.id] || ""} onValueChange={(val) => handleAnswer(currentQuestion.id, val)} className="space-y-3">
+                                {currentQuestion.options?.map((opt: string, idx: number) => (
+                                    <Label
+                                        key={idx}
+                                        htmlFor={`q-${currentQuestion.id}-${idx}`}
+                                        className={cn(
+                                            "flex items-center space-x-3 rounded-lg border p-4 cursor-pointer hover:bg-muted/50 transition-all m-0",
+                                            answers[currentQuestion.id] === opt ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm" : "border-border hover:border-primary/50"
+                                        )}
+                                    >
+                                        <RadioGroupItem value={opt} id={`q-${currentQuestion.id}-${idx}`} />
+                                        <span className="flex-1 font-normal break-words leading-relaxed text-sm md:text-base">{opt}</span>
+                                    </Label>
+                                ))}
+                            </RadioGroup>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                <div className="flex justify-center pt-8 pb-16">
+                <div className="flex justify-between pt-4 pb-20 items-center">
                     <Button
+                        variant="outline"
                         size="lg"
-                        onClick={handleSubmit}
-                        disabled={isLoading || Object.keys(answers).length < testData.questions.length}
-                        className="h-14 px-12 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/20"
+                        onClick={handlePrevious}
+                        disabled={currentQuestionIndex === 0 || isLoading}
+                        className="min-w-[120px]"
                     >
-                        {isLoading ? <><Spinner className="mr-3 size-5" /> Analyzing Performance...</> : "Submit Assessment"}
+                        Previous
                     </Button>
+
+                    <div className="text-sm font-medium text-muted-foreground">
+                        Question {currentQuestionIndex + 1} of {totalQuestions}
+                    </div>
+
+                    {currentQuestionIndex < totalQuestions - 1 ? (
+                        <Button
+                            size="lg"
+                            onClick={handleNext}
+                            disabled={!currentQuestion.id || !answers[currentQuestion.id] || isLoading}
+                            className="min-w-[120px]"
+                        >
+                            Next <ArrowRight className="ml-2 size-4" />
+                        </Button>
+                    ) : (
+                        <Button
+                            size="lg"
+                            onClick={handleSubmit}
+                            disabled={isLoading || Object.keys(answers).length < totalQuestions}
+                            className="min-w-[160px]"
+                        >
+                            {isLoading ? <><Loader2 className="mr-2 size-5 animate-spin" /> Analyzing...</> : "Submit Answers"}
+                        </Button>
+                    )}
                 </div>
             </div>
         )
@@ -179,46 +217,84 @@ export function PlacementTest() {
 
     if (step === "result" && result) {
         return (
-            <div className="max-w-4xl mx-auto py-24 px-6 text-center space-y-12 animate-in fade-in zoom-in-95 duration-1000">
-                <div className="space-y-4">
-                    <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-[0.3em] px-4 py-1.5 rounded-full border-primary/20 text-primary bg-primary/5">
-                        Assessment Deep Dive Complete
-                    </Badge>
-                    <h2 className="text-3xl font-bold text-foreground">Your Personalized Learning Roadmap</h2>
+            <div className="max-w-2xl mx-auto py-16 text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="space-y-2">
+                    <h2 className="text-3xl font-bold">Hoàn Thành Đánh Giá!</h2>
+                    <p className="text-muted-foreground">Dưới đây là kết quả phân tích năng lực và lộ trình đề xuất dành cho bạn.</p>
                 </div>
 
-                <Card className="bg-foreground text-background border-none overflow-hidden rounded-[3rem] shadow-2xl shadow-foreground/20">
-                    <CardHeader className="space-y-6 pt-16">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.4em] opacity-60">Verified JLPT Equivalence</p>
-                        <CardTitle className="text-[7rem] md:text-[9rem] font-bold leading-none tracking-tighter text-primary">
-                            {result.assessedLevel}
-                        </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="py-10 px-8">
-                        <div className="relative p-8 bg-background/5 border border-background/10 rounded-3xl backdrop-blur-sm">
-                            <div className="absolute -top-3 left-8 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
-                                AI Insights
-                            </div>
-                            <p className="text-lg md:text-xl font-bold leading-relaxed italic opacity-95 text-background">
-                                "{result.feedback}"
+                <div className="grid gap-6 md:grid-cols-2 text-left">
+                    <Card className="border-2 border-primary/20 bg-primary/5 shadow-lg overflow-hidden relative col-span-1 md:col-span-2">
+                        <div className="absolute top-0 right-0 p-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                        <CardHeader className="text-center">
+                            <CardDescription className="uppercase tracking-widest text-xs font-semibold text-primary">Cấp Độ Đề Xuất</CardDescription>
+                            <CardTitle className="text-6xl font-black text-primary py-2">{result.assessedLevel}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="relative z-10 text-center space-y-4">
+                            <p className="text-lg leading-relaxed text-foreground/80 max-w-lg mx-auto">
+                                Dựa trên kết quả làm bài tập phân bổ qua các cấp độ khó khác nhau, chúng tôi đề xuất bạn nên bắt đầu lộ trình học từ trình độ <strong>{result.assessedLevel}</strong>.
                             </p>
-                        </div>
-                    </CardContent>
+                            {result.score !== undefined && result.maxScore !== undefined && (
+                                <div className="inline-flex items-center space-x-2 bg-background/50 backdrop-blur border rounded-full px-4 py-1.5 text-sm font-medium">
+                                    <span className="text-muted-foreground">Số câu trả lời đúng:</span>
+                                    <span className="text-primary font-bold">{result.score} / {result.maxScore}</span>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
-                    <CardFooter className="justify-center pb-16">
-                        <Button
-                            size="lg"
-                            className="h-14 px-12 font-bold uppercase tracking-[0.2em] text-xs bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl shadow-2xl shadow-primary/30"
-                            onClick={() => handleSelectLevel(result.assessedLevel ?? 'N5')}
-                            asChild
-                        >
-                            <Link href="/dashboard">
-                                Start Your {result.assessedLevel} Path <ArrowRight className="ml-2.5 size-5" />
-                            </Link>
-                        </Button>
-                    </CardFooter>
-                </Card>
+                    {result.scoreBreakdown && Object.keys(result.scoreBreakdown).length > 0 && (
+                        <Card className="shadow-sm">
+                            <CardHeader>
+                                <CardTitle className="text-lg">Phân Tích Điểm Số</CardTitle>
+                                <CardDescription>Tỉ lệ chính xác theo từng cấp độ JLPT</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {Object.entries(result.scoreBreakdown).map(([level, score]) => (
+                                    <div key={level} className="flex items-center justify-between">
+                                        <div className="font-medium">{level}</div>
+                                        <div className="flex-1 mx-4 h-2 bg-muted rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-primary"
+                                                style={{ width: score.toString().includes('%') ? score : `${score}%` }}
+                                            />
+                                        </div>
+                                        <div className="text-sm font-semibold">{score}</div>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {result.studyPathRecommendation && result.studyPathRecommendation.focusAreas && (
+                        <Card className="shadow-sm">
+                            <CardHeader>
+                                <CardTitle className="text-lg">Trọng Tâm Cần Luyện Tập</CardTitle>
+                                <CardDescription>Các chủ đề cần ưu tiên để đạt {result.targetLevel || result.assessedLevel}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                                    {result.studyPathRecommendation.focusAreas.map((area: string, idx: number) => (
+                                        <li key={idx} className="text-sm leading-relaxed">{area}</li>
+                                    ))}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    )}
+                </div>
+
+                <div className="flex justify-center pt-6">
+                    <Button
+                        size="lg"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20 min-w-[200px]"
+                        onClick={() => handleSelectLevel(result.assessedLevel ?? 'N5')}
+                        asChild
+                    >
+                        <Link href="/dashboard">
+                            Xác Nhận & Bắt Đầu Học <ArrowRight className="ml-2 size-5" />
+                        </Link>
+                    </Button>
+                </div>
 
                 <div className="pt-6">
                     <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
