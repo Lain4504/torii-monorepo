@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PayOSService } from '../src/modules/payment/payos.service';
 import { AppConfigService } from '@server/shared';
 import { PayOS } from '@payos/node';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Logger } from '@nestjs/common';
 
 // Mock the @payos/node module
 jest.mock('@payos/node');
@@ -45,6 +45,27 @@ describe('PayOSService', () => {
 
     it('should be defined', () => {
         expect(service).toBeDefined();
+    });
+
+    describe('Logger tests', () => {
+        it('should log warning if configuration is missing', async () => {
+            const loggerSpy = jest.spyOn(Logger.prototype, 'warn');
+            const incompleteConfig = {
+                thirdParty: {
+                    payos: { clientId: null, apiKey: null, checksumKey: null },
+                },
+            };
+
+            await Test.createTestingModule({
+                providers: [
+                    PayOSService,
+                    { provide: AppConfigService, useValue: incompleteConfig },
+                ],
+            }).compile();
+
+            expect(loggerSpy).toHaveBeenCalledWith(expect.stringContaining('PayOS configuration is missing'));
+            loggerSpy.mockRestore();
+        });
     });
 
     describe('Initialization', () => {
@@ -118,6 +139,18 @@ describe('PayOSService', () => {
             await expect(service.createPaymentLink(paymentData)).rejects.toThrow(BadRequestException);
             await expect(service.createPaymentLink(paymentData)).rejects.toThrow('PayOS error: Invalid amount');
         });
+
+        it('should log error when createPaymentLink fails', async () => {
+            const loggerSpy = jest.spyOn(Logger.prototype, 'error');
+            mockPayOSInstance.createPaymentLink.mockRejectedValue(new Error('Internal Server Error'));
+
+            await expect(service.createPaymentLink(paymentData)).rejects.toThrow();
+            expect(loggerSpy).toHaveBeenCalledWith(
+                expect.stringContaining('Error creating PayOS payment link: Internal Server Error'),
+                expect.any(String)
+            );
+            loggerSpy.mockRestore();
+        });
     });
 
     describe('verifyPaymentWebhookData', () => {
@@ -149,6 +182,30 @@ describe('PayOSService', () => {
 
             expect(mockPayOSInstance.verifyPaymentWebhookData).toHaveBeenCalledWith(webhookData);
             expect(result).toBeNull();
+        });
+
+        it('should throw BadRequestException if PayOS instance is not initialized', async () => {
+            // Need a service instance without payOS initialized
+            const incompleteConfig = {
+                thirdParty: { payos: { clientId: null, apiKey: null, checksumKey: null } },
+            };
+            const module = await Test.createTestingModule({
+                providers: [
+                    PayOSService,
+                    { provide: AppConfigService, useValue: incompleteConfig },
+                ],
+            }).compile();
+            const serviceNoConfig = module.get<PayOSService>(PayOSService);
+
+            expect(() => serviceNoConfig.verifyPaymentWebhookData({})).toThrow(BadRequestException);
+        });
+
+        it('should propagate error if verifyPaymentWebhookData throws', () => {
+            mockPayOSInstance.verifyPaymentWebhookData.mockImplementation(() => {
+                throw new Error('Checksum mismatch');
+            });
+
+            expect(() => service.verifyPaymentWebhookData(webhookData)).toThrow('Checksum mismatch');
         });
     });
 });
