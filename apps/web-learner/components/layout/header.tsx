@@ -72,23 +72,23 @@ export function Header() {
                 <div className="flex h-16 items-center justify-between gap-4">
                     {/* Brand + Nav */}
                     <div className="flex items-center gap-8">
-                        <Link href="/" className="flex items-center gap-3 shrink-0 group">
-                            <div className="size-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
+                        <Link href="/" className="flex items-center gap-3 shrink-0">
+                            <div className="size-9 rounded-lg bg-primary flex items-center justify-center">
                                 <Sparkles className="size-5 text-primary-foreground" />
                             </div>
-                            <span className="font-black text-lg tracking-tighter">
+                            <span className="font-bold text-lg tracking-tight">
                                 Torii <span className="text-primary">Nihongo</span>
                             </span>
                         </Link>
 
-                        <nav className="hidden lg:flex items-center gap-1">
+                        <nav className="hidden lg:flex items-center gap-2">
                             {navigation.map((item) => (
                                 <Button
                                     key={item.name}
                                     asChild
                                     variant="ghost"
                                     size="sm"
-                                    className="text-muted-foreground hover:text-foreground hover:bg-muted/50 font-bold px-4 rounded-full transition-all"
+                                    className="text-muted-foreground"
                                 >
                                     <Link href={item.href}>
                                         {item.name}
@@ -102,8 +102,8 @@ export function Header() {
                     <div className="flex items-center gap-3">
                         {/* Balance */}
                         {isAuthenticated && (
-                            <Link href="/dashboard/wallet" className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/5 text-amber-600 dark:text-amber-400 text-xs font-black border border-amber-500/10 hover:bg-amber-500/10 transition-colors">
-                                <Coins className="size-4" />
+                            <Link href="/dashboard/wallet" className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-md bg-muted text-xs font-bold border hover:bg-muted/80 transition-colors">
+                                <Coins className="size-4 text-amber-500" />
                                 {formatNumber((user as any)?.balance || 0)}
                             </Link>
                         )}
@@ -111,16 +111,16 @@ export function Header() {
                         {/* Theme Toggle */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full">
+                                <Button variant="ghost" size="icon">
                                     <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                                     <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                                     <span className="sr-only">Toggle theme</span>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="rounded-2xl p-2 min-w-[160px]">
-                                <DropdownMenuItem className="rounded-xl cursor-pointer" onClick={() => setTheme('light')}>Chế độ Sáng</DropdownMenuItem>
-                                <DropdownMenuItem className="rounded-xl cursor-pointer" onClick={() => setTheme('dark')}>Chế độ Tối</DropdownMenuItem>
-                                <DropdownMenuItem className="rounded-xl cursor-pointer" onClick={() => setTheme('system')}>Theo Hệ thống</DropdownMenuItem>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setTheme('light')}>Chế độ Sáng</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme('dark')}>Chế độ Tối</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme('system')}>Theo Hệ thống</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
 
@@ -128,53 +128,53 @@ export function Header() {
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="rounded-full ring-2 ring-primary/10 ring-offset-background hover:ring-primary/20 transition-all">
+                                    <Button variant="ghost" size="icon" className="rounded-full">
                                         <Avatar className="size-8">
-                                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-black">
+                                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
                                                 {user?.displayName?.[0]?.toUpperCase() || 'U'}
                                             </AvatarFallback>
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-64 rounded-[1.5rem] p-3 shadow-2xl border-border/50">
-                                    <DropdownMenuLabel className="font-normal px-2 pb-3">
+                                <DropdownMenuContent align="end" className="w-64">
+                                    <DropdownMenuLabel className="font-normal">
                                         <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-black leading-none">{user?.displayName}</p>
+                                            <p className="text-sm font-bold leading-none">{user?.displayName}</p>
                                             <p className="text-xs text-muted-foreground truncate font-medium">{user?.email}</p>
                                         </div>
                                     </DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="mx-2 mb-2" />
-                                    <DropdownMenuGroup className="space-y-1">
-                                        <DropdownMenuItem asChild className="rounded-xl cursor-pointer py-2.5">
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem asChild>
                                             <Link href="/dashboard">
-                                                <LayoutDashboard className="mr-3 size-4 text-primary" />
-                                                <span className="font-bold">Tổng quan Dashboard</span>
+                                                <LayoutDashboard className="mr-2 size-4" />
+                                                <span>Dashboard</span>
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="rounded-xl cursor-pointer py-2.5">
+                                        <DropdownMenuItem asChild>
                                             <Link href="/dashboard/settings">
-                                                <Settings className="mr-3 size-4 text-muted-foreground" />
-                                                <span className="font-bold">Cài đặt tài khoản</span>
+                                                <Settings className="mr-2 size-4" />
+                                                <span>Cài đặt tài khoản</span>
                                             </Link>
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
-                                    <DropdownMenuSeparator className="mx-2 my-2" />
+                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         onClick={handleLogout}
                                         disabled={isLoggingOut}
-                                        className="text-destructive focus:text-destructive cursor-pointer rounded-xl py-2.5 font-bold"
+                                        className="text-destructive focus:text-destructive"
                                     >
-                                        <LogOut className="mr-3 size-4" />
+                                        <LogOut className="mr-2 size-4" />
                                         {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
                             <div className="hidden sm:flex items-center gap-2">
-                                <Button variant="ghost" size="sm" asChild className="rounded-full font-bold px-5">
+                                <Button variant="ghost" size="sm" asChild>
                                     <Link href="/login">Đăng nhập</Link>
                                 </Button>
-                                <Button size="sm" asChild className="rounded-full font-black px-6 shadow-lg shadow-primary/20">
+                                <Button size="sm" asChild>
                                     <Link href="/register">Tham gia ngay</Link>
                                 </Button>
                             </div>
@@ -184,7 +184,7 @@ export function Header() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="lg:hidden rounded-full"
+                            className="lg:hidden"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
                             {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -195,46 +195,44 @@ export function Header() {
 
             {/* Mobile Menu */}
             {mobileMenuOpen && (
-                <div className="lg:hidden border-t bg-background/95 backdrop-blur-xl absolute w-full left-0 p-6 shadow-2xl animate-in slide-in-from-top-4 duration-300">
-                    <nav className="flex flex-col gap-2 mb-6">
+                <div className="lg:hidden border-t bg-background absolute w-full left-0 p-6 shadow-xl animate-in fade-in slide-in-from-top-4 duration-200">
+                    <nav className="flex flex-col gap-1 mb-6">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="flex items-center gap-4 px-4 py-3 rounded-2xl text-base font-bold hover:bg-primary/5 hover:text-primary transition-all active:scale-95"
+                                className="flex items-center gap-4 px-4 py-3 rounded-md text-base font-medium hover:bg-muted transition-colors"
                             >
-                                <div className="size-8 rounded-lg bg-primary/5 flex items-center justify-center">
-                                    <item.icon className="size-4" />
-                                </div>
+                                <item.icon className="size-5 text-muted-foreground" />
                                 {item.name}
                             </Link>
                         ))}
                     </nav>
 
-                    <Separator className="mb-6 opacity-50" />
+                    <Separator className="mb-6" />
 
                     <div className="space-y-4">
                         {!isAuthenticated && (
                             <div className="grid gap-3">
-                                <Button variant="outline" className="w-full h-12 rounded-2xl font-bold" asChild>
+                                <Button variant="outline" className="w-full" asChild>
                                     <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
                                 </Button>
-                                <Button className="w-full h-12 rounded-2xl font-black shadow-lg shadow-primary/20" asChild>
+                                <Button className="w-full" asChild>
                                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Bắt đầu miễn phí</Link>
                                 </Button>
                             </div>
                         )}
-                        <div className="flex items-center justify-between px-4 h-12 rounded-2xl bg-muted/30">
-                            <span className="text-sm font-bold text-muted-foreground">Chế độ giao diện</span>
+                        <div className="flex items-center justify-between px-4 py-3 rounded-md bg-muted/50">
+                            <span className="text-sm font-medium">Chế độ giao diện</span>
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="rounded-full hover:bg-transparent"
+                                className="rounded-full"
                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                             >
-                                <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-primary" />
-                                <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+                                <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                             </Button>
                         </div>
                     </div>

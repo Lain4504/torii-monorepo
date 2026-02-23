@@ -246,7 +246,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
                         />
                     ))
                 ) : (
-                    <div className="py-12 flex justify-center bg-muted/5 rounded-lg border border-dashed border-border/50">
+                    <div className="py-12 flex justify-center bg-muted/20 rounded-lg border border-dashed border-border/50">
                         <Empty>
                             <EmptyHeader>
                                 <EmptyMedia variant="icon" className="bg-background shadow-sm border border-border">
@@ -313,10 +313,10 @@ function CommentItem({
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="flex gap-3">
+            <div className="flex gap-4">
                 {/* Avatar */}
                 <Link href={`/user/${comment.author?.id}`} className="flex-shrink-0">
-                    <Avatar className="size-10 ring-1 ring-border/40">
+                    <Avatar className="size-10 border">
                         <AvatarImage src={comment.author?.avatarUrl || undefined} />
                         <AvatarFallback className="bg-muted text-muted-foreground">
                             <User className="size-5" />
@@ -328,10 +328,10 @@ function CommentItem({
                 <div className="flex-1 space-y-2">
                     {/* Author & Time */}
                     <div className="flex items-center gap-2">
-                        <Link href={`/user/${comment.author?.id}`} className="font-bold text-sm hover:text-primary transition-all">
+                        <Link href={`/user/${comment.author?.id}`} className="font-bold text-sm hover:text-primary transition-colors">
                             {comment.author?.displayName || 'Unknown User'}
                         </Link>
-                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">
                             • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
                         </span>
                     </div>
@@ -340,7 +340,7 @@ function CommentItem({
                     {comment.tags && comment.tags.length > 0 && (
                         <div className="flex gap-2">
                             {comment.tags.slice(0, 1).map((tag: string) => (
-                                <Badge key={tag} variant="secondary" className="text-[10px] font-bold uppercase tracking-wider">
+                                <Badge key={tag} variant="secondary" className="text-[9px] font-bold uppercase tracking-widest px-1.5 h-4">
                                     {tag.toUpperCase()}
                                 </Badge>
                             ))}
@@ -361,7 +361,7 @@ function CommentItem({
                             />
                         </div>
                     ) : (
-                        <div className="bg-muted/30 rounded-2xl p-4 border border-border/40">
+                        <div className="bg-muted/30 rounded-lg p-4 border">
                             <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
                                 {comment.content}
                             </p>
@@ -369,30 +369,34 @@ function CommentItem({
                     )}
 
                     {/* Actions */}
-                    <div className="flex items-center gap-6 pt-1">
+                    <div className="flex items-center gap-4">
                         {canLike && (
-                            <button
+                            <Button
+                                variant="ghost"
+                                size="sm"
                                 className={cn(
-                                    "flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all",
+                                    "h-auto p-0 text-[10px] font-bold uppercase tracking-widest hover:bg-transparent",
                                     comment.isLiked ? "text-destructive" : "text-muted-foreground hover:text-destructive"
                                 )}
                                 onClick={() => onLikeComment(comment.id)}
                             >
-                                <Heart className={cn("size-3.5", comment.isLiked && "fill-current")} />
+                                <Heart className={cn("size-3.5 mr-1.5", comment.isLiked && "fill-current")} />
                                 <span>{formatNumber(comment.likeCount || 0)} Yêu thích</span>
-                            </button>
+                            </Button>
                         )}
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="sm"
                             className={cn(
-                                "flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all",
+                                "h-auto p-0 text-[10px] font-bold uppercase tracking-widest hover:bg-transparent",
                                 isReplying ? "text-primary" : "text-muted-foreground hover:text-primary"
                             )}
                             onClick={() => onReplyClick(comment.id)}
                             disabled={!isAuthenticated}
                         >
-                            <Reply className="size-3.5" />
+                            <Reply className="size-3.5 mr-1.5" />
                             <span>Trả lời</span>
-                        </button>
+                        </Button>
                     </div>
 
                     {/* Inline Reply Form */}
@@ -436,7 +440,7 @@ function CommentItem({
                 {isOwner && !isEditing && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8 rounded-full">
+                            <Button variant="ghost" size="icon" className="size-8">
                                 <MoreHorizontal className="size-4 text-muted-foreground" />
                             </Button>
                         </DropdownMenuTrigger>
@@ -490,7 +494,7 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
 
     return (
         <div className="flex gap-4 items-start w-full">
-            <Avatar className="size-10 border shadow-sm shrink-0">
+            <Avatar className="size-10 border shrink-0">
                 <AvatarImage src={user?.avatarUrl || undefined} />
                 <AvatarFallback className="bg-muted text-muted-foreground font-bold">
                     {(user?.displayName || 'U').charAt(0).toUpperCase()}
@@ -500,7 +504,7 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
                 <div className="relative group">
                     <Textarea
                         placeholder={placeholder}
-                        className="min-h-[100px] w-full bg-muted/30 border-border/40 focus:border-primary/40 focus:bg-background transition-all rounded-2xl resize-none p-4 text-sm"
+                        className="min-h-[100px] w-full bg-muted/30 border-border/40 focus:border-primary/40 focus:bg-background transition-all rounded-lg resize-none p-4 text-sm"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         autoFocus={autoFocus}
@@ -522,7 +526,7 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
                     <Button
                         onClick={handleSubmit}
                         disabled={submitting || !text.trim()}
-                        className="font-bold text-xs uppercase tracking-[0.2em] px-6 rounded-full"
+                        className="font-bold text-xs uppercase tracking-widest px-6"
                     >
                         {submitting ? (
                             <Spinner className="size-4 animate-spin" />

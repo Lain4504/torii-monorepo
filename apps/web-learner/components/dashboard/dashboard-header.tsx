@@ -52,21 +52,21 @@ export function DashboardHeader() {
                 {/* Left: Trigger & Brand (Mobile) */}
                 <div className="flex items-center gap-4">
                     <SidebarTrigger />
-                    <div className="flex items-center gap-2.5 lg:hidden group">
-                        <div className="flex size-8 items-center justify-center rounded bg-primary text-primary-foreground">
+                    <Link href="/" className="flex items-center gap-2.5 lg:hidden">
+                        <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                             <Sparkles className="size-4" />
                         </div>
-                        <span className="text-lg font-black tracking-tighter">Torii</span>
-                    </div>
+                        <span className="text-lg font-bold tracking-tight">Torii</span>
+                    </Link>
                 </div>
 
                 {/* Center: Search */}
                 <div className="flex-1 max-w-xl hidden sm:block">
-                    <div className="relative group">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
-                            placeholder="Tìm kiếm bài học, kanji, từ vựng..."
-                            className="pl-10 h-10 w-full bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 transition-all"
+                            placeholder="Tìm kiếm bài học, kanji..."
+                            className="pl-9 h-10 w-full bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20"
                         />
                     </div>
                 </div>
@@ -80,26 +80,26 @@ export function DashboardHeader() {
                         </Badge>
                     </Link>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                         <NotificationsDropdown />
                         <ModeToggle />
                     </div>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="relative group">
+                            <Button variant="ghost" size="icon">
                                 <Avatar className="h-8 w-8">
                                     <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
-                                    <AvatarFallback className="bg-primary/5 text-primary text-xs font-black">
+                                    <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
                                         {user?.displayName?.[0]?.toUpperCase() || 'U'}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-64 p-2 shadow-xl border-border/50" align="end" forceMount>
+                        <DropdownMenuContent className="w-64 p-2 shadow-md" align="end" forceMount>
                             <DropdownMenuLabel className="font-normal px-2 pb-3">
                                 <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-black leading-none">{user?.displayName || 'Người dùng'}</p>
+                                    <p className="text-sm font-bold leading-none">{user?.displayName || 'Người dùng'}</p>
                                     <p className="text-xs leading-none text-muted-foreground font-medium">
                                         {user?.email || (user?.role === UserRole.LEARNER ? 'Học viên' : user?.role || 'Học viên')}
                                     </p>

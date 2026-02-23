@@ -74,12 +74,12 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
 
     return (
         <>
-            <Card className="shadow-none border border-border/50 hover:bg-muted/30 group transition-all duration-300 rounded-2xl overflow-hidden">
+            <Card className="shadow-none border hover:bg-muted/30 group transition-colors rounded-lg overflow-hidden">
                 <CardHeader className="flex flex-row justify-between items-start space-y-0 p-6 pb-4">
                     <Item className="p-0 border-none shadow-none hover:bg-transparent">
                         <ItemMedia>
                             <Link href={`/user/${post.author?.id}`}>
-                                <Avatar className="size-11 border-2 border-background shadow-sm">
+                                <Avatar className="size-11 border">
                                     <AvatarImage src={post.author?.avatarUrl || undefined} />
                                     <AvatarFallback className="bg-muted text-foreground text-xs font-bold">
                                         {post.author?.displayName?.[0] || 'U'}
@@ -94,10 +94,10 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                                 </Link>
                             </ItemTitle>
                             <ItemDescription className="flex items-center gap-2">
-                                <Badge variant="secondary" className="text-[9px] uppercase font-bold tracking-widest px-2 py-0">
+                                <Badge variant="secondary" className="text-[9px] font-bold px-2 py-0">
                                     Thành viên
                                 </Badge>
-                                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-60">
+                                <span className="text-[10px] text-muted-foreground font-bold uppercase opacity-60">
                                     • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi })}
                                 </span>
                             </ItemDescription>
@@ -106,19 +106,19 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="group-hover:bg-muted rounded-full">
+                            <Button variant="ghost" size="icon" className="group-hover:bg-muted">
                                 <MoreVertical className="size-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl p-1 shadow-lg border-border/50">
+                        <DropdownMenuContent align="end" className="p-1">
                             {isOwnPost ? (
                                 <>
-                                    <DropdownMenuItem onClick={() => setShowEditDialog(true)} className="rounded-lg font-bold text-xs uppercase tracking-wider h-10 px-3 cursor-pointer">
+                                    <DropdownMenuItem onClick={() => setShowEditDialog(true)} className="font-bold text-xs uppercase h-10 px-3 cursor-pointer">
                                         <Edit2 className="size-4 mr-2.5 text-primary" />
                                         Chỉnh sửa
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        className="rounded-lg font-bold text-xs uppercase tracking-wider h-10 px-3 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/5"
+                                        className="font-bold text-xs uppercase h-10 px-3 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/5"
                                         onClick={() => setShowDeleteDialog(true)}
                                     >
                                         <Trash2 className="size-4 mr-2.5" />
@@ -126,7 +126,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                                     </DropdownMenuItem>
                                 </>
                             ) : (
-                                <DropdownMenuItem onClick={handleReport} className="rounded-lg font-bold text-xs uppercase tracking-wider h-10 px-3 cursor-pointer">
+                                <DropdownMenuItem onClick={handleReport} className="font-bold text-xs uppercase h-10 px-3 cursor-pointer">
                                     <Flag className="size-4 mr-2.5 text-primary" />
                                     Báo cáo
                                 </DropdownMenuItem>
@@ -142,7 +142,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                                 <Badge
                                     key={tag}
                                     variant="outline"
-                                    className="cursor-pointer font-bold text-[10px] uppercase tracking-widest bg-muted/30 border-border/60 hover:border-primary hover:text-primary transition-all px-2.5"
+                                    className="cursor-pointer font-bold text-[10px] bg-muted/30 border-border/60 hover:border-primary hover:text-primary transition-colors px-2.5"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onTagClick?.(tag);
@@ -170,7 +170,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                         variant="ghost"
                         size="sm"
                         className={cn(
-                            "h-9 px-4 gap-2.5 font-bold text-[10px] uppercase tracking-widest rounded-full transition-all duration-300",
+                            "h-9 px-4 gap-2 font-bold text-[10px] uppercase transition-colors",
                             post.isLiked ? "text-destructive bg-destructive/5 hover:bg-destructive/10" : "text-muted-foreground hover:bg-muted"
                         )}
                         onClick={(e) => {
@@ -184,7 +184,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="h-9 px-4 gap-2.5 font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:bg-muted rounded-full transition-all duration-300"
+                        className="h-9 px-4 gap-2 font-bold text-[10px] uppercase text-muted-foreground hover:bg-muted transition-colors"
                         onClick={(e) => {
                             e.stopPropagation();
                             onComment?.(post.id);

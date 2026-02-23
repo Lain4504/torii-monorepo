@@ -52,18 +52,18 @@ const jlptLevels = [
 export function CourseCategoriesSection() {
     return (
         <section className="py-20 bg-background">
-            <div className="container max-w-6xl">
+            <div className="container max-w-6xl mx-auto">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
                     <div className="flex flex-col gap-4">
                         <div>
-                            <Badge variant="outline" className="px-3 py-1 font-bold uppercase tracking-widest text-[10px]">
+                            <Badge variant="secondary" className="px-3 py-1 font-bold text-[10px]">
                                 Lộ trình học tập
                             </Badge>
                         </div>
                         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                            Lộ Trình <span className="text-primary italic">JLPT</span> Chuẩn Quốc Tế
+                            Lộ Trình JLPT Chuẩn Quốc Tế
                         </h2>
-                        <p className="text-muted-foreground max-w-lg leading-relaxed">
+                        <p className="text-muted-foreground max-w-lg leading-relaxed text-balance">
                             Hệ thống khóa học bám sát cấu trúc đề thi năng lực tiếng Nhật mới nhất, giúp bạn thăng tiến nhanh chóng.
                         </p>
                     </div>
@@ -78,13 +78,13 @@ export function CourseCategoriesSection() {
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {jlptLevels.map((level) => (
                         <Card key={level.level} className={cn(
-                            "group transition-all hover:bg-muted/30 border-border/50 overflow-hidden",
-                            level.featured && "border-primary/20 bg-primary/5"
+                            "group border shadow-sm transition-all overflow-hidden",
+                            level.featured && "border-primary/20 bg-primary/5 shadow-none"
                         )}>
                             <Link href={`/courses?level=${level.level}`} className="block h-full">
                                 <CardContent className="p-8 flex flex-col h-full gap-6">
                                     <div className="flex items-center justify-between">
-                                        <Badge variant={level.featured ? 'default' : 'secondary'} className="font-bold text-[10px] tracking-wider uppercase">
+                                        <Badge variant={level.featured ? 'default' : 'secondary'} className="font-bold text-[10px] uppercase">
                                             JLPT {level.level}
                                         </Badge>
                                     </div>
@@ -98,21 +98,21 @@ export function CourseCategoriesSection() {
                                         </p>
                                     </div>
 
-                                    <div className="mt-auto pt-6 border-t border-border/50 grid grid-cols-2 gap-y-3 gap-x-4">
+                                    <div className="mt-auto pt-6 border-t grid grid-cols-2 gap-y-3 gap-x-4">
                                         <div className="flex flex-col gap-0.5">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 flex items-center gap-1">
+                                            <span className="text-[10px] font-bold uppercase text-muted-foreground/60 flex items-center gap-1">
                                                 <BookOpen className="size-3" /> Khóa học
                                             </span>
                                             <span className="font-bold text-sm">{level.courses} bài</span>
                                         </div>
                                         <div className="flex flex-col gap-0.5">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 flex items-center gap-1">
+                                            <span className="text-[10px] font-bold uppercase text-muted-foreground/60 flex items-center gap-1">
                                                 <Clock className="size-3" /> Thời gian
                                             </span>
                                             <span className="font-bold text-sm">{level.hours}</span>
                                         </div>
                                         <div className="flex flex-col gap-0.5 col-span-2">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 flex items-center gap-1">
+                                            <span className="text-[10px] font-bold uppercase text-muted-foreground/60 flex items-center gap-1">
                                                 <Layers className="size-3" /> Từ vựng & Kanji
                                             </span>
                                             <span className="font-bold text-sm">{level.kanji}+ kiến thức</span>
@@ -124,7 +124,7 @@ export function CourseCategoriesSection() {
                     ))}
 
                     {/* Live Classes Promo */}
-                    <Card className="bg-primary text-primary-foreground border-none overflow-hidden group">
+                    <Card className="bg-primary text-primary-foreground border-none overflow-hidden group shadow-lg">
                         <Link href="/live-classes" className="block h-full">
                             <CardContent className="p-8 flex flex-col h-full gap-6">
                                 <div>
@@ -134,11 +134,11 @@ export function CourseCategoriesSection() {
                                 </div>
                                 <div className="space-y-2">
                                     <h3 className="font-bold text-xl tracking-tight">Lớp Trực Tuyến WebRTC</h3>
-                                    <p className="text-sm opacity-80 leading-relaxed">
+                                    <p className="text-sm opacity-80 leading-relaxed text-balance">
                                         Học trực tiếp cùng giảng viên N1, tương tác không giới hạn qua bảng trắng kỹ thuật số real-time.
                                     </p>
                                 </div>
-                                <div className="mt-auto flex items-center gap-2 text-sm font-bold group-hover:gap-3 transition-all">
+                                <div className="mt-auto flex items-center gap-2 text-sm font-bold group-hover:translate-x-1 transition-all">
                                     Tham gia ngay
                                     <ArrowRight className="size-4" />
                                 </div>

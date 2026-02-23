@@ -67,12 +67,12 @@ export function NavUser({
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
-                            className="h-14 rounded-xl border border-border/50 transition-all data-[state=open]:bg-sidebar-accent"
+                            className="h-14 rounded-md border border-border/50 transition-all data-[state=open]:bg-sidebar-accent"
                         >
                             <div className="relative">
-                                <Avatar className="h-9 w-9 border border-border">
+                                <Avatar className="h-9 w-9 border">
                                     <AvatarImage src={user.avatarUrl || undefined} alt={user.displayName} />
-                                    <AvatarFallback className="bg-primary text-xs font-black text-primary-foreground">
+                                    <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
                                         {user.displayName?.[0]?.toUpperCase() || 'U'}
                                     </AvatarFallback>
                                 </Avatar>
@@ -89,14 +89,14 @@ export function NavUser({
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl"
+                        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-md"
                         side={isMobile ? 'bottom' : 'right'}
                         align="end"
                         sideOffset={10}
                     >
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-3 px-3 py-1.5 text-left">
-                                <Avatar className="h-9 w-9 border border-border">
+                                <Avatar className="h-9 w-9 border">
                                     <AvatarImage src={user.avatarUrl || undefined} alt={user.displayName} />
                                     <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
                                         {user.displayName?.[0]?.toUpperCase() || 'U'}
@@ -109,30 +109,30 @@ export function NavUser({
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuGroup className="space-y-1">
-                            <DropdownMenuItem className="cursor-pointer rounded-xl px-3 py-2.5">
+                        <DropdownMenuGroup className="space-y-0.5">
+                            <DropdownMenuItem className="cursor-pointer rounded-md px-3 py-2">
                                 <Sparkles className="mr-2 size-4 text-primary/60" />
                                 Nâng cấp tài khoản
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator className="bg-border/20" />
-                        <DropdownMenuGroup className="space-y-1">
-                            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2" onClick={() => router.push('/dashboard/profile')}>
+                        <DropdownMenuGroup className="space-y-0.5">
+                            <DropdownMenuItem className="cursor-pointer rounded-md px-3 py-2" onClick={() => router.push('/dashboard/profile')}>
                                 <BadgeCheck className="mr-2 size-4 text-muted-foreground" />
                                 Hồ sơ cá nhân
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2" onClick={() => router.push('/dashboard/notifications')}>
+                            <DropdownMenuItem className="cursor-pointer rounded-md px-3 py-2" onClick={() => router.push('/dashboard/notifications')}>
                                 <Bell className="mr-2 size-4 text-muted-foreground" />
                                 Thông báo
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2" onClick={() => router.push('/dashboard/wishlist')}>
+                            <DropdownMenuItem className="cursor-pointer rounded-md px-3 py-2" onClick={() => router.push('/dashboard/wishlist')}>
                                 <Heart className="mr-2 size-4 text-muted-foreground" />
                                 Wishlist
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator className="bg-border/20" />
                         <DropdownMenuItem
-                            className="cursor-pointer rounded-xl px-3 py-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive"
+                            className="cursor-pointer rounded-md px-3 py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
                             onClick={handleLogout}
                         >
                             <LogOut className="mr-2 size-4" />

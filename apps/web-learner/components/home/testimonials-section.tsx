@@ -67,26 +67,26 @@ export function TestimonialsSection() {
 
     return (
         <section className="py-20 bg-muted/30">
-            <div className="container max-w-6xl">
+            <div className="container max-w-6xl mx-auto">
                 <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col gap-4">
                     <div>
-                        <Badge variant="outline" className="px-3 py-1 font-bold uppercase tracking-widest text-[10px]">
+                        <Badge variant="secondary" className="px-3 py-1 font-bold text-[10px]">
                             Câu chuyện thành công
                         </Badge>
                     </div>
                     <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                        Cảm Nhận Từ <span className="text-primary italic">Học Viên</span>
+                        Cảm Nhận Từ Học Viên
                     </h2>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed text-balance">
                         Hàng ngàn học viên đã thay đổi tương lai nhờ lộ trình học tập tối ưu tại Torii Nihongo.
                     </p>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6 mb-16">
                     {reviews.map((t, i) => (
-                        <Card key={i} className="group relative border-border/50 hover:bg-background transition-all">
+                        <Card key={i} className="group border shadow-sm hover:shadow-md transition-all">
                             <CardContent className="p-8 flex flex-col h-full gap-6">
-                                <Quote className="absolute top-6 right-8 size-8 text-primary/10 group-hover:text-primary/20 transition-colors" />
+                                <Quote className="absolute top-6 right-8 size-8 text-primary/10 group-hover:text-primary transition-colors" />
 
                                 <div className="flex gap-0.5">
                                     {[...Array(t.rating)].map((_, j) => (
@@ -94,12 +94,12 @@ export function TestimonialsSection() {
                                     ))}
                                 </div>
 
-                                <p className="text-md text-muted-foreground leading-loose italic flex-1">
+                                <p className="text-sm text-muted-foreground leading-relaxed flex-1">
                                     "{t.content}"
                                 </p>
 
-                                <div className="pt-6 border-t border-border/50 flex items-center gap-4">
-                                    <Avatar className="size-10">
+                                <div className="pt-6 border-t flex items-center gap-4">
+                                    <Avatar className="size-10 border">
                                         <AvatarImage src={t.avatarUrl} />
                                         <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                                             {t.avatar}
@@ -107,7 +107,7 @@ export function TestimonialsSection() {
                                     </Avatar>
                                     <div className="space-y-0.5">
                                         <p className="text-sm font-bold tracking-tight">{t.name}</p>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{t.role}</p>
+                                        <p className="text-[10px] font-bold text-muted-foreground/60">{t.role}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -116,13 +116,13 @@ export function TestimonialsSection() {
                 </div>
 
                 {/* Stats Row */}
-                <Card className="border-border/50 bg-background/50 backdrop-blur-sm overflow-hidden">
+                <Card className="border bg-background/50 backdrop-blur-sm shadow-sm overflow-hidden">
                     <CardContent className="p-0">
-                        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border/50">
+                        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0">
                             {stats.map((s, i) => (
                                 <div key={i} className="p-8 text-center flex flex-col gap-2 group hover:bg-primary/5 transition-colors">
                                     <p className="text-3xl font-bold tracking-tight group-hover:text-primary transition-colors">{s.value}</p>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{s.label}</p>
+                                    <p className="text-[10px] font-bold uppercase text-muted-foreground/60">{s.label}</p>
                                 </div>
                             ))}
                         </div>

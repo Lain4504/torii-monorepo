@@ -38,26 +38,26 @@ const features = [
 export function FeaturesSection() {
     return (
         <section className="py-20 bg-muted/30">
-            <div className="container max-w-6xl">
+            <div className="container max-w-6xl mx-auto">
                 <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col gap-4">
                     <div>
-                        <Badge variant="outline" className="px-3 py-1 font-bold uppercase tracking-widest text-[10px]">
+                        <Badge variant="secondary" className="px-3 py-1 font-bold text-[10px]">
                             Hệ sinh thái Torii
                         </Badge>
                     </div>
                     <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                        Trải Nghiệm Học Tập <span className="text-primary italic">Đỉnh Cao</span>
+                        Trải Nghiệm Học Tập Đỉnh Cao
                     </h2>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed text-balance">
                         Kết hợp tinh hoa sư phạm Nhật Bản với công nghệ AI tiên tiến, mang đến hiệu quả học tập vượt trội.
                     </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {features.map((feature, i) => (
-                        <Card key={i} className="group transition-all hover:bg-background border-border/50">
+                        <Card key={i} className="group border shadow-sm hover:shadow-md transition-all">
                             <CardContent className="p-8 flex flex-col gap-4">
-                                <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary transition-transform">
+                                <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                                     <feature.icon className="size-6" />
                                 </div>
                                 <div className="space-y-2">

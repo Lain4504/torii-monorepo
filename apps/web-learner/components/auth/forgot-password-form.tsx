@@ -11,7 +11,6 @@ import { toast } from '@workspace/ui/components/sonner'
 import { CheckCircle2 } from 'lucide-react'
 import { useForgotPassword } from '@/lib/api/services/auth-api'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Card, CardContent } from '@workspace/ui/components/card'
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert'
 
 const forgotPasswordSchema = z.object({
@@ -75,33 +74,31 @@ export function ForgotPasswordForm() {
     }
 
     return (
-        <Card>
-            <CardContent className="p-6 space-y-6">
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
-                    <Controller
-                        control={form.control}
-                        name="email"
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="email"
-                                    placeholder="your-registered-email@domain.com"
-                                    autoComplete="email"
-                                />
-                                <FieldError errors={[fieldState.error]} />
-                            </Field>
-                        )}
-                    />
+        <div className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+                <Controller
+                    control={form.control}
+                    name="email"
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                            <Input
+                                {...field}
+                                id={field.name}
+                                type="email"
+                                placeholder="your-registered-email@domain.com"
+                                autoComplete="email"
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
 
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading && <Spinner className="mr-2" />}
-                        Gửi link khôi phục
-                    </Button>
-                </form>
-            </CardContent>
-        </Card>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Spinner className="mr-2" />}
+                    Gửi link khôi phục
+                </Button>
+            </form>
+        </div>
     )
 }

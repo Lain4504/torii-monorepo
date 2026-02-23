@@ -37,8 +37,8 @@ export function CourseCard(props: CourseCardProps) {
     const isFree = safePrice === 0
 
     return (
-        <Link href={`/courses/${slug}`} className="block h-full group outline-none">
-            <Card className={cn('h-full overflow-hidden flex flex-col hover:border-primary/40 transition-colors', className)}>
+        <Link href={`/courses/${slug}`} className="block h-full outline-none">
+            <Card className={cn('h-full overflow-hidden flex flex-col', className)}>
                 {/* Thumbnail */}
                 <div className="relative aspect-video overflow-hidden bg-muted">
                     <Image
@@ -46,30 +46,30 @@ export function CourseCard(props: CourseCardProps) {
                         alt={title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover"
                     />
-                    <div className="absolute top-4 left-4 z-20">
-                        <Badge variant="destructive" className="text-xs flex items-center gap-1">
+                    <div className="absolute top-3 left-3 z-20 flex gap-2">
+                        <Badge className="text-[10px] font-bold">
                             HOT
                         </Badge>
-                    </div>
-                    <div className="absolute top-2 left-2 flex gap-1.5">
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-[10px] font-bold">
                             {level}
                         </Badge>
-                        {isLive && (
-                            <Badge variant="destructive" className="text-xs flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                TRỰC TUYẾN
-                            </Badge>
-                        )}
                     </div>
+                    {isLive && (
+                        <div className="absolute bottom-3 left-3 z-20">
+                            <Badge variant="destructive" className="text-[10px] font-bold flex items-center gap-1.5">
+                                <span className="size-1.5 rounded-full bg-destructive-foreground animate-pulse" />
+                                LIVE
+                            </Badge>
+                        </div>
+                    )}
                 </div>
 
                 {/* Content */}
                 <CardContent className="flex-1 p-4 flex flex-col gap-3">
                     <div>
-                        <h3 className="font-semibold leading-snug group-hover:text-primary transition-colors line-clamp-2 mb-1">
+                        <h3 className="font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2 mb-1">
                             {title}
                         </h3>
                         <p className="text-xs text-muted-foreground line-clamp-1">
@@ -79,33 +79,33 @@ export function CourseCard(props: CourseCardProps) {
 
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
-                            <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
-                            <span className="font-medium text-foreground">{safeRating.toFixed(1)}</span>
+                            <Star className="size-3.5 fill-amber-500 text-amber-500" />
+                            <span className="font-bold text-foreground">{safeRating.toFixed(1)}</span>
                             <span>({reviewCount})</span>
                         </span>
                         <span className="flex items-center gap-1">
-                            <Users className="w-3.5 h-3.5" />
+                            <Users className="size-3.5" />
                             {formatNumber(safeStudents)}
                         </span>
                         <span className="flex items-center gap-1">
-                            <BookOpen className="w-3.5 h-3.5" />
+                            <BookOpen className="size-3.5" />
                             {safeTotalLessons} bài
                         </span>
                     </div>
 
-                    <div className="flex items-center justify-between mt-auto pt-2 border-t">
+                    <div className="flex items-center justify-between mt-auto pt-3 border-t">
                         <div>
                             {safeOriginalPrice > 0 && safeOriginalPrice > safePrice && (
-                                <p className="text-xs text-muted-foreground line-through">
+                                <p className="text-[10px] text-muted-foreground line-through">
                                     {formatCurrency(safeOriginalPrice)}
                                 </p>
                             )}
-                            <p className={cn('text-sm font-bold', isFree ? 'text-primary' : 'text-primary')}>
+                            <p className="text-sm font-bold text-primary">
                                 {isFree ? 'MIỄN PHÍ' : formatCurrency(safePrice)}
                             </p>
                         </div>
-                        <span className="text-xs font-medium text-primary flex items-center gap-1">
-                            Xem ngay <ArrowRight className="w-3.5 h-3.5" />
+                        <span className="text-xs font-bold text-primary flex items-center gap-1">
+                            Học ngay <ArrowRight className="size-3.5" />
                         </span>
                     </div>
                 </CardContent>

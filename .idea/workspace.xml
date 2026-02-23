@@ -6,66 +6,30 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add date-fns-tz dependency and implement formatNumber utility function">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/ai-chat-bot.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/ai-chat-bot.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/interactive-roleplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/interactive-roleplay.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/sensei-layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/sensei-layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/assessment-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/assessment-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-test-wizard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-test-wizard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-test.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-test.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/test-runner.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/test-runner.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/auth-layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/auth-layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/forgot-password-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/forgot-password-form.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/login-form.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/register-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/register-form.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/resend-verification-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/resend-verification-form.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/reset-password-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/reset-password-form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/verification-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/verification-content.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/assignment-submission.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/assignment-submission.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-assignments-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-assignments-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-curriculum.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-curriculum.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-hero-actions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-hero-actions.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-instructor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-instructor.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-reviews.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-reviews.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/learning-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/learning-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/lesson-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/lesson-header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/live-session-block.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/live-session-block.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/app-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/app-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/daily-check-in-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/daily-check-in-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/blog/blog-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/blog/blog-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/blog/comment-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/blog/comment-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/catalog/course-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/catalog/course-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/lesson-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/lesson-content.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-preview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-preview.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/podium-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/podium-card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/nav-learning.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/nav-learning.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/nav-main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/nav-main.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-sidebar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/nav-user.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/nav-user.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/notifications-dropdown.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/notifications-dropdown.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/streak-welcome-modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/streak-welcome-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-create-post.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-create-post.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-edit-post-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-edit-post-dialog.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-post-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-post-card.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/profile/achievement-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/profile/achievement-card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/profile/achievement-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/profile/achievement-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/profile/certificates-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/profile/certificates-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/profile/profile-info.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/profile/profile-info.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/backup-codes-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/backup-codes-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/disable-two-factor-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/disable-two-factor-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/enable-two-factor-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/enable-two-factor-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/revoke-session-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/revoke-session-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/security-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/security-tab.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/session-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/session-item.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/sessions-info-banner.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/sessions-info-banner.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/sessions-management.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/sessions-management.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/course-categories-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/course-categories-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/cta-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/cta-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/features-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/features-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/how-it-works-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/how-it-works-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/testimonials-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/testimonials-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/grep_results.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/update-sheets.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -194,47 +158,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#213 on update-agent-ai&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/test-app/next-app&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JavaScript Debug.localhost:3000.executor": "Debug",
+    "JavaScript Debug.localhost:5173.executor": "Debug",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "#213 on update-agent-ai",
+    "go.import.settings.migrated": "true",
+    "ignore.virus.scanning.warn.message": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/lain4504/test-app/next-app",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;redis&quot;,
-      &quot;mongo&quot;,
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "redis",
+      "mongo",
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>

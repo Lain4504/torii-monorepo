@@ -50,11 +50,11 @@ export function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
                     {/* Brand */}
                     <div className="lg:col-span-2 space-y-6">
-                        <Link href="/" className="flex items-center gap-3 group">
-                            <div className="size-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
+                        <Link href="/" className="flex items-center gap-3">
+                            <div className="size-9 rounded-lg bg-primary flex items-center justify-center">
                                 <Sparkles className="size-5 text-primary-foreground" />
                             </div>
-                            <span className="font-black text-lg tracking-tighter">
+                            <span className="font-bold text-lg tracking-tight">
                                 Torii <span className="text-primary">Nihongo</span>
                             </span>
                         </Link>
@@ -65,13 +65,13 @@ export function Footer() {
 
                         <div className="space-y-3">
                             <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
-                                <div className="size-7 rounded-lg bg-muted flex items-center justify-center">
+                                <div className="size-7 rounded-md bg-muted flex items-center justify-center">
                                     <MapPin className="size-3.5" />
                                 </div>
                                 Thủ Đức, TP. Hồ Chí Minh
                             </div>
                             <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
-                                <div className="size-7 rounded-lg bg-muted flex items-center justify-center">
+                                <div className="size-7 rounded-md bg-muted flex items-center justify-center">
                                     <Mail className="size-3.5" />
                                 </div>
                                 hello@torii-nihongo.vn
@@ -85,7 +85,7 @@ export function Footer() {
                                     variant="ghost"
                                     size="icon"
                                     asChild
-                                    className="size-10 rounded-xl bg-muted/50 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
+                                    className="size-10 bg-muted/50 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
                                 >
                                     <Link href={s.href} aria-label={s.label}>
                                         <s.icon className="size-5" />
@@ -99,7 +99,7 @@ export function Footer() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:col-span-3 gap-8">
                         {Object.entries(footerLinks).map(([key, section]) => (
                             <div key={key} className="space-y-5">
-                                <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">{section.title}</h3>
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">{section.title}</h3>
                                 <ul className="space-y-3">
                                     {section.links.map((link) => (
                                         <li key={link.href}>

@@ -28,10 +28,10 @@ const steps = [
 export function HowItWorksSection() {
     return (
         <section className="py-20 lg:py-24">
-            <div className="container max-w-6xl">
+            <div className="container max-w-6xl mx-auto">
                 <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col gap-4">
                     <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                        Hành trình <span className="text-primary italic">Học Tập</span>
+                        Hành trình Học Tập
                     </h2>
                     <p className="text-muted-foreground leading-relaxed">
                         Bốn bước đơn giản để thay đổi cách bạn chinh phục tiếng Nhật.
@@ -42,10 +42,10 @@ export function HowItWorksSection() {
                     {steps.map((step, i) => (
                         <div key={i} className="flex flex-col items-center text-center gap-6 group">
                             <div className="relative">
-                                <Card className="size-20 flex items-center justify-center rounded-2xl bg-background border-border/50 group-hover:border-primary/30 transition-all shadow-sm">
+                                <Card className="size-20 flex items-center justify-center rounded-lg bg-background border shadow-sm">
                                     <step.icon className="size-8 text-primary" />
                                 </Card>
-                                <Badge className="absolute -top-1 -right-1 size-7 flex items-center justify-center rounded-full p-0 font-bold text-xs">
+                                <Badge className="absolute -top-1 -right-1 size-7 flex items-center justify-center rounded-full p-0 font-bold text-xs ring-4 ring-background">
                                     {i + 1}
                                 </Badge>
                             </div>
