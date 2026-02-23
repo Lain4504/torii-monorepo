@@ -7,7 +7,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { toast } from '@workspace/ui/components/sonner';
-import { CheckCircle2, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, ArrowLeft } from 'lucide-react';
 import { authApi } from '@/lib/api/services/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { Spinner } from "@workspace/ui/components/spinner";
@@ -52,9 +52,7 @@ export default function ForgotPasswordPage() {
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <div className="w-full max-w-sm">
                 <div className="flex flex-col items-center text-center mb-6">
-                    <div className="p-3 rounded-full bg-primary mb-4">
-                        <ShieldCheck className="size-8 text-primary-foreground" />
-                    </div>
+                    <img src="/logo.png" alt="Torii Admin" className="size-16 mb-4 rounded-xl shadow-sm" />
                     <h1 className="text-2xl font-bold">Torii Admin</h1>
                 </div>
 

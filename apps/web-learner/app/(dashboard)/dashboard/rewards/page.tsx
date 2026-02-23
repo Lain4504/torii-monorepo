@@ -113,7 +113,7 @@ export default function RewardsPage() {
 
                         <CardFooter>
                             <Button
-                                className="w-full rounded-xl font-bold group"
+                                className="w-full"
                                 variant={(profile?.points || 0) >= reward.points ? "default" : "outline"}
                                 disabled={(profile?.points || 0) < reward.points || redeemMutation.isPending}
                                 onClick={() => handleRedeemClick(reward)}
@@ -155,7 +155,7 @@ export default function RewardsPage() {
                                         </p>
                                     </div>
                                 </div>
-                                <Button variant="outline" size="sm" className="rounded-lg font-bold shrink-0" onClick={() => {
+                                <Button variant="outline" size="sm" onClick={() => {
                                     navigator.clipboard.writeText(coupon.code)
                                     toast.success('Đã sao chép mã!')
                                 }}>

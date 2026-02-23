@@ -127,7 +127,7 @@ export default function DashboardPage() {
                                     <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                                     <span className="text-xs font-medium text-muted-foreground">Đã đồng bộ</span>
                                 </div>
-                                <Button size="sm" variant="ghost" className="rounded-lg font-bold text-xs hover:bg-primary/10 hover:text-primary transition-all group-hover:bg-primary/5">
+                                <Button size="sm" variant="ghost">
                                     Bắt đầu học <ArrowRight className="ml-2 w-3.5 h-3.5" />
                                 </Button>
                             </CardFooter>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
                                     <span className="inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
                                     <span className="text-xs font-medium text-muted-foreground">Sẵn sàng</span>
                                 </div>
-                                <Button size="sm" variant="ghost" className="rounded-lg font-bold text-xs hover:bg-blue-50 hover:text-blue-600 transition-all group-hover:bg-blue-50">
+                                <Button size="sm" variant="ghost">
                                     Làm bài thi <ArrowRight className="ml-2 w-3.5 h-3.5" />
                                 </Button>
                             </CardFooter>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
                                     <h2 className="text-xl font-bold text-foreground">Đang học</h2>
                                 </div>
                                 <Link href="/dashboard/my-courses">
-                                    <Button variant="ghost" size="sm" className="font-bold text-xs text-muted-foreground hover:text-foreground">
+                                    <Button variant="ghost" size="sm">
                                         Tất cả khóa học <ChevronRight className="w-4 h-4 ml-1" />
                                     </Button>
                                 </Link>
@@ -233,10 +233,7 @@ export default function DashboardPage() {
                                                         </div>
                                                     </div>
                                                     <div className="flex shrink-0">
-                                                        <Button size="icon" variant="ghost" className={cn(
-                                                            "w-10 h-10 transition-colors",
-                                                            isExpired ? "hover:bg-destructive hover:text-white" : "group-hover:bg-primary group-hover:text-white"
-                                                        )}>
+                                                        <Button size="icon" variant="ghost">
                                                             {isExpired ? <ArrowRight className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                                                         </Button>
                                                     </div>
@@ -283,7 +280,7 @@ export default function DashboardPage() {
                                 ))}
                             </CardContent>
                             <CardFooter className="bg-transparent rounded-none pt-2">
-                                <Button variant="ghost" className="w-full text-xs font-bold text-muted-foreground hover:text-foreground">Xem lịch chi tiết</Button>
+                                <Button variant="ghost" className="w-full">Xem lịch chi tiết</Button>
                             </CardFooter>
                         </Card>
 
@@ -312,7 +309,7 @@ export default function DashboardPage() {
                                 </div>
                             </CardContent>
                             <CardFooter className="bg-transparent rounded-none">
-                                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm">Tối ưu hóa tập trung</Button>
+                                <Button className="w-full" variant="secondary">Tối ưu hóa tập trung</Button>
                             </CardFooter>
                         </Card>
 

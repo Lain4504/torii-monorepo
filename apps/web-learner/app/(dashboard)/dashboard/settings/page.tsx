@@ -118,7 +118,7 @@ export default function SettingsPage() {
                                     <p className="text-xs text-muted-foreground">Chọn ngôn ngữ bạn muốn sử dụng</p>
                                 </div>
                                 <Select defaultValue="vi">
-                                    <SelectTrigger className="w-32 h-9 text-xs font-bold bg-background border-border hover:bg-muted/50 rounded-lg cursor-pointer">
+                                    <SelectTrigger className="w-32">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-xl border-border">
@@ -145,7 +145,7 @@ export default function SettingsPage() {
                                     <p className="text-sm font-bold text-destructive">Xóa tài khoản</p>
                                     <p className="text-xs text-muted-foreground">Xóa vĩnh viễn tài khoản và tất cả dữ liệu. Không thể hoàn tác.</p>
                                 </div>
-                                <Button variant="destructive" size="sm" className="px-4 cursor-pointer shadow-sm">
+                                <Button variant="destructive" size="sm">
                                     Xóa tài khoản
                                 </Button>
                             </div>

@@ -121,7 +121,8 @@ export default function WalletPage() {
                         </div>
                         <div className="mt-8 flex gap-3">
                             <Button
-                                className="bg-white text-orange-600 hover:bg-orange-50 font-bold rounded-xl px-6"
+                                variant="secondary"
+                                className="px-6"
                                 onClick={() => setIsTopUpOpen(true)}
                             >
                                 <Zap className="w-4 h-4 mr-2" /> Nạp thêm
@@ -149,7 +150,7 @@ export default function WalletPage() {
                             </h2>
                         </div>
                         <div className="mt-8 flex gap-3">
-                            <Button className="bg-white text-purple-600 hover:bg-purple-50 font-bold rounded-xl px-6">
+                            <Button variant="secondary" className="px-6">
                                 <Gift className="w-4 h-4 mr-2" /> Đổi quà
                             </Button>
                         </div>
@@ -233,14 +234,14 @@ export default function WalletPage() {
                         {(balanceData?.totalPages ?? 0) > 1 && (
                             <div className="flex justify-center gap-2 mt-4">
                                 <Button
-                                    variant="outline" size="sm" className="rounded-xl"
+                                    variant="outline" size="sm"
                                     disabled={balancePage === 1}
                                     onClick={() => setBalancePage(p => p - 1)}
                                 >
                                     <ChevronLeft className="w-4 h-4 mr-1" /> Trước
                                 </Button>
                                 <Button
-                                    variant="outline" size="sm" className="rounded-xl"
+                                    variant="outline" size="sm"
                                     disabled={balancePage === (balanceData?.totalPages ?? 0)}
                                     onClick={() => setBalancePage(p => p + 1)}
                                 >
@@ -312,14 +313,14 @@ export default function WalletPage() {
                         {(pointsData?.totalPages ?? 0) > 1 && (
                             <div className="flex justify-center gap-2 mt-4">
                                 <Button
-                                    variant="outline" size="sm" className="rounded-xl"
+                                    variant="outline" size="sm"
                                     disabled={pointsPage === 1}
                                     onClick={() => setPointsPage(p => p - 1)}
                                 >
                                     <ChevronLeft className="w-4 h-4 mr-1" /> Trước
                                 </Button>
                                 <Button
-                                    variant="outline" size="sm" className="rounded-xl"
+                                    variant="outline" size="sm"
                                     disabled={pointsPage === (pointsData?.totalPages ?? 0)}
                                     onClick={() => setPointsPage(p => p + 1)}
                                 >
@@ -356,7 +357,7 @@ export default function WalletPage() {
                                     type="number"
                                     value={topUpAmount}
                                     onChange={(e) => setTopUpAmount(e.target.value)}
-                                    className="pl-10 h-14 bg-muted/50 border-2 border-transparent focus:border-primary rounded-2xl text-xl font-bold transition-all"
+                                    className="pl-10"
                                     placeholder="50,000"
                                 />
                             </div>
@@ -366,11 +367,7 @@ export default function WalletPage() {
                             {['20000', '50000', '100000', '200000', '500000', '1000000'].map((amount) => (
                                 <Button
                                     key={amount}
-                                    variant="outline"
-                                    className={cn(
-                                        "h-12 rounded-xl font-bold transition-all border-2",
-                                        topUpAmount === amount ? "border-primary bg-primary/5 text-primary" : "border-transparent hover:border-primary/20"
-                                    )}
+                                    variant={topUpAmount === amount ? "default" : "outline"}
                                     onClick={() => setTopUpAmount(amount)}
                                 >
                                     {formatCurrency(amount)}
@@ -395,7 +392,8 @@ export default function WalletPage() {
                     <DialogFooter>
                         <Button
                             type="submit"
-                            className="w-full h-14 rounded-2xl font-bold text-lg bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-600/20"
+                            className="w-full"
+                            size="lg"
                             onClick={handleTopUp}
                             disabled={isSubmitting}
                         >

@@ -114,7 +114,7 @@ export default function MyCoursesPage() {
                         placeholder="Tìm khóa học..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-10 bg-background border-input focus:ring-1 focus:ring-primary rounded-xl"
+                        className="pl-9"
                     />
                 </div>
                 <div className="flex bg-muted/50 p-1 rounded-xl">
@@ -122,7 +122,6 @@ export default function MyCoursesPage() {
                         variant={filter === 'all' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('all')}
-                        className="font-bold px-4"
                     >
                         Tất cả
                     </Button>
@@ -130,7 +129,6 @@ export default function MyCoursesPage() {
                         variant={filter === 'in-progress' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('in-progress')}
-                        className="font-bold px-4"
                     >
                         Đang học
                     </Button>
@@ -138,7 +136,6 @@ export default function MyCoursesPage() {
                         variant={filter === 'completed' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('completed')}
-                        className="font-bold px-4"
                     >
                         Đã xong
                     </Button>
@@ -233,14 +230,15 @@ export default function MyCoursesPage() {
                                             e.stopPropagation();
                                             setExpiredCourse({ title: course.title, slug: course.slug })
                                         }}
-                                        className="w-full text-xs font-bold bg-destructive hover:bg-destructive/90 shadow-sm"
+                                        variant="destructive"
+                                        className="w-full text-xs"
                                     >
                                         Gia hạn khóa học
                                         <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                     </Button>
                                 ) : (
                                     <Link href={`/courses/${course.slug}/learn`} className="w-full" onClick={(e) => e.stopPropagation()}>
-                                        <Button className="w-full text-xs font-bold hover:bg-primary/90 shadow-sm">
+                                        <Button className="w-full text-xs">
                                             {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
                                             <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                         </Button>
@@ -261,7 +259,7 @@ export default function MyCoursesPage() {
                         <EmptyTitle>Không tìm thấy khóa học</EmptyTitle>
                         <EmptyDescription>Bạn chưa đăng ký khóa học nào hoặc không tìm thấy kết quả phù hợp.</EmptyDescription>
                         <Link href="/courses">
-                            <Button className="mt-4 font-bold" variant="outline">Khám phá khóa học</Button>
+                            <Button className="mt-4" variant="outline">Khám phá khóa học</Button>
                         </Link>
                     </EmptyContent>
                 </Empty>

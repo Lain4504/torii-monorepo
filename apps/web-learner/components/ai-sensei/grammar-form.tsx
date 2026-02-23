@@ -1,20 +1,22 @@
 "use client"
 
 import * as React from "react"
-import { Sparkles, Check, ArrowRight, BookOpen, AlertCircle, Lightbulb, RotateCcw } from "lucide-react"
+import { Sparkles, ArrowRight, RotateCcw, Bot, CheckCircle2, AlertCircle, Lightbulb } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
+import { Alert, AlertTitle, AlertDescription } from "@workspace/ui/components/alert"
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@workspace/ui/components/empty"
+import { Separator } from "@workspace/ui/components/separator"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentGrammarCheckResponseDTO as GrammarCheckResponse } from "@workspace/schemas"
-import { cn } from "@workspace/ui/lib/utils"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
+import { Field, FieldError } from "@workspace/ui/components/field"
 
 const grammarFormSchema = z.object({
     text: z.string().min(1, "Vui lòng nhập nội dung"),
@@ -35,7 +37,6 @@ export function GrammarForm() {
 
     const handleCheck = async (data: GrammarFormData) => {
         setIsLoading(true)
-
         try {
             const response = await agentApi.sensei.checkGrammar(data.text)
             setResult(response)
@@ -52,194 +53,175 @@ export function GrammarForm() {
     }
 
     return (
-        <div className="mx-auto max-w-5xl space-y-8 p-4 md:p-8">
+        <div className="container max-w-6xl py-10 space-y-8">
             {/* Header Section */}
-            <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                    <BookOpen className="size-6 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight">
-                        Grammar Guide
-                    </h1>
+            <header className="space-y-2">
+                <div className="flex items-center gap-2 text-primary font-medium">
+                    <Sparkles className="size-4" />
+                    <span>AI Sensei</span>
                 </div>
-                <p className="text-muted-foreground font-medium">
-                    Phân tích và tối ưu hóa ngữ pháp tiếng Nhật với AI Sensei
+                <h1 className="text-3xl font-bold tracking-tight">
+                    Kiểm tra Ngữ pháp
+                </h1>
+                <p className="text-muted-foreground">
+                    Phân tích và tối ưu hóa ngữ pháp tiếng Nhật của bạn với sự hỗ trợ từ trí tuệ nhân tạo.
                 </p>
-            </div>
+            </header>
 
-            <div className="grid lg:grid-cols-12 gap-8 items-start">
-                {/* Left Side: Input */}
-                <Card className="lg:col-span-5 bg-card/50">
-                    <form onSubmit={form.handleSubmit(handleCheck)}>
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-sm uppercase tracking-[0.2em] text-muted-foreground/60">Input Content</CardTitle>
-                            <CardDescription>Nhập câu tiếng Nhật bạn muốn kiểm tra</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+            <div className="grid lg:grid-cols-2 gap-8 items-start">
+                {/* Input Section */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Nội dung tiếng Nhật</CardTitle>
+                        <CardDescription>Nhập câu hoặc đoạn văn bạn muốn kiểm tra.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form id="grammar-form" onSubmit={form.handleSubmit(handleCheck)}>
                             <Controller
                                 name="text"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
-                                    <Field data-invalid={fieldState.invalid}>
-                                        <div className="relative group">
-                                            <Textarea
-                                                {...field}
-                                                id={field.name}
-                                                placeholder="VD: 私は日本語勉強します..."
-                                                className="min-h-[200px] resize-none"
-                                                aria-invalid={fieldState.invalid}
-                                            />
-                                            {field.value && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    onClick={() => form.setValue("text", "")}
-                                                >
-                                                    <RotateCcw className="size-3" />
-                                                </Button>
-                                            )}
-                                        </div>
+                                    <Field>
+                                        <Textarea
+                                            {...field}
+                                            id={field.name}
+                                            placeholder="Ví dụ: 私は昨日、日本へ行きましたですが..."
+                                            className="min-h-[300px] resize-none"
+                                            disabled={isLoading}
+                                        />
                                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                     </Field>
                                 )}
                             />
-                        </CardContent>
-                        <CardFooter className="flex items-center justify-between py-4 border-t bg-muted/50">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                                {form.watch("text").length} characters
-                            </span>
+                        </form>
+                    </CardContent>
+                    <CardFooter className="flex items-center justify-between">
+                        <div className="text-xs text-muted-foreground">
+                            {form.watch("text").length} ký tự
+                        </div>
+                        <div className="flex gap-2">
+                            {result && (
+                                <Button variant="outline" onClick={handleReset} disabled={isLoading}>
+                                    <RotateCcw className="mr-2 size-4" />
+                                    Làm mới
+                                </Button>
+                            )}
                             <Button
+                                form="grammar-form"
                                 type="submit"
                                 disabled={!form.watch('text').trim() || isLoading}
                             >
-                                {isLoading
-                                    ? (
-                                        <div className="flex items-center gap-2">
-                                            <Spinner />
-                                            <span>Đang xử lý...</span>
-                                        </div>
-                                    )
-                                    : (
-                                        <div className="flex items-center gap-2">
-                                            <span>Kiểm tra</span>
-                                            <ArrowRight className="size-4" />
-                                        </div>
-                                    )}
+                                {isLoading ? (
+                                    <>
+                                        <Spinner className="mr-2" />
+                                        Đang kiểm tra
+                                    </>
+                                ) : (
+                                    <>
+                                        Kiểm tra
+                                        <ArrowRight className="ml-2 size-4" />
+                                    </>
+                                )}
                             </Button>
-                        </CardFooter>
-                    </form>
+                        </div>
+                    </CardFooter>
                 </Card>
 
-                {/* Right Side: Results */}
-                <div className="lg:col-span-7 space-y-6">
+                {/* Result Section */}
+                <div className="space-y-6">
                     {!result && !isLoading && (
-                        <div className="h-full min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-border/10 rounded-lg bg-muted/5 opacity-50">
-                            <div className="size-16 rounded-lg bg-muted flex items-center justify-center mb-4">
-                                <Sparkles className="size-8 text-muted-foreground/40" />
-                            </div>
-                            <p className="font-medium text-muted-foreground">Kết quả phân tích sẽ hiển thị tại đây</p>
-                        </div>
+                        <Empty className="h-full min-h-[400px]">
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <Bot className="size-5" />
+                                </EmptyMedia>
+                                <EmptyTitle>Sensei đang sẳn sàng</EmptyTitle>
+                                <EmptyDescription>
+                                    Nhận kết quả phân tích và gợi ý ngay sau khi gửi nội dung.
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
                     )}
 
                     {isLoading && (
-                        <div className="space-y-6">
-                            <Skeleton className="h-[200px] w-full rounded-lg" />
-                            <div className="grid grid-cols-2 gap-4">
-                                <Skeleton className="h-40 w-full rounded-lg" />
-                                <Skeleton className="h-40 w-full rounded-lg" />
-                            </div>
+                        <div className="space-y-4">
+                            <Skeleton className="h-[200px] w-full" />
+                            <Skeleton className="h-[100px] w-full" />
+                            <Skeleton className="h-[100px] w-full" />
                         </div>
                     )}
 
                     {result && !isLoading && (
-                        <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
+                        <div className="space-y-6">
                             {/* Corrected Text Card */}
-                            <Card className="relative overflow-hidden border-primary/20 bg-primary/5">
-                                <div className="absolute top-0 right-0 p-4">
-                                    <Badge>
-                                        Corrected
-                                    </Badge>
-                                </div>
-                                <CardHeader>
-                                    <CardTitle className="text-sm uppercase tracking-[0.2em] text-green-600/70">Bản sửa đổi</CardTitle>
+                            <Card className="border-primary/20 bg-primary/5">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <Badge variant="outline" className="bg-background">Kết quả đề xuất</Badge>
+                                        <CheckCircle2 className="size-5 text-emerald-500" />
+                                    </div>
                                 </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <p className="text-2xl font-bold leading-tight tracking-tight md:text-3xl">
+                                <CardContent className="space-y-4">
+                                    <p className="text-xl font-bold leading-relaxed">
                                         {result.correctedText}
                                     </p>
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="destructive">Gốc</Badge>
-                                        <span className="text-xs font-medium text-muted-foreground">Lỗi Ngữ Pháp / Từ Vựng</span>
-                                    </div>
-                                    <div className="rounded-lg border bg-muted px-4 py-3">
-                                        <span className="font-medium italic text-muted-foreground line-through decoration-destructive/50">
+                                    <Separator />
+                                    <div>
+                                        <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Văn bản gốc</p>
+                                        <p className="text-sm text-muted-foreground line-through italic">
                                             {result.originalText}
-                                        </span>
+                                        </p>
                                     </div>
                                 </CardContent>
                             </Card>
 
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {/* Errors List */}
-                                <Card className="bg-muted/50">
-                                    <CardHeader className="pb-2">
-                                        <div className="flex items-center gap-2 text-destructive">
+                            {/* Explanations */}
+                            {result.errors.length > 0 && (
+                                <div className="space-y-3">
+                                    <h3 className="text-sm font-semibold flex items-center gap-2 text-destructive">
+                                        <AlertCircle className="size-4" />
+                                        Lỗi ngữ pháp cần lưu ý
+                                    </h3>
+                                    {result.errors.map((err, i) => (
+                                        <Alert key={i} variant="destructive">
                                             <AlertCircle className="size-4" />
-                                            <CardTitle className="text-[10px] font-bold uppercase tracking-widest">Lỗi phát hiện</CardTitle>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {result.errors.length > 0
-                                            ? (
-                                                <ul className="space-y-2">
-                                                    {result.errors.map((err, i) => (
-                                                        <li key={i} className="text-sm font-medium leading-relaxed rounded-md border border-destructive/20 bg-destructive/5 p-3">
-                                                            {err.explanation}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )
-                                            : (
-                                                <p className="text-xs italic text-muted-foreground">Không phát hiện lỗi nghiêm trọng</p>
-                                            )}
-                                    </CardContent>
-                                </Card>
+                                            <AlertTitle>Phân tích</AlertTitle>
+                                            <AlertDescription>
+                                                {err.explanation}
+                                            </AlertDescription>
+                                        </Alert>
+                                    ))}
+                                </div>
+                            )}
 
-                                {/* Suggestions List */}
-                                <Card className="bg-muted/50">
-                                    <CardHeader className="pb-2">
-                                        <div className="flex items-center gap-2 text-primary">
+                            {/* Suggestions */}
+                            {result.suggestions.length > 0 && (
+                                <div className="space-y-3">
+                                    <h3 className="text-sm font-semibold flex items-center gap-2 text-primary">
+                                        <Lightbulb className="size-4" />
+                                        Gợi ý diễn đạt tự nhiên hơn
+                                    </h3>
+                                    {result.suggestions.map((sug, i) => (
+                                        <Alert key={i}>
                                             <Lightbulb className="size-4" />
-                                            <CardTitle className="text-[10px] font-bold uppercase tracking-widest">Gợi ý phát triển</CardTitle>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {result.suggestions.length > 0
-                                            ? (
-                                                <ul className="space-y-2">
-                                                    {result.suggestions.map((sug, i) => (
-                                                        <li key={i} className="text-sm font-medium leading-relaxed rounded-md border border-primary/20 bg-primary/5 p-3">
-                                                            {sug}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )
-                                            : (
-                                                <p className="text-xs italic text-muted-foreground">Cấu trúc câu đã rất ổn</p>
-                                            )}
-                                    </CardContent>
-                                </Card>
-                            </div>
+                                            <AlertTitle>Gợi ý</AlertTitle>
+                                            <AlertDescription>
+                                                {sug}
+                                            </AlertDescription>
+                                        </Alert>
+                                    ))}
+                                </div>
+                            )}
 
-                            <Button
-                                variant="outline"
-                                className="w-full border-dashed"
-                                onClick={handleReset}
-                            >
-                                <RotateCcw className="mr-2 size-4" />
-                                Nhập câu mới
-                            </Button>
+                            {result.errors.length === 0 && result.suggestions.length === 0 && (
+                                <Alert className="bg-emerald-50 border-emerald-200 text-emerald-800">
+                                    <CheckCircle2 className="size-4 text-emerald-600" />
+                                    <AlertTitle>Rất tốt!</AlertTitle>
+                                    <AlertDescription>
+                                        Câu của bạn đã hoàn toàn chính xác và tự nhiên.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
                         </div>
                     )}
                 </div>

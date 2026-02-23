@@ -13,6 +13,11 @@ import {
 } from "@workspace/ui/components/dialog";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@workspace/ui/components/input-otp";
 import { toast } from "@workspace/ui/components/sonner";
 import { Smartphone, QrCode, Key, Download, Copy, Check, AlertTriangle } from 'lucide-react';
 import { Spinner } from '@workspace/ui/components/spinner';
@@ -161,7 +166,7 @@ export function EnableTwoFactorDialog({
             <Button
               onClick={handleGenerate}
               disabled={generateMutation.isPending}
-              className="w-full h-10 font-bold"
+              className="w-full"
             >
               {generateMutation.isPending ? (
                 <>
@@ -200,14 +205,14 @@ export function EnableTwoFactorDialog({
                 <Input
                   value={secret}
                   readOnly
-                  className="font-mono text-xs rounded-lg bg-muted/20 border-border/20 flex-1"
+                  className="font-mono text-xs flex-1"
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   onClick={copySecret}
-                  className="shrink-0 rounded-lg border-border/20 h-10 w-10"
+                  className="shrink-0"
                 >
                   {copiedSecret ? (
                     <Check className="size-4 text-emerald-600" />
@@ -230,14 +235,22 @@ export function EnableTwoFactorDialog({
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="code">Nhập mã 6 chữ số từ ứng dụng</FieldLabel>
-                      <Input
-                        {...field}
-                        id="code"
-                        placeholder="000000"
-                        maxLength={6}
-                        className="h-14 text-center text-2xl font-mono tracking-widest rounded-lg border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
-                        autoComplete="off"
-                      />
+                      <div className="flex justify-center py-2">
+                        <InputOTP
+                          maxLength={6}
+                          {...field}
+                          id="code"
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </div>
                       <FieldError errors={[fieldState.error]} />
                     </Field>
                   )}
@@ -247,7 +260,7 @@ export function EnableTwoFactorDialog({
               <Button
                 type="submit"
                 disabled={enableMutation.isPending}
-                className="w-full h-10 font-bold"
+                className="w-full"
               >
                 {enableMutation.isPending ? (
                   <>
@@ -293,7 +306,7 @@ export function EnableTwoFactorDialog({
               <Button
                 onClick={copyBackupCodes}
                 variant="outline"
-                className="flex-1 h-10 gap-2"
+                className="flex-1 gap-2"
               >
                 {copiedCodes ? (
                   <Check className="size-4 text-emerald-600" />
@@ -305,7 +318,7 @@ export function EnableTwoFactorDialog({
               <Button
                 onClick={downloadBackupCodes}
                 variant="outline"
-                className="flex-1 h-10 gap-2"
+                className="flex-1 gap-2"
               >
                 <Download className="size-4" />
                 <span className="text-xs font-bold">Tải xuống</span>
@@ -314,7 +327,7 @@ export function EnableTwoFactorDialog({
 
             <Button
               onClick={handleFinish}
-              className="w-full h-10 font-bold"
+              className="w-full"
             >
               Tôi đã lưu mã dự phòng
             </Button>

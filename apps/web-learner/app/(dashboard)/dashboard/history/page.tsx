@@ -93,10 +93,7 @@ export default function HistoryPage() {
                                                 }
                                             }}
                                         >
-                                            <Button variant="ghost" size="icon" className={cn(
-                                                "rounded-full w-9 h-9 hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-all",
-                                                item.isExpired && "text-destructive"
-                                            )}>
+                                            <Button variant="ghost" size="icon" className={item.isExpired ? "text-destructive" : ""}>
                                                 {item.isExpired ? <ArrowRight className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                                             </Button>
                                         </Link>

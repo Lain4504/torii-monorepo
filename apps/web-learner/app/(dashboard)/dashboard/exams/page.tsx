@@ -53,7 +53,7 @@ export default function ExamsPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 icon-xs text-muted-foreground" />
                     <Input
                         placeholder="Tìm kiếm bài thi..."
-                        className="pl-9 h-10 rounded-xl bg-background border-input focus:ring-1 focus:ring-primary text-sm font-medium"
+                        className="pl-9"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -118,7 +118,7 @@ export default function ExamsPage() {
                                 </div>
 
                                 <div className="p-4 bg-muted/20 border-t border-border/50">
-                                    <Button className="w-full h-10 rounded-xl text-xs font-bold shadow-sm">
+                                    <Button className="w-full">
                                         {(exam.sessionStatus === ExamSessionStatus.SUBMITTED || exam.sessionStatus === ExamSessionStatus.COMPLETED) ? (
                                             <>
                                                 <History className="mr-2 size-3.5" /> Xem kết quả

@@ -147,7 +147,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {...props}
             className="border-r border-border/10 bg-card/60 backdrop-blur-xl"
         >
-            <SidebarHeader className="h-16 justify-center group-data-[collapsible=icon]:px-0">
+            <SidebarHeader className="h-auto py-4 px-2 flex flex-col gap-4 group-data-[collapsible=icon]:px-0">
+                <div className="flex items-center gap-3 px-2 group-data-[collapsible=icon]:hidden">
+                    <img src="/logo.png" alt="Torii" className="size-8 rounded-lg shadow-sm" />
+                    <span className="font-bold text-lg tracking-tight">Torii <span className="text-primary">Admin</span></span>
+                </div>
+                <div className="lg:hidden flex justify-center group-data-[collapsible=icon]:flex">
+                    <img src="/logo.png" alt="Torii" className="size-8 rounded-lg" />
+                </div>
                 <TeamSwitcher
                     teams={availableWorkspaces}
                     activeTeam={activeWorkspace}

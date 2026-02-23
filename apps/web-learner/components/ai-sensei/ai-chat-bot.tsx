@@ -248,7 +248,7 @@ export function AiChatBot() {
     }
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-card border rounded-lg">
+        <div className="flex flex-col h-full overflow-hidden bg-card border border-border shadow-sm rounded-xl m-4">
             {/* Conversation Area */}
             <Conversation className="flex-1 min-h-0 border-b">
                 <ConversationContent>
@@ -295,7 +295,7 @@ export function AiChatBot() {
             </Conversation>
 
             {/* Input & Suggestions Area */}
-            <div className="shrink-0 pt-4 space-y-4 bg-muted/50 border-t">
+            <div className="shrink-0 pt-4 space-y-4 shadow-2xl bg-muted/30">
                 {suggestions.length > 0 && status === "ready" && (
                     <Suggestions className="px-4">
                         {suggestions.map(s => (
