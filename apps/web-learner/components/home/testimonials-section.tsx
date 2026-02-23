@@ -1,133 +1,175 @@
 'use client'
 
-import { Star, Quote, Heart, Users } from 'lucide-react'
+import { useState } from 'react'
+import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { Separator } from '@workspace/ui/components/separator'
-import { Card, CardContent } from '@workspace/ui/components/card'
+import { Button } from '@workspace/ui/components/button'
+import { Badge } from '@workspace/ui/components/badge'
 import { useQuery } from '@tanstack/react-query'
 import { reviewApi } from '@/lib/api/services/review-api'
-import { Badge } from '@workspace/ui/components/badge'
 
-interface Testimonial {
+interface Review {
     name: string
     role: string
     content: string
     rating: number
     avatar: string
     avatarUrl?: string
+    result?: string
 }
 
-const mockTestimonials: Testimonial[] = [
+const mockReviews: Review[] = [
     {
         name: 'Trần Minh Quân',
-        role: 'Học viên lớp N3',
-        content: 'AI Sensei là một cuộc cách mạng! Cảm giác như có một Sensei người Nhật bên cạnh 24/7 để giải đáp mọi thắc mắc về ngữ pháp một cách tức thì.',
+        role: 'Học viên',
+        result: 'Đỗ JLPT N3 sau 5 tháng',
+        content: 'AI Sensei là cuộc cách mạng thật sự. Mình hỏi một câu về ngữ pháp lúc 2 giờ sáng và được giải thích chi tiết ngay lập tức — điều này không thể có ở bất kỳ trung tâm nào.',
         rating: 5,
         avatar: 'MQ',
     },
     {
         name: 'Lê Thị Mỹ Linh',
         role: 'Du học sinh tại Tokyo',
-        content: 'Hệ thống Flashcard thông minh giúp mình nhớ Kanji nhanh hơn rất nhiều so với cách học truyền thống. Nhờ Torii mà mình đã đỗ N2 chỉ sau 6 tháng.',
+        result: 'Đỗ JLPT N2 chỉ sau 6 tháng',
+        content: 'Hệ thống Flashcard SRS của Torii giúp mình ghi nhớ Kanji nhanh đến mức kinh ngạc. 6 tháng mà đỗ N2 — bạn bè không tin nhưng đây là sự thật.',
         rating: 5,
         avatar: 'ML',
     },
     {
         name: 'Nguyễn Hoàng Nam',
         role: 'Kỹ sư phần mềm',
-        content: 'Lớp học WebRTC rất ổn định. Khả năng tương tác trực tiếp với giáo viên qua bảng trắng giúp những giờ học online không còn nhàm chán.',
+        result: 'Làm việc tại Nhật sau N2',
+        content: 'Lớp học WebRTC khác hoàn toàn so với Zoom hay Meet thông thường. Tương tác với giáo viên qua bảng trắng ảo rất trực quan — cảm giác gần như ngồi học trực tiếp.',
         rating: 5,
         avatar: 'HN',
     },
-]
-
-const stats = [
-    { label: 'Tỉ lệ hài lòng', value: '98%', icon: Heart },
-    { label: 'Học viên đã học', value: '50K+', icon: Users },
-    { label: 'Điểm đánh giá', value: '4.9/5', icon: Star },
-    { label: 'Hỗ trợ AI 24/7', value: 'Sẵn sàng', icon: Heart },
+    {
+        name: 'Phạm Thu Hà',
+        role: 'Sinh viên năm 3',
+        result: 'Đỗ JLPT N4 lần đầu tiên',
+        content: 'Lộ trình cá nhân hóa rất quan trọng với mình vì lịch học không đều. AI biết lúc nào mình đang yếu chỗ nào và tự điều chỉnh bài học — không cần mình tự lo.',
+        rating: 5,
+        avatar: 'TH',
+    },
 ]
 
 export function TestimonialsSection() {
+    const [current, setCurrent] = useState(0)
+
     const { data: reviewsData } = useQuery({
         queryKey: ['home-reviews'],
-        queryFn: () => reviewApi.getAllReviews(1, 3),
+        queryFn: () => reviewApi.getAllReviews(1, 6),
     })
 
-    const reviews: Testimonial[] = reviewsData?.data?.length
+    const reviews: Review[] = reviewsData?.data?.length
         ? reviewsData.data.map(r => ({
             name: r.user.displayName,
             role: r.courseTitle || 'Học viên Torii',
             content: r.comment || '',
             rating: r.rating,
-            avatar: r.user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+            avatar: r.user.displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase(),
             avatarUrl: r.user.avatarUrl,
         }))
-        : mockTestimonials
+        : mockReviews
+
+    const prev = () => setCurrent((c) => (c - 1 + reviews.length) % reviews.length)
+    const next = () => setCurrent((c) => (c + 1) % reviews.length)
+    const r = reviews[current]
 
     return (
-        <section className="py-20 bg-muted/30">
-            <div className="container max-w-6xl mx-auto">
-                <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col gap-4">
-                    <div>
-                        <Badge variant="secondary" className="px-3 py-1 font-bold text-[10px]">
+        <section className="py-24 lg:py-32 bg-background">
+            <div className="container max-w-6xl mx-auto px-4 md:px-6">
+                <div className="grid md:grid-cols-2 gap-16 items-center">
+                    {/* Left: headline */}
+                    <div className="space-y-5">
+                        <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-sm font-medium">
                             Câu chuyện thành công
                         </Badge>
-                    </div>
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                        Cảm Nhận Từ Học Viên
-                    </h2>
-                    <p className="text-muted-foreground leading-relaxed text-balance">
-                        Hàng ngàn học viên đã thay đổi tương lai nhờ lộ trình học tập tối ưu tại Torii Nihongo.
-                    </p>
-                </div>
+                        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl leading-tight">
+                            Học Viên Nói Gì Về{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/50">
+                                Torii?
+                            </span>
+                        </h2>
+                        <p className="text-muted-foreground text-lg leading-relaxed">
+                            Không phải lời hứa từ chúng tôi — mà là kết quả thật từ các học viên đã trải nghiệm.
+                        </p>
 
-                <div className="grid md:grid-cols-3 gap-6 mb-16">
-                    {reviews.map((t, i) => (
-                        <Card key={i} className="group border shadow-sm hover:shadow-md transition-all">
-                            <CardContent className="p-8 flex flex-col h-full gap-6">
-                                <Quote className="absolute top-6 right-8 size-8 text-primary/10 group-hover:text-primary transition-colors" />
+                        {/* Navigation */}
+                        <div className="flex items-center gap-3 pt-4">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={prev}
+                                className="rounded-full size-10 cursor-pointer"
+                            >
+                                <ChevronLeft className="size-4" />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={next}
+                                className="rounded-full size-10 cursor-pointer"
+                            >
+                                <ChevronRight className="size-4" />
+                            </Button>
+                            <span className="text-sm text-muted-foreground ml-2">
+                                {current + 1} / {reviews.length}
+                            </span>
+                        </div>
 
-                                <div className="flex gap-0.5">
-                                    {[...Array(t.rating)].map((_, j) => (
-                                        <Star key={j} className="size-4 fill-amber-400 text-amber-400" />
-                                    ))}
-                                </div>
-
-                                <p className="text-sm text-muted-foreground leading-relaxed flex-1">
-                                    "{t.content}"
-                                </p>
-
-                                <div className="pt-6 border-t flex items-center gap-4">
-                                    <Avatar className="size-10 border">
-                                        <AvatarImage src={t.avatarUrl} />
-                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                                            {t.avatar}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="space-y-0.5">
-                                        <p className="text-sm font-bold tracking-tight">{t.name}</p>
-                                        <p className="text-[10px] font-bold text-muted-foreground/60">{t.role}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-
-                {/* Stats Row */}
-                <Card className="border bg-background/50 backdrop-blur-sm shadow-sm overflow-hidden">
-                    <CardContent className="p-0">
-                        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0">
-                            {stats.map((s, i) => (
-                                <div key={i} className="p-8 text-center flex flex-col gap-2 group hover:bg-primary/5 transition-colors">
-                                    <p className="text-3xl font-bold tracking-tight group-hover:text-primary transition-colors">{s.value}</p>
-                                    <p className="text-[10px] font-bold uppercase text-muted-foreground/60">{s.label}</p>
-                                </div>
+                        {/* Dots */}
+                        <div className="flex gap-1.5">
+                            {reviews.map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrent(i)}
+                                    className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${i === current ? 'w-6 bg-primary' : 'w-1.5 bg-muted-foreground/30'}`}
+                                />
                             ))}
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+
+                    {/* Right: review card */}
+                    <div className="relative">
+                        <div className="rounded-2xl border bg-card p-8 space-y-6 shadow-sm">
+                            <Quote className="size-10 text-primary/15" />
+
+                            {/* Stars */}
+                            <div className="flex gap-1">
+                                {[...Array(r.rating)].map((_, j) => (
+                                    <Star key={j} className="size-5 fill-primary text-primary" />
+                                ))}
+                            </div>
+
+                            {/* Result badge */}
+                            {r.result && (
+                                <Badge className="rounded-full text-xs font-semibold">
+                                    🎯 {r.result}
+                                </Badge>
+                            )}
+
+                            {/* Content */}
+                            <p className="text-foreground leading-relaxed text-base">
+                                &ldquo;{r.content}&rdquo;
+                            </p>
+
+                            {/* Author */}
+                            <div className="flex items-center gap-3 pt-2 border-t">
+                                <Avatar className="size-10 border">
+                                    <AvatarImage src={r.avatarUrl} />
+                                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                                        {r.avatar}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-semibold text-sm">{r.name}</p>
+                                    <p className="text-xs text-muted-foreground">{r.role}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     )

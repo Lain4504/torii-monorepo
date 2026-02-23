@@ -1,97 +1,138 @@
 'use client'
 
-import { ArrowRight, Star, Users } from 'lucide-react'
+import { ArrowRight, Star, Users, Zap } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Separator } from '@workspace/ui/components/separator'
 import { Badge } from '@workspace/ui/components/badge'
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
+import Image from 'next/image'
+
+const floatingStats = [
+    { label: 'N2 đạt sau 6 tháng', icon: Zap },
+]
 
 export function HeroSection() {
     return (
-        <section className="py-20 lg:py-32 overflow-hidden">
-            <div className="container px-4">
-                <div className="flex flex-col items-center text-center max-w-4xl mx-auto gap-12">
-                    {/* Content */}
-                    <div className="flex flex-col gap-6 items-center">
-                        <div className="flex flex-col gap-4 items-center">
-                            <Badge variant="secondary" className="gap-2 px-3 py-1 rounded-full">
-                                <span className="relative flex size-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                                    <span className="relative inline-flex rounded-full size-2 bg-primary" />
+        <section className="relative py-20 lg:py-28 overflow-hidden">
+            {/* Subtle background grid */}
+            <div
+                className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                style={{
+                    backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
+                    backgroundSize: '64px 64px',
+                }}
+            />
+
+            <div className="container max-w-6xl mx-auto px-4 md:px-6 relative">
+                <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
+                    {/* LEFT: Content */}
+                    <div className="space-y-7">
+                        {/* Badge */}
+                        <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-sm font-medium w-fit">
+                            <span className="flex size-2 rounded-full bg-primary mr-2 animate-pulse" />
+                            Nền tảng học JLPT số 1
+                        </Badge>
+
+                        {/* Headline */}
+                        <div className="space-y-3">
+                            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl leading-[1.1]">
+                                Học Tiếng Nhật.
+                                <br />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-primary/60">
+                                    Nhận Tương Lai.
                                 </span>
-                                Tiêu chuẩn giáo dục Nhật Bản
-                            </Badge>
-
-                            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
-                                Học Tiếng Nhật. <span className="text-primary">Nhận Tương Lai.</span>
                             </h1>
-
-                            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                                Kết hợp công nghệ <strong className="text-foreground">AI tiên tiến</strong> và phương pháp giảng dạy truyền thống
-                                để rút ngắn <span className="text-primary font-bold">50% thời gian</span> chinh phục JLPT.
+                            <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
+                                Nền tảng AI kết hợp lớp học WebRTC và lộ trình JLPT cá nhân hóa — giúp bạn chinh phục tiếng Nhật nhanh hơn <strong className="text-foreground">50%</strong>.
                             </p>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <Button size="lg" className="px-8" asChild>
+                        {/* CTAs */}
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Button size="lg" className="h-12 px-8 text-base font-semibold rounded-lg" asChild>
                                 <Link href="/register">
                                     Bắt đầu miễn phí
                                     <ArrowRight className="ml-2 size-4" />
                                 </Link>
                             </Button>
-                            <Button size="lg" variant="outline" className="px-8" asChild>
+                            <Button size="lg" variant="outline" className="h-12 px-8 text-base rounded-lg" asChild>
                                 <Link href="/courses">Xem lộ trình học</Link>
                             </Button>
                         </div>
 
-                        {/* Social Proof */}
-                        <div className="flex flex-wrap items-center justify-center gap-8 pt-4">
-                            <div className="flex items-center gap-3">
-                                <div className="flex -space-x-3">
-                                    {['T', 'N', 'L'].map((init, i) => (
-                                        <Avatar key={i} className="border-2 border-background">
-                                            <AvatarFallback className="bg-muted text-foreground text-[10px] font-bold">{init}</AvatarFallback>
+                        {/* Social proof inline */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 pt-2">
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex -space-x-2">
+                                    {['TN', 'ML', 'HN', 'TH'].map((init, i) => (
+                                        <Avatar key={i} className="border-2 border-background size-8">
+                                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-semibold">{init}</AvatarFallback>
                                         </Avatar>
                                     ))}
                                 </div>
-                                <div className="text-left">
-                                    <div className="flex items-center gap-0.5">
-                                        {[...Array(5)].map((_, i) => <Star key={i} className="size-3 fill-amber-400 text-amber-400" />)}
+                                <div>
+                                    <div className="flex gap-0.5 mb-0.5">
+                                        {[...Array(5)].map((_, i) => <Star key={i} className="size-3 fill-primary text-primary" />)}
                                     </div>
-                                    <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground whitespace-nowrap">
-                                        <span className="text-foreground">12k+</span> học viên hài lòng
-                                    </p>
+                                    <p className="text-xs text-muted-foreground font-medium">12,000+ học viên tin dùng</p>
                                 </div>
                             </div>
 
-                            <Separator orientation="vertical" className="h-10 hidden sm:block" />
+                            <Separator orientation="vertical" className="h-7 hidden sm:block" />
 
-                            <div className="flex items-center gap-3">
-                                <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                    <Users className="size-5" />
+                            <div className="flex items-center gap-2">
+                                <div className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                    <Users className="size-3.5" />
                                 </div>
-                                <div className="text-left">
-                                    <p className="text-sm font-bold tracking-tight">80+ Giáo viên</p>
-                                    <p className="text-xs text-muted-foreground font-medium">Top 5% JLPT</p>
+                                <div>
+                                    <p className="text-sm font-semibold text-foreground">80+ giảng viên N1</p>
+                                    <p className="text-xs text-muted-foreground">Top 5% JLPT toàn quốc</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Image / Backdrop (Hidden on small, but simplified for desktop) */}
-                    <div className="relative w-full max-w-2xl aspect-[16/9] mt-8">
-                        <div className="absolute inset-0 bg-primary/5 rounded-3xl blur-3xl" />
-                        <div className="relative h-full w-full flex justify-center items-center">
+                    {/* RIGHT: Mascot visual */}
+                    <div className="relative flex items-center justify-center">
+                        {/* Glow behind logo */}
+                        <div className="absolute size-80 rounded-full bg-primary/8 blur-3xl" />
+                        <div className="absolute size-56 rounded-full bg-primary/5 blur-2xl" />
+
+                        {/* Orbit ring decoration */}
+                        <div className="absolute size-72 rounded-full border border-dashed border-primary/15 animate-spin" style={{ animationDuration: '30s' }} />
+                        <div className="absolute size-96 rounded-full border border-dashed border-primary/8 animate-spin" style={{ animationDuration: '50s', animationDirection: 'reverse' }} />
+
+                        {/* Logo */}
+                        <div className="relative z-10">
                             <Image
-                                src="/mascot.png"
-                                alt="Astronaut Mascot"
-                                width={500}
-                                height={500}
-                                className="object-contain"
+                                src="/logo.png"
+                                alt="Torii Nihongo Mascot"
+                                width={300}
+                                height={300}
+                                className="object-contain drop-shadow-xl"
                                 priority
                             />
+                        </div>
+
+                        {/* Floating card: N2 success */}
+                        <div className="absolute -left-4 bottom-8 z-20 bg-background border rounded-xl shadow-md px-4 py-3 flex items-center gap-3 max-w-[180px]">
+                            <div className="size-8 rounded-full bg-green-500/15 text-green-600 flex items-center justify-center shrink-0">
+                                <Zap className="size-4" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-foreground leading-tight">Đỗ JLPT N2</p>
+                                <p className="text-[10px] text-muted-foreground">chỉ sau 6 tháng học</p>
+                            </div>
+                        </div>
+
+                        {/* Floating card: AI online */}
+                        <div className="absolute -right-2 top-12 z-20 bg-background border rounded-xl shadow-md px-4 py-3 flex items-center gap-2.5">
+                            <span className="size-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+                            <div>
+                                <p className="text-xs font-bold text-foreground">AI Sensei</p>
+                                <p className="text-[10px] text-muted-foreground">Đang trực tuyến • 24/7</p>
+                            </div>
                         </div>
                     </div>
                 </div>
