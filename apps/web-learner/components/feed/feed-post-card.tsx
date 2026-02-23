@@ -170,7 +170,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                         variant="ghost"
                         size="sm"
                         className={cn(
-                            "h-9 px-4 gap-2 font-bold text-[10px] uppercase transition-colors",
+                            "gap-2 text-[10px] uppercase",
                             post.isLiked ? "text-destructive bg-destructive/5 hover:bg-destructive/10" : "text-muted-foreground hover:bg-muted"
                         )}
                         onClick={(e) => {
@@ -184,7 +184,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="h-9 px-4 gap-2 font-bold text-[10px] uppercase text-muted-foreground hover:bg-muted transition-colors"
+                        className="gap-2 text-[10px] uppercase text-muted-foreground hover:bg-muted"
                         onClick={(e) => {
                             e.stopPropagation();
                             onComment?.(post.id);

@@ -46,32 +46,18 @@ export default function SettingsPage() {
                 </p>
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
-                {/* Tabs Navigation - Cloned from web-admin style */}
-                <TabsList className="flex h-auto w-full max-w-md gap-2 bg-muted/20 p-1 rounded-xl border border-border/50 backdrop-blur-sm overflow-x-auto no-scrollbar justify-start">
-                    <TabsTrigger
-                        value="general"
-                        className={cn(
-                            "flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold uppercase italic tracking-wider transition-all duration-200",
-                            "data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm data-[state=active]:border-border/50",
-                            "hover:text-primary/70"
-                        )}
-                    >
-                        <Settings className="size-4" />
-                        <span>Chung</span>
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+                <TabsList>
+                    <TabsTrigger value="general">
+                        <Settings className="size-4 mr-2" />
+                        Chung
                     </TabsTrigger>
-                    <TabsTrigger
-                        value="sessions"
-                        className={cn(
-                            "flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold uppercase italic tracking-wider transition-all duration-200",
-                            "data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm data-[state=active]:border-border/50",
-                            "hover:text-primary/70"
-                        )}
-                    >
-                        <Clock className="size-4" />
-                        <span>Phiên đăng nhập</span>
+                    <TabsTrigger value="sessions">
+                        <Clock className="size-4 mr-2" />
+                        Phiên đăng nhập
                     </TabsTrigger>
                 </TabsList>
+
 
                 {/* Tab Content: General Settings */}
                 <TabsContent value="general" className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-300">

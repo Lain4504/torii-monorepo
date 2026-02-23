@@ -157,8 +157,8 @@ export function FeedCreatePost({ onPostCreated }: { onPostCreated?: () => void }
                                 </FieldGroup>
 
                                 <div className="flex justify-end gap-3 pt-8 border-t mt-4">
-                                    <Button type="button" variant="ghost" className="font-bold" onClick={() => { setIsOpen(false); reset(); }}>Hủy</Button>
-                                    <Button type="submit" className="font-bold px-8" disabled={submitting}>
+                                    <Button type="button" variant="ghost" onClick={() => { setIsOpen(false); reset(); }}>Hủy</Button>
+                                    <Button type="submit" disabled={submitting}>
                                         {submitting ? 'Đang đăng...' : 'Đăng câu hỏi'}
                                     </Button>
                                 </div>

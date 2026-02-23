@@ -170,12 +170,12 @@ export default function WishlistPage() {
 
                                 <div className="flex items-center gap-3">
                                     <Link href={`/courses/${course.slug}`} className="flex-1 md:flex-none">
-                                        <Button variant="outline" size="sm" className="w-full md:w-auto rounded-xl font-bold">
+                                        <Button variant="outline" size="sm" className="w-full md:w-auto">
                                             Chi tiết
                                         </Button>
                                     </Link>
                                     <Link href={`/checkout?courseId=${course.id}`} className="flex-1 md:flex-none">
-                                        <Button size="sm" className="w-full md:w-auto rounded-xl font-bold bg-primary text-primary-foreground hover:bg-primary/90">
+                                        <Button size="sm" className="w-full md:w-auto">
                                             Mua ngay
                                         </Button>
                                     </Link>
@@ -199,7 +199,7 @@ export default function WishlistPage() {
                             </EmptyDescription>
                         </EmptyHeader>
                         <Link href="/courses" className="mt-4 flex justify-center">
-                            <Button className="rounded-xl font-bold" variant="outline">Khám phá ngay</Button>
+                            <Button variant="outline">Khám phá ngay</Button>
                         </Link>
                     </Empty>
                 </div>

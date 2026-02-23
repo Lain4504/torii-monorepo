@@ -189,14 +189,13 @@ export default function FlashcardsPage() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
                             placeholder="Tìm kiếm bộ thẻ..."
-                            className="pl-10 h-10 rounded-xl bg-background border-input focus:ring-1 focus:ring-primary transition-all text-sm font-medium"
+                            className="pl-10"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                     <Button
                         onClick={() => { resetForm(); setIsDeckModalOpen(true) }}
-                        className="h-10 px-4 rounded-xl font-bold shadow-sm"
                     >
                         <Plus className="size-4 mr-2" />
                         Tạo bộ thẻ
@@ -204,7 +203,7 @@ export default function FlashcardsPage() {
                     <Button
                         variant="outline"
                         onClick={() => { resetForm(); setIsAiDeckModalOpen(true) }}
-                        className="h-12 px-6 rounded-2xl border-pink-500/20 bg-pink-500/10 text-pink-500 font-black uppercase tracking-widest text-[10px] hover:bg-pink-500/20 transition-all"
+                        className="h-10 border-pink-500/20 bg-pink-500/10 text-pink-500 font-bold uppercase tracking-widest text-[10px] hover:bg-pink-500/20 transition-all"
                     >
                         <Sparkles className="size-4 mr-2" />
                         AI Create Deck
@@ -297,7 +296,7 @@ export default function FlashcardsPage() {
                                         )}
                                     </div>
                                     <Link href={`/dashboard/flashcards/${deck.id}`} className="w-full">
-                                        <Button className="w-full h-10 rounded-xl font-bold shadow-sm">
+                                        <Button className="w-full">
                                             Bắt đầu học
                                         </Button>
                                     </Link>
@@ -326,7 +325,6 @@ export default function FlashcardsPage() {
                             <Input
                                 value={deckName}
                                 onChange={(e) => setDeckName(e.target.value)}
-                                className="h-10 rounded-lg text-sm font-medium"
                                 placeholder="VD: 2000 Kanji thông dụng"
                             />
                         </div>
@@ -335,7 +333,6 @@ export default function FlashcardsPage() {
                             <Input
                                 value={deckDesc}
                                 onChange={(e) => setDeckDesc(e.target.value)}
-                                className="h-10 rounded-lg text-sm"
                                 placeholder="Mục tiêu học tập của bạn..."
                             />
                         </div>
@@ -360,7 +357,7 @@ export default function FlashcardsPage() {
                     <DialogFooter>
                         <Button
                             onClick={handleSaveDeck}
-                            className="w-full h-10 rounded-xl font-bold"
+                            className="w-full"
                         >
                             {editingDeck ? 'Cập nhật' : 'Xác nhận tạo'}
                         </Button>
@@ -393,7 +390,7 @@ export default function FlashcardsPage() {
                             <Input
                                 value={deckName}
                                 onChange={(e) => setDeckName(e.target.value)}
-                                className="h-12 rounded-xl bg-white/5 border-pink-500/20 font-bold"
+                                className="bg-white/5 border-pink-500/20 font-bold"
                                 placeholder="VD: Từ vựng Du lịch Nhật Bản"
                             />
                         </div>
@@ -402,7 +399,7 @@ export default function FlashcardsPage() {
                             <Input
                                 value={aiTopic}
                                 onChange={(e) => setAiTopic(e.target.value)}
-                                className="h-12 rounded-xl bg-white/5 border-pink-500/20 font-bold"
+                                className="bg-white/5 border-pink-500/20 font-bold"
                                 placeholder="VD: Nhà hàng, Sân bay, Khách sạn..."
                             />
                         </div>
@@ -427,7 +424,7 @@ export default function FlashcardsPage() {
                     <DialogFooter>
                         <Button
                             onClick={handleAiDeckCreate}
-                            className="w-full h-12 rounded-xl bg-pink-500 text-white hover:bg-pink-600 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-pink-500/20"
+                            className="w-full bg-pink-500 text-white hover:bg-pink-600 font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-pink-500/20"
                             disabled={!aiTopic.trim() || !deckName.trim() || isGeneratingAi}
                         >
                             {isGeneratingAi ? 'ĐANG TẠO & SINH THẺ...' : 'TẠO BỘ THẺ AI'}

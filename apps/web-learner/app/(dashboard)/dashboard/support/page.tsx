@@ -175,7 +175,7 @@ export default function SupportPage() {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="Tìm kiếm yêu cầu..."
-                                className="pl-9 h-10 w-full bg-background border-input rounded-xl text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary transition-all shadow-sm"
+                                className="pl-9"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -198,7 +198,6 @@ export default function SupportPage() {
                     </div>
                     <Button
                         onClick={() => setIsCreateOpen(true)}
-                        className="w-full sm:w-auto font-bold shadow-sm"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Gửi yêu cầu mới
@@ -353,7 +352,6 @@ export default function SupportPage() {
                             <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Tiêu đề</FieldLabel>
                             <Input
                                 placeholder="VD: Không vào được bài học số 5"
-                                className="h-10 rounded-lg text-sm"
                                 value={newTicketSubject}
                                 onChange={(e) => setNewTicketSubject(e.target.value)}
                             />
@@ -363,7 +361,7 @@ export default function SupportPage() {
                             <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Nội dung chi tiết</FieldLabel>
                             <Textarea
                                 placeholder="Mô tả cụ thể vấn đề bạn cần giúp đỡ..."
-                                className="min-h-[120px] rounded-xl text-sm p-4 resize-none"
+                                className="min-h-[120px] resize-none"
                                 value={newTicketDescription}
                                 onChange={(e) => setNewTicketDescription(e.target.value)}
                             />
@@ -373,13 +371,13 @@ export default function SupportPage() {
                     <DialogFooter className="flex-col sm:flex-row gap-3">
                         <Button
                             variant="outline"
-                            className="flex-1 font-bold sm:order-1"
+                            className="flex-1"
                             onClick={() => setIsCreateOpen(false)}
                         >
                             Hủy bỏ
                         </Button>
                         <Button
-                            className="flex-1 font-bold sm:order-2"
+                            className="flex-1"
                             onClick={handleCreateTicket}
                             disabled={createTicketMutation.isPending}
                         >
@@ -460,7 +458,7 @@ export default function SupportPage() {
 
                             <Button
                                 size="lg"
-                                className="w-full font-bold shadow-sm"
+                                className="w-full"
                                 onClick={() => setIsDetailOpen(false)}
                             >
                                 Đóng hội thoại

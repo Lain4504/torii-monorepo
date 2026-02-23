@@ -223,28 +223,14 @@ export default function PublicLearnerProfilePage() {
             {/* Main Content Area with Tabs */}
             <div className="container mx-auto px-4 max-w-6xl mt-8">
                 <Tabs defaultValue="overview" className="space-y-10">
-                    <div className="sticky top-2 z-10 p-1.5 bg-background/80 backdrop-blur-xl border border-border/50 rounded-2xl md:w-fit md:mx-auto shadow-sm">
-                        <TabsList className="bg-transparent gap-2">
-                            <TabsTrigger
-                                value="overview"
-                                className="px-6 py-2.5 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all font-bold text-sm"
-                            >
-                                Tổng quan
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="achievements"
-                                className="px-6 py-2.5 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all font-bold text-sm"
-                            >
-                                Thành tựu
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="certificates"
-                                className="px-6 py-2.5 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all font-bold text-sm"
-                            >
-                                Chứng chỉ
-                            </TabsTrigger>
+                    <div className="sticky top-2 z-10 flex justify-center">
+                        <TabsList>
+                            <TabsTrigger value="overview">Tổng quan</TabsTrigger>
+                            <TabsTrigger value="achievements">Thành tựu</TabsTrigger>
+                            <TabsTrigger value="certificates">Chứng chỉ</TabsTrigger>
                         </TabsList>
                     </div>
+
 
                     <TabsContent value="overview" className="mt-0 outline-none">
                         <ProfileInfo profile={profile} />

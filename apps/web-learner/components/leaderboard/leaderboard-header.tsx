@@ -10,7 +10,7 @@ interface LeaderboardHeaderProps {
 
 export function LeaderboardHeader({ type, onTypeChange }: LeaderboardHeaderProps) {
     return (
-<div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
+        <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
             <div>
                 <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight text-foreground">
                     <Trophy className="h-8 w-8 text-amber-500" />
@@ -22,12 +22,12 @@ export function LeaderboardHeader({ type, onTypeChange }: LeaderboardHeaderProps
             </div>
 
             <Tabs value={type} onValueChange={(v) => onTypeChange(v as any)} className="w-full md:w-auto">
-                <TabsList className="grid h-11 w-full grid-cols-2 border-border/50 premium-glass lg:w-[400px]">
-                    <TabsTrigger value="global" className="font-bold transition-all data-[state=active]:bg-primary data-[state=active]:text-white">
+                <TabsList>
+                    <TabsTrigger value="global">
                         <Star className="mr-2 h-4 w-4" />
                         Toàn cầu (XP)
                     </TabsTrigger>
-                    <TabsTrigger value="streak" className="font-bold transition-all data-[state=active]:bg-primary data-[state=active]:text-white">
+                    <TabsTrigger value="streak">
                         <Flame className="mr-2 h-4 w-4" />
                         Chuỗi học (Streak)
                     </TabsTrigger>

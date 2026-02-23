@@ -246,7 +246,7 @@ export default function DashboardPage() {
                                     <Card className="shadow-sm">
                                         <CardContent className="p-8 text-center flex flex-col items-center justify-center min-h-[160px] pb-8">
                                             <p className="text-muted-foreground font-medium text-sm">Bạn chưa tham gia khóa học nào.</p>
-                                            <Button variant="outline" asChild className="mt-4 font-bold">
+                                            <Button variant="outline" asChild className="mt-4">
                                                 <Link href="/courses">Khám phá khóa học</Link>
                                             </Button>
                                         </CardContent>

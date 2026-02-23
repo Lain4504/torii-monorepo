@@ -160,7 +160,6 @@ export default function NotificationsPage() {
                         size="sm"
                         onClick={() => markAllAsReadMutation.mutate()}
                         disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-                        className="rounded-xl font-bold border-border shadow-sm hover:bg-muted transition-all cursor-pointer disabled:opacity-50"
                     >
                         <Check className="w-3.5 h-3.5 mr-1.5" />
                         {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đánh dấu tất cả đã đọc'}
@@ -174,9 +173,9 @@ export default function NotificationsPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                         placeholder="Tìm kiếm thông báo..."
-                        className="pl-10 h-10 border-input bg-background focus:ring-1 focus:ring-primary transition-all rounded-xl text-sm"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                        className="pl-10"
                     />
                 </div>
                 <div className="flex items-center justify-center p-3 rounded-xl border border-border bg-card shadow-sm">
@@ -200,12 +199,6 @@ export default function NotificationsPage() {
                         variant={filter === btn.id ? "default" : "outline"}
                         size="sm"
                         onClick={() => setFilter(btn.id as any)}
-                        className={cn(
-                            "rounded-full font-bold transition-all cursor-pointer",
-                            filter === btn.id
-                                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                                : "text-muted-foreground hover:bg-muted"
-                        )}
                     >
                         {btn.label}
                     </Button>

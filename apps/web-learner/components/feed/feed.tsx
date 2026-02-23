@@ -135,17 +135,15 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
                     <TabsList className="bg-transparent h-auto p-0 flex flex-wrap gap-2 border-b pb-4 rounded-none w-full justify-start">
                         <TabsTrigger
                             value="FOLLOWING"
-                            className="rounded-full border data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary transition-all gap-2"
                         >
                             Đang theo dõi
-                            <ChevronDown className="size-3" />
+                            <ChevronDown className="size-3 ml-2" />
                         </TabsTrigger>
 
                         {CATEGORIES.map((cat) => (
                             <TabsTrigger
                                 key={cat.id}
                                 value={cat.id}
-                                className="rounded-full border data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary transition-all"
                             >
                                 {cat.label}
                             </TabsTrigger>
@@ -237,7 +235,7 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
                                 variant="ghost"
                                 onClick={() => fetchPosts(false)}
                                 disabled={loadingMore}
-                                className="font-bold gap-2"
+                                className="gap-2"
                             >
                                 {loadingMore && <Spinner className="w-4 h-4 animate-spin" />}
                                 Xem thêm câu hỏi cũ hơn

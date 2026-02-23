@@ -309,7 +309,6 @@ export default function ProfilePage() {
                                     variant="outline"
                                     onClick={() => setIsEditing(true)}
                                     size="sm"
-                                    className="font-bold transition-all"
                                 >
                                     Chỉnh sửa
                                 </Button>
@@ -319,7 +318,6 @@ export default function ProfilePage() {
                                         variant="ghost"
                                         onClick={() => setIsEditing(false)}
                                         size="sm"
-                                        className="font-bold"
                                     >
                                         Hủy
                                     </Button>
@@ -327,7 +325,6 @@ export default function ProfilePage() {
                                         onClick={handleSave}
                                         disabled={updateProfileMutation.isPending}
                                         size="sm"
-                                        className="font-bold bg-primary text-white disabled:opacity-50"
                                     >
                                         {updateProfileMutation.isPending ? (
                                             <>
@@ -350,7 +347,6 @@ export default function ProfilePage() {
                                         <Input
                                             value={formData.displayName}
                                             onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                                            className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                         />
                                     ) : (
                                         <p className="text-sm font-medium text-foreground">{formData.displayName}</p>
@@ -362,7 +358,6 @@ export default function ProfilePage() {
                                         <Input
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                             disabled={updateProfileMutation.isPending}
                                             placeholder="Chưa cập nhật"
                                         />
@@ -377,7 +372,6 @@ export default function ProfilePage() {
                                             type="date"
                                             value={formData.dateOfBirth}
                                             onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                                            className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                         />
                                     ) : (
                                         <p className="text-sm font-medium text-foreground">{formatDate(formData.dateOfBirth)}</p>
@@ -389,7 +383,6 @@ export default function ProfilePage() {
                                         <Input
                                             value={formData.location}
                                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                            className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                             disabled={updateProfileMutation.isPending}
                                             placeholder="Chưa cập nhật"
                                         />
@@ -406,7 +399,7 @@ export default function ProfilePage() {
                                         value={formData.bio}
                                         onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                                         rows={8}
-                                        className="text-sm rounded-xl border-2 border-muted-foreground/20 bg-background resize-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                        className="resize-none"
                                     />
                                 ) : (
                                     <div className="text-sm text-foreground/80 leading-relaxed p-4 bg-muted/30 rounded-2xl">

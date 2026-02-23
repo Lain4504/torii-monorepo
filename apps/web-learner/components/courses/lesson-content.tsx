@@ -22,7 +22,7 @@ interface LessonContentProps {
 export function LessonContent({ description, courseId, courseSlug }: LessonContentProps) {
     return (
         <Tabs defaultValue="content" className="w-full">
-            <TabsList className="bg-muted/30 w-auto inline-flex h-auto p-1 gap-1">
+            <TabsList>
                 {[
                     { id: 'content', label: 'Bài học', icon: BookOpen },
                     { id: 'resources', label: 'Tài liệu', icon: FileText, badge: 1 },
@@ -32,7 +32,7 @@ export function LessonContent({ description, courseId, courseSlug }: LessonConte
                     <TabsTrigger
                         key={tab.id}
                         value={tab.id}
-                        className="px-4 py-2 text-xs font-bold transition-all flex items-center gap-2"
+                        className="gap-2"
                     >
                         <tab.icon className="size-4" />
                         {tab.label}
@@ -44,6 +44,7 @@ export function LessonContent({ description, courseId, courseSlug }: LessonConte
                     </TabsTrigger>
                 ))}
             </TabsList>
+
 
             <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-2 duration-300 outline-none mt-6">
                 <div className="space-y-6">
@@ -84,7 +85,7 @@ export function LessonContent({ description, courseId, courseSlug }: LessonConte
                                 </p>
                             </div>
                         </div>
-                        <Button className="font-bold px-6">
+                        <Button>
                             <Download className="size-4 mr-2" /> Tải tài liệu
                         </Button>
                     </div>
@@ -123,7 +124,7 @@ export function LessonContent({ description, courseId, courseSlug }: LessonConte
                             Tương tác với các học viên khác và đội ngũ giảng viên chuyên môn để giải đáp thắc mắc.
                         </p>
                     </div>
-                    <Button variant="outline" className="font-bold px-8">
+                    <Button variant="outline">
                         Bắt đầu thảo luận
                     </Button>
                 </div>

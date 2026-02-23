@@ -100,81 +100,77 @@ export default function WalletPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-5xl animate-in fade-in duration-500">
+        <div className="container mx-auto px-4 py-8 space-y-8 max-w-4xl animate-in fade-in duration-500">
             {/* Wallet Header Card */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl shadow-orange-500/20 rounded-[2rem]">
-                    <CardContent className="p-8">
-                        <div className="flex justify-between items-start mb-8">
-                            <div className="p-3 rounded-2xl bg-white/20 backdrop-blur-md">
-                                <Coins className="w-8 h-8" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-orange-500/10 rounded-3xl">
+                    <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-6">
+                            <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-md">
+                                <Coins className="w-6 h-6" />
                             </div>
-                            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md px-3 py-1">
+                            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md">
                                 Ví Torii
                             </Badge>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-white/70 text-sm font-medium tracking-wide uppercase">Số dư khả dụng</p>
-                            <h2 className="text-5xl font-black tabular-nums">
-                                {formatNumber((user as any)?.balance) || 0} <span className="text-2xl font-bold opacity-80 ml-1">Coins</span>
+                        <div className="space-y-0.5">
+                            <p className="text-white/70 text-xs font-bold uppercase tracking-widest">Số dư khả dụng</p>
+                            <h2 className="text-3xl font-black tabular-nums">
+                                {formatNumber((user as any)?.balance) || 0} <span className="text-xl font-medium opacity-80 ml-1">Coins</span>
                             </h2>
                         </div>
-                        <div className="mt-8 flex gap-3">
+                        <div className="mt-6">
                             <Button
                                 variant="secondary"
-                                className="px-6"
+                                size="sm"
                                 onClick={() => setIsTopUpOpen(true)}
                             >
-                                <Zap className="w-4 h-4 mr-2" /> Nạp thêm
+                                <Zap className="w-3.5 h-3.5 mr-1.5" /> Nạp thêm
                             </Button>
                         </div>
                     </CardContent>
-                    {/* Decorative element */}
-                    <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
                 </Card>
 
-                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl shadow-purple-500/20 rounded-[2rem]">
-                    <CardContent className="p-8">
-                        <div className="flex justify-between items-start mb-8">
-                            <div className="p-3 rounded-2xl bg-white/20 backdrop-blur-md">
-                                <Trophy className="w-8 h-8" />
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/10 rounded-3xl">
+                    <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-6">
+                            <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-md">
+                                <Trophy className="w-6 h-6" />
                             </div>
-                            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md px-3 py-1">
+                            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md">
                                 Điểm tích lũy
                             </Badge>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-white/70 text-sm font-medium tracking-wide uppercase">Tổng điểm thưởng</p>
-                            <h2 className="text-5xl font-black tabular-nums">
-                                {formatNumber(user?.xp) || 0} <span className="text-2xl font-bold opacity-80 ml-1">Points</span>
+                        <div className="space-y-0.5">
+                            <p className="text-white/70 text-xs font-bold uppercase tracking-widest">Tổng điểm thưởng</p>
+                            <h2 className="text-3xl font-black tabular-nums">
+                                {formatNumber(user?.xp) || 0} <span className="text-xl font-medium opacity-80 ml-1">Points</span>
                             </h2>
                         </div>
-                        <div className="mt-8 flex gap-3">
-                            <Button variant="secondary" className="px-6">
-                                <Gift className="w-4 h-4 mr-2" /> Đổi quà
+                        <div className="mt-6">
+                            <Button variant="secondary" size="sm">
+                                <Gift className="w-3.5 h-3.5 mr-1.5" /> Đổi quà
                             </Button>
                         </div>
                     </CardContent>
-                    <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
                 </Card>
             </div>
 
             {/* History Section */}
             <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                    <History className="w-6 h-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Lịch sử giao dịch</h2>
+                <div className="flex items-center gap-2.5">
+                    <History className="w-5 h-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Lịch sử giao dịch</h2>
                 </div>
 
                 <Tabs defaultValue="coins" className="w-full">
-                    <TabsList className="bg-muted/50 p-1 rounded-2xl mb-6">
-                        <TabsTrigger value="coins" className="rounded-xl px-8 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm font-bold">
-                            Số dư Coin
-                        </TabsTrigger>
-                        <TabsTrigger value="points" className="rounded-xl px-8 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm font-bold">
-                            Điểm thưởng (XP)
-                        </TabsTrigger>
+                    <TabsList>
+                        <TabsTrigger value="coins">Số dư Coin</TabsTrigger>
+                        <TabsTrigger value="points">Điểm thưởng (XP)</TabsTrigger>
                     </TabsList>
+
 
                     <TabsContent value="coins" className="space-y-4">
                         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm rounded-3xl overflow-hidden">

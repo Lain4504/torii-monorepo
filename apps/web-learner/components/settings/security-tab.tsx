@@ -77,7 +77,6 @@ export function SecurityTab() {
                             <Button
                                 onClick={() => setShowEnableDialog(true)}
                                 size="sm"
-                                className="font-bold"
                             >
                                 Bật xác thực 2FA
                             </Button>
@@ -87,7 +86,6 @@ export function SecurityTab() {
                                     onClick={() => setShowBackupCodesDialog(true)}
                                     variant="outline"
                                     size="sm"
-                                    className="font-bold"
                                 >
                                     <RefreshCw className="mr-2 h-4 w-4" />
                                     Mã dự phòng
@@ -96,7 +94,6 @@ export function SecurityTab() {
                                     onClick={() => setShowDisableDialog(true)}
                                     variant="destructive"
                                     size="sm"
-                                    className="font-bold"
                                 >
                                     Tắt 2FA
                                 </Button>

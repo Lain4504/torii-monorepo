@@ -65,7 +65,7 @@ export function DashboardHeader() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
                             placeholder="Tìm kiếm bài học, kanji..."
-                            className="pl-9 h-10 w-full bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20"
+                            className="pl-9 bg-muted/50 border-none"
                         />
                     </div>
                 </div>

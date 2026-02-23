@@ -90,7 +90,7 @@ export function SessionsManagement() {
                         variant="ghost"
                         onClick={() => setIsRevokeOtherOpen(true)}
                         disabled={revokeOtherMutation.isPending || (sessions?.length || 0) <= 1}
-                        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive font-bold text-xs uppercase tracking-wider"
+                        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive text-xs uppercase tracking-wider"
                     >
                         {revokeOtherMutation.isPending ? (
                             <div className="flex items-center gap-2">
