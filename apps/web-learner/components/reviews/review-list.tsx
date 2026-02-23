@@ -71,7 +71,7 @@ export function ReviewList({ learnerId }: ReviewListProps) {
         return (
             <div className="grid gap-6 md:grid-cols-2">
                 {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="h-40 rounded-2xl" />
+                    <Skeleton key={i} className="h-40 rounded-lg" />
                 ))}
             </div>
         )
@@ -81,8 +81,8 @@ export function ReviewList({ learnerId }: ReviewListProps) {
         return (
             <Empty className="py-16">
                 <EmptyHeader>
-                    <EmptyMedia variant="icon" className="bg-slate-100">
-                        <MessageSquareOff className="text-slate-400" />
+                    <EmptyMedia variant="icon" className="bg-muted">
+                        <MessageSquareOff className="text-muted-foreground" />
                     </EmptyMedia>
                     <EmptyTitle>Chưa có đánh giá nào</EmptyTitle>
                     <EmptyDescription>
@@ -115,7 +115,7 @@ export function ReviewList({ learnerId }: ReviewListProps) {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Hủy</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogAction onClick={confirmDelete} variant="destructive">
                             Xóa
                         </AlertDialogAction>
                     </AlertDialogFooter>

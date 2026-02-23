@@ -4,13 +4,8 @@ import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { commentApi } from '@/lib/api/services/comment-api'
 import type { CommentResponseDTO } from '@workspace/schemas'
-import { User, Heart, Reply, MoreHorizontal, Send, Edit, Trash } from 'lucide-react'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu'
+import { User, Heart, Reply, MoreHorizontal, Send, Edit, Trash, MessageSquare } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@workspace/ui/components/dropdown-menu'
 import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyHeader } from '@workspace/ui/components/empty'
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
@@ -18,6 +13,11 @@ import { formatNumber } from '@/utils/format-utils'
 import Link from 'next/link'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
+import { Badge } from '@workspace/ui/components/badge'
+import { Button } from '@workspace/ui/components/button'
+import { Textarea } from '@workspace/ui/components/textarea'
+import { cn } from '@workspace/ui/lib/utils'
 
 interface CommentSectionProps {
     blogId?: string
@@ -209,12 +209,15 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
     const getReplies = (parentId: string) => comments.filter(c => c.parentId === parentId)
 
     return (
-        <section className="space-y-6">
+        <section className="space-y-8">
             {/* Header with Count */}
-            <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                    <Reply className="w-5 h-5 text-primary rotate-180" />
-                    Bình luận ({formatNumber(comments.length)})
+            <div className="flex items-center justify-between pb-4 border-b">
+                <h3 className="font-bold text-lg flex items-center gap-2.5">
+                    <MessageSquare className="size-5 text-primary" />
+                    Bình luận
+                    <Badge variant="secondary" className="ml-1 font-bold text-[10px] px-2">
+                        {formatNumber(comments.length)}
+                    </Badge>
                 </h3>
             </div>
 
@@ -243,7 +246,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
                         />
                     ))
                 ) : (
-                    <div className="py-12 flex justify-center bg-muted/5 rounded-2xl border border-dashed border-border/50">
+                    <div className="py-12 flex justify-center bg-muted/5 rounded-lg border border-dashed border-border/50">
                         <Empty>
                             <EmptyHeader>
                                 <EmptyMedia variant="icon" className="bg-background shadow-sm border border-border">
@@ -313,41 +316,40 @@ function CommentItem({
             <div className="flex gap-3">
                 {/* Avatar */}
                 <Link href={`/user/${comment.author?.id}`} className="flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-border/40 bg-muted flex items-center justify-center">
-                        {comment.author?.avatarUrl ? (
-                            <img src={comment.author.avatarUrl} alt={comment.author.displayName} className="w-full h-full object-cover" />
-                        ) : (
-                            <User className="w-5 h-5 text-muted-foreground" />
-                        )}
-                    </div>
+                    <Avatar className="size-10 ring-1 ring-border/40">
+                        <AvatarImage src={comment.author?.avatarUrl || undefined} />
+                        <AvatarFallback className="bg-muted text-muted-foreground">
+                            <User className="size-5" />
+                        </AvatarFallback>
+                    </Avatar>
                 </Link>
 
                 {/* Content */}
-                <div className="flex-1 space-y-1">
+                <div className="flex-1 space-y-2">
                     {/* Author & Time */}
                     <div className="flex items-center gap-2">
-                        <Link href={`/user/${comment.author?.id}`} className="font-semibold text-sm hover:underline">
+                        <Link href={`/user/${comment.author?.id}`} className="font-bold text-sm hover:text-primary transition-all">
                             {comment.author?.displayName || 'Unknown User'}
                         </Link>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
                             • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
                         </span>
                     </div>
 
                     {/* Tag if exists */}
                     {comment.tags && comment.tags.length > 0 && (
-                        <div className="flex gap-1">
-                            {comment.tags.slice(0, 1).map((tag: string, idx: number) => (
-                                <span key={idx} className="inline-block px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded">
+                        <div className="flex gap-2">
+                            {comment.tags.slice(0, 1).map((tag: string) => (
+                                <Badge key={tag} variant="secondary" className="text-[10px] font-bold uppercase tracking-wider">
                                     {tag.toUpperCase()}
-                                </span>
+                                </Badge>
                             ))}
                         </div>
                     )}
 
                     {/* Comment Text or Edit Form */}
                     {isEditing ? (
-                        <div className="mt-2">
+                        <div className="mt-4">
                             <CommentInput
                                 user={user}
                                 onSubmit={handleUpdate}
@@ -359,35 +361,43 @@ function CommentItem({
                             />
                         </div>
                     ) : (
-                        <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                            {comment.content}
-                        </p>
+                        <div className="bg-muted/30 rounded-2xl p-4 border border-border/40">
+                            <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                                {comment.content}
+                            </p>
+                        </div>
                     )}
 
                     {/* Actions */}
-                    <div className="flex items-center gap-4 pt-1">
+                    <div className="flex items-center gap-6 pt-1">
                         {canLike && (
                             <button
-                                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className={cn(
+                                    "flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all",
+                                    comment.isLiked ? "text-destructive" : "text-muted-foreground hover:text-destructive"
+                                )}
                                 onClick={() => onLikeComment(comment.id)}
                             >
-                                <Heart className={`w-4 h-4 ${comment.isLiked ? 'fill-primary text-primary' : ''}`} />
-                                <span>{formatNumber(comment.likeCount || 0)}</span>
+                                <Heart className={cn("size-3.5", comment.isLiked && "fill-current")} />
+                                <span>{formatNumber(comment.likeCount || 0)} Yêu thích</span>
                             </button>
                         )}
                         <button
-                            className={`flex items-center gap-1.5 text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isReplying ? 'text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}
+                            className={cn(
+                                "flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all",
+                                isReplying ? "text-primary" : "text-muted-foreground hover:text-primary"
+                            )}
                             onClick={() => onReplyClick(comment.id)}
                             disabled={!isAuthenticated}
                         >
-                            <Reply className="w-4 h-4" />
+                            <Reply className="size-3.5" />
                             <span>Trả lời</span>
                         </button>
                     </div>
 
                     {/* Inline Reply Form */}
                     {isReplying && (
-                        <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
                             <CommentInput
                                 user={user}
                                 onSubmit={(text) => onReplySubmit(text, comment.id)}
@@ -400,7 +410,7 @@ function CommentItem({
 
                     {/* Recursively Render Replies */}
                     {replies.length > 0 && (
-                        <div className="pl-4 mt-3 space-y-4 border-l-2 border-border/40">
+                        <div className="pl-6 mt-6 space-y-6 border-l-2 border-primary/10">
                             {replies.map(reply => (
                                 <CommentItem
                                     key={reply.id}
@@ -426,9 +436,9 @@ function CommentItem({
                 {isOwner && !isEditing && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <button className="flex-shrink-0 w-8 h-8 rounded-full hover:bg-muted flex items-center justify-center transition-colors">
-                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                            </button>
+                            <Button variant="ghost" size="icon" className="size-8 rounded-full">
+                                <MoreHorizontal className="size-4 text-muted-foreground" />
+                            </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => setIsEditing(true)}>
@@ -479,53 +489,46 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
     }
 
     return (
-        <div className="flex gap-3 items-start">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden border border-border/40 bg-muted flex items-center justify-center">
-                {user?.avatarUrl ? (
-                    <img src={user.avatarUrl} alt={user?.displayName} className="w-full h-full object-cover" />
-                ) : (
-                    <User className="w-4 h-4 text-muted-foreground" />
-                )}
-            </div>
-            <div className="flex-1 flex gap-2 items-center">
-                <input
-                    type="text"
-                    placeholder={placeholder}
-                    className="flex-1 h-9 px-3 rounded-full border border-input focus:border-primary focus:outline-none bg-background text-sm transition-colors"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault()
-                            handleSubmit()
-                        }
-                    }}
-                    autoFocus={autoFocus}
-                    autoComplete="off"
-                />
+        <div className="flex gap-4 items-start w-full">
+            <Avatar className="size-10 border shadow-sm shrink-0">
+                <AvatarImage src={user?.avatarUrl || undefined} />
+                <AvatarFallback className="bg-muted text-muted-foreground font-bold">
+                    {(user?.displayName || 'U').charAt(0).toUpperCase()}
+                </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 space-y-3">
+                <div className="relative group">
+                    <Textarea
+                        placeholder={placeholder}
+                        className="min-h-[100px] w-full bg-muted/30 border-border/40 focus:border-primary/40 focus:bg-background transition-all rounded-2xl resize-none p-4 text-sm"
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        autoFocus={autoFocus}
+                    />
+                </div>
 
-                {onCancel && (
-                    <button
-                        onClick={onCancel}
-                        className="text-xs font-medium text-muted-foreground hover:text-foreground px-2"
-                    >
-                        Hủy
-                    </button>
-                )}
-
-                <button
-                    onClick={handleSubmit}
-                    disabled={submitting || !text.trim()}
-                    className="flex-shrink-0 w-9 h-9 rounded-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed flex items-center justify-center transition-colors"
-                >
-                    {submitting ? (
-                        <Spinner className="w-4 h-4 text-white animate-spin" />
-                    ) : submitLabel ? (
-                        <span className="text-xs text-white px-2 font-medium">{submitLabel}</span>
-                    ) : (
-                        <Send className="w-4 h-4 text-white ml-0.5" />
+                <div className="flex items-center justify-end gap-3">
+                    {onCancel && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="font-bold text-xs uppercase tracking-widest text-muted-foreground"
+                            onClick={onCancel}
+                        >
+                            Hủy
+                        </Button>
                     )}
-                </button>
+
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={submitting || !text.trim()}
+                        className="font-bold text-xs uppercase tracking-[0.2em] px-6 rounded-full"
+                    >
+                        {submitting ? (
+                            <Spinner className="size-4 animate-spin" />
+                        ) : submitLabel || 'Gửi bình luận'}
+                    </Button>
+                </div>
             </div>
         </div>
     )

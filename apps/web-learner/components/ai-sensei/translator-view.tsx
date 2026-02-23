@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Languages, ArrowRightLeft, Copy, Sparkles } from 'lucide-react'
 import { Button } from "@workspace/ui/components/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentTranslateResponseDTO as TranslateResponse } from "@workspace/schemas"
@@ -66,12 +67,12 @@ export function TranslatorView() {
     }
 
     return (
-        <div className="flex flex-col h-full max-w-6xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-8 pb-20 p-4 md:p-8">
             {/* Header */}
-            <div className="flex-none flex items-center justify-between pb-2 border-b border-border/40">
+            <div className="flex items-center justify-between pb-4 border-b">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Translator</h2>
-                    <p className="text-sm text-muted-foreground">Dịch thuật & Giải thích văn hóa</p>
+                    <h1 className="text-3xl font-bold tracking-tight">Translator</h1>
+                    <p className="text-muted-foreground font-medium">Dịch thuật & Giải thích văn hóa</p>
                 </div>
 
                 <div className="flex items-center gap-2 bg-card border border-border p-1 rounded-lg shadow-sm">
@@ -117,61 +118,63 @@ export function TranslatorView() {
 
             <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-6 pb-4">
                 {/* Source Input */}
-                <form
-                    onSubmit={form.handleSubmit(handleTranslate)}
-                    className="flex flex-col rounded-xl border border-border bg-card shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-primary/20 transition-all"
+                <Card
+                    className="flex flex-col overflow-hidden focus-within:ring-1 focus-within:ring-primary/20 transition-all bg-card/50"
                 >
-                    <div className="flex-1 relative">
-                        <Controller
-                            name="text"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid} className="h-full">
-                                    <Textarea
-                                        {...field}
-                                        id={field.name}
-                                        placeholder="Nhập văn bản cần dịch..."
-                                        className="absolute inset-0 w-full h-full resize-none border-0 focus-visible:ring-0 p-6 text-lg leading-relaxed bg-transparent"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    {fieldState.invalid && (
-                                        <div className="absolute bottom-20 left-6 right-6">
-                                            <FieldError errors={[fieldState.error]} />
-                                        </div>
-                                    )}
-                                </Field>
-                            )}
-                        />
-                    </div>
-                    <div className="flex-none p-4 flex justify-between items-center border-t border-border/50 bg-muted/20">
-                        <span className="text-xs font-medium text-muted-foreground">{form.watch("text").length} ký tự</span>
-                        <div className="flex gap-2">
-                            {form.watch("text") && (
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => form.setValue("text", "")}
-                                    className="px-3 text-muted-foreground hover:text-foreground"
-                                >
-                                    Xóa
-                                </Button>
-                            )}
-                            <Button
-                                type="submit"
-                                size="sm"
-                                className="px-4 font-semibold"
-                                disabled={!form.watch("text").trim() || isLoading}
-                            >
-                                {isLoading ? <Spinner className="size-3.5 animate-spin mr-2" /> : <Sparkles className="size-3.5 mr-2" />}
-                                Dịch
-                            </Button>
+                    <form
+                        onSubmit={form.handleSubmit(handleTranslate)}
+                        className="flex flex-col h-full"
+                    >
+                        <div className="flex-1 relative min-h-[300px]">
+                            <Controller
+                                name="text"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="h-full">
+                                        <Textarea
+                                            {...field}
+                                            id={field.name}
+                                            placeholder="Nhập văn bản cần dịch..."
+                                            className="absolute inset-0 w-full h-full resize-none border-0 focus-visible:ring-0 p-6 text-lg leading-relaxed bg-transparent"
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        {fieldState.invalid && (
+                                            <div className="absolute bottom-20 left-6 right-6">
+                                                <FieldError errors={[fieldState.error]} />
+                                            </div>
+                                        )}
+                                    </Field>
+                                )}
+                            />
                         </div>
-                    </div>
-                </form>
+                        <div className="flex-none p-4 flex justify-between items-center border-t border-border/50 bg-muted/20">
+                            <span className="text-xs font-medium text-muted-foreground">{form.watch("text").length} ký tự</span>
+                            <div className="flex gap-2">
+                                {form.watch("text") && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => form.setValue("text", "")}
+                                    >
+                                        Xóa
+                                    </Button>
+                                )}
+                                <Button
+                                    type="submit"
+                                    size="sm"
+                                    disabled={!form.watch("text").trim() || isLoading}
+                                >
+                                    {isLoading ? <Spinner className="size-3.5 animate-spin mr-2" /> : <Sparkles className="size-3.5 mr-2" />}
+                                    Dịch
+                                </Button>
+                            </div>
+                        </div>
+                    </form>
+                </Card>
 
                 {/* Target Output */}
-                <div className="flex flex-col rounded-xl border border-border bg-muted/30 shadow-sm overflow-hidden">
+                <Card className="flex flex-col bg-muted/30 overflow-hidden">
                     {result ? (
                         <div className="flex-1 flex flex-col h-full animate-in fade-in duration-300">
                             <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
@@ -179,11 +182,11 @@ export function TranslatorView() {
                             </div>
 
                             {result.culturalNotes && (
-                                <div className="flex-none p-4 bg-blue-50/50 dark:bg-blue-900/10 border-t border-blue-100 dark:border-blue-900/20">
+                                <div className="flex-none p-4 bg-primary/5 border-t border-primary/10">
                                     <div className="flex gap-3">
-                                        <Sparkles className="size-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                                        <Sparkles className="size-4 text-primary mt-0.5 shrink-0" />
                                         <div className="space-y-1">
-                                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Ghi chú văn hóa</p>
+                                            <p className="text-xs font-bold text-primary uppercase tracking-wide">Ghi chú văn hóa</p>
                                             <p className="text-sm text-foreground/80 leading-relaxed">{result.culturalNotes}</p>
                                         </div>
                                     </div>
@@ -198,13 +201,13 @@ export function TranslatorView() {
                         </div>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8 text-center space-y-4">
-                            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
                                 <Languages className="size-6 text-muted-foreground/60" />
                             </div>
                             <p className="text-sm font-medium">Bản dịch sẽ xuất hiện tại đây</p>
                         </div>
                     )}
-                </div>
+                </Card>
             </div>
         </div>
     )

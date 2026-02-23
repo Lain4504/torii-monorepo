@@ -6,6 +6,7 @@ import { Separator } from '@workspace/ui/components/separator'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { useQuery } from '@tanstack/react-query'
 import { reviewApi } from '@/lib/api/services/review-api'
+import { Badge } from '@workspace/ui/components/badge'
 
 interface Testimonial {
     name: string
@@ -65,46 +66,48 @@ export function TestimonialsSection() {
         : mockTestimonials
 
     return (
-        <section className="py-20 border-t bg-muted/30">
-            <div className="container max-w-6xl mx-auto px-4">
-                <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-                    <p className="text-sm font-semibold text-primary">Câu chuyện thành công</p>
-                    <h2 className="text-3xl font-bold tracking-tight">
-                        Cảm Nhận Từ <span className="text-primary">Học Viên</span>
+        <section className="py-20 bg-muted/30">
+            <div className="container max-w-6xl">
+                <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col gap-4">
+                    <div>
+                        <Badge variant="outline" className="px-3 py-1 font-bold uppercase tracking-widest text-[10px]">
+                            Câu chuyện thành công
+                        </Badge>
+                    </div>
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
+                        Cảm Nhận Từ <span className="text-primary italic">Học Viên</span>
                     </h2>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground leading-relaxed">
                         Hàng ngàn học viên đã thay đổi tương lai nhờ lộ trình học tập tối ưu tại Torii Nihongo.
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4 mb-12">
+                <div className="grid md:grid-cols-3 gap-6 mb-16">
                     {reviews.map((t, i) => (
-                        <Card key={i} className="relative flex flex-col">
-                            <CardContent className="p-6 flex flex-col h-full">
-                                <Quote className="absolute top-4 right-4 w-6 h-6 text-border" />
+                        <Card key={i} className="group relative border-border/50 hover:bg-background transition-all">
+                            <CardContent className="p-8 flex flex-col h-full gap-6">
+                                <Quote className="absolute top-6 right-8 size-8 text-primary/10 group-hover:text-primary/20 transition-colors" />
 
-                                <div className="flex gap-0.5 mb-4">
+                                <div className="flex gap-0.5">
                                     {[...Array(t.rating)].map((_, j) => (
-                                        <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                        <Star key={j} className="size-4 fill-amber-400 text-amber-400" />
                                     ))}
                                 </div>
 
-                                <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-5">
+                                <p className="text-md text-muted-foreground leading-loose italic flex-1">
                                     "{t.content}"
                                 </p>
 
-                                <Separator className="mb-4" />
-
-                                <div className="flex items-center gap-3">
-                                    <Avatar className="w-9 h-9">
+                                <div className="pt-6 border-t border-border/50 flex items-center gap-4">
+                                    <Avatar className="size-10">
                                         <AvatarImage src={t.avatarUrl} />
-                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                                             {t.avatar}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div>
-                                        <p className="text-sm font-semibold">{t.name}</p>
-                                        <p className="text-xs text-muted-foreground">{t.role}</p>
+                                    <div className="space-y-0.5">
+                                        <p className="text-sm font-bold tracking-tight">{t.name}</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{t.role}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -113,13 +116,17 @@ export function TestimonialsSection() {
                 </div>
 
                 {/* Stats Row */}
-                <Card className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8">
-                    {stats.map((s, i) => (
-                        <div key={i} className="text-center space-y-1">
-                            <p className="text-2xl font-bold">{s.value}</p>
-                            <p className="text-xs text-muted-foreground">{s.label}</p>
+                <Card className="border-border/50 bg-background/50 backdrop-blur-sm overflow-hidden">
+                    <CardContent className="p-0">
+                        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border/50">
+                            {stats.map((s, i) => (
+                                <div key={i} className="p-8 text-center flex flex-col gap-2 group hover:bg-primary/5 transition-colors">
+                                    <p className="text-3xl font-bold tracking-tight group-hover:text-primary transition-colors">{s.value}</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{s.label}</p>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </CardContent>
                 </Card>
             </div>
         </section>

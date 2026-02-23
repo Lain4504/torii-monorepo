@@ -8,12 +8,12 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 export function SenseiLayout({ children }: { children: React.ReactNode }) {
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-background overflow-hidden">
+<div className="flex min-h-screen w-full overflow-hidden bg-background">
                 <AppSidebar />
 
                 <SidebarInset className="relative z-10 flex flex-col bg-transparent">
                     <DashboardHeader />
-                    <div className="h-[calc(100vh-4rem)] overflow-hidden relative">
+                    <div className="relative h-[calc(100vh-4rem)] overflow-hidden">
                         {children}
                     </div>
                 </SidebarInset>

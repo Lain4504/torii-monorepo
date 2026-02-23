@@ -17,6 +17,7 @@ import { toast } from '@workspace/ui/components/sonner';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { useDisableTotp } from '@/lib/api/services/two-factor-auth-api';
 import { Spinner } from '@workspace/ui/components/spinner'
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 
 const disableSchema = z.object({
     password: z.string().min(1, 'Mật khẩu là bắt buộc'),
@@ -65,21 +66,13 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
 
                 <div className="space-y-6 py-2">
                     {/* Warning */}
-                    <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-5">
-                        <div className="flex gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 shrink-0 flex items-center justify-center">
-                                <AlertTriangle className="size-5" />
-                            </div>
-                            <div className="space-y-2 flex-1">
-                                <p className="text-sm font-bold text-foreground">
-                                    Bạn có chắc chắn?
-                                </p>
-                                <p className="text-xs text-muted-foreground/70 leading-relaxed font-medium">
-                                    Tắt xác thực hai yếu tố sẽ làm cho tài khoản của bạn dễ bị truy cập trái phép hơn. Chúng tôi khuyến nghị nên giữ nó được bật.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle>Bạn có chắc chắn?</AlertTitle>
+                        <AlertDescription>
+                            Tắt xác thực hai yếu tố sẽ làm cho tài khoản của bạn dễ bị truy cập trái phép hơn. Chúng tôi khuyến nghị nên giữ nó được bật.
+                        </AlertDescription>
+                    </Alert>
 
                     {/* Password Form */}
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">

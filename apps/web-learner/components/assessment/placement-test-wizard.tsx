@@ -1,13 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { ChevronRight, Sparkles, BookOpen, Trophy } from 'lucide-react'
+import { ChevronRight, Sparkles, BookOpen, Trophy, Clock, CheckCircle2 } from 'lucide-react'
 import { useRouter } from "next/navigation"
 import { Button } from "@workspace/ui/components/button"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { toast } from "@workspace/ui/components/sonner"
 import { cn } from "@workspace/ui/lib/utils"
 import { Spinner } from '@workspace/ui/components/spinner'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
+import { Badge } from "@workspace/ui/components/badge"
 
 // Types
 interface Question {
@@ -41,7 +43,6 @@ interface EvaluationResult {
 
 export function PlacementTestWizard() {
     const router = useRouter()
-
 
     // State
     const [status, setStatus] = React.useState<'intro' | 'loading' | 'testing' | 'evaluating' | 'result'>('intro')
@@ -127,7 +128,7 @@ export function PlacementTestWizard() {
                 toast.error("Error evaluating test", {
                     description: "We saved your answers but couldn't generate the results right now."
                 })
-                setStatus('intro') // Or handle error state better
+                setStatus('intro')
             }
         }
     }
@@ -135,43 +136,53 @@ export function PlacementTestWizard() {
     // Render Intro
     if (status === 'intro') {
         return (
-            <div className="w-full h-full flex flex-col justify-center items-center p-4 md:p-8 animate-in fade-in duration-700">
-                <div className="w-full max-w-4xl mx-auto text-center space-y-8">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="bg-primary/10 p-4 rounded-3xl ring-1 ring-primary/20">
-                            <Sparkles className="w-12 h-12 text-primary" />
+            <div className="w-full min-h-[80vh] flex flex-col justify-center items-center p-6 md:p-12 animate-in fade-in duration-1000">
+                <div className="w-full max-w-4xl mx-auto text-center space-y-16">
+                    <div className="flex flex-col items-center gap-8">
+                        <div className="bg-primary text-primary-foreground p-6 rounded-[32px] shadow-2xl shadow-primary/30 ring-4 ring-primary/10">
+                            <Sparkles className="w-12 h-12" />
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground leading-tight">
-                            Discover Your <br className="hidden md:block" />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70">Japanese Level</span>
-                        </h1>
-                        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                            Adaptive AI assessment. Personalized study roadmap. ~10 minutes.
-                        </p>
+                        <div className="space-y-4">
+                            <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-foreground leading-[1.05]">
+                                Discover Your <br className="hidden md:block" />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary/40">Japanese Level</span>
+                            </h1>
+                            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
+                                Adaptive AI assessment. Personalized study roadmap. ~10 minutes to transform your journey.
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <div className="w-full max-w-5xl mx-auto grid gap-4 md:grid-cols-3 py-12">
-                    {[
-                        { icon: BookOpen, title: "Adaptive", desc: "Questions adjust to your level" },
-                        { icon: Clock, title: "Quick", desc: "Complete in under 15 mins" },
-                        { icon: Trophy, title: "Personalized", desc: "Get a custom learning path" },
-                    ].map((item, i) => (
-                        <div key={i} className="flex flex-col items-center md:items-start text-center md:text-left p-6 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                            <item.icon className="w-8 h-8 text-primary mb-4" />
-                            <h3 className="font-bold text-lg text-foreground mb-1">{item.title}</h3>
-                            <p className="text-sm text-muted-foreground">{item.desc}</p>
-                        </div>
-                    ))}
-                </div>
-                <div className="flex justify-center">
-                    <Button
-                        size="lg"
-                        onClick={startTest}
-                        className="py-6 h-auto px-12 text-xl font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
-                    >
-                        Start Assessment
-                        <ChevronRight className="w-6 h-6" />
-                    </Button>
+
+                    <div className="w-full max-w-5xl mx-auto grid gap-8 md:grid-cols-3 py-4">
+                        {[
+                            { icon: BookOpen, title: "Adaptive", desc: "AI adjusts to your pace" },
+                            { icon: Clock, title: "Swift", desc: "Results in under 10 mins" },
+                            { icon: Trophy, title: "Personal", desc: "Custom study roadmap" },
+                        ].map((item, i) => (
+                            <Card key={i} className="group border-border/50 bg-muted/30 hover:bg-muted/50 transition-all duration-300 rounded-[2rem] shadow-none">
+                                <CardContent className="flex flex-col items-center md:items-start text-center md:text-left p-8 space-y-4">
+                                    <div className="p-3.5 bg-primary/10 rounded-2xl group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                                        <item.icon className="size-6 text-primary group-hover:text-inherit" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h3 className="font-bold text-xl text-foreground">{item.title}</h3>
+                                        <p className="text-sm font-medium text-muted-foreground leading-relaxed">{item.desc}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+
+                    <div className="flex justify-center">
+                        <Button
+                            size="lg"
+                            onClick={startTest}
+                            className="h-14 px-12 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/20"
+                        >
+                            Start Assessment
+                            <ChevronRight className="size-5 ml-1.5" />
+                        </Button>
+                    </div>
                 </div>
             </div>
         )
@@ -180,16 +191,14 @@ export function PlacementTestWizard() {
     // Render Loading
     if (status === 'loading' || status === 'evaluating') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-                <div className="relative">
-                    <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
-                    <div className="relative bg-background p-4 rounded-full border border-border shadow-lg">
-                        <Spinner className="w-8 h-8 text-primary" />
-                    </div>
+            <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-10 animate-in fade-in duration-500">
+                <Spinner className="w-14 h-14 text-primary" />
+                <div className="text-center space-y-3">
+                    <p className="text-3xl font-bold tracking-tight text-foreground">
+                        {status === 'loading' ? 'Crafting your test...' : 'Analyzing performance...'}
+                    </p>
+                    <p className="text-muted-foreground font-medium text-lg">Our AI is processing Japanese linguistic patterns</p>
                 </div>
-                <p className="text-lg font-medium text-muted-foreground animate-pulse">
-                    {status === 'loading' ? 'Generating your test...' : 'Analyzing your results...'}
-                </p>
             </div>
         )
     }
@@ -197,69 +206,85 @@ export function PlacementTestWizard() {
     // Render Result
     if (status === 'result' && result) {
         return (
-            <div className="w-full h-[calc(100vh-100px)] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center max-w-7xl mx-auto px-6 animate-in fade-in duration-700">
-                {/* Left Column: Score Section */}
-                <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left space-y-8 animate-in slide-in-from-left-8 duration-700 delay-100">
-                    <div className="space-y-4">
-                        <p className="text-lg font-bold text-primary uppercase tracking-widest bg-primary/10 px-4 py-1 rounded-full w-fit mx-auto lg:mx-0">
-                            Official Result
-                        </p>
-                        <h1 className="text-[8rem] lg:text-[10rem] font-black text-foreground leading-none tracking-tighter">
-                            {result.assessedLevel}
-                        </h1>
-                        <p className="text-2xl font-medium text-muted-foreground">
-                            JLPT Certified Standard
-                        </p>
+            <div className="w-full min-h-[calc(100vh-120px)] grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center max-w-7xl mx-auto px-6 py-16 animate-in fade-in zoom-in-95 duration-1000">
+                <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left space-y-12">
+                    <div className="space-y-8">
+                        <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-[0.3em] px-4 py-1.5 rounded-full border-primary/20 text-primary bg-primary/5">
+                            Assessment Verified
+                        </Badge>
+                        <div className="relative py-4 inline-block">
+                            <h1 className="text-[10rem] md:text-[13rem] font-bold text-gradient leading-[0.75] tracking-tighter text-primary">
+                                {result.assessedLevel}
+                            </h1>
+                            <div className="absolute -top-6 -right-6 bg-foreground text-background size-16 rounded-[2rem] flex items-center justify-center shadow-2xl border-4 border-background overflow-hidden ring-1 ring-border/50">
+                                <Sparkles className="size-8 text-primary" />
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-2xl font-bold text-muted-foreground/80 leading-tight">
+                                JLPT Certified Standard
+                            </p>
+                            <p className="text-4xl font-bold text-foreground tracking-tight">Level Confirmed</p>
+                        </div>
                     </div>
 
-                    <div className="w-full space-y-4 pt-4">
+                    <div className="w-full max-w-sm space-y-4">
                         <Button
-                            className="w-full h-14 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 bg-primary text-primary-foreground hover:scale-[1.02] transition-all"
+                            className="w-full h-14 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/20"
+                            size="lg"
                             onClick={() => router.push('/dashboard')}
                         >
-                            Start Learning {result.targetLevel}
-                            <ChevronRight className="w-5 h-5 ml-2" />
+                            Begin {result.targetLevel} Path
+                            <ChevronRight className="size-5 ml-1.5" />
                         </Button>
                         <Button
                             variant="ghost"
-                            className="w-full text-muted-foreground hover:text-foreground"
+                            size="lg"
+                            className="w-full h-14 rounded-2xl font-bold uppercase tracking-[0.2em] text-[10px] text-muted-foreground"
                             onClick={() => router.push('/dashboard')}
                         >
-                            Skip for now
+                            Return to Dashboard
                         </Button>
                     </div>
                 </div>
 
-                {/* Right Column: Roadmap (Scrollable) */}
-                <div className="lg:col-span-7 h-[calc(100vh-140px)] flex flex-col space-y-6 animate-in slide-in-from-right-8 duration-700 delay-200">
-                    <div className="shrink-0 space-y-2">
-                        <h2 className="text-3xl font-bold text-foreground">Your Path to {result.targetLevel}</h2>
-                        <p className="text-muted-foreground">
-                            {result.studyPathRecommendation.estimatedWeeks}-week personalized curriculum.
+                <div className="lg:col-span-7 h-full flex flex-col space-y-10">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                            <div className="h-0.5 w-12 bg-primary/30 rounded-full" />
+                            <h2 className="text-3xl font-bold text-foreground tracking-tight">Your Path to {result.targetLevel}</h2>
+                        </div>
+                        <p className="text-lg text-muted-foreground font-medium max-w-xl">
+                            A specialized <span className="text-foreground font-bold">{result.studyPathRecommendation.estimatedWeeks}-week</span> curriculum tailored for your unique linguistic profile.
                         </p>
                     </div>
 
-                    <ScrollArea className="flex-1 pr-4 -mr-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
+                    <ScrollArea className="flex-1 rounded-[2.5rem] bg-muted/20 border border-border/40 p-3 shadow-inner">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-5">
                             {result.studyPathRecommendation.weeklySchedule.map((week, i) => (
-                                <div key={i} className="group relative p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
-                                            W{week.week}
-                                        </div>
-                                        <span className="text-xs font-bold text-muted-foreground/50 group-hover:text-primary/50 transition-colors">
-                                            PHASE {Math.ceil(week.week / 4)}
-                                        </span>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {week.topics.map((topic, j) => (
-                                            <div key={j} className="flex items-start gap-2 text-sm text-foreground/80 leading-relaxed">
-                                                <div className="mt-1.5 w-1 h-1 rounded-full bg-primary shrink-0" />
-                                                {topic}
+                                <Card key={i} className="group relative border-none bg-card hover:bg-muted font-item transition-all duration-300 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5">
+                                    <div className="p-8 space-y-5">
+                                        <div className="flex justify-between items-center">
+                                            <div className="size-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shadow-lg shadow-primary/20">
+                                                W{week.week}
                                             </div>
-                                        ))}
+                                            <Badge variant="secondary" className="font-bold text-[10px] uppercase tracking-widest px-3">
+                                                PHASE {Math.ceil(week.week / 4)}
+                                            </Badge>
+                                        </div>
+                                        <div className="space-y-3.5">
+                                            {week.topics.map((topic, j) => (
+                                                <div key={j} className="flex items-start gap-3.5 text-sm font-bold text-muted-foreground/80 group-hover:text-foreground transition-colors">
+                                                    <div className="size-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                                                        <CheckCircle2 className="size-3" />
+                                                    </div>
+                                                    <span className="leading-tight">{topic}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </Card>
                             ))}
                         </div>
                     </ScrollArea>
@@ -275,105 +300,88 @@ export function PlacementTestWizard() {
     const progress = ((currentQuestionIndex) / testData.questions.length) * 100
 
     return (
-        <div className="max-w-4xl mx-auto w-full py-12 px-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            {/* Minimal Progress */}
-            <div className="mb-16 max-w-xl mx-auto">
-                <div className="flex justify-between text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground/40 mb-4">
-                    <span>Question {currentQuestionIndex + 1}</span>
-                    <span>{Math.round(progress)}%</span>
+        <div className="max-w-5xl mx-auto w-full py-20 px-6 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+            <div className="mb-24 max-w-2xl mx-auto space-y-8">
+                <div className="flex justify-between items-end">
+                    <div className="space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary">Assessment Engine Online</p>
+                        <h3 className="text-3xl font-bold tracking-tight">Question {currentQuestionIndex + 1} <span className="text-muted-foreground/30 font-medium">/</span> {testData.questions.length}</h3>
+                    </div>
+                    <span className="text-5xl font-bold text-primary/20 tracking-tighter">{Math.round(progress)}%</span>
                 </div>
-                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                <div className="h-3 bg-muted rounded-full overflow-hidden p-1 ring-1 ring-border shadow-inner">
                     <div
-                        className="h-full bg-primary transition-all duration-700 ease-out"
+                        className="h-full bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_25px_rgba(var(--primary),0.6)]"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
             </div>
 
-            {/* Question centered and large */}
-            <div className="text-center space-y-12">
-                <div className="space-y-6">
-                    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80 uppercase tracking-widest opacity-50">
+            <div className="text-center space-y-16">
+                <div className="space-y-10">
+                    <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-[0.3em] px-4 py-1 rounded-full border-primary/30 text-primary bg-primary/5">
                         {currentQ.type.replace('_', ' ')}
-                    </span>
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-foreground leading-tight md:leading-tight">
+                    </Badge>
+                    <h2 className="text-3xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.1] max-w-4xl mx-auto">
                         {currentQ.question}
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                     {currentQ.options.map((option, i) => (
-                        <button
+                        <Button
                             key={option}
+                            variant="outline"
                             onClick={() => handleAnswer(option)}
                             className={cn(
-                                "group relative min-h-[4rem] px-6 py-4 rounded-xl border-2 text-left transition-all duration-300",
+                                "group relative h-auto p-8 rounded-[2rem] transition-all duration-500 text-left items-start justify-start flex flex-row border-2",
                                 answers[currentQ.id] === option
-                                    ? "border-primary bg-primary/5 shadow-inner"
-                                    : "border-muted bg-background hover:border-primary/50 hover:-translate-y-1 hover:shadow-lg"
+                                    ? "border-primary bg-primary/5 ring-8 ring-primary/5"
+                                    : "bg-card hover:border-primary/40 hover:bg-muted/50 border-border/50"
                             )}
                         >
-                            <div className="flex items-center gap-4">
-                                <span className={cn(
-                                    "flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-colors",
+                            <div className="flex items-center gap-6 w-full">
+                                <div className={cn(
+                                    "flex items-center justify-center size-12 rounded-2xl text-base font-bold transition-all shrink-0 shadow-sm",
                                     answers[currentQ.id] === option
-                                        ? "bg-primary text-primary-foreground"
+                                        ? "bg-primary text-primary-foreground shadow-xl scale-110 rotate-3"
                                         : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
                                 )}>
                                     {String.fromCharCode(65 + i)}
-                                </span>
+                                </div>
                                 <span className={cn(
-                                    "text-lg font-medium transition-colors",
+                                    "text-xl font-bold transition-colors leading-tight whitespace-normal text-left flex-1",
                                     answers[currentQ.id] === option ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                                 )}>
                                     {option}
                                 </span>
                             </div>
-                        </button>
+                        </Button>
                     ))}
                 </div>
 
-                <div className="pt-12 flex justify-center gap-4 opacity-50 hover:opacity-100 transition-opacity">
+                <div className="pt-16 flex justify-center items-center gap-10">
                     <Button
                         variant="ghost"
-                        size="sm"
+                        size="lg"
                         onClick={() => setCurrentQuestionIndex(p => Math.max(0, p - 1))}
                         disabled={currentQuestionIndex === 0}
-                        className="text-muted-foreground"
+                        className="h-12 px-8 rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] text-muted-foreground"
                     >
-                        Back
+                        Previous
                     </Button>
                     {answers[currentQ.id] && (
                         <Button
-                            size="sm"
+                            size="lg"
                             onClick={handleNext}
-                            className="animate-in fade-in zoom-in"
+                            className="h-14 px-12 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/20 animate-in fade-in zoom-in slide-in-from-right-4 duration-500"
                         >
-                            Next <ChevronRight className="w-4 h-4 ml-1" />
+                            {currentQuestionIndex === testData.questions.length - 1 ? 'Analyze Results' : 'Next Question'}
+                            <ChevronRight className="size-5 ml-1.5" />
                         </Button>
                     )}
                 </div>
             </div>
         </div>
-    )
-}
-
-function Clock(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-        </svg>
     )
 }

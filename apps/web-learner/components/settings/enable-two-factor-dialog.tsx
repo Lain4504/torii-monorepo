@@ -14,8 +14,9 @@ import {
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { toast } from "@workspace/ui/components/sonner";
-import { Smartphone, QrCode, Key, Download, Copy, Check } from 'lucide-react';
+import { Smartphone, QrCode, Key, Download, Copy, Check, AlertTriangle } from 'lucide-react';
 import { Spinner } from '@workspace/ui/components/spinner';
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field';
 import {
   useGenerateTotpSecret,
@@ -132,15 +133,13 @@ export function EnableTwoFactorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg rounded-2xl border-border/20 bg-background/95 backdrop-blur-xl shadow-2xl shadow-primary/5">
+      <DialogContent>
         <DialogHeader className="space-y-3">
           <DialogTitle className="flex items-center gap-3 text-2xl font-sans font-bold italic tracking-tight text-foreground">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <Smartphone className="size-5" />
-            </div>
+            <Smartphone className="size-5" />
             Bật xác thực hai yếu tố
           </DialogTitle>
-          <DialogDescription className="text-xs font-medium text-muted-foreground/70 leading-relaxed">
+          <DialogDescription className="text-sm">
             {step === "generate" && "Thiết lập 2FA để bảo mật tài khoản của bạn"}
             {step === "verify" &&
               "Quét mã QR bằng ứng dụng xác thực của bạn"}
@@ -151,26 +150,18 @@ export function EnableTwoFactorDialog({
         {/* Step 1: Generate */}
         {step === "generate" && (
           <div className="space-y-6 py-2">
-            <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5">
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0 flex items-center justify-center">
-                  <Smartphone className="size-5" />
-                </div>
-                <div className="space-y-2 flex-1">
-                  <p className="text-sm font-bold text-foreground">
-                    Bạn cần một ứng dụng xác thực
-                  </p>
-                  <p className="text-xs text-muted-foreground/70 leading-relaxed font-medium">
-                    Tải xuống ứng dụng xác thực như Google Authenticator, Authy, hoặc Microsoft Authenticator trên điện thoại của bạn.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Alert>
+              <Smartphone className="h-4 w-4" />
+              <AlertTitle>Bạn cần một ứng dụng xác thực</AlertTitle>
+              <AlertDescription>
+                Tải xuống ứng dụng xác thực như Google Authenticator, Authy, hoặc Microsoft Authenticator trên điện thoại của bạn.
+              </AlertDescription>
+            </Alert>
 
             <Button
               onClick={handleGenerate}
               disabled={generateMutation.isPending}
-              className="w-full h-12 rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 gap-2"
+              className="w-full h-10 font-bold"
             >
               {generateMutation.isPending ? (
                 <>
@@ -192,7 +183,7 @@ export function EnableTwoFactorDialog({
           <div className="space-y-6 py-2">
             {/* QR Code */}
             <div className="flex flex-col items-center space-y-4">
-              <div className="rounded-2xl border-2 border-border/20 bg-white p-6 shadow-lg shadow-primary/5">
+              <div className="rounded-lg border-2 border-border/20 bg-white p-6 shadow-lg shadow-primary/5">
                 <img src={qrCodeUrl} alt="QR Code" className="size-52" />
               </div>
               <p className="text-xs text-center text-muted-foreground/60 max-w-sm font-medium leading-relaxed">
@@ -209,14 +200,14 @@ export function EnableTwoFactorDialog({
                 <Input
                   value={secret}
                   readOnly
-                  className="font-mono text-xs rounded-xl bg-muted/20 border-border/20 flex-1"
+                  className="font-mono text-xs rounded-lg bg-muted/20 border-border/20 flex-1"
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   onClick={copySecret}
-                  className="shrink-0 rounded-xl border-border/20 h-10 w-10"
+                  className="shrink-0 rounded-lg border-border/20 h-10 w-10"
                 >
                   {copiedSecret ? (
                     <Check className="size-4 text-emerald-600" />
@@ -244,7 +235,7 @@ export function EnableTwoFactorDialog({
                         id="code"
                         placeholder="000000"
                         maxLength={6}
-                        className="h-14 text-center text-2xl font-mono tracking-widest rounded-xl border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
+                        className="h-14 text-center text-2xl font-mono tracking-widest rounded-lg border-border/20 bg-muted/20 hover:bg-muted/30 focus-visible:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
                         autoComplete="off"
                       />
                       <FieldError errors={[fieldState.error]} />
@@ -256,7 +247,7 @@ export function EnableTwoFactorDialog({
               <Button
                 type="submit"
                 disabled={enableMutation.isPending}
-                className="w-full h-12 rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 gap-2"
+                className="w-full h-10 font-bold"
               >
                 {enableMutation.isPending ? (
                   <>
@@ -277,28 +268,20 @@ export function EnableTwoFactorDialog({
         {/* Step 3: Backup Codes */}
         {step === "backup" && (
           <div className="space-y-6 py-2">
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0 flex items-center justify-center">
-                  <Key className="size-5" />
-                </div>
-                <div className="space-y-2 flex-1">
-                  <p className="text-sm font-bold text-foreground">
-                    Lưu các mã dự phòng này
-                  </p>
-                  <p className="text-xs text-muted-foreground/70 leading-relaxed font-medium">
-                    Mỗi mã chỉ có thể sử dụng một lần. Lưu trữ chúng ở nơi an toàn trong trường hợp bạn mất quyền truy cập vào ứng dụng xác thực.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Alert className="bg-amber-500/10 text-amber-600 border-amber-500/20">
+              <Key className="h-4 w-4 text-amber-600" />
+              <AlertTitle className="text-amber-600">Lưu các mã dự phòng này</AlertTitle>
+              <AlertDescription className="text-amber-600/90">
+                Mỗi mã chỉ có thể sử dụng một lần. Lưu trữ chúng ở nơi an toàn trong trường hợp bạn mất quyền truy cập vào ứng dụng xác thực.
+              </AlertDescription>
+            </Alert>
 
             {/* Backup Codes Grid */}
-            <div className="grid grid-cols-2 gap-3 p-5 rounded-xl border border-border/20 bg-muted/10">
+            <div className="grid grid-cols-2 gap-3 p-5 rounded-lg border border-border/20 bg-muted/10">
               {backupCodes.map((code, index) => (
                 <div
                   key={index}
-                  className="rounded-xl bg-background px-4 py-3 text-center font-mono text-sm font-medium border border-border/10 shadow-sm"
+                  className="rounded-lg bg-background px-4 py-3 text-center font-mono text-sm font-medium border border-border/10 shadow-sm"
                 >
                   {code}
                 </div>
@@ -310,28 +293,28 @@ export function EnableTwoFactorDialog({
               <Button
                 onClick={copyBackupCodes}
                 variant="outline"
-                className="flex-1 h-11 rounded-xl border-border/20 bg-background hover:bg-muted/30 gap-2"
+                className="flex-1 h-10 gap-2"
               >
                 {copiedCodes ? (
                   <Check className="size-4 text-emerald-600" />
                 ) : (
                   <Copy className="size-4" />
                 )}
-                <span className="text-xs font-medium">Sao chép</span>
+                <span className="text-xs font-bold">Sao chép</span>
               </Button>
               <Button
                 onClick={downloadBackupCodes}
                 variant="outline"
-                className="flex-1 h-11 rounded-xl border-border/20 bg-background hover:bg-muted/30 gap-2"
+                className="flex-1 h-10 gap-2"
               >
                 <Download className="size-4" />
-                <span className="text-xs font-medium">Tải xuống</span>
+                <span className="text-xs font-bold">Tải xuống</span>
               </Button>
             </div>
 
             <Button
               onClick={handleFinish}
-              className="w-full h-12 rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+              className="w-full h-10 font-bold"
             >
               Tôi đã lưu mã dự phòng
             </Button>

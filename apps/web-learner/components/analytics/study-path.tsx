@@ -3,6 +3,7 @@
 import { CheckCircle2, Circle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { cn } from "@workspace/ui/lib/utils"
+import { Badge } from "@workspace/ui/components/badge"
 
 interface StudyPathNode {
     title: string;
@@ -37,7 +38,7 @@ export function StudyPath({ roadmap }: StudyPathProps) {
                         <div key={i} className="relative">
                             <span className={cn(
                                 "absolute -left-[31px] bg-background border-2 rounded-full p-1",
-                                step.status === "completed" ? "border-green-500 text-green-500" :
+                                step.status === "completed" ? "border-primary/50 text-primary/50" :
                                     step.status === "in-progress" ? "border-primary text-primary" : "border-muted text-muted-foreground"
                             )}>
                                 {step.status === "completed" ? <CheckCircle2 className="size-4" /> : <Circle className="size-4" />}
@@ -51,9 +52,9 @@ export function StudyPath({ roadmap }: StudyPathProps) {
                             </div>
 
                             {step.status === "in-progress" && (
-                                <div className="mt-2 text-xs font-medium text-primary bg-primary/10 inline-block px-2 py-1 rounded">
+                                <Badge variant="secondary" className="mt-2">
                                     Current Focus
-                                </div>
+                                </Badge>
                             )}
                         </div>
                     ))}

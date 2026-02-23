@@ -31,7 +31,7 @@ export function RevokeSessionDialog({
 }: RevokeSessionDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[400px] rounded-2xl">
+            <DialogContent className="sm:max-w-[400px]">
                 <DialogHeader className="space-y-3">
                     <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
                         <AlertTriangle className="size-6" />
@@ -45,10 +45,10 @@ export function RevokeSessionDialog({
                 </DialogHeader>
                 <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => onOpenChange(false)}
                         disabled={isPending}
-                        className="rounded-xl flex-1 font-bold text-xs uppercase tracking-wider"
+                        className="flex-1 font-bold"
                     >
                         Hủy
                     </Button>
@@ -56,7 +56,7 @@ export function RevokeSessionDialog({
                         variant="destructive"
                         onClick={onConfirm}
                         disabled={isPending}
-                        className="rounded-xl flex-1 font-bold text-xs uppercase tracking-wider"
+                        className="flex-1 font-bold"
                     >
                         {isPending ? (
                             <div className="flex items-center gap-2">

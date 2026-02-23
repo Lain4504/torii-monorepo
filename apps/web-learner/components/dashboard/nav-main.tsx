@@ -53,7 +53,7 @@ export function NavMain({
 
     return (
         <SidebarGroup className="group-data-[collapsible=icon]:px-0">
-            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 mb-2 px-4 group-data-[collapsible=icon]:hidden">
+            <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden px-4 mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">
                 {label}
             </SidebarGroupLabel>
             <SidebarMenu>
@@ -67,26 +67,20 @@ export function NavMain({
                         <SidebarMenuButton
                             tooltip={isCollapsed ? undefined : item.name}
                             className={cn(
-                                "h-11 rounded-xl transition-all duration-300",
-                                isItemActive && !isAISensei && "bg-primary/10 text-primary hover:bg-primary/20",
-                                !isItemActive && !isAISensei && "text-muted-foreground/70 hover:bg-muted/50 hover:text-foreground",
-                                isAISensei && isItemActive && "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-500 border border-blue-500/30",
-                                isAISensei && !isItemActive && "bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-500 hover:from-blue-500/20 hover:to-purple-500/20 border border-blue-500/20",
-                                "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
+                                'h-10 transition-all',
+                                isItemActive && 'bg-primary/10 text-primary',
+                                !isItemActive && 'text-muted-foreground hover:bg-muted hover:text-foreground',
                             )}
                         >
-                            <div className="flex items-center justify-center shrink-0">
-                                {item.icon && <item.icon className={cn("size-4 shadow-sm transition-transform", isItemActive && "scale-110", isAISensei && "text-blue-500")} />}
+                            <div className="flex shrink-0 items-center justify-center">
+                                {item.icon && <item.icon className={cn('size-4', isItemActive && 'text-primary')} />}
                             </div>
-                            <span className="ml-2 font-bold text-[11px] uppercase tracking-widest group-data-[collapsible=icon]:hidden truncate">{item.name}</span>
+                            <span className="truncate group-data-[collapsible=icon]:hidden ml-2 text-xs font-medium uppercase tracking-wider">{item.name}</span>
                             {hasSubItems && (
-                                <ChevronRight className="ml-auto size-3 transition-transform duration-300 group-data-[state=open]/collapsible:rotate-90 opacity-40 group-data-[collapsible=icon]:hidden" />
+                                <ChevronRight className="group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden ml-auto size-3 opacity-40 transition-transform" />
                             )}
-                            {isItemActive && !hasSubItems && !isAISensei && (
-                                <Sparkles className="ml-auto size-3 text-primary opacity-50 animate-pulse group-data-[collapsible=icon]:hidden" />
-                            )}
-                            {isAISensei && (
-                                <Sparkles className="ml-auto size-3 text-blue-500 opacity-80 animate-pulse group-data-[collapsible=icon]:hidden" />
+                            {isItemActive && !hasSubItems && (
+                                <Sparkles className="group-data-[collapsible=icon]:hidden ml-auto size-3 text-primary opacity-50" />
                             )}
                         </SidebarMenuButton>
                     )
@@ -103,19 +97,19 @@ export function NavMain({
                                             side="right"
                                             align="start"
                                             sideOffset={16}
-                                            className="w-56 rounded-2xl border-border/20 bg-background/80 backdrop-blur-3xl p-2 shadow-2xl"
+                                            className="w-56 p-1 shadow-xl border-border/50"
                                         >
-                                            <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 px-3 py-2">
+                                            <DropdownMenuLabel className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                                                 {item.name}
                                             </DropdownMenuLabel>
-                                            <DropdownMenuSeparator className="bg-border/10" />
+                                            <DropdownMenuSeparator />
                                             {item.items?.map((subItem) => (
                                                 <DropdownMenuItem key={subItem.name} asChild>
                                                     <Link
                                                         href={subItem.href}
                                                         className={cn(
-                                                            "rounded-xl px-3 py-2.5 text-xs font-medium cursor-pointer transition-colors focus:bg-primary/5 focus:text-primary mb-1",
-                                                            pathname === subItem.href ? "bg-primary/5 text-primary" : "text-muted-foreground/70"
+                                                            'cursor-pointer px-3 py-2 text-xs font-medium transition-colors focus:bg-accent focus:text-accent-foreground',
+                                                            pathname === subItem.href ? 'bg-accent text-accent-foreground' : 'text-muted-foreground',
                                                         )}
                                                     >
                                                         {subItem.name}
@@ -135,13 +129,13 @@ export function NavMain({
                                                 {menuButton}
                                             </CollapsibleTrigger>
                                             <CollapsibleContent className="animate-in fade-in slide-in-from-top-1 duration-300">
-                                                <SidebarMenuSub className="ml-4 border-l border-primary/10 pl-2 mt-1 space-y-1 group-data-[collapsible=icon]:hidden">
+                                                <SidebarMenuSub className="group-data-[collapsible=icon]:hidden mt-1 ml-4 space-y-1 border-l border-primary/10 pl-2">
                                                     {item.items?.map((subItem) => (
                                                         <SidebarMenuSubItem key={subItem.name}>
                                                             <SidebarMenuSubButton asChild isActive={pathname === subItem.href}>
                                                                 <Link href={subItem.href} className={cn(
-                                                                    "h-9 rounded-lg text-xs font-medium transition-colors",
-                                                                    pathname === subItem.href ? "text-primary bg-primary/5" : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/30"
+                                                                    'h-8 text-xs font-medium transition-colors',
+                                                                    pathname === subItem.href ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                                                                 )}>
                                                                     <span className="truncate">{subItem.name}</span>
                                                                 </Link>
@@ -158,24 +152,18 @@ export function NavMain({
                                     asChild
                                     tooltip={item.name}
                                     className={cn(
-                                        "h-11 rounded-xl transition-all duration-300",
-                                        isItemActive && !isAISensei && "bg-primary/10 text-primary hover:bg-primary/20",
-                                        !isItemActive && !isAISensei && "text-muted-foreground/70 hover:bg-muted/50 hover:text-foreground",
-                                        isAISensei && isItemActive && "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-500 border border-blue-500/30",
-                                        isAISensei && !isItemActive && "bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-500 hover:from-blue-500/20 hover:to-purple-500/20 border border-blue-500/20",
-                                        "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
+                                        'h-10 transition-all',
+                                        isItemActive && 'bg-primary/10 text-primary',
+                                        !isItemActive && 'text-muted-foreground hover:bg-muted hover:text-foreground',
                                     )}
                                 >
                                     <Link href={item.href}>
-                                        <div className="flex items-center justify-center shrink-0">
-                                            {item.icon && <item.icon className={cn("size-4 shadow-sm transition-transform", isItemActive && "scale-110", isAISensei && "text-blue-500")} />}
+                                        <div className="flex shrink-0 items-center justify-center">
+                                            {item.icon && <item.icon className={cn('size-4', isItemActive && 'text-primary')} />}
                                         </div>
-                                        <span className="ml-2 font-bold text-[11px] uppercase tracking-widest group-data-[collapsible=icon]:hidden truncate">{item.name}</span>
-                                        {isItemActive && !isAISensei && (
-                                            <Sparkles className="ml-auto size-3 text-primary opacity-50 animate-pulse group-data-[collapsible=icon]:hidden" />
-                                        )}
-                                        {isAISensei && (
-                                            <Sparkles className="ml-auto size-3 text-blue-500 opacity-80 animate-pulse group-data-[collapsible=icon]:hidden" />
+                                        <span className="truncate group-data-[collapsible=icon]:hidden ml-2 text-xs font-medium uppercase tracking-wider">{item.name}</span>
+                                        {isItemActive && (
+                                            <Sparkles className="group-data-[collapsible=icon]:hidden ml-auto size-3 text-primary opacity-50" />
                                         )}
                                     </Link>
                                 </SidebarMenuButton>

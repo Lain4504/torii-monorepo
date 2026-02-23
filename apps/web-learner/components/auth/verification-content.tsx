@@ -63,14 +63,14 @@ export function VerificationContent() {
 
     if (status === 'success') {
         return (
-            <div className="flex flex-col items-center text-center gap-4 py-8">
-                <div className="flex size-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
-                    <ShieldCheck className="size-8 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex flex-col items-center text-center gap-6 py-4">
+                <div className="flex size-20 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
+                    <ShieldCheck className="size-10 text-primary" />
                 </div>
-                <div className="space-y-1">
-                    <h3 className="font-semibold">Kích hoạt thành công!</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Chào mừng đến với Torii Nihongo. Đang chuyển hướng sau 3 giây...
+                <div className="space-y-2">
+                    <h3 className="text-xl font-bold tracking-tight">Kích hoạt thành công</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px]">
+                        Chào mừng đến với <span className="text-foreground font-bold">Torii Nihongo</span>. Đang chuyển hướng sau 3 giây...
                     </p>
                 </div>
             </div>
@@ -78,15 +78,15 @@ export function VerificationContent() {
     }
 
     return (
-        <div className="flex flex-col items-center text-center gap-4 py-8">
-            <div className="flex size-16 items-center justify-center rounded-full bg-destructive/10">
-                <ShieldAlert className="size-8 text-destructive" />
+        <div className="flex flex-col items-center text-center gap-6 py-4">
+            <div className="flex size-20 items-center justify-center rounded-full bg-destructive/10 border border-destructive/20">
+                <ShieldAlert className="size-10 text-destructive" />
             </div>
-            <div className="space-y-1">
-                <h3 className="font-semibold">Xác thực thất bại</h3>
-                <p className="text-sm text-muted-foreground">{message}</p>
+            <div className="space-y-2">
+                <h3 className="text-xl font-bold tracking-tight">Xác thực thất bại</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px]">{message}</p>
             </div>
-            <Button onClick={() => router.push('/')} variant="outline">
+            <Button onClick={() => router.push('/')} variant="outline" className="w-full max-w-[200px]">
                 Trở về trang chủ
             </Button>
         </div>

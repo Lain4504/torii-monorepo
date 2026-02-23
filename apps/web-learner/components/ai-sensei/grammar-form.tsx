@@ -52,25 +52,23 @@ export function GrammarForm() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 p-4 md:p-8 animate-in fade-in duration-700">
+        <div className="mx-auto max-w-5xl space-y-8 p-4 md:p-8">
             {/* Header Section */}
-            <div className="flex flex-col gap-2">
+            <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
-                        <BookOpen className="size-6" />
-                    </div>
-                    <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <BookOpen className="size-6 text-primary" />
+                    <h1 className="text-3xl font-bold tracking-tight">
                         Grammar Guide
-                    </h2>
+                    </h1>
                 </div>
-                <p className="text-muted-foreground font-medium pl-10">
+                <p className="text-muted-foreground font-medium">
                     Phân tích và tối ưu hóa ngữ pháp tiếng Nhật với AI Sensei
                 </p>
             </div>
 
             <div className="grid lg:grid-cols-12 gap-8 items-start">
                 {/* Left Side: Input */}
-                <Card className="lg:col-span-5 overflow-hidden border-border/50 shadow-xl shadow-black/5 bg-card/50 backdrop-blur-sm">
+                <Card className="lg:col-span-5 bg-card/50">
                     <form onSubmit={form.handleSubmit(handleCheck)}>
                         <CardHeader className="pb-4">
                             <CardTitle className="text-sm uppercase tracking-[0.2em] text-muted-foreground/60">Input Content</CardTitle>
@@ -87,14 +85,14 @@ export function GrammarForm() {
                                                 {...field}
                                                 id={field.name}
                                                 placeholder="VD: 私は日本語勉強します..."
-                                                className="min-h-[200px] text-lg leading-relaxed resize-none bg-background/50 border-border/50 focus:border-blue-500/50 transition-all rounded-2xl p-6"
+                                                className="min-h-[200px] resize-none"
                                                 aria-invalid={fieldState.invalid}
                                             />
                                             {field.value && (
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
-                                                    size="icon-sm"
+                                                    size="icon"
                                                     className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
                                                     onClick={() => form.setValue("text", "")}
                                                 >
@@ -107,26 +105,27 @@ export function GrammarForm() {
                                 )}
                             />
                         </CardContent>
-                        <CardFooter className="flex items-center justify-between bg-muted/30 border-t py-4">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+                        <CardFooter className="flex items-center justify-between py-4 border-t bg-muted/50">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                                 {form.watch("text").length} characters
                             </span>
                             <Button
                                 type="submit"
-                                disabled={!form.watch("text").trim() || isLoading}
-                                className="rounded-xl px-8 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all font-bold group"
+                                disabled={!form.watch('text').trim() || isLoading}
                             >
-                                {isLoading ? (
-                                    <div className="flex items-center gap-2">
-                                        <Spinner />
-                                        <span>Đang xử lý...</span>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center gap-2">
-                                        <span>Kiểm tra</span>
-                                        <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
-                                    </div>
-                                )}
+                                {isLoading
+                                    ? (
+                                        <div className="flex items-center gap-2">
+                                            <Spinner />
+                                            <span>Đang xử lý...</span>
+                                        </div>
+                                    )
+                                    : (
+                                        <div className="flex items-center gap-2">
+                                            <span>Kiểm tra</span>
+                                            <ArrowRight className="size-4" />
+                                        </div>
+                                    )}
                             </Button>
                         </CardFooter>
                     </form>
@@ -135,20 +134,20 @@ export function GrammarForm() {
                 {/* Right Side: Results */}
                 <div className="lg:col-span-7 space-y-6">
                     {!result && !isLoading && (
-                        <div className="h-full min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-border/10 rounded-3xl bg-muted/5 opacity-50">
-                            <div className="size-16 rounded-3xl bg-muted flex items-center justify-center mb-4">
+                        <div className="h-full min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-border/10 rounded-lg bg-muted/5 opacity-50">
+                            <div className="size-16 rounded-lg bg-muted flex items-center justify-center mb-4">
                                 <Sparkles className="size-8 text-muted-foreground/40" />
                             </div>
-                            <p className="text-sm font-medium text-muted-foreground">Kết quả phân tích sẽ hiển thị tại đây</p>
+                            <p className="font-medium text-muted-foreground">Kết quả phân tích sẽ hiển thị tại đây</p>
                         </div>
                     )}
 
                     {isLoading && (
                         <div className="space-y-6">
-                            <Skeleton className="h-[200px] w-full rounded-2xl" />
+                            <Skeleton className="h-[200px] w-full rounded-lg" />
                             <div className="grid grid-cols-2 gap-4">
-                                <Skeleton className="h-40 w-full rounded-2xl" />
-                                <Skeleton className="h-40 w-full rounded-2xl" />
+                                <Skeleton className="h-40 w-full rounded-lg" />
+                                <Skeleton className="h-40 w-full rounded-lg" />
                             </div>
                         </div>
                     )}
@@ -156,9 +155,9 @@ export function GrammarForm() {
                     {result && !isLoading && (
                         <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
                             {/* Corrected Text Card */}
-                            <Card className="border-green-500/20 bg-green-500/[0.02] shadow-xl shadow-green-500/5 relative overflow-hidden">
+                            <Card className="relative overflow-hidden border-primary/20 bg-primary/5">
                                 <div className="absolute top-0 right-0 p-4">
-                                    <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-[10px] uppercase font-bold tracking-widest">
+                                    <Badge>
                                         Corrected
                                     </Badge>
                                 </div>
@@ -166,15 +165,15 @@ export function GrammarForm() {
                                     <CardTitle className="text-sm uppercase tracking-[0.2em] text-green-600/70">Bản sửa đổi</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                    <p className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight">
+                                    <p className="text-2xl font-bold leading-tight tracking-tight md:text-3xl">
                                         {result.correctedText}
                                     </p>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Badge variant="destructive" className="text-[10px] uppercase font-bold">Gốc</Badge>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="destructive">Gốc</Badge>
                                         <span className="text-xs font-medium text-muted-foreground">Lỗi Ngữ Pháp / Từ Vựng</span>
                                     </div>
-                                    <div className="flex items-center gap-4 py-3 px-4 rounded-2xl bg-muted/50 border border-border/50">
-                                        <span className="text-muted-foreground line-through decoration-red-500/30 font-medium italic">
+                                    <div className="rounded-lg border bg-muted px-4 py-3">
+                                        <span className="font-medium italic text-muted-foreground line-through decoration-destructive/50">
                                             {result.originalText}
                                         </span>
                                     </div>
@@ -183,58 +182,62 @@ export function GrammarForm() {
 
                             <div className="grid md:grid-cols-2 gap-6">
                                 {/* Errors List */}
-                                <Card className="border-red-500/10 bg-card/50">
+                                <Card className="bg-muted/50">
                                     <CardHeader className="pb-2">
-                                        <div className="flex items-center gap-2 text-red-500">
+                                        <div className="flex items-center gap-2 text-destructive">
                                             <AlertCircle className="size-4" />
-                                            <CardTitle className="text-[10px] uppercase tracking-widest font-bold">Lỗi phát hiện</CardTitle>
+                                            <CardTitle className="text-[10px] font-bold uppercase tracking-widest">Lỗi phát hiện</CardTitle>
                                         </div>
                                     </CardHeader>
                                     <CardContent>
-                                        {result.errors.length > 0 ? (
-                                            <ul className="space-y-3">
-                                                {result.errors.map((err, i) => (
-                                                    <li key={i} className="text-sm p-3 rounded-xl bg-red-500/5 border border-red-500/10 text-foreground/80 leading-relaxed font-medium">
-                                                        {err.explanation}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p className="text-xs text-muted-foreground italic">Không phát hiện lỗi nghiêm trọng</p>
-                                        )}
+                                        {result.errors.length > 0
+                                            ? (
+                                                <ul className="space-y-2">
+                                                    {result.errors.map((err, i) => (
+                                                        <li key={i} className="text-sm font-medium leading-relaxed rounded-md border border-destructive/20 bg-destructive/5 p-3">
+                                                            {err.explanation}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )
+                                            : (
+                                                <p className="text-xs italic text-muted-foreground">Không phát hiện lỗi nghiêm trọng</p>
+                                            )}
                                     </CardContent>
                                 </Card>
 
                                 {/* Suggestions List */}
-                                <Card className="border-blue-500/10 bg-card/50">
+                                <Card className="bg-muted/50">
                                     <CardHeader className="pb-2">
-                                        <div className="flex items-center gap-2 text-blue-500">
+                                        <div className="flex items-center gap-2 text-primary">
                                             <Lightbulb className="size-4" />
-                                            <CardTitle className="text-[10px] uppercase tracking-widest font-bold">Gợi ý phát triển</CardTitle>
+                                            <CardTitle className="text-[10px] font-bold uppercase tracking-widest">Gợi ý phát triển</CardTitle>
                                         </div>
                                     </CardHeader>
                                     <CardContent>
-                                        {result.suggestions.length > 0 ? (
-                                            <ul className="space-y-3">
-                                                {result.suggestions.map((sug, i) => (
-                                                    <li key={i} className="text-sm p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-foreground/80 leading-relaxed font-medium">
-                                                        {sug}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p className="text-xs text-muted-foreground italic">Cấu trúc câu đã rất ổn</p>
-                                        )}
+                                        {result.suggestions.length > 0
+                                            ? (
+                                                <ul className="space-y-2">
+                                                    {result.suggestions.map((sug, i) => (
+                                                        <li key={i} className="text-sm font-medium leading-relaxed rounded-md border border-primary/20 bg-primary/5 p-3">
+                                                            {sug}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )
+                                            : (
+                                                <p className="text-xs italic text-muted-foreground">Cấu trúc câu đã rất ổn</p>
+                                            )}
                                     </CardContent>
                                 </Card>
                             </div>
 
                             <Button
                                 variant="outline"
-                                className="w-full rounded-2xl h-12 border-dashed border-2 hover:bg-muted/50 transition-all font-bold text-muted-foreground"
+                                className="w-full border-dashed"
                                 onClick={handleReset}
                             >
-                                <RotateCcw className="size-4 mr-2" />
+                                <RotateCcw className="mr-2 size-4" />
                                 Nhập câu mới
                             </Button>
                         </div>

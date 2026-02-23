@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { GraduationCap, LayoutDashboard, History, Bot } from "lucide-react"
+import { GraduationCap, LayoutDashboard, History, Bot, Sparkles } from "lucide-react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 
@@ -39,17 +39,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
                             <SidebarMenuButton
                                 size="lg"
-                                className={cn(
-                                    "hover:bg-transparent transition-all duration-300",
-                                    "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
-                                )}
+                                className="group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center hover:bg-transparent"
                             >
-                                <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shrink-0 group-data-[collapsible=icon]:size-8">
-                                    <GraduationCap className="size-6 group-data-[collapsible=icon]:size-5" />
+                                <div className="flex aspect-square size-9 items-center justify-center rounded bg-primary text-primary-foreground shrink-0 group-data-[collapsible=icon]:size-8">
+                                    <Sparkles className="size-5" />
                                 </div>
-                                <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                    <span className="truncate font-bold text-base text-foreground">Torii Nihongo</span>
-                                    <span className="truncate text-xs font-medium text-muted-foreground">Cổng học viên</span>
+                                <div className="grid flex-1 text-left text-sm leading-tight ml-3 group-data-[collapsible=icon]:hidden">
+                                    <span className="truncate font-black text-foreground tracking-tighter">Torii Nihongo</span>
+                                    <span className="truncate text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Cổng học viên</span>
                                 </div>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -67,15 +64,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                         <SidebarMenuButton
                                             size="lg"
                                             asChild
-                                            className="hover:bg-accent/50 transition-all duration-300 rounded-xl bg-blue-500/5 border border-blue-500/10 cursor-default"
+                                            className="bg-muted/50 border border-border/50 cursor-default h-14"
                                         >
-                                            <div className="flex gap-3 items-center">
-                                                <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/20 shrink-0 group-data-[collapsible=icon]:size-8">
+                                            <div className="flex gap-4 items-center">
+                                                <div className="flex aspect-square size-10 items-center justify-center rounded bg-primary text-primary-foreground shrink-0 group-data-[collapsible=icon]:size-8">
                                                     <Bot className="size-5 group-data-[collapsible=icon]:size-4" />
                                                 </div>
                                                 <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
-                                                    <span className="font-bold text-sm uppercase tracking-widest text-blue-600 dark:text-blue-400">AI Sensei</span>
-                                                    <span className="text-[10px] text-muted-foreground font-medium">Assistant Thông Minh</span>
+                                                    <span className="font-bold text-xs uppercase tracking-widest text-primary">AI Sensei</span>
+                                                    <span className="text-[10px] text-muted-foreground font-bold opacity-60">Assistant Thông Minh</span>
                                                 </div>
                                             </div>
                                         </SidebarMenuButton>
@@ -85,16 +82,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                         <SidebarMenuButton
                                             asChild
                                             tooltip="Về Trang Chủ"
-                                            className="h-11 rounded-xl transition-all duration-300 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20"
+                                            className="h-11 text-muted-foreground hover:bg-muted hover:text-foreground px-4"
                                         >
                                             <Link href="/dashboard">
                                                 <LayoutDashboard className="size-4 shrink-0" />
-                                                <span className="ml-2 font-bold text-[11px] uppercase tracking-widest group-data-[collapsible=icon]:hidden">Về Dashboard</span>
+                                                <span className="ml-3 font-bold text-[10px] uppercase tracking-widest group-data-[collapsible=icon]:hidden">Về Dashboard</span>
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 </SidebarMenu>
-                                <div className="px-4 my-4 group-data-[collapsible=icon]:hidden">
+                                <div className="px-4 my-6 group-data-[collapsible=icon]:hidden">
                                     <div className="h-px bg-border/40 w-full" />
                                 </div>
                             </SidebarGroupContent>
@@ -103,15 +100,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <NavMain label="Tính năng AI" items={aiSenseiNav as any} />
 
                         <SidebarGroup className="mt-auto group-data-[collapsible=icon]:px-0">
-                            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 mb-2 px-4 group-data-[collapsible=icon]:hidden">
+                            <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 mb-2 px-6 group-data-[collapsible=icon]:hidden">
                                 Lịch sử
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <SidebarMenu>
                                     <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
-                                        <SidebarMenuButton className="h-11 rounded-xl transition-all duration-300 text-muted-foreground hover:bg-muted/50 hover:text-foreground">
+                                        <SidebarMenuButton className="h-11 text-muted-foreground hover:bg-muted hover:text-foreground px-4">
                                             <History className="size-4 shrink-0" />
-                                            <span className="ml-2 font-bold text-[11px] uppercase tracking-widest group-data-[collapsible=icon]:hidden">Cuộc trò chuyện gần đây</span>
+                                            <span className="ml-3 font-bold text-[10px] uppercase tracking-widest group-data-[collapsible=icon]:hidden">Cuộc trò chuyện gần đây</span>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 </SidebarMenu>

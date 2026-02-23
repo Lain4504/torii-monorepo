@@ -2,9 +2,9 @@ import { Trophy, Clock, Target, CheckCircle } from 'lucide-react'
 import { Card, CardContent } from '@workspace/ui/components/card'
 
 const stats = [
-    { label: 'Đề thi đã làm', value: '12', icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
-    { label: 'Điểm trung bình', value: '145/180', icon: Target, color: 'text-blue-600', bg: 'bg-blue-500/10' },
-    { label: 'Giờ luyện thi', value: '24h', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-500/10' },
+    { label: 'Đề thi đã làm', value: '12', icon: CheckCircle, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'Điểm trung bình', value: '145/180', icon: Target, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'Giờ luyện thi', value: '24h', icon: Clock, color: 'text-primary', bg: 'bg-primary/10' },
     { label: 'Chứng chỉ', value: '1', icon: Trophy, color: 'text-primary', bg: 'bg-primary/10' },
 ]
 

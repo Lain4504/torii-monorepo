@@ -35,27 +35,27 @@ export function NavLearning() {
                         }
                     }}
                     className={cn(
-                        "group block p-4 rounded-3xl bg-primary/[0.03] hover:bg-primary/[0.08] border border-primary/10 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer",
-                        isExpired && "border-destructive/20 bg-destructive/5"
+                        "group block p-4 rounded-lg border transition-all cursor-pointer",
+                        isExpired ? "border-destructive/20 bg-destructive/10" : "bg-accent/50 hover:bg-accent border-border/50"
                     )}
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">
-                        <h4 className="text-xs font-sans font-bold text-foreground leading-snug group-hover:text-primary transition-colors italic line-clamp-2">
+                        <h4 className="text-xs font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2">
                             {activeCourse.title}
                         </h4>
                         <div className={cn(
-                            "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all shadow-sm",
-                            isExpired ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white"
+                            "w-8 h-8 rounded flex items-center justify-center shrink-0 transition-all",
+                            isExpired ? "bg-destructive/10 text-destructive" : "bg-primary text-primary-foreground"
                         )}>
                             <PlayCircle className="w-4 h-4" />
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                        <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
                             <span>{isExpired ? 'Hết hạn' : 'Tiến độ'}</span>
                             <span>{activeCourse.progress}%</span>
                         </div>
-                        <Progress value={activeCourse.progress} className={cn("h-1", isExpired ? "bg-muted [&>div]:bg-muted-foreground" : "bg-primary/5")} />
+                        <Progress value={activeCourse.progress} className="h-1" />
                     </div>
                 </div>
             </div>

@@ -20,48 +20,48 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
 
     return (
         <div className={cn(
-            "flex flex-col items-center gap-4 transition-all duration-500 hover:-translate-y-2",
-            isFirst ? "order-2 md:mb-10 scale-110 z-10" : isSecond ? "order-1" : "order-3"
+            'flex flex-col items-center gap-4 transition-all duration-500 hover:-translate-y-2',
+            isFirst ? 'order-2 z-10 scale-110 md:mb-10' : isSecond ? 'order-1' : 'order-3',
         )}>
             <div className="relative">
                 {isFirst && (
                     <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-                        <Crown className="size-10 text-amber-400 fill-amber-400 drop-shadow-lg animate-bounce duration-3000" />
+                        <Crown className="animate-bounce size-10 fill-amber-400 text-amber-400 drop-shadow-lg duration-3000" />
                     </div>
                 )}
 
                 <div className={cn(
-                    "p-1.5 rounded-full",
-                    isFirst ? "bg-gradient-to-tr from-amber-400 to-yellow-200" :
-                        isSecond ? "bg-gradient-to-tr from-slate-400 to-slate-200" :
-                            "bg-gradient-to-tr from-orange-400 to-orange-200"
+                    'rounded-full p-1.5',
+                    isFirst ? 'bg-warning shadow-lg shadow-warning/20' :
+                        isSecond ? 'bg-muted' :
+                            'bg-orange-100 dark:bg-orange-950',
                 )}>
                     <Avatar className={cn(
-                        "border-4 border-background",
-                        isFirst ? "size-32" : "size-24"
+                        'border-4 border-background',
+                        isFirst ? 'size-32' : 'size-24',
                     )}>
-                        <AvatarImage src={user.avatarUrl || ''} />
-                        <AvatarFallback className="font-black text-2xl">
+                        <AvatarImage src={user.avatarUrl ?? undefined} />
+                        <AvatarFallback className="text-2xl font-black">
                             {user.displayName.charAt(0)}
                         </AvatarFallback>
                     </Avatar>
                 </div>
 
                 <div className={cn(
-                    "absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center rounded-full border-2 border-background font-black text-xs text-white",
-                    isFirst ? "bg-amber-500 size-10 text-base" :
-                        isSecond ? "bg-slate-500 size-8" :
-                            "bg-orange-600 size-8"
+                    'absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center rounded-full border-2 border-background text-xs font-black text-white',
+                    isFirst ? 'size-10 bg-warning text-base' :
+                        isSecond ? 'size-8 bg-muted-foreground' :
+                            'size-8 bg-orange-600',
                 )}>
                     {rank}
                 </div>
             </div>
 
-            <div className="text-center mt-2 flex flex-col items-center">
+            <div className="mt-2 text-center flex flex-col items-center">
                 <div className="flex items-center gap-1.5">
                     <h3 className={cn(
-                        "font-black tracking-tight flex items-center gap-1",
-                        isFirst ? "text-xl" : "text-base"
+                        'flex items-center gap-1 font-black tracking-tight',
+                        isFirst ? 'text-xl' : 'text-base',
                     )}>
                         {user.displayName}
                     </h3>
@@ -72,14 +72,12 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                 <p className="text-sm font-bold text-muted-foreground">Cấp độ {user.level}</p>
 
                 <div className={cn(
-                    "mt-3 flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm self-center",
-                    isFirst && "shadow-lg border-amber-200 bg-amber-50/50"
+                    'mt-3 flex items-center gap-2 self-center rounded-full border border-border/50 bg-background/50 px-4 py-1.5 backdrop-blur-sm',
+                    isFirst && 'border-warning/20 bg-warning/5 shadow-md',
                 )}>
-                    {type === 'global' ? (
-                        <Star className="size-4 text-amber-500 fill-amber-500" />
-                    ) : (
-                        <Flame className="size-4 text-orange-500 fill-orange-500" />
-                    )}
+                    {type === 'global'
+                        ? <Star className="size-4 fill-warning text-warning" />
+                        : <Flame className="size-4 fill-orange-500 text-orange-500" />}
                     <span className="font-extrabold text-lg tabular-nums">
                         {type === 'global' ? formatNumber(user.xp) : formatNumber(user.currentStreak ?? 0)}
                     </span>

@@ -79,7 +79,7 @@ export function CourseCard(props: CourseCardProps) {
 
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
-                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                            <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
                             <span className="font-medium text-foreground">{safeRating.toFixed(1)}</span>
                             <span>({reviewCount})</span>
                         </span>
@@ -100,7 +100,7 @@ export function CourseCard(props: CourseCardProps) {
                                     {formatCurrency(safeOriginalPrice)}
                                 </p>
                             )}
-                            <p className={cn('text-sm font-bold', isFree ? 'text-emerald-600' : 'text-primary')}>
+                            <p className={cn('text-sm font-bold', isFree ? 'text-primary' : 'text-primary')}>
                                 {isFree ? 'MIỄN PHÍ' : formatCurrency(safePrice)}
                             </p>
                         </div>

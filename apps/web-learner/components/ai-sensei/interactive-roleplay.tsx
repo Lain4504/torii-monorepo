@@ -14,6 +14,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@workspace/ui/components/dialog"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
 import {
     Select,
     SelectContent,
@@ -226,7 +227,7 @@ export function InteractiveRoleplay() {
                 setAutoPlay(newState)
                 if (!newState) stopSpeaking()
             }}
-            className={cn("text-muted-foreground", autoPlay && "text-orange-600 bg-orange-50 dark:bg-orange-900/20")}
+            className={cn(autoPlay && "text-primary bg-primary/10")}
             title={autoPlay ? "Tắt âm thanh" : "Bật âm thanh"}
         >
             {autoPlay ? <Volume2 className="size-4 mr-2" /> : <VolumeX className="size-4 mr-2" />}
@@ -514,17 +515,19 @@ export function InteractiveRoleplay() {
     if (!isStarted) {
         return (
             <div className="h-full flex flex-col items-center justify-center animate-in fade-in duration-500 max-w-2xl mx-auto p-6">
-                <div className="w-full space-y-8 p-10 rounded-2xl border border-border bg-card/50 shadow-sm text-center backdrop-blur-sm">
-                    <div className="w-20 h-20 mx-auto rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center mb-6">
-                        <Sparkles className="size-10 text-orange-600 dark:text-orange-400" />
-                    </div>
+                <Card className="w-full space-y-8 p-10 text-center">
+                    <div className="flex flex-col items-center">
+                        <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                            <Sparkles className="size-10 text-primary" />
+                        </div>
 
-                    <div className="space-y-3">
-                        <h2 className="text-3xl font-bold tracking-tight">Roleplay với Sensei</h2>
-                        <p className="text-muted-foreground text-lg">
-                            Chọn bất kỳ chủ đề nào và bắt đầu hội thoại. <br />
-                            Sensei sẽ đóng vai và đưa ra phản hồi sau khi kết thúc.
-                        </p>
+                        <div className="space-y-2">
+                            <h2 className="text-3xl font-bold tracking-tight">Roleplay với Sensei</h2>
+                            <p className="text-muted-foreground text-lg">
+                                Chọn bất kỳ chủ đề nào và bắt đầu hội thoại. <br />
+                                Sensei sẽ đóng vai và đưa ra phản hồi sau khi kết thúc.
+                            </p>
+                        </div>
                     </div>
 
                     <div className="space-y-4 max-w-md mx-auto">
@@ -537,7 +540,7 @@ export function InteractiveRoleplay() {
                                         {...field}
                                         id={field.name}
                                         placeholder="Nhập chủ đề (VD: Mua vé tàu, Phỏng vấn xin việc)..."
-                                        className="h-12 text-lg"
+                                        className="h-12"
                                         aria-invalid={fieldState.invalid}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') topicForm.handleSubmit(handleStart)()
@@ -548,7 +551,8 @@ export function InteractiveRoleplay() {
                             )}
                         />
                         <Button
-                            className="w-full h-12 text-lg font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-md transition-all hover:scale-[1.02]"
+                            size="lg"
+                            className="w-full h-12"
                             onClick={topicForm.handleSubmit(handleStart)}
                             disabled={!topicForm.watch("topic").trim() || isLoading}
                         >
@@ -556,21 +560,23 @@ export function InteractiveRoleplay() {
                         </Button>
                     </div>
 
-                    <div className="pt-6 border-t border-border/50">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-3">Gợi ý chủ đề</p>
+                    <div className="pt-6 border-t">
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Gợi ý chủ đề</p>
                         <div className="flex flex-wrap justify-center gap-2">
                             {["Đi siêu thị", "Gọi điện thoại", "Hỏi đường", "Kết bạn mới", "Tại sân bay"].map(t => (
-                                <button
+                                <Button
                                     key={t}
+                                    variant="secondary"
+                                    size="sm"
                                     onClick={() => topicForm.setValue("topic", t)}
-                                    className="px-3 py-1.5 rounded-full bg-secondary/50 hover:bg-secondary text-secondary-foreground text-sm transition-colors"
+                                    className="rounded-full"
                                 >
                                     {t}
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     </div>
-                </div>
+                </Card>
             </div>
         )
     }
@@ -580,8 +586,8 @@ export function InteractiveRoleplay() {
             {/* Header */}
             <div className="flex-none flex items-center justify-between p-4 border-b border-border bg-card/50 backdrop-blur-sm z-10">
                 <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
-                        <Sparkles className="size-5 text-orange-600 dark:text-orange-400" />
+                    <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Sparkles className="size-5 text-primary" />
                     </div>
                     <div>
                         <h3 className="font-bold text-lg leading-none">{topicForm.getValues("topic")}</h3>
@@ -603,7 +609,6 @@ export function InteractiveRoleplay() {
                                 topicForm.reset({ topic: "" })
                                 setIsFinished(false)
                             }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
                         >
                             <RefreshCcw className="size-4 mr-2" /> Quay về
                         </Button>
@@ -615,7 +620,6 @@ export function InteractiveRoleplay() {
                             variant="default"
                             size="sm"
                             onClick={handleFinish}
-                            className="bg-green-600 hover:bg-green-700 text-white"
                             disabled={isLoading}
                         >
                             <CheckCircle className="size-4 mr-2" /> Kết thúc & Đánh giá
@@ -625,7 +629,7 @@ export function InteractiveRoleplay() {
                     <Dialog open={showSettings} onOpenChange={setShowSettings}>
                         <DialogTrigger asChild>
                             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                                <Settings className="size-4 mr-2" /> Cài đặt ({selectedVoiceURI === 'server-voice' ? "Server Voice" : (selectedVoiceURI ? "Đã chọn" : "Tự động")})
+                                <Settings className="size-4 mr-2" /> Cài đặt
                             </Button>
                         </DialogTrigger>
                         <DialogContent>
@@ -643,17 +647,17 @@ export function InteractiveRoleplay() {
                                             <SelectValue placeholder="Chọn giọng đọc..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="server-voice" className="font-medium text-orange-600 dark:text-orange-400">
+                                            <SelectItem value="server-voice" className="font-medium">
                                                 Server (Google - Cơ bản)
                                             </SelectItem>
-                                            <SelectItem value="ja-JP-NanamiNeural" className="font-medium text-indigo-600 dark:text-indigo-400">
+                                            <SelectItem value="ja-JP-NanamiNeural" className="font-medium text-primary">
                                                 Server (Nanami - Nữ, Tự nhiên)
                                             </SelectItem>
-                                            <SelectItem value="ja-JP-KeitaNeural" className="font-medium text-blue-600 dark:text-blue-400">
+                                            <SelectItem value="ja-JP-KeitaNeural" className="font-medium text-primary">
                                                 Server (Keita - Nam, Tự nhiên)
                                             </SelectItem>
 
-                                            <div className="mx-2 my-2 text-xs text-muted-foreground font-medium uppercase tracking-wider op-70">
+                                            <div className="mx-2 my-2 text-xs text-muted-foreground font-bold uppercase tracking-wider op-70">
                                                 Giọng từ trình duyệt của bạn:
                                             </div>
 
@@ -688,11 +692,10 @@ export function InteractiveRoleplay() {
                             setAutoPlay(newState)
                             if (!newState) stopSpeaking()
                         }}
-                        className={cn("text-muted-foreground", autoPlay && "text-orange-600 bg-orange-50 dark:bg-orange-900/20")}
-                        title={autoPlay ? "Tắt âm thanh" : "Bật âm thanh"}
+                        className={cn("text-muted-foreground", autoPlay && "text-primary bg-primary/10")}
                     >
                         {autoPlay ? <Volume2 className="size-4 mr-2" /> : <VolumeX className="size-4 mr-2" />}
-                        {autoPlay ? "Âm thanh: Bật" : "Âm thanh: Tắt"}
+                        {autoPlay ? "Bật" : "Tắt"}
                     </Button>
                     <Button variant="ghost" size="sm" onClick={handleReset} className="text-muted-foreground hover:text-foreground">
                         <RefreshCcw className="size-4 mr-2" /> Thoát
@@ -702,29 +705,30 @@ export function InteractiveRoleplay() {
 
             {/* Browser Incompatibility Warning */}
             {isSupportChecked && !isSpeechSupported && (
-                <div className="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 px-4 py-2 text-sm text-center border-b border-yellow-200 dark:border-yellow-900/50 flex items-center justify-center gap-2 relative">
+                <div className="bg-muted text-muted-foreground px-4 py-2 text-sm text-center border-b flex items-center justify-center gap-2 relative">
                     <div className="flex items-center gap-2">
                         <AlertCircle className="size-4" />
                         <span>
                             Trình duyệt này có thể không hỗ trợ nhận diện giọng nói hoặc cần quyền truy cập microphone/HTTPS.
                         </span>
                     </div>
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setIsSupportChecked(false)}
-                        className="absolute right-4 hover:opacity-70"
-                        title="Đóng thông báo"
+                        className="absolute right-4"
                     >
                         ✕
-                    </button>
+                    </Button>
                 </div>
             )}
 
             {/* Error Message Toast */}
             {voiceError && (
-                <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-full text-sm font-medium shadow-lg animate-in slide-in-from-top-2 fade-in duration-300 flex items-center gap-2">
+                <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-destructive text-destructive-foreground px-4 py-2 rounded-full text-sm font-bold shadow-lg animate-in slide-in-from-top-2 fade-in duration-300 flex items-center gap-2">
                     <AlertCircle className="size-4" />
                     {voiceError}
-                    <button onClick={() => setVoiceError(null)} className="ml-2 hover:opacity-80">✕</button>
+                    <Button variant="ghost" size="icon" onClick={() => setVoiceError(null)} className="h-6 w-6 ml-2">✕</Button>
                 </div>
             )}
 
@@ -751,12 +755,12 @@ export function InteractiveRoleplay() {
                                         : "mr-auto"
                                 )}>
                                     <div className={cn(
-                                        "p-4 rounded-2xl text-base leading-relaxed relative",
+                                        "p-4 rounded-lg text-base leading-relaxed relative border",
                                         msg.role === 'user'
-                                            ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/20"
+                                            ? "bg-primary text-primary-foreground"
                                             : msg.isFeedback
-                                                ? "bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 text-green-900 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-700 dark:text-green-100 shadow-lg"
-                                                : "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 text-foreground shadow-md"
+                                                ? "bg-accent border-border text-accent-foreground"
+                                                : "bg-muted text-foreground"
                                     )}>
                                         {msg.isFeedback ? (
                                             <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -767,13 +771,14 @@ export function InteractiveRoleplay() {
                                                 <p className="flex-1">{msg.content}</p>
                                                 {/* Speak button for individual messages */}
                                                 {msg.role === 'assistant' && (
-                                                    <button
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
                                                         onClick={() => speak(msg.content)}
-                                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-full flex-shrink-0"
-                                                        title="Đọc lại"
+                                                        className="h-8 w-8 rounded-full"
                                                     >
                                                         <Volume2 className="size-4" />
-                                                    </button>
+                                                    </Button>
                                                 )}
                                             </div>
                                         )}
@@ -783,7 +788,7 @@ export function InteractiveRoleplay() {
                                 {/* Helper text for AI responses */}
                                 {msg.role === 'assistant' && !msg.isFeedback && (
                                     <div className="px-3 mt-2 space-y-1 text-left">
-                                        {msg.romaji && <p className="text-xs text-muted-foreground font-medium italic">{msg.romaji}</p>}
+                                        {msg.romaji && <p className="text-xs text-muted-foreground font-bold italic">{msg.romaji}</p>}
                                         {msg.vietnamese && <p className="text-xs text-muted-foreground opacity-70">{msg.vietnamese}</p>}
                                     </div>
                                 )}
@@ -794,10 +799,10 @@ export function InteractiveRoleplay() {
                     {/* Show Typing Indicator */}
                     {isLoading && (
                         <div className="flex justify-start w-full animate-pulse">
-                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-md flex items-center gap-2">
-                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                            <div className="bg-muted border border-border rounded-lg p-4 flex items-center gap-2">
+                                <div className="size-2 bg-muted-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <div className="size-2 bg-muted-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <div className="size-2 bg-muted-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                             </div>
                         </div>
                     )}
@@ -808,14 +813,14 @@ export function InteractiveRoleplay() {
             <div className="flex-none p-4 bg-background border-t border-border">
                 {/* Listening UI */}
                 {isListening && (
-                    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-red-100 text-red-600 px-6 py-2 rounded-full shadow-lg flex items-center gap-2 animate-pulse border border-red-200 backdrop-blur-sm dark:bg-red-900/20 dark:border-red-900/40 dark:text-red-400 z-20">
+                    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-6 py-2 rounded-full border border-destructive/20 backdrop-blur-sm z-20 flex items-center gap-2 animate-pulse">
                         <div className="flex items-center gap-1 h-4">
-                            <span className="w-1 h-3 bg-red-500 rounded-full animate-[music-bar_1s_ease-in-out_infinite]" />
-                            <span className="w-1 h-2 bg-red-500 rounded-full animate-[music-bar_1s_ease-in-out_infinite_0.2s]" />
-                            <span className="w-1 h-4 bg-red-500 rounded-full animate-[music-bar_1s_ease-in-out_infinite_0.4s]" />
-                            <span className="w-1 h-2 bg-red-500 rounded-full animate-[music-bar_1s_ease-in-out_infinite_0.1s]" />
+                            <span className="w-1 h-3 bg-destructive rounded-full" />
+                            <span className="w-1 h-2 bg-destructive rounded-full" />
+                            <span className="w-1 h-4 bg-destructive rounded-full" />
+                            <span className="w-1 h-2 bg-destructive rounded-full" />
                         </div>
-                        <span className="font-medium text-sm">Đang lắng nghe...</span>
+                        <span className="font-bold text-sm">Đang lắng nghe...</span>
                     </div>
                 )}
 
@@ -824,18 +829,13 @@ export function InteractiveRoleplay() {
                         size="icon"
                         variant={isListening ? "destructive" : "outline"}
                         className={cn(
-                            "h-12 w-12 rounded-xl shadow-sm transition-all relative overflow-hidden",
-                            isListening && "ring-2 ring-red-500 ring-offset-2",
-                            !isSpeechSupported && "opacity-50 cursor-not-allowed bg-muted text-muted-foreground hover:bg-muted"
+                            "h-12 w-12 rounded-lg",
+                            isListening && "ring-2 ring-destructive ring-offset-2"
                         )}
                         onClick={toggleListening}
-                        title={!isSpeechSupported ? "Trình duyệt của bạn không hỗ trợ tính năng này (thử Chrome/Edge)" : (isListening ? "Dừng ghi âm" : "Nói để nhập liệu (Tiếng Nhật)")}
                         disabled={!isSpeechSupported || isFinished}
                     >
                         {isListening ? <MicOff className="size-5" /> : <Mic className="size-5" />}
-
-                        {/* Ripple effect for listening state */}
-                        {isListening && <span className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" />}
                     </Button>
 
                     <Controller
@@ -848,14 +848,14 @@ export function InteractiveRoleplay() {
                                         {...field}
                                         id={field.name}
                                         placeholder={isFinished ? "Cuộc hội thoại đã kết thúc" : "Nhập tin nhắn tiếng Nhật..."}
-                                        className="h-12 rounded-xl border-border bg-card shadow-sm pr-12 focus-visible:ring-orange-500/20 focus-visible:border-orange-500/50 transition-all"
+                                        className="h-12 pr-12"
                                         onKeyDown={handleKeyDown}
                                         disabled={isLoading || isFinished}
                                         aria-invalid={fieldState.invalid}
                                     />
                                     <Button
                                         size="icon"
-                                        className="absolute right-1.5 top-1.5 h-9 w-9 rounded-lg bg-orange-600 hover:bg-orange-700 text-white shadow-sm transition-all"
+                                        className="absolute right-1 top-1 h-10 w-10"
                                         onClick={inputForm.handleSubmit(handleSend)}
                                         disabled={!field.value.trim() || isLoading || isFinished}
                                     >

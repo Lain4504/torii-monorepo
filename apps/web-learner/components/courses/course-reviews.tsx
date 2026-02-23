@@ -18,6 +18,15 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import {
+    Item,
+    ItemActions,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+} from "@workspace/ui/components/item"
+import { Input } from "@workspace/ui/components/input";
 
 const courseReviewSchema = z.object({
     rating: z.number().min(1, 'Vui lòng chọn số sao'),
@@ -141,44 +150,47 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     }
 
     const ReviewItem = ({ review }: { review: ReviewResponse }) => (
-        <div className="p-6 rounded-2xl bg-card border border-border hover:border-border/80 transition-colors">
-            <div className="flex gap-4">
-                <Avatar className="h-10 w-10 rounded-xl border border-border shadow-sm shrink-0">
+        <Item variant="outline" className="p-6 rounded-lg bg-card hover:border-border/80 transition-colors items-start">
+            <ItemMedia className="shrink-0">
+                <Avatar className="h-10 w-10 border border-border">
                     <AvatarImage src={review.user.avatarUrl || undefined} className="object-cover" />
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                         {review.user.displayName ? review.user.displayName.charAt(0).toUpperCase() : 'U'}
                     </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 space-y-2">
-                    <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                            <h4 className="text-sm font-bold text-foreground">
-                                {review.user.displayName}
-                            </h4>
-                            <div className="flex items-center gap-2">
-                                {renderStars(review.rating, undefined, 3)}
-                                <span className="text-xs text-muted-foreground font-medium">
-                                    Đã xác thực
-                                </span>
-                            </div>
+            </ItemMedia>
+            <ItemContent className="flex-1 space-y-2">
+                <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                        <ItemTitle className="text-sm font-bold text-foreground">
+                            {review.user.displayName}
+                        </ItemTitle>
+                        <div className="flex items-center gap-2">
+                            {renderStars(review.rating, undefined, 3)}
+                            <span className="text-xs text-muted-foreground font-medium">
+                                Đã xác thực
+                            </span>
                         </div>
                     </div>
-
-                    {review.comment && (
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                            "{review.comment}"
-                        </p>
-                    )}
-
-                    <div className="flex items-center gap-4 pt-1">
-                        <button className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                            <ThumbsUp className="w-3.5 h-3.5" />
-                            <span>Hữu ích</span>
-                        </button>
-                    </div>
                 </div>
-            </div>
-        </div>
+
+                {review.comment && (
+                    <ItemDescription className="text-sm text-muted-foreground leading-relaxed">
+                        "{review.comment}"
+                    </ItemDescription>
+                )}
+                <ItemActions className="pt-1">
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-muted-foreground">
+                        <ThumbsUp className="w-3.5 h-3.5" />
+                        <span>Hữu ích</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-muted-foreground">
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>Phản hồi</span>
+                    </Button>
+                </ItemActions>
+            </ItemContent>
+        </Item>
     )
 
     const averageRating = ratingDistribution?.averageRating || Number(course.averageRating) || 0
@@ -266,17 +278,17 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                             {isAuthenticated && (
                                 <>
                                     {isLoadingEnrollment ? (
-                                        <div className="h-11 w-32 bg-muted animate-pulse rounded-xl" />
+                                        <div className="h-11 w-32 bg-muted rounded-lg" />
                                     ) : isEnrolled ? (
                                         !userReview && (
                                             <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
                                                 <DialogTrigger asChild>
-                                                    <Button className="w-full md:w-auto h-11 px-6 rounded-xl font-bold">
+                                                    <Button className="w-full md:w-auto h-11 px-6 font-bold">
                                                         <Plus className="mr-2 h-4 w-4" />
                                                         Viết đánh giá
                                                     </Button>
                                                 </DialogTrigger>
-                                                <DialogContent className="sm:max-w-lg rounded-2xl">
+                                                <DialogContent className="sm:max-w-lg">
                                                     <DialogHeader>
                                                         <DialogTitle className="text-xl font-bold">Đánh giá khóa học</DialogTitle>
                                                         <DialogDescription>
@@ -310,7 +322,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                                                         {...field}
                                                                         id={field.name}
                                                                         placeholder="Chia sẻ cảm nhận của bạn về học liệu, giảng viên hoặc trải nghiệm..."
-                                                                        className="min-h-[120px] rounded-xl resize-none text-sm"
+                                                                        className="min-h-[120px] resize-none text-sm"
                                                                         aria-invalid={fieldState.invalid}
                                                                     />
                                                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -319,8 +331,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                                         />
                                                     </div>
                                                     <DialogFooter>
-                                                        <Button variant="ghost" onClick={() => { setShowReviewForm(false); reset(); }} className="rounded-xl font-bold">Hủy</Button>
-                                                        <Button onClick={handleSubmit(onSubmitReview)} disabled={submitting || currentRating === 0} className="rounded-xl font-bold">
+                                                        <Button variant="ghost" onClick={() => { setShowReviewForm(false); reset(); }} className="font-bold">Hủy</Button>
+                                                        <Button onClick={handleSubmit(onSubmitReview)} disabled={submitting || currentRating === 0} className="font-bold">
                                                             {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
                                                         </Button>
                                                     </DialogFooter>
@@ -328,7 +340,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                             </Dialog>
                                         )
                                     ) : (
-                                        <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-center gap-3 animate-in fade-in slide-in-from-left-2 duration-500">
+                                        <div className="p-4 rounded-lg bg-primary/5 border border-primary/10 flex items-center gap-3">
                                             <Sparkles className="w-4 h-4 text-primary" />
                                             <p className="text-sm font-medium text-primary">
                                                 Đăng ký khóa học để chia sẻ đánh giá của bạn
@@ -356,7 +368,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                             <div className="pt-4 flex justify-center">
                                 <Button
                                     variant="outline"
-                                    className="h-10 px-6 rounded-xl border-border text-sm font-bold hover:bg-muted"
+                                    className="h-10 px-6 border-border text-sm font-bold hover:bg-muted"
                                     onClick={() => setShowAllReviews(true)}
                                 >
                                     Xem tất cả đánh giá
@@ -371,14 +383,16 @@ export function CourseReviews({ course }: CourseReviewsProps) {
             {/* See All Portal */}
             {showAllReviews && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="relative w-full max-w-6xl h-full bg-background rounded-2xl border border-border shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in zoom-in-95 duration-300">
+                    <div className="relative w-full max-w-6xl h-full bg-background border border-border shadow-2xl overflow-hidden flex flex-col md:flex-row">
                         {/* Close */}
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setShowAllReviews(false)}
                             className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-muted/50 hover:bg-muted text-foreground flex items-center justify-center transition-colors cursor-pointer"
                         >
                             <X className="w-5 h-5" />
-                        </button>
+                        </Button>
 
                         {/* Sidebar */}
                         <div className="hidden md:flex flex-col p-8 w-80 h-full border-r border-border bg-muted/10 overflow-y-auto">
@@ -405,10 +419,9 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                 <h3 className="text-lg font-bold text-foreground">Tất cả đánh giá</h3>
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                    <input
-                                        type="text"
+                                    <Input
                                         placeholder="Tìm đánh giá..."
-                                        className="h-10 pl-9 pr-4 rounded-lg bg-muted/30 border border-border focus:bg-background focus:border-primary focus:ring-1 focus:ring-primary w-full md:w-64 text-sm transition-all outline-none"
+                                        className="pl-9 w-full md:w-64"
                                     />
                                 </div>
                             </div>
@@ -424,7 +437,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                         <div className="pt-8 text-center pb-4">
                                             <Button
                                                 variant="outline"
-                                                className="h-11 px-8 rounded-xl font-bold"
+                                                className="h-11 px-8 font-bold"
                                                 onClick={() => setPage(p => p + 1)}
                                                 disabled={loading}
                                             >

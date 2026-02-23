@@ -20,13 +20,13 @@ interface AuthLayoutProps {
 
 /** Logo dùng chung */
 export function ToriiLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
-    const iconSize = size === 'sm' ? 'w-8 h-8' : 'w-10 h-10'
-    const svgSize = size === 'sm' ? 'w-5 h-5' : 'w-6 h-6'
+    const iconSize = size === 'sm' ? 'size-8' : 'size-10'
+    const svgSize = size === 'sm' ? 'size-5' : 'size-6'
     const textSize = size === 'sm' ? 'text-lg' : 'text-xl'
 
     return (
-        <Link href="/" className="flex items-center gap-3">
-            <div className={`${iconSize} bg-primary flex items-center justify-center rounded-xl`}>
+        <Link href="/" className="flex items-center gap-3 group transition-opacity hover:opacity-90">
+            <div className={`${iconSize} bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20`}>
                 <svg className={`${svgSize} text-white`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M3 10h18" strokeLinecap="round" />
                     <path d="M5 10v8" strokeLinecap="round" />
@@ -50,29 +50,31 @@ export function AuthLayout({
     showHomeLink = true,
 }: AuthLayoutProps) {
     return (
-        <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+        <div className="min-h-screen grid lg:grid-cols-2 bg-background font-sans">
             {/* Left Panel */}
-            <div className="relative hidden lg:flex flex-col justify-between p-12 bg-muted/30 border-r border-border">
+            <div className="relative hidden lg:flex flex-col justify-between p-12 bg-muted/30 border-r">
                 <ToriiLogo />
                 <div className="max-w-md">{leftPanel}</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-muted-foreground font-medium">
                     © {new Date().getFullYear()} Torii Nihongo
                 </div>
             </div>
 
             {/* Right Panel */}
             <div className="flex items-center justify-center p-6 lg:p-12">
-                <div className="w-full max-w-sm space-y-6">
+                <div className="w-full max-w-[400px] space-y-6">
                     {/* Mobile logo */}
-                    <div className="lg:hidden flex justify-center">
+                    <div className="lg:hidden flex justify-center mb-8">
                         <ToriiLogo size="sm" />
                     </div>
 
                     {/* Heading */}
-                    <div className="space-y-1">
-                        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+                    <div className="space-y-2 text-center lg:text-left">
+                        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
                         {description && (
-                            <p className="text-sm text-muted-foreground">{description}</p>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                {description}
+                            </p>
                         )}
                     </div>
 
@@ -81,22 +83,26 @@ export function AuthLayout({
 
                     {/* Footer */}
                     {(footerText || showHomeLink) && (
-                        <div className="space-y-4">
+                        <div className="space-y-6 pt-4">
                             {footerText && (
-                                <>
-                                    <Separator />
-                                    <p className="text-sm text-center text-muted-foreground">
-                                        {footerText}
-                                    </p>
-                                </>
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <Separator />
+                                    </div>
+                                    <div className="relative flex justify-center text-xs uppercase">
+                                        <span className="bg-background px-2 text-muted-foreground font-bold tracking-widest">
+                                            {footerText}
+                                        </span>
+                                    </div>
+                                </div>
                             )}
                             {showHomeLink && (
                                 <div className="flex justify-center">
                                     <Link
                                         href="/"
-                                        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
                                     >
-                                        <ChevronLeft className="w-4 h-4" />
+                                        <ChevronLeft className="size-4" />
                                         Quay về trang chủ
                                     </Link>
                                 </div>

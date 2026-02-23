@@ -7,9 +7,12 @@ import { feedApi } from '@/lib/api/services/feed-api'
 import type { FeedResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { CommentSection } from '../blog/comment-section'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Layers, SearchX, X } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
+import { Empty, EmptyContent, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
+import { Badge } from '@workspace/ui/components/badge'
 
 const CATEGORIES = [
     { id: 'ALL', label: 'Tất cả' },
@@ -128,46 +131,52 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
 
             {/* Tabs Navigation */}
             {!userId && (
-                <div className="flex items-center gap-2 border-b border-border/40 pb-2 overflow-x-auto">
-                    <Button
-                        variant={activeTab === 'FOLLOWING' ? 'default' : 'ghost'}
-                        className="rounded-lg gap-1"
-                        onClick={() => onTabChange?.('FOLLOWING')}
-                    >
-                        Đang theo dõi
-                        <ChevronDown className="h-3 w-3" />
-                    </Button>
-
-                    {CATEGORIES.map((cat) => (
-                        <Button
-                            key={cat.id}
-                            variant={activeTab === cat.id ? 'default' : 'ghost'}
-                            className="rounded-lg whitespace-nowrap"
-                            onClick={() => onTabChange?.(cat.id)}
+                <Tabs value={activeTab} onValueChange={(val) => onTabChange?.(val)} className="w-full">
+                    <TabsList className="bg-transparent h-auto p-0 flex flex-wrap gap-2 border-b pb-4 rounded-none w-full justify-start">
+                        <TabsTrigger
+                            value="FOLLOWING"
+                            className="rounded-full border data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary transition-all gap-2"
                         >
-                            {cat.label}
-                        </Button>
-                    ))}
-                </div>
+                            Đang theo dõi
+                            <ChevronDown className="size-3" />
+                        </TabsTrigger>
+
+                        {CATEGORIES.map((cat) => (
+                            <TabsTrigger
+                                key={cat.id}
+                                value={cat.id}
+                                className="rounded-full border data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary transition-all"
+                            >
+                                {cat.label}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Tabs>
             )}
 
             {/* Selected Tag Filter Indicator */}
             {selectedTag && (
-                <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-4 py-2">
-                    <span className="text-sm text-muted-foreground">Đang lọc theo tag:</span>
-                    <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-md">
-                        <span className="text-sm font-medium text-primary">{selectedTag}</span>
-                        <button
-                            onClick={() => onTagSelect?.(undefined)}
-                            className="text-primary hover:text-primary/70 transition-colors"
-                            aria-label="Xóa bộ lọc"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
+                <div className="flex items-center gap-3 bg-card border rounded-lg px-5 py-3 animate-in fade-in slide-in-from-left-4">
+                    <div className="p-2 rounded-md bg-muted text-foreground">
+                        <Layers className="size-4" />
                     </div>
+                    <div className="flex-1">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mb-1">Đang lọc theo bộ thẻ</p>
+                        <div className="flex items-center gap-2">
+                            <Badge variant="secondary">
+                                #{selectedTag}
+                            </Badge>
+                        </div>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onTagSelect?.(undefined)}
+                        className="size-8 text-muted-foreground hover:text-destructive transition-colors"
+                        aria-label="Xóa bộ lọc"
+                    >
+                        <X className="size-4" />
+                    </Button>
                 </div>
             )}
 
@@ -176,7 +185,7 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
             ) : (
                 <div className="space-y-4">
                     {posts.map(post => (
-                        <div key={post.id} className="space-y-0 relative z-10">
+                        <div key={post.id} className="space-y-0">
                             <FeedPostCard
                                 post={post}
                                 onLike={handleLike}
@@ -189,11 +198,10 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
                             />
                             {expandedPostId === post.id && (
                                 <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-300">
-                                    <div className="border border-border/40 border-t-0 rounded-b-xl bg-background/50 p-4 -mt-2 pt-6 relative z-0 shadow-inner">
+                                    <div className="border border-t-0 rounded-b-xl p-6 bg-muted/30">
                                         <CommentSection
                                             feedId={post.id}
                                             onCommentCountChange={(delta) => {
-                                                // Update comment count in real-time
                                                 setPosts(prev => prev.map(p =>
                                                     p.id === post.id
                                                         ? { ...p, comments: (p.comments || 0) + delta }
@@ -208,21 +216,32 @@ export function Feed({ userId, category = 'ALL', followedTags, activeTab = 'ALL'
                     ))}
 
                     {posts.length === 0 && (
-                        <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-xl border border-dashed border-border/60">
-                            Chưa có bài viết nào. Hãy là người đầu tiên đặt câu hỏi!
+                        <div className="py-20">
+                            <Empty>
+                                <EmptyHeader>
+                                    <EmptyMedia variant="icon" className="mb-4">
+                                        <SearchX className="size-8 text-muted-foreground/40" />
+                                    </EmptyMedia>
+                                    <EmptyTitle className="text-lg font-bold">Chưa có bài viết nào</EmptyTitle>
+                                    <EmptyDescription className="text-sm text-muted-foreground max-w-sm">
+                                        Hãy là người đầu tiên đặt câu hỏi và chia sẻ kiến thức với mọi người!
+                                    </EmptyDescription>
+                                </EmptyHeader>
+                            </Empty>
                         </div>
                     )}
 
                     {hasMore && (
                         <div className="flex justify-center pt-4 pb-8">
-                            <button
+                            <Button
+                                variant="ghost"
                                 onClick={() => fetchPosts(false)}
                                 disabled={loadingMore}
-                                className="text-sm text-primary hover:underline font-medium flex items-center gap-2 disabled:opacity-50"
+                                className="font-bold gap-2"
                             >
                                 {loadingMore && <Spinner className="w-4 h-4 animate-spin" />}
                                 Xem thêm câu hỏi cũ hơn
-                            </button>
+                            </Button>
                         </div>
                     )}
                 </div>

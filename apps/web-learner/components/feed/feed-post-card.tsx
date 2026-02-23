@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { Heart, MessageCircle, MoreVertical, Trash2, Flag, Edit2 } from 'lucide-react'
+import { cn } from '@workspace/ui/lib/utils'
 import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@workspace/ui/components/avatar'
 import { Badge } from '@workspace/ui/components/badge'
@@ -24,6 +25,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog'
+import { Item, ItemContent, ItemMedia, ItemTitle, ItemDescription } from '@workspace/ui/components/item'
 import type { FeedResponseDTO } from '@workspace/schemas'
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
@@ -41,7 +43,7 @@ interface FeedPostCardProps {
     onPostUpdated?: (updatedPost: FeedResponseDTO) => void
 }
 
-export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, onFollow, onPostUpdated }: FeedPostCardProps) {
+export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, onPostUpdated }: FeedPostCardProps) {
     const { user } = useAppSelector(state => state.auth)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showEditDialog, setShowEditDialog] = useState(false)
@@ -72,58 +74,60 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
 
     return (
         <>
-            <Card className="hover:border-primary/20 transition-all shadow-sm">
-                <CardHeader className="flex flex-row justify-between items-start space-y-0 pb-3">
-                    <div className="flex gap-3">
-                        <Link href={`/user/${post.author?.id}`} className="flex-shrink-0">
-                            <Avatar>
-                                <AvatarImage src={post.author?.avatarUrl || undefined} />
-                                <AvatarFallback>{post.author?.displayName?.[0] || 'U'}</AvatarFallback>
-                            </Avatar>
-                        </Link>
-                        <div>
-                            <Link href={`/user/${post.author?.id}`} className="font-semibold text-foreground hover:underline block">
-                                {post.author?.displayName || 'Unknown User'}
+            <Card className="shadow-none border border-border/50 hover:bg-muted/30 group transition-all duration-300 rounded-2xl overflow-hidden">
+                <CardHeader className="flex flex-row justify-between items-start space-y-0 p-6 pb-4">
+                    <Item className="p-0 border-none shadow-none hover:bg-transparent">
+                        <ItemMedia>
+                            <Link href={`/user/${post.author?.id}`}>
+                                <Avatar className="size-11 border-2 border-background shadow-sm">
+                                    <AvatarImage src={post.author?.avatarUrl || undefined} />
+                                    <AvatarFallback className="bg-muted text-foreground text-xs font-bold">
+                                        {post.author?.displayName?.[0] || 'U'}
+                                    </AvatarFallback>
+                                </Avatar>
                             </Link>
-                            <div className="text-xs text-muted-foreground flex items-center">
-                                <span className="text-primary font-medium mr-1 bg-primary/10 px-1.5 rounded text-[10px]">Thành viên mới</span>
-                                <span className="mx-1">•</span>
-                                {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi })}
-                            </div>
-                        </div>
-                    </div>
+                        </ItemMedia>
+                        <ItemContent className="space-y-0.5">
+                            <ItemTitle>
+                                <Link href={`/user/${post.author?.id}`} className="font-bold text-base hover:text-primary transition-colors">
+                                    {post.author?.displayName || 'Người dùng'}
+                                </Link>
+                            </ItemTitle>
+                            <ItemDescription className="flex items-center gap-2">
+                                <Badge variant="secondary" className="text-[9px] uppercase font-bold tracking-widest px-2 py-0">
+                                    Thành viên
+                                </Badge>
+                                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-60">
+                                    • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: vi })}
+                                </span>
+                            </ItemDescription>
+                        </ItemContent>
+                    </Item>
 
-                    {/* Dropdown Menu */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <MoreVertical className="w-4 h-4" />
+                            <Button variant="ghost" size="icon" className="group-hover:bg-muted rounded-full">
+                                <MoreVertical className="size-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="rounded-xl p-1 shadow-lg border-border/50">
                             {isOwnPost ? (
                                 <>
-                                    <DropdownMenuItem
-                                        className="cursor-pointer"
-                                        onClick={() => setShowEditDialog(true)}
-                                    >
-                                        <Edit2 className="w-4 h-4 mr-2" />
+                                    <DropdownMenuItem onClick={() => setShowEditDialog(true)} className="rounded-lg font-bold text-xs uppercase tracking-wider h-10 px-3 cursor-pointer">
+                                        <Edit2 className="size-4 mr-2.5 text-primary" />
                                         Chỉnh sửa
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                                        className="rounded-lg font-bold text-xs uppercase tracking-wider h-10 px-3 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/5"
                                         onClick={() => setShowDeleteDialog(true)}
                                     >
-                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        <Trash2 className="size-4 mr-2.5" />
                                         Xóa bài viết
                                     </DropdownMenuItem>
                                 </>
                             ) : (
-                                <DropdownMenuItem
-                                    className="cursor-pointer"
-                                    onClick={handleReport}
-                                >
-                                    <Flag className="w-4 h-4 mr-2" />
+                                <DropdownMenuItem onClick={handleReport} className="rounded-lg font-bold text-xs uppercase tracking-wider h-10 px-3 cursor-pointer">
+                                    <Flag className="size-4 mr-2.5 text-primary" />
                                     Báo cáo
                                 </DropdownMenuItem>
                             )}
@@ -131,53 +135,63 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                     </DropdownMenu>
                 </CardHeader>
 
-                <CardContent className="space-y-2 pb-3">
+                <CardContent className="space-y-4 p-6 pt-0">
                     {post.tags && post.tags.length > 0 && (
                         <div className="flex gap-2 flex-wrap">
                             {post.tags.map(tag => (
                                 <Badge
                                     key={tag}
                                     variant="outline"
-                                    className="text-xs text-primary/80 border-primary/20 bg-primary/5 font-normal cursor-pointer hover:bg-primary/10 hover:border-primary/30 transition-all"
+                                    className="cursor-pointer font-bold text-[10px] uppercase tracking-widest bg-muted/30 border-border/60 hover:border-primary hover:text-primary transition-all px-2.5"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onTagClick?.(tag);
                                     }}
                                 >
-                                    | {tag}
+                                    #{tag}
                                 </Badge>
                             ))}
                         </div>
                     )}
-                    <div className="cursor-pointer">
-                        {post.title && <h3 className="font-semibold text-lg text-foreground mb-1">{post.title}</h3>}
+                    <div className="group/content cursor-pointer">
+                        {post.title && (
+                            <h3 className="font-bold text-xl mb-2.5 group-hover/content:text-primary transition-colors leading-tight tracking-tight">
+                                {post.title}
+                            </h3>
+                        )}
+                        <p className="text-sm font-medium text-muted-foreground/90 leading-relaxed line-clamp-3">
+                            {post.content}
+                        </p>
                     </div>
                 </CardContent>
 
-                <CardFooter className="flex items-center gap-4 pt-3 border-t border-border/40">
+                <CardFooter className="flex items-center gap-6 p-6 py-4 border-t bg-muted/10">
                     <Button
                         variant="ghost"
                         size="sm"
-                        className={`gap-2 ${post.isLiked ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'text-muted-foreground hover:text-primary'}`}
+                        className={cn(
+                            "h-9 px-4 gap-2.5 font-bold text-[10px] uppercase tracking-widest rounded-full transition-all duration-300",
+                            post.isLiked ? "text-destructive bg-destructive/5 hover:bg-destructive/10" : "text-muted-foreground hover:bg-muted"
+                        )}
                         onClick={(e) => {
                             e.stopPropagation();
                             onLike?.(post.id);
                         }}
                     >
-                        <Heart className={`w-4 h-4 ${post.isLiked ? 'fill-current' : ''}`} />
-                        <span className="text-xs">Yêu thích ({post.likes || 0})</span>
+                        <Heart className={cn("size-4", post.isLiked && "fill-current")} />
+                        <span>{post.likes || 0} Yêu thích</span>
                     </Button>
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="gap-2 text-muted-foreground hover:text-primary"
+                        className="h-9 px-4 gap-2.5 font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:bg-muted rounded-full transition-all duration-300"
                         onClick={(e) => {
                             e.stopPropagation();
                             onComment?.(post.id);
                         }}
                     >
-                        <MessageCircle className="w-4 h-4" />
-                        <span className="text-xs">Bình luận ({post.comments || 0})</span>
+                        <MessageCircle className="size-4" />
+                        <span>{post.comments || 0} Phản hồi</span>
                     </Button>
                 </CardFooter>
             </Card>
@@ -196,7 +210,7 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                         <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deleting}
-                            className="bg-red-600 hover:bg-red-700"
+                            variant="destructive"
                         >
                             {deleting ? 'Đang xóa...' : 'Xóa'}
                         </AlertDialogAction>

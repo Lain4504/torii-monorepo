@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { Shield, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card';
+import { Badge } from '@workspace/ui/components/badge';
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 
 import { use2FAStatus } from '@/lib/api/services/two-factor-auth-api';
 import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
@@ -35,38 +38,33 @@ export function SecurityTab() {
             </h3>
 
             {/* Two-Factor Authentication Card */}
-            <div className="divide-y divide-border bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-                {/* Header Section */}
-                <div className="p-5 space-y-5">
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                            <h3 className="text-base font-bold text-foreground">
-                                Xác thực hai yếu tố (2FA)
-                            </h3>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                                Thêm lớp bảo mật bổ sung cho tài khoản của bạn bằng cách yêu cầu mã xác thực.
-                            </p>
-                        </div>
-                        <div className={`rounded-xl px-2.5 py-1 text-xs font-bold border ${isEnabled
-                            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                            : 'bg-muted text-muted-foreground border-transparent'
-                            }`}>
-                            {isEnabled ? 'Đã bật' : 'Đã tắt'}
-                        </div>
+            <Card>
+                <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-6">
+                    <div className="space-y-1">
+                        <CardTitle className="text-lg font-bold">
+                            Xác thực hai yếu tố (2FA)
+                        </CardTitle>
+                        <CardDescription>
+                            Thêm lớp bảo mật bổ sung cho tài khoản của bạn bằng cách yêu cầu mã xác thực.
+                        </CardDescription>
                     </div>
-
+                    <Badge variant="secondary" className={isEnabled ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : ""}>
+                        {isEnabled ? 'Đã bật' : 'Đã tắt'}
+                    </Badge>
+                </CardHeader>
+                <CardContent className="space-y-6">
                     {/* Status Info */}
                     {isEnabled && status && (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-1">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="rounded-lg border bg-muted/50 p-4 space-y-1">
                                 <p className="text-xs font-medium text-muted-foreground">Phương thức</p>
-                                <p className="text-sm font-bold text-foreground">
+                                <p className="text-sm font-bold">
                                     {status.method === 'totp' ? 'Authenticator App' : 'Không xác định'}
                                 </p>
                             </div>
-                            <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-1">
+                            <div className="rounded-lg border bg-muted/50 p-4 space-y-1">
                                 <p className="text-xs font-medium text-muted-foreground">Mã dự phòng</p>
-                                <p className="text-sm font-bold text-foreground">
+                                <p className="text-sm font-bold">
                                     {status.backupCodesRemaining || 0} mã còn lại
                                 </p>
                             </div>
@@ -78,7 +76,8 @@ export function SecurityTab() {
                         {!isEnabled ? (
                             <Button
                                 onClick={() => setShowEnableDialog(true)}
-                                className="h-9 rounded-xl font-bold text-xs"
+                                size="sm"
+                                className="font-bold"
                             >
                                 Bật xác thực 2FA
                             </Button>
@@ -87,15 +86,17 @@ export function SecurityTab() {
                                 <Button
                                     onClick={() => setShowBackupCodesDialog(true)}
                                     variant="outline"
-                                    className="h-9 rounded-xl font-bold text-xs"
+                                    size="sm"
+                                    className="font-bold"
                                 >
-                                    <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                                    <RefreshCw className="mr-2 h-4 w-4" />
                                     Mã dự phòng
                                 </Button>
                                 <Button
                                     onClick={() => setShowDisableDialog(true)}
-                                    variant="outline"
-                                    className="h-9 rounded-xl font-bold text-xs text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+                                    variant="destructive"
+                                    size="sm"
+                                    className="font-bold"
                                 >
                                     Tắt 2FA
                                 </Button>
@@ -105,16 +106,16 @@ export function SecurityTab() {
 
                     {/* Warning for backup codes */}
                     {isEnabled && status && status.backupCodesRemaining !== undefined && status.backupCodesRemaining < 3 && (
-                        <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 text-sm">
-                            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                            <div>
-                                <p className="font-bold">Mã dự phòng sắp hết</p>
-                                <p className="text-xs opacity-90 mt-0.5">Bạn còn {status.backupCodesRemaining} mã. Hãy tạo mã mới.</p>
-                            </div>
-                        </div>
+                        <Alert className="bg-amber-500/10 text-amber-600 border-amber-500/20">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle className="text-amber-600">Mã dự phòng sắp hết</AlertTitle>
+                            <AlertDescription className="text-amber-600/90">
+                                Bạn còn {status.backupCodesRemaining} mã. Hãy tạo mã mới.
+                            </AlertDescription>
+                        </Alert>
                     )}
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Dialogs */}
             <EnableTwoFactorDialog

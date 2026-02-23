@@ -1,9 +1,14 @@
 'use client'
 
-import { Star, ArrowRight, Trophy } from 'lucide-react'
+import { ArrowRight, Star, Trophy } from 'lucide-react'
 import Link from 'next/link'
-import { cn } from '@workspace/ui/lib/utils'
 import type { LeaderboardDto } from '@workspace/schemas'
+import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
+import { Button } from '@workspace/ui/components/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@workspace/ui/components/item'
+import { Skeleton } from '@workspace/ui/components/skeleton'
+import { cn } from '@workspace/ui/lib/utils'
 
 interface LeaderboardPreviewProps {
     data?: LeaderboardDto
@@ -13,88 +18,87 @@ interface LeaderboardPreviewProps {
 export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps) {
     if (isLoading) {
         return (
-            <div className="space-y-6 p-6 rounded-2xl border border-border bg-card shadow-sm animate-pulse">
-                <div className="h-4 w-24 bg-muted rounded" />
-                <div className="space-y-3">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-4 w-24" />
+                </CardHeader>
+                <CardContent className="space-y-3">
                     {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="h-10 w-full bg-muted rounded-xl" />
+                        <Skeleton key={i} className="h-10 w-full rounded-xl" />
                     ))}
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         )
     }
 
     return (
-        <div className="space-y-6 p-6 rounded-2xl border border-border bg-card shadow-sm">
-            <div className="flex items-center justify-between">
+        <Card>
+            <CardHeader className="flex-row items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
-                        <Trophy className="size-4" />
-                    </div>
-                    <h3 className="text-sm font-bold text-foreground">Bảng xếp hạng</h3>
+                    <Trophy className="size-4 text-warning" />
+                    <CardTitle className="text-sm font-bold">Bảng xếp hạng</CardTitle>
                 </div>
-                <Link href="/dashboard/leaderboard">
-                    <div className="text-[10px] font-black text-primary hover:underline cursor-pointer flex items-center gap-1 uppercase tracking-wider">
+                <Button asChild variant="link" size="sm" className="text-xs">
+                    <Link href="/dashboard/leaderboard">
                         Xem tất cả
-                        <ArrowRight className="size-3" />
-                    </div>
-                </Link>
-            </div>
+                        <ArrowRight className="ml-1 size-3" />
+                    </Link>
+                </Button>
+            </CardHeader>
 
-            <div className="space-y-3">
+            <CardContent className="space-y-3">
                 {data?.users?.slice(0, 5).map((item, idx) => (
-                    <div key={item.id} className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/50 transition-colors">
-                        <div className="flex items-center gap-3 min-w-0">
-                            <span className={cn(
-                                "w-5 text-xs font-black text-center",
-                                idx === 0 ? "text-amber-500" : idx === 1 ? "text-slate-400" : idx === 2 ? "text-orange-600" : "text-muted-foreground/50"
-                            )}>
+                    <Item key={item.id} size="xs" className="hover:bg-muted/50">
+                        <ItemMedia>
+                            <span
+                                className={cn(
+                                    'w-5 text-center text-xs font-black',
+                                    idx === 0 ? 'text-warning' : idx === 1 ? 'text-muted-foreground' : idx === 2 ? 'text-orange-600' : 'text-muted-foreground/50',
+                                )}
+                            >
                                 {idx + 1}
                             </span>
-                            <div className="flex items-center gap-2 min-w-0">
-                                <div className="size-7 rounded-full bg-muted border border-border overflow-hidden shrink-0">
-                                    {item.avatarUrl ? (
-                                        <img src={item.avatarUrl} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-[10px] font-bold">
-                                            {item.displayName.charAt(0)}
-                                        </div>
-                                    )}
-                                </div>
-                                <span className="text-xs font-bold truncate group-hover:text-primary transition-colors">
-                                    {item.displayName}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0 ml-2">
-                            <Star className="size-3 text-amber-500 fill-amber-500" />
+                            <Avatar className="size-7 shrink-0">
+                                <AvatarImage src={item.avatarUrl ?? undefined} alt="" />
+                                <AvatarFallback>{item.displayName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                        </ItemMedia>
+                        <ItemContent>
+                            <ItemTitle className="text-xs font-bold">
+                                {item.displayName}
+                            </ItemTitle>
+                        </ItemContent>
+                        <ItemActions>
+                            <Star className="size-3 fill-warning text-warning" />
                             <span className="text-xs font-black tabular-nums">{item.xp}</span>
-                        </div>
-                    </div>
+                        </ItemActions>
+                    </Item>
                 ))}
 
                 {data?.currentUser && data.currentUser.rank > 5 && (
                     <>
                         <div className="flex justify-center py-1">
-                            <div className="size-1 rounded-full bg-border mx-0.5" />
-                            <div className="size-1 rounded-full bg-border mx-0.5" />
-                            <div className="size-1 rounded-full bg-border mx-0.5" />
+                            <div className="mx-0.5 size-1 rounded-full bg-border" />
+                            <div className="mx-0.5 size-1 rounded-full bg-border" />
+                            <div className="mx-0.5 size-1 rounded-full bg-border" />
                         </div>
-                        <div className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/10">
-                            <div className="flex items-center gap-3 min-w-0">
-                                <span className="w-5 text-xs font-black text-center text-primary">
+                        <Item size="xs" variant="outline" className="border-primary/10 bg-primary/5">
+                            <ItemMedia>
+                                <span className="w-5 text-center text-xs font-black text-primary">
                                     {data.currentUser.rank}
                                 </span>
-                                <span className="text-xs font-bold truncate">Bạn</span>
-                            </div>
-                            <div className="flex items-center gap-1 shrink-0 ml-2">
-                                <Star className="size-3 text-amber-500 fill-amber-500" />
+                            </ItemMedia>
+                            <ItemContent>
+                                <ItemTitle className="text-xs font-bold">Bạn</ItemTitle>
+                            </ItemContent>
+                            <ItemActions>
+                                <Star className="size-3 fill-warning text-warning" />
                                 <span className="text-xs font-black tabular-nums">{data.currentUser.xp}</span>
-                            </div>
-                        </div>
+                            </ItemActions>
+                        </Item>
                     </>
                 )}
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     )
 }

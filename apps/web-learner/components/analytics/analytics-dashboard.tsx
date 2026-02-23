@@ -11,6 +11,8 @@ import { cn } from "@workspace/ui/lib/utils"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentReadinessProfileResponseDTO as ReadinessProfileResponse } from "@workspace/schemas"
 
+import { Badge } from "@workspace/ui/components/badge"
+
 export function AnalyticsDashboard() {
     const [progress, setProgress] = React.useState<any>(null)
     const [studyPath, setStudyPath] = React.useState<any>(null)
@@ -59,7 +61,7 @@ export function AnalyticsDashboard() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Monthly Progress</CardTitle>
-                        <TrendingUp className="size-4 text-green-500" />
+                        <TrendingUp className="size-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">+{Math.round(progress?.metrics?.averageScore || 0)}%</div>
@@ -79,7 +81,7 @@ export function AnalyticsDashboard() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Weak Areas</CardTitle>
-                        <AlertTriangle className="size-4 text-yellow-500" />
+                        <AlertTriangle className="size-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{profile?.weaknesses?.length || 0} Topics</div>
@@ -89,7 +91,7 @@ export function AnalyticsDashboard() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Completed Lessons</CardTitle>
-                        <FileText className="size-4 text-blue-500" />
+                        <FileText className="size-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{progress?.metrics?.completedLessons || 0}</div>
@@ -111,23 +113,18 @@ export function AnalyticsDashboard() {
                         <CardContent>
                             <div className="space-y-4">
                                 {profile?.weaknesses?.map((weakness: any, i: number) => (
-                                    <div key={i} className="flex items-center justify-between p-4 border rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800">
+                                    <div key={i} className="flex items-center justify-between p-4 border rounded-lg bg-muted/30 border-border/50">
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2">
-                                                <h4 className="font-semibold text-orange-700 dark:text-orange-400">{weakness.topic}</h4>
-                                                <span className={cn(
-                                                    "px-1.5 py-0.5 rounded text-[10px] font-bold uppercase",
-                                                    weakness.severity === 'high' ? "bg-red-100 text-red-700" :
-                                                        weakness.severity === 'medium' ? "bg-orange-100 text-orange-700" :
-                                                            "bg-yellow-100 text-yellow-700"
-                                                )}>
+                                                <h4 className="font-semibold">{weakness.topic}</h4>
+                                                <Badge variant="secondary" className="uppercase text-[10px] font-bold">
                                                     {weakness.severity}
-                                                </span>
+                                                </Badge>
                                             </div>
-                                            <p className="text-sm text-orange-600/80 dark:text-orange-400/70">{weakness.description}</p>
-                                            <p className="text-xs font-medium text-orange-800/60 dark:text-orange-300/60 italic">Gợi ý: {weakness.suggestedReview}</p>
+                                            <p className="text-sm text-muted-foreground">{weakness.description}</p>
+                                            <p className="text-xs font-medium text-muted-foreground italic">Gợi ý: {weakness.suggestedReview}</p>
                                         </div>
-                                        <Button size="sm" variant="secondary" className="bg-orange-100 hover:bg-orange-200 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">Review</Button>
+                                        <Button size="sm" variant="secondary">Review</Button>
                                     </div>
                                 ))}
                                 {(!profile?.weaknesses || profile.weaknesses.length === 0) && (

@@ -63,12 +63,12 @@ export function ExamHistory() {
 
     if (loading) {
         return (
-            <div className="rounded-[2rem] border border-border/40 overflow-hidden bg-background/60 backdrop-blur-xl">
+            <div className="rounded-lg border border-border/40 overflow-hidden bg-background/60">
                 <div className="p-12 flex flex-col items-center justify-center space-y-4 text-muted-foreground">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center animate-pulse">
+                    <div className="w-12 h-12 rounded-lg bg-primary/5 flex items-center justify-center animate-pulse">
                         <Sparkles className="w-6 h-6 text-primary" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Loading chronicles...</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Loading chronicles...</span>
                 </div>
             </div>
         )
@@ -76,12 +76,12 @@ export function ExamHistory() {
 
     if (sessions.length === 0) {
         return (
-            <div className="flex justify-center py-24 px-6 rounded-[2.5rem] bg-muted/10 border border-border/40">
+            <div className="flex justify-center py-24 px-6 rounded-lg bg-muted/10 border border-border/40">
                 <Empty className="max-w-md">
                     <EmptyHeader>
-                        <EmptyMedia variant="icon" className="bg-background shadow-xl"><Inbox className="text-primary w-8 h-8" /></EmptyMedia>
-                        <EmptyTitle className="text-xl font-black tracking-tight uppercase">Chưa có lịch sử thi</EmptyTitle>
-                        <EmptyDescription className="font-bold text-muted-foreground/60">
+                        <EmptyMedia variant="icon" className="bg-background shadow-sm border border-border"><Inbox className="text-primary w-8 h-8" /></EmptyMedia>
+                        <EmptyTitle className="text-xl font-bold tracking-tight">Chưa có lịch sử thi</EmptyTitle>
+                        <EmptyDescription className="font-medium text-muted-foreground/60">
                             Bạn chưa thực hiện bài thi nào. Hãy bắt đầu thử thách ngay hôm nay!
                         </EmptyDescription>
                     </EmptyHeader>
@@ -91,16 +91,16 @@ export function ExamHistory() {
     }
 
     return (
-        <div className="rounded-[2.5rem] border border-border/40 overflow-hidden bg-background/60 backdrop-blur-xl shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="rounded-lg border border-border/40 overflow-hidden bg-background/60 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted/30 hover:bg-muted/30 border-b-border/20">
-                        <TableHead className="py-6 pl-10 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Thứ tự & Ngày thi</TableHead>
-                        <TableHead className="py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Thông tin đề thi</TableHead>
-                        <TableHead className="py-6 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">JLPT</TableHead>
-                        <TableHead className="py-6 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Điểm số</TableHead>
-                        <TableHead className="py-6 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Kết quả</TableHead>
-                        <TableHead className="py-6 pr-10 text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Actions</TableHead>
+                        <TableHead className="py-6 pl-10 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Thứ tự & Ngày thi</TableHead>
+                        <TableHead className="py-6 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Thông tin đề thi</TableHead>
+                        <TableHead className="py-6 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">JLPT</TableHead>
+                        <TableHead className="py-6 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Điểm số</TableHead>
+                        <TableHead className="py-6 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Kết quả</TableHead>
+                        <TableHead className="py-6 pr-10 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground/40">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -113,36 +113,36 @@ export function ExamHistory() {
                             <TableRow key={session.id} className="group hover:bg-primary/[0.02] border-b-border/10 transition-colors">
                                 <TableCell className="py-8 pl-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-8 h-8 rounded-lg bg-muted/30 flex items-center justify-center text-[10px] font-black text-muted-foreground/40">
+                                        <div className="w-8 h-8 rounded bg-muted/30 flex items-center justify-center text-[10px] font-bold text-muted-foreground/40">
                                             0{idx + 1}
                                         </div>
                                         <div className="space-y-1">
-                                            <div className="flex items-center gap-2 text-xs font-black text-foreground">
+                                            <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                                                 <Calendar className="w-3 h-3 text-muted-foreground/40" />
                                                 {formatDate(date) || '-'}
                                             </div>
-                                            <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30">Lần thi gần nhất</div>
+                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/30">Lần thi gần nhất</div>
                                         </div>
                                     </div>
                                 </TableCell>
                                 <TableCell className="py-8">
                                     <div className="space-y-1">
-                                        <h4 className="text-sm font-black uppercase tracking-tight text-foreground group-hover:text-primary transition-colors">
+                                        <h4 className="text-sm font-bold uppercase tracking-tight text-foreground group-hover:text-primary transition-colors">
                                             {exam?.title || 'N/A'}
                                         </h4>
-                                        <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-muted-foreground/30">
+                                        <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground/30">
                                             <FileText className="w-3 h-3" />
                                             Full Simulation Test
                                         </div>
                                     </div>
                                 </TableCell>
                                 <TableCell className="py-8 text-center">
-                                    <Badge variant="outline" className="border-border/40 text-muted-foreground/60 font-black uppercase tracking-widest text-[9px] px-3 py-1 rounded-full">
+                                    <Badge variant="outline" className="border-border/40 text-muted-foreground/60 font-bold uppercase tracking-wider text-[9px] px-3 py-1">
                                         {exam?.jlptLevel || 'N/A'}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="py-8 text-center">
-                                    <span className="text-lg font-black tracking-tighter italic italic-text text-foreground leading-none">
+                                    <span className="text-lg font-bold tracking-tight text-foreground leading-none">
                                         {session.score !== undefined && session.maxScore !== undefined
                                             ? `${session.score}/${session.maxScore}`
                                             : '-'}
@@ -151,10 +151,10 @@ export function ExamHistory() {
                                 <TableCell className="py-8 text-center">
                                     <Badge
                                         className={cn(
-                                            "font-black uppercase tracking-widest text-[8px] px-3 py-1 rounded-full border-none",
+                                            "font-bold uppercase tracking-wider text-[8px] px-3 py-1",
                                             passed
-                                                ? "bg-emerald-500/10 text-emerald-500"
-                                                : "bg-destructive/10 text-destructive"
+                                                ? "bg-primary/10 text-primary border-primary/20"
+                                                : "bg-destructive/10 text-destructive border-destructive/20"
                                         )}
                                     >
                                         {passed ? 'PASSED' : 'FAILED'}
@@ -164,7 +164,7 @@ export function ExamHistory() {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary transition-all cursor-pointer group/btn"
+                                        className="h-10 w-10 rounded-lg hover:bg-primary/10 hover:text-primary transition-all cursor-pointer group/btn"
                                         onClick={() => handleViewDetails(session)}
                                     >
                                         <Eye className="w-4 h-4" />

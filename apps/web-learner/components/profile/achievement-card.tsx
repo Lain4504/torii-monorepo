@@ -16,6 +16,8 @@ import {
     Lock
 } from 'lucide-react'
 import { format } from 'date-fns'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { Badge } from '@workspace/ui/components/badge'
 
 interface AchievementCardProps {
     achievement: {
@@ -52,74 +54,74 @@ export function AchievementCard({ achievement }: AchievementCardProps) {
     const IconComponent = def.icon && ICON_MAP[def.icon] ? ICON_MAP[def.icon] : Trophy
 
     return (
-        <div
+        <Card
             className={cn(
-                "group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300",
+                "group relative overflow-hidden transition-all duration-300 border shadow-none",
                 isUnlocked
-                    ? "bg-card border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 shadow-sm"
-                    : "bg-muted/30 border-dashed border-muted-foreground/20 opacity-70 grayscale"
+                    ? "bg-card hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
+                    : "bg-muted/30 border-dashed opacity-70 grayscale"
             )}
         >
-            {/* Background Accent */}
-            {isUnlocked && (
-                <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-primary/5 blur-2xl transition-all group-hover:bg-primary/10" />
-            )}
+            <CardContent className="p-5">
 
-            <div className="flex items-start gap-4">
-                <div
-                    className={cn(
-                        "flex size-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
-                        isUnlocked
-                            ? "bg-primary/10 text-primary group-hover:scale-110 group-hover:rotate-3 shadow-inner"
-                            : "bg-muted text-muted-foreground/50"
-                    )}
-                >
-                    {isUnlocked ? (
-                        <IconComponent className="size-6" />
-                    ) : (
-                        <Lock className="size-5" />
-                    )}
-                </div>
-
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                        <h4 className={cn(
-                            "text-sm font-bold transition-colors",
-                            isUnlocked ? "text-foreground" : "text-muted-foreground"
-                        )}>
-                            {def.title}
-                        </h4>
-                        {isUnlocked && (
-                            <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="flex items-start gap-4">
+                    <div
+                        className={cn(
+                            "flex size-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300 border",
+                            isUnlocked
+                                ? "bg-primary/10 text-primary border-primary/20 group-hover:scale-110 group-hover:rotate-3 shadow-sm"
+                                : "bg-muted text-muted-foreground/50 border-transparent"
+                        )}
+                    >
+                        {isUnlocked ? (
+                            <IconComponent className="size-6" />
+                        ) : (
+                            <Lock className="size-5" />
                         )}
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                        {def.description}
-                    </p>
 
-                    {isUnlocked && unlockedAt && (
-                        <p className="pt-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">
-                            Đạt được vào {format(new Date(unlockedAt), 'dd/MM/yyyy')}
-                        </p>
-                    )}
-
-                    {!isUnlocked && (
-                        <div className="pt-2">
-                            <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
-                                <div className="h-full bg-muted-foreground/20 w-1/3" />
-                            </div>
-                            <p className="mt-1 text-[10px] text-muted-foreground/50 italic">
-                                Chờ mở khóa...
-                            </p>
+                    <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                            <h4 className={cn(
+                                "text-sm font-bold transition-colors",
+                                isUnlocked ? "text-foreground" : "text-muted-foreground"
+                            )}>
+                                {def.title}
+                            </h4>
+                            {isUnlocked && (
+                                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] uppercase font-bold tracking-wider">
+                                    Đã mở
+                                </Badge>
+                            )}
                         </div>
-                    )}
-                </div>
-            </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                            {def.description}
+                        </p>
 
-            {/* Shine Effect */}
-            {isUnlocked && (
-                <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-            )}
-        </div>
+                        <div className="pt-2">
+                            {isUnlocked && unlockedAt ? (
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                                    Đạt được vào {format(new Date(unlockedAt), 'dd/MM/yyyy')}
+                                </p>
+                            ) : (
+                                <div className="space-y-1.5">
+                                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden border border-border/50">
+                                        <div className="h-full bg-muted-foreground/20 w-1/3 rounded-full" />
+                                    </div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 italic">
+                                        Chưa đạt được
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Shine Effect */}
+                {isUnlocked && (
+                    <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
+                )}
+            </CardContent>
+        </Card>
     )
 }

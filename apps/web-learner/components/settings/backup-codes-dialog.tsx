@@ -13,6 +13,7 @@ import { toast } from '@workspace/ui/components/sonner';
 import { Key, Download, Copy, Check, AlertTriangle } from 'lucide-react';
 import { useRegenerateBackupCodes } from '@/lib/api/services/two-factor-auth-api';
 import { Spinner } from '@workspace/ui/components/spinner'
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 
 interface BackupCodesDialogProps {
     open: boolean;
@@ -73,21 +74,13 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                     {backupCodes.length === 0 ? (
                         <>
                             {/* Warning */}
-                            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                                <div className="flex gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0 flex items-center justify-center">
-                                        <AlertTriangle className="size-5" />
-                                    </div>
-                                    <div className="space-y-2 flex-1">
-                                        <p className="text-sm font-bold text-foreground">
-                                            Điều này sẽ làm vô hiệu hóa mã dự phòng cũ
-                                        </p>
-                                        <p className="text-xs text-muted-foreground/70 leading-relaxed font-medium">
-                                            Bất kỳ mã dự phòng nào đã được tạo trước đó sẽ không còn hoạt động. Hãy đảm bảo lưu các mã mới ở nơi an toàn.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                            <Alert className="bg-amber-500/10 text-amber-600 border-amber-500/20">
+                                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                                <AlertTitle className="text-amber-600">Điều này sẽ làm vô hiệu hóa mã dự phòng cũ</AlertTitle>
+                                <AlertDescription className="text-amber-600/90">
+                                    Bất kỳ mã dự phòng nào đã được tạo trước đó sẽ không còn hoạt động. Hãy đảm bảo lưu các mã mới ở nơi an toàn.
+                                </AlertDescription>
+                            </Alert>
 
                             {/* Generate Button */}
                             <Button
@@ -111,21 +104,13 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                     ) : (
                         <>
                             {/* Success Message */}
-                            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-                                <div className="flex gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0 flex items-center justify-center">
-                                        <Check className="size-5" />
-                                    </div>
-                                    <div className="space-y-2 flex-1">
-                                        <p className="text-sm font-bold text-foreground">
-                                            Mã dự phòng mới đã được tạo
-                                        </p>
-                                        <p className="text-xs text-muted-foreground/70 leading-relaxed font-medium">
-                                            Mỗi mã chỉ có thể sử dụng một lần. Lưu trữ chúng ở nơi an toàn.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                            <Alert className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                                <Check className="h-4 w-4 text-emerald-600" />
+                                <AlertTitle className="text-emerald-600">Mã dự phòng mới đã được tạo</AlertTitle>
+                                <AlertDescription className="text-emerald-600/90">
+                                    Mỗi mã chỉ có thể sử dụng một lần. Lưu trữ chúng ở nơi an toàn.
+                                </AlertDescription>
+                            </Alert>
 
                             {/* Backup Codes Grid */}
                             <div className="grid grid-cols-2 gap-3 p-5 rounded-xl border border-border/20 bg-muted/10">

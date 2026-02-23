@@ -43,43 +43,36 @@ export function DailyCheckInCard() {
   };
 
   return (
-    <Card className={cn(
-      "border-border/50 transition-all duration-300",
-      isActiveToday && "bg-gradient-to-br from-orange-500/5 to-red-500/5"
-    )}>
+    <Card className="border-border/50">
       <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center gap-2">
-                    <Flame className={cn(
-                        "size-5",
-                        currentStreak > 0 ? "text-orange-500" : "text-muted-foreground"
-                    )} />
-                    <span className="font-semibold">
-                        {currentStreak > 0 ? `${currentStreak} Day Streak` : "Start Your Streak"}
-                    </span>
-                </div>
-                {currentStreak > 0 && (
-                    <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="text-2xl font-bold text-orange-500"
-                    >
-                        🔥
-                    </motion.div>
-                )}
-            </CardTitle>
+        <CardTitle className="flex items-center justify-between text-base">
+          <div className="flex items-center gap-2">
+            <Flame className={cn(
+              "size-5",
+              currentStreak > 0 ? "text-primary" : "text-muted-foreground"
+            )} />
+            <span className="font-semibold">
+              {currentStreak > 0 ? `${currentStreak} Day Streak` : "Start Your Streak"}
+            </span>
+          </div>
+          {currentStreak > 0 && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="text-2xl font-bold text-primary"
+            >
+              🔥
+            </motion.div>
+          )}
+        </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4">
         {/* Warning Banner */}
         {willBreakTomorrow && !isActiveToday && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-2 text-xs text-yellow-600 dark:text-yellow-500"
-          >
+          <div className="rounded-lg bg-primary/5 border border-primary/10 p-2 text-xs text-primary">
             ⚠️ Complete a lesson today to keep your {currentStreak}-day streak!
-          </motion.div>
+          </div>
         )}
 
         {/* 7-Day Smart Calendar */}
@@ -107,10 +100,10 @@ export function DailyCheckInCard() {
                     "w-full aspect-square rounded-lg border-2 flex items-center justify-center transition-all duration-300",
                     // Confirmed active (today or lastActiveDate)
                     day.status === 'confirmed' &&
-                      "bg-gradient-to-br from-orange-500 to-red-500 border-orange-400 shadow-lg shadow-orange-500/20",
+                    "bg-primary border-primary",
                     // Estimated based on streak
                     day.status === 'estimated' &&
-                      "bg-gradient-to-br from-orange-400/40 to-red-400/40 border-orange-300/50",
+                    "bg-primary/40 border-primary/50",
                     // Inactive or unknown
                     day.status === 'inactive' && (
                       day.isToday
@@ -119,8 +112,8 @@ export function DailyCheckInCard() {
                     )
                   )}
                   title={
-                    day.status === 'confirmed' 
-                      ? `Active on ${day.date}` 
+                    day.status === 'confirmed'
+                      ? `Active on ${day.date}`
                       : day.status === 'estimated'
                         ? `Estimated (based on ${currentStreak}-day streak)`
                         : 'Not active'
@@ -130,7 +123,7 @@ export function DailyCheckInCard() {
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="text-white text-lg font-bold"
+                      className="text-primary-foreground text-lg font-bold"
                     >
                       ✓
                     </motion.span>
@@ -139,7 +132,7 @@ export function DailyCheckInCard() {
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="text-orange-600 dark:text-orange-400 text-sm font-bold"
+                      className="text-primary text-sm font-bold"
                     >
                       ≈
                     </motion.span>
@@ -154,13 +147,9 @@ export function DailyCheckInCard() {
         <Button
           onClick={handleStartLearning}
           disabled={isActiveToday}
-          className={cn(
-            "w-full transition-all duration-300",
-            isActiveToday
-              ? "bg-green-500/20 text-green-600 hover:bg-green-500/30 dark:text-green-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg hover:shadow-xl"
-          )}
+          className="w-full"
           size="lg"
+          variant={isActiveToday ? "secondary" : "default"}
         >
           {isActiveToday ? (
             <>
@@ -186,10 +175,10 @@ export function DailyCheckInCard() {
           {/* Freeze Count */}
           {freezeCount > 0 && (
             <div className="flex items-center gap-2 text-sm">
-              <Snowflake className="h-4 w-4 text-blue-500" />
+              <Snowflake className="h-4 w-4 text-primary" />
               <div>
                 <p className="text-xs text-muted-foreground">Freezes</p>
-                <p className="font-semibold text-blue-600 dark:text-blue-400">
+                <p className="font-semibold text-primary">
                   {freezeCount}
                 </p>
               </div>
@@ -202,10 +191,10 @@ export function DailyCheckInCard() {
               "flex items-center gap-2 text-sm",
               freezeCount === 0 && "col-span-2"
             )}>
-              <TrendingUp className="h-4 w-4 text-purple-500" />
+              <TrendingUp className="h-4 w-4 text-primary" />
               <div>
                 <p className="text-xs text-muted-foreground">Best Streak</p>
-                <p className="font-semibold text-purple-600 dark:text-purple-400">
+                <p className="font-semibold text-primary">
                   {streak.longestStreak} days
                 </p>
               </div>
@@ -230,13 +219,13 @@ function generateWeekCalendar(
   for (let i = 6; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
-    
+
     const dateStr = date.toISOString().split("T")[0];
     const isToday = i === 0;
-    
+
     // Determine status: confirmed, estimated, or inactive
     let status: 'confirmed' | 'estimated' | 'inactive' = 'inactive';
-    
+
     // Confirmed: Today (if active)
     if (isToday && isActiveToday) {
       status = 'confirmed';
@@ -251,11 +240,11 @@ function generateWeekCalendar(
       const daysAgo = Math.floor(
         (today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
       );
-      
+
       // If this day falls within the streak window, mark as estimated
       // Account for whether today is active or not
       const effectiveStreakDays = isActiveToday ? currentStreak - 1 : currentStreak;
-      
+
       if (daysAgo > 0 && daysAgo <= effectiveStreakDays && daysAgo <= 6) {
         status = 'estimated';
       }

@@ -4,6 +4,7 @@ import { Monitor, Smartphone, MapPin } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { Badge } from '@workspace/ui/components/badge';
 import type { SessionResponse } from '@/lib/api/services/session-api';
 
 interface SessionItemProps {
@@ -41,9 +42,9 @@ export function SessionItem({ session, onRevoke, isRevoking }: SessionItemProps)
                         {session.deviceInfo || 'Thiết bị không xác định'}
                     </ItemTitle>
                     {session.isCurrent && (
-                        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-600 border border-emerald-500/20">
+                        <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] uppercase tracking-wide">
                             Phiên hiện tại
-                        </span>
+                        </Badge>
                     )}
                 </div>
                 <div className="flex flex-col gap-1">

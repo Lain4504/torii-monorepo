@@ -14,7 +14,7 @@ import {
 import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentFlashcardResponseDTO as FlashcardResponse } from "@workspace/schemas"
-import { Card, CardContent } from "@workspace/ui/components/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
 import { Spinner } from '@workspace/ui/components/spinner'
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -66,71 +66,72 @@ export function FlashcardGenerator() {
         <div className="max-w-4xl mx-auto space-y-6 pb-20">
 
             {/* Header */}
-            <div className="space-y-1 pb-2 border-b border-border/40">
-                <h2 className="text-2xl font-bold tracking-tight">AI Flashcards</h2>
-                <p className="text-sm text-muted-foreground">
+            <div className="space-y-1 pb-4 border-b">
+                <h1 className="text-3xl font-extrabold tracking-tight">AI Flashcards</h1>
+                <p className="text-muted-foreground font-medium">
                     Tạo bộ thẻ học thông minh theo chủ đề
                 </p>
             </div>
 
             {/* Input Section */}
-            <form onSubmit={form.handleSubmit(handleGenerate)} className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-4">
-                <div className="grid md:grid-cols-[1fr,200px] gap-4">
-                    <Controller
-                        name="topic"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid} className="space-y-2">
-                                <FieldLabel htmlFor={field.name}>Chủ đề</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    placeholder="Ví dụ: Đồ ăn, Du lịch, Business Email..."
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                            </Field>
-                        )}
-                    />
-                    <Controller
-                        name="level"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid} className="space-y-2">
-                                <FieldLabel htmlFor={field.name}>Trình độ</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="N5">N5 (Sơ cấp)</SelectItem>
-                                        <SelectItem value="N4">N4 (Cơ bản)</SelectItem>
-                                        <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
-                                        <SelectItem value="N2">N2 (Tiền cao cấp)</SelectItem>
-                                        <SelectItem value="N1">N1 (Cao cấp)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </Field>
-                        )}
-                    />
-                </div>
+            <Card className="p-6">
+                <form onSubmit={form.handleSubmit(handleGenerate)} className="space-y-4">
+                    <div className="grid md:grid-cols-[1fr,200px] gap-4">
+                        <Controller
+                            name="topic"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Chủ đề</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        placeholder="Ví dụ: Đồ ăn, Du lịch, Business Email..."
+                                    />
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
+                            )}
+                        />
+                        <Controller
+                            name="level"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Trình độ</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger id={field.name}>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="N5">N5 (Sơ cấp)</SelectItem>
+                                            <SelectItem value="N4">N4 (Cơ bản)</SelectItem>
+                                            <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
+                                            <SelectItem value="N2">N2 (Tiền cao cấp)</SelectItem>
+                                            <SelectItem value="N1">N1 (Cao cấp)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                            )}
+                        />
+                    </div>
 
-                <div className="flex justify-end pt-2">
-                    <Button
-                        type="submit"
-                        disabled={!form.watch("topic").trim() || isLoading}
-                        className="px-6 font-semibold min-w-[140px]"
-                    >
-                        {isLoading ? (
-                            <><Spinner className="mr-2 size-4 animate-spin" /> Creating...</>
-                        ) : (
-                            <>
-                                Create Deck <ArrowRight className="ml-2 size-4" />
-                            </>
-                        )}
-                    </Button>
-                </div>
-            </form>
+                    <div className="flex justify-end pt-2">
+                        <Button
+                            type="submit"
+                            disabled={!form.watch("topic").trim() || isLoading}
+                            className="font-semibold min-w-[140px]"
+                        >
+                            {isLoading ? (
+                                <><Spinner className="mr-2" /> Creating...</>
+                            ) : (
+                                <>
+                                    Create Deck <ArrowRight className="ml-2 size-4" />
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </form>
+            </Card>
 
             {/* Result Section */}
             {result && (
@@ -153,7 +154,7 @@ export function FlashcardGenerator() {
                                 <CardContent className="p-0 h-full relative preserve-3d transition-transform duration-500" style={{ transform: flippedCards[i] ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
 
                                     {/* Front */}
-                                    <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-6 text-center bg-card rounded-xl border border-border">
+                                    <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-6 text-center bg-card rounded-lg border border-border">
                                         <div className="font-bold text-2xl mb-2">{card.front}</div>
                                         <div className="text-sm text-muted-foreground">Mặt trước</div>
                                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground">
@@ -162,7 +163,7 @@ export function FlashcardGenerator() {
                                     </div>
 
                                     {/* Back */}
-                                    <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 text-center bg-primary/5 rounded-xl border border-primary/20">
+                                    <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 text-center bg-primary/5 rounded-lg border border-primary/20">
                                         <div className="font-bold text-xl mb-2 text-primary">{card.back}</div>
                                         {card.reading && <div className="text-sm text-muted-foreground mb-1">{card.reading}</div>}
                                         <div className="text-xs text-muted-foreground uppercase tracking-wider">Mặt sau</div>

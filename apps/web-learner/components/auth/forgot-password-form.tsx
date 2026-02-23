@@ -11,6 +11,8 @@ import { toast } from '@workspace/ui/components/sonner'
 import { CheckCircle2 } from 'lucide-react'
 import { useForgotPassword } from '@/lib/api/services/auth-api'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert'
 
 const forgotPasswordSchema = z.object({
     email: z.string().email('Email không hợp lệ'),
@@ -47,56 +49,59 @@ export function ForgotPasswordForm() {
 
     if (emailSent) {
         return (
-            <div className="space-y-4">
-                <div className="flex flex-col items-center text-center gap-3 p-6 rounded-lg border bg-muted/30">
-                    <CheckCircle2 className="w-8 h-8 text-primary" />
-                    <div className="space-y-1">
-                        <p className="font-medium text-sm">Email đã được gửi</p>
-                        <p className="text-sm text-muted-foreground">
-                            Link đặt lại mật khẩu đã gửi tới{' '}
-                            <span className="font-medium text-foreground">{form.getValues('email')}</span>
-                        </p>
-                    </div>
+            <div className="space-y-6">
+                <Alert className="bg-primary/5 border-primary/20 py-6">
+                    <CheckCircle2 className="size-5 text-primary" />
+                    <AlertTitle className="text-base font-bold">Email đã được gửi</AlertTitle>
+                    <AlertDescription className="text-sm">
+                        Link đặt lại mật khẩu đã gửi tới <span className="font-bold text-foreground">{form.getValues('email')}</span>. Vui lòng kiểm tra hộp thư của bạn.
+                    </AlertDescription>
+                </Alert>
+
+                <div className="space-y-4">
                     <Button
                         onClick={() => setEmailSent(false)}
-                        variant="link"
-                        className="text-sm"
+                        variant="outline"
+                        className="w-full h-10 font-bold"
                     >
                         Gửi lại hoặc thử email khác
                     </Button>
+                    <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                        Link đặt lại mật khẩu sẽ hết hạn sau <span className="font-bold">60 phút</span>. Một khi hết hạn, bạn sẽ cần yêu cầu link mới.
+                    </p>
                 </div>
-                <p className="text-xs text-muted-foreground text-center">
-                    Link đặt lại mật khẩu sẽ hết hạn sau 60 phút. Kiểm tra thư mục Spam nếu không thấy email.
-                </p>
             </div>
         )
     }
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            <Controller
-                control={form.control}
-                name="email"
-                render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                        <Input
-                            {...field}
-                            id={field.name}
-                            type="email"
-                            placeholder="your-registered-email@domain.com"
-                            autoComplete="email"
-                            aria-invalid={fieldState.invalid}
-                        />
-                        <FieldError errors={[fieldState.error]} />
-                    </Field>
-                )}
-            />
+        <Card>
+            <CardContent className="p-6 space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+                    <Controller
+                        control={form.control}
+                        name="email"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    type="email"
+                                    placeholder="your-registered-email@domain.com"
+                                    autoComplete="email"
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Spinner className="mr-2" />}
-                Gửi link khôi phục
-            </Button>
-        </form>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading && <Spinner className="mr-2" />}
+                        Gửi link khôi phục
+                    </Button>
+                </form>
+            </CardContent>
+        </Card>
     )
 }

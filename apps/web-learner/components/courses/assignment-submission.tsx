@@ -15,10 +15,12 @@ import {
 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
+import { Badge } from '@workspace/ui/components/badge';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { cn } from '@workspace/ui/lib/utils';
 import { toast } from '@workspace/ui/components/sonner';
-import { Field, FieldLabel } from '@workspace/ui/components/field';
+import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field';
+import { Label } from "@workspace/ui/components/label";
 import {
   useAssignment,
   useMySubmission,
@@ -32,7 +34,15 @@ import { formatDate, formatDateTime } from '@/utils/format-utils';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { FieldError } from '@workspace/ui/components/field';
+import { Input } from "@workspace/ui/components/input"
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@workspace/ui/components/item"
 
 const submitAssignmentSchema = z.object({
   textAnswer: z.string().optional(),
@@ -213,8 +223,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
   return (
     <div className="space-y-8 max-w-5xl mx-auto px-6 py-10">
       {/* Header Section */}
-      <Card className="relative overflow-hidden group bg-gradient-to-br from-primary/5 via-primary/0 to-background border-primary/10">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 transition-colors group-hover:bg-primary/10" />
+      <Card className="overflow-hidden group border-border/50">
         <CardContent className="p-8 sm:p-10 relative">
 
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
@@ -236,44 +245,22 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
 
             <div className="flex flex-wrap items-center gap-3">
               {isGraded && (
-                <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-green-500/10 border border-green-500/20 shadow-sm animate-in fade-in zoom-in duration-500">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[10px] font-black text-green-600 uppercase tracking-[0.1em]">Đã chấm điểm</span>
-                </div>
+                <Badge variant="secondary" className="animate-in fade-in zoom-in duration-500">Đã chấm điểm</Badge>
               )}
               {isSubmitted && !isGraded && (
-                <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.1em]">Đã nộp</span>
-                </div>
+                <Badge variant="outline">Đã nộp</Badge>
               )}
               {isDraft && (
-                <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-500/10 border border-amber-500/20 shadow-sm">
-                  <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                  <span className="text-[10px] font-black text-amber-600 uppercase tracking-[0.1em]">Bản nháp</span>
-                </div>
+                <Badge variant="outline" className="text-muted-foreground">Bản nháp</Badge>
               )}
               {isReturned && (
-                <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-500/10 border border-rose-500/20 shadow-sm">
-                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-bounce" />
-                  <span className="text-[10px] font-black text-rose-600 uppercase tracking-[0.1em]">Yêu cầu sửa lại</span>
-                </div>
+                <Badge variant="destructive">Yêu cầu sửa lại</Badge>
               )}
               {dueDate && (
-                <div className={cn(
-                  "flex items-center gap-2 px-5 py-2.5 rounded-full border shadow-sm transition-all",
-                  isOverdue
-                    ? "bg-rose-500/10 border-rose-500/20"
-                    : "bg-muted/10 border-border/20"
-                )}>
-                  <Calendar className={cn("w-3.5 h-3.5", isOverdue ? "text-rose-500" : "text-muted-foreground")} />
-                  <span className={cn(
-                    "text-[10px] font-black uppercase tracking-[0.1em]",
-                    isOverdue ? "text-rose-600" : "text-muted-foreground"
-                  )}>
-                    Hạn nộp: {formatDate(dueDate)}
-                  </span>
-                </div>
+                <Badge variant={isOverdue ? "destructive" : "outline"} className="gap-1">
+                  <Calendar className="size-3" />
+                  Hạn nộp: {formatDate(dueDate)}
+                </Badge>
               )}
             </div>
           </div>
@@ -319,24 +306,25 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
             {assignment.attachmentUrls.filter(url => url).map((url, index) => {
               const filename = url?.split('/').pop() || `File ${index + 1}`;
               return (
-                <button
+                <Item
                   key={index}
-                  className="group flex items-center justify-between p-5 rounded-[1.5rem] border border-border/30 bg-muted/5 hover:bg-background hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 text-left"
-                  onClick={() => handleDownloadAttachment(url)}
+                  variant="outline"
+                  asChild
+                  className="group p-5 rounded-[1.5rem]"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-background rounded-2xl flex items-center justify-center border border-border/40 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                  <Button variant="ghost" className="h-auto p-0 border-none bg-transparent hover:bg-transparent" onClick={() => handleDownloadAttachment(url)}>
+                    <ItemMedia variant="icon" className="w-12 h-12 bg-background rounded-2xl flex items-center justify-center border border-border/40 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                       <FileText className="w-6 h-6" />
-                    </div>
-                    <div className="overflow-hidden">
-                      <p className="text-sm font-bold text-foreground truncate max-w-[150px]">{filename}</p>
-                      <p className="text-[10px] text-primary font-black uppercase tracking-widest mt-1 opacity-60 group-hover:opacity-100 italic transition-opacity">Nhấn để tải</p>
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-primary/10 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Download className="w-4 h-4" />
-                  </div>
-                </button>
+                    </ItemMedia>
+                    <ItemContent className="overflow-hidden">
+                      <ItemTitle className="text-sm font-bold text-foreground truncate max-w-[150px]">{filename}</ItemTitle>
+                      <ItemDescription className="text-[10px] text-primary font-black uppercase tracking-widest mt-1 opacity-60 group-hover:opacity-100 italic transition-opacity">Nhấn để tải</ItemDescription>
+                    </ItemContent>
+                    <ItemActions className="p-3 rounded-xl bg-primary/10 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Download className="w-4 h-4" />
+                    </ItemActions>
+                  </Button>
+                </Item>
               );
             })}
           </div>
@@ -381,7 +369,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
               <FieldLabel className="text-[10px] font-black uppercase tracking-[0.15em]">
                 Tải lên file đính kèm {(assignment.type === 'FILE' || assignment.type === 'BOTH') && <span className="text-red-600">*</span>}
               </FieldLabel>
-              <input
+              <Input
                 type="file"
                 id="file-upload"
                 multiple={assignment.maxFiles ? assignment.maxFiles > 1 : true}
@@ -390,10 +378,10 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                 className="hidden"
                 disabled={isSubmitted || uploadingFiles}
               />
-              <label
+              <Label
                 htmlFor="file-upload"
                 className={cn(
-                  "block p-10 rounded-2xl border-2 border-dashed border-border/30 bg-muted/5 hover:bg-muted/10 hover:border-primary/40 transition-all cursor-pointer group",
+                  "block p-10 cursor-pointer group",
                   (isSubmitted || uploadingFiles) && "opacity-50 cursor-not-allowed"
                 )}
               >
@@ -411,7 +399,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                     </p>
                   </div>
                 </div>
-              </label>
+              </Label>
 
               {/* Uploaded Files List */}
               {fileUrls.length > 0 && (
@@ -422,27 +410,30 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                   {fileUrls.filter(url => url).map((url, index) => {
                     const filename = url.split('/').pop() || `File ${index + 1}`;
                     return (
-                      <div
+                      <Item
                         key={index}
-                        className="flex items-center justify-between p-4 rounded-xl bg-background border border-border/30 hover:border-primary/30 transition-colors"
+                        variant="outline"
+                        className="flex items-center justify-between p-4 rounded-xl bg-background border-border/30 hover:border-primary/30 transition-colors"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-                            <FileText className="w-5 h-5 text-primary" />
-                          </div>
-                          <span className="text-sm font-semibold text-foreground">{filename}</span>
-                        </div>
+                        <ItemMedia variant="icon" className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+                          <FileText className="w-5 h-5 text-primary" />
+                        </ItemMedia>
+                        <ItemContent>
+                          <ItemTitle className="text-sm font-semibold text-foreground truncate">{filename}</ItemTitle>
+                        </ItemContent>
                         {!isSubmitted && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveFile(index)}
-                            className="h-9 w-9 p-0 rounded-xl hover:bg-red-500/10 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <ItemActions>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveFile(index)}
+                              className="h-9 w-9 p-0 rounded-xl hover:bg-red-500/10 hover:text-red-600 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </ItemActions>
                         )}
-                      </div>
+                      </Item>
                     );
                   })}
                 </div>
@@ -453,7 +444,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
             <div className="flex flex-wrap items-center gap-4 pt-6">
               <Button
                 onClick={handleSubmit(onSubmit)}
-                className="h-14 px-10 rounded-[1.25rem] font-black uppercase tracking-[0.1em] bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                className="px-8 font-bold"
                 disabled={submitMutation.isPending}
               >
                 <Send className="w-4 h-4 mr-3" />
@@ -463,7 +454,7 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
               <Button
                 variant="outline"
                 onClick={handleSaveDraft}
-                className="h-14 px-8 rounded-[1.25rem] font-black uppercase tracking-[0.1em] border-border/40 hover:bg-muted/5 transition-all duration-300"
+                className="px-8 font-bold"
                 disabled={saveDraftMutation.isPending}
               >
                 <Save className="w-4 h-4 mr-3" />
@@ -600,15 +591,18 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
                   {submission.fileUrls.map((url, index) => {
                     const filename = url.split('/').pop() || `File ${index + 1}`;
                     return (
-                      <div
+                      <Item
                         key={index}
+                        variant="outline"
                         className="flex items-center gap-3 p-4 rounded-2xl bg-background border border-border/30"
                       >
-                        <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
-                          <FileText className="w-5 h-5 text-blue-500" />
-                        </div>
-                        <span className="text-sm font-bold text-foreground truncate">{filename}</span>
-                      </div>
+                        <ItemMedia variant="icon" className="size-10 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
+                          <FileText className="size-5 text-primary" />
+                        </ItemMedia>
+                        <ItemContent>
+                          <ItemTitle className="text-sm font-bold text-foreground truncate">{filename}</ItemTitle>
+                        </ItemContent>
+                      </Item>
                     );
                   })}
                 </div>

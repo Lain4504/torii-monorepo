@@ -72,93 +72,93 @@ export function DrillGenerator() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-20">
+        <div className="max-w-4xl mx-auto space-y-8 pb-20 p-4 md:p-8">
             {/* Header */}
-            <div className="space-y-1 pb-2 border-b border-border/40">
-                <h2 className="text-2xl font-bold tracking-tight">Practice Drills</h2>
-                <p className="text-sm text-muted-foreground">
+            <div className="space-y-1 pb-4 border-b">
+                <h1 className="text-3xl font-bold tracking-tight">Practice Drills</h1>
+                <p className="text-muted-foreground font-medium">
                     Bài tập luyện tập theo kỹ năng
                 </p>
             </div>
 
             {/* Input Section */}
-            <form onSubmit={form.handleSubmit(handleGenerate)} className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-6">
-                <div className="grid md:grid-cols-3 gap-6">
-                    <Controller
-                        name="type"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid} className="space-y-2">
-                                <FieldLabel htmlFor={field.name}>Kỹ năng</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="grammar">Ngữ pháp (Grammar)</SelectItem>
-                                        <SelectItem value="vocabulary">Từ vựng (Vocabulary)</SelectItem>
-                                        <SelectItem value="kanji">Hán tự (Kanji)</SelectItem>
-                                        <SelectItem value="reading">Đọc hiểu (Reading)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </Field>
-                        )}
-                    />
-                    <Controller
-                        name="topic"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid} className="space-y-2">
-                                <FieldLabel htmlFor={field.name}>Chủ đề</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    placeholder="Ví dụ: Particles, Family, Travel..."
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                            </Field>
-                        )}
-                    />
-                    <Controller
-                        name="difficulty"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid} className="space-y-2">
-                                <FieldLabel htmlFor={field.name}>Trình độ</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="N5">N5 (Beginner)</SelectItem>
-                                        <SelectItem value="N4">N4 (Basic)</SelectItem>
-                                        <SelectItem value="N3">N3 (Intermediate)</SelectItem>
-                                        <SelectItem value="N2">N2 (Pre-Advanced)</SelectItem>
-                                        <SelectItem value="N1">N1 (Advanced)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </Field>
-                        )}
-                    />
-                </div>
+            <Card className="p-6">
+                <form onSubmit={form.handleSubmit(handleGenerate)} className="space-y-6">
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <Controller
+                            name="type"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Kỹ năng</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger id={field.name}>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="grammar">Ngữ pháp (Grammar)</SelectItem>
+                                            <SelectItem value="vocabulary">Từ vựng (Vocabulary)</SelectItem>
+                                            <SelectItem value="kanji">Hán tự (Kanji)</SelectItem>
+                                            <SelectItem value="reading">Đọc hiểu (Reading)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                            )}
+                        />
+                        <Controller
+                            name="topic"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Chủ đề</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        placeholder="Ví dụ: Particles, Family, Travel..."
+                                    />
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
+                            )}
+                        />
+                        <Controller
+                            name="difficulty"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Trình độ</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger id={field.name}>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="N5">N5 (Beginner)</SelectItem>
+                                            <SelectItem value="N4">N4 (Basic)</SelectItem>
+                                            <SelectItem value="N3">N3 (Intermediate)</SelectItem>
+                                            <SelectItem value="N2">N2 (Pre-Advanced)</SelectItem>
+                                            <SelectItem value="N1">N1 (Advanced)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                            )}
+                        />
+                    </div>
 
-                <div className="flex justify-end">
-                    <Button
-                        type="submit"
-                        disabled={!form.watch("topic").trim() || isLoading}
-                        className="px-6 font-semibold min-w-[140px]"
-                    >
-                        {isLoading ? (
-                            <><Spinner className="mr-2 size-4 animate-spin" /> Generating...</>
-                        ) : (
-                            <>
-                                Generate Drill <ArrowRight className="ml-2 size-4" />
-                            </>
-                        )}
-                    </Button>
-                </div>
-            </form>
+                    <div className="flex justify-end">
+                        <Button
+                            type="submit"
+                            disabled={!form.watch("topic").trim() || isLoading}
+                        >
+                            {isLoading ? (
+                                <><Spinner className="mr-2" /> Generating...</>
+                            ) : (
+                                <>
+                                    Generate Drill <ArrowRight className="ml-2 size-4" />
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </form>
+            </Card>
 
             {/* Result Section */}
             {result && (
@@ -181,9 +181,9 @@ export function DrillGenerator() {
                             const isCorrect = userAnswer === drill.correctAnswer
 
                             return (
-                                <Card key={i} className={cn("overflow-hidden transition-colors",
-                                    showResults && isCorrect ? "border-green-500/50 bg-green-500/5" :
-                                        showResults && !isCorrect && userAnswer ? "border-red-500/50 bg-red-500/5" : ""
+                                <Card key={i} className={cn("transition-colors overflow-hidden",
+                                    showResults && isCorrect ? "border-primary/50 bg-primary/5" :
+                                        showResults && !isCorrect && userAnswer ? "border-destructive/20 bg-destructive/5" : ""
                                 )}>
                                     <CardHeader className="pb-3 bg-muted/30">
                                         <CardTitle className="text-base font-medium flex gap-3 leading-relaxed">
@@ -201,14 +201,27 @@ export function DrillGenerator() {
                                             className="grid grid-cols-1 md:grid-cols-2 gap-3"
                                         >
                                             {drill.options.map((option, optIdx) => (
-                                                <div key={optIdx} className={cn(
-                                                    "flex items-center space-x-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors",
-                                                    userAnswer === option ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border",
-                                                    showResults && option === drill.correctAnswer ? "border-green-500 bg-green-100 dark:bg-green-900/20 ring-1 ring-green-500" : "",
-                                                    showResults && userAnswer === option && !isCorrect ? "border-red-500 bg-red-100 dark:bg-red-900/20" : ""
-                                                )}>
-                                                    <RadioGroupItem value={option} id={`q${i}-opt${optIdx}`} />
-                                                    <Label htmlFor={`q${i}-opt${optIdx}`} className="flex-1 cursor-pointer font-normal">{option}</Label>
+                                                <div key={optIdx} className="relative">
+                                                    <RadioGroupItem value={option} id={`q${i}-opt${optIdx}`} className="sr-only" />
+                                                    <Label
+                                                        htmlFor={`q${i}-opt${optIdx}`}
+                                                        className={cn(
+                                                            "flex items-center gap-3 rounded-lg border p-4 cursor-pointer transition-all",
+                                                            userAnswer === option
+                                                                ? "border-primary bg-primary/5"
+                                                                : "border-border hover:border-primary/50 hover:bg-muted/50",
+                                                            showResults && option === drill.correctAnswer ? "border-primary bg-primary/10" : "",
+                                                            showResults && userAnswer === option && !isCorrect ? "border-destructive bg-destructive/10" : ""
+                                                        )}
+                                                    >
+                                                        <div className={cn(
+                                                            "size-7 rounded-md flex items-center justify-center text-xs font-bold transition-colors shrink-0",
+                                                            userAnswer === option ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                                        )}>
+                                                            {String.fromCharCode(65 + optIdx)}
+                                                        </div>
+                                                        <span className="flex-1 font-medium text-sm">{option}</span>
+                                                    </Label>
                                                 </div>
                                             ))}
                                         </RadioGroup>
@@ -217,9 +230,9 @@ export function DrillGenerator() {
                                     {showResults && (
                                         <CardFooter className={cn(
                                             "flex flex-col items-start gap-2 pt-4 border-t text-sm",
-                                            isCorrect ? "bg-green-100/50 dark:bg-green-900/10 text-green-800 dark:text-green-300" : "bg-red-100/50 dark:bg-red-900/10 text-red-800 dark:text-red-300"
+                                            isCorrect ? "bg-primary/10 text-primary border-primary/20" : "bg-destructive/10 text-destructive border-destructive/20"
                                         )}>
-                                            <div className="flex items-center gap-2 font-semibold">
+                                            <div className="flex items-center gap-2 font-bold">
                                                 {isCorrect ? <CheckCircle2 className="size-4" /> : <XCircle className="size-4" />}
                                                 {isCorrect ? "Correct!" : "Incorrect"}
                                             </div>
@@ -228,7 +241,7 @@ export function DrillGenerator() {
                                                     Correct answer: <span className="font-bold">{drill.correctAnswer}</span>
                                                 </div>
                                             )}
-                                            <div className="flex gap-2 text-muted-foreground mt-1 bg-background/50 p-3 rounded w-full border border-black/5 dark:border-white/5">
+                                            <div className="flex gap-2 text-muted-foreground mt-1 bg-background/50 p-3 rounded w-full border border-border/50 transition-colors">
                                                 <HelpCircle className="size-4 mt-0.5 flex-none" />
                                                 <span>{drill.explanation}</span>
                                             </div>

@@ -4,6 +4,7 @@ import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from '@workspace/ui
 import { useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Spinner } from '@workspace/ui/components/spinner';
+import { Card, CardContent } from '@workspace/ui/components/card';
 import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/lib/api/services/session-api';
 import { toast } from '@workspace/ui/components/sonner';
 import { Clock, LogOut } from 'lucide-react';
@@ -59,11 +60,11 @@ export function SessionsManagement() {
                 Phiên đăng nhập
             </h3>
 
-            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+            <Card className="overflow-hidden">
                 <SessionsInfoBanner />
 
                 {/* Sessions List */}
-                <div className="divide-y divide-border">
+                <CardContent className="p-0 divide-y divide-border">
                     {sessions?.map((session) => (
                         <SessionItem
                             key={session.id}
@@ -74,22 +75,22 @@ export function SessionsManagement() {
                     ))}
 
                     {sessions?.length === 0 && (
-                        <Empty className="border-none">
+                        <Empty className="border-none py-12">
                             <EmptyContent>
                                 <EmptyTitle>Không tìm thấy phiên</EmptyTitle>
                                 <EmptyDescription>Không có dữ liệu phiên hoạt động.</EmptyDescription>
                             </EmptyContent>
                         </Empty>
                     )}
-                </div>
+                </CardContent>
 
                 {/* Footer Action */}
-                <div className="p-5 bg-muted/20">
+                <div className="p-4 bg-muted/30 border-t">
                     <Button
                         variant="ghost"
                         onClick={() => setIsRevokeOtherOpen(true)}
                         disabled={revokeOtherMutation.isPending || (sessions?.length || 0) <= 1}
-                        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive h-10 font-bold text-xs uppercase tracking-wider transition-all duration-200"
+                        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive font-bold text-xs uppercase tracking-wider"
                     >
                         {revokeOtherMutation.isPending ? (
                             <div className="flex items-center gap-2">
@@ -104,7 +105,7 @@ export function SessionsManagement() {
                         )}
                     </Button>
                 </div>
-            </div>
+            </Card>
 
             {/* Confirmation Dialogs */}
             <RevokeSessionDialog
