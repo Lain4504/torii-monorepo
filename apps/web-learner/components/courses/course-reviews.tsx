@@ -11,10 +11,20 @@ import type { CourseResponseDTO } from '@workspace/schemas'
 import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/lib/api/services/review-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
-import { Field, FieldLabel } from '@workspace/ui/components/field'
+import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { cn } from '@workspace/ui/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
+const courseReviewSchema = z.object({
+    rating: z.number().min(1, 'Vui lòng chọn số sao'),
+    comment: z.string().optional(),
+})
+
+type CourseReviewFormData = z.infer<typeof courseReviewSchema>
 
 interface CourseReviewsProps {
     course: CourseResponseDTO
@@ -28,9 +38,18 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     const [hasMore, setHasMore] = useState(false)
     const [showReviewForm, setShowReviewForm] = useState(false)
     const [showAllReviews, setShowAllReviews] = useState(false)
-    const [newRating, setNewRating] = useState(0)
-    const [newComment, setNewComment] = useState('')
     const [submitting, setSubmitting] = useState(false)
+
+    const form = useForm<CourseReviewFormData>({
+        resolver: zodResolver(courseReviewSchema),
+        defaultValues: {
+            rating: 0,
+            comment: '',
+        },
+    })
+
+    const { control, handleSubmit, setValue, watch, reset } = form
+    const currentRating = watch('rating')
 
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
     const user = useAppSelector((state) => state.auth.user)
@@ -72,27 +91,21 @@ export function CourseReviews({ course }: CourseReviewsProps) {
 
     const queryClient = useQueryClient()
 
-    const handleSubmitReview = async () => {
+    const onSubmitReview = async (data: CourseReviewFormData) => {
         if (!isAuthenticated) {
             toast.error('Vui lòng đăng nhập để đánh giá')
-            return
-        }
-
-        if (newRating === 0) {
-            toast.error('Vui lòng chọn số sao')
             return
         }
 
         try {
             setSubmitting(true)
             const newReview = await reviewApi.createReview(course.id, {
-                rating: newRating,
-                comment: newComment || undefined,
+                rating: data.rating,
+                comment: data.comment || undefined,
             })
             setReviews((prev) => [newReview, ...prev])
             setShowReviewForm(false)
-            setNewRating(0)
-            setNewComment('')
+            reset()
             toast.success('Đánh giá của bạn đã được gửi')
 
             // Invalidate queries to refresh data across the app
@@ -107,7 +120,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
         }
     }
 
-    const renderStars = (rating: number, interactive: boolean = false, size: number = 4) => {
+    const renderStars = (rating: number, onRatingChange?: (r: number) => void, size: number = 4) => {
         return (
             <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -118,9 +131,9 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                             i <= rating
                                 ? 'fill-amber-400 text-amber-400'
                                 : 'text-muted-foreground/20',
-                            interactive && 'cursor-pointer hover:scale-110 transition-transform hover:text-amber-400'
+                            onRatingChange && 'cursor-pointer hover:scale-110 transition-transform hover:text-amber-400'
                         )}
-                        onClick={() => interactive && setNewRating(i)}
+                        onClick={() => onRatingChange?.(i)}
                     />
                 ))}
             </div>
@@ -143,7 +156,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                 {review.user.displayName}
                             </h4>
                             <div className="flex items-center gap-2">
-                                {renderStars(review.rating, false, 3)}
+                                {renderStars(review.rating, undefined, 3)}
                                 <span className="text-xs text-muted-foreground font-medium">
                                     Đã xác thực
                                 </span>
@@ -235,7 +248,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                             </span>
                             <div className="space-y-1 text-center lg:text-left">
                                 <div className="flex justify-center lg:justify-start">
-                                    {renderStars(averageRating, false, 5)}
+                                    {renderStars(averageRating, undefined, 5)}
                                 </div>
                                 <div className="text-sm font-medium text-muted-foreground">Điểm đánh giá trung bình</div>
                                 <div className="text-sm font-bold text-foreground">{totalReviews} học viên đã tham gia</div>
@@ -271,28 +284,43 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                                         </DialogDescription>
                                                     </DialogHeader>
                                                     <div className="space-y-6 py-4">
-                                                        <Field className="flex flex-col items-center gap-4">
-                                                            <FieldLabel className="text-muted-foreground">Mức độ hài lòng của bạn</FieldLabel>
-                                                            <div className="flex gap-2">
-                                                                {renderStars(newRating, true, 8)}
-                                                            </div>
-                                                            <span className="text-sm font-medium text-primary h-5">
-                                                                {newRating > 0 ? ['Rất kém', 'Cần cải thiện', 'Tốt', 'Rất tốt', 'Tuyệt vời'][newRating - 1] : ''}
-                                                            </span>
-                                                        </Field>
-                                                        <Field className="space-y-3">
-                                                            <FieldLabel>Nhận xét chi tiết</FieldLabel>
-                                                            <Textarea
-                                                                value={newComment}
-                                                                onChange={(e) => setNewComment(e.target.value)}
-                                                                placeholder="Chia sẻ cảm nhận của bạn về học liệu, giảng viên hoặc trải nghiệm..."
-                                                                className="min-h-[120px] rounded-xl resize-none text-sm"
-                                                            />
-                                                        </Field>
+                                                        <Controller
+                                                            name="rating"
+                                                            control={control}
+                                                            render={({ field, fieldState }) => (
+                                                                <Field data-invalid={fieldState.invalid} className="flex flex-col items-center gap-4">
+                                                                    <FieldLabel className="text-muted-foreground">Mức độ hài lòng của bạn</FieldLabel>
+                                                                    <div className="flex gap-2">
+                                                                        {renderStars(field.value, field.onChange, 8)}
+                                                                    </div>
+                                                                    <span className="text-sm font-medium text-primary h-5">
+                                                                        {field.value > 0 ? ['Rất kém', 'Cần cải thiện', 'Tốt', 'Rất tốt', 'Tuyệt vời'][field.value - 1] : ''}
+                                                                    </span>
+                                                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                                                </Field>
+                                                            )}
+                                                        />
+                                                        <Controller
+                                                            name="comment"
+                                                            control={control}
+                                                            render={({ field, fieldState }) => (
+                                                                <Field data-invalid={fieldState.invalid} className="space-y-3">
+                                                                    <FieldLabel htmlFor={field.name}>Nhận xét chi tiết</FieldLabel>
+                                                                    <Textarea
+                                                                        {...field}
+                                                                        id={field.name}
+                                                                        placeholder="Chia sẻ cảm nhận của bạn về học liệu, giảng viên hoặc trải nghiệm..."
+                                                                        className="min-h-[120px] rounded-xl resize-none text-sm"
+                                                                        aria-invalid={fieldState.invalid}
+                                                                    />
+                                                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                                                </Field>
+                                                            )}
+                                                        />
                                                     </div>
                                                     <DialogFooter>
-                                                        <Button variant="ghost" onClick={() => setShowReviewForm(false)} className="rounded-xl font-bold">Hủy</Button>
-                                                        <Button onClick={handleSubmitReview} disabled={submitting || newRating === 0} className="rounded-xl font-bold">
+                                                        <Button variant="ghost" onClick={() => { setShowReviewForm(false); reset(); }} className="rounded-xl font-bold">Hủy</Button>
+                                                        <Button onClick={handleSubmit(onSubmitReview)} disabled={submitting || currentRating === 0} className="rounded-xl font-bold">
                                                             {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
                                                         </Button>
                                                     </DialogFooter>
@@ -359,7 +387,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                                     <span className="text-5xl font-bold text-foreground tracking-tight">{roundedRating}</span>
                                     <div className="space-y-1">
                                         <div className="flex gap-1">
-                                            {renderStars(averageRating, false, 4)}
+                                            {renderStars(averageRating, undefined, 4)}
                                         </div>
                                         <div className="text-sm text-muted-foreground font-medium">{totalReviews} đánh giá</div>
                                     </div>

@@ -7,6 +7,7 @@ import { Heart, MessageCircle, MoreVertical, Trash2, Flag, Edit2 } from 'lucide-
 import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@workspace/ui/components/avatar'
 import { Badge } from '@workspace/ui/components/badge'
+import { Card, CardHeader, CardContent, CardFooter } from '@workspace/ui/components/card'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -71,8 +72,8 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
 
     return (
         <>
-            <div className="bg-background rounded-xl border border-border/40 p-5 space-y-4 hover:border-primary/20 transition-all shadow-sm">
-                <div className="flex justify-between items-start">
+            <Card className="hover:border-primary/20 transition-all shadow-sm">
+                <CardHeader className="flex flex-row justify-between items-start space-y-0 pb-3">
                     <div className="flex gap-3">
                         <Link href={`/user/${post.author?.id}`} className="flex-shrink-0">
                             <Avatar>
@@ -128,9 +129,9 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                </div>
+                </CardHeader>
 
-                <div className="space-y-2">
+                <CardContent className="space-y-2 pb-3">
                     {post.tags && post.tags.length > 0 && (
                         <div className="flex gap-2 flex-wrap">
                             {post.tags.map(tag => (
@@ -150,13 +151,10 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                     )}
                     <div className="cursor-pointer">
                         {post.title && <h3 className="font-semibold text-lg text-foreground mb-1">{post.title}</h3>}
-                        <p className="text-muted-foreground text-sm line-clamp-3 whitespace-pre-line">
-                            {post.content}
-                        </p>
                     </div>
-                </div>
+                </CardContent>
 
-                <div className="flex items-center gap-4 pt-3 border-t border-border/40">
+                <CardFooter className="flex items-center gap-4 pt-3 border-t border-border/40">
                     <Button
                         variant="ghost"
                         size="sm"
@@ -181,8 +179,8 @@ export function FeedPostCard({ post, onLike, onComment, onDelete, onTagClick, on
                         <MessageCircle className="w-4 h-4" />
                         <span className="text-xs">Bình luận ({post.comments || 0})</span>
                     </Button>
-                </div>
-            </div>
+                </CardFooter>
+            </Card>
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

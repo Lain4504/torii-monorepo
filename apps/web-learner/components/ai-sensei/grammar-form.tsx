@@ -9,19 +9,36 @@ import { Badge } from "@workspace/ui/components/badge"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentGrammarCheckResponseDTO as GrammarCheckResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
+import { Spinner } from "@workspace/ui/components/spinner"
+import { Skeleton } from "@workspace/ui/components/skeleton"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
+
+const grammarFormSchema = z.object({
+    text: z.string().min(1, "Vui lòng nhập nội dung"),
+})
+
+type GrammarFormData = z.infer<typeof grammarFormSchema>
 
 export function GrammarForm() {
-    const [input, setInput] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(false)
     const [result, setResult] = React.useState<GrammarCheckResponse | null>(null)
 
-    const handleCheck = async () => {
-        if (!input.trim()) return
+    const form = useForm<GrammarFormData>({
+        resolver: zodResolver(grammarFormSchema),
+        defaultValues: {
+            text: "",
+        },
+    })
+
+    const handleCheck = async (data: GrammarFormData) => {
         setIsLoading(true)
 
         try {
-            const data = await agentApi.sensei.checkGrammar(input)
-            setResult(data)
+            const response = await agentApi.sensei.checkGrammar(data.text)
+            setResult(response)
         } catch (error) {
             console.error(error)
         } finally {
@@ -30,7 +47,7 @@ export function GrammarForm() {
     }
 
     const handleReset = () => {
-        setInput("")
+        form.reset()
         setResult(null)
     }
 
@@ -54,52 +71,65 @@ export function GrammarForm() {
             <div className="grid lg:grid-cols-12 gap-8 items-start">
                 {/* Left Side: Input */}
                 <Card className="lg:col-span-5 overflow-hidden border-border/50 shadow-xl shadow-black/5 bg-card/50 backdrop-blur-sm">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-sm uppercase tracking-[0.2em] text-muted-foreground/60">Input Content</CardTitle>
-                        <CardDescription>Nhập câu tiếng Nhật bạn muốn kiểm tra</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="relative group">
-                            <Textarea
-                                placeholder="VD: 私は日本語勉強します..."
-                                className="min-h-[200px] text-lg leading-relaxed resize-none bg-background/50 border-border/50 focus:border-blue-500/50 transition-all rounded-2xl p-6"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
+                    <form onSubmit={form.handleSubmit(handleCheck)}>
+                        <CardHeader className="pb-4">
+                            <CardTitle className="text-sm uppercase tracking-[0.2em] text-muted-foreground/60">Input Content</CardTitle>
+                            <CardDescription>Nhập câu tiếng Nhật bạn muốn kiểm tra</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Controller
+                                name="text"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <div className="relative group">
+                                            <Textarea
+                                                {...field}
+                                                id={field.name}
+                                                placeholder="VD: 私は日本語勉強します..."
+                                                className="min-h-[200px] text-lg leading-relaxed resize-none bg-background/50 border-border/50 focus:border-blue-500/50 transition-all rounded-2xl p-6"
+                                                aria-invalid={fieldState.invalid}
+                                            />
+                                            {field.value && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={() => form.setValue("text", "")}
+                                                >
+                                                    <RotateCcw className="size-3" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
                             />
-                            {input && (
-                                <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => setInput("")}
-                                >
-                                    <RotateCcw className="size-3" />
-                                </Button>
-                            )}
-                        </div>
-                    </CardContent>
-                    <CardFooter className="flex items-center justify-between bg-muted/30 border-t py-4">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-                            {input.length} characters
-                        </span>
-                        <Button
-                            onClick={handleCheck}
-                            disabled={!input.trim() || isLoading}
-                            className="rounded-xl px-8 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all font-bold group"
-                        >
-                            {isLoading ? (
-                                <div className="flex items-center gap-2">
-                                    <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    <span>Đang xử lý...</span>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-2">
-                                    <span>Kiểm tra</span>
-                                    <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
-                                </div>
-                            )}
-                        </Button>
-                    </CardFooter>
+                        </CardContent>
+                        <CardFooter className="flex items-center justify-between bg-muted/30 border-t py-4">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+                                {form.watch("text").length} characters
+                            </span>
+                            <Button
+                                type="submit"
+                                disabled={!form.watch("text").trim() || isLoading}
+                                className="rounded-xl px-8 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all font-bold group"
+                            >
+                                {isLoading ? (
+                                    <div className="flex items-center gap-2">
+                                        <Spinner />
+                                        <span>Đang xử lý...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <span>Kiểm tra</span>
+                                        <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
+                                    </div>
+                                )}
+                            </Button>
+                        </CardFooter>
+                    </form>
                 </Card>
 
                 {/* Right Side: Results */}
@@ -115,12 +145,10 @@ export function GrammarForm() {
 
                     {isLoading && (
                         <div className="space-y-6">
-                            <Card className="animate-pulse bg-muted/20 border-border/40">
-                                <div className="h-40" />
-                            </Card>
+                            <Skeleton className="h-[200px] w-full rounded-2xl" />
                             <div className="grid grid-cols-2 gap-4">
-                                <Card className="animate-pulse bg-muted/20 border-border/40 h-32" />
-                                <Card className="animate-pulse bg-muted/20 border-border/40 h-32" />
+                                <Skeleton className="h-40 w-full rounded-2xl" />
+                                <Skeleton className="h-40 w-full rounded-2xl" />
                             </div>
                         </div>
                     )}
@@ -141,8 +169,11 @@ export function GrammarForm() {
                                     <p className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight">
                                         {result.correctedText}
                                     </p>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Badge variant="destructive" className="text-[10px] uppercase font-bold">Gốc</Badge>
+                                        <span className="text-xs font-medium text-muted-foreground">Lỗi Ngữ Pháp / Từ Vựng</span>
+                                    </div>
                                     <div className="flex items-center gap-4 py-3 px-4 rounded-2xl bg-muted/50 border border-border/50">
-                                        <Badge variant="outline" className="text-[10px] uppercase font-bold text-red-500 border-red-500/20 bg-red-500/5">Gốc</Badge>
                                         <span className="text-muted-foreground line-through decoration-red-500/30 font-medium italic">
                                             {result.originalText}
                                         </span>

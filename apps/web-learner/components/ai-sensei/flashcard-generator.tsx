@@ -11,28 +11,43 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { Field, FieldLabel } from "@workspace/ui/components/field"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentFlashcardResponseDTO as FlashcardResponse } from "@workspace/schemas"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { Spinner } from '@workspace/ui/components/spinner'
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+
+const flashcardFormSchema = z.object({
+    topic: z.string().min(1, "Vui lòng nhập chủ đề"),
+    level: z.enum(["N5", "N4", "N3", "N2", "N1"]),
+})
+
+type FlashcardFormData = z.infer<typeof flashcardFormSchema>
 
 export function FlashcardGenerator() {
-    const [topic, setTopic] = React.useState("")
-    const [level, setLevel] = React.useState<"N5" | "N4" | "N3" | "N2" | "N1">("N4")
     const [isLoading, setIsLoading] = React.useState(false)
     const [result, setResult] = React.useState<FlashcardResponse | null>(null)
     const [flippedCards, setFlippedCards] = React.useState<Record<number, boolean>>({})
 
-    const handleGenerate = async () => {
-        if (!topic.trim()) return
+    const form = useForm<FlashcardFormData>({
+        resolver: zodResolver(flashcardFormSchema),
+        defaultValues: {
+            topic: "",
+            level: "N4",
+        },
+    })
+
+    const handleGenerate = async (data: FlashcardFormData) => {
         setIsLoading(true)
         setResult(null)
         setFlippedCards({})
 
         try {
-            const data = await agentApi.sensei.createFlashcard(topic, level)
-            setResult(data)
+            const res = await agentApi.sensei.createFlashcard(data.topic, data.level)
+            setResult(res)
         } catch (error) {
             console.error(error)
         } finally {
@@ -59,37 +74,51 @@ export function FlashcardGenerator() {
             </div>
 
             {/* Input Section */}
-            <div className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-4">
+            <form onSubmit={form.handleSubmit(handleGenerate)} className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-4">
                 <div className="grid md:grid-cols-[1fr,200px] gap-4">
-                    <Field className="space-y-2">
-                        <FieldLabel>Chủ đề</FieldLabel>
-                        <Input
-                            placeholder="Ví dụ: Đồ ăn, Du lịch, Business Email..."
-                            value={topic}
-                            onChange={(e) => setTopic(e.target.value)}
-                        />
-                    </Field>
-                    <Field className="space-y-2">
-                        <FieldLabel>Trình độ</FieldLabel>
-                        <Select value={level} onValueChange={(v: any) => setLevel(v)}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="N5">N5 (Sơ cấp)</SelectItem>
-                                <SelectItem value="N4">N4 (Cơ bản)</SelectItem>
-                                <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
-                                <SelectItem value="N2">N2 (Tiền cao cấp)</SelectItem>
-                                <SelectItem value="N1">N1 (Cao cấp)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </Field>
+                    <Controller
+                        name="topic"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                <FieldLabel htmlFor={field.name}>Chủ đề</FieldLabel>
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    placeholder="Ví dụ: Đồ ăn, Du lịch, Business Email..."
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            </Field>
+                        )}
+                    />
+                    <Controller
+                        name="level"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                <FieldLabel htmlFor={field.name}>Trình độ</FieldLabel>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="N5">N5 (Sơ cấp)</SelectItem>
+                                        <SelectItem value="N4">N4 (Cơ bản)</SelectItem>
+                                        <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
+                                        <SelectItem value="N2">N2 (Tiền cao cấp)</SelectItem>
+                                        <SelectItem value="N1">N1 (Cao cấp)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+                        )}
+                    />
                 </div>
 
                 <div className="flex justify-end pt-2">
                     <Button
-                        onClick={handleGenerate}
-                        disabled={!topic.trim() || isLoading}
+                        type="submit"
+                        disabled={!form.watch("topic").trim() || isLoading}
                         className="px-6 font-semibold min-w-[140px]"
                     >
                         {isLoading ? (
@@ -101,7 +130,7 @@ export function FlashcardGenerator() {
                         )}
                     </Button>
                 </div>
-            </div>
+            </form>
 
             {/* Result Section */}
             {result && (

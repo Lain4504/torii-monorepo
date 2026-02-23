@@ -28,7 +28,7 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
                         <p className="text-xs text-muted-foreground font-medium mb-1.5">{stat.label}</p>
                         <div className="flex items-center gap-2.5">
                             <div className={cn("p-1.5 rounded-lg transition-colors group-hover:scale-110", stat.bg, stat.color)}>
-                                <stat.icon className="w-4 h-4" />
+                                <stat.icon className="size-4" />
                             </div>
                             <span className="text-xl font-bold tracking-tight text-foreground">{stat.value}</span>
                         </div>
@@ -41,7 +41,7 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
                 <div className="md:col-span-2 space-y-6">
                     <div className="space-y-3">
                         <Label className="text-sm font-bold text-foreground flex items-center gap-2">
-                            <User className="h-4 w-4 text-primary" />
+                            <User className="size-4 text-primary" />
                             Tiểu sử
                         </Label>
                         <div className="relative">
@@ -58,7 +58,7 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
                     <div className="space-y-4 rounded-2xl border border-border/50 p-5 bg-card/50">
                         <div className="flex items-center gap-3 text-sm">
                             <div className="p-2 rounded-lg bg-muted text-muted-foreground">
-                                <MapPin className="h-4 w-4" />
+                                <MapPin className="size-4" />
                             </div>
                             <div>
                                 <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Vị trí</p>
@@ -68,7 +68,7 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
 
                         <div className="flex items-center gap-3 text-sm">
                             <div className="p-2 rounded-lg bg-muted text-muted-foreground">
-                                <Calendar className="h-4 w-4" />
+                                <Calendar className="size-4" />
                             </div>
                             <div>
                                 <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Ngày tham gia</p>

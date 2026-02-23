@@ -1,6 +1,7 @@
 import { Badge } from '@workspace/ui/components/badge'
 import { Calendar, Globe, Users, Star } from 'lucide-react'
 import type { CourseResponseDTO } from '@workspace/schemas'
+import { formatNumber } from '@/utils/format-utils'
 
 interface CourseHeaderProps {
     course: CourseResponseDTO
@@ -30,8 +31,8 @@ export function CourseHeader({ course }: CourseHeaderProps) {
                 <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center">
                     <div className="lg:col-span-2 space-y-8 animate-in fade-in slide-in-from-left-4 duration-700">
                         {/* Badges & Rating */}
-                        <div className="flex flex-wrap items-center gap-3">
-                            <Badge className="h-7 px-3 rounded-lg bg-primary text-white font-bold text-xs hover:bg-primary/90">
+                        <div className="flex flex-wrap items-center gap-2 mb-6">
+                            <Badge className="h-7 px-3 rounded-lg font-bold text-xs">
                                 JLPT {course.jlptLevel}
                             </Badge>
                             <Badge variant="outline" className="h-7 px-3 rounded-lg border-border text-xs font-bold text-muted-foreground bg-background">
@@ -67,7 +68,7 @@ export function CourseHeader({ course }: CourseHeaderProps) {
                                     <div className="p-1.5 rounded-md bg-primary/10 text-primary">
                                         <Users className="w-4 h-4" />
                                     </div>
-                                    <span className="text-xl font-bold text-foreground">{course.totalStudents.toLocaleString()}+</span>
+                                    <span className="text-xl font-bold text-foreground">{formatNumber(course.totalStudents)}+</span>
                                 </div>
                                 <div className="text-sm font-medium text-muted-foreground">Học viên</div>
                             </div>

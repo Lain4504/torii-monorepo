@@ -17,7 +17,16 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Fingerprint, User, FileDiff, Database } from 'lucide-react';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
+import {
+    Item,
+    ItemActions,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+} from "@workspace/ui/components/item";
 import { useState } from 'react';
 import { toast } from '@workspace/ui/components/sonner';
 import { formatDateTime } from '@/lib/format-utils';
@@ -115,6 +124,30 @@ function DiffViewer({ oldValues, newValues }: { oldValues: any; newValues: any }
         return String(val);
     };
 
+    const changes = allKeys.filter(key => {
+        const oldVal = oldValues?.[key];
+        const newVal = newValues?.[key];
+        return JSON.stringify(oldVal) !== JSON.stringify(newVal);
+    });
+
+    if (changes.length === 0) {
+        return (
+            <div className="rounded-md border py-8 text-center bg-muted/10">
+                <Empty>
+                    <EmptyMedia>
+                        <FileDiff className="size-8 text-muted-foreground" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Không có thay đổi</EmptyTitle>
+                        <EmptyDescription>
+                            Dữ liệu không có sự thay đổi nào được ghi lại, hoặc các trường thay đổi nằm trong danh sách loại trừ.
+                        </EmptyDescription>
+                    </EmptyContent>
+                </Empty>
+            </div>
+        );
+    }
+
     return (
         <div className="rounded-md border overflow-hidden">
             <Table>
@@ -126,12 +159,9 @@ function DiffViewer({ oldValues, newValues }: { oldValues: any; newValues: any }
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {allKeys.map((key) => {
+                    {changes.map((key) => {
                         const oldVal = oldValues?.[key];
                         const newVal = newValues?.[key];
-                        const isChanged = JSON.stringify(oldVal) !== JSON.stringify(newVal);
-
-                        if (!isChanged) return null;
 
                         return (
                             <TableRow key={key}>
@@ -180,28 +210,44 @@ export function AuditLogDetailsSheet({ log, open, onOpenChange }: AuditLogDetail
                 <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-6 p-6">
                         {/* Thông tin cơ bản */}
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                            <div className="space-y-1">
-                                <Label className="text-[10px] text-muted-foreground uppercase font-bold">Người thực hiện</Label>
-                                <div className="text-sm font-semibold">{log.user?.displayName || 'Hệ thống'}</div>
-                            </div>
-                            <div className="space-y-1">
-                                <Label className="text-[10px] text-muted-foreground uppercase font-bold">Vai trò</Label>
-                                <div><Badge variant="secondary" className="font-mono text-[10px]">{log.user?.role || 'SYSTEM'}</Badge></div>
-                            </div>
-                            <div className="space-y-1">
-                                <Label className="text-[10px] text-muted-foreground uppercase font-bold">Hành động</Label>
-                                <div className="text-sm">{ACTION_MAP[log.action] || log.action}</div>
-                            </div>
-                            <div className="space-y-1">
-                                <Label className="text-[10px] text-muted-foreground uppercase font-bold">Đối tượng</Label>
-                                <div className="text-sm">{ENTITY_MAP[log.entity] || log.entity}</div>
-                            </div>
-                        </div>
+                        <div className="grid gap-3">
+                            <Item variant="outline">
+                                <ItemMedia>
+                                    <User className="size-5 text-muted-foreground" />
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>{log.user?.displayName || 'Hệ thống'}</ItemTitle>
+                                    <ItemDescription>Người thực hiện</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <Badge variant="secondary" className="font-mono text-[10px]">{log.user?.role || 'SYSTEM'}</Badge>
+                                </ItemActions>
+                            </Item>
 
-                        <div className="space-y-1.5">
-                            <Label className="text-[10px] text-muted-foreground uppercase font-bold">Mô tả hoạt động</Label>
-                            <div className="text-sm p-3 bg-muted/50 rounded-md border italic">"{log.description}"</div>
+                            <Item variant="outline">
+                                <ItemMedia>
+                                    <Fingerprint className="size-5 text-muted-foreground" />
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>{ACTION_MAP[log.action] || log.action}</ItemTitle>
+                                    <ItemDescription>{ENTITY_MAP[log.entity] || log.entity}</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <div className="text-[10px] text-muted-foreground font-mono uppercase bg-muted/50 px-2 py-1 rounded">
+                                        Hành động
+                                    </div>
+                                </ItemActions>
+                            </Item>
+
+                            <Item variant="outline">
+                                <ItemMedia>
+                                    <Database className="size-5 text-muted-foreground" />
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle className="font-normal italic">"{log.description}"</ItemTitle>
+                                    <ItemDescription>Mô tả hoạt động</ItemDescription>
+                                </ItemContent>
+                            </Item>
                         </div>
 
                         {/* Thay đổi dữ liệu */}

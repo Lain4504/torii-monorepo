@@ -57,12 +57,13 @@ export function ForgotPasswordForm() {
                             <span className="font-medium text-foreground">{form.getValues('email')}</span>
                         </p>
                     </div>
-                    <button
+                    <Button
                         onClick={() => setEmailSent(false)}
-                        className="text-sm text-primary hover:underline underline-offset-4 transition-colors"
+                        variant="link"
+                        className="text-sm"
                     >
                         Gửi lại hoặc thử email khác
-                    </button>
+                    </Button>
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
                     Link đặt lại mật khẩu sẽ hết hạn sau 60 phút. Kiểm tra thư mục Spam nếu không thấy email.
@@ -93,7 +94,7 @@ export function ForgotPasswordForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Spinner className="mr-2" />}
                 Gửi link khôi phục
             </Button>
         </form>

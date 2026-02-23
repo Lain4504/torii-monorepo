@@ -34,6 +34,7 @@ import {
 } from "@workspace/ui/components/chart"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { PageHeader } from "@/components/common/page-header"
+import { formatNumber } from "@/lib/format-utils"
 
 const userChartConfig = {
     count: {
@@ -53,7 +54,7 @@ export default function UserAnalytics() {
                 title="Phân tích Học viên"
                 subtitle="Tìm hiểu chân dung học viên, tốc độ tăng trưởng và hành vi tương tác trên nền tảng."
                 stats={[
-                    { label: "Tổng học viên", value: userStats?.roles.reduce((acc, curr) => acc + curr.count, 0).toLocaleString() || "0" },
+                    { label: "Tổng học viên", value: formatNumber(userStats?.roles.reduce((acc, curr) => acc + curr.count, 0)) || "0" },
                     { label: "Hoạt động (7d)", value: "84%" }
                 ]}
                 actions={
@@ -70,7 +71,7 @@ export default function UserAnalytics() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <AnalyticsCard
                     title="Tổng học viên"
-                    value={userStats?.roles.reduce((acc, curr) => acc + curr.count, 0).toLocaleString() || "0"}
+                    value={formatNumber(userStats?.roles.reduce((acc, curr) => acc + curr.count, 0)) || "0"}
                     sub="Tổng số tài khoản đã đăng ký"
                     icon={Users}
                     colorClass="text-purple-500 bg-purple-500/10"
@@ -139,7 +140,7 @@ export default function UserAnalytics() {
                                     </div>
                                     <p className="text-sm font-semibold capitalize">{role.role}</p>
                                 </div>
-                                <p className="text-sm font-semibold">{role.count.toLocaleString()}</p>
+                                <p className="text-sm font-semibold">{formatNumber(role.count)}</p>
                             </div>
                         ))}
                     </CardContent>

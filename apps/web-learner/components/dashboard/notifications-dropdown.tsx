@@ -11,6 +11,7 @@ import {
 import { cn } from '@workspace/ui/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
+import { Spinner } from '@workspace/ui/components/spinner'
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/api/services/notification-api'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
@@ -116,7 +117,7 @@ export function NotificationsDropdown() {
                                 size="sm"
                                 onClick={markAllAsRead}
                                 disabled={markAllAsReadMutation.isPending}
-                                className="h-7 px-2 text-xs font-medium hover:text-primary transition-colors disabled:opacity-50"
+                                className="h-7 px-2 text-xs"
                             >
                                 <Check className="size-3.5 mr-1" />
                                 {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
@@ -128,13 +129,9 @@ export function NotificationsDropdown() {
                 {/* Notifications List */}
                 <div className="max-h-[60vh] sm:max-h-[420px] overflow-y-auto custom-scrollbar">
                     {isLoading ? (
-                        <div className="py-12 text-center space-y-3">
-                            <div className="w-12 h-12 rounded-xl bg-muted/30 mx-auto flex items-center justify-center border border-border/10">
-                                <Bell className="size-5 text-muted-foreground/30 animate-pulse" />
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-xs text-muted-foreground/50 font-medium">Đang tải thông báo...</p>
-                            </div>
+                        <div className="py-12 flex flex-col items-center justify-center space-y-3">
+                            <Spinner className="w-6 h-6 text-muted-foreground/30" />
+                            <p className="text-xs text-muted-foreground/50 font-medium">Đang tải thông báo...</p>
                         </div>
                     ) : notifications.length > 0 ? (
                         <div className="divide-y divide-border/5">
@@ -195,10 +192,17 @@ export function NotificationsDropdown() {
                 </div>
 
                 {/* Footer */}
-                <div className="p-2 border-t text-center">
-                    <Link href="/dashboard/notifications" className="block text-xs font-medium text-muted-foreground hover:text-primary transition-colors py-1">
-                        Xem tất cả thông báo
-                    </Link>
+                <div className="p-2 border-t">
+                    <Button
+                        asChild
+                        variant="link"
+                        size="sm"
+                        className="w-full text-xs"
+                    >
+                        <Link href="/dashboard/notifications">
+                            Xem tất cả thông báo
+                        </Link>
+                    </Button>
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>

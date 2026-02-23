@@ -11,6 +11,7 @@ import { Input } from '@workspace/ui/components/input'
 import { Label } from '@workspace/ui/components/label'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { formatNumber, formatCurrency } from '@/utils/format-utils'
 import { ShieldCheck, CreditCard, ArrowLeft, X, Lock, CheckCircle2, Gift, TicketPercent, ArrowRight, Sparkles, BookOpen, Users } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/lib/api/services/course-api'
@@ -295,7 +296,7 @@ export default function CheckoutPage() {
                                             <Users className="w-4 h-4" />
                                             <span className="text-xs font-medium">Học viên</span>
                                         </div>
-                                        <p className="font-semibold text-lg">{course.totalStudents?.toLocaleString() || 0}</p>
+                                        <p className="font-semibold text-lg">{formatNumber(course.totalStudents) || 0}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 text-muted-foreground">
@@ -451,7 +452,7 @@ export default function CheckoutPage() {
                                             <CheckCircle2 className="w-5 h-5" />
                                             <div>
                                                 <p className="font-semibold text-sm">Mã hợp lệ</p>
-                                                <p className="text-xs">Giảm thêm {couponDiscount.toLocaleString()}đ</p>
+                                                <p className="text-xs">Giảm thêm {formatCurrency(couponDiscount)}</p>
                                             </div>
                                         </div>
                                     )}
@@ -465,18 +466,18 @@ export default function CheckoutPage() {
                                 <div className="space-y-2 pb-4 border-b border-border/40">
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-muted-foreground">Giá gốc</span>
-                                        <span className="font-mono font-medium">{Number(course.price).toLocaleString()} <span className="text-xs text-muted-foreground">VNĐ</span></span>
+                                        <span className="font-mono font-medium">{formatCurrency(course.price)}</span>
                                     </div>
                                     {couponDiscount > 0 && (
                                         <div className="flex justify-between items-center text-sm text-emerald-500">
                                             <span>Giảm giá coupon</span>
-                                            <span className="font-mono font-semibold">- {couponDiscount.toLocaleString()} <span className="text-xs">VNĐ</span></span>
+                                            <span className="font-mono font-semibold">- {formatCurrency(couponDiscount)}</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between items-end pt-2">
                                         <span className="text-xs font-medium text-muted-foreground">Tổng thanh toán</span>
                                         <span className="text-3xl md:text-4xl font-bold text-primary">
-                                            {finalPrice.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">VNĐ</span>
+                                            {formatCurrency(finalPrice)}
                                         </span>
                                     </div>
                                 </div>

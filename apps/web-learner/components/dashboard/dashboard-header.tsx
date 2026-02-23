@@ -9,6 +9,7 @@ import { ModeToggle } from './mode-toggle'
 import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
 import { useRouter } from 'next/navigation'
 import { logout } from '@/store/slices/authSlice'
+import { formatNumber } from '@/utils/format-utils'
 import Link from 'next/link'
 import { toast } from '@workspace/ui/components/sonner'
 import {
@@ -73,7 +74,7 @@ export function DashboardHeader() {
                 <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                     <Link href="/dashboard/wallet" className="hidden md:flex items-center px-3 py-1 bg-yellow-500/10 rounded-full text-yellow-600 dark:text-yellow-500 font-bold text-sm gap-2 border border-yellow-500/20 shadow-sm hover:bg-yellow-500/20 transition-all cursor-pointer">
                         <Coins className="w-4 h-4" />
-                        <span>{((user as any)?.balance || 0).toLocaleString()}</span>
+                        <span>{formatNumber((user as any)?.balance || 0)}</span>
                     </Link>
                     {/* Separate Interactive Tools */}
                     <NotificationsDropdown />

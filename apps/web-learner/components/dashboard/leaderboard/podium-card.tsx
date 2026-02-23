@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 import { Crown, Star, Flame } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import type { LeaderboardUserDto } from '@workspace/schemas'
+import { formatNumber } from '@/utils/format-utils'
 
 interface PodiumCardProps {
     user: LeaderboardUserDto
@@ -25,7 +26,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
             <div className="relative">
                 {isFirst && (
                     <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-                        <Crown className="w-10 h-10 text-amber-400 fill-amber-400 drop-shadow-lg animate-bounce duration-3000" />
+                        <Crown className="size-10 text-amber-400 fill-amber-400 drop-shadow-lg animate-bounce duration-3000" />
                     </div>
                 )}
 
@@ -37,7 +38,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                 )}>
                     <Avatar className={cn(
                         "border-4 border-background",
-                        isFirst ? "w-32 h-32" : "w-24 h-24"
+                        isFirst ? "size-32" : "size-24"
                     )}>
                         <AvatarImage src={user.avatarUrl || ''} />
                         <AvatarFallback className="font-black text-2xl">
@@ -47,10 +48,10 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                 </div>
 
                 <div className={cn(
-                    "absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center w-8 h-8 rounded-full border-2 border-background font-black text-xs text-white",
-                    isFirst ? "bg-amber-500 h-10 w-10 text-base" :
-                        isSecond ? "bg-slate-500" :
-                            "bg-orange-600"
+                    "absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center rounded-full border-2 border-background font-black text-xs text-white",
+                    isFirst ? "bg-amber-500 size-10 text-base" :
+                        isSecond ? "bg-slate-500 size-8" :
+                            "bg-orange-600 size-8"
                 )}>
                     {rank}
                 </div>
@@ -65,7 +66,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                         {user.displayName}
                     </h3>
                     {isCurrentUser && (
-                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        <div className="size-2 rounded-full bg-primary" />
                     )}
                 </div>
                 <p className="text-sm font-bold text-muted-foreground">Cấp độ {user.level}</p>
@@ -75,12 +76,12 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                     isFirst && "shadow-lg border-amber-200 bg-amber-50/50"
                 )}>
                     {type === 'global' ? (
-                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                        <Star className="size-4 text-amber-500 fill-amber-500" />
                     ) : (
-                        <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
+                        <Flame className="size-4 text-orange-500 fill-orange-500" />
                     )}
                     <span className="font-extrabold text-lg tabular-nums">
-                        {type === 'global' ? user.xp.toLocaleString() : (user.currentStreak ?? 0).toLocaleString()}
+                        {type === 'global' ? formatNumber(user.xp) : formatNumber(user.currentStreak ?? 0)}
                     </span>
                     <span className="text-[10px] font-black uppercase text-muted-foreground">{type === 'global' ? 'XP' : 'Ngày'}</span>
                 </div>

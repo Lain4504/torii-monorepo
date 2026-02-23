@@ -21,6 +21,7 @@ import { PageHeader } from "@/components/common/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@workspace/ui/components/card";
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@workspace/ui/components/item";
 import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from "@workspace/ui/components/empty";
+import { formatDateTime } from "@/lib/format-utils";
 
 
 
@@ -133,7 +134,7 @@ export default function SubmissionsPage() {
               <ItemContent>
                 <ItemTitle>Hạn nộp bài</ItemTitle>
                 <ItemDescription className="font-semibold">
-                  {assignment.dueDate ? new Date(assignment.dueDate).toLocaleString('vi-VN') : 'Không giới hạn'}
+                  {assignment.dueDate ? formatDateTime(assignment.dueDate) : 'Không giới hạn'}
                 </ItemDescription>
               </ItemContent>
             </Item>
@@ -143,17 +144,17 @@ export default function SubmissionsPage() {
 
       {/* Submissions Table */}
       <Card className="overflow-hidden">
-          <CardContent className="p-0">
+        <CardContent className="p-0">
 
-                  <SubmissionsTable
-                    data={submissions || []}
-                    isLoading={isLoadingSubmissions}
-                    onGrade={handleGrade}
-                    onView={handleView}
-                  />
-                
-          </CardContent>
-          </Card>
+          <SubmissionsTable
+            data={submissions || []}
+            isLoading={isLoadingSubmissions}
+            onGrade={handleGrade}
+            onView={handleView}
+          />
+
+        </CardContent>
+      </Card>
 
       <GradeSubmissionSheet
         open={showGradeSheet}

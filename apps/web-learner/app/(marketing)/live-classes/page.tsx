@@ -10,9 +10,10 @@ import { courseApi } from '@/lib/api/services/course-api'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { formatCurrency } from '@/utils/format-utils'
 
 const formatPrice = (price: number, isFree: boolean) =>
-    isFree ? 'Miễn phí' : `${Number(price).toLocaleString('vi-VN')} VNĐ`
+    isFree ? 'Miễn phí' : formatCurrency(price)
 
 const levelColors: Record<string, string> = {
     N5: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',

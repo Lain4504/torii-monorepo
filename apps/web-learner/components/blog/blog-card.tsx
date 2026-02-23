@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { Calendar, Clock, ArrowRight } from 'lucide-react'
-import { format } from 'date-fns'
-import { vi } from 'date-fns/locale'
+import { formatDate } from '@/utils/format-utils'
 import type { BlogResponseDTO } from '@workspace/schemas'
 import { Badge } from '@workspace/ui/components/badge'
 import { Card, CardContent } from '@workspace/ui/components/card'
@@ -40,7 +39,7 @@ export function BlogCard({ blog }: BlogCardProps) {
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                             <Calendar className="w-3.5 h-3.5" />
-                            {format(new Date(blog.publishedAt || blog.createdAt), "dd 'thg' MM, yyyy", { locale: vi })}
+                            {formatDate(blog.publishedAt || blog.createdAt)}
                         </span>
                         <span>·</span>
                         <span className="flex items-center gap-1">

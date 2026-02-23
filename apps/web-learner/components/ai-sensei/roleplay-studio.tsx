@@ -16,21 +16,37 @@ import {
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentConversationSimulationResponseDTO as ConversationSimulationResponse } from "@workspace/schemas"
 import { Spinner } from '@workspace/ui/components/spinner'
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
+
+const roleplayStudioFormSchema = z.object({
+    scenario: z.string().min(1, "Vui lòng nhập tình huống"),
+    level: z.enum(["N5", "N4", "N3", "N2", "N1"]),
+})
+
+type RoleplayStudioFormData = z.infer<typeof roleplayStudioFormSchema>
 
 export function RoleplayStudio() {
-    const [scenario, setScenario] = React.useState("")
-    const [level, setLevel] = React.useState<"N5" | "N4" | "N3" | "N2" | "N1">("N4")
     const [isLoading, setIsLoading] = React.useState(false)
     const [roleplayData, setRoleplayData] = React.useState<ConversationSimulationResponse | null>(null)
     const [isPracticeMode, setIsPracticeMode] = React.useState(false)
 
-    const handleGenerate = async () => {
-        if (!scenario.trim()) return
+    const form = useForm<RoleplayStudioFormData>({
+        resolver: zodResolver(roleplayStudioFormSchema),
+        defaultValues: {
+            scenario: "",
+            level: "N4",
+        },
+    })
+
+    const handleGenerate = async (data: RoleplayStudioFormData) => {
         setIsLoading(true)
         setRoleplayData(null)
         try {
-            const data = await agentApi.sensei.simulateConversation(scenario, level)
-            setRoleplayData(data)
+            const res = await agentApi.sensei.simulateConversation(data.scenario, data.level)
+            setRoleplayData(res)
         } catch (error) {
             console.error(error)
         } finally {
@@ -73,40 +89,57 @@ export function RoleplayStudio() {
                                     ].map((s) => (
                                         <button
                                             key={s}
-                                            onClick={() => setScenario(s)}
+                                            type="button"
+                                            onClick={() => form.setValue("scenario", s)}
                                             className="px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-medium transition-colors border border-border"
                                         >
                                             {s}
                                         </button>
                                     ))}
                                 </div>
-                                <div className="grid md:grid-cols-[1fr,120px,100px] gap-2">
-                                    <Input
-                                        placeholder="Nhập tình huống (VD: Đi khám bệnh)..."
-                                        className="h-10"
-                                        value={scenario}
-                                        onChange={(e) => setScenario(e.target.value)}
+                                <form onSubmit={form.handleSubmit(handleGenerate)} className="grid md:grid-cols-[1fr,120px,100px] gap-2">
+                                    <Controller
+                                        name="scenario"
+                                        control={form.control}
+                                        render={({ field, fieldState }) => (
+                                            <div className="flex flex-col gap-1 text-left">
+                                                <Input
+                                                    {...field}
+                                                    id={field.name}
+                                                    placeholder="Nhập tình huống (VD: Đi khám bệnh)..."
+                                                    className="h-10"
+                                                    aria-invalid={fieldState.invalid}
+                                                />
+                                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                            </div>
+                                        )}
                                     />
-                                    <Select value={level} onValueChange={(v: any) => setLevel(v)}>
-                                        <SelectTrigger className="h-10">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="N5">N5</SelectItem>
-                                            <SelectItem value="N4">N4</SelectItem>
-                                            <SelectItem value="N3">N3</SelectItem>
-                                            <SelectItem value="N2">N2</SelectItem>
-                                            <SelectItem value="N1">N1</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <Controller
+                                        name="level"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <SelectTrigger className="h-10">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="N5">N5</SelectItem>
+                                                    <SelectItem value="N4">N4</SelectItem>
+                                                    <SelectItem value="N3">N3</SelectItem>
+                                                    <SelectItem value="N2">N2</SelectItem>
+                                                    <SelectItem value="N1">N1</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    />
                                     <Button
+                                        type="submit"
                                         className="bg-orange-600 hover:bg-orange-700 text-white font-semibold h-10"
-                                        onClick={handleGenerate}
-                                        disabled={!scenario.trim() || isLoading}
+                                        disabled={!form.watch("scenario").trim() || isLoading}
                                     >
                                         {isLoading ? <Spinner className="size-4 animate-spin" /> : "Tạo"}
                                     </Button>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>

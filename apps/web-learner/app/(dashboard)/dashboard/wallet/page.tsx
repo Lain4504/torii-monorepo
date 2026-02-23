@@ -26,6 +26,7 @@ import { useGamificationHistory } from '@/lib/api/services/gamification-api'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { useAppSelector } from '@/hooks/hooks'
+import { formatNumber, formatCurrency, formatDateTime } from '@/utils/format-utils'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import {
@@ -78,7 +79,7 @@ export default function WalletPage() {
                 amount: amount,
                 orderType: OrderType.TOP_UP,
                 paymentMethod: PaymentMethod.PAYOS,
-                description: `Nạp ${amount.toLocaleString()} Coins vào ví Torii`,
+                description: `Nạp ${formatNumber(amount)} Coins vào ví Torii`,
                 metadata: {
                     returnUrl: window.location.origin + '/dashboard/wallet?status=success',
                     cancelUrl: window.location.origin + '/dashboard/wallet?status=cancel',
@@ -115,7 +116,7 @@ export default function WalletPage() {
                         <div className="space-y-1">
                             <p className="text-white/70 text-sm font-medium tracking-wide uppercase">Số dư khả dụng</p>
                             <h2 className="text-5xl font-black tabular-nums">
-                                {(user as any)?.balance?.toLocaleString() || 0} <span className="text-2xl font-bold opacity-80 ml-1">Coins</span>
+                                {formatNumber((user as any)?.balance) || 0} <span className="text-2xl font-bold opacity-80 ml-1">Coins</span>
                             </h2>
                         </div>
                         <div className="mt-8 flex gap-3">
@@ -144,7 +145,7 @@ export default function WalletPage() {
                         <div className="space-y-1">
                             <p className="text-white/70 text-sm font-medium tracking-wide uppercase">Tổng điểm thưởng</p>
                             <h2 className="text-5xl font-black tabular-nums">
-                                {user?.xp?.toLocaleString() || 0} <span className="text-2xl font-bold opacity-80 ml-1">Points</span>
+                                {formatNumber(user?.xp) || 0} <span className="text-2xl font-bold opacity-80 ml-1">Points</span>
                             </h2>
                         </div>
                         <div className="mt-8 flex gap-3">
@@ -197,7 +198,7 @@ export default function WalletPage() {
                                                         <h4 className="font-bold text-foreground leading-tight">{tx.description || 'Giao dịch ví'}</h4>
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
                                                             <Calendar className="w-3.5 h-3.5" />
-                                                            {format(new Date(tx.createdAt), "HH:mm, dd MMM yyyy", { locale: vi })}
+                                                            {formatDateTime(tx.createdAt, "HH:mm, dd MMM yyyy")}
                                                             <Badge variant="outline" className="ml-2 py-0 h-4 text-[9px] uppercase font-black tracking-tighter opacity-70">
                                                                 {tx.type}
                                                             </Badge>
@@ -209,7 +210,7 @@ export default function WalletPage() {
                                                         "text-lg font-black tabular-nums tracking-tight",
                                                         tx.amount > 0 ? "text-emerald-500" : "text-foreground"
                                                     )}>
-                                                        {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                                                        {tx.amount > 0 ? '+' : ''}{formatNumber(tx.amount)}
                                                     </p>
                                                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Coins</p>
                                                 </div>
@@ -274,7 +275,7 @@ export default function WalletPage() {
                                                         <h4 className="font-bold text-foreground leading-tight">{tx.description || 'Hoạt động thưởng'}</h4>
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
                                                             <Calendar className="w-3.5 h-3.5" />
-                                                            {format(new Date(tx.createdAt), "HH:mm, dd MMM yyyy", { locale: vi })}
+                                                            {formatDateTime(tx.createdAt, "HH:mm, dd MMM yyyy")}
                                                             {tx.activityType && (
                                                                 <Badge className="ml-2 py-0 h-4 text-[9px] uppercase font-black tracking-tighter bg-primary/10 text-primary border-none">
                                                                     {tx.activityType.replace('_', ' ')}
@@ -288,7 +289,7 @@ export default function WalletPage() {
                                                         "text-lg font-black tabular-nums tracking-tight",
                                                         tx.amount > 0 ? "text-indigo-500" : "text-purple-500"
                                                     )}>
-                                                        {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                                                        {tx.amount > 0 ? '+' : ''}{formatNumber(tx.amount)}
                                                     </p>
                                                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Points</p>
                                                 </div>
@@ -372,7 +373,7 @@ export default function WalletPage() {
                                     )}
                                     onClick={() => setTopUpAmount(amount)}
                                 >
-                                    {parseInt(amount).toLocaleString()}đ
+                                    {formatCurrency(amount)}
                                 </Button>
                             ))}
                         </div>
@@ -380,7 +381,7 @@ export default function WalletPage() {
                         <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 space-y-2">
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-orange-800/70 font-medium">Bạn sẽ nhận được:</span>
-                                <span className="text-orange-800 font-black text-lg">{(parseInt(topUpAmount) || 0).toLocaleString()} <span className="text-xs uppercase opacity-70">Coins</span></span>
+                                <span className="text-orange-800 font-black text-lg">{formatNumber(parseInt(topUpAmount) || 0)} <span className="text-xs uppercase opacity-70">Coins</span></span>
                             </div>
                             <div className="flex justify-between items-center text-xs">
                                 <span className="text-orange-800/50 font-medium">Phương thức:</span>

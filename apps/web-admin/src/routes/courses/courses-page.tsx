@@ -20,6 +20,7 @@ import { toast } from '@workspace/ui/components/sonner';
 import { Plus, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 import { Card, CardContent } from "@workspace/ui/components/card";
+import { formatNumber } from "@/lib/format-utils";
 
 export default function CoursesPage() {
   const navigate = useNavigate();
@@ -111,7 +112,7 @@ export default function CoursesPage() {
         title="Quản lý Khóa học"
         subtitle="Hệ sinh thái chương trình giảng dạy Torii Academy"
         stats={[
-          { label: "Tổng số khóa học", value: meta?.total.toLocaleString() || 0 }
+          { label: "Tổng số khóa học", value: formatNumber(meta?.total) || 0 }
         ]}
         actions={
           <Can permission="course.create">
@@ -135,30 +136,30 @@ export default function CoursesPage() {
         />
 
         <Card className="overflow-hidden">
-              <CardContent className="p-0">
+          <CardContent className="p-0">
 
-                        <CoursesTable
-                          data={courses}
-                          onEdit={setEditingCourse}
-                          onDelete={setDeletingCourse}
+            <CoursesTable
+              data={courses}
+              onEdit={setEditingCourse}
+              onDelete={setDeletingCourse}
 
-                          onTitleClick={(course) => navigate(`/courses/${course.id}`)}
-                          onModules={(course) => navigate(`/courses/${course.id}`)}
-                          onManageInstructors={setManagingInstructorsCourse}
-                          onPublish={setPublishingCourse}
-                          onReject={setRejectingCourse}
-                          onViewAuditLog={setViewingAuditLogCourse}
-                          onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
-                          onSubmitForReview={handleSubmitForReview}
-                          onUnpublish={handleUnpublish}
-                          can={can}
-                          page={page}
-                          limit={queryParams.limit || 10}
-                          isLoading={isLoading}
-                        />
-                      
-              </CardContent>
-              </Card>
+              onTitleClick={(course) => navigate(`/courses/${course.id}`)}
+              onModules={(course) => navigate(`/courses/${course.id}`)}
+              onManageInstructors={setManagingInstructorsCourse}
+              onPublish={setPublishingCourse}
+              onReject={setRejectingCourse}
+              onViewAuditLog={setViewingAuditLogCourse}
+              onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
+              onSubmitForReview={handleSubmitForReview}
+              onUnpublish={handleUnpublish}
+              can={can}
+              page={page}
+              limit={queryParams.limit || 10}
+              isLoading={isLoading}
+            />
+
+          </CardContent>
+        </Card>
 
         {/* Pagination */}
         <SmartPagination

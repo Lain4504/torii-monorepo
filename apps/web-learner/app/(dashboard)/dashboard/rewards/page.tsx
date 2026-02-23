@@ -9,6 +9,7 @@ import { useGamificationProfile, useRewards, useRedeemPoints } from '@/lib/api/s
 import { useMyCoupons } from '@/lib/api/services/coupon-api'
 import { toast } from 'sonner'
 import { Button } from '@workspace/ui/components/button'
+import { formatDate, formatCurrency, formatNumber } from '@/utils/format-utils'
 import { useState } from 'react'
 import {
     Dialog,
@@ -70,7 +71,7 @@ export default function RewardsPage() {
                     </div>
                     <div>
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Điểm hiện có</p>
-                        <p className="text-2xl font-black text-primary">{profile?.points?.toLocaleString() || 0} Points</p>
+                        <p className="text-2xl font-black text-primary">{formatNumber(profile?.points) || 0} Points</p>
                     </div>
                 </div>
             </div>
@@ -92,12 +93,12 @@ export default function RewardsPage() {
                             <div className="flex flex-wrap gap-2 mt-2">
                                 {reward.minOrderAmount && (
                                     <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
-                                        Đơn tối thiểu: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(reward.minOrderAmount)}
+                                        Đơn tối thiểu: {formatCurrency(reward.minOrderAmount)}
                                     </Badge>
                                 )}
                                 {reward.maxDiscountAmount && (
                                     <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
-                                        Giảm tối đa: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(reward.maxDiscountAmount)}
+                                        Giảm tối đa: {formatCurrency(reward.maxDiscountAmount)}
                                     </Badge>
                                 )}
                             </div>
@@ -149,8 +150,8 @@ export default function RewardsPage() {
                                         </div>
                                         <p className="text-sm font-medium text-foreground truncate">{coupon.name}</p>
                                         <p className="text-xs text-muted-foreground mt-0.5">
-                                            Hạn dùng: {new Date(coupon.validUntil).toLocaleDateString('vi-VN')}
-                                            {coupon.maxDiscountAmount && ` • Giảm tối đa ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(coupon.maxDiscountAmount))}`}
+                                            Hạn dùng: {formatDate(coupon.validUntil)}
+                                            {coupon.maxDiscountAmount && ` • Giảm tối đa ${formatCurrency(coupon.maxDiscountAmount)}`}
                                         </p>
                                     </div>
                                 </div>

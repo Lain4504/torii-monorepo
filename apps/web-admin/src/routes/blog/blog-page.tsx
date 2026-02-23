@@ -16,6 +16,7 @@ import { Plus, TriangleAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import { Card, CardContent } from "@workspace/ui/components/card";
+import { formatNumber } from "@/lib/format-utils";
 
 export function BlogPage() {
     const [page, setPage] = useState(1);
@@ -82,7 +83,7 @@ export function BlogPage() {
                 title="Bài viết & Tin tức"
                 subtitle="Quản lý nội dung học thuật và cộng đồng Torii"
                 stats={[
-                    { label: "Tổng số bài viết", value: meta?.total.toLocaleString() || 0 }
+                    { label: "Tổng số bài viết", value: formatNumber(meta?.total) || 0 }
                 ]}
                 actions={
                     <Button

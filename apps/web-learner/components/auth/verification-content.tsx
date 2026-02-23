@@ -64,8 +64,8 @@ export function VerificationContent() {
     if (status === 'success') {
         return (
             <div className="flex flex-col items-center text-center gap-4 py-8">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
-                    <ShieldCheck className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex size-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
+                    <ShieldCheck className="size-8 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div className="space-y-1">
                     <h3 className="font-semibold">Kích hoạt thành công!</h3>
@@ -79,8 +79,8 @@ export function VerificationContent() {
 
     return (
         <div className="flex flex-col items-center text-center gap-4 py-8">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-                <ShieldAlert className="h-8 w-8 text-destructive" />
+            <div className="flex size-16 items-center justify-center rounded-full bg-destructive/10">
+                <ShieldAlert className="size-8 text-destructive" />
             </div>
             <div className="space-y-1">
                 <h3 className="font-semibold">Xác thực thất bại</h3>

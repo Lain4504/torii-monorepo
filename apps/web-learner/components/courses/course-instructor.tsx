@@ -2,6 +2,7 @@ import { Star, Users, Award, ChevronRight } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
+import { formatNumber } from '@/utils/format-utils'
 
 interface CourseInstructorProps {
     course: CourseResponseDTO
@@ -44,7 +45,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
 
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
-                                    <div className="text-lg font-bold text-foreground">{course.totalStudents.toLocaleString()}+</div>
+                                    <div className="text-lg font-bold text-foreground">{formatNumber(course.totalStudents)}+</div>
                                     <div className="text-xs text-muted-foreground">Học viên</div>
                                 </div>
                                 <div>

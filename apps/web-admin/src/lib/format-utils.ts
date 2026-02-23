@@ -69,3 +69,9 @@ export function formatRelativeTime(date: Date | string | number | undefined | nu
 export function subtractDays(date: Date | string | number, amount: number): Date {
     return subDays(new Date(date), amount);
 }
+
+export function formatNumber(value: number | string | undefined | null): string {
+    if (value === undefined || value === null) return "0"
+    const num = typeof value === "string" ? parseFloat(value) : value
+    return new Intl.NumberFormat("vi-VN").format(num)
+}

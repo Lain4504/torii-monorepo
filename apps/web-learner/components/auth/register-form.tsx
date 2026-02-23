@@ -173,13 +173,15 @@ export function RegisterForm() {
                                     aria-invalid={fieldState.invalid}
                                     className="pr-10"
                                 />
-                                <button
+                                <Button
                                     type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
-                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
+                                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                </Button>
                             </div>
                             {password && (
                                 <div className="flex flex-wrap gap-x-4 gap-y-1">
@@ -217,13 +219,15 @@ export function RegisterForm() {
                                     aria-invalid={fieldState.invalid}
                                     className="pr-10"
                                 />
-                                <button
+                                <Button
                                     type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 >
-                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
+                                    {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                </Button>
                             </div>
                             <FieldError errors={[fieldState.error]} />
                         </Field>
@@ -231,7 +235,7 @@ export function RegisterForm() {
                 />
 
                 <Button type="submit" className="w-full" disabled={isLoading || googleLoading}>
-                    {isLoading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading && <Spinner className="mr-2" />}
                     Đăng ký
                 </Button>
             </form>
@@ -250,7 +254,7 @@ export function RegisterForm() {
                 disabled={isLoading || googleLoading}
             >
                 {googleLoading ? (
-                    <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                    <Spinner className="mr-2" />
                 ) : (
                     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />

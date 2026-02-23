@@ -16,6 +16,7 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { UserPlus, ShieldCheck } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
+import { formatNumber } from "@/lib/format-utils";
 
 export default function PersonnelPage() {
     const location = useLocation();
@@ -85,7 +86,7 @@ export default function PersonnelPage() {
                     ? 'Quản lý thông tin bằng cấp, chuyên môn và lịch dạy của giảng viên.'
                     : 'Điều hành đội ngũ nhân viên hỗ trợ, vận hành và quản trị trung tâm.'}
                 stats={[
-                    { label: `Tổng số ${isLecturers ? 'giáo viên' : 'nhân viên'}`, value: total.toLocaleString() }
+                    { label: `Tổng số ${isLecturers ? 'giáo viên' : 'nhân viên'}`, value: formatNumber(total) }
                 ]}
                 actions={
                     <Button onClick={createDialog.setTrue} size="lg">

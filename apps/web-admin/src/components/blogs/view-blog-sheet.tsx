@@ -12,6 +12,7 @@ import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
 import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
 import type { BlogResponseDTO } from '@workspace/schemas';
+import { formatDateTime } from '@/lib/format-utils';
 import { Calendar, Eye, MessageCircle, User } from 'lucide-react';
 import {
     Item,
@@ -74,7 +75,7 @@ export function ViewBlogSheet({
                                 <ItemContent>
                                     <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Cập nhật lần cuối</ItemTitle>
                                     <ItemDescription className="text-sm font-bold font-mono">
-                                        {new Date(blog.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        {formatDateTime(blog.updatedAt, 'MMM d, yyyy')}
                                     </ItemDescription>
                                 </ItemContent>
                             </Item>
@@ -140,7 +141,7 @@ export function ViewBlogSheet({
                                     <ItemContent>
                                         <ItemTitle className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">Ngày xuất bản</ItemTitle>
                                         <ItemDescription className="text-sm font-mono">
-                                            {blog.publishedAt ? new Date(blog.publishedAt).toLocaleString('vi-VN') : 'Chưa xuất bản'}
+                                            {blog.publishedAt ? formatDateTime(blog.publishedAt) : 'Chưa xuất bản'}
                                         </ItemDescription>
                                     </ItemContent>
                                 </Item>
@@ -176,14 +177,14 @@ export function ViewBlogSheet({
                                     <ItemMedia><Calendar className="size-4" /></ItemMedia>
                                     <ItemContent>
                                         <ItemTitle className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">Ngày tạo</ItemTitle>
-                                        <ItemDescription className="text-sm font-mono">{new Date(blog.createdAt).toLocaleString('vi-VN')}</ItemDescription>
+                                        <ItemDescription className="text-sm font-mono">{formatDateTime(blog.createdAt)}</ItemDescription>
                                     </ItemContent>
                                 </Item>
                                 <Item variant="outline">
                                     <ItemMedia><Calendar className="size-4" /></ItemMedia>
                                     <ItemContent>
                                         <ItemTitle className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">Cập nhật lần cuối</ItemTitle>
-                                        <ItemDescription className="text-sm font-mono">{new Date(blog.updatedAt).toLocaleString('vi-VN')}</ItemDescription>
+                                        <ItemDescription className="text-sm font-mono">{formatDateTime(blog.updatedAt)}</ItemDescription>
                                     </ItemContent>
                                 </Item>
                             </div>

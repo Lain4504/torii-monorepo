@@ -1,6 +1,7 @@
 'use client'
 
 import { useAchievements } from '@/lib/api/services/gamification-api'
+import { formatDate } from '@/utils/format-utils'
 import { Badge } from '@workspace/ui/components/badge'
 import { Progress } from '@workspace/ui/components/progress'
 import { cn } from '@workspace/ui/lib/utils'
@@ -53,7 +54,7 @@ export default function AchievementsPage() {
                 category: achievement.achievement.category,
                 icon: Icon,
                 earned: achievement.isUnlocked,
-                date: achievement.unlockedAt ? new Date(achievement.unlockedAt).toLocaleDateString('vi-VN') : null,
+                date: achievement.unlockedAt ? formatDate(achievement.unlockedAt) : null,
                 progress: achievement.progress,
             }
         })

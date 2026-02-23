@@ -15,6 +15,7 @@ import { PoolsPrimaryToolbar } from '@/components/question-pools/pools-primary-t
 import { PoolsTable } from '@/components/question-pools/pools-table.tsx';
 import { PageHeader } from '@/components/common/page-header';
 import { Card, CardContent } from "@workspace/ui/components/card";
+import { formatNumber } from "@/lib/format-utils";
 
 export default function QuestionPoolsPage() {
     const navigate = useNavigate();
@@ -75,7 +76,7 @@ export default function QuestionPoolsPage() {
                 title="Ngân hàng Câu hỏi"
                 subtitle="Hệ thống quản lý và tổ chức kho dữ liệu câu hỏi tri thức"
                 stats={[
-                    { label: "Tổng số kho đề", value: meta?.total?.toLocaleString() || 0 }
+                    { label: "Tổng số kho đề", value: formatNumber(meta?.total) || 0 }
                 ]}
                 actions={
                     <Can permission="question_pool.create">
@@ -99,19 +100,19 @@ export default function QuestionPoolsPage() {
                 />
 
                 <Card className="overflow-hidden">
-                <CardContent className="p-0">
+                    <CardContent className="p-0">
 
-                                    <PoolsTable
-                                        data={pools}
-                                        isLoading={isLoading}
-                                        page={page}
-                                        limit={limit}
-                                        onView={(pool) => navigate(`/question-bank/${pool.id}`)}
-                                        onEdit={setEditingPool}
-                                        onDelete={setDeletingPool}
-                                    />
-                                
-                </CardContent>
+                        <PoolsTable
+                            data={pools}
+                            isLoading={isLoading}
+                            page={page}
+                            limit={limit}
+                            onView={(pool) => navigate(`/question-bank/${pool.id}`)}
+                            onEdit={setEditingPool}
+                            onDelete={setDeletingPool}
+                        />
+
+                    </CardContent>
                 </Card>
 
                 <SmartPagination

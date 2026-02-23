@@ -10,6 +10,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { CourseVideoPreview } from './course-video-preview'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { cn } from '@workspace/ui/lib/utils'
+import { formatCurrency, formatDate } from '@/utils/format-utils'
 
 interface CourseSidebarProps {
     course: CourseResponseDTO
@@ -47,7 +48,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     }
 
     const formatPrice = (price: number) => {
-        return price.toLocaleString('vi-VN') + ' VNĐ'
+        return formatCurrency(price)
     }
 
     const calculateDiscount = () => {
@@ -167,12 +168,12 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                             {[
                                 { icon: BookOpen, text: `${course.totalLessons} bài giảng chi tiết` },
                                 { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : (course.durationWeeks ? `Thời lượng: ${course.durationWeeks} tuần` : 'Thời gian học không giới hạn') },
-                                { 
-                                    icon: Globe, 
-                                    text: isEnrolled && enrollment?.expiresAt 
-                                        ? `Hết hạn: ${new Date(enrollment.expiresAt).toLocaleDateString('vi-VN')}` 
+                                {
+                                    icon: Globe,
+                                    text: isEnrolled && enrollment?.expiresAt
+                                        ? `Hết hạn: ${formatDate(enrollment.expiresAt)}`
                                         : course.type === 'live'
-                                            ? ((course as any).expiresAt ? `Kết thúc: ${new Date((course as any).expiresAt).toLocaleDateString('vi-VN')}` : 'Xem lịch học')
+                                            ? ((course as any).expiresAt ? `Kết thúc: ${formatDate((course as any).expiresAt)}` : 'Xem lịch học')
                                             : ((course as any).expirationMonths ? `Truy cập trong ${(course as any).expirationMonths} tháng` : 'Truy cập trọn đời')
                                 },
                                 { icon: Award, text: 'Chứng chỉ hoàn thành Torii' },

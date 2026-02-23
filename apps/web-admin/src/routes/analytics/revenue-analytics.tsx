@@ -30,7 +30,7 @@ import {
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "@/lib/api/services/analytics"
-import { formatDateTime } from "@/lib/format-utils"
+import { formatDateTime, formatCurrency, formatNumber } from "@/lib/format-utils"
 import { reportApi } from "@/lib/api/services/reports"
 import {
     AreaChart,
@@ -66,9 +66,6 @@ export default function RevenueAnalytics() {
 
     if (isLoading) return <PageLoading />
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
-    }
 
     const revenueByLevelData = overview?.revenueByLevel?.sort((a, b) => b.amount - a.amount) || []
 
@@ -79,7 +76,7 @@ export default function RevenueAnalytics() {
                 subtitle="Theo dõi dòng tiền, tăng trưởng và hiệu suất kinh doanh trên từng phân khúc khóa học."
                 stats={[
                     { label: "Tổng doanh thu", value: formatCurrency(overview?.overview.totalRevenue || 0) },
-                    { label: "Đơn hàng hoàn tất", value: overview?.overview.totalEnrollments.toLocaleString() || "0" }
+                    { label: "Đơn hàng hoàn tất", value: formatNumber(overview?.overview.totalEnrollments) || "0" }
                 ]}
                 actions={
                     <>

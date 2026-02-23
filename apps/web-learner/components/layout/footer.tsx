@@ -50,8 +50,8 @@ export function Footer() {
                     {/* Brand */}
                     <div className="lg:col-span-2 space-y-4">
                         <Link href="/" className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-                                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <div className="size-7 rounded-md bg-primary flex items-center justify-center">
+                                <svg className="size-4 text-primary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                     <path d="M3 10h18" strokeLinecap="round" />
                                     <path d="M5 10v8" strokeLinecap="round" />
                                     <path d="M19 10v8" strokeLinecap="round" />
@@ -69,11 +69,11 @@ export function Footer() {
 
                         <div className="space-y-2">
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                <MapPin className="size-3.5 shrink-0" />
                                 Thủ Đức, TP. Hồ Chí Minh
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Mail className="w-3.5 h-3.5 shrink-0" />
+                                <Mail className="size-3.5 shrink-0" />
                                 hello@torii-nihongo.vn
                             </div>
                         </div>
@@ -84,9 +84,9 @@ export function Footer() {
                                     key={s.label}
                                     href={s.href}
                                     aria-label={s.label}
-                                    className="w-8 h-8 rounded-md flex items-center justify-center bg-muted text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                                    className="size-8 rounded-md flex items-center justify-center bg-muted text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                                 >
-                                    <s.icon className="w-4 h-4" />
+                                    <s.icon className="size-4" />
                                 </Link>
                             ))}
                         </div>

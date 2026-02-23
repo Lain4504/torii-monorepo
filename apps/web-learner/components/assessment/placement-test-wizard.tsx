@@ -184,7 +184,7 @@ export function PlacementTestWizard() {
                 <div className="relative">
                     <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
                     <div className="relative bg-background p-4 rounded-full border border-border shadow-lg">
-                        <Spinner className="w-8 h-8 text-primary animate-spin" />
+                        <Spinner className="w-8 h-8 text-primary" />
                     </div>
                 </div>
                 <p className="text-lg font-medium text-muted-foreground animate-pulse">

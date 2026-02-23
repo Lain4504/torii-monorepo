@@ -68,16 +68,16 @@ export function AchievementCard({ achievement }: AchievementCardProps) {
             <div className="flex items-start gap-4">
                 <div
                     className={cn(
-                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
+                        "flex size-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
                         isUnlocked
                             ? "bg-primary/10 text-primary group-hover:scale-110 group-hover:rotate-3 shadow-inner"
                             : "bg-muted text-muted-foreground/50"
                     )}
                 >
                     {isUnlocked ? (
-                        <IconComponent className="h-6 w-6" />
+                        <IconComponent className="size-6" />
                     ) : (
-                        <Lock className="h-5 w-5" />
+                        <Lock className="size-5" />
                     )}
                 </div>
 
@@ -90,7 +90,7 @@ export function AchievementCard({ achievement }: AchievementCardProps) {
                             {def.title}
                         </h4>
                         {isUnlocked && (
-                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         )}
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed">

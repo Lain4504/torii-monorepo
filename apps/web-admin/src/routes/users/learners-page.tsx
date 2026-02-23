@@ -15,6 +15,7 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { ShieldCheck } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 import { Card, CardContent } from "@workspace/ui/components/card";
+import { formatNumber } from "@/lib/format-utils";
 
 export default function LearnersPage() {
     const [page, setPage] = useState(1);
@@ -78,7 +79,7 @@ export default function LearnersPage() {
                 title="Hồ sơ Học viên"
                 subtitle="Danh sách học viên đăng ký trên hệ thống. Theo dõi lộ trình và kết quả học tập."
                 stats={[
-                    { label: "Tổng số học viên", value: total.toLocaleString() }
+                    { label: "Tổng số học viên", value: formatNumber(total) }
                 ]}
 
             />

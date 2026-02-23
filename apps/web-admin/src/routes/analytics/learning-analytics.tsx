@@ -34,6 +34,7 @@ import {
 
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { PageHeader } from "@/components/common/page-header"
+import { formatNumber } from "@/lib/format-utils"
 
 export default function LearningAnalytics() {
     const { data: courseStats, isLoading: isCourseLoading, refetch: refetchCourse } = useCourseAnalytics()
@@ -77,7 +78,7 @@ export default function LearningAnalytics() {
                 />
                 <AnalyticsCard
                     title="Tổng số Đăng ký"
-                    value={overview?.overview.totalEnrollments.toLocaleString() || "0"}
+                    value={formatNumber(overview?.overview.totalEnrollments) || "0"}
                     sub="Học viên đã tham gia khóa học"
                     icon={Layout}
                     colorClass="text-blue-500 bg-blue-500/10"
@@ -128,7 +129,7 @@ export default function LearningAnalytics() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-lg font-semibold">{course.totalStudents.toLocaleString()}</p>
+                                        <p className="text-lg font-semibold">{formatNumber(course.totalStudents)}</p>
                                         <p className="text-xs text-muted-foreground">Học viên</p>
                                     </div>
                                 </div>

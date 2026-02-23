@@ -143,13 +143,15 @@ function ResetPasswordFormContent() {
                                 aria-invalid={fieldState.invalid}
                                 className="pr-10"
                             />
-                            <button
+                            <Button
                                 type="button"
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
+                                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                            </Button>
                         </div>
                         {password && (
                             <>
@@ -211,13 +213,15 @@ function ResetPasswordFormContent() {
                                 aria-invalid={fieldState.invalid}
                                 className="pr-10"
                             />
-                            <button
+                            <Button
                                 type="button"
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             >
-                                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
+                                {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                            </Button>
                         </div>
                         <FieldError errors={[fieldState.error]} />
                     </Field>
@@ -225,7 +229,7 @@ function ResetPasswordFormContent() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading || strengthScore < 4}>
-                {isLoading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Spinner className="mr-2" />}
                 Thiết lập mật khẩu
             </Button>
         </form>

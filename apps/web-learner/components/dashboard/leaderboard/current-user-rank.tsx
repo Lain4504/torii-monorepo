@@ -4,6 +4,7 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Star, Flame } from 'lucide-react'
 import type { LeaderboardUserDto } from '@workspace/schemas'
+import { formatNumber } from '@/utils/format-utils'
 
 interface CurrentUserRankProps {
     user: LeaderboardUserDto
@@ -47,7 +48,7 @@ export function CurrentUserRank({ user, type }: CurrentUserRankProps) {
                                 <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
                             )}
                             <p className="text-lg font-extrabold text-foreground">
-                                {type === 'global' ? user.xp.toLocaleString() : (user.currentStreak ?? 0).toLocaleString()}
+                                {type === 'global' ? formatNumber(user.xp) : formatNumber(user.currentStreak ?? 0)}
                             </p>
                         </div>
                     </div>

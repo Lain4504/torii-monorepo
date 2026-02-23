@@ -14,6 +14,7 @@ import {
 import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyHeader } from '@workspace/ui/components/empty'
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
+import { formatNumber } from '@/utils/format-utils'
 import Link from 'next/link'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
@@ -213,7 +214,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
             <div className="flex items-center justify-between pb-2 border-b border-border/40">
                 <h3 className="font-bold text-lg flex items-center gap-2">
                     <Reply className="w-5 h-5 text-primary rotate-180" />
-                    Bình luận ({comments.length})
+                    Bình luận ({formatNumber(comments.length)})
                 </h3>
             </div>
 
@@ -371,7 +372,7 @@ function CommentItem({
                                 onClick={() => onLikeComment(comment.id)}
                             >
                                 <Heart className={`w-4 h-4 ${comment.isLiked ? 'fill-primary text-primary' : ''}`} />
-                                <span>{comment.likeCount || 0}</span>
+                                <span>{formatNumber(comment.likeCount || 0)}</span>
                             </button>
                         )}
                         <button

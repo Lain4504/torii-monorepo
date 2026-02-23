@@ -32,6 +32,7 @@ import {
     ItemDescription,
 } from '@workspace/ui/components/item';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
+import { formatDateTime } from '@/lib/format-utils';
 import { Spinner } from "@workspace/ui/components/spinner";
 
 interface TicketDetailSheetProps {
@@ -84,7 +85,7 @@ export function TicketDetailSheet({
                 <SheetHeader>
                     <SheetTitle>{ticket.subject}</SheetTitle>
                     <SheetDescription>
-                        Gửi lúc: {new Date(ticket.createdAt).toLocaleString('vi-VN')} | Mã: #{ticket.id.slice(0, 8)}
+                        Gửi lúc: {formatDateTime(ticket.createdAt)} | Mã: #{ticket.id.slice(0, 8)}
                     </SheetDescription>
                 </SheetHeader>
 

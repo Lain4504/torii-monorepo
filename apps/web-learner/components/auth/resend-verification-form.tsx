@@ -48,7 +48,7 @@ export function ResendVerificationForm() {
     if (emailSent) {
         return (
             <div className="flex flex-col items-center text-center gap-3 p-6 rounded-lg border bg-muted/30">
-                <CheckCircle2 className="w-8 h-8 text-primary" />
+                <CheckCircle2 className="size-8 text-primary" />
                 <div className="space-y-1">
                     <p className="font-medium text-sm">Đã gửi lại</p>
                     <p className="text-sm text-muted-foreground">
@@ -81,7 +81,7 @@ export function ResendVerificationForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Spinner className="mr-2" />}
                 Gửi lại mã xác thực
             </Button>
         </form>

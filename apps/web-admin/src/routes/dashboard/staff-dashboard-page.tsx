@@ -4,7 +4,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Link } from 'react-router-dom';
 import { cn } from '@workspace/ui/lib/utils';
 import { PageHeader } from '@/components/common/page-header';
-import { getGreeting } from '@/lib/format-utils';
+import { getGreeting, formatNumber } from '@/lib/format-utils';
 import { useAuth } from '@/hooks/use-auth';
 import { Zap, BookOpen, Users, GraduationCap, CheckCircle2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
@@ -100,7 +100,7 @@ export default function StaffDashboardPage() {
                                     <Skeleton className="h-8 w-20" />
                                 ) : (
                                     <>
-                                        <div className="text-2xl font-bold">{stat.value.toLocaleString()}</div>
+                                        <div className="text-2xl font-bold">{formatNumber(stat.value)}</div>
                                         <p className="text-xs text-muted-foreground mt-1">
                                             {stat.description}
                                         </p>

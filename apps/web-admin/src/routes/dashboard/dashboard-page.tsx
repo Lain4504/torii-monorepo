@@ -30,6 +30,7 @@ import {
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "@/lib/api/services/analytics"
+import { formatNumber, formatCurrency } from "@/lib/format-utils"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { Badge } from "@workspace/ui/components/badge"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
@@ -81,8 +82,8 @@ function AdminDashboard() {
 
   if (isLoading) return <div className="h-96 flex items-center justify-center"><PageLoading /></div>
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
+  const formatCurrencyLocal = (amount: number) => {
+    return formatCurrency(amount)
   }
 
   const overview = data?.overview
@@ -113,7 +114,7 @@ function AdminDashboard() {
         />
         <StatsCard
           title="Doanh thu Hôm nay"
-          value={formatCurrency(overview?.totalRevenue ? overview.totalRevenue / 30 : 0)} // Mocked daily for demo
+          value={formatCurrencyLocal(overview?.totalRevenue ? overview.totalRevenue / 30 : 0)} // Mocked daily for demo
           sub="Cập nhật 5 phút trước"
           icon={DollarSign}
           trend="+5%"
@@ -270,7 +271,7 @@ function PulseMetric({ label, value, color, icon: Icon }: any) {
         <span className="text-xs font-semibold text-muted-foreground/70">{label}</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-lg font-bold">{value.toLocaleString()}</span>
+        <span className="text-lg font-bold">{formatNumber(value)}</span>
         {Icon && <Icon className="size-4 text-muted-foreground/30" />}
       </div>
     </div>

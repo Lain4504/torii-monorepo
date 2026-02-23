@@ -9,12 +9,20 @@ import { AgentTranslateResponseDTO as TranslateResponse } from "@workspace/schem
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { Spinner } from '@workspace/ui/components/spinner'
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
+
+const translatorFormSchema = z.object({
+    sourceLang: z.string().min(1),
+    targetLang: z.string().min(1),
+    text: z.string().min(1, "Vui lòng nhập nội dung cần dịch"),
+})
+
+type TranslatorFormData = z.infer<typeof translatorFormSchema>
 
 export function TranslatorView() {
-    // Default to Japanese -> English
-    const [sourceLang, setSourceLang] = React.useState("Japanese")
-    const [targetLang, setTargetLang] = React.useState("English")
-    const [input, setInput] = React.useState("")
     const [result, setResult] = React.useState<TranslateResponse | null>(null)
     const [isLoading, setIsLoading] = React.useState(false)
 
@@ -24,14 +32,22 @@ export function TranslatorView() {
         { value: "Vietnamese", label: "Vietnamese" },
     ]
 
-    const handleTranslate = async () => {
-        if (!input.trim()) return
+    const form = useForm<TranslatorFormData>({
+        resolver: zodResolver(translatorFormSchema),
+        defaultValues: {
+            sourceLang: "Japanese",
+            targetLang: "English",
+            text: "",
+        },
+    })
+
+    const handleTranslate = async (data: TranslatorFormData) => {
         setIsLoading(true)
         setResult(null)
 
         try {
-            const data = await agentApi.sensei.translate(input, sourceLang, targetLang)
-            setResult(data)
+            const res = await agentApi.sensei.translate(data.text, data.sourceLang, data.targetLang)
+            setResult(res)
         } catch (error) {
             console.error(error)
         } finally {
@@ -40,9 +56,12 @@ export function TranslatorView() {
     }
 
     const swapLanguages = () => {
-        setSourceLang(targetLang)
-        setTargetLang(sourceLang)
-        setInput(result?.translatedText || "")
+        const { sourceLang, targetLang } = form.getValues()
+        form.setValue("sourceLang", targetLang)
+        form.setValue("targetLang", sourceLang)
+        if (result?.translatedText) {
+            form.setValue("text", result.translatedText)
+        }
         setResult(null)
     }
 
@@ -56,65 +75,100 @@ export function TranslatorView() {
                 </div>
 
                 <div className="flex items-center gap-2 bg-card border border-border p-1 rounded-lg shadow-sm">
-                    <Select value={sourceLang} onValueChange={setSourceLang}>
-                        <SelectTrigger className="w-[120px] border-0 focus:ring-0 text-sm font-medium">
-                            <SelectValue placeholder="Nguồn" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {languages.map(lang => (
-                                <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Controller
+                        name="sourceLang"
+                        control={form.control}
+                        render={({ field }) => (
+                            <Select value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger className="w-[120px] border-0 focus:ring-0 text-sm font-medium">
+                                    <SelectValue placeholder="Nguồn" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {languages.map(lang => (
+                                        <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
 
                     <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={swapLanguages}>
                         <ArrowRightLeft className="size-3.5" />
                     </Button>
 
-                    <Select value={targetLang} onValueChange={setTargetLang}>
-                        <SelectTrigger className="w-[120px] border-0 focus:ring-0 text-sm font-medium">
-                            <SelectValue placeholder="Đích" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {languages.map(lang => (
-                                <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Controller
+                        name="targetLang"
+                        control={form.control}
+                        render={({ field }) => (
+                            <Select value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger className="w-[120px] border-0 focus:ring-0 text-sm font-medium">
+                                    <SelectValue placeholder="Đích" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {languages.map(lang => (
+                                        <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                 </div>
             </div>
 
             <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-6 pb-4">
                 {/* Source Input */}
-                <div className="flex flex-col rounded-xl border border-border bg-card shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+                <form
+                    onSubmit={form.handleSubmit(handleTranslate)}
+                    className="flex flex-col rounded-xl border border-border bg-card shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-primary/20 transition-all"
+                >
                     <div className="flex-1 relative">
-                        <Textarea
-                            placeholder="Nhập văn bản cần dịch..."
-                            className="absolute inset-0 w-full h-full resize-none border-0 focus-visible:ring-0 p-6 text-lg leading-relaxed bg-transparent"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
+                        <Controller
+                            name="text"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid} className="h-full">
+                                    <Textarea
+                                        {...field}
+                                        id={field.name}
+                                        placeholder="Nhập văn bản cần dịch..."
+                                        className="absolute inset-0 w-full h-full resize-none border-0 focus-visible:ring-0 p-6 text-lg leading-relaxed bg-transparent"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <div className="absolute bottom-20 left-6 right-6">
+                                            <FieldError errors={[fieldState.error]} />
+                                        </div>
+                                    )}
+                                </Field>
+                            )}
                         />
                     </div>
                     <div className="flex-none p-4 flex justify-between items-center border-t border-border/50 bg-muted/20">
-                        <span className="text-xs font-medium text-muted-foreground">{input.length} ký tự</span>
+                        <span className="text-xs font-medium text-muted-foreground">{form.watch("text").length} ký tự</span>
                         <div className="flex gap-2">
-                            {input && (
-                                <Button variant="ghost" size="sm" onClick={() => setInput("")} className="px-3 text-muted-foreground hover:text-foreground">
+                            {form.watch("text") && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => form.setValue("text", "")}
+                                    className="px-3 text-muted-foreground hover:text-foreground"
+                                >
                                     Xóa
                                 </Button>
                             )}
                             <Button
+                                type="submit"
                                 size="sm"
                                 className="px-4 font-semibold"
-                                onClick={handleTranslate}
-                                disabled={!input.trim() || isLoading}
+                                disabled={!form.watch("text").trim() || isLoading}
                             >
                                 {isLoading ? <Spinner className="size-3.5 animate-spin mr-2" /> : <Sparkles className="size-3.5 mr-2" />}
                                 Dịch
                             </Button>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 {/* Target Output */}
                 <div className="flex flex-col rounded-xl border border-border bg-muted/30 shadow-sm overflow-hidden">

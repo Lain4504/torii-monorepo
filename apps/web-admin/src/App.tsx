@@ -30,7 +30,7 @@ import CourseLiveSessionsPage from '@/routes/courses/course-live-sessions-page.t
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import OrdersPage from '@/routes/finance/orders-page.tsx'
 
-import NotificationsPage from '@/routes/settings/notifications-page.tsx'
+import NotificationsPage from '@/routes/notification/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'

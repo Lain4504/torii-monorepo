@@ -1,4 +1,4 @@
-    'use client'
+'use client'
 
 import { Search, User, Heart, MessageCircle, History, Flame, LayoutList } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
@@ -49,32 +49,36 @@ export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSide
     return (
         <div className="space-y-6">
             {/* Search Widget */}
-            <div className="bg-background rounded-xl border border-border/40 p-4 shadow-sm">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Tìm kiếm..."
-                        className="pl-9 bg-muted/40 border-border/40 focus-visible:ring-primary/20"
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                onSearch?.((e.target as HTMLInputElement).value)
-                            }
-                        }}
-                    />
-                </div>
-            </div>
+            <Card className="rounded-xl border-border/40 shadow-sm">
+                <CardContent className="p-4">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Tìm kiếm..."
+                            className="pl-9 bg-muted/40 border-border/40 focus-visible:ring-primary/20"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    onSearch?.((e.target as HTMLInputElement).value)
+                                }
+                            }}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
 
 
             {/* Profile/QA List Link Widget */}
-            <Link href={isProfilePage ? '/dashboard/feed' : (user ? `/user/${(user as any).id}` : '/login')} className="block">
-                <div className="bg-background rounded-xl border border-border/40 p-4 shadow-sm hover:border-primary/30 transition-all flex items-center gap-3 group">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                        {isProfilePage ? <LayoutList className="h-5 w-5" /> : <User className="h-5 w-5" />}
-                    </div>
-                    <span className="font-medium text-foreground group-hover:text-primary transition-colors">
-                        {isProfilePage ? 'Danh sách câu hỏi' : 'Trang cá nhân'}
-                    </span>
-                </div>
+            <Link href={isProfilePage ? '/dashboard/feed' : (user ? `/user/${(user as any).id}` : '/login')} className="block group">
+                <Card className="rounded-xl border-border/40 shadow-sm group-hover:border-primary/30 transition-all">
+                    <CardContent className="p-4 flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                            {isProfilePage ? <LayoutList className="h-5 w-5" /> : <User className="h-5 w-5" />}
+                        </div>
+                        <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+                            {isProfilePage ? 'Danh sách câu hỏi' : 'Trang cá nhân'}
+                        </span>
+                    </CardContent>
+                </Card>
             </Link>
 
 

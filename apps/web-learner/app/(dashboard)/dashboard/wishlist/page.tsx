@@ -12,6 +12,7 @@ import { courseApi } from '@/lib/api/services/course-api'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { formatCurrency } from '@/utils/format-utils'
 
 interface WishlistCourse extends CourseResponseDTO {
     wishlistId: string;
@@ -163,7 +164,7 @@ export default function WishlistPage() {
                                         {course.durationWeeks || 0} tuần
                                     </span>
                                     <span className="text-base font-bold text-primary">
-                                        {course.price === 0 ? 'Miễn phí' : `${course.price?.toLocaleString()}đ`}
+                                        {course.price === 0 ? 'Miễn phí' : formatCurrency(course.price)}
                                     </span>
                                 </div>
 

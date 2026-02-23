@@ -107,7 +107,7 @@ export function TestRunner() {
                     </CardContent>
                     <CardFooter>
                         <Button onClick={handleStart} className="w-full" disabled={isLoading}>
-                            {isLoading ? <><Spinner className="mr-2 size-4 animate-spin" /> Generating...</> : "Start Test"}
+                            {isLoading ? <><Spinner className="mr-2" /> Generating...</> : "Start Test"}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -151,7 +151,7 @@ export function TestRunner() {
 
                 <div className="flex justify-end">
                     <Button onClick={handleSubmit} disabled={isLoading || Object.keys(answers).length < testData.questions.length}>
-                        {isLoading ? <><Spinner className="mr-2 size-4 animate-spin" /> Submitting...</> : "Submit Test"}
+                        {isLoading ? <><Spinner className="mr-2" /> Submitting...</> : "Submit Test"}
                     </Button>
                 </div>
             </div>

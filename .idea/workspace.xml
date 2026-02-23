@@ -4,7 +4,103 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add reset password functionality and update identity URLs" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: change location of api folder to lib">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/audit/audit-log-details-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/audit/audit-log-details-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/view-blog-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/view-blog-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/common/smart-pagination.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/common/smart-pagination.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/ticket-detail-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/ticket-detail-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/format-utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/format-utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/protected/protected-route.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/learning-analytics.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/learning-analytics.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/revenue-analytics.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/revenue-analytics.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/user-analytics.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/analytics/user-analytics.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/assignments/submissions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/assignments/submissions-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/audit/audit-logs-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/audit/audit-logs-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/blog-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-reviews-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-reviews-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/courses-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/staff-dashboard-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/staff-dashboard-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/orders-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/finance/orders-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/question-pools-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/question-pools-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/settings/notifications-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/notification/notifications-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/learners-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/learners-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/users/personnel-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/users/personnel-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(auth)/forgot-password/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(auth)/forgot-password/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(auth)/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(auth)/login/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(auth)/register/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(auth)/register/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(auth)/resend-verification/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(auth)/resend-verification/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(auth)/reset-password/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(auth)/reset-password/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(auth)/verify-request/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(auth)/verify-request/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(auth)/verify/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(auth)/verify/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/achievements/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/achievements/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/certificates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/certificates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/exams/[examId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/exams/[examId]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/payment/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/payment/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/profile/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/profile/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/rewards/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/rewards/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/support/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/support/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wishlist/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wishlist/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[slug]/certificate/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[slug]/certificate/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/blog/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/blog/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/lecturers/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/lecturers/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/live-classes/[slug]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/live-classes/[slug]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/live-classes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/live-classes/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/checkout/[courseId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/checkout/[courseId]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/chat-interface.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/flashcard-generator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/interactive-roleplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/interactive-roleplay.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-test-wizard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-test-wizard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/test-runner.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/test-runner.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/forgot-password-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/forgot-password-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/login-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/register-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/register-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/resend-verification-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/resend-verification-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/reset-password-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/reset-password-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/verification-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/verification-content.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/blog/blog-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/blog/blog-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/blog/blog-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/blog/blog-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/blog/comment-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/blog/comment-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/catalog/course-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/catalog/course-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/catalog/course-grid.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/catalog/course-grid.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/assignment-submission.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/assignment-submission.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-assignments-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-assignments-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-instructor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-instructor.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-reviews.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-reviews.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/daily-check-in-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/daily-check-in-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/current-user-rank.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/current-user-rank.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-preview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-preview.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/leaderboard-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/podium-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/leaderboard/podium-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/notifications-dropdown.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/notifications-dropdown.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/exams/exam-history.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/exams/exam-history.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-create-post.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-create-post.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-edit-post-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-edit-post-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-post-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-post-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/profile/achievement-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/profile/achievement-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/profile/profile-info.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/profile/profile-info.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/reviews/review-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/reviews/review-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/session-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/session-item.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/replace_loader2.cjs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/utils/time-utils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -192,11 +288,11 @@
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/apps/web-admin/src/routes/notification" />
+      <recent name="$PROJECT_DIR$/apps/web-learner/lib" />
+      <recent name="$PROJECT_DIR$/apps/web-admin/src/lib" />
       <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server\libs\shared\src\decorators" />
-      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server\modules\identity\src\modules" />
-      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\auth" />
-      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-admin\src\hooks" />
     </key>
   </component>
   <component name="RunManager" selected="JavaScript Debug.localhost:3000">
@@ -390,23 +486,7 @@
       <workItem from="1771723455405" duration="49000" />
       <workItem from="1771745712088" duration="114000" />
       <workItem from="1771745913938" duration="13000" />
-      <workItem from="1771816089601" duration="1438000" />
-    </task>
-    <task id="LOCAL-00807" summary="update NATS logic and improve error handling">
-      <option name="closed" value="true" />
-      <created>1770039964916</created>
-      <option name="number" value="00807" />
-      <option name="presentableId" value="LOCAL-00807" />
-      <option name="project" value="LOCAL" />
-      <updated>1770039964916</updated>
-    </task>
-    <task id="LOCAL-00808" summary="update NATS logic and improve error handling">
-      <option name="closed" value="true" />
-      <created>1770040215423</created>
-      <option name="number" value="00808" />
-      <option name="presentableId" value="LOCAL-00808" />
-      <option name="project" value="LOCAL" />
-      <updated>1770040215425</updated>
+      <workItem from="1771816089601" duration="5121000" />
     </task>
     <task id="LOCAL-00809" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
@@ -784,7 +864,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771817516446</updated>
     </task>
-    <option name="localTasksCounter" value="856" />
+    <task id="LOCAL-00856" summary="refactor: change location of api folder to lib">
+      <option name="closed" value="true" />
+      <created>1771817703777</created>
+      <option name="number" value="00856" />
+      <option name="presentableId" value="LOCAL-00856" />
+      <option name="project" value="LOCAL" />
+      <updated>1771817703777</updated>
+    </task>
+    <task id="LOCAL-00857" summary="refactor: change location of api folder to lib">
+      <option name="closed" value="true" />
+      <created>1771817780327</created>
+      <option name="number" value="00857" />
+      <option name="presentableId" value="LOCAL-00857" />
+      <option name="project" value="LOCAL" />
+      <updated>1771817780327</updated>
+    </task>
+    <option name="localTasksCounter" value="858" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -819,7 +915,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update config#2" />
     <MESSAGE value="refactor: simplify comments in file handling logic" />
     <MESSAGE value="refactor: streamline workspace.xml configuration" />
     <MESSAGE value="refactor: inject Redis client into services for improved dependency management" />
@@ -844,7 +939,8 @@
     <MESSAGE value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
     <MESSAGE value="refactor: update layout and styling for user and module sheets" />
     <MESSAGE value="feat: add reset password functionality and update identity URLs" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add reset password functionality and update identity URLs" />
+    <MESSAGE value="refactor: change location of api folder to lib" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: change location of api folder to lib" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

@@ -37,6 +37,7 @@ import { cn } from '@workspace/ui/lib/utils';
 import { useTickets, useCreateTicket, useTicket } from '@/lib/api/services/ticket-api';
 import { useEnrollments } from '@/lib/api/services/enrollment-api';
 import { ComponentLoading } from '@workspace/ui/components/component-loading';
+import { formatDateTime, formatDate } from '@/utils/format-utils';
 import { TicketType, TicketStatus } from '@workspace/schemas';
 import { toast } from 'sonner';
 import {
@@ -247,7 +248,7 @@ export default function SupportPage() {
                                                 <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-muted-foreground font-medium">
                                                     <div className="flex items-center gap-2">
                                                         <History className="w-3.5 h-3.5" />
-                                                        {new Date(ticket.createdAt).toLocaleDateString('vi-VN')}
+                                                        {formatDate(ticket.createdAt)}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
@@ -413,7 +414,7 @@ export default function SupportPage() {
                             </div>
                             <div className="flex items-center gap-1.5 border-l border-border pl-4">
                                 <Clock className="size-3.5" />
-                                {ticketDetail && new Date(ticketDetail.createdAt).toLocaleString('vi-VN')}
+                                {ticketDetail && formatDateTime(ticketDetail.createdAt)}
                             </div>
                         </div>
                     </DialogHeader>

@@ -11,34 +11,50 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { Field, FieldLabel } from "@workspace/ui/components/field"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentDrillResponseDTO as DrillResponse } from "@workspace/schemas"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+
+const drillFormSchema = z.object({
+    type: z.enum(['grammar', 'vocabulary', 'kanji', 'listening', 'reading']),
+    topic: z.string().min(1, "Vui lòng nhập chủ đề"),
+    difficulty: z.enum(["N5", "N4", "N3", "N2", "N1"]),
+})
+
+type DrillFormData = z.infer<typeof drillFormSchema>
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
 import { cn } from "@workspace/ui/lib/utils"
 import { Spinner } from '@workspace/ui/components/spinner'
 
 export function DrillGenerator() {
-    const [topic, setTopic] = React.useState("")
-    const [difficulty, setDifficulty] = React.useState<"N5" | "N4" | "N3" | "N2" | "N1">("N5")
-    const [type, setType] = React.useState<string>("grammar")
     const [isLoading, setIsLoading] = React.useState(false)
     const [result, setResult] = React.useState<DrillResponse | null>(null)
     const [userAnswers, setUserAnswers] = React.useState<Record<number, string>>({})
     const [showResults, setShowResults] = React.useState(false)
 
-    const handleGenerate = async () => {
-        if (!topic.trim()) return
+    const form = useForm<DrillFormData>({
+        resolver: zodResolver(drillFormSchema),
+        defaultValues: {
+            type: "grammar",
+            topic: "",
+            difficulty: "N5",
+        },
+    })
+
+    const handleGenerate = async (data: DrillFormData) => {
         setIsLoading(true)
         setResult(null)
         setUserAnswers({})
         setShowResults(false)
 
         try {
-            const data = await agentApi.sensei.generateDrill(type as 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading', topic, difficulty)
-            setResult(data)
+            const res = await agentApi.sensei.generateDrill(data.type, data.topic, data.difficulty)
+            setResult(res)
         } catch (error) {
             console.error(error)
         } finally {
@@ -66,51 +82,71 @@ export function DrillGenerator() {
             </div>
 
             {/* Input Section */}
-            <div className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-6">
+            <form onSubmit={form.handleSubmit(handleGenerate)} className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-6">
                 <div className="grid md:grid-cols-3 gap-6">
-                    <Field className="space-y-2">
-                        <FieldLabel>Kỹ năng</FieldLabel>
-                        <Select value={type} onValueChange={setType}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="grammar">Ngữ pháp (Grammar)</SelectItem>
-                                <SelectItem value="vocabulary">Từ vựng (Vocabulary)</SelectItem>
-                                <SelectItem value="kanji">Hán tự (Kanji)</SelectItem>
-                                <SelectItem value="reading">Đọc hiểu (Reading)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </Field>
-                    <Field className="space-y-2">
-                        <FieldLabel>Chủ đề</FieldLabel>
-                        <Input
-                            placeholder="Ví dụ: Particles, Family, Travel..."
-                            value={topic}
-                            onChange={(e) => setTopic(e.target.value)}
-                        />
-                    </Field>
-                    <Field className="space-y-2">
-                        <FieldLabel>Trình độ</FieldLabel>
-                        <Select value={difficulty} onValueChange={(v: any) => setDifficulty(v)}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="N5">N5 (Beginner)</SelectItem>
-                                <SelectItem value="N4">N4 (Basic)</SelectItem>
-                                <SelectItem value="N3">N3 (Intermediate)</SelectItem>
-                                <SelectItem value="N2">N2 (Pre-Advanced)</SelectItem>
-                                <SelectItem value="N1">N1 (Advanced)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </Field>
+                    <Controller
+                        name="type"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                <FieldLabel htmlFor={field.name}>Kỹ năng</FieldLabel>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="grammar">Ngữ pháp (Grammar)</SelectItem>
+                                        <SelectItem value="vocabulary">Từ vựng (Vocabulary)</SelectItem>
+                                        <SelectItem value="kanji">Hán tự (Kanji)</SelectItem>
+                                        <SelectItem value="reading">Đọc hiểu (Reading)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+                        )}
+                    />
+                    <Controller
+                        name="topic"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                <FieldLabel htmlFor={field.name}>Chủ đề</FieldLabel>
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    placeholder="Ví dụ: Particles, Family, Travel..."
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            </Field>
+                        )}
+                    />
+                    <Controller
+                        name="difficulty"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                <FieldLabel htmlFor={field.name}>Trình độ</FieldLabel>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="N5">N5 (Beginner)</SelectItem>
+                                        <SelectItem value="N4">N4 (Basic)</SelectItem>
+                                        <SelectItem value="N3">N3 (Intermediate)</SelectItem>
+                                        <SelectItem value="N2">N2 (Pre-Advanced)</SelectItem>
+                                        <SelectItem value="N1">N1 (Advanced)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+                        )}
+                    />
                 </div>
 
                 <div className="flex justify-end">
                     <Button
-                        onClick={handleGenerate}
-                        disabled={!topic.trim() || isLoading}
+                        type="submit"
+                        disabled={!form.watch("topic").trim() || isLoading}
                         className="px-6 font-semibold min-w-[140px]"
                     >
                         {isLoading ? (
@@ -122,7 +158,7 @@ export function DrillGenerator() {
                         )}
                     </Button>
                 </div>
-            </div>
+            </form>
 
             {/* Result Section */}
             {result && (
@@ -130,7 +166,7 @@ export function DrillGenerator() {
                     <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
                             <Dumbbell className="size-5 text-primary" />
-                            {result.topic} <span className="text-muted-foreground text-sm font-normal capitalize">({type} - {difficulty})</span>
+                            {result.topic} <span className="text-muted-foreground text-sm font-normal capitalize">({form.watch("type")} - {form.watch("difficulty")})</span>
                         </h3>
                         {Object.keys(userAnswers).length === result.drills.length && !showResults && (
                             <Button onClick={checkAnswers} variant="default" className="gap-2">

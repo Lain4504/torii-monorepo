@@ -3,8 +3,7 @@ import { Clock, Eye, MessageSquare, ChevronRight } from 'lucide-react'
 import type { BlogResponseDTO } from '@workspace/schemas'
 import { Badge } from '@workspace/ui/components/badge'
 import { Separator } from '@workspace/ui/components/separator'
-import { format } from 'date-fns'
-import { vi } from 'date-fns/locale'
+import { formatNumber, formatDate } from '@/utils/format-utils'
 
 interface BlogSidebarProps {
     recentBlogs: BlogResponseDTO[]
@@ -37,7 +36,7 @@ export function BlogSidebar({ recentBlogs, mostViewedBlogs = [], popularTags }: 
                                         {blog.title}
                                     </h4>
                                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                        <Eye className="w-3 h-3" /> {blog.viewCount || 0} lượt xem
+                                        <Eye className="w-3 h-3" /> {formatNumber(blog.viewCount || 0)} lượt xem
                                     </p>
                                 </div>
                             </Link>
@@ -68,7 +67,7 @@ export function BlogSidebar({ recentBlogs, mostViewedBlogs = [], popularTags }: 
                                     </h4>
                                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                                         <Clock className="w-3 h-3" />
-                                        {format(new Date(blog.publishedAt || blog.createdAt), 'dd/MM/yyyy', { locale: vi })}
+                                        {formatDate(blog.publishedAt || blog.createdAt)}
                                     </p>
                                 </div>
                             </Link>

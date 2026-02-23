@@ -21,9 +21,23 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { Field, FieldLabel } from "@workspace/ui/components/field"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { cn } from "@workspace/ui/lib/utils"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+
+const topicSchema = z.object({
+    topic: z.string().min(1, "Vui lòng nhập hoặc chọn chủ đề"),
+})
+
+const inputSchema = z.object({
+    text: z.string().min(1, "Nội dung tin nhắn không được để trống"),
+})
+
+type TopicFormData = z.infer<typeof topicSchema>
+type InputFormData = z.infer<typeof inputSchema>
 
 interface Message {
     id: string
@@ -35,13 +49,24 @@ interface Message {
 }
 
 export function InteractiveRoleplay() {
-    const [topic, setTopic] = React.useState("")
     const [isStarted, setIsStarted] = React.useState(false)
     const [messages, setMessages] = React.useState<Message[]>([])
-    const [inputText, setInputText] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(false)
     const [history, setHistory] = React.useState<any[]>([])
     const [isFinished, setIsFinished] = React.useState(false)
+
+    const topicForm = useForm<TopicFormData>({
+        resolver: zodResolver(topicSchema),
+        defaultValues: { topic: "" },
+    })
+
+    const inputForm = useForm<InputFormData>({
+        resolver: zodResolver(inputSchema),
+        defaultValues: { text: "" },
+    })
+
+    const currentTopic = topicForm.watch("topic")
+    const inputText = inputForm.watch("text")
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
     // Voice State
@@ -104,7 +129,7 @@ export function InteractiveRoleplay() {
                         }
                     }
                     if (finalTranscript) {
-                        setInputText(prev => prev + finalTranscript)
+                        inputForm.setValue("text", inputForm.getValues("text") + finalTranscript)
                         // Optional: Auto-send if silence detected? For now manual send.
                     }
                 }
@@ -322,27 +347,28 @@ export function InteractiveRoleplay() {
         setIsSpeaking(false)
     }
 
-    const handleStart = async () => {
-        if (!topic.trim()) return
+    const handleStart = async (data?: TopicFormData) => {
+        const topicValue = data?.topic || topicForm.getValues("topic")
+        if (!topicValue.trim()) return
         setIsStarted(true)
         setIsLoading(true)
 
         try {
-            const data = await agentApi.sensei.roleplay(topic, "", [])
+            const res = await agentApi.sensei.roleplay(topicValue, "", [])
 
             const aiMsg: Message = {
                 id: Date.now().toString(),
                 role: 'assistant',
-                content: data.response,
-                romaji: data.romaji,
-                vietnamese: data.vietnamese
+                content: res.response,
+                romaji: res.romaji,
+                vietnamese: res.vietnamese
             }
 
             setMessages([aiMsg])
-            setHistory([{ role: 'model', content: JSON.stringify(data) }])
+            setHistory([{ role: 'model', content: JSON.stringify(res) }])
 
-            if (data.response && autoPlay) {
-                setTimeout(() => speak(data.response), 500)
+            if (res.response && autoPlay) {
+                setTimeout(() => speak(res.response), 500)
             }
 
         } catch (error) {
@@ -352,8 +378,8 @@ export function InteractiveRoleplay() {
         }
     }
 
-    const handleSend = async () => {
-        if (!inputText.trim() || isLoading) return
+    const handleSend = async (data: InputFormData) => {
+        if (!data.text.trim() || isLoading) return
 
         // Auto-stop voice recognition when sending
         if (isListening && recognitionRef.current) {
@@ -361,8 +387,8 @@ export function InteractiveRoleplay() {
             setIsListening(false)
         }
 
-        const userMsgText = inputText
-        setInputText("")
+        const userMsgText = data.text
+        inputForm.reset({ text: "" })
 
         const newUserMsg: Message = {
             id: Date.now().toString(),
@@ -377,7 +403,7 @@ export function InteractiveRoleplay() {
             const currentHistory = history
             const nextHistory = [...currentHistory, { role: 'user', content: userMsgText }]
 
-            const data = await agentApi.sensei.roleplay(topic, userMsgText, nextHistory)
+            const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), userMsgText, nextHistory)
 
             const aiMsg: Message = {
                 id: (Date.now() + 1).toString(),
@@ -414,17 +440,16 @@ export function InteractiveRoleplay() {
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
-            handleSend()
+            inputForm.handleSubmit(handleSend)()
         }
     }
 
     const handleReset = () => {
-        stopSpeaking()
         setIsStarted(false)
         setMessages([])
         setHistory([])
-        setTopic("")
-        setInputText("")
+        topicForm.reset({ topic: "" })
+        inputForm.reset({ text: "" })
         setVoiceError(null)
     }
 
@@ -436,7 +461,7 @@ export function InteractiveRoleplay() {
         try {
             console.log('[DEBUG] Calling roleplay API with isFinal=true');
             // Signal backend to finish and generate feedback
-            const data = await agentApi.sensei.roleplay(topic, "", history, true) // isFinal = true
+            const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), "", history, true) // isFinal = true
             console.log('[DEBUG] Roleplay API response:', data);
 
             if (data.isFinished && data.feedback) {
@@ -503,19 +528,29 @@ export function InteractiveRoleplay() {
                     </div>
 
                     <div className="space-y-4 max-w-md mx-auto">
-                        <Input
-                            placeholder="Nhập chủ đề (VD: Mua vé tàu, Phỏng vấn xin việc)..."
-                            className="h-12 text-lg"
-                            value={topic}
-                            onChange={(e) => setTopic(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleStart()
-                            }}
+                        <Controller
+                            name="topic"
+                            control={topicForm.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        placeholder="Nhập chủ đề (VD: Mua vé tàu, Phỏng vấn xin việc)..."
+                                        className="h-12 text-lg"
+                                        aria-invalid={fieldState.invalid}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') topicForm.handleSubmit(handleStart)()
+                                        }}
+                                    />
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
+                            )}
                         />
                         <Button
                             className="w-full h-12 text-lg font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-md transition-all hover:scale-[1.02]"
-                            onClick={handleStart}
-                            disabled={!topic.trim() || isLoading}
+                            onClick={topicForm.handleSubmit(handleStart)}
+                            disabled={!topicForm.watch("topic").trim() || isLoading}
                         >
                             {isLoading ? "Đang khởi tạo..." : "Bắt đầu hội thoại"}
                         </Button>
@@ -527,7 +562,7 @@ export function InteractiveRoleplay() {
                             {["Đi siêu thị", "Gọi điện thoại", "Hỏi đường", "Kết bạn mới", "Tại sân bay"].map(t => (
                                 <button
                                     key={t}
-                                    onClick={() => setTopic(t)}
+                                    onClick={() => topicForm.setValue("topic", t)}
                                     className="px-3 py-1.5 rounded-full bg-secondary/50 hover:bg-secondary text-secondary-foreground text-sm transition-colors"
                                 >
                                     {t}
@@ -549,7 +584,7 @@ export function InteractiveRoleplay() {
                         <Sparkles className="size-5 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg leading-none">{topic}</h3>
+                        <h3 className="font-bold text-lg leading-none">{topicForm.getValues("topic")}</h3>
                         <p className="text-xs text-muted-foreground mt-1">
                             {isFinished ? "Đã kết thúc" : `${turnCount} lượt trao đổi • Đang hội thoại`}
                         </p>
@@ -565,7 +600,7 @@ export function InteractiveRoleplay() {
                                 setIsStarted(false)
                                 setMessages([])
                                 setHistory([])
-                                setTopic("")
+                                topicForm.reset({ topic: "" })
                                 setIsFinished(false)
                             }}
                             className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -600,48 +635,48 @@ export function InteractiveRoleplay() {
                                     Chọn giọng đọc và kiểm tra âm thanh.
                                 </DialogDescription>
                             </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                    <Field>
-                                        <FieldLabel className="text-sm font-medium">Giọng đọc (Voice)</FieldLabel>
-                                        <Select value={selectedVoiceURI} onValueChange={setSelectedVoiceURI}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Chọn giọng đọc..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="server-voice" className="font-medium text-orange-600 dark:text-orange-400">
-                                                    Server (Google - Cơ bản)
-                                                </SelectItem>
-                                                <SelectItem value="ja-JP-NanamiNeural" className="font-medium text-indigo-600 dark:text-indigo-400">
-                                                    Server (Nanami - Nữ, Tự nhiên)
-                                                </SelectItem>
-                                                <SelectItem value="ja-JP-KeitaNeural" className="font-medium text-blue-600 dark:text-blue-400">
-                                                    Server (Keita - Nam, Tự nhiên)
-                                                </SelectItem>
+                            <div className="space-y-4 py-4">
+                                <Field>
+                                    <FieldLabel className="text-sm font-medium">Giọng đọc (Voice)</FieldLabel>
+                                    <Select value={selectedVoiceURI} onValueChange={setSelectedVoiceURI}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Chọn giọng đọc..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="server-voice" className="font-medium text-orange-600 dark:text-orange-400">
+                                                Server (Google - Cơ bản)
+                                            </SelectItem>
+                                            <SelectItem value="ja-JP-NanamiNeural" className="font-medium text-indigo-600 dark:text-indigo-400">
+                                                Server (Nanami - Nữ, Tự nhiên)
+                                            </SelectItem>
+                                            <SelectItem value="ja-JP-KeitaNeural" className="font-medium text-blue-600 dark:text-blue-400">
+                                                Server (Keita - Nam, Tự nhiên)
+                                            </SelectItem>
 
-                                                <div className="mx-2 my-2 text-xs text-muted-foreground font-medium uppercase tracking-wider op-70">
-                                                    Giọng từ trình duyệt của bạn:
-                                                </div>
+                                            <div className="mx-2 my-2 text-xs text-muted-foreground font-medium uppercase tracking-wider op-70">
+                                                Giọng từ trình duyệt của bạn:
+                                            </div>
 
-                                                {availableVoices.length === 0 ? (
-                                                    <SelectItem value="none" disabled>Không tìm thấy giọng đọc nào</SelectItem>
-                                                ) : (
-                                                    availableVoices.map(voice => (
-                                                        <SelectItem key={voice.voiceURI} value={voice.voiceURI}>
-                                                            {voice.name} ({voice.lang})
-                                                        </SelectItem>
-                                                    ))
-                                                )}
-                                            </SelectContent>
-                                        </Select>
-                                        <p className="text-xs text-muted-foreground">
-                                            Nếu trình duyệt không có giọng đọc tiếng Nhật, hãy chọn "Server Voice".
-                                        </p>
-                                    </Field>
+                                            {availableVoices.length === 0 ? (
+                                                <SelectItem value="none" disabled>Không tìm thấy giọng đọc nào</SelectItem>
+                                            ) : (
+                                                availableVoices.map(voice => (
+                                                    <SelectItem key={voice.voiceURI} value={voice.voiceURI}>
+                                                        {voice.name} ({voice.lang})
+                                                    </SelectItem>
+                                                ))
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    <p className="text-xs text-muted-foreground">
+                                        Nếu trình duyệt không có giọng đọc tiếng Nhật, hãy chọn "Server Voice".
+                                    </p>
+                                </Field>
 
-                                    <Button onClick={testVoice} className="w-full" variant="secondary">
-                                        <Play className="size-4 mr-2" /> Nghe thử giọng nói
-                                    </Button>
-                                </div>
+                                <Button onClick={testVoice} className="w-full" variant="secondary">
+                                    <Play className="size-4 mr-2" /> Nghe thử giọng nói
+                                </Button>
+                            </div>
                         </DialogContent>
                     </Dialog>
 
@@ -802,22 +837,35 @@ export function InteractiveRoleplay() {
                         {/* Ripple effect for listening state */}
                         {isListening && <span className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" />}
                     </Button>
-                    <Input
-                        placeholder={isListening ? "Đang lắng nghe..." : (!isSpeechSupported ? "Voice chat không khả dụng trên trình duyệt này" : "Nhập tin nhắn...")}
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        className="flex-1 h-12 text-base rounded-xl shadow-sm bg-card"
-                        disabled={isLoading || isFinished}
+
+                    <Controller
+                        name="text"
+                        control={inputForm.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid} className="flex-1">
+                                <div className="relative">
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        placeholder={isFinished ? "Cuộc hội thoại đã kết thúc" : "Nhập tin nhắn tiếng Nhật..."}
+                                        className="h-12 rounded-xl border-border bg-card shadow-sm pr-12 focus-visible:ring-orange-500/20 focus-visible:border-orange-500/50 transition-all"
+                                        onKeyDown={handleKeyDown}
+                                        disabled={isLoading || isFinished}
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    <Button
+                                        size="icon"
+                                        className="absolute right-1.5 top-1.5 h-9 w-9 rounded-lg bg-orange-600 hover:bg-orange-700 text-white shadow-sm transition-all"
+                                        onClick={inputForm.handleSubmit(handleSend)}
+                                        disabled={!field.value.trim() || isLoading || isFinished}
+                                    >
+                                        <Send className="size-4" />
+                                    </Button>
+                                </div>
+                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            </Field>
+                        )}
                     />
-                    <Button
-                        size="icon"
-                        className={cn("h-12 w-12 rounded-xl shadow-sm", isLoading ? "bg-muted text-muted-foreground" : "bg-orange-600 hover:bg-orange-700 text-white")}
-                        onClick={handleSend}
-                        disabled={!inputText.trim() || isLoading || isFinished}
-                    >
-                        <Send className="size-5" />
-                    </Button>
                 </div>
             </div>
         </div>

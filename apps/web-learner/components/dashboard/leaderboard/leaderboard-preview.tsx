@@ -29,14 +29,14 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
-                        <Trophy className="w-4 h-4" />
+                        <Trophy className="size-4" />
                     </div>
                     <h3 className="text-sm font-bold text-foreground">Bảng xếp hạng</h3>
                 </div>
                 <Link href="/dashboard/leaderboard">
                     <div className="text-[10px] font-black text-primary hover:underline cursor-pointer flex items-center gap-1 uppercase tracking-wider">
                         Xem tất cả
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="size-3" />
                     </div>
                 </Link>
             </div>
@@ -52,7 +52,7 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
                                 {idx + 1}
                             </span>
                             <div className="flex items-center gap-2 min-w-0">
-                                <div className="w-7 h-7 rounded-full bg-muted border border-border overflow-hidden shrink-0">
+                                <div className="size-7 rounded-full bg-muted border border-border overflow-hidden shrink-0">
                                     {item.avatarUrl ? (
                                         <img src={item.avatarUrl} alt="" className="w-full h-full object-cover" />
                                     ) : (
@@ -67,7 +67,7 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
                             </div>
                         </div>
                         <div className="flex items-center gap-1 shrink-0 ml-2">
-                            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                            <Star className="size-3 text-amber-500 fill-amber-500" />
                             <span className="text-xs font-black tabular-nums">{item.xp}</span>
                         </div>
                     </div>
@@ -76,9 +76,9 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
                 {data?.currentUser && data.currentUser.rank > 5 && (
                     <>
                         <div className="flex justify-center py-1">
-                            <div className="w-1 h-1 rounded-full bg-border mx-0.5" />
-                            <div className="w-1 h-1 rounded-full bg-border mx-0.5" />
-                            <div className="w-1 h-1 rounded-full bg-border mx-0.5" />
+                            <div className="size-1 rounded-full bg-border mx-0.5" />
+                            <div className="size-1 rounded-full bg-border mx-0.5" />
+                            <div className="size-1 rounded-full bg-border mx-0.5" />
                         </div>
                         <div className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/10">
                             <div className="flex items-center gap-3 min-w-0">
@@ -88,7 +88,7 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
                                 <span className="text-xs font-bold truncate">Bạn</span>
                             </div>
                             <div className="flex items-center gap-1 shrink-0 ml-2">
-                                <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                                <Star className="size-3 text-amber-500 fill-amber-500" />
                                 <span className="text-xs font-black tabular-nums">{data.currentUser.xp}</span>
                             </div>
                         </div>

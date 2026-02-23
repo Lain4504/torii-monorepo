@@ -8,6 +8,7 @@ import {
     PaginationPrevious,
 } from "@workspace/ui/components/pagination";
 import { cn } from "@workspace/ui/lib/utils";
+import { formatNumber } from "@/lib/format-utils";
 
 interface SmartPaginationProps {
     page: number;
@@ -94,7 +95,7 @@ export function SmartPagination({
         <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-4", className)}>
             <p className="text-sm text-muted-foreground">
                 Trang <span className="font-semibold text-foreground">{page}</span> trên <span className="font-semibold text-foreground">{totalPages}</span>.
-                Tổng cộng <span className="font-semibold text-foreground">{totalItems.toLocaleString()}</span> {itemName}.
+                Tổng cộng <span className="font-semibold text-foreground">{formatNumber(totalItems)}</span> {itemName}.
             </p>
 
             {totalPages > 1 && (

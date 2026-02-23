@@ -31,8 +31,8 @@ export default function ResetPasswordPage() {
                     </div>
                     <div className="space-y-3">
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-background border">
-                            <div className="w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <Lock className="w-4 h-4" />
+                            <div className="size-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <Lock className="size-4" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium">Ít nhất 8 ký tự</p>
@@ -40,8 +40,8 @@ export default function ResetPasswordPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-background border">
-                            <div className="w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <ShieldCheck className="w-4 h-4" />
+                            <div className="size-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <ShieldCheck className="size-4" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium">Bảo mật cao</p>

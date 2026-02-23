@@ -9,6 +9,7 @@ import { ArrowLeft, Clock, FileText, Play, History } from 'lucide-react'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { useExamById, useExamSessions } from '@/lib/api/services/exam-api'
 import { useMemo } from 'react'
+import { formatDate } from '@/utils/format-utils'
 import { ExamSessionStatus } from '@workspace/schemas'
 
 export default function ExamDetailPage() {
@@ -150,7 +151,7 @@ export default function ExamDetailPage() {
                                                 ? Math.round((session.score / session.maxScore) * 100)
                                                 : null
                                             const isPassed = percentage !== null && percentage >= 60 // Assuming 60% is passing
-                                            
+
                                             return (
                                                 <div
                                                     key={session.id}
@@ -169,10 +170,10 @@ export default function ExamDetailPage() {
                                                             )}
                                                         </div>
                                                         <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-medium">
-                                                            {session.submittedAt 
-                                                                ? new Date(session.submittedAt).toLocaleDateString()
-                                                                : session.startedAt 
-                                                                    ? new Date(session.startedAt).toLocaleDateString()
+                                                            {session.submittedAt
+                                                                ? formatDate(session.submittedAt)
+                                                                : session.startedAt
+                                                                    ? formatDate(session.startedAt)
                                                                     : 'N/A'}
                                                         </p>
                                                     </div>

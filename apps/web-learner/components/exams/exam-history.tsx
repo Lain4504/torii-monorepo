@@ -18,6 +18,7 @@ import type { ExamSessionWithExamResponseDTO } from '@workspace/schemas'
 import { ExamSessionStatus } from '@workspace/schemas'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { cn } from "@workspace/ui/lib/utils"
+import { formatDate } from "@/utils/format-utils"
 
 export function ExamHistory() {
     const router = useRouter()
@@ -45,15 +46,6 @@ export function ExamHistory() {
         loadHistory()
     }, [])
 
-    const formatDate = (date: Date | string | undefined) => {
-        if (!date) return '-'
-        const d = typeof date === 'string' ? new Date(date) : date
-        return d.toLocaleDateString('vi-VN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        })
-    }
 
     const formatTime = (minutes: number | undefined) => {
         if (!minutes) return '-'
@@ -127,7 +119,7 @@ export function ExamHistory() {
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2 text-xs font-black text-foreground">
                                                 <Calendar className="w-3 h-3 text-muted-foreground/40" />
-                                                {formatDate(date)}
+                                                {formatDate(date) || '-'}
                                             </div>
                                             <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30">Lần thi gần nhất</div>
                                         </div>

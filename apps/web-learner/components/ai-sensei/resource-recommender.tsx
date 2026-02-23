@@ -11,27 +11,42 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { Field, FieldLabel } from "@workspace/ui/components/field"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentResourceRecommendationResponseDTO as ResourceRecommendationResponse } from "@workspace/schemas"
 import { Card, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Spinner } from '@workspace/ui/components/spinner'
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+
+const resourceRecommenderFormSchema = z.object({
+    topic: z.string().min(1, "Vui lòng nhập chủ đề cần tìm"),
+    type: z.enum(["all", "video", "article", "book", "tool"]),
+})
+
+type ResourceRecommenderFormData = z.infer<typeof resourceRecommenderFormSchema>
 
 export function ResourceRecommender() {
-    const [topic, setTopic] = React.useState("")
-    const [type, setType] = React.useState<string>("all")
     const [isLoading, setIsLoading] = React.useState(false)
     const [result, setResult] = React.useState<ResourceRecommendationResponse | null>(null)
 
-    const handleSearch = async () => {
-        if (!topic.trim()) return
+    const form = useForm<ResourceRecommenderFormData>({
+        resolver: zodResolver(resourceRecommenderFormSchema),
+        defaultValues: {
+            topic: "",
+            type: "all",
+        },
+    })
+
+    const handleSearch = async (data: ResourceRecommenderFormData) => {
         setIsLoading(true)
         setResult(null)
 
         try {
-            const data = await agentApi.sensei.recommendResources(topic, type)
-            setResult(data)
+            const res = await agentApi.sensei.recommendResources(data.topic, data.type)
+            setResult(res)
         } catch (error) {
             console.error(error)
         } finally {
@@ -57,37 +72,51 @@ export function ResourceRecommender() {
             </div>
 
             {/* Input Section */}
-            <div className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-6">
+            <form onSubmit={form.handleSubmit(handleSearch)} className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-6">
                 <div className="grid md:grid-cols-[1fr,200px] gap-6">
-                    <Field className="space-y-2">
-                        <FieldLabel>Chủ đề cần tìm</FieldLabel>
-                        <Input
-                            placeholder="Ví dụ: JLPT N3 Grammar, Business Japanese, Keigo..."
-                            value={topic}
-                            onChange={(e) => setTopic(e.target.value)}
-                        />
-                    </Field>
-                    <Field className="space-y-2">
-                        <FieldLabel>Loại tài liệu</FieldLabel>
-                        <Select value={type} onValueChange={setType}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Tất cả (All)</SelectItem>
-                                <SelectItem value="video">Video / YouTube</SelectItem>
-                                <SelectItem value="article">Bài viết (Article)</SelectItem>
-                                <SelectItem value="book">Sách (Book)</SelectItem>
-                                <SelectItem value="tool">Công cụ (Tool)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </Field>
+                    <Controller
+                        name="topic"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                <FieldLabel htmlFor={field.name}>Chủ đề cần tìm</FieldLabel>
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    placeholder="Ví dụ: JLPT N3 Grammar, Business Japanese, Keigo..."
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                            </Field>
+                        )}
+                    />
+                    <Controller
+                        name="type"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                <FieldLabel htmlFor={field.name}>Loại tài liệu</FieldLabel>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger id={field.name} aria-invalid={fieldState.invalid}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Tất cả (All)</SelectItem>
+                                        <SelectItem value="video">Video / YouTube</SelectItem>
+                                        <SelectItem value="article">Bài viết (Article)</SelectItem>
+                                        <SelectItem value="book">Sách (Book)</SelectItem>
+                                        <SelectItem value="tool">Công cụ (Tool)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+                        )}
+                    />
                 </div>
 
                 <div className="flex justify-end">
                     <Button
-                        onClick={handleSearch}
-                        disabled={!topic.trim() || isLoading}
+                        type="submit"
+                        disabled={!form.watch("topic").trim() || isLoading}
                         className="px-6 font-semibold min-w-[140px]"
                     >
                         {isLoading ? (
@@ -99,7 +128,7 @@ export function ResourceRecommender() {
                         )}
                     </Button>
                 </div>
-            </div>
+            </form>
 
             {/* Result Section */}
             {result && (

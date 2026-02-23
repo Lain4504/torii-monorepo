@@ -6,7 +6,7 @@ import { Input } from '@workspace/ui/components/input';
 import {
   RotateCcw, ShieldCheck, TrendingUp, Activity, Search, Calendar as CalendarIcon
 } from 'lucide-react';
-import { formatDateTime, vi } from '@/lib/format-utils';
+import { formatDateTime, vi, formatCurrency, formatNumber } from '@/lib/format-utils';
 import { Calendar } from '@workspace/ui/components/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
 import {
@@ -80,7 +80,7 @@ export default function OrdersPage() {
         title="Quản lý Đơn hàng"
         subtitle="Theo dõi và quản lý tất cả đơn hàng trong hệ thống"
         stats={[
-          { label: "Tổng số Giao dịch", value: total.toLocaleString() }
+          { label: "Tổng số Giao dịch", value: formatNumber(total) }
         ]}
         actions={
           <Button
@@ -100,7 +100,7 @@ export default function OrdersPage() {
         {[
           {
             label: 'Tổng doanh thu',
-            value: stats?.totalRevenue ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.totalRevenue) : '0 ₫',
+            value: stats?.totalRevenue ? formatCurrency(stats.totalRevenue) : '0 ₫',
             sub: 'Dựa trên bộ lọc hiện tại',
             icon: TrendingUp,
             color: 'text-primary',
@@ -108,7 +108,7 @@ export default function OrdersPage() {
           },
           {
             label: 'Số đơn hoàn thành',
-            value: stats?.orderCount?.toLocaleString() || '0',
+            value: formatNumber(stats?.orderCount) || '0',
             sub: 'Giao dịch thành công',
             icon: ShieldCheck,
             color: 'text-emerald-500',

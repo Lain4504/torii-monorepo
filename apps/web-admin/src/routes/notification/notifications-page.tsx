@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
-import { formatDateTime, formatRelativeTime } from '@/lib/format-utils';
+import { formatDateTime, formatRelativeTime, formatNumber } from '@/lib/format-utils.ts';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +19,9 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notifications'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notifications.ts'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
-import { PageHeader } from '@/components/common/page-header'
+import { PageHeader } from '@/components/common/page-header.tsx'
 
 interface Notification {
   id: string
@@ -134,7 +134,7 @@ export default function NotificationsPage() {
         title="Thông báo Hệ thống"
         subtitle="Cập nhật tin tức và cảnh báo bảo mật Torii Academy"
         stats={[
-          { label: "Chưa đọc", value: unreadCount.toLocaleString() }
+          { label: "Chưa đọc", value: formatNumber(unreadCount) }
         ]}
         actions={
           <Button

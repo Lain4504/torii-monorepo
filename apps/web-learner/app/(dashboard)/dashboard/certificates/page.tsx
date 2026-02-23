@@ -4,6 +4,7 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Award, Download, Share2, CheckCircle2 } from 'lucide-react'
+import { formatDate } from '@/utils/format-utils'
 import Link from 'next/link'
 import { useCertificates } from '@/lib/api/services/certificate-api'
 import { Skeleton } from '@workspace/ui/components/skeleton'
@@ -111,7 +112,7 @@ export default function CertificatesPage() {
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <span className="text-xs text-muted-foreground font-medium">Ngày cấp</span>
-                                            <span className="text-xs font-bold">{new Date(cert.issueDate).toLocaleDateString('vi-VN')}</span>
+                                            <span className="text-xs font-bold">{formatDate(cert.issueDate)}</span>
                                         </div>
                                     </div>
                                 </div>

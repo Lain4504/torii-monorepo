@@ -13,7 +13,7 @@ import {
 } from '@workspace/ui/components/sheet';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
-import { formatDateTime } from '@/lib/format-utils';
+import { formatDateTime, formatNumber } from '@/lib/format-utils';
 import { Star, Info } from 'lucide-react';
 import { ReviewsPrimaryToolbar } from '@/components/reviews/reviews-primary-toolbar';
 import { ReviewsTable } from '@/components/reviews/reviews-table';
@@ -64,7 +64,7 @@ export default function CourseReviewsPage() {
                 title="Đánh giá Khóa học"
                 subtitle="Quản lý phản hồi và xếp hạng học thuật Torii"
                 stats={[
-                    { label: "Tổng số đánh giá", value: data?.total?.toLocaleString() || 0 }
+                    { label: "Tổng số đánh giá", value: formatNumber(data?.total) || 0 }
                 ]}
             />
 

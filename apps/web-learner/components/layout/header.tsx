@@ -23,6 +23,7 @@ import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { toast } from '@workspace/ui/components/sonner'
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
+import { formatNumber } from '@/utils/format-utils'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -68,8 +69,8 @@ export function Header() {
                     {/* Brand + Nav */}
                     <div className="flex items-center gap-6">
                         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-                            <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-                                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <div className="size-7 rounded-md bg-primary flex items-center justify-center">
+                                <svg className="size-4 text-primary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                     <path d="M3 10h18" strokeLinecap="round" />
                                     <path d="M5 10v8" strokeLinecap="round" />
                                     <path d="M19 10v8" strokeLinecap="round" />
@@ -83,13 +84,17 @@ export function Header() {
 
                         <nav className="hidden lg:flex items-center gap-0.5">
                             {navigation.map((item) => (
-                                <Link
+                                <Button
                                     key={item.name}
-                                    href={item.href}
-                                    className="px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                                    asChild
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-muted-foreground hover:text-foreground"
                                 >
-                                    {item.name}
-                                </Link>
+                                    <Link href={item.href}>
+                                        {item.name}
+                                    </Link>
+                                </Button>
                             ))}
                         </nav>
                     </div>
@@ -99,8 +104,8 @@ export function Header() {
                         {/* Balance */}
                         {isAuthenticated && (
                             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold border border-amber-500/20">
-                                <Coins className="w-3.5 h-3.5" />
-                                {((user as any)?.balance || 0).toLocaleString()}
+                                <Coins className="size-3.5" />
+                                {formatNumber((user as any)?.balance || 0)}
                             </div>
                         )}
 
@@ -108,8 +113,8 @@ export function Header() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="hidden sm:flex">
-                                    <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                    <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                    <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                    <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                                     <span className="sr-only">Toggle theme</span>
                                 </Button>
                             </DropdownMenuTrigger>
@@ -124,37 +129,37 @@ export function Header() {
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="rounded-full p-0">
-                                        <Avatar className="h-8 w-8">
+                                    <Button variant="ghost" size="icon" className="rounded-full">
+                                        <Avatar className="size-8">
                                             <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                                                 {user?.displayName?.[0]?.toUpperCase() || 'U'}
                                             </AvatarFallback>
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-52">
-                                    <div className="px-2 py-1.5">
-                                        <p className="text-sm font-medium">{user?.displayName}</p>
+                                <DropdownMenuContent align="end" className="w-56">
+                                    <div className="flex flex-col space-y-1 p-2">
+                                        <p className="text-sm font-medium leading-none">{user?.displayName}</p>
                                         <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                                     </div>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
-                                        <Link href="/dashboard">
-                                            <LayoutDashboard className="mr-2 h-4 w-4" /> Tổng quan
+                                        <Link href="/dashboard" className="cursor-pointer">
+                                            <LayoutDashboard className="mr-2 size-4" /> Tổng quan
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/dashboard/settings">
-                                            <Settings className="mr-2 h-4 w-4" /> Cài đặt tài khoản
+                                        <Link href="/dashboard/settings" className="cursor-pointer">
+                                            <Settings className="mr-2 size-4" /> Cài đặt tài khoản
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         onClick={handleLogout}
                                         disabled={isLoggingOut}
-                                        className="text-destructive focus:text-destructive"
+                                        className="text-destructive focus:text-destructive cursor-pointer"
                                     >
-                                        <LogOut className="mr-2 h-4 w-4" />
+                                        <LogOut className="mr-2 size-4" />
                                         {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -177,7 +182,7 @@ export function Header() {
                             className="lg:hidden"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
-                            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                            {mobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
                         </Button>
                     </div>
                 </div>
@@ -194,7 +199,7 @@ export function Header() {
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-accent transition-colors"
                             >
-                                <item.icon className="w-4 h-4 text-primary" />
+                                <item.icon className="size-4 text-primary" />
                                 {item.name}
                             </Link>
                         ))}
@@ -204,25 +209,24 @@ export function Header() {
 
                     <div className="space-y-2">
                         {!isAuthenticated && (
-                            <>
+                            <div className="grid gap-2">
                                 <Button variant="outline" className="w-full" asChild>
                                     <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
                                 </Button>
                                 <Button className="w-full" asChild>
                                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Đăng ký miễn phí</Link>
                                 </Button>
-                            </>
+                            </div>
                         )}
                         <div className="flex items-center justify-between px-1">
                             <span className="text-sm text-muted-foreground">Giao diện</span>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="p-0"
                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                             >
-                                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                             </Button>
                         </div>
                     </div>

@@ -24,6 +24,7 @@ import {
     FileText,
 } from 'lucide-react'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { formatDate } from '@/utils/format-utils'
 import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { profileApi, type UpdateProfileDTO } from '@/lib/api/services/profile-api'
@@ -177,7 +178,7 @@ export default function ProfilePage() {
             title: achievement.achievement.title,
             icon: Icon,
             earned: achievement.isUnlocked,
-            date: achievement.unlockedAt ? new Date(achievement.unlockedAt).toLocaleDateString('vi-VN') : null,
+            date: achievement.unlockedAt ? formatDate(achievement.unlockedAt) : null,
         }
     }) || []
 
@@ -304,12 +305,12 @@ export default function ProfilePage() {
                                 Hồ sơ cá nhân
                             </h2>
                             {!isEditing ? (
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsEditing(true)}
-                                        size="sm"
-                                        className="font-bold transition-all"
-                                    >
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsEditing(true)}
+                                    size="sm"
+                                    className="font-bold transition-all"
+                                >
                                     Chỉnh sửa
                                 </Button>
                             ) : (
@@ -379,7 +380,7 @@ export default function ProfilePage() {
                                             className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                         />
                                     ) : (
-                                        <p className="text-sm font-medium text-foreground">{new Date(formData.dateOfBirth).toLocaleDateString('vi-VN')}</p>
+                                        <p className="text-sm font-medium text-foreground">{formatDate(formData.dateOfBirth)}</p>
                                     )}
                                 </div>
                                 <div className="space-y-2">

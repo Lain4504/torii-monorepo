@@ -5,6 +5,7 @@ import { Badge } from '@workspace/ui/components/badge'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import type { Course } from './useCourses'
 import { cn } from '@workspace/ui/lib/utils'
+import { formatNumber, formatCurrency } from '@/utils/format-utils'
 
 interface CourseCardProps extends Course {
     isLive?: boolean
@@ -47,12 +48,17 @@ export function CourseCard(props: CourseCardProps) {
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                    <div className="absolute top-4 left-4 z-20">
+                        <Badge variant="destructive" className="text-xs flex items-center gap-1">
+                            HOT
+                        </Badge>
+                    </div>
                     <div className="absolute top-2 left-2 flex gap-1.5">
                         <Badge variant="secondary" className="text-xs">
                             {level}
                         </Badge>
                         {isLive && (
-                            <Badge className="text-xs bg-red-600 text-white border-none flex items-center gap-1">
+                            <Badge variant="destructive" className="text-xs flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                                 TRỰC TUYẾN
                             </Badge>
@@ -79,7 +85,7 @@ export function CourseCard(props: CourseCardProps) {
                         </span>
                         <span className="flex items-center gap-1">
                             <Users className="w-3.5 h-3.5" />
-                            {safeStudents.toLocaleString()}
+                            {formatNumber(safeStudents)}
                         </span>
                         <span className="flex items-center gap-1">
                             <BookOpen className="w-3.5 h-3.5" />
@@ -91,11 +97,11 @@ export function CourseCard(props: CourseCardProps) {
                         <div>
                             {safeOriginalPrice > 0 && safeOriginalPrice > safePrice && (
                                 <p className="text-xs text-muted-foreground line-through">
-                                    {safeOriginalPrice.toLocaleString()} VNĐ
+                                    {formatCurrency(safeOriginalPrice)}
                                 </p>
                             )}
                             <p className={cn('text-sm font-bold', isFree ? 'text-emerald-600' : 'text-primary')}>
-                                {isFree ? 'MIỄN PHÍ' : `${safePrice.toLocaleString()} VNĐ`}
+                                {isFree ? 'MIỄN PHÍ' : formatCurrency(safePrice)}
                             </p>
                         </div>
                         <span className="text-xs font-medium text-primary flex items-center gap-1">

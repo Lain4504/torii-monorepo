@@ -1,6 +1,8 @@
 'use client'
 
 import { Card, CardContent } from '@workspace/ui/components/card'
+import { ComponentLoading } from '@workspace/ui/components/component-loading'
+import { formatDate } from '@/utils/format-utils';
 import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
 import { Input } from '@workspace/ui/components/input'
@@ -213,7 +215,7 @@ export default function MyCoursesPage() {
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <Clock className="w-3.5 h-3.5" />
-                                        {course.lastAccessed ? new Date(course.lastAccessed).toLocaleDateString('vi-VN') : 'Mới'}
+                                        {course.lastAccessed ? formatDate(course.lastAccessed) : 'Mới'}
                                     </span>
                                 </div>
                             </div>

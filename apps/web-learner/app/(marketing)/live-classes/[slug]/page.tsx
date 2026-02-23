@@ -15,9 +15,10 @@ import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { formatCurrency, formatDateTime } from '@/utils/format-utils'
 
 const formatPrice = (price: number, isFree: boolean) =>
-    isFree ? 'Miễn phí' : `${Number(price).toLocaleString('vi-VN')} VNĐ`
+    isFree ? 'Miễn phí' : formatCurrency(price)
 
 export default function LiveClassDetailPage() {
     const params = useParams()
@@ -200,7 +201,7 @@ export default function LiveClassDetailPage() {
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-bold text-foreground truncate">{session.title}</p>
                                                     <p className="text-xs text-muted-foreground">
-                                                        {format(new Date(session.scheduledAt), 'EEEE, dd/MM/yyyy • HH:mm', { locale: vi })} • {session.duration} phút
+                                                        {formatDateTime(session.scheduledAt, 'EEEE, dd/MM/yyyy • HH:mm')} • {session.duration} phút
                                                     </p>
                                                 </div>
                                             </div>

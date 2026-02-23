@@ -20,6 +20,7 @@ import { PageLoading } from '@workspace/ui/components/page-loading'
 import { CourseCard } from '@/components/catalog/course-card'
 import { Separator } from '@workspace/ui/components/separator'
 import { apiClient } from '@/lib/api/api-client'
+import { formatNumber } from '@/utils/format-utils'
 
 // Types
 interface InstructorProfile {
@@ -225,7 +226,7 @@ export default function InstructorProfilePage() {
                                 <div className="flex items-center gap-2">
                                     <Users className="w-5 h-5 text-primary" />
                                     <div>
-                                        <p className="text-lg font-bold leading-none">{profile.stats.totalStudents.toLocaleString()}</p>
+                                        <p className="text-lg font-bold leading-none">{formatNumber(profile.stats.totalStudents)}</p>
                                         <p className="text-xs font-medium text-muted-foreground">Học viên</p>
                                     </div>
                                 </div>
@@ -233,7 +234,7 @@ export default function InstructorProfilePage() {
                                 <div className="flex items-center gap-2">
                                     <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
                                     <div>
-                                        <p className="text-lg font-bold leading-none">{profile.stats.averageRating} ({profile.stats.totalReviews.toLocaleString()})</p>
+                                        <p className="text-lg font-bold leading-none">{profile.stats.averageRating} ({formatNumber(profile.stats.totalReviews)})</p>
                                         <p className="text-xs font-medium text-muted-foreground">Đánh giá</p>
                                     </div>
                                 </div>

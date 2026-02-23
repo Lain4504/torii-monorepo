@@ -48,26 +48,26 @@ export function DailyCheckInCard() {
       isActiveToday && "bg-gradient-to-br from-orange-500/5 to-red-500/5"
     )}>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center gap-2">
-            <Flame className={cn(
-              "h-5 w-5",
-              currentStreak > 0 ? "text-orange-500" : "text-muted-foreground"
-            )} />
-            <span className="font-semibold">
-              {currentStreak > 0 ? `${currentStreak} Day Streak` : "Start Your Streak"}
-            </span>
-          </div>
-          {currentStreak > 0 && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="text-2xl font-bold text-orange-500"
-            >
-              🔥
-            </motion.div>
-          )}
-        </CardTitle>
+            <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center gap-2">
+                    <Flame className={cn(
+                        "size-5",
+                        currentStreak > 0 ? "text-orange-500" : "text-muted-foreground"
+                    )} />
+                    <span className="font-semibold">
+                        {currentStreak > 0 ? `${currentStreak} Day Streak` : "Start Your Streak"}
+                    </span>
+                </div>
+                {currentStreak > 0 && (
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="text-2xl font-bold text-orange-500"
+                    >
+                        🔥
+                    </motion.div>
+                )}
+            </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -86,7 +86,7 @@ export function DailyCheckInCard() {
         <div>
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
+              <Calendar className="size-3" />
               Last 7 Days
             </span>
           </div>

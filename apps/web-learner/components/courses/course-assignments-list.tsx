@@ -10,10 +10,14 @@ import {
   X,
 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@workspace/ui/components/item';
+import { Spinner } from '@workspace/ui/components/spinner';
 import { cn } from '@workspace/ui/lib/utils';
 import { useCourseAssignments, type AssignmentResponseDTO } from '@/lib/api/services/assignment-api';
 import { AssignmentSubmission } from './assignment-submission';
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment';
+import { formatDate } from '@/utils/format-utils';
 
 interface CourseAssignmentsListProps {
   courseId: string;
@@ -39,20 +43,20 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
   // Filter assignments based on selected filter
   const assignments = allAssignments.filter(assignment => {
     if (filterStatus === 'ALL') return true;
-    
+
     if (filterStatus === 'PENDING') {
       // Show assignments that are not submitted or only have draft
       return !assignment.userSubmissionStatus || assignment.userSubmissionStatus === 'DRAFT';
     }
-    
+
     if (filterStatus === 'SUBMITTED') {
       return assignment.userSubmissionStatus === 'SUBMITTED';
     }
-    
+
     if (filterStatus === 'GRADED') {
       return assignment.userSubmissionStatus === 'GRADED';
     }
-    
+
     return true;
   });
 
@@ -104,24 +108,24 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
   if (isLoadingEnrollment || isLoadingAssignments) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <Spinner className="w-12 h-12" />
       </div>
     );
   }
 
   if (allAssignments.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-        <div className="w-20 h-20 bg-muted/20 rounded-full flex items-center justify-center">
-          <FileText className="w-10 h-10 text-muted-foreground" />
-        </div>
-        <div>
-          <h3 className="text-xl font-bold text-foreground mb-2">Chưa có bài tập</h3>
-          <p className="text-sm text-muted-foreground">
+      <Empty className="py-20">
+        <EmptyHeader>
+          <EmptyMedia variant="icon" className="w-20 h-20 bg-muted/20">
+            <FileText className="w-10 h-10 text-muted-foreground" />
+          </EmptyMedia>
+          <EmptyTitle>Chưa có bài tập</EmptyTitle>
+          <EmptyDescription>
             Khóa học này chưa có bài tập nào được công bố
-          </p>
-        </div>
-      </div>
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
@@ -140,7 +144,7 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
             Course assignments & progress
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-muted/5 border border-border/20 shadow-sm">
           <Filter className="w-4 h-4 text-primary" />
           <span className="text-[10px] font-black text-foreground uppercase tracking-[0.2em]">
@@ -174,19 +178,19 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
 
       {/* Empty state for filtered results */}
       {assignments.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-          <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center">
-            <FileText className="w-8 h-8 text-muted-foreground" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-foreground mb-1">Không có bài tập</h3>
-            <p className="text-sm text-muted-foreground">
+        <Empty className="py-12">
+          <EmptyHeader>
+            <EmptyMedia variant="icon" className="w-16 h-16 bg-muted/20">
+              <FileText className="w-8 h-8 text-muted-foreground" />
+            </EmptyMedia>
+            <EmptyTitle>Không có bài tập</EmptyTitle>
+            <EmptyDescription>
               {filterStatus === 'PENDING' && 'Bạn đã nộp tất cả bài tập'}
               {filterStatus === 'SUBMITTED' && 'Chưa có bài tập nào đã nộp'}
               {filterStatus === 'GRADED' && 'Chưa có bài tập nào được chấm điểm'}
-            </p>
-          </div>
-        </div>
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       )}
 
       {/* Assignments Grid */}
@@ -198,7 +202,7 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
           const isOverdue = dueDate && new Date() > dueDate && (!assignment.userSubmissionStatus || assignment.userSubmissionStatus === 'DRAFT');
 
           return (
-            <div
+            <Item
               key={assignment.id}
               onClick={() => {
                 if (onAssignmentClick) {
@@ -207,72 +211,56 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
                   setSelectedAssignment(assignment);
                 }
               }}
-              className="group relative p-8 rounded-[2.5rem] border border-border/30 bg-muted/5 hover:bg-background hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer overflow-hidden"
+              variant="outline"
+              className="cursor-pointer group hover:border-primary/30 transition-all p-4 sm:p-6"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors" />
-              
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                <div className="flex items-start gap-6 flex-1">
-                  <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center border border-border/40 shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500 shrink-0">
-                    <FileText className="w-8 h-8" />
-                  </div>
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{assignment.type}</span>
-                      <div className="h-1 w-1 rounded-full bg-border" />
-                      <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.22em] italic">Unit {assignment.order || 0}</span>
-                    </div>
-                    <h3 className="text-xl font-black italic text-foreground tracking-tight uppercase line-clamp-1 group-hover:text-primary transition-colors">
-                      {assignment.title}
-                    </h3>
-                    {assignment.description && (
-                      <p className="text-sm text-muted-foreground font-medium line-clamp-1 opacity-80 group-hover:opacity-100 italic transition-all">
-                        {assignment.description.replace(/<[^>]*>/g, '')}
-                      </p>
-                    )}
-                  </div>
+              <ItemMedia className="bg-primary/5 text-primary rounded-xl p-3 shrink-0">
+                <FileText className="w-6 h-6" />
+              </ItemMedia>
+              <ItemContent className="space-y-1.5 flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-[0.1em] px-2 py-0.5 rounded-md bg-primary/10">{assignment.type}</span>
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Unit {assignment.order || 0}</span>
+                </div>
+                <ItemTitle className="text-lg line-clamp-1 group-hover:text-primary transition-colors">
+                  {assignment.title}
+                </ItemTitle>
+                {assignment.description && (
+                  <ItemDescription className="line-clamp-1">
+                    {assignment.description.replace(/<[^>]*>/g, '')}
+                  </ItemDescription>
+                )}
+              </ItemContent>
+
+              <ItemActions className="flex flex-col sm:flex-row items-end sm:items-center gap-3 shrink-0">
+                <div className={cn(
+                  'flex items-center gap-1.5 px-3 py-1 rounded-full border shadow-sm shrink-0',
+                  status.className
+                )}>
+                  <StatusIcon className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">
+                    {status.label}
+                  </span>
                 </div>
 
-                <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
-                  {/* Status Badge */}
-                  <div className={cn(
-                    'flex items-center gap-2 px-5 py-2.5 rounded-full border shadow-sm transition-all group-hover:scale-105',
-                    status.className
-                  )}>
-                    <StatusIcon className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">
-                      {status.label}
+                <div className="flex items-center gap-4 hidden md:flex">
+                  {dueDate && (
+                    <div className="flex items-center gap-1.5">
+                      <Clock className={cn("w-3.5 h-3.5", isOverdue ? "text-rose-500" : "text-muted-foreground/60")} />
+                      <span className={cn("text-xs font-semibold", isOverdue ? "text-rose-600" : "text-muted-foreground")}>
+                        {formatDate(dueDate)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-primary/60" />
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {assignment.maxScore} PTS
                     </span>
                   </div>
-
-                  <div className="h-8 w-px bg-border/20 hidden md:block" />
-
-                  {/* Info Icons */}
-                  <div className="flex items-center gap-6">
-                    {dueDate && (
-                      <div className="flex flex-col items-start gap-1">
-                        <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Due Date</span>
-                        <div className="flex items-center gap-2">
-                          <Clock className={cn("w-3.5 h-3.5 mt-0.5", isOverdue ? "text-rose-500" : "text-muted-foreground/60")} />
-                          <span className={cn("text-xs font-black italic uppercase italic tracking-tight", isOverdue ? "text-rose-600" : "text-foreground/80")}>
-                            {dueDate.toLocaleDateString('vi-VN')}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex flex-col items-start gap-1">
-                      <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Max Score</span>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-primary/60 mt-0.5" />
-                        <span className="text-xs font-black italic uppercase italic tracking-tight text-foreground/80">
-                          {assignment.maxScore} PTS
-                        </span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              </div>
-            </div>
+              </ItemActions>
+            </Item>
           );
         })}
       </div>
