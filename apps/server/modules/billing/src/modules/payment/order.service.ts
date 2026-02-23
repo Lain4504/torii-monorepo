@@ -449,9 +449,9 @@ export class OrderService implements IOrderService {
                 try {
                     const orderCode = Number(Date.now().toString().slice(-10));
                     const description = `Torii ${orderCode}`;
-                    const frontendUrl = this.appConfig.identity.frontendUrl;
-                    const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
-                    const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${frontendUrl}/checkout/return?order_id=${created.id}`;
+                    const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
+                    const returnUrl = input.metadata?.returnUrl || (input as any).returnUrl || `${webLearnerUrl}/checkout/return?order_id=${created.id}`;
+                    const cancelUrl = input.metadata?.cancelUrl || (input as any).cancelUrl || `${webLearnerUrl}/checkout/return?order_id=${created.id}`;
 
                     const paymentLinkData = await this.payOSService.createPaymentLink({
                         orderCode: orderCode,

@@ -70,6 +70,7 @@ export type ResendOTPDTO = z.infer<typeof resendOTPDTOSchema>;
 export const forgotPasswordDTOSchema = z.object({
     email: z.string().email(),
     platform: z.enum(['web', 'mobile']).optional().default('web'),
+    clientType: z.enum(['admin', 'learner']).optional().default('learner'),
 });
 
 export type ForgotPasswordDTO = z.infer<typeof forgotPasswordDTOSchema>;

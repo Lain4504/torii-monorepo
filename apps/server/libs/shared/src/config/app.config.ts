@@ -73,8 +73,9 @@ const ConfigSchema = z.object({
     }),
     identity: z.object({
         twoFactorIssuer: z.string().default('Torii Nihongo'),
-        webAdminUrl: z.string().default('https://app.torii.sbs'),
-        frontendUrl: z.string().default('https://app.torii.sbs'),
+        webAdminUrl: z.string().default('https://admin.torii.sbs'),
+        webLearnerUrl: z.string().default('https://app.torii.sbs'),
+        webMeetUrl: z.string().default('https://meet.torii.sbs'),
         twoFactorTempTokenExpiry: z.number().default(300),
         defaultAdmin: z.object({
             email: z.string().default('admin@torii.com'),

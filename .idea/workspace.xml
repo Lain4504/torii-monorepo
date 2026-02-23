@@ -6,6 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update layout and styling for user and module sheets">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/api/services/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/api/services/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/forgot-password-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/forgot-password-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/auth.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -392,6 +397,7 @@
       <workItem from="1771723455405" duration="49000" />
       <workItem from="1771745712088" duration="114000" />
       <workItem from="1771745913938" duration="13000" />
+      <workItem from="1771816089601" duration="1130000" />
     </task>
     <task id="LOCAL-00806" summary="update NATS logic and improve error handling">
       <option name="closed" value="true" />
