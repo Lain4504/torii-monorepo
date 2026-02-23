@@ -106,6 +106,33 @@ describe('RedemptionService', () => {
                 .rejects.toThrow('Bạn không đủ điểm để đổi quà này');
         });
 
+        it('should throw error if user gamification profile is not found', async () => {
+            prisma.pointReward.findUnique.mockResolvedValue(mockReward);
+            prisma.userGamification.findUnique.mockResolvedValue(null);
+
+            await expect(service.redeemPoints(mockUserId, mockRewardId))
+                .rejects.toThrow('Bạn không đủ điểm để đổi quà này');
+        });
+
+        it('should throw error if point deduction fails', async () => {
+            prisma.pointReward.findUnique.mockResolvedValue(mockReward);
+            prisma.userGamification.findUnique.mockResolvedValue(mockGamification);
+            prisma.userGamification.update.mockRejectedValue(new Error('DB Error'));
+
+            await expect(service.redeemPoints(mockUserId, mockRewardId))
+                .rejects.toThrow('DB Error');
+        });
+
+        it('should throw error if coupon service returns null response', async () => {
+            prisma.pointReward.findUnique.mockResolvedValue(mockReward);
+            prisma.userGamification.findUnique.mockResolvedValue(mockGamification);
+            prisma.userGamification.update.mockResolvedValue({});
+            natsClient.send.mockReturnValue(of(null));
+
+            await expect(service.redeemPoints(mockUserId, mockRewardId))
+                .rejects.toThrow();
+        });
+
         it('should rollback points if coupon creation fails', async () => {
             prisma.pointReward.findUnique.mockResolvedValue(mockReward);
             prisma.userGamification.findUnique.mockResolvedValue(mockGamification);
@@ -114,12 +141,28 @@ describe('RedemptionService', () => {
             natsClient.send.mockReturnValue(throwError(() => new Error('NATS error')));
 
             await expect(service.redeemPoints(mockUserId, mockRewardId))
-                .rejects.toThrow(BadRequestException);
+                .rejects.toThrow('Đã có lỗi xảy ra khi tạo mã giảm giá. Điểm của bạn đã được hoàn lại.');
 
             // Verify rollback
             expect(prisma.userGamification.update).toHaveBeenCalledWith(expect.objectContaining({
                 data: { points: { increment: mockReward.points } }
             }));
+        });
+
+        it('should handle failure in both coupon creation and point rollback', async () => {
+            prisma.pointReward.findUnique.mockResolvedValue(mockReward);
+            prisma.userGamification.findUnique.mockResolvedValue(mockGamification);
+
+            natsClient.send.mockReturnValue(throwError(() => new Error('NATS error')));
+            // Mock deduction success then rollback failure
+            prisma.userGamification.update
+                .mockResolvedValueOnce({}) // Deduction
+                .mockRejectedValueOnce(new Error('Rollback DB Error')); // Rollback
+
+            await expect(service.redeemPoints(mockUserId, mockRewardId))
+                .rejects.toThrow('Rollback DB Error');
+
+            expect(prisma.userGamification.update).toHaveBeenCalledTimes(2);
         });
     });
 
@@ -146,6 +189,17 @@ describe('RedemptionService', () => {
             expect(result).toHaveLength(1);
             expect(result[0].pointsContent).toBe('100 Points');
             expect(result[0].type).toBe('percentage');
+        });
+
+        it('should handle database error when fetching rewards', async () => {
+            prisma.pointReward.findMany.mockRejectedValue(new Error('DB Error'));
+            await expect(service.getAvailableRewards()).rejects.toThrow('DB Error');
+        });
+
+        it('should return empty array if no active rewards found', async () => {
+            prisma.pointReward.findMany.mockResolvedValue([]);
+            const result = await service.getAvailableRewards();
+            expect(result).toEqual([]);
         });
     });
 });
