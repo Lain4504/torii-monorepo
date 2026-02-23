@@ -32,6 +32,9 @@ export const orderQueryDTOSchema = z.object({
 
 export type OrderQueryDTO = z.infer<typeof orderQueryDTOSchema>;
 
+export const orderSearchRequestDTOSchema = orderQueryDTOSchema;
+export type OrderSearchRequestDTO = z.infer<typeof orderSearchRequestDTOSchema>;
+
 export const orderConfirmDTOSchema = z.object({
     orderId: z.string().uuid(),
     transactionId: z.string().optional(),
@@ -69,6 +72,9 @@ export const paymentQueryDTOSchema = z.object({
 });
 
 export type PaymentQueryDTO = z.infer<typeof paymentQueryDTOSchema>;
+
+export const paymentSearchRequestDTOSchema = paymentQueryDTOSchema;
+export type PaymentSearchRequestDTO = z.infer<typeof paymentSearchRequestDTOSchema>;
 
 export const paymentPaginatedResponseSchema = z.object({
     data: z.array(paymentResponseDTOSchema),

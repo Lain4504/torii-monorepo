@@ -18,11 +18,13 @@ import {
     userCreateDTOSchema,
     userAdminUpdateDTOSchema,
     adminCreateInternalUserDTOSchema,
+    userSearchRequestDTOSchema,
 } from '@workspace/schemas';
 import type {
     UserCreateDTO,
     UserAdminUpdateDTO,
     AdminCreateInternalUserDTO,
+    UserSearchRequestDTO,
 } from '@workspace/schemas';
 
 @Controller('api/admin/users')
@@ -30,19 +32,14 @@ import type {
 export class UsersController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
+    @Post('search')
     @Permissions('user.view')
-    async findAll(
-        @Query('page') page: number = 1,
-        @Query('limit') limit: number = 10,
-        @Query('search') search: string = '',
-        @Query('role') role: string = '',
-    ) {
+    async findAll(@Body(new ZodValidationPipe(userSearchRequestDTOSchema)) dto: UserSearchRequestDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.users.findAll' },
-                    { page: Number(page), limit: Number(limit), search, role },
+                    dto,
                 ),
             );
             return successPaginatedResponse(result);

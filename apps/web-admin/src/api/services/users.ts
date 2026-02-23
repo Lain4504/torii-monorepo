@@ -23,6 +23,12 @@ export const usersApi = {
         return response.data;
     },
 
+    // POST /api/admin/users/search
+    getUsers: async (params: any = {}) => {
+        const response = await apiClient.post<PaginatedApiResponse<UserResponseDTO>>('/api/admin/users/search', params);
+        return response.data;
+    },
+
     // GET /api/admin/users/:id
     async findOne(id: string): Promise<UserResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ user: UserResponseDTO }>>(`/api/admin/users/${id}`);
