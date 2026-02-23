@@ -104,6 +104,26 @@ describe('ReportService', () => {
             expect(prisma.order.findMany).toHaveBeenCalled();
             expect(result).toBeInstanceOf(Buffer);
         });
+
+        it('should throw error if prisma fetch fails', async () => {
+            mockPrismaService.order.findMany.mockRejectedValue(new Error('Prisma Error'));
+            await expect(service.exportOrders({})).rejects.toThrow('Prisma Error');
+        });
+
+        it('should handle empty results gracefully', async () => {
+            mockPrismaService.order.findMany.mockResolvedValue([]);
+            const result = await service.exportOrders({});
+            expect(result).toBeInstanceOf(Buffer);
+        });
+
+        it('should throw error if ExcelJS fails to generate buffer', async () => {
+            mockPrismaService.order.findMany.mockResolvedValue([]);
+            // Access the mock workbook via ExcelJS Mock
+            const workbook = new (require('exceljs').Workbook)();
+            workbook.xlsx.writeBuffer.mockRejectedValue(new Error('Excel Error'));
+
+            await expect(service.exportOrders({})).rejects.toThrow('Excel Error');
+        });
     });
 
     describe('exportBalanceHistory', () => {
@@ -123,6 +143,17 @@ describe('ReportService', () => {
             const result = await service.exportBalanceHistory({ endDate: '2024-12-31' });
 
             expect(prisma.balanceTransaction.findMany).toHaveBeenCalled();
+            expect(result).toBeInstanceOf(Buffer);
+        });
+
+        it('should throw error if prisma fetch fails for balance history', async () => {
+            mockPrismaService.balanceTransaction.findMany.mockRejectedValue(new Error('DB Error'));
+            await expect(service.exportBalanceHistory({})).rejects.toThrow('DB Error');
+        });
+
+        it('should handle empty balance history results', async () => {
+            mockPrismaService.balanceTransaction.findMany.mockResolvedValue([]);
+            const result = await service.exportBalanceHistory({});
             expect(result).toBeInstanceOf(Buffer);
         });
     });
@@ -164,6 +195,19 @@ describe('ReportService', () => {
 
             expect(prisma.course.findMany).toHaveBeenCalled();
             expect(result).toBeInstanceOf(Buffer);
+        });
+
+        it('should handle courses without enrollments', async () => {
+            mockPrismaService.course.findMany.mockResolvedValue([
+                { title: 'Empty Course', jlptLevel: 'N1', enrollments: [] }
+            ]);
+            const result = await service.exportCourseRevenue();
+            expect(result).toBeInstanceOf(Buffer);
+        });
+
+        it('should throw error if prisma fetch fails for course revenue', async () => {
+            mockPrismaService.course.findMany.mockRejectedValue(new Error('Course Fetch Error'));
+            await expect(service.exportCourseRevenue()).rejects.toThrow('Course Fetch Error');
         });
     });
 });
