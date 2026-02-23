@@ -49,8 +49,8 @@ describe('AuditLogService', () => {
                 entity: 'Course',
                 entityId: 'course-1',
                 description: 'Updated course',
-                oldValues: { title: 'Old Title', noise: 'ignore' },
-                newValues: { title: 'New Title', noise: 'ignore' },
+                oldValues: { title: 'Old Title', updatedAt: new Date('2023-01-01') },
+                newValues: { title: 'New Title', updatedAt: new Date('2023-01-02') },
             };
 
             await service.log(entry);
@@ -61,8 +61,8 @@ describe('AuditLogService', () => {
                 entity: entry.entity,
                 entityId: entry.entityId,
                 description: entry.description,
-                oldValues: { title: 'Old Title' }, // Noise should be removed
-                newValues: { title: 'New Title' }, // Noise should be removed
+                oldValues: { title: 'Old Title' }, // updatedAt should be removed
+                newValues: { title: 'New Title' }, // updatedAt should be removed
             }));
         });
 
