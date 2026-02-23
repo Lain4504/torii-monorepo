@@ -25,22 +25,39 @@ import {
     successPaginatedResponse,
     Public,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { CourseSearchRequestDTO, courseSearchRequestDTOSchema } from '@workspace/schemas';
 
 @Controller('api/courses')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
+    @Post('search')
+    @Permissions('course.view')
+    async searchCourses(
+        @Body(new ZodValidationPipe(courseSearchRequestDTOSchema)) dto: CourseSearchRequestDTO,
+        @Req() req: ReqWithRequester
+    ) {
+        const requester = req.requester;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.findAll' },
+                { query: dto, requester }
+            )
+        );
+        return successPaginatedResponse(result);
+    }
+
     @Post()
     @Permissions('course.create')
     @HttpCode(HttpStatus.CREATED)
     async createCourse(@Body() dto: any, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.create' },
-                { ...dto, instructorId: requester.sub, userPermissions: requester.permissions }
+                { ...dto, requester: req.requester }
             )
         );
         return successResponse({ course: result }, 'Course created successfully');
@@ -93,7 +110,7 @@ export class CourseController {
         }
 
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.course.findAll' }, query)
+            this.natsClient.send({ cmd: 'learning.course.findAll' }, { query, requester })
         );
         return successPaginatedResponse(result);
     }
@@ -101,11 +118,10 @@ export class CourseController {
     @Get(':id')
     @Public()
     async getCourse(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.findOne' },
-                { id, userId: requester?.sub }
+                { id, requester: req.requester }
             )
         );
         return successResponse({ course: result });
@@ -114,11 +130,10 @@ export class CourseController {
     @Get('slug/:slug')
     @Public()
     async getCourseBySlug(@Param('slug') slug: string, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.findBySlug' },
-                { slug, userId: requester?.sub }
+                { slug, requester: req.requester }
             )
         );
         return successResponse({ course: result });
@@ -131,11 +146,10 @@ export class CourseController {
         @Body() dto: any,
         @Req() req: ReqWithRequester
     ) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.update' },
-                { id, ...dto, userId: requester.sub, userPermissions: requester.permissions }
+                { id, ...dto, requester: req.requester }
             )
         );
         return successResponse({ course: result }, 'Course updated successfully');
@@ -144,11 +158,10 @@ export class CourseController {
     @Delete(':id')
     @Permissions('course.delete')
     async deleteCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.delete' },
-                { id, userId: requester.sub, userPermissions: requester.permissions }
+                { id, requester: req.requester }
             )
         );
         return successResponse(null, 'Course deleted successfully');
@@ -164,7 +177,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.check' },
-                    { courseId: id, userId: requester.sub },
+                    { courseId: id, requester },
                 ),
             );
             return successResponse(result);
@@ -176,11 +189,10 @@ export class CourseController {
     @Get(':id/curriculum')
     @Public()
     async getCurriculum(@Param('id') id: string, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.getCurriculum' },
-                { id, userId: requester?.sub }
+                { id, requester: req.requester }
             )
         );
         return successResponse(result);
@@ -189,11 +201,10 @@ export class CourseController {
     @Post(':id/unpublish')
     @Permissions('course.publish')
     async unpublishCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.unpublish' },
-                { id, userId: requester.sub, userPermissions: requester.permissions }
+                { id, requester: req.requester }
             )
         );
         return successResponse({ course: result }, 'Course unpublished successfully');
@@ -202,11 +213,10 @@ export class CourseController {
     @Patch(':id/live-config')
     @Permissions('course.update')
     async updateLiveConfig(@Param('id', new ParseUUIDPipe()) id: string, @Body() config: any, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.updateLiveConfig' },
-                { id, config, userId: requester.sub, userPermissions: requester.permissions }
+                { id, config, requester: req.requester }
             )
         );
         return successResponse({ course: result }, 'Live configuration updated successfully');
@@ -215,11 +225,10 @@ export class CourseController {
     @Post(':id/submit-for-review')
     @Permissions('course.update')
     async submitForReview(@Param('id') id: string, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.submitForReview' },
-                { id, userId: requester.sub, userPermissions: requester.permissions }
+                { id, requester: req.requester }
             )
         );
         return successResponse({ course: result }, 'Course submitted for review successfully');
@@ -228,11 +237,10 @@ export class CourseController {
     @Post(':id/publish')
     @Permissions('course.publish')
     async publishCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.publish' },
-                { id, userId: requester.sub, userPermissions: requester.permissions }
+                { id, requester: req.requester }
             )
         );
         return successResponse({ course: result }, 'Course published successfully');
@@ -245,11 +253,10 @@ export class CourseController {
         @Body() body: { reason: string },
         @Req() req: ReqWithRequester
     ) {
-        const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.course.reject' },
-                { id, userId: requester.sub, reason: body.reason, userPermissions: requester.permissions }
+                { id, reason: body.reason, requester: req.requester }
             )
         );
         return successResponse({ course: result }, 'Course rejected successfully');

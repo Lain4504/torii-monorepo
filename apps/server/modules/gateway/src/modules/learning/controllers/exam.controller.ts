@@ -32,7 +32,7 @@ export class ExamController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.findAllWithStatus' },
-                    { query, userId: requester.sub }
+                    { query, requester: req.requester }
                 )
             );
             return successPaginatedResponse(result);
@@ -48,7 +48,7 @@ export class ExamController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.getUserSessions' },
-                    { query, userId: requester.sub }
+                    { query, requester: req.requester }
                 )
             );
             return successPaginatedResponse(result);
@@ -68,7 +68,7 @@ export class ExamController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.saveAnswers' },
-                    { sessionId, userId: requester.sub, dto: data }
+                    { sessionId, requester: req.requester, dto: data }
                 )
             );
             return successResponse({ session: result });
@@ -84,7 +84,7 @@ export class ExamController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.submitSession' },
-                    { sessionId, userId: requester.sub }
+                    { sessionId, requester: req.requester }
                 )
             );
             return successResponse({ session: result });
@@ -100,7 +100,7 @@ export class ExamController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.startExam' },
-                    { examId, userId: requester.sub }
+                    { examId, requester: req.requester }
                 )
             );
             return successResponse({ session: result });
@@ -116,7 +116,7 @@ export class ExamController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.getAttemptDetails' },
-                    { sessionId, userId: requester.sub }
+                    { sessionId, requester: req.requester }
                 )
             );
             return successResponse({ session: result });
@@ -132,7 +132,7 @@ export class ExamController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.getExamSessions' },
-                    { examId, userId: requester.sub, query }
+                    { examId, requester: req.requester, query }
                 )
             );
             return successPaginatedResponse(result);
@@ -148,7 +148,7 @@ export class ExamController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.getExamById' },
-                    { examId, userId: requester.sub }
+                    { examId, requester: req.requester }
                 )
             );
             return successResponse({ exam: result });

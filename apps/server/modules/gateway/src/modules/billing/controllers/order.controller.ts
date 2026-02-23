@@ -18,6 +18,9 @@ import {
     successPaginatedResponse,
     GatewayAuthGuard,
     ReqWithRequester,
+    Permissions,
+    PermissionsGuard,
+    ZodValidationPipe,
 } from '@server/shared';
 import {
     OrderResponseDTO,
@@ -26,41 +29,83 @@ import {
     OrderConfirmDTO,
     PaymentQueryDTO,
     PaginatedApiResponse,
+    OrderSearchRequestDTO,
+    orderSearchRequestDTOSchema,
+    PaymentSearchRequestDTO,
+    paymentSearchRequestDTOSchema,
 } from '@workspace/schemas';
 
 @Controller('api/orders')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class OrderController {
     private readonly logger = new Logger(OrderController.name);
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Post('list')
-    async findAll(@Body() query: OrderQueryDTO) {
+    @Post('search')
+    @Permissions('order.view')
+    async searchOrders(@Body(new ZodValidationPipe(orderSearchRequestDTOSchema)) dto: OrderSearchRequestDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'billing.order.findAll' },
-                    query
+                    dto
                 )
             );
             return successPaginatedResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch orders');
+            return errorResponse(error.message || 'Failed to search orders');
         }
     }
 
-    @Get('transactions')
-    async findAllPayments(@Query() query: PaymentQueryDTO) {
+    @Get()
+    async findMyOrders(@Query() query: OrderQueryDTO, @Req() req: ReqWithRequester) {
+        try {
+            const requester = req.requester;
+            // Force userId to requester's sub so users only see their own orders
+            const userQuery = { ...query, userId: requester.sub };
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.order.findAll' },
+                    userQuery
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch your orders');
+        }
+    }
+
+    @Post('transactions/search')
+    @Permissions('order.view')
+    async searchPayments(@Body(new ZodValidationPipe(paymentSearchRequestDTOSchema)) dto: PaymentSearchRequestDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'billing.order.findAllPayments' },
-                    query
+                    dto
                 )
             );
             return successPaginatedResponse(result);
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to fetch payments');
+            return errorResponse(error.message || 'Failed to search payments');
+        }
+    }
+
+    @Get('transactions')
+    async findMyPayments(@Query() query: PaymentQueryDTO, @Req() req: ReqWithRequester) {
+        try {
+            const requester = req.requester;
+            // Force userId to requester.sub
+            const userQuery = { ...query, userId: requester.sub };
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.order.findAllPayments' },
+                    userQuery
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch your payments');
         }
     }
 

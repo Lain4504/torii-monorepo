@@ -7,9 +7,9 @@ import type { PaginatedApiResponse, CourseResponseDTO, CourseCreateDTO, CourseUp
 // ============================================================================
 
 export const coursesApi = {
-    // GET /api/admin/courses
+    // POST /api/courses/search
     async findAll(params: CourseQueryDTO): Promise<PaginatedApiResponse<CourseResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses', { params });
+        const response = await apiClient.post<PaginatedApiResponse<CourseResponseDTO>>('/api/courses/search', params);
         return response.data;
     },
 

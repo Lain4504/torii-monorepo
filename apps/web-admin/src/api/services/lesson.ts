@@ -14,9 +14,9 @@ import type {
 // ============================================================================
 
 export const lessonsApi = {
-    // GET /api/admin/lessons
+    // POST /api/lessons/search
     async findAll(params: LessonQueryDTO): Promise<PaginatedApiResponse<LessonResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<LessonResponseDTO>>('/api/lessons', { params });
+        const response = await apiClient.post<PaginatedApiResponse<LessonResponseDTO>>('/api/lessons/search', params);
         return response.data;
     },
 

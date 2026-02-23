@@ -1,45 +1,46 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SubmissionService } from '@server/learning/modules/submission/submission.service';
+import { Requester, SubmitAssignmentDto, GradeSubmissionDto, ReturnSubmissionDto } from '@workspace/schemas';
 
 @Controller()
 export class SubmissionHandler {
   constructor(
     private readonly submissionService: SubmissionService,
-  ) {}
+  ) { }
 
   @MessagePattern({ cmd: 'learning.submission.saveDraft' })
-  async saveDraft(@Payload() data: any) {
+  async saveDraft(@Payload() data: SubmitAssignmentDto & { assignmentId: string; requester: Requester }) {
     const { assignmentId, requester, ...dto } = data;
     return this.submissionService.saveDraft(requester, assignmentId, dto);
   }
 
   @MessagePattern({ cmd: 'learning.submission.submit' })
-  async submit(@Payload() data: any) {
+  async submit(@Payload() data: SubmitAssignmentDto & { assignmentId: string; requester: Requester }) {
     const { assignmentId, requester, ...dto } = data;
     return this.submissionService.submit(requester, assignmentId, dto);
   }
 
   @MessagePattern({ cmd: 'learning.submission.grade' })
-  async grade(@Payload() data: any) {
+  async grade(@Payload() data: GradeSubmissionDto & { id: string; requester: Requester }) {
     const { id, requester, ...dto } = data;
     return this.submissionService.grade(requester, id, dto);
   }
 
   @MessagePattern({ cmd: 'learning.submission.return' })
-  async returnSubmission(@Payload() data: any) {
+  async returnSubmission(@Payload() data: ReturnSubmissionDto & { id: string; requester: Requester }) {
     const { id, requester, ...dto } = data;
     return this.submissionService.returnSubmission(requester, id, dto);
   }
 
   @MessagePattern({ cmd: 'learning.submission.getMySubmission' })
-  async getMySubmission(@Payload() data: any) {
+  async getMySubmission(@Payload() data: { assignmentId: string; userId: string }) {
     const { assignmentId, userId } = data;
     return this.submissionService.getMySubmission(userId, assignmentId);
   }
 
   @MessagePattern({ cmd: 'learning.submission.findAll' })
-  async findAll(@Payload() data: any) {
+  async findAll(@Payload() data: { assignmentId: string }) {
     const { assignmentId } = data;
     return this.submissionService.getSubmissions(assignmentId);
   }
