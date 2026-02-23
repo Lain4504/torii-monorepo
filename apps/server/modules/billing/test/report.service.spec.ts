@@ -4,25 +4,25 @@ import { PrismaService } from '@server/shared';
 import * as ExcelJS from 'exceljs';
 
 // Mock ExcelJS
-jest.mock('exceljs', () => {
-    const mockSheet = {
-        addRow: jest.fn(),
-        getRow: jest.fn().mockReturnValue({
-            font: {},
-            fill: {},
-        }),
-        columns: [],
-    };
-    const mockWorkbook = {
-        addWorksheet: jest.fn().mockReturnValue(mockSheet),
-        xlsx: {
-            writeBuffer: jest.fn().mockResolvedValue(Buffer.from('mock-excel-buffer')),
-        },
-    };
-    return {
-        Workbook: jest.fn().mockImplementation(() => mockWorkbook),
-    };
-});
+const mockWriteBuffer = jest.fn().mockResolvedValue(Buffer.from('mock-excel-buffer'));
+const mockSheet = {
+    addRow: jest.fn(),
+    getRow: jest.fn().mockReturnValue({
+        font: {},
+        fill: {},
+    }),
+    columns: [],
+};
+const mockWorkbook = {
+    addWorksheet: jest.fn().mockReturnValue(mockSheet),
+    xlsx: {
+        writeBuffer: mockWriteBuffer,
+    },
+};
+
+jest.mock('exceljs', () => ({
+    Workbook: jest.fn().mockImplementation(() => mockWorkbook),
+}));
 
 describe('ReportService', () => {
     let service: ReportService;
@@ -41,6 +41,7 @@ describe('ReportService', () => {
     };
 
     beforeEach(async () => {
+        mockWriteBuffer.mockResolvedValue(Buffer.from('mock-excel-buffer'));
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ReportService,
@@ -118,9 +119,7 @@ describe('ReportService', () => {
 
         it('should throw error if ExcelJS fails to generate buffer', async () => {
             mockPrismaService.order.findMany.mockResolvedValue([]);
-            // Access the mock workbook via ExcelJS Mock
-            const workbook = new (require('exceljs').Workbook)();
-            workbook.xlsx.writeBuffer.mockRejectedValue(new Error('Excel Error'));
+            mockWriteBuffer.mockRejectedValueOnce(new Error('Excel Error'));
 
             await expect(service.exportOrders({})).rejects.toThrow('Excel Error');
         });
