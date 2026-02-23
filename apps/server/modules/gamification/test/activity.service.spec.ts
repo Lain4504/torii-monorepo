@@ -24,6 +24,7 @@ describe('ActivityService', () => {
             userGamification: {
                 upsert: jest.fn(),
                 update: jest.fn(),
+                findUnique: jest.fn(),
             },
             gamificationHistory: {
                 create: jest.fn(),
@@ -144,11 +145,44 @@ describe('ActivityService', () => {
                 streakUpdated: true,
                 newStreak: 3,
                 isMilestone: true,
+                oldStreak: 2,
             });
 
             await service.recordActivity(mockUserId, activityType as any);
 
             expect(achievementService.checkStreakAchievements).toHaveBeenCalledWith(mockUserId, 3);
+        });
+
+        it('should handle database error when checking existing activity', async () => {
+            prisma.dailyActivity.findUnique.mockRejectedValue(new Error('DB Error'));
+            await expect(service.recordActivity(mockUserId, activityType as any)).rejects.toThrow('DB Error');
+        });
+
+        it('should handle database error when creating activity', async () => {
+            prisma.dailyActivity.findUnique.mockResolvedValue(null);
+            prisma.dailyActivity.create.mockRejectedValue(new Error('Create Error'));
+            await expect(service.recordActivity(mockUserId, activityType as any)).rejects.toThrow('Create Error');
+        });
+
+        it('should handle failure in streakService.recordActivity', async () => {
+            streakService.recordActivity.mockRejectedValue(new Error('Streak Error'));
+            await expect(service.recordActivity(mockUserId, activityType as any)).rejects.toThrow('Streak Error');
+        });
+
+        it('should not crash if updateXP fails internally', async () => {
+            // updateXP is a private method called inside recordActivity, it has its own try-catch
+            prisma.userGamification.upsert.mockRejectedValue(new Error('XP Update Error'));
+
+            const result = await service.recordActivity(mockUserId, activityType as any);
+
+            expect(result).toBeDefined();
+            expect(result.currentStreak).toBe(2);
+        });
+
+        it('should handle failure in achievement services', async () => {
+            achievementService.checkLessonAchievements.mockRejectedValue(new Error('Achievement Error'));
+
+            await expect(service.recordActivity(mockUserId, 'LESSON_COMPLETE' as any)).rejects.toThrow('Achievement Error');
         });
     });
 
@@ -162,13 +196,18 @@ describe('ActivityService', () => {
             expect(result).toEqual(['2024-01-01', '2024-01-02']);
             expect(prisma.dailyActivity.findMany).toHaveBeenCalled();
         });
+
+        it('should handle database error when fetching active dates', async () => {
+            prisma.dailyActivity.findMany.mockRejectedValue(new Error('DB Error'));
+            await expect(service.getWeeklyActiveDates(mockUserId)).rejects.toThrow('DB Error');
+        });
     });
 
     describe('updateXP (internal logic test via level-up scenario)', () => {
         it('should level up user when XP threshold reached', async () => {
             // 400 XP reached (Level = sqrt(400/100) + 1 = 3)
             prisma.userGamification.upsert.mockResolvedValue({ totalXp: 400, level: 1 });
-            streakService.recordActivity.mockResolvedValue({ streakUpdated: false, newStreak: 1 });
+            streakService.recordActivity.mockResolvedValue({ streakUpdated: false, newStreak: 1, oldStreak: 1 });
 
             await service.recordActivity(mockUserId, 'EXAM_COMPLETE' as any);
 
@@ -192,6 +231,21 @@ describe('ActivityService', () => {
             expect(result.data).toEqual(mockData);
             expect(result.total).toBe(1);
             expect(result.totalPages).toBe(1);
+        });
+
+        it('should handle database error when fetching history', async () => {
+            prisma.gamificationHistory.findMany.mockRejectedValue(new Error('History DB Error'));
+            await expect(service.getHistory(mockUserId, {})).rejects.toThrow('History DB Error');
+        });
+
+        it('should handle invalid pagination parameters by using defaults', async () => {
+            prisma.gamificationHistory.findMany.mockResolvedValue([]);
+            prisma.gamificationHistory.count.mockResolvedValue(0);
+
+            const result = await service.getHistory(mockUserId, { page: 'invalid', limit: '0' });
+
+            expect(result.page).toBe(1);
+            expect(result.limit).toBe(10);
         });
     });
 });
