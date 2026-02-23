@@ -103,6 +103,36 @@ describe('LeaderboardService', () => {
             expect(result.currentUser?.id).toBe(mockUserId);
             expect(result.currentUser?.rank).toBe(56); // 50 + 5 + 1
         });
+
+        it('should throw error if findMany fails', async () => {
+            prisma.userGamification.findMany.mockRejectedValue(new Error('Fetch Error'));
+            await expect(service.getGlobalLeaderboard()).rejects.toThrow('Fetch Error');
+        });
+
+        it('should handle database error in count methods', async () => {
+            prisma.userGamification.findMany.mockResolvedValue([]);
+            prisma.user.count.mockRejectedValue(new Error('Count Error'));
+            await expect(service.getGlobalLeaderboard()).rejects.toThrow('Count Error');
+        });
+
+        it('should continue if ensureUserGamification fails (private call)', async () => {
+            prisma.userGamification.upsert.mockRejectedValue(new Error('Upsert Failed'));
+            prisma.userGamification.findMany.mockResolvedValue([]);
+            prisma.user.count.mockResolvedValue(0);
+
+            const result = await service.getGlobalLeaderboard(mockUserId);
+            expect(result.users).toEqual([]);
+            // Service should not throw as ensureUserGamification has a try-catch
+        });
+
+        it('should return undefined currentUser if user findUnique fails', async () => {
+            prisma.userGamification.findMany.mockResolvedValue([]);
+            prisma.userGamification.findUnique.mockResolvedValue(null);
+            prisma.user.count.mockResolvedValue(10);
+
+            const result = await service.getGlobalLeaderboard(mockUserId);
+            expect(result.currentUser).toBeUndefined();
+        });
     });
 
     describe('getStreakLeaderboard', () => {
@@ -126,6 +156,18 @@ describe('LeaderboardService', () => {
             expect(prisma.userGamification.findMany).toHaveBeenCalledWith(expect.objectContaining({
                 orderBy: expect.arrayContaining([{ currentStreak: 'desc' }]),
             }));
+        });
+
+        it('should throw error if findMany fails for streaks', async () => {
+            prisma.userGamification.findMany.mockRejectedValue(new Error('Streak Fetch Error'));
+            await expect(service.getStreakLeaderboard()).rejects.toThrow('Streak Fetch Error');
+        });
+
+        it('should handle error when fetching individual streak rank', async () => {
+            prisma.userGamification.findMany.mockResolvedValue([]);
+            prisma.userGamification.findUnique.mockRejectedValue(new Error('Rank Fetch Error'));
+
+            await expect(service.getStreakLeaderboard(mockUserId)).rejects.toThrow('Rank Fetch Error');
         });
     });
 });
