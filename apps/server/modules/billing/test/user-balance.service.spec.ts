@@ -75,6 +75,17 @@ describe('UserBalanceService', () => {
             expect(repository.create).toHaveBeenCalledWith(mockUserId);
             expect(result).toBe(0);
         });
+
+        it('should throw error if repository findByUserId fails', async () => {
+            repository.findByUserId.mockRejectedValue(new Error('Fetch Error'));
+            await expect(service.getBalance(mockUserId)).rejects.toThrow('Fetch Error');
+        });
+
+        it('should throw error if repository create fails', async () => {
+            repository.findByUserId.mockResolvedValue(null);
+            repository.create.mockRejectedValue(new Error('Creation Error'));
+            await expect(service.getBalance(mockUserId)).rejects.toThrow('Creation Error');
+        });
     });
 
     describe('addBalance', () => {
@@ -109,6 +120,19 @@ describe('UserBalanceService', () => {
             expect(prisma.balanceTransaction.create).toHaveBeenCalled();
             expect(result).toBe(true);
         });
+
+        it('should throw error if repository updateBalance fails', async () => {
+            repository.findByUserId.mockResolvedValue({ userId: mockUserId, balance: 100 } as any);
+            repository.updateBalance.mockRejectedValue(new Error('Update Error'));
+            await expect(service.addBalance(mockUserId, 100, 'test')).rejects.toThrow('Update Error');
+        });
+
+        it('should throw error if transaction logging fails', async () => {
+            repository.findByUserId.mockResolvedValue({ userId: mockUserId, balance: 100 } as any);
+            repository.updateBalance.mockResolvedValue({} as any);
+            prisma.balanceTransaction.create.mockRejectedValue(new Error('Log Error'));
+            await expect(service.addBalance(mockUserId, 100, 'test')).rejects.toThrow('Log Error');
+        });
     });
 
     describe('deductBalance', () => {
@@ -137,6 +161,19 @@ describe('UserBalanceService', () => {
                 .rejects.toThrow(BadRequestException);
 
             expect(repository.updateBalance).not.toHaveBeenCalled();
+        });
+
+        it('should throw error if repository updateBalance fails during deduction', async () => {
+            repository.findByUserId.mockResolvedValue({ userId: mockUserId, balance: 1000 } as any);
+            repository.updateBalance.mockRejectedValue(new Error('Deduct DB Error'));
+            await expect(service.deductBalance(mockUserId, 200, 'test')).rejects.toThrow('Deduct DB Error');
+        });
+
+        it('should throw error if transaction log fails after deduction', async () => {
+            repository.findByUserId.mockResolvedValue({ userId: mockUserId, balance: 1000 } as any);
+            repository.updateBalance.mockResolvedValue({} as any);
+            prisma.balanceTransaction.create.mockRejectedValue(new Error('Log Fail'));
+            await expect(service.deductBalance(mockUserId, 200, 'test')).rejects.toThrow('Log Fail');
         });
     });
 
@@ -172,6 +209,22 @@ describe('UserBalanceService', () => {
             expect(prisma.balanceTransaction.findMany).toHaveBeenCalledWith(expect.objectContaining({
                 where: { userId: mockUserId, type: BalanceTransactionType.TOP_UP }
             }));
+        });
+
+        it('should throw error if prisma fetch fails for history', async () => {
+            prisma.balanceTransaction.findMany.mockRejectedValue(new Error('Fetch History Error'));
+            await expect(service.getHistory(mockUserId, {})).rejects.toThrow('Fetch History Error');
+        });
+
+        it('should handle invalid pagination parameters by using defaults', async () => {
+            const query = { page: 'invalid', limit: '-5' };
+            prisma.balanceTransaction.findMany.mockResolvedValue([]);
+            prisma.balanceTransaction.count.mockResolvedValue(0);
+
+            const result = await service.getHistory(mockUserId, query);
+
+            expect(result.page).toBe(1);
+            expect(result.limit).toBe(10);
         });
     });
 });
