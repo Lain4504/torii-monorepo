@@ -112,7 +112,7 @@ export class LessonController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.create' },
-                    { ...dto, userId: requester.sub }
+                    { ...dto, requester: req.requester }
                 )
             );
             return successResponse({ lesson: result }, 'Lesson created successfully');
@@ -133,7 +133,7 @@ export class LessonController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.reorder' },
-                    { moduleId, lessonOrders, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
+                    { moduleId, lessonOrders, requester: req.requester }
                 )
             );
             return successResponse({ lessons: result }, 'Lessons reordered successfully');
@@ -154,7 +154,7 @@ export class LessonController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.update' },
-                    { id, ...dto, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
+                    { id, ...dto, requester: req.requester }
                 )
             );
             return successResponse({ lesson: result }, 'Lesson updated successfully');
@@ -176,7 +176,7 @@ export class LessonController {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.delete' },
-                    { id, userId: requester.sub, userRole: requester.role, hardDelete: isHardDelete, userPermissions: requester.permissions }
+                    { id, hardDelete: isHardDelete, requester: req.requester }
                 )
             );
             return successResponse(null, 'Lesson deleted successfully');

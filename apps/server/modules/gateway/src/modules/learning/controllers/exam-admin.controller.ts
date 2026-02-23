@@ -58,11 +58,10 @@ export class ExamAdminController {
     @Post()
     async create(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.create' },
-                    { ...dto, userId: requester.sub, userRole: requester.role }
+                    { ...dto, requester: req.requester }
                 )
             );
             return successResponse({ exam: result });
@@ -74,11 +73,10 @@ export class ExamAdminController {
     @Put(':id')
     async update(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.update' },
-                    { id, ...dto, userId: requester.sub, userRole: requester.role }
+                    { id, ...dto, requester: req.requester }
                 )
             );
             return successResponse({ exam: result });
@@ -90,11 +88,10 @@ export class ExamAdminController {
     @Delete(':id')
     async delete(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.delete' },
-                    { id, userId: requester.sub, userRole: requester.role }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse(null, 'Exam deleted successfully');
@@ -106,11 +103,10 @@ export class ExamAdminController {
     @Post(':id/publish')
     async publish(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam-admin.publish' },
-                    { id, userId: requester.sub, userRole: requester.role }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse({ exam: result });

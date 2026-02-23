@@ -41,11 +41,10 @@ export class NotificationController {
         @Query() query: NotificationQueryDTO,
     ) {
         try {
-            const userId = req.requester?.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.findAll' },
-                    { userId, query },
+                    { query, requester: req.requester },
                 ),
             );
             // The service returns PaginatedResponseDTO. existing users controller behaves as if this needs wrapping.
@@ -61,11 +60,10 @@ export class NotificationController {
     @Get('unread-count')
     async getUnreadCount(@Req() req: ReqWithRequester) {
         try {
-            const userId = req.requester?.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.getUnreadCount' },
-                    { userId },
+                    { requester: req.requester },
                 ),
             );
             return successResponse(result);
@@ -80,11 +78,10 @@ export class NotificationController {
         @Req() req: ReqWithRequester,
     ) {
         try {
-            const userId = req.requester?.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.markAsRead' },
-                    { notificationId, userId },
+                    { notificationId, requester: req.requester },
                 ),
             );
             return successResponse(result);
@@ -96,11 +93,10 @@ export class NotificationController {
     @Patch('read-all')
     async markAllAsRead(@Req() req: ReqWithRequester) {
         try {
-            const userId = req.requester?.sub;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.markAllAsRead' },
-                    { userId },
+                    { requester: req.requester },
                 ),
             );
             return successResponse(result);
@@ -115,11 +111,10 @@ export class NotificationController {
         @Req() req: ReqWithRequester,
     ) {
         try {
-            const userId = req.requester?.sub;
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'communication.notification.delete' },
-                    { notificationId, userId },
+                    { notificationId, requester: req.requester },
                 ),
             );
             return successResponse(null, 'Notification deleted successfully');

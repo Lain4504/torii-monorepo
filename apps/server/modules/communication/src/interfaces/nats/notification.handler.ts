@@ -3,6 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import type { INotificationService } from '@server/communication/interfaces/services';
 import { NOTIFICATION_SERVICE_TOKEN } from '@server/communication/interfaces/services';
 import type { NotificationEventData } from '@server/communication/interfaces/events';
+import { Requester } from '@workspace/schemas';
 
 /**
  * Notification NATS Message Handler
@@ -55,28 +56,32 @@ export class NotificationHandler {
     }
 
     @MessagePattern({ cmd: 'communication.notification.findAll' })
-    async findAll(@Payload() payload: { userId: string; query: any }) {
-        return this.notificationService.findAll(payload.userId, payload.query);
+    async findAll(@Payload() data: { query: { page?: number; limit?: number; isRead?: boolean;[key: string]: any }, requester: Requester }) {
+        return this.notificationService.findAll(data.requester.sub, {
+            page: data.query.page ?? 1,
+            limit: data.query.limit ?? 10,
+            isRead: data.query.isRead,
+        });
     }
 
     @MessagePattern({ cmd: 'communication.notification.getUnreadCount' })
-    async getUnreadCount(@Payload() payload: { userId: string }) {
-        return this.notificationService.getUnreadCount(payload.userId);
+    async getUnreadCount(@Payload() data: { requester: Requester }) {
+        return this.notificationService.getUnreadCount(data.requester.sub);
     }
 
     @MessagePattern({ cmd: 'communication.notification.markAsRead' })
-    async markAsRead(@Payload() payload: { notificationId: string; userId: string }) {
-        return this.notificationService.markAsRead(payload.notificationId, payload.userId);
+    async markAsRead(@Payload() data: { notificationId: string; requester: Requester }) {
+        return this.notificationService.markAsRead(data.notificationId, data.requester.sub);
     }
 
     @MessagePattern({ cmd: 'communication.notification.markAllAsRead' })
-    async markAllAsRead(@Payload() payload: { userId: string }) {
-        return this.notificationService.markAllAsRead(payload.userId);
+    async markAllAsRead(@Payload() data: { requester: Requester }) {
+        return this.notificationService.markAllAsRead(data.requester.sub);
     }
 
     @MessagePattern({ cmd: 'communication.notification.delete' })
-    async delete(@Payload() payload: { notificationId: string; userId: string }) {
-        return this.notificationService.delete(payload.notificationId, payload.userId);
+    async delete(@Payload() data: { notificationId: string; requester: Requester }) {
+        return this.notificationService.delete(data.notificationId, data.requester.sub);
     }
 
     @MessagePattern({ cmd: 'communication.notification.create' })

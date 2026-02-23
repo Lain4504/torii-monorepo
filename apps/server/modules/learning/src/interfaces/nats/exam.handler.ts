@@ -2,7 +2,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { EXAM_SERVICE_TOKEN, IExamService } from '@server/learning/interfaces/services/i-exam.service';
-import { ExamQueryDTO, ExamCreateDTO, ExamUpdateDTO, ExamSessionAnswersDTO, ExamSessionQueryDTO } from '@workspace/schemas';
+import { ExamQueryDTO, ExamCreateDTO, ExamUpdateDTO, ExamSessionAnswersDTO, ExamSessionQueryDTO, Requester, UserRole } from '@workspace/schemas';
 
 @Controller()
 export class ExamHandler {
@@ -16,43 +16,43 @@ export class ExamHandler {
     // --- Exam Controller Methods ---
 
     @MessagePattern({ cmd: 'learning.exam.findAllWithStatus' })
-    async findAllWithStatus(@Payload() data: { query: ExamQueryDTO, userId: string }) {
-        return this.examService.findAllWithStatus(data.query, data.userId);
+    async findAllWithStatus(@Payload() data: { query: ExamQueryDTO, requester: Requester }) {
+        return this.examService.findAllWithStatus(data.query, data.requester.sub);
     }
 
     @MessagePattern({ cmd: 'learning.exam.getUserSessions' })
-    async getUserSessions(@Payload() data: { userId: string, query: ExamSessionQueryDTO }) {
-        return this.examService.getUserSessions(data.userId, data.query);
+    async getUserSessions(@Payload() data: { requester: Requester, query: ExamSessionQueryDTO }) {
+        return this.examService.getUserSessions(data.requester.sub, data.query);
     }
 
     @MessagePattern({ cmd: 'learning.exam.saveAnswers' })
-    async saveAnswers(@Payload() data: { sessionId: string, userId: string, dto: ExamSessionAnswersDTO }) {
-        return this.examService.saveAnswers(data.sessionId, data.userId, data.dto);
+    async saveAnswers(@Payload() data: { sessionId: string, requester: Requester, dto: ExamSessionAnswersDTO }) {
+        return this.examService.saveAnswers(data.sessionId, data.requester.sub, data.dto);
     }
 
     @MessagePattern({ cmd: 'learning.exam.submitSession' })
-    async submitSession(@Payload() data: { sessionId: string, userId: string }) {
-        return this.examService.submitSession(data.sessionId, data.userId);
+    async submitSession(@Payload() data: { sessionId: string, requester: Requester }) {
+        return this.examService.submitSession(data.sessionId, data.requester.sub);
     }
 
     @MessagePattern({ cmd: 'learning.exam.startExam' })
-    async startExam(@Payload() data: { examId: string, userId: string }) {
-        return this.examService.startExam(data.examId, data.userId);
+    async startExam(@Payload() data: { examId: string, requester: Requester }) {
+        return this.examService.startExam(data.examId, data.requester.sub);
     }
 
     @MessagePattern({ cmd: 'learning.exam.getAttemptDetails' })
-    async getAttemptDetails(@Payload() data: { sessionId: string, userId: string }) {
-        return this.examService.getAttemptDetails(data.sessionId, data.userId);
+    async getAttemptDetails(@Payload() data: { sessionId: string, requester: Requester }) {
+        return this.examService.getAttemptDetails(data.sessionId, data.requester.sub);
     }
 
     @MessagePattern({ cmd: 'learning.exam.getExamById' })
-    async getExamById(@Payload() data: { examId: string, userId?: string }) {
-        return this.examService.getExamById(data.examId, data.userId);
+    async getExamById(@Payload() data: { examId: string, requester?: Requester }) {
+        return this.examService.getExamById(data.examId, data.requester?.sub);
     }
 
     @MessagePattern({ cmd: 'learning.exam.getExamSessions' })
-    async getExamSessions(@Payload() data: { examId: string, userId: string, query?: ExamSessionQueryDTO }) {
-        return this.examService.getExamSessions(data.examId, data.userId, data.query);
+    async getExamSessions(@Payload() data: { examId: string, requester: Requester, query?: ExamSessionQueryDTO }) {
+        return this.examService.getExamSessions(data.examId, data.requester.sub, data.query);
     }
 
     // --- Exam Admin Controller Methods ---
@@ -68,30 +68,26 @@ export class ExamHandler {
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.create' })
-    async createAdmin(@Payload() data: ExamCreateDTO & { userId: string, userRole: string }) {
-        const { userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async createAdmin(@Payload() data: ExamCreateDTO & { requester: Requester }) {
+        const { requester, ...dto } = data;
         return this.examService.create(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.update' })
-    async updateAdmin(@Payload() data: ExamUpdateDTO & { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole, ...dto } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async updateAdmin(@Payload() data: ExamUpdateDTO & { id: string, requester: Requester }) {
+        const { id, requester, ...dto } = data;
         return this.examService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.delete' })
-    async deleteAdmin(@Payload() data: { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async deleteAdmin(@Payload() data: { id: string, requester: Requester }) {
+        const { id, requester } = data;
         return this.examService.delete(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.publish' })
-    async publishAdmin(@Payload() data: { id: string, userId: string, userRole: string }) {
-        const { id, userId, userRole } = data;
-        const requester = { sub: userId, role: userRole as any, permissions: [] };
+    async publishAdmin(@Payload() data: { id: string, requester: Requester }) {
+        const { id, requester } = data;
         return this.examService.publish(requester, id);
     }
 

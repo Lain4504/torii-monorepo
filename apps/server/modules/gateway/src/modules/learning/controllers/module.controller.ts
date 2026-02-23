@@ -59,7 +59,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.findByCourseId' },
-                    { courseId, userId: requester.sub }
+                    { courseId, requester: req.requester }
                 )
             );
             return successResponse({ modules: result });
@@ -89,7 +89,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.create' },
-                    { ...dto, userId: requester.sub }
+                    { ...dto, requester: req.requester }
                 )
             );
             return successResponse({ module: result }, 'Module created successfully');
@@ -110,7 +110,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.reorder' },
-                    { courseId, moduleOrders, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
+                    { courseId, moduleOrders, requester: req.requester }
                 )
             );
             return successResponse({ modules: result }, 'Modules reordered successfully');
@@ -131,7 +131,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.update' },
-                    { id, ...dto, userId: requester.sub, userRole: requester.role, userPermissions: requester.permissions }
+                    { id, ...dto, requester: req.requester }
                 )
             );
             return successResponse({ module: result }, 'Module updated successfully');
@@ -153,7 +153,7 @@ export class ModuleController {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.delete' },
-                    { id, userId: requester.sub, userRole: requester.role, hardDelete: isHardDelete, userPermissions: requester.permissions }
+                    { id, hardDelete: isHardDelete, requester: req.requester }
                 )
             );
             return successResponse(null, 'Module deleted successfully');
