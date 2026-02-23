@@ -1,7 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WishlistService } from '@server/learning/modules/wishlist/wishlist.service';
 import { WishlistRepository } from '@server/learning/modules/wishlist/wishlist.repository';
+import { getMapperToken } from '@automapper/nestjs';
 import type { WishlistCreateDTO, WishlistQueryDTO } from '@workspace/schemas';
+
+const mockMapper = {
+    map: jest.fn().mockImplementation((val) => val),
+};
 
 describe('WishlistService', () => {
     let service: WishlistService;
@@ -43,6 +48,10 @@ describe('WishlistService', () => {
                 {
                     provide: WishlistRepository,
                     useValue: mockRepository,
+                },
+                {
+                    provide: getMapperToken(),
+                    useValue: mockMapper,
                 },
             ],
         }).compile();

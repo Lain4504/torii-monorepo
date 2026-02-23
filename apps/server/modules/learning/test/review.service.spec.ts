@@ -3,6 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReviewService } from '@server/learning/modules/review/review.service';
 import { ReviewRepository } from '@server/learning/modules/review/review.repository';
 import { RpcException } from '@nestjs/microservices';
+import { getMapperToken } from '@automapper/nestjs';
+import { ENROLLMENT_REPOSITORY_TOKEN } from '@server/learning/interfaces';
 import type { ReviewCreateDTO, ReviewQueryDTO } from '@workspace/schemas';
 
 // Mock ReviewRepository
@@ -20,9 +22,18 @@ const mockReviewRepository = {
     delete: jest.fn(),
 };
 
+const mockEnrollmentRepository = {
+    findByUserAndCourse: jest.fn(),
+};
+
+const mockMapper = {
+    map: jest.fn().mockImplementation((val) => val),
+};
+
 describe('ReviewService', () => {
     let service: ReviewService;
     let repository: typeof mockReviewRepository;
+    let enrollmentRepository: typeof mockEnrollmentRepository;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -32,11 +43,20 @@ describe('ReviewService', () => {
                     provide: ReviewRepository,
                     useValue: mockReviewRepository,
                 },
+                {
+                    provide: ENROLLMENT_REPOSITORY_TOKEN,
+                    useValue: mockEnrollmentRepository,
+                },
+                {
+                    provide: getMapperToken(),
+                    useValue: mockMapper,
+                },
             ],
         }).compile();
 
         service = module.get<ReviewService>(ReviewService);
         repository = module.get(ReviewRepository);
+        enrollmentRepository = module.get(ENROLLMENT_REPOSITORY_TOKEN);
     });
 
     afterEach(() => {
@@ -161,6 +181,7 @@ describe('ReviewService', () => {
 
         it('should create a review successfully', async () => {
             mockReviewRepository.findCourse.mockResolvedValue({ id: courseId });
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue({ id: 'enr1' });
             mockReviewRepository.findByUserAndCourse.mockResolvedValue(null);
             mockReviewRepository.create.mockResolvedValue({
                 id: 'review1',
@@ -183,6 +204,14 @@ describe('ReviewService', () => {
             expect(repository.create).toHaveBeenCalled();
             expect(repository.updateCourseRatingStats).toHaveBeenCalled();
             expect(result.id).toBe('review1');
+        });
+
+        it('should throw if user not enrolled', async () => {
+            mockReviewRepository.findCourse.mockResolvedValue({ id: courseId });
+            mockEnrollmentRepository.findByUserAndCourse.mockResolvedValue(null);
+
+            await expect(service.create(userId, courseId, createDto))
+                .rejects.toThrow(RpcException); // 403
         });
 
         it('should throw if course not found', async () => {
