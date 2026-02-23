@@ -25,12 +25,30 @@ import {
     successPaginatedResponse,
     Public,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { CourseSearchRequestDTO, courseSearchRequestDTOSchema } from '@workspace/schemas';
 
 @Controller('api/courses')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
+
+    @Post('search')
+    @Permissions('course.view')
+    async searchCourses(
+        @Body(new ZodValidationPipe(courseSearchRequestDTOSchema)) dto: CourseSearchRequestDTO,
+        @Req() req: ReqWithRequester
+    ) {
+        const requester = req.requester;
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.findAll' },
+                { query: dto, requester }
+            )
+        );
+        return successPaginatedResponse(result);
+    }
 
     @Post()
     @Permissions('course.create')

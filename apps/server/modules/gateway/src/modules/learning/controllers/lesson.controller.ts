@@ -23,13 +23,33 @@ import {
     Permissions,
     PermissionsGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { LessonSearchRequestDTO, lessonSearchRequestDTOSchema } from '@workspace/schemas';
 import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('api/lessons')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LessonController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
+
+    @Post('search')
+    @Permissions('lesson.view')
+    async searchLessons(
+        @Body(new ZodValidationPipe(lessonSearchRequestDTOSchema)) dto: LessonSearchRequestDTO,
+    ) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.lesson.findAll' },
+                    dto
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to search lessons');
+        }
+    }
 
     @Get()
     async findAll(

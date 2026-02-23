@@ -49,6 +49,9 @@ export const lessonQueryDTOSchema = z.object({
 
 export type LessonQueryDTO = z.infer<typeof lessonQueryDTOSchema>;
 
+export const lessonSearchRequestDTOSchema = lessonQueryDTOSchema;
+export type LessonSearchRequestDTO = z.infer<typeof lessonSearchRequestDTOSchema>;
+
 export const lessonResponseDTOSchema = lessonSchema;
 
 export type LessonResponseDTO = z.infer<typeof lessonResponseDTOSchema>;

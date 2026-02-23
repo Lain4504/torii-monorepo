@@ -106,3 +106,13 @@ export const setPasswordDTOSchema = z.object({
 
 export type SetPasswordDTO = z.infer<typeof setPasswordDTOSchema>;
 
+// User Search DTO
+export const userSearchRequestDTOSchema = z.object({
+    page: z.number().int().min(1).optional().default(1),
+    limit: z.number().int().min(1).optional().default(10),
+    search: z.string().optional().default(''),
+    role: z.string().optional().default(''),
+});
+
+export type UserSearchRequestDTO = z.infer<typeof userSearchRequestDTOSchema>;
+

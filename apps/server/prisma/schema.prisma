@@ -615,6 +615,7 @@ model User {
   // History Relations
   balanceTransactions   BalanceTransaction[]
   gamificationHistories GamificationHistory[]
+  notebooks             Notebook[]
 
   @@index([email])
   @@index([role])

@@ -70,6 +70,10 @@ export const courseQueryDTOSchema = z.object({
 
 export type CourseQueryDTO = z.infer<typeof courseQueryDTOSchema>;
 
+// Search request schema definition (same structure as query)
+export const courseSearchRequestDTOSchema = courseQueryDTOSchema;
+export type CourseSearchRequestDTO = z.infer<typeof courseSearchRequestDTOSchema>;
+
 export const courseResponseDTOSchema = courseSchema.extend({
     // Status is computed from approvedBy/approvedAt
     // featured is removed - can be added to aiMetadata if needed
