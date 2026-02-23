@@ -33,9 +33,9 @@ import { Badge } from '@workspace/ui/components/badge'
 import { toast } from '@workspace/ui/components/sonner'
 import { Switch } from '@workspace/ui/components/switch'
 import { useAppSelector } from '@/hooks/hooks'
-import * as XLSX from 'xlsx'
+import { read, utils } from 'xlsx'
 import { NotebookFlashcardStudy } from '@/components/flashcard/notebook-flashcard-study'
-import { notebookApi, type NotebookDTO, type NoteEntryDTO } from '@/apis/services/notebook-api'
+import { notebookApi, type NotebookDTO, type NoteEntryDTO } from '@/lib/api/services/notebook-api'
 
 // ============ TYPES ============
 // Re-export types with local aliases for backward compat
@@ -121,7 +121,7 @@ export default function NotesPage() {
         n.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-    const filteredEntries = activeNotebook?.entries.filter(e =>
+    const filteredEntries = activeNotebook?.entries.filter((e: NoteEntry) =>
         e.word.toLowerCase().includes(entrySearch.toLowerCase()) ||
         e.meaning.toLowerCase().includes(entrySearch.toLowerCase())
     ) || []
@@ -279,10 +279,10 @@ export default function NotesPage() {
         reader.onload = (evt) => {
             try {
                 const data = evt.target?.result
-                const workbook = XLSX.read(data, { type: 'array' })
+                const workbook = read(data, { type: 'array' })
                 const sheetName = workbook.SheetNames[0]
                 const sheet = workbook.Sheets[sheetName!]
-                const rows: any[] = XLSX.utils.sheet_to_json(sheet!, { header: 1 })
+                const rows: any[] = utils.sheet_to_json(sheet!, { header: 1 })
 
                 const entries: typeof importPreview = []
                 for (let i = 1; i < rows.length; i++) {
@@ -504,7 +504,7 @@ export default function NotesPage() {
                                 <p className="text-sm font-medium">Không tìm thấy từ nào</p>
                             </div>
                         ) : (
-                            filteredEntries.map((entry, idx) => (
+                            filteredEntries.map((entry: NoteEntry, idx: number) => (
                                 <Card key={entry.id} className="border-border bg-card rounded-2xl hover:shadow-sm transition-all group">
                                     <CardContent className="p-4 flex items-start gap-4">
                                         <div className="flex items-center justify-center size-9 rounded-xl bg-muted/40 text-muted-foreground font-bold text-sm shrink-0 mt-0.5">

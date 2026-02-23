@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/flashcards/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/flashcards/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/notes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/notes/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/notifications/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/notifications/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/profile/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/profile/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/settings/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/settings/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/support/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/support/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/learners/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/learners/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/lesson-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/lesson-content.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-create-post.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-create-post.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-post-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed-post-card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/feed/feed.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/feed/feed.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/leaderboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/leaderboard-header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/security-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/security-tab.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/sessions-management.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/sessions-management.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update notebook API and enhance flashcard component functionality" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -412,22 +393,6 @@
       <workItem from="1771816089601" duration="6372000" />
       <workItem from="1771831921551" duration="1608000" />
     </task>
-    <task id="LOCAL-00819" summary="update config#2">
-      <option name="closed" value="true" />
-      <created>1770051857535</created>
-      <option name="number" value="00819" />
-      <option name="presentableId" value="LOCAL-00819" />
-      <option name="project" value="LOCAL" />
-      <updated>1770051857536</updated>
-    </task>
-    <task id="LOCAL-00820" summary="update config#2">
-      <option name="closed" value="true" />
-      <created>1770051913292</created>
-      <option name="number" value="00820" />
-      <option name="presentableId" value="LOCAL-00820" />
-      <option name="project" value="LOCAL" />
-      <updated>1770051913292</updated>
-    </task>
     <task id="LOCAL-00821" summary="refactor: streamline workspace.xml configuration">
       <option name="closed" value="true" />
       <created>1770170557205</created>
@@ -804,7 +769,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771858589006</updated>
     </task>
-    <option name="localTasksCounter" value="868" />
+    <task id="LOCAL-00868" summary="refactor: simplify layout and styling in dashboard and feed components">
+      <option name="closed" value="true" />
+      <created>1771859638489</created>
+      <option name="number" value="00868" />
+      <option name="presentableId" value="LOCAL-00868" />
+      <option name="project" value="LOCAL" />
+      <updated>1771859638489</updated>
+    </task>
+    <task id="LOCAL-00869" summary="refactor: update notebook API and enhance flashcard component functionality">
+      <option name="closed" value="true" />
+      <created>1771860695712</created>
+      <option name="number" value="00869" />
+      <option name="presentableId" value="LOCAL-00869" />
+      <option name="project" value="LOCAL" />
+      <updated>1771860695712</updated>
+    </task>
+    <option name="localTasksCounter" value="870" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -839,8 +820,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add implementation checklist for Agents Service to track progress on AI-related tasks" />
-    <MESSAGE value="refactor: improve course repository and service methods, add analytics handlers" />
     <MESSAGE value="refactor: restructure agent handlers and update request payloads" />
     <MESSAGE value="refactor: enhance prompt and resource loading with dynamic path resolution" />
     <MESSAGE value="chore: update dependencies and improve project configuration" />
@@ -864,7 +843,9 @@
     <MESSAGE value="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page" />
     <MESSAGE value="refactor: enhance layout and styling across multiple components" />
     <MESSAGE value="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components" />
+    <MESSAGE value="refactor: simplify layout and styling in dashboard and feed components" />
+    <MESSAGE value="refactor: update notebook API and enhance flashcard component functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: update notebook API and enhance flashcard component functionality" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

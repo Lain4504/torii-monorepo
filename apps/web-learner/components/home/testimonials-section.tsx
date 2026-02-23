@@ -137,13 +137,13 @@ export function TestimonialsSection() {
 
                             {/* Stars */}
                             <div className="flex gap-1">
-                                {[...Array(r.rating)].map((_, j) => (
+                                {[...Array(r?.rating ?? 0)].map((_, j) => (
                                     <Star key={j} className="size-5 fill-primary text-primary" />
                                 ))}
                             </div>
 
                             {/* Result badge */}
-                            {r.result && (
+                            {r?.result && (
                                 <Badge className="rounded-full text-xs font-semibold">
                                     🎯 {r.result}
                                 </Badge>
@@ -151,20 +151,20 @@ export function TestimonialsSection() {
 
                             {/* Content */}
                             <p className="text-foreground leading-relaxed text-base">
-                                &ldquo;{r.content}&rdquo;
+                                &ldquo;{r?.content}&rdquo;
                             </p>
 
                             {/* Author */}
                             <div className="flex items-center gap-3 pt-2 border-t">
                                 <Avatar className="size-10 border">
-                                    <AvatarImage src={r.avatarUrl} />
+                                    <AvatarImage src={r?.avatarUrl} />
                                     <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
-                                        {r.avatar}
+                                        {r?.avatar}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="font-semibold text-sm">{r.name}</p>
-                                    <p className="text-xs text-muted-foreground">{r.role}</p>
+                                    <p className="font-semibold text-sm">{r?.name}</p>
+                                    <p className="text-xs text-muted-foreground">{r?.role}</p>
                                 </div>
                             </div>
                         </div>
