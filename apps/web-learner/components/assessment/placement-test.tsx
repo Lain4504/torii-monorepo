@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ArrowRight, Sparkles, BookCheck, Clock, Trophy } from "lucide-react"
+import { ArrowRight, Sparkles, BookCheck, Clock, Loader2 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -12,7 +12,7 @@ import { AgentTestGenerationResponseDTO as PlacementTestResponse, AgentTestEvalu
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
 import { Progress } from "@workspace/ui/components/progress"
-import { Badge } from "@workspace/ui/components/badge"
+
 
 export function PlacementTest() {
     const [step, setStep] = React.useState<"intro" | "test" | "result">("intro")
