@@ -4,20 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page">
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/extra-pages/Login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/extra-pages/Login.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useLogo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useLogo.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/app-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/app-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/auth/login-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/exams/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/exams/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/history/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/history/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/rewards/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/rewards/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/settings/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/settings/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/ai-chat-bot.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/ai-chat-bot.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/settings/enable-two-factor-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/settings/enable-two-factor-dialog.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: enhance layout and styling across multiple components">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/agent.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/agent.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -407,14 +401,6 @@
       <workItem from="1771816089601" duration="6372000" />
       <workItem from="1771831921551" duration="1608000" />
     </task>
-    <task id="LOCAL-00816" summary="update config#2">
-      <option name="closed" value="true" />
-      <created>1770048749622</created>
-      <option name="number" value="00816" />
-      <option name="presentableId" value="LOCAL-00816" />
-      <option name="project" value="LOCAL" />
-      <updated>1770048749624</updated>
-    </task>
     <task id="LOCAL-00817" summary="update config#2">
       <option name="closed" value="true" />
       <created>1770050948445</created>
@@ -799,7 +785,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771853106094</updated>
     </task>
-    <option name="localTasksCounter" value="865" />
+    <task id="LOCAL-00865" summary="refactor: enhance layout and styling across multiple components">
+      <option name="closed" value="true" />
+      <created>1771854114422</created>
+      <option name="number" value="00865" />
+      <option name="presentableId" value="LOCAL-00865" />
+      <option name="project" value="LOCAL" />
+      <updated>1771854114423</updated>
+    </task>
+    <option name="localTasksCounter" value="866" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -834,7 +828,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: implement AppConfigService for centralized configuration management across services" />
     <MESSAGE value="docs: update FEATURES.md to detail Agents Service architecture and user flows" />
     <MESSAGE value="feat: add implementation checklist for Agents Service to track progress on AI-related tasks" />
     <MESSAGE value="refactor: improve course repository and service methods, add analytics handlers" />
@@ -859,7 +852,8 @@
     <MESSAGE value="refactor: reorganize dashboard components and update import paths" />
     <MESSAGE value="feat: replace SVG logo with Image component for improved performance and consistency" />
     <MESSAGE value="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page" />
+    <MESSAGE value="refactor: enhance layout and styling across multiple components" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance layout and styling across multiple components" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
