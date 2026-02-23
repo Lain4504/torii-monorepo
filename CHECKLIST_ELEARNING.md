@@ -22,7 +22,7 @@
 - [ ] Trang danh sách bài tập trong khóa học: `/courses/[slug]/assignments`
 - [ ] Trang nộp bài (text + upload file)
 - [ ] Trang xem kết quả/chấm điểm (score, feedback)
-- [ ] Xử lý lesson `contentType=assignment` trong `learn/lessons/[lessonId]/page.tsx`
+- [ ] Xử lý lesson `contentType=assignment` trong `learn/lessons/[lessonId]/service-unavailable.tsx`
 
 ### Web-admin
 - [ ] Thêm menu Quản lý Assignments vào navigation

@@ -4,14 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: enhance layout and styling across multiple components">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/drill-generator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/grammar-form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/resource-recommender.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/roleplay-studio.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/translator-view.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/agent.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/agent.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CHECKLIST_ELEARNING.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHECKLIST_ELEARNING.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/ai-analytics/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/analytics/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/401/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/503/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/tsconfig.tsbuildinfo" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/tsconfig.tsbuildinfo" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -200,11 +200,11 @@
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\app" />
       <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
       <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\components\dashboard" />
       <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\components\layout" />
       <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\components" />
-      <recent name="$PROJECT_DIR$/apps/web-admin/src/routes/notification" />
     </key>
   </component>
   <component name="RunManager" selected="JavaScript Debug.localhost:3000">
@@ -400,14 +400,6 @@
       <workItem from="1771745913938" duration="13000" />
       <workItem from="1771816089601" duration="6372000" />
       <workItem from="1771831921551" duration="1608000" />
-    </task>
-    <task id="LOCAL-00817" summary="update config#2">
-      <option name="closed" value="true" />
-      <created>1770050948445</created>
-      <option name="number" value="00817" />
-      <option name="presentableId" value="LOCAL-00817" />
-      <option name="project" value="LOCAL" />
-      <updated>1770050948445</updated>
     </task>
     <task id="LOCAL-00818" summary="update config#2">
       <option name="closed" value="true" />
@@ -793,7 +785,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771854114423</updated>
     </task>
-    <option name="localTasksCounter" value="866" />
+    <task id="LOCAL-00866" summary="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components">
+      <option name="closed" value="true" />
+      <created>1771856774713</created>
+      <option name="number" value="00866" />
+      <option name="presentableId" value="LOCAL-00866" />
+      <option name="project" value="LOCAL" />
+      <updated>1771856774714</updated>
+    </task>
+    <option name="localTasksCounter" value="867" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -828,7 +828,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="docs: update FEATURES.md to detail Agents Service architecture and user flows" />
     <MESSAGE value="feat: add implementation checklist for Agents Service to track progress on AI-related tasks" />
     <MESSAGE value="refactor: improve course repository and service methods, add analytics handlers" />
     <MESSAGE value="refactor: restructure agent handlers and update request payloads" />
@@ -853,7 +852,8 @@
     <MESSAGE value="feat: replace SVG logo with Image component for improved performance and consistency" />
     <MESSAGE value="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page" />
     <MESSAGE value="refactor: enhance layout and styling across multiple components" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance layout and styling across multiple components" />
+    <MESSAGE value="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

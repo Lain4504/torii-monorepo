@@ -57,60 +57,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
 
             <SidebarContent className="scrollbar-none py-2">
-                {isAISenseiPath ? (
-                    <>
-                        <SidebarGroup className="group-data-[collapsible=icon]:px-0">
+                <NavMain label="Học tập" items={learningNav as any} />
+                <NavMain label="AI Sensei" items={aiSenseiNav as any} />
+                <NavLearning />
+                <NavMain label="Cộng đồng" items={communityNav as any} />
+                <NavMain label="Tiến độ" items={progressNav as any} />
+                <NavMain label="Tài khoản" items={accountNav as any} />
+
+                {isAISenseiPath && (
+                    <SidebarGroup className="mt-auto group-data-[collapsible=icon]:px-0">
+                        <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 mb-2 px-4 group-data-[collapsible=icon]:hidden">
+                            Lịch sử
+                        </SidebarGroupLabel>
+                        <SidebarGroupContent>
                             <SidebarMenu>
                                 <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
                                     <SidebarMenuButton
-                                        asChild
-                                        tooltip="Về Trang Chủ"
                                         className={cn(
-                                            "h-10 text-muted-foreground hover:bg-muted hover:text-foreground",
+                                            "h-10 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                                             "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                                         )}
                                     >
-                                        <Link href="/dashboard">
-                                            <LayoutDashboard className="size-4 shrink-0" />
-                                            <span className="ml-2 font-medium text-sm group-data-[collapsible=icon]:hidden">Về Dashboard</span>
-                                        </Link>
+                                        <History className="size-4 shrink-0" />
+                                        <span className="ml-2 font-medium text-sm group-data-[collapsible=icon]:hidden">Lịch sử chat</span>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             </SidebarMenu>
-                        </SidebarGroup>
-
-                        <NavMain label="Tính năng AI" items={aiSenseiNav as any} />
-
-                        <SidebarGroup className="mt-auto group-data-[collapsible=icon]:px-0">
-                            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 mb-2 px-4 group-data-[collapsible=icon]:hidden">
-                                Lịch sử
-                            </SidebarGroupLabel>
-                            <SidebarGroupContent>
-                                <SidebarMenu>
-                                    <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
-                                        <SidebarMenuButton
-                                            className={cn(
-                                                "h-10 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                                                "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
-                                            )}
-                                        >
-                                            <History className="size-4 shrink-0" />
-                                            <span className="ml-2 font-medium text-sm group-data-[collapsible=icon]:hidden">Lịch sử chat</span>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                </SidebarMenu>
-                            </SidebarGroupContent>
-                        </SidebarGroup>
-                    </>
-                ) : (
-                    <>
-                        <NavMain label="Học tập" items={learningNav as any} />
-                        <NavLearning />
-                        <NavMain label="Cộng đồng" items={communityNav as any} />
-                        <NavMain label="Tiến độ" items={progressNav as any} />
-                        <NavMain label="Tài khoản" items={accountNav as any} />
-                    </>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
                 )}
+
             </SidebarContent>
 
             <SidebarRail className="hover:after:bg-primary/20" />
