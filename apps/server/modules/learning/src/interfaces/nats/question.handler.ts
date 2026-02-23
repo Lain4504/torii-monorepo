@@ -42,72 +42,62 @@ export class QuestionHandler {
     }
 
     @MessagePattern({ cmd: 'learning.question.create' })
-    async create(@Payload() data: QuestionCreateDTO & { userId: string, userRole: UserRole, permissions: string[] }) {
-        const { userId, userRole, permissions, ...dto } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async create(@Payload() data: QuestionCreateDTO & { requester: Requester }) {
+        const { requester, ...dto } = data;
         return this.questionService.create(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.question.createMany' })
-    async createMany(@Payload() data: { dtos: QuestionCreateDTO[], userId: string, userRole: UserRole, permissions: string[] }) {
-        const { userId, userRole, permissions, dtos } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async createMany(@Payload() data: { dtos: QuestionCreateDTO[], requester: Requester }) {
+        const { requester, dtos } = data;
         return this.questionService.createMany(requester, dtos);
     }
 
     @MessagePattern({ cmd: 'learning.question.update' })
-    async update(@Payload() data: QuestionUpdateDTO & { id: string, userId: string, userRole: UserRole, permissions: string[] }) {
-        const { id, userId, userRole, permissions, ...dto } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async update(@Payload() data: QuestionUpdateDTO & { id: string, requester: Requester }) {
+        const { id, requester, ...dto } = data;
         return this.questionService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.question.updateMany' })
-    async updateMany(@Payload() data: { questionIds: string[], dto: QuestionUpdateDTO, userId: string, userRole: UserRole, permissions: string[] }) {
-        const { questionIds, dto, userId, userRole, permissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async updateMany(@Payload() data: { questionIds: string[], dto: QuestionUpdateDTO, requester: Requester }) {
+        const { questionIds, dto, requester } = data;
         return this.questionService.updateMany(requester, questionIds, dto);
     }
 
     @MessagePattern({ cmd: 'learning.question.delete' })
-    async delete(@Payload() data: { id: string, userId: string, userRole: UserRole, permissions: string[] }) {
-        const { id, userId, userRole, permissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async delete(@Payload() data: { id: string, requester: Requester }) {
+        const { id, requester } = data;
         return this.questionService.delete(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.question.deleteMany' })
-    async deleteMany(@Payload() data: { questionIds: string[], userId: string, userRole: UserRole, permissions: string[] }) {
-        const { questionIds, userId, userRole, permissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async deleteMany(@Payload() data: { questionIds: string[], requester: Requester }) {
+        const { questionIds, requester } = data;
         return this.questionService.deleteMany(requester, questionIds);
     }
 
     @MessagePattern({ cmd: 'learning.question.approve' })
-    async approve(@Payload() data: { id: string, userId: string, userRole: UserRole, permissions: string[] }) {
-        const { id, userId, userRole, permissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async approve(@Payload() data: { id: string, requester: Requester }) {
+        const { id, requester } = data;
         return this.questionService.approve(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.question.deactivate' })
-    async deactivate(@Payload() data: { id: string, userId: string, userRole: UserRole, permissions: string[] }) {
-        const { id, userId, userRole, permissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async deactivate(@Payload() data: { id: string, requester: Requester }) {
+        const { id, requester } = data;
         return this.questionService.deactivate(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.question.reject' })
-    async reject(@Payload() data: { id: string, userId: string, userRole: UserRole, permissions: string[] }) {
-        const { id, userId, userRole, permissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async reject(@Payload() data: { id: string, requester: Requester }) {
+        const { id, requester } = data;
         return this.questionService.reject(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.question.sendForReview' })
-    async sendForReview(@Payload() data: { id: string, userId: string, userRole: UserRole, permissions: string[] }) {
-        const { id, userId, userRole, permissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: permissions || [] };
+    async sendForReview(@Payload() data: { id: string, requester: Requester }) {
+        const { id, requester } = data;
         return this.questionService.sendForReview(requester, id);
     }
 }

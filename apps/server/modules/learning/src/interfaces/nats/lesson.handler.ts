@@ -10,9 +10,8 @@ export class LessonHandler {
     ) { }
 
     @MessagePattern({ cmd: 'learning.lesson.create' })
-    async create(@Payload() data: LessonCreateDTO & { userId: string }) {
-        const { userId, ...dto } = data;
-        const requester: Requester = { sub: userId, role: UserRole.STAFF, permissions: [] };
+    async create(@Payload() data: LessonCreateDTO & { requester: Requester }) {
+        const { requester, ...dto } = data;
         return this.lessonService.create(requester, dto);
     }
 
@@ -41,23 +40,20 @@ export class LessonHandler {
     }
 
     @MessagePattern({ cmd: 'learning.lesson.update' })
-    async update(@Payload() data: LessonUpdateDTO & { id: string, userId: string, userRole: UserRole, userPermissions?: string[] }) {
-        const { id, userId, userRole, userPermissions, ...dto } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: userPermissions || [] };
+    async update(@Payload() data: LessonUpdateDTO & { id: string, requester: Requester }) {
+        const { id, requester, ...dto } = data;
         return this.lessonService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.lesson.delete' })
-    async delete(@Payload() data: { id: string, userId: string, userRole: UserRole, hardDelete?: boolean, userPermissions?: string[] }) {
-        const { id, userId, userRole, hardDelete, userPermissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: userPermissions || [] };
+    async delete(@Payload() data: { id: string, hardDelete?: boolean, requester: Requester }) {
+        const { id, requester, hardDelete } = data;
         return this.lessonService.delete(requester, id, hardDelete);
     }
 
     @MessagePattern({ cmd: 'learning.lesson.reorder' })
-    async reorder(@Payload() data: { moduleId: string, lessonOrders: { id: string; orderIndex: number }[], userId: string, userRole: UserRole, userPermissions?: string[] }) {
-        const { moduleId, lessonOrders, userId, userRole, userPermissions } = data;
-        const requester: Requester = { sub: userId, role: userRole, permissions: userPermissions || [] };
+    async reorder(@Payload() data: { moduleId: string, lessonOrders: { id: string; orderIndex: number }[], requester: Requester }) {
+        const { moduleId, lessonOrders, requester } = data;
         return this.lessonService.reorder(requester, moduleId, lessonOrders);
     }
 }

@@ -119,11 +119,10 @@ export class QuestionController {
     @Post()
     async create(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.create' },
-                    { ...dto, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { ...dto, requester: req.requester }
                 )
             );
             return successResponse({ question: result });
@@ -135,11 +134,10 @@ export class QuestionController {
     @Post('bulk')
     async createMany(@Body() dtos: any[], @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.createMany' },
-                    { dtos, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { dtos, requester: req.requester }
                 )
             );
             return successResponse(result);
@@ -151,11 +149,10 @@ export class QuestionController {
     @Patch(':id')
     async update(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.update' },
-                    { id, ...dto, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { id, ...dto, requester: req.requester }
                 )
             );
             return successResponse({ question: result });
@@ -167,11 +164,10 @@ export class QuestionController {
     @Patch('bulk/update')
     async updateMany(@Body() body: any, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.updateMany' },
-                    { questionIds: body.questionIds, dto: body.data, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { questionIds: body.questionIds, dto: body.data, requester: req.requester }
                 )
             );
             return successResponse(result);
@@ -183,11 +179,10 @@ export class QuestionController {
     @Delete(':id')
     async delete(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.delete' },
-                    { id, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse(result);
@@ -199,11 +194,10 @@ export class QuestionController {
     @Delete('bulk/delete')
     async deleteMany(@Body() body: any, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.deleteMany' },
-                    { questionIds: body.questionIds, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { questionIds: body.questionIds, requester: req.requester }
                 )
             );
             return successResponse(result);
@@ -215,11 +209,10 @@ export class QuestionController {
     @Post(':id/approve')
     async approve(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.approve' },
-                    { id, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse({ question: result });
@@ -231,11 +224,10 @@ export class QuestionController {
     @Post(':id/deactivate')
     async deactivate(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.deactivate' },
-                    { id, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse({ question: result });
@@ -247,11 +239,10 @@ export class QuestionController {
     @Post(':id/reject')
     async reject(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.reject' },
-                    { id, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse({ question: result });
@@ -263,11 +254,10 @@ export class QuestionController {
     @Post(':id/review')
     async sendForReview(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question.sendForReview' },
-                    { id, userId: requester.sub, userRole: requester.role, permissions: requester.permissions }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse({ question: result });
