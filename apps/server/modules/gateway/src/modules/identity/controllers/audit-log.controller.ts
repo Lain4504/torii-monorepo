@@ -1,37 +1,24 @@
-import { Controller, Get, Query, UseGuards, Inject, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards, Inject, Param } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard } from '@server/shared';
+import { successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard, ZodValidationPipe } from '@server/shared';
+import { AuditLogFiltersDTO, auditLogFiltersDTOSchema } from '@workspace/schemas';
 
 @Controller('api/admin/audit-logs')
 @UseGuards(GatewayAuthGuard)
 export class AuditLogController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
-    @Get()
-    async getAuditLogs(
-        @Query('userId') userId?: string,
-        @Query('action') action?: string,
-        @Query('entity') entity?: string,
-        @Query('entityId') entityId?: string,
-        @Query('startDate') startDate?: string,
-        @Query('endDate') endDate?: string,
-        @Query('page') page?: string,
-        @Query('limit') limit?: string,
-    ) {
+    @Post('search')
+    async getAuditLogs(@Body(new ZodValidationPipe(auditLogFiltersDTOSchema)) dto: AuditLogFiltersDTO) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'identity.audit.query' },
                     {
-                        userId,
-                        action,
-                        entity,
-                        entityId,
-                        startDate,
-                        endDate,
-                        page: page ? parseInt(page, 10) : 1,
-                        limit: limit ? parseInt(limit, 10) : 50,
+                        ...dto,
+                        page: dto.page ?? 1,
+                        limit: dto.limit ?? 50,
                     },
                 ),
             );

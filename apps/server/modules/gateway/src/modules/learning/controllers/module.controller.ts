@@ -22,13 +22,33 @@ import {
     Permissions,
     PermissionsGuard,
     ReqWithRequester,
+    ZodValidationPipe,
 } from '@server/shared';
+import { ModuleSearchRequestDTO, moduleSearchRequestDTOSchema } from '@workspace/schemas';
 import { GatewayAuthGuard } from '@server/shared';
 
 @Controller('api/modules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ModuleController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
+
+    @Post('search')
+    @Permissions('module.view')
+    async searchModules(
+        @Body(new ZodValidationPipe(moduleSearchRequestDTOSchema)) dto: ModuleSearchRequestDTO,
+    ) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.module.findAll' },
+                    dto
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to search modules');
+        }
+    }
 
     @Get()
     async findAll(
