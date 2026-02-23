@@ -62,7 +62,7 @@
         "webpack": false,
         "assets": [
           {
-            "include": "src/assets/**/*",
+            "include": "assets/**/*",
             "outDir": "dist/modules/agents/src/assets",
             "watchAssets": true
           }
@@ -89,7 +89,7 @@
         "webpack": false,
         "assets": [
           {
-            "include": "src/modules/email/templates/pug/**/*.pug",
+            "include": "**/*.pug",
             "watchAssets": true
           }
         ]

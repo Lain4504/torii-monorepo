@@ -3,10 +3,10 @@
 import { CourseCard } from "./course-card"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@workspace/ui/components/pagination"
 import { useCourses } from "./useCourses"
-import { Inbox, Loader2, Search } from "lucide-react"
+import { Inbox, Search } from 'lucide-react'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { cn } from "@workspace/ui/lib/utils";
-
+import { Skeleton } from "@workspace/ui/components/skeleton"
 interface CourseGridProps {
     searchQuery?: string
     selectedLevels?: string[]
@@ -45,14 +45,12 @@ export function CourseGrid({
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
-                        <div key={i} className="aspect-[4/5] rounded-2xl bg-muted/20 animate-pulse flex items-center justify-center">
-                            <Loader2 className="w-8 h-8 text-muted-foreground/20 animate-spin" />
-                        </div>
+                        <Skeleton key={i} className="aspect-[4/5] rounded-lg" />
                     ))}
                 </div>
             ) : error ? (
-                <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl bg-destructive/5 border border-destructive/10 text-center space-y-4">
-                    <div className="w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center border border-destructive/10">
+                <div className="flex flex-col items-center justify-center py-20 px-6 rounded-lg bg-destructive/5 border border-destructive/10 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-lg bg-destructive/10 flex items-center justify-center border border-destructive/10">
                         <Inbox className="w-8 h-8 text-destructive/60" />
                     </div>
                     <div className="space-y-2">
@@ -61,7 +59,7 @@ export function CourseGrid({
                     </div>
                 </div>
             ) : isEmpty ? (
-                <div className="flex justify-center py-20 px-6 rounded-3xl bg-muted/10 border border-border/50">
+                <div className="flex justify-center py-20 px-6 rounded-lg bg-muted/10 border border-border/50">
                     <Empty className="max-w-md">
                         <EmptyHeader>
                             <EmptyMedia variant="icon" className="bg-background shadow-sm border border-border">
@@ -111,7 +109,7 @@ export function CourseGrid({
                                         className={cn(
                                             "transition-all font-bold",
                                             currentPage === page
-                                                ? "bg-primary text-white hover:bg-primary/90 shadow-sm"
+                                                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                                                 : "hover:bg-primary/5 hover:text-primary text-muted-foreground"
                                         )}
                                     >

@@ -3,8 +3,10 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ChevronDown, PlayCircle, FileText, Lock, Sparkles, Clock, Layers } from 'lucide-react'
+import { Button } from '@workspace/ui/components/button'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@workspace/ui/components/item'
 import { cn } from '@workspace/ui/lib/utils'
-import type { CurriculumResponse } from '@/apis/services/course-api'
+import type { CurriculumResponse } from '@/lib/api/services/course-api'
 
 interface CourseCurriculumProps {
     curriculum: CurriculumResponse
@@ -87,32 +89,30 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
 
                     <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground font-medium">
                         <div className="flex items-center gap-2">
-                            <Layers className="w-4 h-4" />
+                            <Layers className="size-4" />
                             <span>{curriculum.modules.length} chương</span>
                         </div>
-                        <span className="w-1 h-1 rounded-full bg-border" />
                         <div className="flex items-center gap-2">
-                            <PlayCircle className="w-4 h-4" />
+                            <PlayCircle className="size-4" />
                             <span>{totalLessons} bài học</span>
                         </div>
                         {getTotalDuration() && (
-                            <>
-                                <span className="w-1 h-1 rounded-full bg-border" />
-                                <div className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4" />
-                                    <span>{getTotalDuration()}</span>
-                                </div>
-                            </>
+                            <div className="flex items-center gap-2">
+                                <Clock className="size-4" />
+                                <span>{getTotalDuration()}</span>
+                            </div>
                         )}
                     </div>
                 </div>
 
-                <button
+                <Button
+                    variant="link"
+                    size="sm"
                     onClick={toggleAllSections}
-                    className="text-sm font-bold text-primary hover:text-primary/80 transition-colors"
+                    className="h-auto p-0 font-bold"
                 >
                     {allExpanded ? 'Thu gọn tất cả' : 'Mở rộng tất cả'}
-                </button>
+                </Button>
             </div>
 
             {/* Modules List */}
@@ -121,100 +121,93 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                     <div
                         key={module.id}
                         className={cn(
-                            "rounded-2xl overflow-hidden border transition-all duration-300",
+                            "rounded-lg overflow-hidden border transition-all",
                             openChapters.includes(index)
-                                ? "bg-card border-border shadow-sm"
-                                : "bg-muted/30 border-border/50 hover:bg-muted/50"
+                                ? "bg-card shadow-sm"
+                                : "bg-muted/30 hover:bg-muted/50"
                         )}
                     >
-                        <button
+                        <Button
+                            variant="ghost"
                             onClick={() => toggleChapter(index)}
-                            className="w-full flex flex-col md:flex-row md:items-center justify-between p-6 text-left transition-colors cursor-pointer group gap-4 md:gap-0"
+                            className="w-full justify-between h-auto p-6"
                         >
-                            <div className="flex items-start md:items-center gap-4">
+                            <div className="flex items-center gap-4">
                                 <div className={cn(
-                                    "w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 shrink-0",
+                                    "size-10 rounded flex items-center justify-center shrink-0",
                                     openChapters.includes(index)
-                                        ? "bg-primary/10 text-primary"
-                                        : "bg-background border border-border text-muted-foreground group-hover:bg-primary/5 group-hover:text-primary"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-muted text-muted-foreground"
                                 )}>
-                                    <Sparkles className="w-5 h-5" />
+                                    <Sparkles className="size-5" />
                                 </div>
-                                <div>
-                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Chương {index + 1}</p>
-                                    <h3 className="text-lg font-bold text-foreground">{module.title}</h3>
+                                <div className="text-left">
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Chương {index + 1}</p>
+                                    <h3 className="text-lg font-bold">{module.title}</h3>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto pl-14 md:pl-0">
-                                <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
-                                    <span className="shrink-0">{module.lessons.length} bài giảng</span>
+                            <div className="flex items-center gap-6">
+                                <div className="hidden sm:flex items-center gap-3 text-xs font-medium text-muted-foreground">
+                                    <span>{module.lessons.length} bài giảng</span>
                                     {module.durationMinutes && (
-                                        <>
-                                            <span className="w-1 h-1 rounded-full bg-border shrink-0" />
-                                            <span className="shrink-0">{formatDurationMinutes(module.durationMinutes)}</span>
-                                        </>
+                                        <span>{formatDurationMinutes(module.durationMinutes)}</span>
                                     )}
                                 </div>
                                 <ChevronDown
                                     className={cn(
-                                        "w-5 h-5 text-muted-foreground transition-transform duration-300 shrink-0",
-                                        openChapters.includes(index) ? "rotate-180 text-primary" : ""
+                                        "size-5 text-muted-foreground transition-transform",
+                                        openChapters.includes(index) && "rotate-180"
                                     )}
                                 />
                             </div>
-                        </button>
+                        </Button>
 
                         <div className={cn(
                             "grid transition-all duration-300 ease-in-out",
                             openChapters.includes(index) ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                         )}>
                             <div className="overflow-hidden border-t border-border/50">
-                                <div className="p-4 space-y-2">
+                                <div className="divide-y p-2">
                                     {module.lessons.map((lesson) => (
-                                        <div
+                                        <Item
                                             key={lesson.id}
+                                            variant="default"
                                             className={cn(
-                                                "p-4 rounded-xl flex items-center justify-between group/lesson transition-all duration-200 gap-3 md:gap-4",
-                                                lesson.isUnlocked
-                                                    ? "hover:bg-primary/5 cursor-pointer"
-                                                    : "opacity-80 select-none"
+                                                "px-4 py-3",
+                                                !lesson.isUnlocked && "opacity-50 pointer-events-none"
                                             )}
                                             onClick={() => handleLessonClick(lesson.id, lesson.isUnlocked)}
                                         >
-                                            <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                                            <ItemMedia>
                                                 <div className={cn(
-                                                    "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                                                    "size-8 rounded flex items-center justify-center shrink-0",
                                                     lesson.isUnlocked ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                                                 )}>
-                                                    {lesson.contentType === 'video' ? <PlayCircle className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                                                    {lesson.contentType === 'video' ? <PlayCircle className="size-4" /> : <FileText className="size-4" />}
                                                 </div>
-                                                <div className="min-w-0">
-                                                    <h4 className={cn(
-                                                        "text-sm font-medium truncate",
-                                                        lesson.isUnlocked ? "text-foreground" : "text-muted-foreground"
-                                                    )}>
-                                                        {lesson.title}
-                                                    </h4>
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {lesson.contentType === 'video' ? 'Video' : 'Tài liệu'}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 shrink-0">
+                                            </ItemMedia>
+                                            <ItemContent>
+                                                <ItemTitle className="text-sm">
+                                                    {lesson.title}
+                                                </ItemTitle>
+                                                <ItemDescription className="text-xs">
+                                                    {lesson.contentType === 'video' ? 'Video' : 'Tài liệu'}
+                                                </ItemDescription>
+                                            </ItemContent>
+                                            <ItemActions>
                                                 {lesson.isPreview && (
-                                                    <span className="hidden sm:inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary">Xem thử</span>
+                                                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">Xem thử</span>
                                                 )}
-                                                <div className="flex items-center justify-end min-w-[40px]">
+                                                <div className="flex items-center gap-3">
                                                     {lesson.isUnlocked && lesson.videoDuration ? (
                                                         <span className="text-xs font-medium text-muted-foreground">{formatDuration(lesson.videoDuration)}</span>
                                                     ) : !lesson.isUnlocked ? (
-                                                        <Lock className="w-4 h-4 text-muted-foreground/40" />
+                                                        <Lock className="size-4 text-muted-foreground" />
                                                     ) : null}
                                                 </div>
-                                            </div>
-                                        </div>
+                                            </ItemActions>
+                                        </Item>
                                     ))}
                                 </div>
                             </div>

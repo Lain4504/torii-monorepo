@@ -8,8 +8,10 @@ import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
-import { Loader2, CheckCircle2 } from 'lucide-react'
-import { useResendVerification } from '@/apis/services/auth-api'
+import { CheckCircle2 } from 'lucide-react'
+import { useResendVerification } from '@/lib/api/services/auth-api'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert'
 
 const resendSchema = z.object({
     email: z.string().email('Email không hợp lệ'),
@@ -46,43 +48,42 @@ export function ResendVerificationForm() {
 
     if (emailSent) {
         return (
-            <div className="flex flex-col items-center text-center gap-3 p-6 rounded-lg border bg-muted/30">
-                <CheckCircle2 className="w-8 h-8 text-primary" />
-                <div className="space-y-1">
-                    <p className="font-medium text-sm">Đã gửi lại</p>
-                    <p className="text-sm text-muted-foreground">
-                        Mã xác thực mới đã được gửi tới email của bạn.
-                    </p>
-                </div>
-            </div>
+            <Alert className="bg-primary/5 border-primary/20 py-6">
+                <CheckCircle2 className="size-5 text-primary" />
+                <AlertTitle className="text-base font-bold">Mã xác thực đã gửi lại</AlertTitle>
+                <AlertDescription className="text-sm">
+                    Mã xác thực mới đã được gửi tới email của bạn. Vui lòng kiểm tra hộp thư (bao gồm cả thư rác).
+                </AlertDescription>
+            </Alert>
         )
     }
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            <Controller
-                control={form.control}
-                name="email"
-                render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                        <Input
-                            {...field}
-                            id={field.name}
-                            type="email"
-                            placeholder="your-registered-email@domain.com"
-                            autoComplete="email"
-                            aria-invalid={fieldState.invalid}
-                        />
-                        <FieldError errors={[fieldState.error]} />
-                    </Field>
-                )}
-            />
+        <div className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+                <Controller
+                    control={form.control}
+                    name="email"
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                            <Input
+                                {...field}
+                                id={field.name}
+                                type="email"
+                                placeholder="your-registered-email@domain.com"
+                                autoComplete="email"
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Gửi lại mã xác thực
-            </Button>
-        </form>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Spinner className="mr-2" />}
+                    Gửi lại mã xác thực
+                </Button>
+            </form>
+        </div>
     )
 }

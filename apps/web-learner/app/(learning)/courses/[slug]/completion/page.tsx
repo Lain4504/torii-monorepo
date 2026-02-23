@@ -7,7 +7,7 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Award, CheckCircle2, Download, Home, BookOpen } from 'lucide-react'
-import { courseApi } from '@/apis/services/course-api'
+import { courseApi } from '@/lib/api/services/course-api'
 
 export default function CourseCompletionPage() {
     const params = useParams()
@@ -103,13 +103,13 @@ export default function CourseCompletionPage() {
                         </p>
                         <div className="flex items-center justify-center gap-4">
                             <Link href="/courses">
-                                <Button variant="ghost" size="sm" className="rounded-lg text-xs font-bold h-9">
+                                <Button variant="ghost" size="sm" className="rounded-lg font-bold">
                                     <BookOpen className="mr-2 w-3.5 h-3.5" />
                                     Khám phá khóa mới
                                 </Button>
                             </Link>
                             <Link href="/dashboard/my-courses">
-                                <Button variant="ghost" size="sm" className="rounded-lg text-xs font-bold h-9">
+                                <Button variant="ghost" size="sm" className="rounded-lg font-bold">
                                     <Home className="mr-2 w-3.5 h-3.5" />
                                     Về Dashboard
                                 </Button>

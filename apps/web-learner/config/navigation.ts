@@ -39,7 +39,6 @@ export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
     { name: 'Assessment', href: '/assessment', icon: Award },
-    { name: 'AI Sensei', href: '/ai-sensei/chat', icon: Bot },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
     { name: 'Sổ tay từ vựng', href: '/dashboard/notes', icon: FileText },
 ]
@@ -50,12 +49,10 @@ export const communityNav: NavItem[] = [
 
 export const progressNav: NavItem[] = [
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
-    { name: 'AI Analytics', href: '/ai-analytics', icon: TrendingUp },
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
     { name: 'Cửa hàng quà tặng', href: '/dashboard/rewards', icon: Gift },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
     { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
-    // { name: 'Thống kê', href: '/dashboard/statistics', icon: TrendingUp }, // Replaced by Analytics
 ]
 
 export const accountNav: NavItem[] = [
@@ -68,10 +65,11 @@ export const accountNav: NavItem[] = [
 ]
 
 export const aiSenseiNav: NavItem[] = [
-    { name: 'General Chat', href: '/ai-sensei/chat', icon: Bot },
-    { name: 'Grammar Guide', href: '/ai-sensei/grammar', icon: Sparkles },
-    { name: 'Translator', href: '/ai-sensei/translate', icon: Languages },
-    { name: 'Roleplay', href: '/ai-sensei/roleplay', icon: MessagesSquare },
-    { name: 'Practice Drills', href: '/ai-sensei/drill', icon: Dumbbell },
-    { name: 'Resources', href: '/ai-sensei/resources', icon: Library },
+    { name: 'Chat với AI', href: '/ai-sensei/chat', icon: Bot },
+    { name: 'Hội thoại nhập vai', href: '/ai-sensei/roleplay', icon: MessagesSquare },
+    { name: 'Luyện tập kỹ năng', href: '/ai-sensei/drill', icon: Dumbbell },
+    { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
 ]
+
+
+

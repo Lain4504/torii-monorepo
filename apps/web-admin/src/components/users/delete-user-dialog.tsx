@@ -11,8 +11,9 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { toast } from 'sonner';
-import { useDeleteUser } from "@/api/services/users.ts";
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { useDeleteUser } from "@/lib/api/services/users.ts";
+import { AlertTriangle } from 'lucide-react';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface DeleteUserDialogProps {
     user: UserResponseDTO | null;
@@ -66,7 +67,7 @@ export function DeleteUserDialog({
                         disabled={deleteUser.isPending}
                     >
                         {deleteUser.isPending ? (
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner />
                         ) : (
                             "Xóa người dùng"
                         )}

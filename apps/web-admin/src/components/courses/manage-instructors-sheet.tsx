@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { useBoolean } from '@workspace/ui/hooks/use-boolean';
-import { useAssignLecturer, useCourseInstructors, useUnassignLecturer, useUpdatePrimaryInstructor } from '@/api/services/course-instructors';
+import { useAssignLecturer, useCourseInstructors, useUnassignLecturer, useUpdatePrimaryInstructor } from '@/lib/api/services/course-instructors';
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyMedia,
+    EmptyTitle,
+} from '@workspace/ui/components/empty';
 import {
     Sheet,
     SheetContent,
@@ -8,16 +15,18 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@workspace/ui/components/sheet';
+import { Spinner } from '@workspace/ui/components/spinner';
+
 import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Badge } from '@workspace/ui/components/badge';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
-import { Loader2, User as UserIcon, Trash2, Crown, Users, Plus } from 'lucide-react';
+import { User as UserIcon, Trash2, Crown, Plus } from 'lucide-react';
+import { Badge } from '@workspace/ui/components/badge';
 import { toast } from '@workspace/ui/components/sonner';
 import { type CourseResponseDTO, UserRole, InstructorRole } from '@workspace/schemas';
-import { useUsers } from '@/api/services/users';
+import { useUsers } from '@/lib/api/services/users';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Field, FieldLabel } from '@workspace/ui/components/field';
 import { cn } from '@workspace/ui/lib/utils';
@@ -99,53 +108,44 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 {!course ? (
-                    <div className="flex-1 flex items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <div className="flex-1 flex items-center justify-center min-h-0">
+                        <Spinner className="h-8 w-8 text-muted-foreground" />
                     </div>
                 ) : (
                     <>
-                        <SheetHeader className="px-8 py-6 border-b border-border/10">
-                            <div className="relative flex items-center gap-4">
-                                <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
-                                    <Users className="h-5 w-5" />
-                                </div>
-                                <div className="space-y-0.5">
-                                    <SheetTitle className="text-xl font-bold tracking-tight text-foreground">
-                                        Quản lý Giảng viên
-                                    </SheetTitle>
-                                    <SheetDescription className="text-xs font-medium text-muted-foreground/60">
-                                        Phân công cho khóa học <span className="text-foreground font-semibold">{course.title}</span>
-                                    </SheetDescription>
-                                </div>
-                            </div>
+                        <SheetHeader>
+                            <SheetTitle>Quản lý Giảng viên</SheetTitle>
+                            <SheetDescription>
+                                Phân công cho khóa học {course.title}
+                            </SheetDescription>
                         </SheetHeader>
 
-                        <ScrollArea className="flex-1 h-full px-8 py-8">
-                            <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                        <ScrollArea className="flex-1 min-h-0">
+                            <div className="space-y-6 p-6">
 
-                                {/* Current Instructors */}
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50 flex items-center gap-2">
-                                        <Users className="h-3.5 w-3.5" />
+                                    <h3 className="text-sm font-semibold">
                                         Đội ngũ Hiện tại
-                                    </h4>
+                                    </h3>
 
                                     {loadingInstructors ? (
                                         <div className="flex items-center justify-center py-12 rounded-3xl border border-border/40 bg-muted/5">
-                                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/50" />
+                                            <Spinner className="h-6 w-6 text-muted-foreground/50" />
                                         </div>
                                     ) : !instructors || instructors.length === 0 ? (
-                                        <div className="rounded-2xl border border-dashed border-muted-foreground/20 p-8 text-center bg-muted/5">
-                                            <UserIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground/20" />
-                                            <p className="text-sm font-bold uppercase tracking-wide text-muted-foreground/60">
-                                                Chưa có giảng viên
-                                            </p>
-                                            <p className="text-[10px] uppercase font-bold text-muted-foreground/40 mt-1 tracking-widest">
-                                                Vui lòng phân công giảng viên bên dưới
-                                            </p>
-                                        </div>
+                                        <Empty>
+                                            <EmptyMedia>
+                                                <UserIcon className="h-10 w-10 text-muted-foreground/20" />
+                                            </EmptyMedia>
+                                            <EmptyContent>
+                                                <EmptyTitle>Chưa có giảng viên</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Vui lòng phân công giảng viên bên dưới
+                                                </EmptyDescription>
+                                            </EmptyContent>
+                                        </Empty>
                                     ) : (
                                         <div className="space-y-3">
                                             {instructors.map((instructor) => (
@@ -164,7 +164,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                             <div className="flex items-center gap-2">
                                                                 <p className="text-sm font-semibold text-foreground">{instructor.lecturer?.displayName}</p>
                                                                 {instructor.isPrimary && (
-                                                                    <Badge variant="secondary" className="h-4 px-1.5 rounded-md bg-amber-500/10 text-amber-600 border-amber-500/20 text-[9px] font-bold uppercase tracking-wider">
+                                                                    <Badge variant="default" className="h-4 px-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider">
                                                                         Chủ nhiệm
                                                                     </Badge>
                                                                 )}
@@ -201,20 +201,18 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                     )}
                                 </div>
 
-                                <div className="space-y-6 pt-6 relative">
-                                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
-
-                                    <div className="space-y-4 p-6 rounded-2xl bg-muted/20 border border-border/10">
+                                <div className="space-y-6 pt-6 border-t border-border/40">
+                                    <div className="space-y-4">
                                         <Field className="space-y-2.5">
                                             <FieldLabel htmlFor="lecturer-select" className="text-xs font-bold text-muted-foreground/70 ml-1 uppercase tracking-wider">Thêm giảng viên</FieldLabel>
                                             <Select
                                                 value={selectedLecturerId}
                                                 onValueChange={setSelectedLecturerId}
                                             >
-                                                <SelectTrigger id="lecturer-select" className="h-11 border-border/40 bg-background hover:bg-background/80 focus:ring-primary/20 rounded-xl transition-all shadow-sm">
+                                                <SelectTrigger id="lecturer-select" className="">
                                                     <SelectValue placeholder="Chọn giảng viên..." />
                                                 </SelectTrigger>
-                                                <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">
+                                                <SelectContent>
                                                     {availableLecturers.map((lecturer) => (
                                                         <SelectItem key={lecturer.id} value={lecturer.id} className="rounded-lg cursor-pointer text-xs font-medium py-2.5 focus:bg-primary/5 focus:text-primary">
                                                             <span className="mr-2">{lecturer.displayName}</span>
@@ -236,10 +234,10 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                 value={selectedRole}
                                                 onValueChange={(val) => setSelectedRole(val as InstructorRole)}
                                             >
-                                                <SelectTrigger id="role-select" className="h-11 border-border/40 bg-background hover:bg-background/80 focus:ring-primary/20 rounded-xl transition-all shadow-sm">
+                                                <SelectTrigger id="role-select" className="">
                                                     <SelectValue placeholder="Chọn vai trò..." />
                                                 </SelectTrigger>
-                                                <SelectContent className="border-border/10 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl overflow-hidden p-1">
+                                                <SelectContent>
                                                     <SelectItem value={InstructorRole.MAIN} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Giảng viên chính</SelectItem>
                                                     <SelectItem value={InstructorRole.ASSISTANT} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Trợ giảng</SelectItem>
                                                     <SelectItem value={InstructorRole.RECORDER} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Người ghi hình (VOD)</SelectItem>
@@ -254,9 +252,9 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                                 onCheckedChange={(checked: boolean) => isPrimary.setValue(checked)}
                                                 className="h-4 w-4 rounded border-border/40 text-primary focus:ring-primary/20"
                                             />
-                                            <label htmlFor="is-primary" className="text-xs font-medium text-foreground/80 cursor-pointer select-none">
+                                            <FieldLabel htmlFor="is-primary" className="text-xs font-medium text-foreground/80 cursor-pointer select-none mb-0">
                                                 Đặt làm giảng viên chủ nhiệm
-                                            </label>
+                                            </FieldLabel>
                                         </div>
 
                                         <Button
@@ -265,7 +263,7 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                             className="w-full rounded-xl h-11 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transition-all">
                                             {assignMutation.isPending ? (
                                                 <>
-                                                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                                    <Spinner className="mr-2 h-3.5 w-3.5" />
                                                     Đang xử lý...
                                                 </>
                                             ) : (
@@ -279,7 +277,6 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                 </div>
                             </div>
                         </ScrollArea>
-                        <div className="h-6 bg-gradient-to-t from-background/50 to-transparent pointer-events-none absolute bottom-0 left-0 right-0 z-20" />
                     </>
                 )}
             </SheetContent>

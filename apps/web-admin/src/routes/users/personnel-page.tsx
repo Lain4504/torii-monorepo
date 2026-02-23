@@ -6,8 +6,9 @@ import { EditUserSheet } from '@/components/users/edit-user-sheet.tsx';
 import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
 import type { UserResponseDTO } from '@workspace/schemas';
+import { Card } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
-import { useUsers } from "@/api/services/users.ts";
+import { useUsers } from "@/lib/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { useBoolean } from "@workspace/ui/hooks/use-boolean";
 
@@ -15,6 +16,7 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { UserPlus, ShieldCheck } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
+import { formatNumber } from "@/lib/format-utils";
 
 export default function PersonnelPage() {
     const location = useLocation();
@@ -44,6 +46,7 @@ export default function PersonnelPage() {
     });
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPage(1);
     }, [debouncedSearch, targetRole]);
 
@@ -83,7 +86,7 @@ export default function PersonnelPage() {
                     ? 'Quản lý thông tin bằng cấp, chuyên môn và lịch dạy của giảng viên.'
                     : 'Điều hành đội ngũ nhân viên hỗ trợ, vận hành và quản trị trung tâm.'}
                 stats={[
-                    { label: `Tổng số ${isLecturers ? 'giáo viên' : 'nhân viên'}`, value: total.toLocaleString() }
+                    { label: `Tổng số ${isLecturers ? 'giáo viên' : 'nhân viên'}`, value: formatNumber(total) }
                 ]}
                 actions={
                     <Button onClick={createDialog.setTrue} size="lg">
@@ -111,7 +114,7 @@ export default function PersonnelPage() {
                 />
 
                 {/* Table container */}
-                <div className="rounded-xl border bg-card overflow-hidden">
+                <Card>
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
@@ -121,7 +124,7 @@ export default function PersonnelPage() {
                         limit={limit}
                         isLoading={isLoading}
                     />
-                </div>
+                </Card>
 
                 {/* Footer / Pagination */}
                 <SmartPagination

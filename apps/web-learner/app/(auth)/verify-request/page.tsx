@@ -27,8 +27,8 @@ export default function VerifyRequestPage() {
                             { icon: Clock, title: 'Kiểm tra Spam', desc: 'Nếu không thấy email, hãy kiểm tra thư mục Spam' },
                         ].map((item, i) => (
                             <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-background border">
-                                <div className="w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                    <item.icon className="w-4 h-4" />
+                                <div className="size-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                    <item.icon className="size-4" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium">{item.title}</p>
@@ -42,8 +42,8 @@ export default function VerifyRequestPage() {
         >
             <div className="space-y-6">
                 <div className="flex flex-col items-center text-center gap-4 p-6 rounded-lg border bg-muted/30">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-                        <Mail className="h-7 w-7 text-primary" />
+                    <div className="flex size-14 items-center justify-center rounded-full bg-primary/10">
+                        <Mail className="size-7 text-primary" />
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                         Chúng tôi đã gửi một liên kết bảo mật. Vui lòng kiểm tra hộp thư đến và cả thư mục Spam để hoàn tất kích hoạt tài khoản.
@@ -53,7 +53,7 @@ export default function VerifyRequestPage() {
                 <Button asChild className="w-full">
                     <Link href="/login">
                         Đăng nhập ngay
-                        <ArrowRight className="ml-2 w-4 h-4" />
+                        <ArrowRight className="ml-2 size-4" />
                     </Link>
                 </Button>
 

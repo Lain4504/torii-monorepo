@@ -9,11 +9,11 @@ import {
     BookOpen,
     FileText,
 } from 'lucide-react'
-import { useCourseBySlug, useCurriculum } from '@/apis/services/course-api'
-import { learningProgressApi, useCompletedLessons } from '@/apis/services/learning-progress-api'
-import { useLesson } from '@/apis/services/lesson-api'
+import { useCourseBySlug, useCurriculum } from '@/lib/api/services/course-api'
+import { learningProgressApi, useCompletedLessons } from '@/lib/api/services/learning-progress-api'
+import { useLesson } from '@/lib/api/services/lesson-api'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
-import { useUpgradeCourseVersion } from '@/apis/services/enrollment-api'
+import { useUpgradeCourseVersion } from '@/lib/api/services/enrollment-api'
 import { LearningSidebar } from '@/components/courses/learning-sidebar'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { toast } from '@workspace/ui/components/sonner'

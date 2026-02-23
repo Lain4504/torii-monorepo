@@ -1,9 +1,11 @@
 import { Star, Trash2 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
+import { Badge } from '@workspace/ui/components/badge'
 import { cn } from '@workspace/ui/lib/utils'
-import { ReviewResponse } from '@/apis/services/review-api'
+import { ReviewResponse } from '@/lib/api/services/review-api'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { Button } from '@workspace/ui/components/button'
 
 interface ReviewItemProps {
     review: ReviewResponse & { courseTitle?: string; courseSlug?: string }
@@ -24,30 +26,32 @@ export function ReviewItem({ review, className, onDelete }: ReviewItemProps) {
         <div
             onClick={handleCardClick}
             className={cn(
-                "group relative overflow-hidden rounded-2xl bg-card p-6 transition-all duration-300",
+                "group relative overflow-hidden bg-card p-6 transition-all duration-300 rounded-lg",
                 "border border-border/50",
-                "shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer",
+                "hover:bg-muted/30 cursor-pointer",
                 className
             )}
         >
             {/* Delete Button - Absolute Positioned */}
             {onDelete && (
-                <button
+                <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         onDelete(review.id);
                     }}
-                    className="absolute top-4 right-4 z-50 p-2 rounded-full bg-background/80 hover:bg-red-500/10 text-muted-foreground hover:text-red-600 transition-all"
+                    className="absolute top-4 right-4 z-50 text-muted-foreground hover:text-destructive hover:bg-destructive/10 size-8"
                     title="Xóa đánh giá"
                 >
-                    <Trash2 className="h-4 w-4" />
-                </button>
+                    <Trash2 className="size-4" />
+                </Button>
             )}
 
             <div className="flex items-start justify-between gap-4 relative z-10">
                 <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                    <Avatar className="size-10 ring-2 ring-border">
                         <AvatarImage src={review.user.avatarUrl} alt={review.user.displayName} />
                         <AvatarFallback className="bg-primary/10 text-primary font-bold">
                             {review.user.displayName.charAt(0).toUpperCase()}
@@ -62,7 +66,7 @@ export function ReviewItem({ review, className, onDelete }: ReviewItemProps) {
                                         key={i}
                                         className={cn(
                                             "h-3.5 w-3.5",
-                                            i < review.rating ? "fill-amber-400 text-amber-400" : "fill-muted text-muted"
+                                            i < review.rating ? "fill-yellow-500 text-yellow-500" : "fill-muted text-muted"
                                         )}
                                     />
                                 ))}
@@ -77,17 +81,16 @@ export function ReviewItem({ review, className, onDelete }: ReviewItemProps) {
 
             <div className="mt-4 relative z-10">
                 {review.courseTitle && (
-                    <div className="mb-2 inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                    <Badge variant="secondary" className="mb-2">
                         {review.courseTitle}
-                    </div>
+                    </Badge>
                 )}
                 <p className="text-muted-foreground text-sm leading-relaxed">
                     {review.comment}
                 </p>
             </div>
 
-            {/* Decorative blob for claymorphism feel */}
-            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br from-primary/5 to-primary/0 blur-2xl transition-all duration-500 group-hover:bg-primary/10 pointer-events-none" />
+
         </div>
     )
 }

@@ -1,9 +1,11 @@
 'use client'
 
-import { useAchievements } from '@/apis/services/gamification-api'
+import { useAchievements } from '@/lib/api/services/gamification-api'
+import { formatDate } from '@/utils/format-utils'
 import { Badge } from '@workspace/ui/components/badge'
 import { Progress } from '@workspace/ui/components/progress'
 import { cn } from '@workspace/ui/lib/utils'
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { Award, Trophy, Star, GraduationCap, Heart, Target, Flame, Calendar, TrendingUp, Zap } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { PageLoading } from '@workspace/ui/components/page-loading'
@@ -52,7 +54,7 @@ export default function AchievementsPage() {
                 category: achievement.achievement.category,
                 icon: Icon,
                 earned: achievement.isUnlocked,
-                date: achievement.unlockedAt ? new Date(achievement.unlockedAt).toLocaleDateString('vi-VN') : null,
+                date: achievement.unlockedAt ? formatDate(achievement.unlockedAt) : null,
                 progress: achievement.progress,
             }
         })
@@ -202,21 +204,21 @@ export default function AchievementsPage() {
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-20 space-y-4 rounded-2xl border border-dashed border-border bg-muted/5">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-muted/20 flex items-center justify-center">
-                        <Trophy className="w-8 h-8 text-muted-foreground/40" />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-foreground">
+                <Empty>
+                    <EmptyMedia>
+                        <Trophy className="size-8 text-muted-foreground/40" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>
                             Không có thành tích nào
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        </EmptyTitle>
+                        <EmptyDescription>
                             {selectedCategory === 'ALL'
                                 ? 'Bắt đầu học tập để mở khóa thành tích đầu tiên!'
                                 : 'Không có thành tích nào trong danh mục này'}
-                        </p>
-                    </div>
-                </div>
+                        </EmptyDescription>
+                    </EmptyContent>
+                </Empty>
             )}
         </div>
     )

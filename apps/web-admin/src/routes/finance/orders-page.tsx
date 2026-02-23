@@ -1,21 +1,12 @@
 import { useState } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@workspace/ui/components/table';
+import { Card, CardContent } from '@workspace/ui/components/card';
+import { OrdersTable } from '@/components/finance/orders-table';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
-  Zap,
-  Clock,
-  CreditCard, RotateCcw, ShieldCheck, TrendingUp, Activity, Search, Calendar as CalendarIcon
+  RotateCcw, ShieldCheck, TrendingUp, Activity, Search, Calendar as CalendarIcon
 } from 'lucide-react';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatDateTime, vi, formatCurrency, formatNumber } from '@/lib/format-utils';
 import { Calendar } from '@workspace/ui/components/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
 import {
@@ -25,22 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select";
-import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { PageHeader } from '@/components/common/page-header';
 import { OrderDetailSheet } from '@/components/finance/order-detail-sheet';
-import { useOrders } from '@/api/services/finance';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
-import { MoreHorizontal, Eye, FileText, XCircle } from 'lucide-react';
+import { useOrders, useOrderStats } from '@/lib/api/services/finance';
+import { XCircle } from 'lucide-react';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
-import { formatCurrency } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
 
 export default function OrdersPage() {
@@ -58,29 +39,19 @@ export default function OrdersPage() {
     status: status !== 'all' ? status as OrderStatus : undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
-  });
+  } as any);
+
+  const { data: statsResponse } = useOrderStats({
+    status: status !== 'all' ? status as OrderStatus : undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+  } as any);
 
   const orders = ordersResponse?.data || [];
   const total = ordersResponse?.total || 0;
   const totalPages = ordersResponse?.totalPages || 1;
+  const stats = statsResponse?.data;
 
-  const getStatusColor = (status: OrderStatus) => {
-    switch (status) {
-      case OrderStatus.COMPLETED:
-        return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
-      case OrderStatus.PENDING:
-      case OrderStatus.PROCESSING:
-        return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
-      case OrderStatus.FAILED:
-      case OrderStatus.CANCELLED:
-      case OrderStatus.TIMED_OUT:
-        return 'bg-red-500/10 text-red-600 border-red-500/20';
-      case OrderStatus.REFUNDED:
-        return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
-      default:
-        return 'bg-muted/10 text-muted-foreground border-border/20';
-    }
-  };
 
   const getStatusLabel = (status: OrderStatus) => {
     switch (status) {
@@ -106,10 +77,10 @@ export default function OrdersPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="Tài chính & Doanh thu"
-        subtitle="Theo dõi dòng tiền và tối ưu hiệu suất Torii Academy"
+        title="Quản lý Đơn hàng"
+        subtitle="Theo dõi và quản lý tất cả đơn hàng trong hệ thống"
         stats={[
-          { label: "Tổng số Giao dịch", value: total.toLocaleString() }
+          { label: "Tổng số Giao dịch", value: formatNumber(total) }
         ]}
         actions={
           <Button
@@ -127,26 +98,49 @@ export default function OrdersPage() {
       {/* Stats Quick Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: 'Tổng doanh thu', value: '25.4M', sub: '+12% so với tháng trước', icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10' },
-          { label: 'Trạng thái Hệ thống', value: 'Ổn định', sub: 'Độ trễ < 12ms', icon: Activity, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-          { label: 'Bảo mật', value: 'Hoạt động', sub: '99.9% Tỷ lệ an toàn', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
+          {
+            label: 'Tổng doanh thu',
+            value: stats?.totalRevenue ? formatCurrency(stats.totalRevenue) : '0 ₫',
+            sub: 'Dựa trên bộ lọc hiện tại',
+            icon: TrendingUp,
+            color: 'text-primary',
+            bg: 'bg-primary/10'
+          },
+          {
+            label: 'Số đơn hoàn thành',
+            value: formatNumber(stats?.orderCount) || '0',
+            sub: 'Giao dịch thành công',
+            icon: ShieldCheck,
+            color: 'text-emerald-500',
+            bg: 'bg-emerald-500/10'
+          },
+          {
+            label: 'Trạng thái Hệ thống',
+            value: 'Ổn định',
+            sub: 'Độ trễ < 12ms',
+            icon: Activity,
+            color: 'text-amber-500',
+            bg: 'bg-amber-500/10'
+          }
         ].map((stat, i) => (
-          <div key={i}
-            className="group p-6 rounded-xl border bg-card hover:border-primary/20 transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className={cn("p-2 rounded-lg", stat.bg, stat.color)}>
-                <stat.icon className="size-4" />
+          <Card key={i}
+            className="group hover:border-primary/20 transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className={cn("p-2 rounded-lg", stat.bg, stat.color)}>
+                  <stat.icon className="size-4" />
+                </div>
+                <div className="size-1.5 rounded-full bg-emerald-500" />
               </div>
-              <div className="size-1.5 rounded-full bg-emerald-500" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{stat.label}</h3>
-              <div className="flex items-baseline gap-2">
-                <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
-                <p className="text-[10px] font-medium text-muted-foreground/40">{stat.sub}</p>
+              <div className="space-y-1">
+                <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{stat.label}</h3>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground/40">{stat.sub}</p>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
@@ -176,7 +170,7 @@ export default function OrdersPage() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                    {startDate ? format(new Date(startDate), "dd/MM/yyyy") : <span>Chọn ngày</span>}
+                    {startDate ? formatDateTime(startDate, "dd/MM/yyyy") : <span>Chọn ngày</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -184,7 +178,7 @@ export default function OrdersPage() {
                     mode="single"
                     selected={startDate ? new Date(startDate) : undefined}
                     onSelect={(date) => {
-                      setStartDate(date ? format(date, "yyyy-MM-dd") : '');
+                      setStartDate(date ? formatDateTime(date, "yyyy-MM-dd") : '');
                       setPage(1);
                     }}
                     initialFocus
@@ -205,7 +199,7 @@ export default function OrdersPage() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                    {endDate ? format(new Date(endDate), "dd/MM/yyyy") : <span>Chọn ngày</span>}
+                    {endDate ? formatDateTime(endDate, "dd/MM/yyyy") : <span>Chọn ngày</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -213,7 +207,7 @@ export default function OrdersPage() {
                     mode="single"
                     selected={endDate ? new Date(endDate) : undefined}
                     onSelect={(date) => {
-                      setEndDate(date ? format(date, "yyyy-MM-dd") : '');
+                      setEndDate(date ? formatDateTime(date, "yyyy-MM-dd") : '');
                       setPage(1);
                     }}
                     initialFocus
@@ -259,136 +253,16 @@ export default function OrdersPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-xl border bg-card overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px] text-center">#</TableHead>
-                <TableHead>Dữ liệu Đơn hàng</TableHead>
-                <TableHead className="text-center font-bold">Số tiền</TableHead>
-                <TableHead className="text-center">Dịch vụ</TableHead>
-                <TableHead className="text-center">Trạng thái</TableHead>
-                <TableHead className="text-center">Ngày ghi nhận</TableHead>
-                <TableHead className="w-[80px] text-center">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-[400px] text-center">
-                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                      <RotateCcw className="h-8 w-8 animate-spin text-primary/60" />
-                      <p className="text-xs font-sans font-bold italic uppercase tracking-widest text-primary/40">Đang truy xuất dữ liệu Tài chính...</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : orders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-[400px] text-center">
-                    <Empty>
-                      <EmptyMedia>
-                        <CreditCard className="size-8 text-muted-foreground" />
-                      </EmptyMedia>
-                      <EmptyContent>
-                        <EmptyTitle>Không tìm thấy giao dịch</EmptyTitle>
-                        <EmptyDescription>
-                          Chưa có dữ liệu giao dịch nào được ghi nhận.
-                        </EmptyDescription>
-                      </EmptyContent>
-                    </Empty>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                orders.map((order, index) => (
-                  <TableRow
-                    key={order.id}
-                    className="group hover:bg-muted/30 transition-colors"
-                  >
-                    <TableCell className="text-center text-xs font-medium text-muted-foreground/40 tabular-nums">
-                      {(page - 1) * 10 + index + 1}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/5 text-primary border border-primary/10">
-                          <CreditCard className="size-4" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-foreground text-sm uppercase tracking-tight">
-                            {order.id.slice(0, 13)}...
-                          </span>
-                          <span className="text-[10px] text-muted-foreground/60 font-medium">Khách hàng: {order.userName || order.userEmail || order.userId}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="text-sm font-black tabular-nums text-primary">
-                        {formatCurrency(order.amount)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="inline-flex flex-col items-center">
-                        <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted text-[9px] font-black uppercase tracking-widest text-muted-foreground/80 border border-border/50">
-                          <Zap className="size-2.5 mr-1" />
-                          {order.paymentMethod}
-                        </div>
-                        <span className="text-[10px] text-muted-foreground/40 mt-1 font-medium">{order.orderType}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className={cn("inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm", getStatusColor(order.status))}>
-                        <div className={cn("size-1.5 rounded-full mr-2", order.status === OrderStatus.COMPLETED ? 'bg-emerald-500 animate-pulse' : 'bg-current opacity-50')} />
-                        {getStatusLabel(order.status)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex flex-col items-center gap-0.5 text-muted-foreground/60">
-                        <div className="flex items-center gap-1.5 text-[11px] font-bold">
-                          <Clock className="size-3 opacity-40" />
-                          {new Date(order.createdAt).toLocaleDateString('vi-VN')}
-                        </div>
-                        <span className="text-[9px] font-medium opacity-40 uppercase tracking-tighter">Lúc {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted rounded-lg">
-                            <span className="sr-only">Mở menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 rounded-xl border-border/50 p-1.5 shadow-xl">
-                          <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 px-2 py-1.5">
-                            Thao tác Đơn hàng
-                          </DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setSelectedOrder(order);
-                              setIsSheetOpen(true);
-                            }}
-                            className="rounded-lg h-10 px-2 focus:bg-primary/5 focus:text-primary transition-colors cursor-pointer"
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            <span className="text-xs font-bold">Xem Chi tiết</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="rounded-lg h-10 px-2 focus:bg-primary/5 focus:text-primary transition-colors cursor-pointer">
-                            <FileText className="mr-2 h-4 w-4" />
-                            <span className="text-xs font-bold">Xuất Hóa đơn</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-border/50 my-1" />
-                          <DropdownMenuItem className="rounded-lg h-10 px-2 text-destructive focus:bg-destructive/5 focus:text-destructive transition-colors cursor-pointer">
-                            <XCircle className="mr-2 h-4 w-4" />
-                            <span className="text-xs font-bold">Hủy Đơn hàng</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        <OrdersTable
+          data={orders}
+          isLoading={isLoading}
+          onView={(order) => {
+            setSelectedOrder(order);
+            setIsSheetOpen(true);
+          }}
+          page={page}
+          limit={10}
+        />
 
         {/* Pagination */}
         <SmartPagination

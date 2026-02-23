@@ -18,6 +18,7 @@ import {
     PenTool
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
+import { Card, CardContent } from '@workspace/ui/components/card';
 import {
     Table,
     TableBody,
@@ -33,25 +34,24 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { Badge } from '@workspace/ui/components/badge';
-import { useCourse } from '@/api/services/courses';
-import { useCourseModules } from '@/api/services/modules';
-import { useModulesLessons } from '@/api/services/lesson';
+import { useCourse } from '@/lib/api/services/courses';
+import { useCourseModules } from '@/lib/api/services/modules';
+import { useModulesLessons } from '@/lib/api/services/lesson';
 import {
     useLiveSessions,
     useDeleteLiveSession,
     useStartLiveSession,
     useEndLiveSession,
     liveSessionsApi
-} from '@/api/services/live-sessions';
+} from '@/lib/api/services/live-sessions';
 import type { ModuleResponseDTO, LessonResponseDTO, AssignmentResponseDTO } from '@workspace/schemas';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatDateTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 import {
     useAssignments,
     useDeleteAssignment,
     usePublishAssignment
-} from '@/api/services/assignments';
+} from '@/lib/api/services/assignments';
 import { CreateModuleSheet } from '@/components/modules/create-module-sheet.tsx';
 import { EditModuleSheet } from '@/components/modules/edit-module-sheet.tsx';
 const CreateLessonSheet = lazy(() => import('@/components/lessons/create-lesson-sheet.tsx').then(m => ({ default: m.CreateLessonSheet })));
@@ -284,126 +284,128 @@ export default function CourseDetailPage() {
                             </Button>
                         </div>
                     ) : (
-                        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-                            <Table>
-                                <TableHeader className="bg-muted/30 border-b border-border">
-                                    <TableRow className="hover:bg-transparent border-none">
-                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-12">#</TableHead>
-                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Học phần / Bài học</TableHead>
-                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-32">Loại</TableHead>
-                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-24">Thứ tự</TableHead>
-                                        <TableHead className="text-right h-11 text-xs font-semibold text-muted-foreground px-4 w-32">Thao tác</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {modules.map((module, moduleIdx) => {
-                                        const lessonQuery = lessonQueries[moduleIdx];
-                                        const lessons = lessonQuery?.data?.data || [];
-                                        const isExpanded = expandedModules.has(module.id);
+                        <Card className="overflow-hidden shadow-sm border-border">
+                            <CardContent className="p-0">
+                                <Table>
+                                    <TableHeader className="bg-muted/30 border-b border-border">
+                                        <TableRow className="hover:bg-transparent border-none">
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-12">#</TableHead>
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Học phần / Bài học</TableHead>
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-32">Loại</TableHead>
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-24">Thứ tự</TableHead>
+                                            <TableHead className="text-right h-11 text-xs font-semibold text-muted-foreground px-4 w-32">Thao tác</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {modules.map((module, moduleIdx) => {
+                                            const lessonQuery = lessonQueries[moduleIdx];
+                                            const lessons = lessonQuery?.data?.data || [];
+                                            const isExpanded = expandedModules.has(module.id);
 
-                                        return (
-                                            <>
-                                                <TableRow key={module.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                                                    <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30">{moduleIdx + 1}</TableCell>
-                                                    <TableCell className="border-r border-border/30">
-                                                        <div className="flex items-center gap-3">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="size-6 rounded-lg"
-                                                                onClick={() => toggleModule(module.id)}
-                                                            >
-                                                                <ChevronLeft className={cn("size-3 transition-transform", isExpanded && "-rotate-90")} />
-                                                            </Button>
-                                                            <div>
-                                                                <p className="font-semibold text-sm">{module.title}</p>
-                                                                {module.description && <p className="text-xs text-muted-foreground line-clamp-1">{module.description}</p>}
-                                                            </div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="border-r border-border/30">
-                                                        <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
-                                                            Học phần
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-sm font-medium border-r border-border/30">{module.orderIndex}</TableCell>
-                                                    <TableCell className="text-right">
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                                    <MoreVertical className="size-4" />
+                                            return (
+                                                <>
+                                                    <TableRow key={module.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                                                        <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30">{moduleIdx + 1}</TableCell>
+                                                        <TableCell className="border-r border-border/30">
+                                                            <div className="flex items-center gap-3">
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="size-6 rounded-lg"
+                                                                    onClick={() => toggleModule(module.id)}
+                                                                >
+                                                                    <ChevronLeft className={cn("size-3 transition-transform", isExpanded && "-rotate-90")} />
                                                                 </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
-                                                                <DropdownMenuItem onClick={() => { setSelectedModuleIdForLesson(module.id); setCreateLessonOpen(true); }} className="rounded-lg gap-2 py-2">
-                                                                    <Plus className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài học</span>
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => {
-                                                                    setSelectedModuleIdForAssignment(module.id);
-                                                                    setSelectedLessonIdForAssignment(null);
-                                                                    setCreateAssignmentOpen(true);
-                                                                }} className="rounded-lg gap-2 py-2">
-                                                                    <PenTool className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài tập</span>
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => { setSelectedModule(module); setEditModuleOpen(true); }} className="rounded-lg gap-2 py-2">
-                                                                    <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => { setSelectedModule(module); setDeleteModuleOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
-                                                                    <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </TableCell>
-                                                </TableRow>
-                                                {isExpanded && lessons.map((lesson, lessonIdx) => (
-                                                    <TableRow key={lesson.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors bg-muted/5">
-                                                        <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30 pl-8">{moduleIdx + 1}.{lessonIdx + 1}</TableCell>
-                                                        <TableCell className="border-r border-border/30 pl-12">
-                                                            <div className="flex items-center gap-2">
-                                                                <FileText className="size-4 text-primary" />
                                                                 <div>
-                                                                    <p className="font-medium text-sm">{lesson.title}</p>
+                                                                    <p className="font-semibold text-sm">{module.title}</p>
+                                                                    {module.description && <p className="text-xs text-muted-foreground line-clamp-1">{module.description}</p>}
                                                                 </div>
                                                             </div>
                                                         </TableCell>
                                                         <TableCell className="border-r border-border/30">
-                                                            <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
-                                                                Bài học
+                                                            <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
+                                                                Học phần
                                                             </Badge>
                                                         </TableCell>
-                                                        <TableCell className="text-sm font-medium border-r border-border/30">{lesson.orderIndex}</TableCell>
+                                                        <TableCell className="text-sm font-medium border-r border-border/30">{module.orderIndex}</TableCell>
                                                         <TableCell className="text-right">
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" size="icon" className="size-8 rounded-lg">
+                                                                    <Button variant="ghost" size="icon">
                                                                         <MoreVertical className="size-4" />
                                                                     </Button>
                                                                 </DropdownMenuTrigger>
                                                                 <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
-                                                                    <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setEditLessonOpen(true); }} className="rounded-lg gap-2 py-2">
-                                                                        <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
+                                                                    <DropdownMenuItem onClick={() => { setSelectedModuleIdForLesson(module.id); setCreateLessonOpen(true); }} className="rounded-lg gap-2 py-2">
+                                                                        <Plus className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài học</span>
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem onClick={() => {
                                                                         setSelectedModuleIdForAssignment(module.id);
-                                                                        setSelectedLessonIdForAssignment(lesson.id);
+                                                                        setSelectedLessonIdForAssignment(null);
                                                                         setCreateAssignmentOpen(true);
                                                                     }} className="rounded-lg gap-2 py-2">
                                                                         <PenTool className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài tập</span>
                                                                     </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setDeleteLessonOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
+                                                                    <DropdownMenuItem onClick={() => { setSelectedModule(module); setEditModuleOpen(true); }} className="rounded-lg gap-2 py-2">
+                                                                        <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => { setSelectedModule(module); setDeleteModuleOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
                                                                         <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </TableCell>
                                                     </TableRow>
-                                                ))}
-                                            </>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                                    {isExpanded && lessons.map((lesson, lessonIdx) => (
+                                                        <TableRow key={lesson.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors bg-muted/5">
+                                                            <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30 pl-8">{moduleIdx + 1}.{lessonIdx + 1}</TableCell>
+                                                            <TableCell className="border-r border-border/30 pl-12">
+                                                                <div className="flex items-center gap-2">
+                                                                    <FileText className="size-4 text-primary" />
+                                                                    <div>
+                                                                        <p className="font-medium text-sm">{lesson.title}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="border-r border-border/30">
+                                                                <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
+                                                                    Bài học
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="text-sm font-medium border-r border-border/30">{lesson.orderIndex}</TableCell>
+                                                            <TableCell className="text-right">
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button variant="ghost" size="icon">
+                                                                            <MoreVertical className="size-4" />
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
+                                                                        <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setEditLessonOpen(true); }} className="rounded-lg gap-2 py-2">
+                                                                            <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem onClick={() => {
+                                                                            setSelectedModuleIdForAssignment(module.id);
+                                                                            setSelectedLessonIdForAssignment(lesson.id);
+                                                                            setCreateAssignmentOpen(true);
+                                                                        }} className="rounded-lg gap-2 py-2">
+                                                                            <PenTool className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài tập</span>
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setDeleteLessonOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
+                                                                            <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
+                                                                        </DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </>
+                                            );
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
                     )}
                 </TabsContent>
 
@@ -436,99 +438,101 @@ export default function CourseDetailPage() {
                                 </Button>
                             </div>
                         ) : (
-                            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-                                <Table>
-                                    <TableHeader className="bg-muted/30 border-b border-border">
-                                        <TableRow className="hover:bg-transparent border-none">
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-12">#</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Trạng thái</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Tiêu đề</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Thời gian</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Thời lượng</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Giảng viên</TableHead>
-                                            <TableHead className="text-right h-11 text-xs font-semibold text-muted-foreground px-4">Thao tác</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {sortedSessions.map((session, idx) => (
-                                            <TableRow key={session.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                                                <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30">{idx + 1}</TableCell>
-                                                <TableCell className="border-r border-border/30">
-                                                    <div className="flex items-center gap-2">
-                                                        {session.status === 'live' && (
-                                                            <span className="relative flex h-2 w-2">
-                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                                                            </span>
-                                                        )}
-                                                        <Badge
-                                                            variant={session.status === 'scheduled' ? "outline" : session.status === 'live' ? "destructive" : "secondary"}
-                                                            className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg"
-                                                        >
-                                                            {session.status === 'scheduled' ? "Sắp diễn ra" : session.status === 'live' ? "Đang live" : "Hoàn thành"}
-                                                        </Badge>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="border-r border-border/30">
-                                                    <div className="space-y-1">
-                                                        <p className="font-semibold text-sm">{session.title}</p>
-                                                        <p className="text-[10px] text-muted-foreground font-mono">Mã: {session.id.slice(0, 8)}</p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="border-r border-border/30">
-                                                    <div className="text-sm">
-                                                        <p className="font-medium">{format(new Date(session.scheduledAt), 'HH:mm', { locale: vi })}</p>
-                                                        <p className="text-xs text-muted-foreground">{format(new Date(session.scheduledAt), 'EEEE, dd/MM/yyyy', { locale: vi })}</p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="border-r border-border/30">
-                                                    <span className="text-sm font-medium">{session.duration} phút</span>
-                                                </TableCell>
-                                                <TableCell className="border-r border-border/30">
-                                                    <span className="text-sm">{session.lecturer?.displayName || 'Chưa chỉ định'}</span>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        {session.status === 'live' && (
-                                                            <Button
-                                                                variant="default"
-                                                                size="sm"
-                                                                className="rounded-lg h-8 px-3 text-[10px] font-bold uppercase tracking-widest gap-1.5"
-                                                                onClick={() => handleJoinLiveSession(session.id)}
-                                                            >
-                                                                <Video className="size-3" />
-                                                                Vào dạy
-                                                            </Button>
-                                                        )}
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="size-8 rounded-lg">
-                                                                    <MoreVertical className="size-4" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
-                                                                {session.status === 'scheduled' && (
-                                                                    <DropdownMenuItem onClick={() => handleStartLiveSession(session.id)} className="rounded-lg text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 gap-2 py-2">
-                                                                        <PlayCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Bắt đầu</span>
-                                                                    </DropdownMenuItem>
-                                                                )}
-                                                                {session.status === 'live' && (
-                                                                    <DropdownMenuItem onClick={() => handleEndLiveSession(session.id)} className="rounded-lg text-orange-600 focus:text-orange-700 focus:bg-orange-50 gap-2 py-2">
-                                                                        <StopCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Kết thúc</span>
-                                                                    </DropdownMenuItem>
-                                                                )}
-                                                                <DropdownMenuItem onClick={() => handleDeleteLiveSession(session.id)} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
-                                                                    <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </div>
-                                                </TableCell>
+                            <Card className="overflow-hidden shadow-sm border-border">
+                                <CardContent className="p-0">
+                                    <Table>
+                                        <TableHeader className="bg-muted/30 border-b border-border">
+                                            <TableRow className="hover:bg-transparent border-none">
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-12">#</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Trạng thái</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Tiêu đề</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Thời gian</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Thời lượng</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Giảng viên</TableHead>
+                                                <TableHead className="text-right h-11 text-xs font-semibold text-muted-foreground px-4">Thao tác</TableHead>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {sortedSessions.map((session, idx) => (
+                                                <TableRow key={session.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                                                    <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30">{idx + 1}</TableCell>
+                                                    <TableCell className="border-r border-border/30">
+                                                        <div className="flex items-center gap-2">
+                                                            {session.status === 'live' && (
+                                                                <span className="relative flex h-2 w-2">
+                                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                                                </span>
+                                                            )}
+                                                            <Badge
+                                                                variant={session.status === 'scheduled' ? "outline" : session.status === 'live' ? "destructive" : "secondary"}
+                                                                className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg"
+                                                            >
+                                                                {session.status === 'scheduled' ? "Sắp diễn ra" : session.status === 'live' ? "Đang live" : "Hoàn thành"}
+                                                            </Badge>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="border-r border-border/30">
+                                                        <div className="space-y-1">
+                                                            <p className="font-semibold text-sm">{session.title}</p>
+                                                            <p className="text-[10px] text-muted-foreground font-mono">Mã: {session.id.slice(0, 8)}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="border-r border-border/30">
+                                                        <div className="text-sm">
+                                                            <p className="font-medium">{formatDateTime(session.scheduledAt, 'HH:mm')}</p>
+                                                            <p className="text-xs text-muted-foreground">{formatDateTime(session.scheduledAt, 'EEEE, dd/MM/yyyy')}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="border-r border-border/30">
+                                                        <span className="text-sm font-medium">{session.duration} phút</span>
+                                                    </TableCell>
+                                                    <TableCell className="border-r border-border/30">
+                                                        <span className="text-sm">{session.lecturer?.displayName || 'Chưa chỉ định'}</span>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            {session.status === 'live' && (
+                                                                <Button
+                                                                    variant="default"
+                                                                    size="sm"
+                                                                    className="rounded-lg h-8 px-3 text-[10px] font-bold uppercase tracking-widest gap-1.5"
+                                                                    onClick={() => handleJoinLiveSession(session.id)}
+                                                                >
+                                                                    <Video className="size-3" />
+                                                                    Vào dạy
+                                                                </Button>
+                                                            )}
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="icon">
+                                                                        <MoreVertical className="size-4" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
+                                                                    {session.status === 'scheduled' && (
+                                                                        <DropdownMenuItem onClick={() => handleStartLiveSession(session.id)} className="rounded-lg text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 gap-2 py-2">
+                                                                            <PlayCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Bắt đầu</span>
+                                                                        </DropdownMenuItem>
+                                                                    )}
+                                                                    {session.status === 'live' && (
+                                                                        <DropdownMenuItem onClick={() => handleEndLiveSession(session.id)} className="rounded-lg text-orange-600 focus:text-orange-700 focus:bg-orange-50 gap-2 py-2">
+                                                                            <StopCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Kết thúc</span>
+                                                                        </DropdownMenuItem>
+                                                                    )}
+                                                                    <DropdownMenuItem onClick={() => handleDeleteLiveSession(session.id)} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
+                                                                        <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </CardContent>
+                            </Card>
                         )}
                     </TabsContent>
                 )}
@@ -550,18 +554,20 @@ export default function CourseDetailPage() {
                     </div>
 
                     <div className="space-y-4">
-                        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-                            <div className="bg-card/20 backdrop-blur-sm overflow-x-auto">
-                                <AssignmentsTable
-                                    data={assignmentsData?.data || []}
-                                    isLoading={isLoadingAssignments}
-                                    onEdit={handleEditAssignment}
-                                    onDelete={handleDeleteAssignment}
-                                    onPublish={handlePublishAssignment}
-                                    onViewSubmissions={handleViewSubmissions}
-                                />
-                            </div>
-                        </div>
+                        <Card className="overflow-hidden shadow-sm border-border">
+                            <CardContent className="p-0">
+                                <div className="bg-card/20 backdrop-blur-sm overflow-x-auto">
+                                    <AssignmentsTable
+                                        data={assignmentsData?.data || []}
+                                        isLoading={isLoadingAssignments}
+                                        onEdit={handleEditAssignment}
+                                        onDelete={handleDeleteAssignment}
+                                        onPublish={handlePublishAssignment}
+                                        onViewSubmissions={handleViewSubmissions}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
 
                         {assignmentsData && assignmentsData.totalPages > 1 && (
                             <div className="flex justify-end">

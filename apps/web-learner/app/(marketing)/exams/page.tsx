@@ -13,7 +13,7 @@ import { cn } from '@workspace/ui/lib/utils'
 import { ExamStats } from "@/components/exams/exam-stats"
 import { ExamCard } from "@/components/exams/exam-card"
 import { ExamHistory } from "@/components/exams/exam-history"
-import { getExams } from "@/apis/services/exam-api"
+import { getExams } from "@/lib/api/services/exam-api"
 import type { ExamWithStatusResponseDTO, ExamQueryDTO, QuestionJlptLevel } from '@workspace/schemas'
 import { ExamType, ExamStatus } from '@workspace/schemas'
 

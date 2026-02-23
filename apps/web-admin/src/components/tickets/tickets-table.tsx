@@ -41,12 +41,12 @@ export function TicketsTable({
     });
 
     return (
-        <Table className="min-w-[1000px] border-collapse bg-transparent">
-            <TableHeader className="bg-muted/30 border-b border-border">
+        <Table>
+            <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
+                    <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => (
-                            <TableHead key={header.id} className="h-11 text-[10px] font-black uppercase tracking-widest text-muted-foreground px-4">
+                            <TableHead key={header.id}>
                                 {header.isPlaceholder
                                     ? null
                                     : flexRender(
@@ -61,10 +61,10 @@ export function TicketsTable({
             <TableBody>
                 {isLoading ? (
                     Array.from({ length: 5 }).map((_, index) => (
-                        <TableRow key={index} className="border-b border-border/50 hover:bg-transparent">
+                        <TableRow key={index}>
                             {columns.map((_, colIndex) => (
-                                <TableCell key={colIndex} className="py-4 px-4">
-                                    <Skeleton className="h-4 w-full bg-muted/20" />
+                                <TableCell key={colIndex}>
+                                    <Skeleton className="h-4 w-full" />
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -73,11 +73,11 @@ export function TicketsTable({
                     table.getRowModel().rows.map((row) => (
                         <TableRow
                             key={row.id}
-                            className="border-b border-border/50 hover:bg-muted/30 transition-colors group cursor-pointer"
+                            className="group cursor-pointer"
                             onClick={() => onView(row.original)}
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-4 px-4 text-sm text-foreground/80 whitespace-nowrap">
+                                <TableCell key={cell.id}>
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
@@ -87,10 +87,10 @@ export function TicketsTable({
                         </TableRow>
                     ))
                 ) : (
-                    <TableRow className="hover:bg-transparent border-none">
+                    <TableRow>
                         <TableCell
                             colSpan={columns.length}
-                            className="h-[400px] text-center p-0"
+                            className="h-[400px] text-center"
                         >
                             <Empty>
                                 <EmptyMedia>

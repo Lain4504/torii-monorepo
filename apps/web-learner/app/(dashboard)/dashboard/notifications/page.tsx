@@ -13,7 +13,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/apis/services/notification-api'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notification-api'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
 interface Notification {
@@ -160,7 +160,6 @@ export default function NotificationsPage() {
                         size="sm"
                         onClick={() => markAllAsReadMutation.mutate()}
                         disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-                        className="rounded-xl h-9 px-4 text-xs font-bold border-border shadow-sm hover:bg-muted transition-all cursor-pointer disabled:opacity-50"
                     >
                         <Check className="w-3.5 h-3.5 mr-1.5" />
                         {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đánh dấu tất cả đã đọc'}
@@ -174,9 +173,9 @@ export default function NotificationsPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                         placeholder="Tìm kiếm thông báo..."
-                        className="pl-10 h-10 border-input bg-background focus:ring-1 focus:ring-primary transition-all rounded-xl text-sm"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                        className="pl-10"
                     />
                 </div>
                 <div className="flex items-center justify-center p-3 rounded-xl border border-border bg-card shadow-sm">
@@ -198,13 +197,8 @@ export default function NotificationsPage() {
                     <Button
                         key={btn.id}
                         variant={filter === btn.id ? "default" : "outline"}
+                        size="sm"
                         onClick={() => setFilter(btn.id as any)}
-                        className={cn(
-                            "rounded-full h-8 px-4 text-xs font-bold transition-all cursor-pointer",
-                            filter === btn.id
-                                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                                : "text-muted-foreground hover:bg-muted"
-                        )}
                     >
                         {btn.label}
                     </Button>
@@ -265,7 +259,7 @@ export default function NotificationsPage() {
 
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="rounded-lg h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-muted">
+                                                    <Button variant="ghost" size="icon" className="rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-muted">
                                                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
                                                     </Button>
                                                 </DropdownMenuTrigger>

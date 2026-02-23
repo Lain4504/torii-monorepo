@@ -36,8 +36,8 @@ export default function RegisterPage() {
                     <div className="space-y-3">
                         {features.map((f, i) => (
                             <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-background border">
-                                <div className="w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                    <f.icon className="w-4 h-4" />
+                                <div className="size-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                    <f.icon className="size-4" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium">{f.title}</p>

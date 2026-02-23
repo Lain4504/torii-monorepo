@@ -1,15 +1,18 @@
 'use client'
 
+import type { CourseResponseDTO } from '@workspace/schemas'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { BookOpen, Clock, Globe, Award, Heart, Sparkles, ShieldCheck } from 'lucide-react'
-import Link from 'next/link'
-import type { CourseResponseDTO } from '@workspace/schemas'
-import { toast } from '@workspace/ui/components/sonner'
-import { CourseVideoPreview } from './course-video-preview'
-import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { cn } from '@workspace/ui/lib/utils'
+import { Award, BookOpen, Clock, Globe, Heart, ShieldCheck, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { toast } from '@workspace/ui/components/sonner'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@workspace/ui/components/item'
+import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
+import { formatCurrency, formatDate } from '@/utils/format-utils'
+
+import { CourseVideoPreview } from './course-video-preview'
 
 interface CourseSidebarProps {
     course: CourseResponseDTO
@@ -28,7 +31,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
         isEnrolling,
         isAuthenticated,
         handleToggleWishlist,
-        handleEnroll
+        handleEnroll,
     } = useCourseEnrollment(course.id, course.slug)
 
     const handlePurchase = async () => {
@@ -47,11 +50,12 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     }
 
     const formatPrice = (price: number) => {
-        return price.toLocaleString('vi-VN') + ' VNĐ'
+        return formatCurrency(price)
     }
 
     const calculateDiscount = () => {
-        if (!course.discountPrice || course.price === 0) return null
+        if (!course.discountPrice || course.price === 0)
+            return null
         const discount = ((Number(course.price) - Number(course.discountPrice)) / Number(course.price)) * 100
         return Math.round(discount)
     }
@@ -59,9 +63,9 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     const discount = calculateDiscount()
 
     return (
-        <div className="sticky top-24 space-y-6 relative z-20 w-full max-w-full">
+        <div className="sticky top-24 z-20 w-full max-w-full space-y-6">
             {/* Video Preview Section */}
-            <div className="rounded-2xl overflow-hidden shadow-lg border border-border">
+            <div className="overflow-hidden rounded-xl border">
                 <CourseVideoPreview
                     thumbnailUrl={course.thumbnailUrl}
                     previewVideoUrl={course.previewVideoUrl}
@@ -70,27 +74,27 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
             </div>
 
             {/* Pricing Card */}
-            <Card className="rounded-2xl border-border shadow-lg overflow-hidden md:p-1">
-                <CardContent className="p-6 space-y-6">
+            <Card className="overflow-hidden">
+                <CardContent className="space-y-6 p-6">
                     <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-primary font-bold text-sm">
-                            <Sparkles className="w-4 h-4" />
+                        <div className="text-sm font-bold text-primary flex items-center gap-2">
+                            <Sparkles className="h-4 w-4" />
                             <span>Đăng ký Premium</span>
                         </div>
 
                         <div className="flex flex-col">
-                            <div className="flex items-end gap-3 flex-wrap">
-                                <span className="text-3xl font-extrabold text-foreground tracking-tight">
+                            <div className="flex flex-wrap items-end gap-3">
+                                <span className="text-3xl font-extrabold tracking-tight text-foreground">
                                     {course.isFree ? 'MIỄN PHÍ' : (course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price)))}
                                 </span>
                                 {course.discountPrice && !course.isFree && (
-                                    <span className="text-sm text-muted-foreground line-through mb-1.5 font-medium">
+                                    <span className="mb-1.5 text-sm font-medium text-muted-foreground line-through">
                                         {formatPrice(Number(course.price))}
                                     </span>
                                 )}
                             </div>
                             {discount && !course.isFree && (
-                                <div className="mt-2 text-destructive font-bold text-sm">
+                                <div className="mt-2 text-sm font-bold text-destructive">
                                     Tiết kiệm {discount}%
                                 </div>
                             )}
@@ -98,104 +102,115 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                     </div>
 
                     <div className="space-y-3">
-                        {isEnrolled ? (
-                            <div className="flex flex-col gap-3">
-                                {isExpired ? (
+                        {isEnrolled
+                            ? (
+                                <div className="flex flex-col gap-3">
+                                    {isExpired
+                                        ? (
+                                            <Button
+                                                className="h-12 w-full font-bold"
+                                                variant="destructive"
+                                                onClick={handlePurchase}
+                                                disabled={isEnrolling || isLoadingEnrollment}
+                                            >
+                                                Gia hạn khóa học
+                                            </Button>
+                                        )
+                                        : (
+                                            <Button
+                                                className="h-12 w-full font-bold"
+                                                onClick={() => router.push(`/courses/${course.slug}/learn`)}
+                                            >
+                                                Tiếp tục học tập
+                                            </Button>
+                                        )}
+
+                                    {enrollment && enrollment.completionPercentage >= 100 && !isExpired && (
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            className="h-12 w-full font-bold active:scale-[0.98]"
+                                        >
+                                            <Link href="/dashboard/certificates">
+                                                <Award className="mr-2 h-4 w-4" /> Tải chứng chỉ
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </div>
+                            )
+                            : (
+                                <div className="flex gap-3">
                                     <Button
-                                        className="w-full h-12 rounded-xl text-sm font-bold bg-destructive hover:bg-destructive/90 shadow-lg shadow-destructive/20 cursor-pointer active:scale-[0.98] transition-all"
+                                        className="h-12 flex-1 font-bold"
                                         onClick={handlePurchase}
                                         disabled={isEnrolling || isLoadingEnrollment}
                                     >
-                                        Gia hạn khóa học
+                                        {isEnrolling ? 'Đang xử lý...' : course.isFree ? 'Bắt đầu ngay' : 'Mua khóa học'}
                                     </Button>
-                                ) : (
-                                    <Button
-                                        className="w-full h-12 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer active:scale-[0.98] transition-all"
-                                        onClick={() => router.push(`/courses/${course.slug}/learn`)}
-                                    >
-                                        Tiếp tục học tập
-                                    </Button>
-                                )}
 
-                                {enrollment && enrollment.completionPercentage >= 100 && !isExpired && (
-                                    <Button
-                                        asChild
-                                        variant="outline"
-                                        className="w-full h-12 rounded-xl text-sm font-bold border-amber-500 text-amber-700 hover:bg-amber-50 shadow-sm cursor-pointer active:scale-[0.98] transition-all"
-                                    >
-                                        <Link href="/dashboard/certificates">
-                                            <Award className="w-4 h-4 mr-2" /> Tải chứng chỉ
-                                        </Link>
-                                    </Button>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="flex gap-3">
-                                <Button
-                                    className="flex-1 h-12 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer active:scale-[0.98] transition-all"
-                                    onClick={handlePurchase}
-                                    disabled={isEnrolling || isLoadingEnrollment}
-                                >
-                                    {isEnrolling ? 'Đang xử lý...' : course.isFree ? 'Bắt đầu ngay' : 'Mua khóa học'}
-                                </Button>
-
-                                {isAuthenticated && (
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="h-12 w-12 rounded-xl border-border hover:bg-muted group/heart cursor-pointer transition-all active:scale-95"
-                                        onClick={handleToggleWishlist}
-                                        disabled={isToggling || isLoadingWishlist}
-                                    >
-                                        <Heart
-                                            className={cn(
-                                                "w-5 h-5 transition-all duration-300",
-                                                isInWishlist ? "fill-destructive text-destructive" : "text-muted-foreground group-hover/heart:text-primary"
-                                            )}
-                                        />
-                                    </Button>
-                                )}
-                            </div>
-                        )}
+                                    {isAuthenticated && (
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            className="h-12 w-12"
+                                            onClick={handleToggleWishlist}
+                                            disabled={isToggling || isLoadingWishlist}
+                                        >
+                                            <Heart
+                                                className={cn(
+                                                    'size-5',
+                                                    isInWishlist && 'fill-destructive text-destructive'
+                                                )}
+                                            />
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
                     </div>
 
-                    <div className="space-y-4 pt-6 border-t border-border/50">
+                    <div className="space-y-4 border-t border-border/50 pt-6">
                         <h4 className="text-sm font-bold text-foreground">
                             Khóa học bao gồm:
                         </h4>
-                        <ul className="space-y-3">
+                        <div className="space-y-2">
                             {[
                                 { icon: BookOpen, text: `${course.totalLessons} bài giảng chi tiết` },
                                 { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : (course.durationWeeks ? `Thời lượng: ${course.durationWeeks} tuần` : 'Thời gian học không giới hạn') },
-                                { 
-                                    icon: Globe, 
-                                    text: isEnrolled && enrollment?.expiresAt 
-                                        ? `Hết hạn: ${new Date(enrollment.expiresAt).toLocaleDateString('vi-VN')}` 
+                                {
+                                    icon: Globe,
+                                    text: isEnrolled && enrollment?.expiresAt
+                                        ? `Hết hạn: ${formatDate(enrollment.expiresAt)}`
                                         : course.type === 'live'
-                                            ? ((course as any).expiresAt ? `Kết thúc: ${new Date((course as any).expiresAt).toLocaleDateString('vi-VN')}` : 'Xem lịch học')
-                                            : ((course as any).expirationMonths ? `Truy cập trong ${(course as any).expirationMonths} tháng` : 'Truy cập trọn đời')
+                                            ? ((course as any).expiresAt ? `Kết thúc: ${formatDate((course as any).expiresAt)}` : 'Xem lịch học')
+                                            : ((course as any).expirationMonths ? `Truy cập trong ${(course as any).expirationMonths} tháng` : 'Truy cập trọn đời'),
                                 },
                                 { icon: Award, text: 'Chứng chỉ hoàn thành Torii' },
                             ].map((item, idx) => (
-                                <li key={idx} className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
-                                        <item.icon className="w-4 h-4" />
-                                    </div>
-                                    <span className="text-sm font-medium text-muted-foreground">{item.text}</span>
-                                </li>
+                                <Item key={idx} variant="default" className="px-3 py-1.5 border-none">
+                                    <ItemMedia>
+                                        <div className="flex size-8 items-center justify-center rounded-lg bg-primary/5 text-primary">
+                                            <item.icon className="size-4" />
+                                        </div>
+                                    </ItemMedia>
+                                    <ItemContent>
+                                        <ItemTitle className="text-xs font-medium">
+                                            {item.text}
+                                        </ItemTitle>
+                                    </ItemContent>
+                                </Item>
                             ))}
-                        </ul>
+                        </div>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-center gap-2 text-emerald-600 font-medium text-xs">
-                        <ShieldCheck className="w-4 h-4" />
+                    <div className="flex items-center justify-center gap-2 pt-2 text-xs font-medium text-primary">
+                        <ShieldCheck className="h-4 w-4" />
                         <span>Đảm bảo hoàn tiền trong 30 ngày</span>
                     </div>
                 </CardContent>
             </Card>
 
-            <div className="text-center px-4">
-                <p className="text-xs font-medium text-muted-foreground leading-relaxed">
+            <div className="px-4 text-center">
+                <p className="text-xs font-medium leading-relaxed text-muted-foreground">
                     Được tin dùng bởi hơn 50,000 học viên chuyên nghiệp trên toàn quốc.
                 </p>
             </div>

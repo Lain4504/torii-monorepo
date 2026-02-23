@@ -8,13 +8,15 @@ import { ViewBlogSheet } from '@/components/blogs/view-blog-sheet.tsx';
 import type { BlogResponseDTO, BlogQueryDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
-import { useBlogs } from "@/api/services/blog.ts";
+import { useBlogs } from "@/lib/api/services/blog.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { Plus, TriangleAlert } from 'lucide-react';
 
 import { PageHeader } from '@/components/common/page-header';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { formatNumber } from "@/lib/format-utils";
 
 export function BlogPage() {
     const [page, setPage] = useState(1);
@@ -48,20 +50,22 @@ export function BlogPage() {
 
     if (error) {
         return (
-            <div className="rounded-xl border bg-card">
-                <Empty>
-                    <EmptyMedia className="bg-destructive/10 text-destructive">
-                        <TriangleAlert className="size-6" />
-                    </EmptyMedia>
-                    <EmptyContent>
-                        <EmptyTitle>Có lỗi xảy ra</EmptyTitle>
-                        <EmptyDescription>{error.message}</EmptyDescription>
-                    </EmptyContent>
-                    <Button variant="outline" className="mt-2" onClick={() => window.location.reload()}>
-                        Thử lại
-                    </Button>
-                </Empty>
-            </div>
+            <Card className="overflow-hidden">
+                <CardContent className="p-0">
+                    <Empty>
+                        <EmptyMedia className="bg-destructive/10 text-destructive">
+                            <TriangleAlert className="size-6" />
+                        </EmptyMedia>
+                        <EmptyContent>
+                            <EmptyTitle>Có lỗi xảy ra</EmptyTitle>
+                            <EmptyDescription>{error.message}</EmptyDescription>
+                        </EmptyContent>
+                        <Button variant="outline" className="mt-2" onClick={() => window.location.reload()}>
+                            Thử lại
+                        </Button>
+                    </Empty>
+                </CardContent>
+            </Card>
         );
     }
 
@@ -79,7 +83,7 @@ export function BlogPage() {
                 title="Bài viết & Tin tức"
                 subtitle="Quản lý nội dung học thuật và cộng đồng Torii"
                 stats={[
-                    { label: "Tổng số bài viết", value: meta?.total.toLocaleString() || 0 }
+                    { label: "Tổng số bài viết", value: formatNumber(meta?.total) || 0 }
                 ]}
                 actions={
                     <Button
@@ -105,17 +109,21 @@ export function BlogPage() {
                     }}
                 />
 
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <BlogTable
-                        data={blogs}
-                        onEdit={setEditingBlog}
-                        onDelete={setDeletingBlog}
-                        onView={setViewingBlog}
-                        page={page}
-                        limit={queryParams.limit || 10}
-                        isLoading={isLoading}
-                    />
-                </div>
+                <Card className="overflow-hidden">
+                    <CardContent className="p-0">
+
+                        <BlogTable
+                            data={blogs}
+                            onEdit={setEditingBlog}
+                            onDelete={setDeletingBlog}
+                            onView={setViewingBlog}
+                            page={page}
+                            limit={queryParams.limit || 10}
+                            isLoading={isLoading}
+                        />
+
+                    </CardContent>
+                </Card>
 
                 <SmartPagination
                     page={page}

@@ -4,12 +4,13 @@ import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { TicketsPrimaryToolbar } from '@/components/tickets/tickets-primary-toolbar';
-import { useTickets } from '@/api/services/tickets-hook';
+import { useTickets } from '@/lib/api/services/tickets-hook';
 import { TicketsTable } from '@/components/tickets/tickets-table';
 import { TicketDetailSheet } from '@/components/tickets/ticket-detail-sheet';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function TicketsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -87,21 +88,25 @@ export default function TicketsPage() {
                     onStatusChange={(val) => handleFilterChange('status', val)}
                 />
 
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <TicketsTable
-                        data={tickets}
-                        isLoading={isLoading}
-                        onView={handleViewTicket}
-                    />
+                <Card className="overflow-hidden">
+                <CardContent className="p-0">
 
-                    <SmartPagination
-                        page={page}
-                        totalPages={totalPages}
-                        totalItems={data?.total || 0}
-                        onPageChange={handlePageChange}
-                        itemName="yêu cầu"
-                    />
-                </div>
+                                    <TicketsTable
+                                        data={tickets}
+                                        isLoading={isLoading}
+                                        onView={handleViewTicket}
+                                    />
+                                
+                </CardContent>
+                </Card>
+
+                <SmartPagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalItems={data?.total || 0}
+                    onPageChange={handlePageChange}
+                    itemName="yêu cầu"
+                />
             </div>
 
             {/* Ticket Detail Detail Detail Sheet */}

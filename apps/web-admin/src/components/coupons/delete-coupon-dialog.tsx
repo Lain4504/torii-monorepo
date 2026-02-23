@@ -9,10 +9,11 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { Button } from '@workspace/ui/components/button';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useDeleteCoupon } from "@/api/services/coupons";
+import { useDeleteCoupon } from "@/lib/api/services/coupons";
 import { type CouponResponseDTO } from '@workspace/schemas';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface DeleteCouponDialogProps {
     open: boolean;
@@ -60,7 +61,7 @@ export function DeleteCouponDialog({ open, onOpenChange, coupon }: DeleteCouponD
                         disabled={deleteMutation.isPending}
                     >
                         {deleteMutation.isPending ? (
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner />
                         ) : (
                             "Xóa coupon"
                         )}

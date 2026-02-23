@@ -3,6 +3,9 @@
 import { AchievementCard } from './achievement-card'
 import { Trophy, Award, Zap, Star } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty'
+import { Separator } from '@workspace/ui/components/separator'
+import { Button } from '@workspace/ui/components/button'
 
 interface AchievementListProps {
     achievements: any[]
@@ -11,16 +14,23 @@ interface AchievementListProps {
 export function AchievementList({ achievements }: AchievementListProps) {
     if (!achievements || achievements.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 rounded-3xl border border-dashed border-muted-foreground/20 bg-muted/5">
-                <div className="p-4 bg-muted rounded-full">
-                    <Trophy className="h-8 w-8 text-muted-foreground/40" />
-                </div>
-                <div className="space-y-1">
-                    <h3 className="text-lg font-bold">Chưa có thành tích nào</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs">
-                        Học tập chăm chỉ để nhận được những huy hiệu danh giá đầu tiên nhé!
-                    </p>
-                </div>
+            <div className="py-12">
+                <Empty>
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon" className="mb-4">
+                            <Trophy className="size-8 text-muted-foreground/40" />
+                        </EmptyMedia>
+                        <EmptyTitle className="text-lg font-bold">Chưa có thành tích nào</EmptyTitle>
+                        <EmptyDescription className="text-sm text-muted-foreground max-w-xs">
+                            Học tập chăm chỉ để nhận được những huy hiệu danh giá đầu tiên nhé!
+                        </EmptyDescription>
+                    </EmptyHeader>
+                    <EmptyContent>
+                        <Button variant="outline" className="h-9 px-4 font-bold border-dashed hover:border-solid transition-all">
+                            Bắt đầu học ngay
+                        </Button>
+                    </EmptyContent>
+                </Empty>
             </div>
         )
     }
@@ -43,15 +53,18 @@ export function AchievementList({ achievements }: AchievementListProps) {
                 if (groupAchievements.length === 0) return null
 
                 return (
-                    <div key={group.category} className="space-y-4">
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className={cn("p-1.5 rounded-lg bg-current/10", group.color)}>
-                                <group.icon className="h-4 w-4" />
+                    <div key={group.category} className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className={cn("p-2 rounded-xl bg-background border shadow-sm", group.color)}>
+                                <group.icon className="size-5" />
                             </div>
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                                {group.title}
-                            </h3>
-                            <div className="h-px flex-1 bg-border/40 ml-2" />
+                            <div className="flex-1">
+                                <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">
+                                    {group.title}
+                                </h3>
+                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tight"> Danh hiệu {group.title.toLowerCase()} </p>
+                            </div>
+                            <Separator className="flex-1" />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

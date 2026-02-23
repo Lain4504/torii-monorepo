@@ -17,6 +17,11 @@ export class OrderHandler {
         return this.orderService.findAll(query);
     }
 
+    @MessagePattern({ cmd: 'billing.order.getStats' })
+    async getStats(@Payload() query: OrderQueryDTO) {
+        return this.orderService.getStats(query);
+    }
+
     @MessagePattern({ cmd: 'billing.order.findAllPayments' })
     async findAllPayments(@Payload() query: PaymentQueryDTO) {
         return this.orderService.findAllPayments(query);

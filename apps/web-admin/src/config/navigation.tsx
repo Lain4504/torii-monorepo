@@ -4,7 +4,6 @@ import {
     BookOpen,
     Video,
     FileQuestion,
-
     Newspaper,
     CreditCard,
     Settings,
@@ -12,6 +11,9 @@ import {
     ShieldCheck,
     Ticket,
     FileText,
+    Key,
+    UserCheck,
+    UsersRound,
 } from "lucide-react";
 
 export interface NavItem {
@@ -31,22 +33,21 @@ export interface NavItem {
     }[];
 }
 
-export const mainNavItems: NavItem[] = [
+// 1. Academic & Teaching items
+export const academicNavItems: NavItem[] = [
     {
         titleKey: "Bảng điều khiển",
         url: "/",
         icon: Home,
-        descriptionKey: "common:navDescriptions.dashboard",
     },
     {
         titleKey: "Khóa học",
         url: "/courses",
         icon: BookOpen,
-        anyPermission: ["course.manage", "course.approve", "course.view_restricted", "course.update", "course.create"],
-        descriptionKey: "common:navDescriptions.courses",
+        anyPermission: ["course.manage", "course.view_restricted", "course.view_my"],
         items: [
             { titleKey: "Khóa học của tôi", url: "/courses/my", permission: "course.view_my" },
-            { titleKey: "Tất cả khóa học", url: "/courses", permission: "course.view_restricted" },
+            { titleKey: "Quản lý khóa học", url: "/courses", permission: "course.view_restricted" },
             { titleKey: "Phản hồi học viên", url: "/courses/reviews", permission: "course.manage" },
             { titleKey: "Yêu cầu đổi lịch", url: "/courses/requests", permission: "course.manage" },
         ]
@@ -55,102 +56,106 @@ export const mainNavItems: NavItem[] = [
         titleKey: "Lớp học trực tuyến",
         url: "/rooms",
         icon: Video,
-        anyPermission: ["live_class.schedule", "live_class.view", "live_class.manage"],
-        descriptionKey: "common:navDescriptions.liveClasses",
+        anyPermission: ["live_class.schedule", "live_class.view"],
     },
     {
         titleKey: "Ngân hàng Câu hỏi",
         url: "/question-bank",
         icon: FileQuestion,
-        anyPermission: ["question.manage", "question_pool.manage"],
-        descriptionKey: "common:navDescriptions.questionBank",
+        permission: "question_pool.manage",
     },
+    {
+        titleKey: "Bài tập & Chấm điểm",
+        url: "/assignments",
+        icon: FileText,
+        permission: "assignment.manage",
+    },
+];
+
+// 2. Operational & Support items
+export const operationsNavItems: NavItem[] = [
     {
         titleKey: "Quản lý Học viên",
         url: "/learners",
         icon: Users,
         permission: "user.manage",
-        descriptionKey: "Quản lý hồ sơ & lộ trình học viên",
-    },
-    {
-        titleKey: "Quản lý Nhân sự",
-        url: "/personnel",
-        icon: ShieldCheck,
-        permission: "user.manage",
-        descriptionKey: "Quản lý Giảng viên & Nhân viên trung tâm",
-        items: [
-            { titleKey: "Đội ngũ Giảng viên", url: "/personnel/lecturers", permission: "user.manage" },
-            { titleKey: "Nhân viên vận hành", url: "/personnel/staff", permission: "user.manage" },
-            { titleKey: "Vai trò & Quyền", url: "/permissions", permission: "user.manage" },
-        ]
     },
     {
         titleKey: "Bài viết & Tin tức",
         url: "/blogs",
         icon: Newspaper,
         permission: "blog.manage",
-        descriptionKey: "common:navDescriptions.blog",
-    },
-    {
-        titleKey: "Bài tập",
-        url: "/assignments",
-        icon: FileText,
-        permission: "assignment.manage",
-        descriptionKey: "Quản lý bài tập & chấm điểm bài nộp",
-    },
-];
-
-export const managementNavItems: NavItem[] = [
-    {
-        titleKey: "Tài chính",
-        url: "/orders",
-        icon: CreditCard,
-        permission: "payment.manage",
-        descriptionKey: "common:navDescriptions.financials",
-    },
-    {
-        titleKey: "Mã giảm giá",
-        url: "/coupons",
-        icon: Ticket,
-        permission: "coupon.manage",
-        descriptionKey: "Quản lý mã giảm giá",
     },
     {
         titleKey: "Yêu cầu hỗ trợ",
         url: "/tickets",
-        icon: Newspaper,
+        icon: Ticket,
         permission: "support.handle",
-        descriptionKey: "Quản lý ticket & hoàn tiền",
-    },
-    {
-        titleKey: "Phân tích Hệ thống",
-        url: "/analytics/revenue",
-        icon: BarChart3,
-        permission: "report.view",
-        descriptionKey: "common:navDescriptions.analytics",
-        items: [
-            { titleKey: "Doanh thu & Thu nhập", url: "/analytics/revenue", permission: "report.view" },
-            { titleKey: "Hiệu suất Học tập", url: "/analytics/learning", permission: "report.view" },
-            { titleKey: "Học viên & Tương tác", url: "/analytics/users", permission: "report.view" },
-
-        ]
     },
 ];
 
+// 3. Finance & Sales items
+export const financeNavItems: NavItem[] = [
+    {
+        titleKey: "Đơn hàng & Doanh thu",
+        url: "/orders",
+        icon: CreditCard,
+        permission: "payment.manage",
+    },
+    {
+        titleKey: "Mã giảm giá (Coupons)",
+        url: "/coupons",
+        icon: Ticket,
+        permission: "coupon.manage",
+    },
+    {
+        titleKey: "Báo cáo Tài chính",
+        url: "/analytics/revenue",
+        icon: BarChart3,
+        permission: "report.view",
+    },
+];
+
+// 4. Personnel & HR items
+export const personnelNavItems: NavItem[] = [
+    {
+        titleKey: "Đội ngũ Giảng viên",
+        url: "/personnel/lecturers",
+        icon: UserCheck,
+        permission: "user.manage",
+    },
+    {
+        titleKey: "Nhân viên vận hành",
+        url: "/personnel/staff",
+        icon: UsersRound,
+        permission: "user.manage",
+    },
+    {
+        titleKey: "Phân quyền (Roles)",
+        url: "/permissions",
+        icon: Key,
+        permission: "user.manage",
+    },
+];
+
+// 5. System Administration items
 export const systemNavItems: NavItem[] = [
     {
         titleKey: "Nhật ký hệ thống",
         url: "/audit-logs",
         icon: ShieldCheck,
         permission: "audit.view",
-        descriptionKey: "common:navDescriptions.auditLogs",
     },
     {
-        titleKey: "Cấu hình",
+        titleKey: "Cấu hình ứng dụng",
         url: "/settings",
         icon: Settings,
         permission: "system.config",
-        descriptionKey: "common:navDescriptions.settings",
     },
 ];
+
+// Compatibility exports
+export const mainNavItems = academicNavItems;
+export const managementNavItems = operationsNavItems;
+
 

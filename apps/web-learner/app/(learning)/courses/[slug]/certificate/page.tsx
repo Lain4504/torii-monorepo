@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
+import { formatDate } from '@/utils/format-utils'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { ArrowLeft, Download, Share2 } from 'lucide-react'
-import { courseApi } from '@/apis/services/course-api'
+import { courseApi } from '@/lib/api/services/course-api'
 
 export default function CourseCertificatePage() {
     const params = useParams()
@@ -87,7 +88,7 @@ export default function CourseCertificatePage() {
                                     {course.title}
                                 </h3>
                                 <p className="text-muted-foreground mb-2">
-                                    Ngày hoàn thành: {new Date().toLocaleDateString('vi-VN')}
+                                    Ngày hoàn thành: {formatDate(new Date())}
                                 </p>
                             </div>
 

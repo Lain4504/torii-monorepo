@@ -15,6 +15,8 @@ import {
   TableCaption,
 } from '@workspace/ui/components/table';
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
+import { Inbox } from 'lucide-react';
 import { getSubmissionsColumns } from "./submissions-columns";
 import type { SubmissionResponseDTO } from "@workspace/schemas";
 
@@ -61,9 +63,9 @@ export function SubmissionsTable({
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                 </TableHead>
               ))}
             </TableRow>
@@ -95,12 +97,22 @@ export function SubmissionsTable({
               </TableRow>
             ))
           ) : (
-            <TableRow>
+            <TableRow className="hover:bg-transparent">
               <TableCell
                 colSpan={columns.length}
-                className="h-32 text-center text-muted-foreground/50 font-sans italic"
+                className="h-[400px] text-center"
               >
-                Chưa có học viên nào nộp bài.
+                <Empty>
+                  <EmptyMedia>
+                    <Inbox className="size-8 text-muted-foreground" />
+                  </EmptyMedia>
+                  <EmptyContent>
+                    <EmptyTitle>Chưa có bài nộp nào</EmptyTitle>
+                    <EmptyDescription>
+                      Chưa có học viên nào nộp bài.
+                    </EmptyDescription>
+                  </EmptyContent>
+                </Empty>
               </TableCell>
             </TableRow>
           )}

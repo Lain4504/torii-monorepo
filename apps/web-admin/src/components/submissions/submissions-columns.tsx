@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { formatDateTime } from '@/lib/format-utils';
 import {
   MoreVertical,
   CheckCircle2,
@@ -80,25 +80,25 @@ export const getSubmissionsColumns = ({
         switch (status) {
           case SubmissionStatus.DRAFT:
             return (
-              <Badge className="bg-muted text-muted-foreground hover:bg-muted border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="outline">
                 Nháp
               </Badge>
             );
           case SubmissionStatus.SUBMITTED:
             return (
-              <Badge className="bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-none rounded-lg text-[10px] font-bold uppercase whitespace-nowrap">
+              <Badge variant="secondary" className="whitespace-nowrap">
                 Chờ chấm
               </Badge>
             );
           case SubmissionStatus.GRADED:
             return (
-              <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="default">
                 Đã chấm
               </Badge>
             );
           case SubmissionStatus.RETURNED:
             return (
-              <Badge className="bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border-none rounded-lg text-[10px] font-bold uppercase">
+              <Badge variant="destructive">
                 Đã trả lại
               </Badge>
             );
@@ -119,7 +119,7 @@ export const getSubmissionsColumns = ({
           <div className="flex flex-col gap-1 text-left">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Clock className="size-3" />
-              {format(new Date(date as string), 'dd/MM/yyyy HH:mm')}
+              {formatDateTime(date as string, 'dd/MM/yyyy HH:mm')}
             </div>
             {isLate && (
               <span className="text-[9px] font-bold text-rose-500 uppercase tracking-tighter flex items-center gap-1">
@@ -157,7 +157,7 @@ export const getSubmissionsColumns = ({
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted/50 rounded-lg">
+              <Button variant="ghost" size="icon">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

@@ -133,7 +133,7 @@ export class AuthService implements IAuthService {
             });
         } else {
             const verificationToken = await this.generateVerificationToken(user.email);
-            const verificationUrl = `${this.appConfig.identity.frontendUrl}/verify?token=${verificationToken}`;
+            const verificationUrl = `${this.appConfig.identity.webLearnerUrl}/verify?token=${verificationToken}`;
             this.natsClient.emit({ cmd: 'send_email' }, {
                 type: 'verification',
                 to: user.email,
@@ -457,7 +457,7 @@ export class AuthService implements IAuthService {
         const verificationToken = await this.generateVerificationToken(email);
 
         // Send verification email
-        const verificationUrl = `${this.appConfig.identity.frontendUrl}/verify?token=${verificationToken}`;
+        const verificationUrl = `${this.appConfig.identity.webLearnerUrl}/verify?token=${verificationToken}`;
         this.natsClient.emit({ cmd: 'send_email' }, {
             type: 'verification',
             to: email,
@@ -524,7 +524,10 @@ export class AuthService implements IAuthService {
             await this.redis.set(`reset-token:${resetToken}`, email, 'EX', 3600);
 
             // Send password reset email
-            const resetUrl = `${this.appConfig.identity.frontendUrl}/reset-password?token=${resetToken}`;
+            const resetUrl = dto.clientType === 'admin'
+                ? `${this.appConfig.identity.webAdminUrl}/reset-password?token=${resetToken}`
+                : `${this.appConfig.identity.webLearnerUrl}/reset-password?token=${resetToken}`;
+
             this.natsClient.emit({ cmd: 'send_email' }, {
                 type: 'password_reset',
                 to: email,

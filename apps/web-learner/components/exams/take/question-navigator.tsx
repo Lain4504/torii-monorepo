@@ -2,6 +2,7 @@
 
 import { cn } from "@workspace/ui/lib/utils"
 import { Flag } from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
 
 interface QuestionNavigatorProps {
     questions: any[]
@@ -19,20 +20,20 @@ export function QuestionNavigator({
     onSelect
 }: QuestionNavigatorProps) {
     return (
-        <div className="h-full flex flex-col bg-background/50 backdrop-blur-xl border-r border-white/5">
-            <div className="p-6 border-b border-white/5">
-                <h3 className="font-black uppercase tracking-widest text-xs text-muted-foreground/50 mb-4">Navigation Matrix</h3>
+        <div className="h-full flex flex-col bg-background/50 border-r border-border">
+            <div className="p-6 border-b border-border">
+                <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground/50 mb-4">Navigation Matrix</h3>
                 <div className="flex gap-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 flex-wrap">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]" />
                         <span>Completed</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+                        <div className="w-2 h-2 rounded-full bg-primary/40" />
                         <span>Flagged</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full border border-white/20" />
+                        <div className="w-2 h-2 rounded-full border border-border" />
                         <span>Pending</span>
                     </div>
                 </div>
@@ -46,27 +47,28 @@ export function QuestionNavigator({
                         const isActive = currentIndex === index
 
                         return (
-                            <button
+                            <Button
                                 key={q.id}
+                                variant="ghost"
                                 onClick={() => onSelect(index)}
                                 className={cn(
-                                    "relative h-10 w-10 text-[10px] font-black rounded-xl transition-all duration-300 border flex items-center justify-center",
+                                    "relative size-10 text-[10px] font-bold rounded-lg transition-all duration-300 border flex items-center justify-center p-0",
                                     isActive
-                                        ? "ring-2 ring-primary border-primary bg-primary/10 text-primary z-10 scale-110 shadow-lg shadow-primary/20"
-                                        : "border-white/5 hover:border-primary/30 hover:bg-white/5 text-muted-foreground",
+                                        ? "ring-1 ring-primary border-primary bg-primary/10 text-primary z-10 hover:bg-primary/20 hover:text-primary"
+                                        : "border-border hover:border-primary/30 hover:bg-accent text-muted-foreground",
                                     isAnswered && !isActive
-                                        ? "bg-primary/20 text-primary border-primary/20"
+                                        ? "bg-primary/20 text-primary border-primary/20 hover:bg-primary/30"
                                         : "",
-                                    isFlagged && "border-amber-500/50 text-amber-500"
+                                    isFlagged && "border-primary/50 text-primary"
                                 )}
                             >
                                 {index + 1}
                                 {isFlagged && (
                                     <div className="absolute -top-1 -right-1">
-                                        <Flag className="w-3 h-3 fill-amber-500 text-amber-500 drop-shadow-md" />
+                                        <Flag className="size-3 fill-primary text-primary" />
                                     </div>
                                 )}
-                            </button>
+                            </Button>
                         )
                     })}
                 </div>

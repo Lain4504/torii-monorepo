@@ -1,12 +1,17 @@
-import { useStaffDashboard } from '@/api/services/staff-dashboard';
+import { useStaffDashboard } from '@/lib/api/services/staff-dashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Skeleton } from '@workspace/ui/components/skeleton';
-import { BookOpen, Users, GraduationCap, CheckCircle2, LayoutDashboard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@workspace/ui/lib/utils';
+import { PageHeader } from '@/components/common/page-header';
+import { getGreeting, formatNumber } from '@/lib/format-utils';
+import { useAuth } from '@/hooks/use-auth';
+import { Zap, BookOpen, Users, GraduationCap, CheckCircle2 } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 export default function StaffDashboardPage() {
     const { data: metrics, isLoading, error } = useStaffDashboard();
+    const { user } = useAuth();
 
     if (error) {
         return (
@@ -50,20 +55,31 @@ export default function StaffDashboardPage() {
     ];
 
     return (
-        <div className="space-y-6 animate-in fade-in-50 duration-500">
+        <div className="space-y-6">
             {/* Header */}
-            <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">
-                    <LayoutDashboard className="size-3.5" />
-                    Tổng quan
-                </div>
-                <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                    Bảng điều khiển nhân viên
-                </h1>
-                <p className="text-sm font-medium text-muted-foreground/60 max-w-2xl">
-                    Chào mừng bạn quay lại hệ thống quản trị Torii Academy. Đây là tổng quan về các hoạt động chính trong hệ thống.
-                </p>
-            </div>
+            <PageHeader
+                title={`${getGreeting()}, ${user?.displayName?.split(' ')[0] || 'ADMIN'}`}
+                subtitle={`Bảng chỉ huy trung tâm Torii Admin • v4.2.0-stable`}
+                actions={
+                    <div className="flex items-center gap-3">
+                        <div className="flex bg-muted p-1 rounded-xl border">
+                            <Button variant="ghost" asChild size="sm">
+                                <Link to="/analytics/revenue">Tài chính</Link>
+                            </Button>
+                            <Button variant="ghost" asChild size="sm">
+                                <Link to="/analytics/learning">Học tập</Link>
+                            </Button>
+                            <Button variant="ghost" asChild size="sm">
+                                <Link to="/analytics/users">Học viên</Link>
+                            </Button>
+                        </div>
+                        <Button size="lg" className="group">
+                            <Zap className="size-4 mr-2" />
+                            Lệnh nhanh
+                        </Button>
+                    </div>
+                }
+            />
 
             {/* Metrics Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -84,7 +100,7 @@ export default function StaffDashboardPage() {
                                     <Skeleton className="h-8 w-20" />
                                 ) : (
                                     <>
-                                        <div className="text-2xl font-bold">{stat.value.toLocaleString()}</div>
+                                        <div className="text-2xl font-bold">{formatNumber(stat.value)}</div>
                                         <p className="text-xs text-muted-foreground mt-1">
                                             {stat.description}
                                         </p>

@@ -1,5 +1,5 @@
-import { LegacyAnalytics } from "@/components/analytics/legacy-analytics"
+import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard"
 
 export default function AnalyticsPage() {
-    return <LegacyAnalytics />
+    return <AnalyticsDashboard />
 }

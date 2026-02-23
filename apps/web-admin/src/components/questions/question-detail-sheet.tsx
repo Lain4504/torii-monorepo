@@ -4,7 +4,9 @@ import {
     SheetHeader,
     SheetTitle,
     SheetDescription,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Badge } from '@workspace/ui/components/badge';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { QuestionDifficultyLevel, QuestionType } from '@workspace/schemas';
@@ -12,14 +14,19 @@ import {
     FileText,
     CheckCircle2,
     BrainCircuit,
-    Calendar,
     AlignLeft,
     Headphones,
-    Target,
     Zap,
     MessageSquareQuote
 } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
+import { Alert, AlertDescription } from '@workspace/ui/components/alert';
+import {
+    Item,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
 
 interface QuestionDetailSheetProps {
     open: boolean;
@@ -52,52 +59,44 @@ export function QuestionDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
-                <SheetHeader className="px-6 py-6 border-b border-border/10 bg-muted/5">
-                    <div className="flex items-center justify-between mb-4">
-                        <Badge variant="outline" className="rounded-full px-3 py-1 bg-primary/5 text-primary border-primary/20 text-[10px] font-bold tracking-widest uppercase">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary">
                             JLPT {question.jlptLevel || 'GLOBAL'}
                         </Badge>
-                        <div className="flex items-center gap-2">
-                            <Badge variant="outline" className={cn(
-                                "rounded-full px-3 py-1 border-none text-[10px] font-bold uppercase",
-                                question.difficulty === QuestionDifficultyLevel.HARD ? "bg-rose-500/10 text-rose-600" :
-                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? "bg-amber-500/10 text-amber-600" :
-                                        "bg-emerald-500/10 text-emerald-600"
-                            )}>
-                                {question.difficulty === QuestionDifficultyLevel.HARD ? "Mức độ: Khó" :
-                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? "Mức độ: Trung bình" : "Mức độ: Dễ"}
-                            </Badge>
-                        </div>
+                        <Badge
+                            variant={
+                                question.difficulty === QuestionDifficultyLevel.HARD ? 'destructive' :
+                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'secondary' : 'outline'
+                            }
+                        >
+                            {question.difficulty === QuestionDifficultyLevel.HARD ? 'Khó' :
+                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'Trung bình' : 'Dễ'}
+                        </Badge>
                     </div>
-
-                    <div className="space-y-1">
-                        <SheetTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                            <Target className="size-5 text-primary opacity-40" />
-                            Chi Tiết Câu Hỏi
-                        </SheetTitle>
-                        <SheetDescription className="text-sm font-medium text-muted-foreground/60 flex items-center gap-3">
-                            <span>Mã số: <span className="font-mono text-primary/60">{question.id.slice(0, 12)}...</span></span>
-                            <span className="size-1 rounded-full bg-border" />
-                            <span className="flex items-center gap-1.5 uppercase font-bold text-[10px] tracking-wider">
-                                <Calendar className="size-3" />
-                                {new Date(question.createdAt).toLocaleDateString('vi-VN')}
-                            </span>
-                        </SheetDescription>
-                    </div>
+                    <SheetTitle>Chi Tiết Câu Hỏi</SheetTitle>
+                    <SheetDescription>
+                        Mã số: {question.id.substring(0, 12)}... • {new Date(question.createdAt).toLocaleDateString('vi-VN')}
+                    </SheetDescription>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    <div className="p-8 space-y-10">
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="space-y-10 p-6">
                         {/* Question Section */}
                         <section className="space-y-4">
                             <div className="flex items-center gap-2 text-primary">
                                 <FileText className="size-4" />
                                 <h3 className="text-sm font-bold uppercase tracking-wider">Nội dung câu hỏi</h3>
                             </div>
-                            <div className="text-lg font-medium text-foreground p-6 rounded-2xl bg-muted/5 border border-border/80 leading-relaxed shadow-sm italic">
-                                "{question.questionText}"
-                            </div>
+                            <Item variant="outline">
+                                <ItemContent>
+                                    <ItemTitle className="text-muted-foreground">Nội dung câu hỏi</ItemTitle>
+                                    <ItemDescription className="text-base font-medium text-foreground leading-relaxed italic">
+                                        "{question.questionText}"
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
                         </section>
 
                         {/* Specific Content */}
@@ -110,30 +109,35 @@ export function QuestionDetailSheet({
                                     <BrainCircuit className="size-4" />
                                     <h3 className="text-sm font-bold uppercase tracking-wider">Giải thích học thuật</h3>
                                 </div>
-                                <div className="text-sm font-medium text-muted-foreground/80 leading-relaxed p-6 rounded-2xl bg-amber-500/5 border border-amber-500/10 italic">
-                                    {question.explanation}
-                                </div>
+                                <Alert>
+                                    <BrainCircuit className="size-4" />
+                                    <AlertDescription className="leading-relaxed italic">
+                                        {question.explanation}
+                                    </AlertDescription>
+                                </Alert>
                             </section>
                         )}
                     </div>
-                </div>
+                </ScrollArea>
 
-                <div className="p-8 border-t border-border bg-muted/5 flex items-center justify-between gap-4">
-                    <div className="flex gap-4 items-center">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Loại</span>
-                            <span className="text-xs font-bold text-foreground">{question.questionType}</span>
+                <SheetFooter className="border-t">
+                    <div className="w-full flex items-center justify-between">
+                        <div className="flex gap-4 items-center">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Loại</span>
+                                <span className="text-xs font-bold text-foreground">{question.questionType}</span>
+                            </div>
+                            <div className="w-px h-6 bg-border" />
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chuyên môn</span>
+                                <span className="text-xs font-bold text-foreground">{question.category || 'Chung'}</span>
+                            </div>
                         </div>
-                        <div className="w-px h-6 bg-border" />
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chuyên môn</span>
-                            <span className="text-xs font-bold text-foreground">{question.category || 'Chung'}</span>
-                        </div>
+                        <Badge variant="secondary">
+                            Sẵn sàng sử dụng
+                        </Badge>
                     </div>
-                    <Badge variant="outline" className="rounded-lg bg-emerald-500/5 text-emerald-600 border-emerald-500/10 px-3 py-1 font-bold text-[10px] uppercase">
-                        Sẵn sàng sử dụng
-                    </Badge>
-                </div>
+                </SheetFooter>
             </SheetContent>
         </Sheet>
     );
@@ -167,28 +171,28 @@ function MultipleChoiceContent({ question }: { question: QuestionResponseDTO }) 
                         <div
                             key={key}
                             className={cn(
-                                "flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 group",
+                                "flex items-center gap-4 p-4 rounded-lg border transition-all",
                                 isCorrect
-                                    ? "bg-emerald-500/5 border-emerald-500/40 shadow-sm"
-                                    : "bg-muted/5 border-border/50 hover:border-primary/30"
+                                    ? "bg-card border-primary/30"
+                                    : "bg-card"
                             )}
                         >
                             <div className={cn(
-                                "size-9 flex items-center justify-center rounded-xl font-bold text-sm shrink-0 transition-all duration-300",
+                                "size-8 flex items-center justify-center rounded-md font-bold text-sm shrink-0",
                                 isCorrect
-                                    ? "bg-emerald-500 text-white shadow-emerald-500/20 shadow-lg scale-105"
-                                    : "bg-background text-muted-foreground border border-border group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20"
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted text-muted-foreground"
                             )}>
                                 {key}
                             </div>
                             <div className={cn(
-                                "flex-1 text-sm font-medium transition-colors duration-300",
-                                isCorrect ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                                "flex-1 text-sm font-medium",
+                                isCorrect ? "text-foreground" : "text-muted-foreground"
                             )}>
                                 {value}
                             </div>
                             {isCorrect && (
-                                <Zap className="size-4 text-emerald-500 fill-emerald-500 animate-pulse" />
+                                <Zap className="size-4 text-primary" />
                             )}
                         </div>
                     );
@@ -205,12 +209,12 @@ function FillBlankContent({ question }: { question: QuestionResponseDTO }) {
                 <MessageSquareQuote className="size-4" />
                 <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án điền khuyết</h3>
             </div>
-            <div className="p-8 rounded-2xl bg-emerald-500/5 border-2 border-dashed border-emerald-500/20 flex flex-col items-center justify-center text-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600/60">Đáp án chính xác</span>
-                <div className="text-2xl font-bold text-emerald-600 font-mono tracking-tight underline decoration-emerald-500/30 underline-offset-8">
-                    {question.correctAnswer}
-                </div>
-            </div>
+            <Item variant="outline">
+                <ItemContent>
+                    <ItemTitle className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Đáp án chính xác</ItemTitle>
+                    <ItemDescription className="text-2xl font-bold font-mono">{question.correctAnswer}</ItemDescription>
+                </ItemContent>
+            </Item>
         </section>
     );
 }
@@ -225,17 +229,17 @@ function TrueFalseContent({ question }: { question: QuestionResponseDTO }) {
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className={cn(
-                    "p-6 rounded-2xl border flex flex-col items-center gap-2 transition-all",
-                    isTrue ? "bg-emerald-500/10 border-emerald-500/40 opacity-100" : "bg-muted/5 border-border/50 opacity-40"
+                    "p-6 rounded-lg border flex flex-col items-center gap-2 transition-all",
+                    isTrue ? "border-primary/30" : "opacity-40"
                 )}>
-                    <CheckCircle2 className={cn("size-8", isTrue ? "text-emerald-500" : "text-muted-foreground")} />
+                    <CheckCircle2 className={cn("size-8", isTrue ? "text-primary" : "text-muted-foreground")} />
                     <span className="font-bold text-sm uppercase">Đúng (True)</span>
                 </div>
                 <div className={cn(
-                    "p-6 rounded-2xl border flex flex-col items-center gap-2 transition-all",
-                    !isTrue ? "bg-rose-500/10 border-rose-500/40 opacity-100" : "bg-muted/5 border-border/50 opacity-40"
+                    "p-6 rounded-lg border flex flex-col items-center gap-2 transition-all",
+                    !isTrue ? "border-destructive/30" : "opacity-40"
                 )}>
-                    <XCircleIcon className={cn("size-8", !isTrue ? "text-rose-500" : "text-muted-foreground")} />
+                    <XCircleIcon className={cn("size-8", !isTrue ? "text-destructive" : "text-muted-foreground")} />
                     <span className="font-bold text-sm uppercase">Sai (False)</span>
                 </div>
             </div>
@@ -250,9 +254,13 @@ function EssayContent({ question }: { question: QuestionResponseDTO }) {
                 <AlignLeft className="size-4" />
                 <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án mẫu / Gợi ý</h3>
             </div>
-            <div className="p-6 rounded-2xl bg-muted/5 border border-border/80 leading-relaxed text-sm text-foreground">
-                {question.correctAnswer || "Chưa thiết lập đáp án mẫu cho câu hỏi tự luận này."}
-            </div>
+            <Item variant="outline">
+                <ItemContent>
+                    <ItemDescription className="leading-relaxed text-sm text-foreground">
+                        {question.correctAnswer || "Chưa thiết lập đáp án mẫu cho câu hỏi tự luận này."}
+                    </ItemDescription>
+                </ItemContent>
+            </Item>
         </section>
     );
 }
@@ -264,11 +272,13 @@ function DefaultQuestionContent({ question }: { question: QuestionResponseDTO })
                 <CheckCircle2 className="size-4" />
                 <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án hệ thống</h3>
             </div>
-            <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-center">
-                <div className="text-xl font-bold text-emerald-600">
-                    {question.correctAnswer || 'N/A'}
-                </div>
-            </div>
+            <Item variant="outline">
+                <ItemContent>
+                    <ItemDescription className="text-xl font-bold font-mono">
+                        {question.correctAnswer || 'N/A'}
+                    </ItemDescription>
+                </ItemContent>
+            </Item>
         </section>
     );
 }

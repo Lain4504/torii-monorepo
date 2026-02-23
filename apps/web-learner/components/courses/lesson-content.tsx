@@ -10,6 +10,7 @@ import {
 import { Button } from '@workspace/ui/components/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { cn } from '@workspace/ui/lib/utils'
+import { Badge } from '@workspace/ui/components/badge'
 import { CourseAssignmentsList } from './course-assignments-list'
 
 interface LessonContentProps {
@@ -21,7 +22,7 @@ interface LessonContentProps {
 export function LessonContent({ description, courseId, courseSlug }: LessonContentProps) {
     return (
         <Tabs defaultValue="content" className="w-full">
-            <TabsList className="bg-muted/20 border-none w-auto inline-flex h-auto p-1.5 gap-2 rounded-full">
+            <TabsList>
                 {[
                     { id: 'content', label: 'Bài học', icon: BookOpen },
                     { id: 'resources', label: 'Tài liệu', icon: FileText, badge: 1 },
@@ -31,39 +32,37 @@ export function LessonContent({ description, courseId, courseSlug }: LessonConte
                     <TabsTrigger
                         key={tab.id}
                         value={tab.id}
-                        className="px-6 py-3 rounded-full border-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 transition-all flex items-center gap-2 hover:bg-background/40 hover:text-primary"
+                        className="gap-2"
                     >
-                        <tab.icon className="w-3.5 h-3.5" />
+                        <tab.icon className="size-4" />
                         {tab.label}
                         {tab.badge && (
-                            <span className={cn(
-                                "ml-1 text-[9px] font-black rounded-full px-1.5 py-0.5",
-                                "bg-background/20 text-current"
-                            )}>
+                            <Badge variant="secondary" className="ml-1 px-1 py-0 h-4 min-w-[16px] text-[9px] font-bold">
                                 {tab.badge}
-                            </span>
+                            </Badge>
                         )}
                     </TabsTrigger>
                 ))}
             </TabsList>
 
-            <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
-                <div className="space-y-8">
-                    <div className="flex items-center gap-3">
-                        <div className="w-1 h-5 bg-primary/40 rounded-full" />
-                        <h3 className="text-xl font-sans font-bold italic text-foreground uppercase tracking-tight">
+
+            <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-2 duration-300 outline-none mt-6">
+                <div className="space-y-6">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1 h-4 bg-primary rounded-full" />
+                        <h3 className="text-lg font-bold text-foreground">
                             Nội dung bài học
                         </h3>
                     </div>
 
-                    <div className="p-8 rounded-2xl border border-border/10 bg-muted/5">
-                        <div className="space-y-4 text-foreground/80 leading-relaxed text-sm font-medium italic">
+                    <div className="p-6 rounded-lg border bg-muted/20">
+                        <div className="space-y-4 text-foreground/80 leading-relaxed text-sm font-medium">
                             {description ? (
                                 description.split('\n').map((para: string, i: number) => (
                                     <p key={i}>{para}</p>
                                 ))
                             ) : (
-                                <p className="text-muted-foreground/40 font-black uppercase tracking-[0.2em] text-sm">
+                                <p className="text-muted-foreground font-medium">
                                     Nội dung bài học này được giảng viên thiết kế để học viên tự nghiên cứu qua video và các học liệu đi kèm.
                                 </p>
                             )}
@@ -72,40 +71,38 @@ export function LessonContent({ description, courseId, courseSlug }: LessonConte
                 </div>
             </TabsContent>
 
-            <TabsContent value="resources" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
-                <div className="grid gap-6">
-                    <div className="group flex flex-col sm:flex-row items-center justify-between gap-6 p-8 rounded-[2.5rem] border border-border/20 bg-muted/5 hover:bg-background hover:shadow-2xl hover:shadow-primary/5 transition-all cursor-pointer relative overflow-hidden">
-                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="flex items-center gap-6 relative z-10">
-                            <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center shrink-0 border border-border/20 shadow-xl group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                                <FileText className="w-8 h-8" />
+            <TabsContent value="resources" className="animate-in fade-in slide-in-from-bottom-2 duration-300 outline-none mt-6">
+                <div className="grid gap-4">
+                    <div className="group flex flex-col sm:flex-row items-center justify-between gap-6 p-6 rounded-lg border bg-muted/20 hover:bg-muted/30 transition-all cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <div className="size-12 bg-background rounded-md flex items-center justify-center shrink-0 border shadow-sm transition-all duration-300">
+                                <FileText className="size-6 text-primary" />
                             </div>
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Tài liệu đi kèm</p>
-                                <h4 className="text-2xl font-sans font-bold italic text-foreground tracking-tight uppercase leading-none">Giáo trình bài học (PDF)</h4>
-                                <p className="text-[10px] text-muted-foreground/30 font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <span>ĐỊNH DẠNG PDF</span> <span className="w-1 h-1 bg-primary/40 rounded-full inline-block" /> <span>DUNG LƯỢNG 4.2 MB</span>
+                                <h4 className="text-base font-bold text-foreground leading-none">Giáo trình bài học (PDF)</h4>
+                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider flex items-center gap-2">
+                                    <span>PDF</span> <span className="size-1 bg-muted-foreground/30 rounded-full" /> <span>4.2 MB</span>
                                 </p>
                             </div>
                         </div>
-                        <Button className="h-14 rounded-2xl px-8 text-[11px] font-black uppercase tracking-[0.2em] bg-primary text-white hover:opacity-90 transition-all relative z-10 shadow-lg shadow-primary/20">
-                            <Download className="w-4 h-4 mr-3" /> Tải tài liệu
+                        <Button>
+                            <Download className="size-4 mr-2" /> Tải tài liệu
                         </Button>
                     </div>
                 </div>
             </TabsContent>
 
-            <TabsContent value="assignments" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
+            <TabsContent value="assignments" className="animate-in fade-in slide-in-from-bottom-2 duration-300 outline-none mt-6">
                 {courseId && courseSlug ? (
                     <CourseAssignmentsList courseId={courseId} courseSlug={courseSlug} />
                 ) : (
-                    <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 rounded-[3rem] border border-border/10 bg-muted/5">
-                        <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center shadow-2xl border border-border/10">
-                            <ClipboardList className="w-10 h-10 text-muted-foreground" />
+                    <div className="flex flex-col items-center justify-center p-12 text-center space-y-4 rounded-lg border bg-muted/20">
+                        <div className="size-16 bg-background rounded-lg flex items-center justify-center border shadow-sm">
+                            <ClipboardList className="size-8 text-muted-foreground" />
                         </div>
-                        <div className="space-y-3">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Bài tập khóa học</h4>
-                            <p className="text-xl font-sans font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto">
+                        <div className="space-y-1">
+                            <h4 className="text-sm font-bold text-primary uppercase tracking-widest">Bài tập khóa học</h4>
+                            <p className="text-base font-bold text-foreground">
                                 Không thể tải danh sách bài tập
                             </p>
                         </div>
@@ -113,22 +110,21 @@ export function LessonContent({ description, courseId, courseSlug }: LessonConte
                 )}
             </TabsContent>
 
-            <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-4 duration-700 outline-none">
-                <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 rounded-[3rem] border border-border/10 bg-muted/5 backdrop-blur-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-                    <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center shadow-2xl border border-border/10 group">
-                        <MessageSquare className="w-10 h-10 text-primary/20 group-hover:text-primary transition-colors duration-500" />
+            <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-2 duration-300 outline-none mt-6">
+                <div className="flex flex-col items-center justify-center p-12 text-center space-y-4 rounded-lg border bg-muted/20">
+                    <div className="size-16 bg-background rounded-lg flex items-center justify-center border shadow-sm">
+                        <MessageSquare className="size-8 text-primary/40" />
                     </div>
-                    <div className="space-y-3">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Diễn đàn thảo luận</h4>
-                        <p className="text-3xl font-sans font-bold italic text-foreground tracking-tight uppercase max-w-md mx-auto leading-none">
-                            Tham gia <span className="text-primary not-italic">Trao đổi kiến thức</span>
+                    <div className="space-y-2">
+                        <h4 className="text-sm font-bold text-primary uppercase tracking-widest">Diễn đàn thảo luận</h4>
+                        <p className="text-2xl font-bold text-foreground tracking-tight">
+                            Tham gia trao đổi kiến thức
                         </p>
-                        <p className="text-[11px] text-muted-foreground/50 font-black uppercase tracking-[0.1em] max-w-sm mx-auto">
+                        <p className="text-xs text-muted-foreground font-medium max-w-sm mx-auto">
                             Tương tác với các học viên khác và đội ngũ giảng viên chuyên môn để giải đáp thắc mắc.
                         </p>
                     </div>
-                    <Button className="h-16 rounded-2xl px-12 text-[11px] font-black uppercase tracking-[0.3em] bg-muted/10 text-foreground border border-border/40 hover:bg-primary hover:text-white hover:border-primary transition-all duration-500">
+                    <Button variant="outline">
                         Bắt đầu thảo luận
                     </Button>
                 </div>

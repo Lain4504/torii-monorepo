@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, AlertCircle, Video } from 'lucide-react';
-import { liveSessionApi } from '@/apis/services/live-session-api';
+import { AlertCircle, Video } from 'lucide-react';
+import { liveSessionApi } from '@/lib/api/services/live-session-api';
+import { Spinner } from '@workspace/ui/components/spinner'
 
 interface JoinSessionPageProps {
     params: {
@@ -58,7 +59,7 @@ export default function JoinSessionPage({ params }: JoinSessionPageProps) {
                             <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
                                 <Video className="w-10 h-10 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <Loader2 className="w-24 h-24 text-blue-600 dark:text-blue-400 animate-spin absolute -top-2 -left-2" />
+                            <Spinner className="w-24 h-24 text-blue-600 dark:text-blue-400 animate-spin absolute -top-2 -left-2" />
                         </div>
                     </div>
                     <div className="space-y-2">

@@ -21,11 +21,12 @@ import { Button } from '@workspace/ui/components/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Badge } from '@workspace/ui/components/badge'
 import { cn } from '@workspace/ui/lib/utils'
-import { useBalanceHistory, orderApi } from '@/apis/services/order-api'
-import { useGamificationHistory } from '@/apis/services/gamification-api'
+import { useBalanceHistory, orderApi } from '@/lib/api/services/order-api'
+import { useGamificationHistory } from '@/lib/api/services/gamification-api'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { useAppSelector } from '@/hooks/hooks'
+import { formatNumber, formatCurrency, formatDateTime } from '@/utils/format-utils'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import {
@@ -78,7 +79,7 @@ export default function WalletPage() {
                 amount: amount,
                 orderType: OrderType.TOP_UP,
                 paymentMethod: PaymentMethod.PAYOS,
-                description: `Nạp ${amount.toLocaleString()} Coins vào ví Torii`,
+                description: `Nạp ${formatNumber(amount)} Coins vào ví Torii`,
                 metadata: {
                     returnUrl: window.location.origin + '/dashboard/wallet?status=success',
                     cancelUrl: window.location.origin + '/dashboard/wallet?status=cancel',
@@ -99,80 +100,77 @@ export default function WalletPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-5xl animate-in fade-in duration-500">
+        <div className="container mx-auto px-4 py-8 space-y-8 max-w-4xl animate-in fade-in duration-500">
             {/* Wallet Header Card */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl shadow-orange-500/20 rounded-[2rem]">
-                    <CardContent className="p-8">
-                        <div className="flex justify-between items-start mb-8">
-                            <div className="p-3 rounded-2xl bg-white/20 backdrop-blur-md">
-                                <Coins className="w-8 h-8" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-orange-500/10 rounded-3xl">
+                    <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-6">
+                            <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-md">
+                                <Coins className="w-6 h-6" />
                             </div>
-                            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md px-3 py-1">
+                            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md">
                                 Ví Torii
                             </Badge>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-white/70 text-sm font-medium tracking-wide uppercase">Số dư khả dụng</p>
-                            <h2 className="text-5xl font-black tabular-nums">
-                                {(user as any)?.balance?.toLocaleString() || 0} <span className="text-2xl font-bold opacity-80 ml-1">Coins</span>
+                        <div className="space-y-0.5">
+                            <p className="text-white/70 text-xs font-bold uppercase tracking-widest">Số dư khả dụng</p>
+                            <h2 className="text-3xl font-black tabular-nums">
+                                {formatNumber((user as any)?.balance) || 0} <span className="text-xl font-medium opacity-80 ml-1">Coins</span>
                             </h2>
                         </div>
-                        <div className="mt-8 flex gap-3">
+                        <div className="mt-6">
                             <Button
-                                className="bg-white text-orange-600 hover:bg-orange-50 font-bold rounded-xl px-6"
+                                variant="secondary"
+                                size="sm"
                                 onClick={() => setIsTopUpOpen(true)}
                             >
-                                <Zap className="w-4 h-4 mr-2" /> Nạp thêm
+                                <Zap className="w-3.5 h-3.5 mr-1.5" /> Nạp thêm
                             </Button>
                         </div>
                     </CardContent>
-                    {/* Decorative element */}
-                    <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
                 </Card>
 
-                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl shadow-purple-500/20 rounded-[2rem]">
-                    <CardContent className="p-8">
-                        <div className="flex justify-between items-start mb-8">
-                            <div className="p-3 rounded-2xl bg-white/20 backdrop-blur-md">
-                                <Trophy className="w-8 h-8" />
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/10 rounded-3xl">
+                    <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-6">
+                            <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-md">
+                                <Trophy className="w-6 h-6" />
                             </div>
-                            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md px-3 py-1">
+                            <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md">
                                 Điểm tích lũy
                             </Badge>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-white/70 text-sm font-medium tracking-wide uppercase">Tổng điểm thưởng</p>
-                            <h2 className="text-5xl font-black tabular-nums">
-                                {user?.xp?.toLocaleString() || 0} <span className="text-2xl font-bold opacity-80 ml-1">Points</span>
+                        <div className="space-y-0.5">
+                            <p className="text-white/70 text-xs font-bold uppercase tracking-widest">Tổng điểm thưởng</p>
+                            <h2 className="text-3xl font-black tabular-nums">
+                                {formatNumber(user?.xp) || 0} <span className="text-xl font-medium opacity-80 ml-1">Points</span>
                             </h2>
                         </div>
-                        <div className="mt-8 flex gap-3">
-                            <Button className="bg-white text-purple-600 hover:bg-purple-50 font-bold rounded-xl px-6">
-                                <Gift className="w-4 h-4 mr-2" /> Đổi quà
+                        <div className="mt-6">
+                            <Button variant="secondary" size="sm">
+                                <Gift className="w-3.5 h-3.5 mr-1.5" /> Đổi quà
                             </Button>
                         </div>
                     </CardContent>
-                    <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
                 </Card>
             </div>
 
             {/* History Section */}
             <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                    <History className="w-6 h-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Lịch sử giao dịch</h2>
+                <div className="flex items-center gap-2.5">
+                    <History className="w-5 h-5 text-primary" />
+                    <h2 className="text-xl font-bold text-foreground">Lịch sử giao dịch</h2>
                 </div>
 
                 <Tabs defaultValue="coins" className="w-full">
-                    <TabsList className="bg-muted/50 p-1 rounded-2xl mb-6">
-                        <TabsTrigger value="coins" className="rounded-xl px-8 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm font-bold">
-                            Số dư Coin
-                        </TabsTrigger>
-                        <TabsTrigger value="points" className="rounded-xl px-8 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm font-bold">
-                            Điểm thưởng (XP)
-                        </TabsTrigger>
+                    <TabsList>
+                        <TabsTrigger value="coins">Số dư Coin</TabsTrigger>
+                        <TabsTrigger value="points">Điểm thưởng (XP)</TabsTrigger>
                     </TabsList>
+
 
                     <TabsContent value="coins" className="space-y-4">
                         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm rounded-3xl overflow-hidden">
@@ -197,7 +195,7 @@ export default function WalletPage() {
                                                         <h4 className="font-bold text-foreground leading-tight">{tx.description || 'Giao dịch ví'}</h4>
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
                                                             <Calendar className="w-3.5 h-3.5" />
-                                                            {format(new Date(tx.createdAt), "HH:mm, dd MMM yyyy", { locale: vi })}
+                                                            {formatDateTime(tx.createdAt, "HH:mm, dd MMM yyyy")}
                                                             <Badge variant="outline" className="ml-2 py-0 h-4 text-[9px] uppercase font-black tracking-tighter opacity-70">
                                                                 {tx.type}
                                                             </Badge>
@@ -209,7 +207,7 @@ export default function WalletPage() {
                                                         "text-lg font-black tabular-nums tracking-tight",
                                                         tx.amount > 0 ? "text-emerald-500" : "text-foreground"
                                                     )}>
-                                                        {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                                                        {tx.amount > 0 ? '+' : ''}{formatNumber(tx.amount)}
                                                     </p>
                                                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Coins</p>
                                                 </div>
@@ -232,14 +230,14 @@ export default function WalletPage() {
                         {(balanceData?.totalPages ?? 0) > 1 && (
                             <div className="flex justify-center gap-2 mt-4">
                                 <Button
-                                    variant="outline" size="sm" className="rounded-xl"
+                                    variant="outline" size="sm"
                                     disabled={balancePage === 1}
                                     onClick={() => setBalancePage(p => p - 1)}
                                 >
                                     <ChevronLeft className="w-4 h-4 mr-1" /> Trước
                                 </Button>
                                 <Button
-                                    variant="outline" size="sm" className="rounded-xl"
+                                    variant="outline" size="sm"
                                     disabled={balancePage === (balanceData?.totalPages ?? 0)}
                                     onClick={() => setBalancePage(p => p + 1)}
                                 >
@@ -274,7 +272,7 @@ export default function WalletPage() {
                                                         <h4 className="font-bold text-foreground leading-tight">{tx.description || 'Hoạt động thưởng'}</h4>
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
                                                             <Calendar className="w-3.5 h-3.5" />
-                                                            {format(new Date(tx.createdAt), "HH:mm, dd MMM yyyy", { locale: vi })}
+                                                            {formatDateTime(tx.createdAt, "HH:mm, dd MMM yyyy")}
                                                             {tx.activityType && (
                                                                 <Badge className="ml-2 py-0 h-4 text-[9px] uppercase font-black tracking-tighter bg-primary/10 text-primary border-none">
                                                                     {tx.activityType.replace('_', ' ')}
@@ -288,7 +286,7 @@ export default function WalletPage() {
                                                         "text-lg font-black tabular-nums tracking-tight",
                                                         tx.amount > 0 ? "text-indigo-500" : "text-purple-500"
                                                     )}>
-                                                        {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                                                        {tx.amount > 0 ? '+' : ''}{formatNumber(tx.amount)}
                                                     </p>
                                                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Points</p>
                                                 </div>
@@ -311,14 +309,14 @@ export default function WalletPage() {
                         {(pointsData?.totalPages ?? 0) > 1 && (
                             <div className="flex justify-center gap-2 mt-4">
                                 <Button
-                                    variant="outline" size="sm" className="rounded-xl"
+                                    variant="outline" size="sm"
                                     disabled={pointsPage === 1}
                                     onClick={() => setPointsPage(p => p - 1)}
                                 >
                                     <ChevronLeft className="w-4 h-4 mr-1" /> Trước
                                 </Button>
                                 <Button
-                                    variant="outline" size="sm" className="rounded-xl"
+                                    variant="outline" size="sm"
                                     disabled={pointsPage === (pointsData?.totalPages ?? 0)}
                                     onClick={() => setPointsPage(p => p + 1)}
                                 >
@@ -355,7 +353,7 @@ export default function WalletPage() {
                                     type="number"
                                     value={topUpAmount}
                                     onChange={(e) => setTopUpAmount(e.target.value)}
-                                    className="pl-10 h-14 bg-muted/50 border-2 border-transparent focus:border-primary rounded-2xl text-xl font-bold transition-all"
+                                    className="pl-10"
                                     placeholder="50,000"
                                 />
                             </div>
@@ -365,14 +363,10 @@ export default function WalletPage() {
                             {['20000', '50000', '100000', '200000', '500000', '1000000'].map((amount) => (
                                 <Button
                                     key={amount}
-                                    variant="outline"
-                                    className={cn(
-                                        "h-12 rounded-xl font-bold transition-all border-2",
-                                        topUpAmount === amount ? "border-primary bg-primary/5 text-primary" : "border-transparent hover:border-primary/20"
-                                    )}
+                                    variant={topUpAmount === amount ? "default" : "outline"}
                                     onClick={() => setTopUpAmount(amount)}
                                 >
-                                    {parseInt(amount).toLocaleString()}đ
+                                    {formatCurrency(amount)}
                                 </Button>
                             ))}
                         </div>
@@ -380,7 +374,7 @@ export default function WalletPage() {
                         <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 space-y-2">
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-orange-800/70 font-medium">Bạn sẽ nhận được:</span>
-                                <span className="text-orange-800 font-black text-lg">{(parseInt(topUpAmount) || 0).toLocaleString()} <span className="text-xs uppercase opacity-70">Coins</span></span>
+                                <span className="text-orange-800 font-black text-lg">{formatNumber(parseInt(topUpAmount) || 0)} <span className="text-xs uppercase opacity-70">Coins</span></span>
                             </div>
                             <div className="flex justify-between items-center text-xs">
                                 <span className="text-orange-800/50 font-medium">Phương thức:</span>
@@ -394,7 +388,8 @@ export default function WalletPage() {
                     <DialogFooter>
                         <Button
                             type="submit"
-                            className="w-full h-14 rounded-2xl font-bold text-lg bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-600/20"
+                            className="w-full"
+                            size="lg"
                             onClick={handleTopUp}
                             disabled={isSubmitting}
                         >

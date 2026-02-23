@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { courseApi } from '@/apis/services/course-api';
+import { courseApi } from '@/lib/api/services/course-api';
 import type { CourseResponseDTO } from '@workspace/schemas';
 
 export interface Course {

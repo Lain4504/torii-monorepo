@@ -8,6 +8,7 @@ import {
     PaginationPrevious,
 } from "@workspace/ui/components/pagination";
 import { cn } from "@workspace/ui/lib/utils";
+import { formatNumber } from "@/lib/format-utils";
 
 interface SmartPaginationProps {
     page: number;
@@ -33,7 +34,7 @@ export function SmartPagination({
         const maxVisiblePages = 5;
 
         let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
         if (endPage - startPage + 1 < maxVisiblePages) {
             startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -47,13 +48,12 @@ export function SmartPagination({
                             e.preventDefault();
                             onPageChange(1);
                         }}
-                        className="cursor-pointer"
                     >
                         1
                     </PaginationLink>
                 </PaginationItem>
             );
-            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-50" />);
+            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" />);
         }
 
         for (let i = startPage; i <= endPage; i++) {
@@ -65,7 +65,6 @@ export function SmartPagination({
                             e.preventDefault();
                             if (page !== i) onPageChange(i);
                         }}
-                        className="cursor-pointer"
                     >
                         {i}
                     </PaginationLink>
@@ -74,7 +73,7 @@ export function SmartPagination({
         }
 
         if (endPage < totalPages) {
-            if (endPage < totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-50" />);
+            if (endPage < totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" />);
             items.push(
                 <PaginationItem key={totalPages}>
                     <PaginationLink
@@ -82,7 +81,6 @@ export function SmartPagination({
                             e.preventDefault();
                             onPageChange(totalPages);
                         }}
-                        className="cursor-pointer"
                     >
                         {totalPages}
                     </PaginationLink>
@@ -94,30 +92,26 @@ export function SmartPagination({
     };
 
     return (
-        <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-1", className)}>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>Trang <span className="text-foreground font-medium">{page}</span> / {totalPages}</span>
-                <span>Tổng cộng <span className="text-foreground font-medium">{totalItems.toLocaleString()}</span> {itemName}</span>
-            </div>
+        <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-4", className)}>
+            <p className="text-sm text-muted-foreground">
+                Trang <span className="font-semibold text-foreground">{page}</span> trên <span className="font-semibold text-foreground">{totalPages}</span>.
+                Tổng cộng <span className="font-semibold text-foreground">{formatNumber(totalItems)}</span> {itemName}.
+            </p>
 
             {totalPages > 1 && (
-                <Pagination className="w-auto mx-0">
-                    <PaginationContent className="gap-1">
+                <Pagination>
+                    <PaginationContent>
                         <PaginationItem>
                             <PaginationPrevious
                                 onClick={(e) => {
                                     e.preventDefault();
                                     onPageChange(Math.max(1, page - 1));
                                 }}
-                                className={cn(
-                                    page === 1 ? "opacity-30 pointer-events-none" : "cursor-pointer"
-                                )}
+                                className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                             />
                         </PaginationItem>
 
-                        <div className="hidden md:flex items-center gap-1">
-                            {renderPaginationItems()}
-                        </div>
+                        {renderPaginationItems()}
 
                         <PaginationItem>
                             <PaginationNext
@@ -125,9 +119,7 @@ export function SmartPagination({
                                     e.preventDefault();
                                     onPageChange(Math.min(totalPages, page + 1));
                                 }}
-                                className={cn(
-                                    page === totalPages ? "opacity-30 pointer-events-none" : "cursor-pointer"
-                                )}
+                                className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                             />
                         </PaginationItem>
                     </PaginationContent>

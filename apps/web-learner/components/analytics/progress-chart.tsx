@@ -31,7 +31,7 @@ interface ProgressChartProps {
 
 export function ProgressChart({ data = defaultData }: ProgressChartProps) {
     return (
-        <Card className="col-span-2 overflow-hidden border-none shadow-lg bg-card/50 backdrop-blur-sm">
+        <Card className="col-span-2">
             <CardHeader>
                 <CardTitle>Learning Trajectory</CardTitle>
                 <CardDescription>Proficiency score vs. Lessons completed</CardDescription>
@@ -56,22 +56,20 @@ export function ProgressChart({ data = defaultData }: ProgressChartProps) {
                             axisLine={false}
                             tickMargin={12}
                             fontSize={12}
-                            stroke="#e2e8f0"
-                            tick={{ fill: '#e2e8f0' }}
-                            className="font-bold"
+                            stroke="hsl(var(--muted-foreground))"
+                            className="font-medium"
                         />
                         <YAxis
                             tickLine={false}
                             axisLine={false}
                             tickMargin={12}
                             fontSize={12}
-                            stroke="#e2e8f0"
-                            tick={{ fill: '#e2e8f0' }}
-                            className="font-bold"
+                            stroke="hsl(var(--muted-foreground))"
+                            className="font-medium"
                         />
                         <ChartTooltip
-                            content={<ChartTooltipContent indicator="dot" labelClassName="font-bold text-foreground" />}
-                            cursor={{ stroke: '#e2e8f0', strokeWidth: 1, strokeDasharray: '4 4' }}
+                            content={<ChartTooltipContent indicator="dot" />}
+                            cursor={{ strokeWidth: 1, strokeDasharray: '4 4' }}
                         />
                         <Area
                             type="monotone"

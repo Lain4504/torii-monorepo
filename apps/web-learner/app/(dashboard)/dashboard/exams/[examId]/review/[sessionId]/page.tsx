@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/componen
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Award } from 'lucide-react'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { useAttemptDetails } from '@/apis/services/exam-api'
+import { useAttemptDetails } from '@/lib/api/services/exam-api'
 import { format } from 'date-fns'
 
 export default function ExamReviewPage() {

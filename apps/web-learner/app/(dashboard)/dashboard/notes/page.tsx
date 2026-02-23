@@ -33,9 +33,9 @@ import { Badge } from '@workspace/ui/components/badge'
 import { toast } from '@workspace/ui/components/sonner'
 import { Switch } from '@workspace/ui/components/switch'
 import { useAppSelector } from '@/hooks/hooks'
-import * as XLSX from 'xlsx'
+import { read, utils } from 'xlsx'
 import { NotebookFlashcardStudy } from '@/components/flashcard/notebook-flashcard-study'
-import { notebookApi, type NotebookDTO, type NoteEntryDTO } from '@/apis/services/notebook-api'
+import { notebookApi, type NotebookDTO, type NoteEntryDTO } from '@/lib/api/services/notebook-api'
 
 // ============ TYPES ============
 // Re-export types with local aliases for backward compat
@@ -121,7 +121,7 @@ export default function NotesPage() {
         n.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-    const filteredEntries = activeNotebook?.entries.filter(e =>
+    const filteredEntries = activeNotebook?.entries.filter((e: NoteEntry) =>
         e.word.toLowerCase().includes(entrySearch.toLowerCase()) ||
         e.meaning.toLowerCase().includes(entrySearch.toLowerCase())
     ) || []
@@ -279,10 +279,10 @@ export default function NotesPage() {
         reader.onload = (evt) => {
             try {
                 const data = evt.target?.result
-                const workbook = XLSX.read(data, { type: 'array' })
+                const workbook = read(data, { type: 'array' })
                 const sheetName = workbook.SheetNames[0]
                 const sheet = workbook.Sheets[sheetName!]
-                const rows: any[] = XLSX.utils.sheet_to_json(sheet!, { header: 1 })
+                const rows: any[] = utils.sheet_to_json(sheet!, { header: 1 })
 
                 const entries: typeof importPreview = []
                 for (let i = 1; i < rows.length; i++) {
@@ -402,7 +402,6 @@ export default function NotesPage() {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleTogglePublic(activeNotebook.id)}
-                                        className="h-9 rounded-xl text-xs font-bold"
                                     >
                                         {activeNotebook.isPublic ? <Lock className="size-3.5 mr-1.5" /> : <Globe className="size-3.5 mr-1.5" />}
                                         {activeNotebook.isPublic ? 'Đặt riêng tư' : 'Công khai'}
@@ -411,7 +410,6 @@ export default function NotesPage() {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => { setIsImportOpen(true) }}
-                                        className="h-9 rounded-xl text-xs font-bold"
                                     >
                                         <FileSpreadsheet className="size-3.5 mr-1.5" />
                                         Nhập Excel
@@ -419,7 +417,6 @@ export default function NotesPage() {
                                     <Button
                                         size="sm"
                                         onClick={() => { setEditingEntry(null); setWordForm({ word: '', phonetic: '', meaning: '', note: '', partOfSpeech: 'noun' }); setIsAddWordOpen(true) }}
-                                        className="h-9 rounded-xl text-xs font-bold"
                                     >
                                         <Plus className="size-3.5 mr-1.5" />
                                         Thêm từ mới
@@ -445,7 +442,7 @@ export default function NotesPage() {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                             <Input
                                 placeholder="Tìm từ trong sổ tay..."
-                                className="pl-10 h-10 rounded-xl text-sm"
+                                className="pl-10"
                                 value={entrySearch}
                                 onChange={e => setEntrySearch(e.target.value)}
                             />
@@ -507,7 +504,7 @@ export default function NotesPage() {
                                 <p className="text-sm font-medium">Không tìm thấy từ nào</p>
                             </div>
                         ) : (
-                            filteredEntries.map((entry, idx) => (
+                            filteredEntries.map((entry: NoteEntry, idx: number) => (
                                 <Card key={entry.id} className="border-border bg-card rounded-2xl hover:shadow-sm transition-all group">
                                     <CardContent className="p-4 flex items-start gap-4">
                                         <div className="flex items-center justify-center size-9 rounded-xl bg-muted/40 text-muted-foreground font-bold text-sm shrink-0 mt-0.5">
@@ -593,7 +590,6 @@ export default function NotesPage() {
                                 <Input
                                     value={wordForm.word}
                                     onChange={e => setWordForm(f => ({ ...f, word: e.target.value }))}
-                                    className="h-10 rounded-lg text-sm font-medium"
                                     placeholder="VD: 食べる, たべる..."
                                     onKeyDown={e => e.key === 'Enter' && handleSaveWord()}
                                 />
@@ -604,7 +600,6 @@ export default function NotesPage() {
                                 <Input
                                     value={wordForm.phonetic}
                                     onChange={e => setWordForm(f => ({ ...f, phonetic: e.target.value }))}
-                                    className="h-10 rounded-lg text-sm"
                                     placeholder="VD: taberu, /tɑːbɛru/..."
                                 />
                             </div>
@@ -616,7 +611,6 @@ export default function NotesPage() {
                                 <Input
                                     value={wordForm.meaning}
                                     onChange={e => setWordForm(f => ({ ...f, meaning: e.target.value }))}
-                                    className="h-10 rounded-lg text-sm"
                                     placeholder="VD: Ăn, To eat..."
                                 />
                             </div>
@@ -647,8 +641,8 @@ export default function NotesPage() {
                         </div>
 
                         <DialogFooter className="gap-2">
-                            <Button variant="outline" onClick={() => setIsAddWordOpen(false)} className="rounded-xl">Hủy</Button>
-                            <Button onClick={handleSaveWord} className="rounded-xl font-bold px-6" disabled={isSaving}>
+                            <Button variant="outline" onClick={() => setIsAddWordOpen(false)}>Hủy</Button>
+                            <Button onClick={handleSaveWord} disabled={isSaving}>
                                 {isSaving && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
                                 Xong
                             </Button>
@@ -785,14 +779,13 @@ export default function NotesPage() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
                             placeholder="Tìm kiếm sổ tay..."
-                            className="pl-10 h-10 rounded-xl bg-background border-input text-sm font-medium"
+                            className="pl-10"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                         />
                     </div>
                     <Button
                         onClick={() => { setNewNotebookName(''); setNewNotebookDesc(''); setNewNotebookPublic(false); setNameError(''); setIsCreateOpen(true) }}
-                        className="h-10 px-4 rounded-xl font-bold shadow-sm shrink-0"
                     >
                         <Plus className="size-4 mr-2" />
                         Tạo sổ tay
@@ -807,20 +800,21 @@ export default function NotesPage() {
                 </div>
             ) : (
                 <Tabs defaultValue="my">
-                    <TabsList className="h-10 rounded-xl bg-muted/50 p-1">
-                        <TabsTrigger value="my" className="rounded-lg text-xs font-bold uppercase tracking-wider px-4">
+                    <TabsList>
+                        <TabsTrigger value="my">
                             Sổ tay của tôi
                             {myNotebooks.length > 0 && (
-                                <span className="ml-2 px-1.5 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-black">{myNotebooks.length}</span>
+                                <Badge variant="secondary" className="ml-2 h-4 px-1.5 text-[10px]">{myNotebooks.length}</Badge>
                             )}
                         </TabsTrigger>
-                        <TabsTrigger value="explore" className="rounded-lg text-xs font-bold uppercase tracking-wider px-4">
+                        <TabsTrigger value="explore">
                             Khám phá
                             {publicNotebooks.length > 0 && (
-                                <span className="ml-2 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[10px] font-black">{publicNotebooks.length}</span>
+                                <Badge variant="outline" className="ml-2 h-4 px-1.5 text-[10px]">{publicNotebooks.length}</Badge>
                             )}
                         </TabsTrigger>
                     </TabsList>
+
 
                     {/* MY NOTEBOOKS */}
                     <TabsContent value="my" className="mt-6">

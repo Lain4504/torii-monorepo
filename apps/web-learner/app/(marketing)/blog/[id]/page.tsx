@@ -1,7 +1,7 @@
 'use client'
 
 import { use, useEffect, useState } from 'react'
-import { blogApi } from '@/apis/services/blog-api'
+import { blogApi } from '@/lib/api/services/blog-api'
 import { BlogSidebar } from '@/components/blog/blog-sidebar'
 import { CommentSection } from '@/components/blog/comment-section'
 import type { BlogResponseDTO } from '@workspace/schemas'
@@ -16,8 +16,7 @@ import {
 } from '@workspace/ui/components/breadcrumb'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Calendar, Eye, Share2, Heart, Bookmark, Clock, List, ChevronRight, MessageCircle } from 'lucide-react'
-import { format } from 'date-fns'
-import { vi } from 'date-fns/locale'
+import { formatDate, formatNumber } from '@/utils/format-utils'
 import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
@@ -139,7 +138,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-border/40">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
                             <Calendar className="w-4 h-4 text-primary" />
-                            <span>{format(new Date(blog.publishedAt || blog.createdAt), 'dd MMMM, yyyy', { locale: vi })}</span>
+                            <span>{formatDate(blog.publishedAt || blog.createdAt)}</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
                             <Clock className="w-4 h-4 text-primary" />
@@ -147,11 +146,11 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium hidden sm:flex">
                             <Eye className="w-4 h-4 text-primary" />
-                            <span>{blog.viewCount || 0} lượt xem</span>
+                            <span>{formatNumber(blog.viewCount || 0)} lượt xem</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
                             <MessageCircle className="w-4 h-4 text-primary" />
-                            <span>{blog.commentCount || 0} bình luận</span>
+                            <span>{formatNumber(blog.commentCount || 0)} bình luận</span>
                         </div>
                     </div>
                 </div>

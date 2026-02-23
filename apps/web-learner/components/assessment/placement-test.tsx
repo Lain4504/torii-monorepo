@@ -1,15 +1,18 @@
 "use client"
 
 import * as React from "react"
-import { ArrowRight, Loader2, Sparkles } from "lucide-react"
+import { ArrowRight, Sparkles, BookCheck, Clock, Loader2 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentTestGenerationResponseDTO as PlacementTestResponse, AgentTestEvaluationResponseDTO as PlacementEvaluationResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
+import { Progress } from "@workspace/ui/components/progress"
+
 
 export function PlacementTest() {
     const [step, setStep] = React.useState<"intro" | "test" | "result">("intro")
@@ -22,7 +25,7 @@ export function PlacementTest() {
     const handleStart = async () => {
         setIsLoading(true)
         try {
-            const data = await agentApi.assessment.generatePlacementTest(15) // Fixed 15 questions
+            const data = await agentApi.assessment.generatePlacementTest(15)
             setTestData(data)
             setStep("test")
             setAnswers({})
@@ -67,41 +70,45 @@ export function PlacementTest() {
     }
 
     const handleSelectLevel = (level: string) => {
-        // Ideally save this to user profile
         console.log("Selected level:", level)
     }
 
     if (step === "intro") {
         return (
-            <div className="max-w-2xl mx-auto py-16 text-center space-y-8">
-                <div className="space-y-4">
-                    <div className="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary">
+            <div className="max-w-4xl mx-auto py-24 px-6 text-center space-y-16 animate-in fade-in duration-700">
+                <div className="space-y-8">
+                    <div className="size-24 bg-primary text-primary-foreground rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-primary/30 ring-4 ring-primary/10">
                         <Sparkles className="size-10" />
                     </div>
-                    <h1 className="text-4xl font-bold tracking-tight">Placement Test</h1>
-                    <p className="text-xl text-muted-foreground text-pretty max-w-lg mx-auto">
-                        Discover your current Japanese level in just 10 minutes.
-                        Our AI will adapt to your answers to find the perfect starting point.
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 text-left max-w-md mx-auto py-6">
-                    <div className="p-4 rounded-lg bg-card border shadow-sm">
-                        <div className="font-bold text-lg mb-1">15</div>
-                        <div className="text-xs text-muted-foreground uppercase">Questions</div>
-                    </div>
-                    <div className="p-4 rounded-lg bg-card border shadow-sm">
-                        <div className="font-bold text-lg mb-1">~10</div>
-                        <div className="text-xs text-muted-foreground uppercase">Minutes</div>
-                    </div>
-                    <div className="p-4 rounded-lg bg-card border shadow-sm">
-                        <div className="font-bold text-lg mb-1">AI</div>
-                        <div className="text-xs text-muted-foreground uppercase">Powered</div>
+                    <div className="space-y-4">
+                        <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground">Placement Test</h1>
+                        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
+                            Discover your current Japanese level in just 10 minutes.
+                            Our AI will adapt to your answers to find the perfect starting point.
+                        </p>
                     </div>
                 </div>
 
-                <Button size="lg" onClick={handleStart} disabled={isLoading} className="px-8 h-12 text-lg">
-                    {isLoading ? <><Loader2 className="mr-2 size-5 animate-spin" /> Preparing...</> : "Start Assessment"}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+                    {[
+                        { icon: BookCheck, val: "15", label: "Questions" },
+                        { icon: Clock, val: "~10", label: "Minutes" },
+                        { icon: Sparkles, val: "AI", label: "Powered" },
+                    ].map((item, i) => (
+                        <Card key={i} className="border-border/50 bg-muted/30 shadow-none rounded-2xl">
+                            <CardContent className="flex flex-col items-center p-8 space-y-3">
+                                <div className="p-3 bg-primary/10 rounded-xl mb-1">
+                                    <item.icon className="size-6 text-primary" />
+                                </div>
+                                <div className="font-bold text-3xl tracking-tight">{item.val}</div>
+                                <div className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">{item.label}</div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                <Button size="lg" onClick={handleStart} disabled={isLoading} className="h-14 px-12 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/20">
+                    {isLoading ? <><Spinner className="mr-3 size-5" /> Preparing...</> : "Start Assessment"}
                 </Button>
             </div>
         )
@@ -136,6 +143,7 @@ export function PlacementTest() {
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
                     </div>
+                    <Progress value={progress} className="h-2.5 rounded-full" />
                 </div>
 
                 <div className="space-y-8 min-h-[400px]">
@@ -288,9 +296,9 @@ export function PlacementTest() {
                     </Button>
                 </div>
 
-                <div className="pt-8">
-                    <Button variant="ghost" asChild>
-                        <Link href="/assessment">Back to Assessments</Link>
+                <div className="pt-6">
+                    <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+                        <Link href="/assessment">Back to Assessment Center</Link>
                     </Button>
                 </div>
             </div>

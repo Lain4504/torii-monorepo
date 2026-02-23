@@ -1,16 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Button } from '@workspace/ui/components/button'
-import { Video, Loader2 } from 'lucide-react'
-import { liveSessionApi } from '@/apis/services/live-session-api'
 import type { LiveSessionResponseDTO } from '@workspace/schemas'
+import { Button } from '@workspace/ui/components/button'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { cn } from '@workspace/ui/lib/utils'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
+import { Video } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
-import { cn } from '@workspace/ui/lib/utils'
 
-const MEET_URL = typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com') : 'https://meet.torii.com'
+import { liveSessionApi } from '@/lib/api/services/live-session-api'
+
+const MEET_URL = (typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com') : 'https://meet.torii.com')
 
 interface LiveSessionBlockProps {
     courseId: string
@@ -29,17 +31,22 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
     useEffect(() => {
         let cancelled = false
         liveSessionApi.getSessions(courseId).then((data) => {
-            if (!cancelled) setSessions(data ?? [])
+            if (!cancelled)
+                setSessions(data ?? [])
         }).catch(() => {
-            if (!cancelled) setSessions([])
+            if (!cancelled)
+                setSessions([])
         }).finally(() => {
-            if (!cancelled) setLoading(false)
+            if (!cancelled)
+                setLoading(false)
         })
-        return () => { cancelled = true }
+        return () => {
+            cancelled = true
+        }
     }, [courseId])
 
     const upcomingOrLive = sessions
-        .filter((s) => s.status === 'scheduled' || s.status === 'live')
+        .filter(s => s.status === 'scheduled' || s.status === 'live')
         .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
         .slice(0, maxSessions)
 
@@ -50,9 +57,11 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
             const url = `${MEET_URL}?access_token=${joinData.token}`
             window.open(url, '_blank', 'noopener,noreferrer')
             toast.success('Đang mở phòng học...')
-        } catch (err: any) {
+        }
+        catch (err: any) {
             toast.error(err?.response?.data?.message || 'Không thể vào phòng học')
-        } finally {
+        }
+        finally {
             setJoiningId(null)
         }
     }
@@ -60,7 +69,7 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
     if (loading) {
         return (
             <div className={cn('flex items-center justify-center py-4 text-muted-foreground', className)}>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Spinner className="h-5 w-5 animate-spin" />
             </div>
         )
     }
@@ -72,10 +81,10 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
     return (
         <div className={cn('space-y-2', className)}>
             <p className={cn(
-                'font-bold text-foreground flex items-center gap-2',
-                compact ? 'text-xs uppercase tracking-widest text-muted-foreground' : 'text-sm'
+                'flex items-center gap-2 font-bold text-foreground',
+                compact ? 'text-xs uppercase tracking-widest text-muted-foreground' : 'text-sm',
             )}>
-                <Video className={compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+                <Video className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
                 {compact ? 'Lịch live' : 'Buổi học trực tuyến'}
             </p>
             <ul className={cn('space-y-1.5', compact && 'space-y-1')}>
@@ -86,11 +95,11 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
                             key={session.id}
                             className={cn(
                                 'flex items-center justify-between gap-2 rounded-lg border border-border bg-card/50 p-2.5',
-                                compact && 'p-2'
+                                compact && 'p-2',
                             )}
                         >
                             <div className="min-w-0 flex-1">
-                                <p className={cn('font-medium text-foreground truncate', compact && 'text-xs')}>
+                                <p className={cn('truncate font-medium text-foreground', compact && 'text-xs')}>
                                     {session.title}
                                 </p>
                                 <p className={cn('text-muted-foreground', compact ? 'text-[10px]' : 'text-xs')}>
@@ -101,17 +110,15 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
                                 <Button
                                     size="sm"
                                     className={cn(
-                                        'shrink-0 rounded-lg font-bold gap-1.5',
-                                        compact ? 'h-7 text-[10px] px-2' : 'h-8 text-xs px-3'
+                                        'shrink-0 gap-1.5 rounded-lg font-bold',
+                                        compact ? 'h-7 px-2 text-[10px]' : 'h-8 px-3 text-xs',
                                     )}
                                     onClick={() => handleJoin(session.id)}
                                     disabled={!!joiningId}
                                 >
-                                    {joiningId === session.id ? (
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                    ) : (
-                                        <Video className="w-3.5 h-3.5" />
-                                    )}
+                                    {joiningId === session.id
+                                        ? <Spinner className="h-3.5 w-3.5 animate-spin" />
+                                        : <Video className="h-3.5 w-3.5" />}
                                     Vào phòng
                                 </Button>
                             )}

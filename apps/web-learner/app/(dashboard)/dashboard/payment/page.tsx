@@ -34,10 +34,10 @@ import {
     PaginationPrevious,
 } from "@workspace/ui/components/pagination"
 import { cn } from '@workspace/ui/lib/utils'
-import { useOrders, useOrder } from '@/apis/services/order-api'
+import { useOrders, useOrder } from '@/lib/api/services/order-api'
 import { ComponentLoading } from '@workspace/ui/components/component-loading'
 import { Separator } from '@workspace/ui/components/separator'
-import { formatDateTime, isWithinGracePeriod } from '@/utils/time-utils'
+import { formatDateTime, isWithinGracePeriod, formatCurrency } from '@/utils/format-utils'
 import {
     Table,
     TableBody,
@@ -230,7 +230,7 @@ export default function PaymentHistoryPage() {
                                                         {formatDateTime(order.createdAt)}
                                                     </TableCell>
                                                     <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right font-bold">
-                                                        {order.amount.toLocaleString('vi-VN')}₫
+                                                        {formatCurrency(order.amount)}
                                                     </TableCell>
                                                     <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
                                                         <div className="flex justify-center">
@@ -347,7 +347,7 @@ export default function PaymentHistoryPage() {
                                     <Separator className="bg-border my-4" />
                                     <div className="flex justify-between items-center pt-2">
                                         <span className="text-sm font-bold text-foreground">Tổng tiền</span>
-                                        <span className="text-xl font-bold text-primary">{orderDetails.amount.toLocaleString('vi-VN')}₫</span>
+                                        <span className="text-xl font-bold text-primary">{formatCurrency(orderDetails.amount)}</span>
                                     </div>
                                 </div>
                             </div>
