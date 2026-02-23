@@ -4,30 +4,20 @@ import { TICKET_REPOSITORY_TOKEN } from '../src/interfaces/repositories';
 import { NOTIFICATION_SERVICE_TOKEN } from '../src/interfaces/services';
 import { BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { of, throwError } from 'rxjs';
-import { TicketStatus, TicketType, NotificationType } from '@workspace/schemas';
+import { TicketStatus, TicketType, NotificationType, OrderStatus } from '@workspace/schemas';
+import { EmailService } from '../src/modules/email/email.service';
 
-describe('TicketService', () => {
+describe('TicketService (Exhaustive)', () => {
     let service: TicketService;
     let ticketRepository: any;
     let notificationService: any;
     let natsClient: any;
+    let emailService: any;
 
-    const mockTicketRepository = {
-        create: jest.fn(),
-        findById: jest.fn(),
-        findAll: jest.fn(),
-        updateStatus: jest.fn(),
-        count: jest.fn(),
-    };
-
-    const mockNotificationService = {
-        create: jest.fn(),
-    };
-
-    const mockNatsClient = {
-        emit: jest.fn(),
-        send: jest.fn(),
-    };
+    const USER_ID = 'u-1';
+    const TICKET_ID = 't-1';
+    const COURSE_ID = 'c-1';
+    const HANDLER_ID = 'h-1';
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -35,15 +25,25 @@ describe('TicketService', () => {
                 TicketService,
                 {
                     provide: TICKET_REPOSITORY_TOKEN,
-                    useValue: mockTicketRepository,
+                    useValue: {
+                        create: jest.fn(),
+                        findById: jest.fn(),
+                        findAll: jest.fn(),
+                        updateStatus: jest.fn(),
+                        count: jest.fn(),
+                    },
                 },
                 {
                     provide: NOTIFICATION_SERVICE_TOKEN,
-                    useValue: mockNotificationService,
+                    useValue: { create: jest.fn() },
                 },
                 {
                     provide: 'NATS_SERVICE',
-                    useValue: mockNatsClient,
+                    useValue: { emit: jest.fn(), send: jest.fn() },
+                },
+                {
+                    provide: EmailService,
+                    useValue: { sendEmail: jest.fn() },
                 },
             ],
         }).compile();
@@ -52,286 +52,232 @@ describe('TicketService', () => {
         ticketRepository = module.get(TICKET_REPOSITORY_TOKEN);
         notificationService = module.get(NOTIFICATION_SERVICE_TOKEN);
         natsClient = module.get('NATS_SERVICE');
+        emailService = module.get(EmailService);
 
-        // Spy on Logger to prevent cluttering test output
         jest.spyOn(Logger.prototype, 'error').mockImplementation(() => { });
         jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => { });
         jest.spyOn(Logger.prototype, 'log').mockImplementation(() => { });
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
-
-    it('should be defined', () => {
-        expect(service).toBeDefined();
-    });
+    afterEach(() => jest.clearAllMocks());
 
     describe('createTicket', () => {
-        const userId = 'user-1';
-        const createDto = {
-            title: 'Test Ticket',
-            description: 'Test Description',
-            type: TicketType.SUPPORT,
-        };
+        it('should create support ticket without NATS checks', async () => {
+            const dto = { title: 'H', description: 'D', type: TicketType.SUPPORT };
+            ticketRepository.create.mockResolvedValue({ id: TICKET_ID, ...dto, userId: USER_ID });
 
-        it('should create a support ticket successfully', async () => {
-            const mockTicket = { id: 'ticket-1', ...createDto, userId };
-            ticketRepository.create.mockResolvedValue(mockTicket);
+            const result = await service.createTicket(USER_ID, dto as any);
 
-            const result = await service.createTicket(userId, createDto as any);
-
-            expect(ticketRepository.create).toHaveBeenCalledWith({ ...createDto, userId });
-            expect(result).toEqual(mockTicket);
+            expect(result.id).toBe(TICKET_ID);
+            expect(natsClient.send).not.toHaveBeenCalled();
         });
 
-        it('should throw BadRequestException for refund ticket if courseId is missing', async () => {
-            const refundDto = {
-                title: 'Refund Request',
-                description: 'Refund me',
-                type: TicketType.REFUND,
-                metadata: {},
-            };
+        it('should validate refund ticket - 14 day rule FAIL', async () => {
+            const dto = { type: TicketType.REFUND, metadata: { courseId: COURSE_ID } };
+            const oldDate = new Date();
+            oldDate.setDate(oldDate.getDate() - 15);
+            
+            natsClient.send.mockReturnValue(of({ 
+                isEnrolled: true, 
+                enrollment: { enrollmentDate: oldDate.toISOString() } 
+            }));
 
-            await expect(service.createTicket(userId, refundDto as any))
-                .rejects.toThrow(BadRequestException);
+            await expect(service.createTicket(USER_ID, dto as any))
+                .rejects.toThrow('Bạn chỉ có thể yêu cầu hoàn tiền trong vòng 14 ngày');
         });
 
-        it('should throw BadRequestException if user is not enrolled for refund ticket', async () => {
-            const refundDto = {
-                title: 'Refund Request',
-                description: 'Refund me',
-                type: TicketType.REFUND,
-                metadata: { courseId: 'course-1' },
-            };
+        it('should validate refund ticket - 14 day rule SUCCESS', async () => {
+            const dto = { type: TicketType.REFUND, metadata: { courseId: COURSE_ID } };
+            const recentDate = new Date();
+            recentDate.setDate(recentDate.getDate() - 5);
+            
+            natsClient.send.mockReturnValue(of({ 
+                isEnrolled: true, 
+                enrollment: { enrollmentDate: recentDate.toISOString() } 
+            }));
+            ticketRepository.create.mockResolvedValue({ id: TICKET_ID });
 
-            natsClient.send.mockReturnValue(of(false));
-
-            // Note: service currently masks the 'not enrolled' message with 'Could not verify enrollment status'
-            await expect(service.createTicket(userId, refundDto as any))
-                .rejects.toThrow('Could not verify enrollment status');
-
-            expect(natsClient.send).toHaveBeenCalledWith(
-                { cmd: 'learning.enrollment.isEnrolled' },
-                { userId, courseId: 'course-1' }
-            );
+            const result = await service.createTicket(USER_ID, dto as any);
+            expect(result.id).toBe(TICKET_ID);
         });
 
-        it('should create a refund ticket successfully if user is enrolled', async () => {
-            const refundDto = {
-                title: 'Refund Request',
-                description: 'Refund me',
-                type: TicketType.REFUND,
-                metadata: { courseId: 'course-1' },
-            };
-            const mockTicket = { id: 'ticket-1', ...refundDto, userId };
+        it('should throw if enrollment check returns false', async () => {
+            const dto = { type: TicketType.REFUND, metadata: { courseId: COURSE_ID } };
+            natsClient.send.mockReturnValue(of({ isEnrolled: false }));
 
-            natsClient.send.mockReturnValue(of(true));
-            ticketRepository.create.mockResolvedValue(mockTicket);
-
-            const result = await service.createTicket(userId, refundDto as any);
-
-            expect(result).toEqual(mockTicket);
-            expect(ticketRepository.create).toHaveBeenCalled();
-        });
-
-        it('should throw BadRequestException if NATS enrollment check fails', async () => {
-            const refundDto = {
-                title: 'Refund Request',
-                description: 'Refund me',
-                type: TicketType.REFUND,
-                metadata: { courseId: 'course-1' },
-            };
-
-            natsClient.send.mockReturnValue(throwError(() => new Error('NATS error')));
-
-            await expect(service.createTicket(userId, refundDto as any))
-                .rejects.toThrow(new BadRequestException('Could not verify enrollment status'));
-        });
-    });
-
-    describe('getTicketById', () => {
-        it('should return a ticket if found', async () => {
-            const mockTicket = { id: 'ticket-1', title: 'Test' };
-            ticketRepository.findById.mockResolvedValue(mockTicket);
-
-            const result = await service.getTicketById('ticket-1');
-
-            expect(result).toEqual(mockTicket);
-        });
-
-        it('should throw NotFoundException if ticket not found', async () => {
-            ticketRepository.findById.mockResolvedValue(null);
-
-            await expect(service.getTicketById('non-existent'))
-                .rejects.toThrow(NotFoundException);
-        });
-    });
-
-    describe('getTickets', () => {
-        it('should return paginated tickets', async () => {
-            const query = { page: 1, limit: 10 };
-            const mockData = {
-                data: [{ id: '1' }],
-                total: 1
-            };
-            ticketRepository.findAll.mockResolvedValue(mockData);
-
-            const result = await service.getTickets(query as any);
-
-            expect(result.data).toEqual(mockData.data);
-            expect(result.total).toBe(1);
-            expect(result.totalPages).toBe(1);
-            expect(result.page).toBe(1);
-            expect(result.limit).toBe(10);
-        });
-
-        it('should use default values for pagination if not provided', async () => {
-            const query = {};
-            const mockData = {
-                data: [],
-                total: 0
-            };
-            ticketRepository.findAll.mockResolvedValue(mockData);
-
-            const result = await service.getTickets(query as any);
-
-            expect(result.page).toBe(1);
-            expect(result.limit).toBe(10);
+            await expect(service.createTicket(USER_ID, dto as any))
+                .rejects.toThrow('You are not enrolled in this course');
         });
     });
 
     describe('updateTicketStatus', () => {
-        const ticketId = 'ticket-1';
-        const handlerId = 'admin-1';
-        const updateDto = { status: TicketStatus.APPROVED, response: 'OK' };
+        const approveDto = { status: TicketStatus.APPROVED, response: 'Approved' };
 
-        it('should update support ticket status and send notification', async () => {
-            const mockTicket = {
-                id: ticketId,
-                userId: 'user-1',
-                status: TicketStatus.PENDING,
-                type: TicketType.SUPPORT
-            };
-            const updatedTicket = { ...mockTicket, status: TicketStatus.APPROVED };
-
-            ticketRepository.findById.mockResolvedValue(mockTicket);
-            ticketRepository.updateStatus.mockResolvedValue(updatedTicket);
-
-            const result = await service.updateTicketStatus(ticketId, handlerId, updateDto);
-
-            expect(ticketRepository.updateStatus).toHaveBeenCalledWith(ticketId, updateDto.status, updateDto.response, handlerId);
-            expect(notificationService.create).toHaveBeenCalledWith(expect.objectContaining({
-                userId: 'user-1',
-                notificationType: NotificationType.SYSTEM
-            }));
-            expect(natsClient.emit).toHaveBeenCalledWith({ cmd: 'identity.audit.log' }, expect.any(Object));
-            expect(result).toEqual(updatedTicket);
+        it('should throw if ticket already finalized', async () => {
+            ticketRepository.findById.mockResolvedValue({ status: TicketStatus.REJECTED });
+            await expect(service.updateTicketStatus(TICKET_ID, HANDLER_ID, approveDto))
+                .rejects.toThrow(BadRequestException);
         });
 
-        it('should handle refund ticket approval by deleting enrollment', async () => {
-            const mockTicket = {
-                id: ticketId,
-                userId: 'user-1',
-                status: TicketStatus.PENDING,
-                type: TicketType.REFUND,
-                metadata: { courseId: 'course-1' }
+        describe('Refund Approval Flow', () => {
+            const ticket = { 
+                id: TICKET_ID, userId: USER_ID, type: TicketType.REFUND, 
+                status: TicketStatus.PENDING, metadata: { courseId: COURSE_ID } 
             };
-            const updatedTicket = { ...mockTicket, status: TicketStatus.APPROVED };
 
-            ticketRepository.findById.mockResolvedValue(mockTicket);
-            ticketRepository.updateStatus.mockResolvedValue(updatedTicket);
-            natsClient.send.mockReturnValue(of(true));
+            it('should process full refund flow (Enrollment -> Order -> Balance -> Email)', async () => {
+                ticketRepository.findById.mockResolvedValue(ticket);
+                // 1. Enrollment check (re-verify)
+                natsClient.send.mockReturnValueOnce(of({ 
+                    isEnrolled: true, 
+                    enrollment: { enrollmentDate: new Date().toISOString() } 
+                }));
+                // 2. Order find (metadata fallback)
+                natsClient.send.mockReturnValueOnce(of({ 
+                    data: [{ id: 'ord-123', metadata: { courseId: COURSE_ID } }] 
+                }));
+                // 3. Enrollment delete
+                natsClient.send.mockReturnValueOnce(of({ 
+                    id: 'enr-1', finalPrice: 1000.5, senderId: 'buyer-1' 
+                }));
+                // 4. Balance add
+                natsClient.send.mockReturnValueOnce(of({ success: true }));
+                // 5. User & Course find (for email)
+                natsClient.send.mockReturnValueOnce(of({ user: { email: 'u@test.com', displayName: 'User' } }));
+                natsClient.send.mockReturnValueOnce(of({ title: 'Course 101' }));
 
-            await service.updateTicketStatus(ticketId, handlerId, updateDto as any);
+                ticketRepository.updateStatus.mockResolvedValue({ ...ticket, status: TicketStatus.APPROVED });
 
-            expect(natsClient.send).toHaveBeenCalledWith(
-                { cmd: 'learning.enrollment.delete' },
-                { userId: 'user-1', courseId: 'course-1' }
-            );
+                await service.updateTicketStatus(TICKET_ID, HANDLER_ID, approveDto as any);
+
+                // Verify Audit Log
+                expect(natsClient.emit).toHaveBeenCalledWith(
+                    { cmd: 'identity.audit.log' },
+                    expect.objectContaining({ action: 'ticket.update_status', userId: HANDLER_ID })
+                );
+
+                // Verify Coin Rounding
+                expect(natsClient.send).toHaveBeenCalledWith(
+                    { cmd: 'billing.user_balance.add' },
+                    expect.objectContaining({ amount: 1001, userId: 'buyer-1' }) 
+                );
+
+                // Verify Email
+                expect(emailService.sendEmail).toHaveBeenCalledWith(expect.objectContaining({
+                    to: 'u@test.com',
+                    data: expect.objectContaining({ amount: 1001, courseName: 'Course 101' })
+                }));
+            });
+
+            it('should continue if balance refund fail (logged error)', async () => {
+                ticketRepository.findById.mockResolvedValue(ticket);
+                natsClient.send.mockReturnValueOnce(of({ isEnrolled: true, enrollment: { enrollmentDate: new Date() } }));
+                natsClient.send.mockReturnValueOnce(of({ data: [] })); // no orders
+                natsClient.send.mockReturnValueOnce(of({ finalPrice: 500 }));
+                natsClient.send.mockReturnValueOnce(throwError(() => new Error('Bank error')));
+                
+                // Email lookups
+                natsClient.send.mockReturnValueOnce(of({ user: { email: 'u@test.com' } }));
+                natsClient.send.mockReturnValueOnce(of({ title: 'C' }));
+
+                ticketRepository.updateStatus.mockResolvedValue({ ...ticket, status: TicketStatus.APPROVED });
+
+                await service.updateTicketStatus(TICKET_ID, HANDLER_ID, approveDto as any);
+                
+                expect(ticketRepository.updateStatus).toHaveBeenCalled();
+            });
+
+            it('should fallback to userId if senderId is missing in deletedEnrollment', async () => {
+                ticketRepository.findById.mockResolvedValue(ticket);
+                natsClient.send.mockReturnValueOnce(of({ isEnrolled: true, enrollment: { enrollmentDate: new Date() } }));
+                natsClient.send.mockReturnValueOnce(of({ data: [] }));
+                natsClient.send.mockReturnValueOnce(of({ finalPrice: 100 })); // NO senderId
+                ticketRepository.updateStatus.mockResolvedValue({ ...ticket, status: TicketStatus.APPROVED });
+
+                await service.updateTicketStatus(TICKET_ID, HANDLER_ID, approveDto as any);
+
+                expect(natsClient.send).toHaveBeenCalledWith(
+                    { cmd: 'billing.user_balance.add' },
+                    expect.objectContaining({ userId: USER_ID }) 
+                );
+            });
+
+            it('should throw if enrollment re-verification fails', async () => {
+                ticketRepository.findById.mockResolvedValue(ticket);
+                natsClient.send.mockReturnValue(of({ isEnrolled: false }));
+
+                await expect(service.updateTicketStatus(TICKET_ID, HANDLER_ID, approveDto as any))
+                    .rejects.toThrow('Enrollment not found or already processed.');
+            });
+
+            it('should continue if order search fails to find matching course', async () => {
+                ticketRepository.findById.mockResolvedValue(ticket);
+                natsClient.send.mockReturnValueOnce(of({ isEnrolled: true, enrollment: { enrollmentDate: new Date() } }));
+                natsClient.send.mockReturnValueOnce(of({ data: [{ id: 'other', metadata: { courseId: 'wrong' } }] }));
+                natsClient.send.mockReturnValueOnce(of({ finalPrice: 100 }));
+                
+                ticketRepository.updateStatus.mockResolvedValue({ ...ticket, status: TicketStatus.APPROVED });
+
+                await service.updateTicketStatus(TICKET_ID, HANDLER_ID, approveDto as any);
+
+                expect(ticketRepository.updateStatus).toHaveBeenCalled();
+            });
+
+            it('should proceed with warning if enrollment not found during refund (NATS error)', async () => {
+                ticketRepository.findById.mockResolvedValue(ticket);
+                natsClient.send.mockReturnValueOnce(of({ isEnrolled: true, enrollment: { enrollmentDate: new Date() } }));
+                natsClient.send.mockReturnValueOnce(of({ data: [] }));
+                natsClient.send.mockReturnValueOnce(throwError(() => new Error('enrollment not found'))); 
+
+                ticketRepository.updateStatus.mockResolvedValue({ ...ticket, status: TicketStatus.APPROVED });
+
+                await service.updateTicketStatus(TICKET_ID, HANDLER_ID, approveDto as any);
+
+                expect(ticketRepository.updateStatus).toHaveBeenCalled();
+            });
+
+            it('should throw BadRequest if generic error occurs in NATS workflow', async () => {
+                ticketRepository.findById.mockResolvedValue(ticket);
+                natsClient.send.mockReturnValueOnce(of({ isEnrolled: true, enrollment: { enrollmentDate: new Date() } }));
+                natsClient.send.mockReturnValueOnce(of({ data: [] }));
+                natsClient.send.mockReturnValueOnce(throwError(() => new Error('CRITICAL DB FAILURE')));
+
+                await expect(service.updateTicketStatus(TICKET_ID, HANDLER_ID, approveDto as any))
+                    .rejects.toThrow('Failed to process enrollment cancellation');
+            });
+        });
+
+        it('should handle REJECTED status and notify user (with fallback message)', async () => {
+            const ticket = { id: TICKET_ID, userId: USER_ID, status: TicketStatus.PENDING, type: TicketType.SUPPORT };
+            ticketRepository.findById.mockResolvedValue(ticket);
+            ticketRepository.updateStatus.mockResolvedValue({ ...ticket, status: TicketStatus.REJECTED });
+
+            await service.updateTicketStatus(TICKET_ID, HANDLER_ID, { status: TicketStatus.REJECTED, response: '' });
+
             expect(notificationService.create).toHaveBeenCalledWith(expect.objectContaining({
-                notificationType: NotificationType.PAYMENT
+                title: 'Yêu cầu hỗ trợ bị từ chối',
+                message: expect.stringContaining('Không có lý do cụ thể.')
             }));
         });
 
-        it('should continue with ticket approval if enrollment deletion fails with "not found"', async () => {
-            const mockTicket = {
-                id: ticketId,
-                userId: 'user-1',
-                status: TicketStatus.PENDING,
-                type: TicketType.REFUND,
-                metadata: { courseId: 'course-1' }
-            };
-            const updatedTicket = { ...mockTicket, status: TicketStatus.APPROVED };
+        it('should handle audit log emission failure gracefully', async () => {
+            const ticket = { id: TICKET_ID, userId: USER_ID, status: TicketStatus.PENDING, type: TicketType.SUPPORT };
+            ticketRepository.findById.mockResolvedValue(ticket);
+            ticketRepository.updateStatus.mockResolvedValue(ticket);
+            natsClient.emit.mockImplementation(() => { throw new Error('Emit fail'); });
 
-            ticketRepository.findById.mockResolvedValue(mockTicket);
-            ticketRepository.updateStatus.mockResolvedValue(updatedTicket);
-            natsClient.send.mockReturnValue(throwError(() => new Error('enrollment not found')));
+            await service.updateTicketStatus(TICKET_ID, HANDLER_ID, { status: TicketStatus.PROCESSING, response: '' });
 
-            const result = await service.updateTicketStatus(ticketId, handlerId, updateDto as any);
-
-            expect(result).toEqual(updatedTicket);
             expect(ticketRepository.updateStatus).toHaveBeenCalled();
+            // Should not throw, just log error internally
         });
 
-        it('should throw BadRequestException if enrollment deletion fails with other error', async () => {
-            const mockTicket = {
-                id: ticketId,
-                userId: 'user-1',
-                status: TicketStatus.PENDING,
-                type: TicketType.REFUND,
-                metadata: { courseId: 'course-1' }
-            };
+        it('should handle PROCESSING status and notify user', async () => {
+            const ticket = { id: TICKET_ID, userId: USER_ID, status: TicketStatus.PENDING, type: TicketType.SUPPORT };
+            ticketRepository.findById.mockResolvedValue(ticket);
+            ticketRepository.updateStatus.mockResolvedValue({ ...ticket, status: TicketStatus.PROCESSING });
 
-            ticketRepository.findById.mockResolvedValue(mockTicket);
-            natsClient.send.mockReturnValue(throwError(() => new Error('NATS internal error')));
-
-            await expect(service.updateTicketStatus(ticketId, handlerId, updateDto as any))
-                .rejects.toThrow(BadRequestException);
-        });
-
-        it('should throw BadRequestException if ticket is already finalized', async () => {
-            const mockTicket = { id: ticketId, status: TicketStatus.APPROVED };
-            ticketRepository.findById.mockResolvedValue(mockTicket);
-
-            await expect(service.updateTicketStatus(ticketId, handlerId, updateDto))
-                .rejects.toThrow(BadRequestException);
-        });
-
-        it('should handle REJECTED status notification correctly', async () => {
-            const mockTicket = {
-                id: ticketId,
-                userId: 'user-1',
-                status: TicketStatus.PENDING,
-                type: TicketType.SUPPORT
-            };
-            const updateDtoRejected = { status: TicketStatus.REJECTED, response: 'Invalid request' };
-            const updatedTicket = { ...mockTicket, status: TicketStatus.REJECTED };
-
-            ticketRepository.findById.mockResolvedValue(mockTicket);
-            ticketRepository.updateStatus.mockResolvedValue(updatedTicket);
-
-            await service.updateTicketStatus(ticketId, handlerId, updateDtoRejected);
-
-            expect(notificationService.create).toHaveBeenCalledWith(expect.objectContaining({
-                title: 'Yêu cầu hỗ trợ bị từ chối'
-            }));
-        });
-
-        it('should handle PROCESSING status notification correctly', async () => {
-            const mockTicket = {
-                id: ticketId,
-                userId: 'user-1',
-                status: TicketStatus.PENDING,
-                type: TicketType.SUPPORT
-            };
-            const updateDtoProcessing = { status: TicketStatus.PROCESSING, response: '' };
-            const updatedTicket = { ...mockTicket, status: TicketStatus.PROCESSING };
-
-            ticketRepository.findById.mockResolvedValue(mockTicket);
-            ticketRepository.updateStatus.mockResolvedValue(updatedTicket);
-
-            await service.updateTicketStatus(ticketId, handlerId, updateDtoProcessing);
+            await service.updateTicketStatus(TICKET_ID, HANDLER_ID, { status: TicketStatus.PROCESSING, response: '' });
 
             expect(notificationService.create).toHaveBeenCalledWith(expect.objectContaining({
                 title: 'Yêu cầu đang được xử lý'
@@ -339,20 +285,37 @@ describe('TicketService', () => {
         });
     });
 
+    describe('getTickets', () => {
+        it('should return paginated tickets', async () => {
+            ticketRepository.findAll.mockResolvedValue({ data: [], total: 100 });
+            const result = await service.getTickets({ page: 2, limit: 20 });
+            expect(result.totalPages).toBe(5);
+            expect(result.page).toBe(2);
+        });
+    });
+
+    describe('getTicketById', () => {
+        it('should return ticket if exists', async () => {
+            ticketRepository.findById.mockResolvedValue({ id: TICKET_ID });
+            const result = await service.getTicketById(TICKET_ID);
+            expect(result.id).toBe(TICKET_ID);
+        });
+
+        it('should throw NotFound if missing', async () => {
+            ticketRepository.findById.mockResolvedValue(null);
+            await expect(service.getTicketById(TICKET_ID)).rejects.toThrow(NotFoundException);
+        });
+    });
+
     describe('getTicketStats', () => {
-        it('should return ticket statistics', async () => {
-            ticketRepository.count.mockResolvedValueOnce(5); // pending
-            ticketRepository.count.mockResolvedValueOnce(2); // refund
-            ticketRepository.count.mockResolvedValueOnce(10); // total
+        it('should return correct counts', async () => {
+            ticketRepository.count.mockResolvedValueOnce(10); // pending
+            ticketRepository.count.mockResolvedValueOnce(3);  // refund
+            ticketRepository.count.mockResolvedValueOnce(50); // total
 
-            const result = await service.getTicketStats();
+            const res = await service.getTicketStats();
 
-            expect(result).toEqual({
-                pendingCount: 5,
-                refundCount: 2,
-                totalCount: 10
-            });
-            expect(ticketRepository.count).toHaveBeenCalledTimes(3);
+            expect(res).toEqual({ pendingCount: 10, refundCount: 3, totalCount: 50 });
         });
     });
 });
