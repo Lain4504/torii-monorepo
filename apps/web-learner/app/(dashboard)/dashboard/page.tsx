@@ -21,7 +21,7 @@ import { useQuery } from '@tanstack/react-query'
 import { learningProgressApi, useMyCourses } from '@/lib/api/services/learning-progress-api'
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
 import { useLeaderboard } from '@/lib/api/services/gamification-api'
-import { LeaderboardPreview } from '@/components/dashboard/leaderboard'
+import { LeaderboardPreview } from '@/components/leaderboard'
 import { Star } from 'lucide-react'
 
 import { PageLoading } from '@workspace/ui/components/page-loading'

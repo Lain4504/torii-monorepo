@@ -11,7 +11,7 @@ import {
     PodiumCard,
     CurrentUserRank,
     LeaderboardTable
-} from '@/components/dashboard/leaderboard'
+} from '@/components/leaderboard'
 
 export default function LeaderboardPage() {
     const [leaderboardType, setLeaderboardType] = useState<'global' | 'streak'>('global')

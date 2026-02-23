@@ -4,7 +4,7 @@ import { Search, Sparkles, LogOut, BadgeCheck, Bell, Heart, Coins } from 'lucide
 import { UserRole } from '@workspace/schemas'
 import { Input } from '@workspace/ui/components/input'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
-import { NotificationsDropdown } from './notifications-dropdown'
+import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
 import { ModeToggle } from './mode-toggle'
 import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
 import { useRouter } from 'next/navigation'
@@ -52,7 +52,7 @@ export function DashboardHeader() {
                 {/* Left: Trigger & Brand (Mobile) */}
                 <div className="flex items-center gap-4">
                     <SidebarTrigger />
-                    <Link href="/" className="flex items-center gap-2.5 lg:hidden">
+                    <Link href="/apps/web-learner/public" className="flex items-center gap-2.5 lg:hidden">
                         <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                             <Sparkles className="size-4" />
                         </div>

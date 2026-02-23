@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@workspace/ui/components/sidebar"
-import { AppSidebar } from "@/components/dashboard/app-sidebar"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { AppSidebar } from "@/components/layout/app-sidebar"
+import { DashboardHeader } from "@/components/layout/dashboard-header"
 
 export function SenseiLayout({ children }: { children: React.ReactNode }) {
     return (

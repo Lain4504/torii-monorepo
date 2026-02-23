@@ -49,8 +49,8 @@ export function TeamSwitcher({
                         <SidebarMenuButton
                             size="lg"
                             className={cn(
-                                "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground transition-all duration-300",
-                                "group-data-[collapsible=icon]:!mx-auto group-data-[collapsible=icon]:justify-center"
+                                "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground transition-all duration-200",
+                                "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                             )}
                         >
                             <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg shadow-sm shrink-0">

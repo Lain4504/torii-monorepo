@@ -53,7 +53,7 @@ export function NavMain({
 
     return (
         <SidebarGroup className="group-data-[collapsible=icon]:px-0">
-            <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden px-4 mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">
+            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 mb-2 px-4 group-data-[collapsible=icon]:hidden">
                 {label}
             </SidebarGroupLabel>
             <SidebarMenu>
@@ -61,26 +61,26 @@ export function NavMain({
                     const isItemActive = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href)
                     const hasSubItems = item.items && item.items.length > 0
 
-                    const isAISensei = item.name === "AI Sensei"
-
                     const menuButton = (
                         <SidebarMenuButton
                             tooltip={isCollapsed ? undefined : item.name}
                             className={cn(
-                                'h-10 transition-all',
-                                isItemActive && 'bg-primary/10 text-primary',
-                                !isItemActive && 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                                "h-10 transition-all duration-200",
+                                isItemActive 
+                                    ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                                "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                             )}
                         >
-                            <div className="flex shrink-0 items-center justify-center">
-                                {item.icon && <item.icon className={cn('size-4', isItemActive && 'text-primary')} />}
+                            <div className="flex items-center justify-center shrink-0">
+                                {item.icon && <item.icon className={cn("size-4", isItemActive && "scale-110")} />}
                             </div>
-                            <span className="truncate group-data-[collapsible=icon]:hidden ml-2 text-xs font-medium uppercase tracking-wider">{item.name}</span>
+                            <span className="ml-2 font-medium text-sm group-data-[collapsible=icon]:hidden truncate">{item.name}</span>
                             {hasSubItems && (
-                                <ChevronRight className="group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden ml-auto size-3 opacity-40 transition-transform" />
+                                <ChevronRight className="ml-auto size-3 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 opacity-50 group-data-[collapsible=icon]:hidden" />
                             )}
                             {isItemActive && !hasSubItems && (
-                                <Sparkles className="group-data-[collapsible=icon]:hidden ml-auto size-3 text-primary opacity-50" />
+                                <Sparkles className="ml-auto size-3 text-primary opacity-50 group-data-[collapsible=icon]:hidden" />
                             )}
                         </SidebarMenuButton>
                     )
@@ -97,9 +97,9 @@ export function NavMain({
                                             side="right"
                                             align="start"
                                             sideOffset={16}
-                                            className="w-56 p-1 shadow-xl border-border/50"
+                                            className="w-56 rounded-lg p-1"
                                         >
-                                            <DropdownMenuLabel className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                            <DropdownMenuLabel className="text-xs font-medium text-muted-foreground px-2 py-1.5">
                                                 {item.name}
                                             </DropdownMenuLabel>
                                             <DropdownMenuSeparator />
@@ -108,8 +108,8 @@ export function NavMain({
                                                     <Link
                                                         href={subItem.href}
                                                         className={cn(
-                                                            'cursor-pointer px-3 py-2 text-xs font-medium transition-colors focus:bg-accent focus:text-accent-foreground',
-                                                            pathname === subItem.href ? 'bg-accent text-accent-foreground' : 'text-muted-foreground',
+                                                            "cursor-pointer px-2 py-1.5 text-xs font-medium rounded-sm",
+                                                            pathname === subItem.href && "bg-accent text-accent-foreground"
                                                         )}
                                                     >
                                                         {subItem.name}
@@ -128,16 +128,13 @@ export function NavMain({
                                             <CollapsibleTrigger asChild>
                                                 {menuButton}
                                             </CollapsibleTrigger>
-                                            <CollapsibleContent className="animate-in fade-in slide-in-from-top-1 duration-300">
-                                                <SidebarMenuSub className="group-data-[collapsible=icon]:hidden mt-1 ml-4 space-y-1 border-l border-primary/10 pl-2">
+                                            <CollapsibleContent>
+                                                <SidebarMenuSub>
                                                     {item.items?.map((subItem) => (
                                                         <SidebarMenuSubItem key={subItem.name}>
                                                             <SidebarMenuSubButton asChild isActive={pathname === subItem.href}>
-                                                                <Link href={subItem.href} className={cn(
-                                                                    'h-8 text-xs font-medium transition-colors',
-                                                                    pathname === subItem.href ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                                                                )}>
-                                                                    <span className="truncate">{subItem.name}</span>
+                                                                <Link href={subItem.href}>
+                                                                    <span>{subItem.name}</span>
                                                                 </Link>
                                                             </SidebarMenuSubButton>
                                                         </SidebarMenuSubItem>
@@ -152,18 +149,20 @@ export function NavMain({
                                     asChild
                                     tooltip={item.name}
                                     className={cn(
-                                        'h-10 transition-all',
-                                        isItemActive && 'bg-primary/10 text-primary',
-                                        !isItemActive && 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                                        "h-10 transition-all duration-200",
+                                        isItemActive 
+                                            ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                                        "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                                     )}
                                 >
                                     <Link href={item.href}>
-                                        <div className="flex shrink-0 items-center justify-center">
-                                            {item.icon && <item.icon className={cn('size-4', isItemActive && 'text-primary')} />}
+                                        <div className="flex items-center justify-center shrink-0">
+                                            {item.icon && <item.icon className={cn("size-4", isItemActive && "scale-110")} />}
                                         </div>
-                                        <span className="truncate group-data-[collapsible=icon]:hidden ml-2 text-xs font-medium uppercase tracking-wider">{item.name}</span>
+                                        <span className="ml-2 font-medium text-sm group-data-[collapsible=icon]:hidden truncate">{item.name}</span>
                                         {isItemActive && (
-                                            <Sparkles className="group-data-[collapsible=icon]:hidden ml-auto size-3 text-primary opacity-50" />
+                                            <Sparkles className="ml-auto size-3 text-primary opacity-50 group-data-[collapsible=icon]:hidden" />
                                         )}
                                     </Link>
                                 </SidebarMenuButton>

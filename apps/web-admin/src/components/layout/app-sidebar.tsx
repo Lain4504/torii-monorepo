@@ -147,7 +147,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {...props}
             className="border-r border-border/10 bg-card/60 backdrop-blur-xl"
         >
-            <SidebarHeader className="h-24 justify-center group-data-[collapsible=icon]:px-0">
+            <SidebarHeader className="h-16 justify-center group-data-[collapsible=icon]:px-0">
                 <TeamSwitcher
                     teams={availableWorkspaces}
                     activeTeam={activeWorkspace}
@@ -172,7 +172,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ))}
             </SidebarContent>
 
-            <SidebarFooter className="pb-8 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pb-4">
+            <SidebarFooter className="pb-8 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pb-4 group-data-[collapsible=icon]:items-center">
                 <NavUser user={mappedUser} />
             </SidebarFooter>
             <SidebarRail className="hover:after:bg-primary/20" />
