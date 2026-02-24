@@ -44,6 +44,7 @@ import TwoFactorVerifyPage from '@/routes/auth/two-factor-verify-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
 import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
 import TicketsPage from '@/routes/tickets/tickets-page.tsx'
+import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import NotFoundPage from '@/routes/error/not-found-page.tsx'
 import AccessDeniedPage from '@/routes/error/access-denied-page.tsx'
 import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
@@ -130,6 +131,10 @@ function App() {
 
                   <Route element={<RoutePermissionGuard permission="support.handle" />}>
                     <Route path="tickets" element={<TicketsPage />} />
+                  </Route>
+
+                  <Route element={<RoutePermissionGuard permission="gamification.manage" />}>
+                    <Route path="rewards" element={<RewardsPage />} />
                   </Route>
 
                   <Route path="access-denied" element={<AccessDeniedPage />} />

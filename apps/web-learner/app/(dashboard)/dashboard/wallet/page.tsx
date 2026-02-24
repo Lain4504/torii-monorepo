@@ -27,6 +27,7 @@ import { useGamificationHistory } from "@/lib/api/services/gamification-api"
 import { useAppSelector } from "@/hooks/hooks"
 import { formatNumber, formatCurrency, formatDateTime } from "@/utils/format-utils"
 import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
 import {
     Dialog,
     DialogContent,
@@ -167,8 +168,14 @@ export default function WalletPage() {
                             <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Points</span>
                         </div>
                         <div className="mt-6 flex gap-3">
-                            <Button variant="outline" className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 border-indigo-500/20 text-indigo-600 hover:bg-indigo-50">
-                                <Gift className="w-3 h-3 mr-2" /> Đổi phần thưởng
+                            <Button
+                                asChild
+                                variant="outline"
+                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 border-indigo-500/20 text-indigo-600 hover:bg-indigo-50"
+                            >
+                                <Link href="/dashboard/rewards">
+                                    <Gift className="w-3 h-3 mr-2" /> Đổi phần thưởng
+                                </Link>
                             </Button>
                         </div>
                     </CardContent>

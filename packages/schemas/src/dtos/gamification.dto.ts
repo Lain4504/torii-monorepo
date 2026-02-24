@@ -209,4 +209,38 @@ export const gamificationHistoryPaginatedResponseSchema = z.object({
     totalPages: z.number(),
 });
 
+
 export type GamificationHistoryPaginatedResponse = z.infer<typeof gamificationHistoryPaginatedResponseSchema>;
+
+// ========================================
+// Reward DTOs
+// ========================================
+
+export const PointRewardDtoSchema = z.object({
+    id: z.string().uuid(),
+    name: z.string().min(1),
+    description: z.string().optional().nullable(),
+    points: z.number().int().nonnegative(),
+    discountType: z.enum(['percentage', 'fixed_amount']),
+    discountValue: z.number().positive(),
+    maxDiscountAmount: z.number().positive().optional().nullable(),
+    minOrderAmount: z.number().nonnegative().optional().nullable(),
+    validDuration: z.number().int().positive().default(30),
+    isActive: z.boolean().default(true),
+    createdAt: z.string().datetime().optional(),
+    updatedAt: z.string().datetime().optional(),
+});
+
+export type PointRewardDto = z.infer<typeof PointRewardDtoSchema>;
+
+export const createPointRewardDtoSchema = PointRewardDtoSchema.omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+});
+
+export type CreatePointRewardDto = z.infer<typeof createPointRewardDtoSchema>;
+
+export const updatePointRewardDtoSchema = createPointRewardDtoSchema.partial();
+
+export type UpdatePointRewardDto = z.infer<typeof updatePointRewardDtoSchema>;

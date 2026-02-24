@@ -122,4 +122,37 @@ export class GamificationHandler {
         this.logger.log(`Redeeming points for user: ${data.userId}, deal: ${data.dealId}`);
         return this.redemptionService.redeemPoints(data.userId, data.dealId);
     }
+
+    /**
+     * Admin: Find all rewards
+     */
+    @MessagePattern('gamification.reward.findAll')
+    async findAllRewards() {
+        return this.redemptionService.findAll();
+    }
+
+    /**
+     * Admin: Create a reward
+     */
+    @MessagePattern('gamification.reward.create')
+    async createReward(@Payload() data: any) {
+        return this.redemptionService.create(data);
+    }
+
+    /**
+     * Admin: Update a reward
+     */
+    @MessagePattern('gamification.reward.update')
+    async updateReward(@Payload() data: { id: string } & any) {
+        const { id, ...updateData } = data;
+        return this.redemptionService.update(id, updateData);
+    }
+
+    /**
+     * Admin: Delete a reward
+     */
+    @MessagePattern('gamification.reward.delete')
+    async deleteReward(@Payload() data: { id: string }) {
+        return this.redemptionService.delete(data.id);
+    }
 }

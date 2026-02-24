@@ -12,6 +12,7 @@ import {
     Key,
     UserCheck,
     UsersRound,
+    Gift,
 } from "lucide-react";
 
 export interface NavItem {
@@ -99,6 +100,12 @@ export const financeNavItems: NavItem[] = [
         url: "/coupons",
         icon: Ticket,
         permission: "coupon.manage",
+    },
+    {
+        titleKey: "Phần thưởng (Rewards)",
+        url: "/rewards",
+        icon: Gift,
+        permission: "gamification.manage",
     },
     {
         titleKey: "Báo cáo Tài chính",

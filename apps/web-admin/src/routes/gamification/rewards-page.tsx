@@ -1,0 +1,98 @@
+import { useState, Suspense } from 'react';
+import {
+    Plus,
+} from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { PageHeader } from '@/components/common/page-header';
+import { Can } from '@/lib/guard/can';
+import { useAdminRewards } from '@/lib/api/services/gamification';
+import { RewardsTable } from '@/components/gamification/rewards-table';
+import { CreateRewardSheet } from '@/components/gamification/create-reward-sheet';
+import { EditRewardSheet } from '@/components/gamification/edit-reward-sheet';
+import { DeleteRewardDialog } from '@/components/gamification/delete-reward-dialog';
+import type { PointRewardDto } from '@workspace/schemas';
+
+export default function RewardsPage() {
+    // Dialog State
+    const [createOpen, setCreateOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [selectedReward, setSelectedReward] = useState<PointRewardDto | null>(null);
+
+    // Data Fetching
+    const { data: rewards = [], isLoading } = useAdminRewards();
+
+    // Handlers
+    const handleCreate = () => {
+        setCreateOpen(true);
+    };
+
+    const handleEdit = (reward: PointRewardDto) => {
+        setSelectedReward(reward);
+        setEditOpen(true);
+    };
+
+    const handleDelete = (reward: PointRewardDto) => {
+        setSelectedReward(reward);
+        setDeleteOpen(true);
+    };
+
+    return (
+        <div className="flex flex-col gap-8">
+            <PageHeader
+                title="Quản lý Phẩn thưởng (Gamification)"
+                subtitle="Thiết lập các phần thưởng mà học viên có thể dùng điểm XP/Points để đổi lấy mã giảm giá."
+                actions={
+                    <Can permission="gamification.manage">
+                        <Button
+                            onClick={handleCreate}
+                            size="lg"
+                        >
+                            Tạo Phần thưởng mới
+                            <Plus />
+                        </Button>
+                    </Can>
+                }
+            />
+
+            <div className="space-y-4">
+                <Card className="overflow-hidden">
+                    <CardContent className="p-0">
+                        <RewardsTable
+                            data={rewards}
+                            isLoading={isLoading}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Dialogs */}
+            <Suspense fallback={null}>
+                {createOpen && (
+                    <CreateRewardSheet
+                        open={createOpen}
+                        onOpenChange={setCreateOpen}
+                    />
+                )}
+
+                {selectedReward && (
+                    <>
+                        <EditRewardSheet
+                            open={editOpen}
+                            onOpenChange={setEditOpen}
+                            reward={selectedReward}
+                        />
+                        <DeleteRewardDialog
+                            open={deleteOpen}
+                            onOpenChange={setDeleteOpen}
+                            reward={selectedReward}
+                        />
+                    </>
+                )}
+            </Suspense>
+        </div>
+    );
+}

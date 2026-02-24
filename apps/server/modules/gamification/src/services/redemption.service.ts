@@ -79,7 +79,7 @@ export class RedemptionService {
     }
 
     /**
-     * Get available rewards from database
+     * Get available rewards for learners
      */
     async getAvailableRewards() {
         const rewards = await this.prisma.pointReward.findMany({
@@ -97,7 +97,55 @@ export class RedemptionService {
             discountValue: Number(r.discountValue),
             maxDiscountAmount: r.maxDiscountAmount ? Number(r.maxDiscountAmount) : null,
             minOrderAmount: r.minOrderAmount ? Number(r.minOrderAmount) : null,
-            validDuration: r.validDuration
+            validDuration: r.validDuration,
+            isActive: r.isActive
         }));
+    }
+
+    /**
+     * Admin: Find all rewards
+     */
+    async findAll() {
+        return this.prisma.pointReward.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
+    /**
+     * Admin: Create a reward
+     */
+    async create(data: any) {
+        return this.prisma.pointReward.create({
+            data: {
+                ...data,
+                discountValue: Number(data.discountValue),
+                maxDiscountAmount: data.maxDiscountAmount ? Number(data.maxDiscountAmount) : null,
+                minOrderAmount: data.minOrderAmount ? Number(data.minOrderAmount) : null,
+            }
+        });
+    }
+
+    /**
+     * Admin: Update a reward
+     */
+    async update(id: string, data: any) {
+        return this.prisma.pointReward.update({
+            where: { id },
+            data: {
+                ...data,
+                discountValue: data.discountValue ? Number(data.discountValue) : undefined,
+                maxDiscountAmount: data.maxDiscountAmount !== undefined ? (data.maxDiscountAmount ? Number(data.maxDiscountAmount) : null) : undefined,
+                minOrderAmount: data.minOrderAmount !== undefined ? (data.minOrderAmount ? Number(data.minOrderAmount) : null) : undefined,
+            }
+        });
+    }
+
+    /**
+     * Admin: Delete a reward
+     */
+    async delete(id: string) {
+        return this.prisma.pointReward.delete({
+            where: { id }
+        });
     }
 }

@@ -11,7 +11,6 @@ import { useRouter } from 'next/navigation'
 import { logout } from '@/store/slices/authSlice'
 import { formatNumber } from '@/utils/format-utils'
 import Link from 'next/link'
-import Image from 'next/image'
 import { toast } from '@workspace/ui/components/sonner'
 import {
     DropdownMenu,
@@ -53,10 +52,6 @@ export function DashboardHeader() {
                 {/* Left: Trigger & Brand (Mobile) */}
                 <div className="flex items-center gap-4">
                     <SidebarTrigger />
-                    <Link href="/" className="flex items-center gap-2 lg:hidden">
-                        <Image src="/logo.png" alt="Torii Nihongo" width={32} height={32} className="rounded-md" />
-                        <span className="text-lg font-bold tracking-tight">Torii</span>
-                    </Link>
                 </div>
 
                 {/* Center: Search */}
