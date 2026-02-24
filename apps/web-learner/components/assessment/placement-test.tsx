@@ -1,18 +1,28 @@
 "use client"
 
 import * as React from "react"
-import { ArrowRight, Sparkles, BookCheck, Clock, Loader2 } from "lucide-react"
+import { Sparkles, BookCheck, Clock } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
-import { Label } from "@workspace/ui/components/label"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentTestGenerationResponseDTO as PlacementTestResponse, AgentTestEvaluationResponseDTO as PlacementEvaluationResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
-import { Progress } from "@workspace/ui/components/progress"
 
+
+import {
+    QuizContainer,
+    QuizHeader,
+    QuizProgress,
+    QuizQuestion,
+    QuizOption,
+    QuizNavigation,
+    QuizResultSummary,
+    QuizReviewItem,
+    QuizResultView
+} from "@workspace/ui/components/custom/quiz"
+import { ClipboardList, CheckCircle2, XCircle } from "lucide-react"
 
 export function PlacementTest() {
     const [step, setStep] = React.useState<"intro" | "test" | "result">("intro")
@@ -75,40 +85,39 @@ export function PlacementTest() {
 
     if (step === "intro") {
         return (
-            <div className="max-w-4xl mx-auto py-24 px-6 text-center space-y-16 animate-in fade-in duration-700">
-                <div className="space-y-8">
-                    <div className="size-24 bg-primary text-primary-foreground rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-primary/30 ring-4 ring-primary/10">
-                        <Sparkles className="size-10" />
+            <div className="max-w-4xl mx-auto py-12 px-6 text-center space-y-12 animate-in fade-in duration-700">
+                <div className="space-y-6">
+                    <div className="size-16 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-primary/20">
+                        <Sparkles className="size-8" />
                     </div>
-                    <div className="space-y-4">
-                        <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground">Placement Test</h1>
-                        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
-                            Discover your current Japanese level in just 10 minutes.
-                            Our AI will adapt to your answers to find the perfect starting point.
+                    <div className="space-y-2">
+                        <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">Placement Test</h1>
+                        <p className="text-muted-foreground max-w-xl mx-auto font-medium">
+                            Xác định trình độ tiếng Nhật của bạn chỉ trong 10 phút. AI sẽ điều chỉnh câu hỏi để tìm lộ trình học tối ưu nhất.
                         </p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
                     {[
                         { icon: BookCheck, val: "15", label: "Questions" },
                         { icon: Clock, val: "~10", label: "Minutes" },
-                        { icon: Sparkles, val: "AI", label: "Powered" },
+                        { icon: Sparkles, val: "AI", label: "Adaptive" },
                     ].map((item, i) => (
-                        <Card key={i} className="border-border/50 bg-muted/30 shadow-none rounded-2xl">
-                            <CardContent className="flex flex-col items-center p-8 space-y-3">
-                                <div className="p-3 bg-primary/10 rounded-xl mb-1">
-                                    <item.icon className="size-6 text-primary" />
+                        <Card key={i} className="border-border shadow-none rounded-xl">
+                            <CardContent className="flex flex-col items-center p-6 space-y-2">
+                                <div className="p-2 bg-primary/5 rounded-lg mb-1">
+                                    <item.icon className="size-5 text-primary" />
                                 </div>
-                                <div className="font-bold text-3xl tracking-tight">{item.val}</div>
-                                <div className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">{item.label}</div>
+                                <div className="font-bold text-2xl tracking-tighter">{item.val}</div>
+                                <div className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{item.label}</div>
                             </CardContent>
                         </Card>
                     ))}
                 </div>
 
-                <Button size="lg" onClick={handleStart} disabled={isLoading} className="h-14 px-12 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/20">
-                    {isLoading ? <><Spinner className="mr-3 size-5" /> Preparing...</> : "Start Assessment"}
+                <Button size="lg" onClick={handleStart} disabled={isLoading} className="font-bold uppercase tracking-widest text-[10px] h-11 px-10 rounded-xl shadow-md">
+                    {isLoading ? <><Spinner className="mr-2" /> Preparing...</> : "Start Assessment"}
                 </Button>
             </div>
         )
@@ -116,7 +125,6 @@ export function PlacementTest() {
 
     if (step === "test" && testData) {
         const totalQuestions = testData.questions.length
-        const progress = (Object.keys(answers).length / totalQuestions) * 100
         const currentQuestion = testData.questions[currentQuestionIndex]
 
         const handleNext = () => {
@@ -134,132 +142,90 @@ export function PlacementTest() {
         if (!currentQuestion) return null
 
         return (
-            <div className="max-w-3xl mx-auto py-8 space-y-8">
-                <div className="space-y-2">
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>Progress</span>
-                        <span>{Object.keys(answers).length} / {totalQuestions} Answered</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
-                    </div>
-                    <Progress value={progress} className="h-2.5 rounded-full" />
-                </div>
+            <QuizContainer className="text-center">
+                <QuizProgress current={currentQuestionIndex + 1} total={totalQuestions} label="Placement Progress" />
 
-                <div className="space-y-8 min-h-[400px]">
-                    <Card className="overflow-hidden">
-                        <CardHeader className="bg-muted/30 pb-4">
-                            <CardTitle className="text-lg font-medium leading-relaxed flex gap-4">
-                                <span className="flex-none bg-background border size-8 rounded-lg flex items-center justify-center text-sm font-bold shadow-sm text-muted-foreground">
-                                    {currentQuestionIndex + 1}
-                                </span>
-                                {currentQuestion.question}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-6">
-                            <RadioGroup key={currentQuestion.id} value={answers[currentQuestion.id] || ""} onValueChange={(val) => handleAnswer(currentQuestion.id, val)} className="space-y-3">
-                                {currentQuestion.options?.map((opt: string, idx: number) => (
-                                    <Label
-                                        key={idx}
-                                        htmlFor={`q-${currentQuestion.id}-${idx}`}
-                                        className={cn(
-                                            "flex items-center space-x-3 rounded-lg border p-4 cursor-pointer hover:bg-muted/50 transition-all m-0",
-                                            answers[currentQuestion.id] === opt ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm" : "border-border hover:border-primary/50"
-                                        )}
-                                    >
-                                        <RadioGroupItem value={opt} id={`q-${currentQuestion.id}-${idx}`} />
-                                        <span className="flex-1 font-normal break-words leading-relaxed text-sm md:text-base">{opt}</span>
-                                    </Label>
-                                ))}
-                            </RadioGroup>
-                        </CardContent>
-                    </Card>
-                </div>
+                <div className="space-y-12">
+                    <QuizQuestion
+                        question={currentQuestion.question}
+                        level={currentQuestion.level}
+                    />
 
-                <div className="flex justify-between pt-4 pb-20 items-center">
-                    <Button
-                        variant="outline"
-                        size="lg"
-                        onClick={handlePrevious}
-                        disabled={currentQuestionIndex === 0 || isLoading}
-                        className="min-w-[120px]"
-                    >
-                        Previous
-                    </Button>
-
-                    <div className="text-sm font-medium text-muted-foreground">
-                        Question {currentQuestionIndex + 1} of {totalQuestions}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                        {currentQuestion.options?.map((opt: string, idx: number) => (
+                            <QuizOption
+                                key={idx}
+                                index={idx}
+                                value={opt}
+                                label={opt}
+                                isSelected={answers[currentQuestion.id] === opt}
+                                onSelect={(val) => handleAnswer(currentQuestion.id, val)}
+                            />
+                        ))}
                     </div>
 
-                    {currentQuestionIndex < totalQuestions - 1 ? (
-                        <Button
-                            size="lg"
-                            onClick={handleNext}
-                            disabled={!currentQuestion.id || !answers[currentQuestion.id] || isLoading}
-                            className="min-w-[120px]"
-                        >
-                            Next <ArrowRight className="ml-2 size-4" />
-                        </Button>
-                    ) : (
-                        <Button
-                            size="lg"
-                            onClick={handleSubmit}
-                            disabled={isLoading || Object.keys(answers).length < totalQuestions}
-                            className="min-w-[160px]"
-                        >
-                            {isLoading ? <><Loader2 className="mr-2 size-5 animate-spin" /> Analyzing...</> : "Submit Answers"}
-                        </Button>
-                    )}
+                    <QuizNavigation
+                        onBack={handlePrevious}
+                        onNext={currentQuestionIndex < totalQuestions - 1 ? handleNext : handleSubmit}
+                        backDisabled={currentQuestionIndex === 0 || isLoading}
+                        nextDisabled={!currentQuestion.id || !answers[currentQuestion.id] || isLoading}
+                        isLast={currentQuestionIndex === totalQuestions - 1}
+                        nextLabel={currentQuestionIndex < totalQuestions - 1 ? "Next" : "Submit Answers"}
+                    />
                 </div>
-            </div>
+            </QuizContainer>
         )
     }
 
     if (step === "result" && result) {
         return (
-            <div className="max-w-2xl mx-auto py-16 text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="space-y-2">
-                    <h2 className="text-3xl font-bold">Hoàn Thành Đánh Giá!</h2>
-                    <p className="text-muted-foreground">Dưới đây là kết quả phân tích năng lực và lộ trình đề xuất dành cho bạn.</p>
-                </div>
+            <QuizContainer>
+                <QuizResultView
+                    badge="Assessment Complete"
+                    title="Hoàn Thành Đánh Giá!"
+                    percentage={result.score && result.maxScore ? (result.score / result.maxScore) * 100 : 0}
+                    stats={[
+                        { label: "Assessed Level", value: result.assessedLevel || "N5", icon: ClipboardList },
+                        { label: "Score", value: `${result.score} / ${result.maxScore}`, icon: CheckCircle2 },
+                        { label: "Target Level", value: result.targetLevel || "N4", icon: Sparkles }
+                    ]}
+                    questions={[]} // Placement test result from backend doesn't include detailed review by default
+                    onSecondaryAction={{
+                        label: "Xác Nhận & Bắt Đầu Học",
+                        onClick: () => handleSelectLevel(result.assessedLevel ?? 'N5')
+                    }}
+                />
 
-                <div className="grid gap-6 md:grid-cols-2 text-left">
-                    <Card className="border-2 border-primary/20 bg-primary/5 shadow-lg overflow-hidden relative col-span-1 md:col-span-2">
-                        <div className="absolute top-0 right-0 p-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-                        <CardHeader className="text-center">
-                            <CardDescription className="uppercase tracking-widest text-xs font-semibold text-primary">Cấp Độ Đề Xuất</CardDescription>
-                            <CardTitle className="text-6xl font-black text-primary py-2">{result.assessedLevel}</CardTitle>
+                <div className="grid gap-6 md:grid-cols-2 text-left pt-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+                    <Card className="border-border shadow-sm col-span-1 md:col-span-2 rounded-xl overflow-hidden">
+                        <CardHeader className="text-center pb-2">
+                            <CardDescription className="uppercase tracking-widest text-[10px] font-bold text-primary">Cấp Độ Đề Xuất</CardDescription>
+                            <CardTitle className="text-5xl font-black text-primary py-1">{result.assessedLevel}</CardTitle>
                         </CardHeader>
-                        <CardContent className="relative z-10 text-center space-y-4">
-                            <p className="text-lg leading-relaxed text-foreground/80 max-w-lg mx-auto">
-                                Dựa trên kết quả làm bài tập phân bổ qua các cấp độ khó khác nhau, chúng tôi đề xuất bạn nên bắt đầu lộ trình học từ trình độ <strong>{result.assessedLevel}</strong>.
+                        <CardContent className="text-center pb-6">
+                            <p className="text-sm text-muted-foreground max-w-lg mx-auto font-medium">
+                                Dựa trên kết quả bài tập, chúng tôi đề xuất bạn bắt đầu từ trình độ <strong>{result.assessedLevel}</strong>.
                             </p>
-                            {result.score !== undefined && result.maxScore !== undefined && (
-                                <div className="inline-flex items-center space-x-2 bg-background/50 backdrop-blur border rounded-full px-4 py-1.5 text-sm font-medium">
-                                    <span className="text-muted-foreground">Số câu trả lời đúng:</span>
-                                    <span className="text-primary font-bold">{result.score} / {result.maxScore}</span>
-                                </div>
-                            )}
                         </CardContent>
                     </Card>
 
                     {result.scoreBreakdown && Object.keys(result.scoreBreakdown).length > 0 && (
-                        <Card className="shadow-sm">
-                            <CardHeader>
-                                <CardTitle className="text-lg">Phân Tích Điểm Số</CardTitle>
-                                <CardDescription>Tỉ lệ chính xác theo từng cấp độ JLPT</CardDescription>
+                        <Card className="shadow-sm rounded-xl border-border">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-base font-bold">Phân Tích Điểm Số</CardTitle>
+                                <CardDescription className="text-[10px] font-medium uppercase tracking-wider">Tỉ lệ chính xác theo trình độ</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {Object.entries(result.scoreBreakdown).map(([level, score]) => (
                                     <div key={level} className="flex items-center justify-between">
-                                        <div className="font-medium">{level}</div>
-                                        <div className="flex-1 mx-4 h-2 bg-muted rounded-full overflow-hidden">
+                                        <div className="font-bold text-xs w-8">{level}</div>
+                                        <div className="flex-1 mx-4 h-1.5 bg-muted rounded-full overflow-hidden">
                                             <div
                                                 className="h-full bg-primary"
                                                 style={{ width: score.toString().includes('%') ? score : `${score}%` }}
                                             />
                                         </div>
-                                        <div className="text-sm font-semibold">{score}</div>
+                                        <div className="text-[10px] font-black text-primary">{score}</div>
                                     </div>
                                 ))}
                             </CardContent>
@@ -267,15 +233,18 @@ export function PlacementTest() {
                     )}
 
                     {result.studyPathRecommendation && result.studyPathRecommendation.focusAreas && (
-                        <Card className="shadow-sm">
-                            <CardHeader>
-                                <CardTitle className="text-lg">Trọng Tâm Cần Luyện Tập</CardTitle>
-                                <CardDescription>Các chủ đề cần ưu tiên để đạt {result.targetLevel || result.assessedLevel}</CardDescription>
+                        <Card className="shadow-sm rounded-xl border-border">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-base font-bold">Trọng Tâm Luyện Tập</CardTitle>
+                                <CardDescription className="text-[10px] font-medium uppercase tracking-wider">Các chủ đề cần ưu tiên</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                                <ul className="space-y-2.5">
                                     {result.studyPathRecommendation.focusAreas.map((area: string, idx: number) => (
-                                        <li key={idx} className="text-sm leading-relaxed">{area}</li>
+                                        <li key={idx} className="flex items-start gap-2.5 text-xs font-medium text-muted-foreground">
+                                            <div className="size-1 rounded-full bg-primary mt-1.5 shrink-0" />
+                                            {area}
+                                        </li>
                                     ))}
                                 </ul>
                             </CardContent>
@@ -283,25 +252,12 @@ export function PlacementTest() {
                     )}
                 </div>
 
-                <div className="flex justify-center pt-6">
-                    <Button
-                        size="lg"
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20 min-w-[200px]"
-                        onClick={() => handleSelectLevel(result.assessedLevel ?? 'N5')}
-                        asChild
-                    >
-                        <Link href="/dashboard">
-                            Xác Nhận & Bắt Đầu Học <ArrowRight className="ml-2 size-5" />
-                        </Link>
-                    </Button>
-                </div>
-
-                <div className="pt-6">
+                <div className="pt-12 text-center">
                     <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
-                        <Link href="/assessment">Back to Assessment Center</Link>
+                        <Link href="/assessment">Quay lại Assessment Center</Link>
                     </Button>
                 </div>
-            </div>
+            </QuizContainer>
         )
     }
 

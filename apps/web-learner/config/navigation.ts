@@ -38,7 +38,6 @@ export interface NavItem {
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
-    { name: 'Assessment', href: '/assessment', icon: Award },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
     { name: 'Sổ tay từ vựng', href: '/dashboard/notes', icon: FileText },
 ]
@@ -66,8 +65,8 @@ export const accountNav: NavItem[] = [
 
 export const aiSenseiNav: NavItem[] = [
     { name: 'Chat với AI', href: '/ai-sensei/chat', icon: Bot },
+    { name: 'Đánh giá & Luyện tập', href: '/assessment', icon: Award },
     { name: 'Hội thoại nhập vai', href: '/ai-sensei/roleplay', icon: MessagesSquare },
-    { name: 'Luyện tập kỹ năng', href: '/ai-sensei/drill', icon: Dumbbell },
     { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
 ]
 

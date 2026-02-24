@@ -1,5 +1,5 @@
-import { DrillGenerator } from "@/components/ai-sensei/drill-generator"
+import { redirect } from "next/navigation"
 
 export default function DrillPage() {
-    return <DrillGenerator />
+    redirect("/assessment")
 }
