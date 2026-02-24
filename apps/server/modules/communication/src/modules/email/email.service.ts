@@ -25,12 +25,14 @@ export class EmailService {
                 this.logger.debug(`Template not found at ${templatePath}, trying fallback locations...`);
 
                 const fallbacks = [
-                    // Relative to dist root in monorepo
-                    path.join(__dirname, '../../../../communication/src/modules/email/templates/pug', `${templateName}.pug`),
-                    // Relative to process working directory (apps/server)
+                    // Relative to dist root in monorepo where Nest CLI might place them
+                    path.join(__dirname, '../../../../email/templates/pug', `${templateName}.pug`),
+                    // Relative to process working directory dist folder
+                    path.join(process.cwd(), 'dist/modules/email/templates/pug', `${templateName}.pug`),
+                    // Relative to process working directory source folder
                     path.join(process.cwd(), 'modules/communication/src/modules/email/templates/pug', `${templateName}.pug`),
-                    // Simplified dist path
-                    path.join(process.cwd(), 'dist/modules/communication/src/modules/email/templates/pug', `${templateName}.pug`)
+                    // Absolute path fallback for containerized environments
+                    path.join('/app/apps/server/dist/modules/email/templates/pug', `${templateName}.pug`)
                 ];
 
                 for (const fallback of fallbacks) {
