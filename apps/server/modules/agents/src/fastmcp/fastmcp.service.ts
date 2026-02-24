@@ -81,8 +81,10 @@ export class FastMcpService {
         const pathsToTry = [
           join(currentDir, 'src/assets/prompts', templatePath),
           join(currentDir, 'assets/prompts', templatePath),
+          join(currentDir, 'dist/modules/agents/src/assets/prompts', templatePath),
           join(currentDir, 'modules/agents/src/assets/prompts', templatePath),
           join(currentDir, 'apps/server/modules/agents/src/assets/prompts', templatePath),
+          join(currentDir, 'dist/apps/server/modules/agents/src/assets/prompts', templatePath),
         ];
 
         for (const p of pathsToTry) {
@@ -111,8 +113,10 @@ export class FastMcpService {
         const pathsToTry = [
           join(currentDir, 'src/assets/resources', resourcePath),
           join(currentDir, 'assets/resources', resourcePath),
+          join(currentDir, 'dist/modules/agents/src/assets/resources', resourcePath),
           join(currentDir, 'modules/agents/src/assets/resources', resourcePath),
           join(currentDir, 'apps/server/modules/agents/src/assets/resources', resourcePath),
+          join(currentDir, 'dist/apps/server/modules/agents/src/assets/resources', resourcePath),
         ];
 
         for (const p of pathsToTry) {

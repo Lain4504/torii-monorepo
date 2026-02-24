@@ -62,8 +62,8 @@
         "webpack": false,
         "assets": [
           {
-            "include": "assets/**/*",
-            "outDir": "dist/modules/agents/src",
+            "include": "src/assets/**/*",
+            "outDir": "dist/modules/agents",
             "watchAssets": true
           }
         ]
