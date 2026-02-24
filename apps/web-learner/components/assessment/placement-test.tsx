@@ -12,7 +12,7 @@ import { AgentTestGenerationResponseDTO as PlacementTestResponse, AgentTestEvalu
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
 import { Progress } from "@workspace/ui/components/progress"
-
+import { toast } from "@workspace/ui/components/sonner"
 
 export function PlacementTest() {
     const [step, setStep] = React.useState<"intro" | "test" | "result">("intro")
@@ -25,13 +25,14 @@ export function PlacementTest() {
     const handleStart = async () => {
         setIsLoading(true)
         try {
-            const data = await agentApi.assessment.generatePlacementTest(15)
+            const data = await agentApi.assessment.generatePlacementTest(5)
             setTestData(data)
             setStep("test")
             setAnswers({})
             setCurrentQuestionIndex(0)
-        } catch (error) {
+        } catch (error: any) {
             console.error(error)
+            toast.error("Không thể tạo bài test", { description: error.message || "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau." })
         } finally {
             setIsLoading(false)
         }
@@ -139,9 +140,6 @@ export function PlacementTest() {
                     <div className="flex justify-between text-sm text-muted-foreground">
                         <span>Progress</span>
                         <span>{Object.keys(answers).length} / {totalQuestions} Answered</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
                     </div>
                     <Progress value={progress} className="h-2.5 rounded-full" />
                 </div>
@@ -307,3 +305,4 @@ export function PlacementTest() {
 
     return null
 }
+

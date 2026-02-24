@@ -144,37 +144,44 @@ export function AssessmentDashboard() {
                         </Button>
                     </div>
                     <div className="space-y-4">
-                        <Item variant="outline" className="group cursor-pointer hover:border-primary/50 transition-all duration-300 rounded-2xl p-4">
-                            <ItemMedia className="bg-primary/5 p-4 rounded-xl group-hover:bg-primary/10 transition-colors">
-                                <BookCheck className="size-6 text-primary" />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle className="text-base font-bold text-foreground group-hover:text-primary transition-colors">N5 Vocabulary Drill</ItemTitle>
-                                <ItemDescription className="text-sm font-medium">Perfect for strengthening your daily word bank.</ItemDescription>
-                            </ItemContent>
-                            <ItemActions>
-                                <Badge variant="secondary" className="font-bold text-[10px] uppercase tracking-widest px-2.5">Quick</Badge>
-                                <div className="p-2 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                                    <ArrowRight className="size-5" />
-                                </div>
-                            </ItemActions>
-                        </Item>
-
-                        <Item variant="outline" className="group cursor-pointer hover:border-primary/50 transition-all duration-300 rounded-2xl p-4">
-                            <ItemMedia className="bg-muted p-4 rounded-xl group-hover:bg-muted/80 transition-colors">
-                                <Clock className="size-6 text-muted-foreground" />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle className="text-base font-bold text-foreground group-hover:text-primary transition-colors">Speed Reading Challenge</ItemTitle>
-                                <ItemDescription className="text-sm font-medium">Improve your reading comprehension speed.</ItemDescription>
-                            </ItemContent>
-                            <ItemActions>
-                                <Badge variant="secondary" className="font-bold text-[10px] uppercase tracking-widest px-2.5">Medium</Badge>
-                                <div className="p-2 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                                    <ArrowRight className="size-5" />
-                                </div>
-                            </ItemActions>
-                        </Item>
+                        {profile?.nextSteps && profile.nextSteps.length > 0 ? (
+                            profile.nextSteps.slice(0, 3).map((step, idx) => (
+                                <Link href="/assessment/test" key={idx} className="block w-full">
+                                    <Item variant="outline" className="group cursor-pointer hover:border-primary/50 transition-all duration-300 rounded-2xl p-4">
+                                        <ItemMedia className="bg-primary/5 p-4 rounded-xl group-hover:bg-primary/10 transition-colors">
+                                            {idx % 2 === 0 ? <BookCheck className="size-6 text-primary" /> : <Clock className="size-6 text-orange-500" />}
+                                        </ItemMedia>
+                                        <ItemContent>
+                                            <ItemTitle className="text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{step}</ItemTitle>
+                                            <ItemDescription className="text-sm font-medium">Recommended Action</ItemDescription>
+                                        </ItemContent>
+                                        <ItemActions>
+                                            <Badge variant="secondary" className="font-bold text-[10px] uppercase tracking-widest px-2.5">Suggested</Badge>
+                                            <div className="p-2 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                                                <ArrowRight className="size-5" />
+                                            </div>
+                                        </ItemActions>
+                                    </Item>
+                                </Link>
+                            ))
+                        ) : (
+                            <Link href="/assessment/placement" className="block w-full">
+                                <Item className="border-primary/30 bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all duration-300 rounded-2xl p-4 group">
+                                    <ItemMedia className="bg-primary/10 p-4 rounded-xl">
+                                        <GraduationCap className="size-6 text-primary" />
+                                    </ItemMedia>
+                                    <ItemContent>
+                                        <ItemTitle className="text-base font-bold text-primary group-hover:text-primary/80 transition-colors">Làm Bài Kiểm Tra Đầu Vào</ItemTitle>
+                                        <ItemDescription className="text-sm font-medium text-foreground/80 cursor-pointer">Xác định năng lực để nhận lộ trình cá nhân hóa</ItemDescription>
+                                    </ItemContent>
+                                    <ItemActions>
+                                        <div className="p-2 rounded-full text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                                            <ArrowRight className="size-5" />
+                                        </div>
+                                    </ItemActions>
+                                </Item>
+                            </Link>
+                        )}
                     </div>
                 </div>
 

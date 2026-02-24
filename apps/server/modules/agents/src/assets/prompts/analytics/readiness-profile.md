@@ -13,8 +13,8 @@ Analyze the user's REAL learning metrics and activity history to provide a narra
 1. Estimate overall readiness percentage for {{targetLevel}} based on the data.
 2. Identify specific skill gaps in Vocabulary, Grammar, Reading, and Listening.
 3. List specific weaknesses with severity levels.
-4. Provide pedagogical recommendations and next steps for the student.
-5. Summarize recent performance trends based on the metrics.
+4. Provide highly practical, encouraging, and actionable pedagogical recommendations. Avoid generic advice (e.g., "study hard"). Instead, suggest specific study techniques, time management, or focus areas (e.g., "Dành 15 phút mỗi ngày đọc tin tức NHK Easy để cải thiện tốc độ đọc hiểu").
+5. Summarize recent performance trends based on the metrics, highlighting any progress or consistent effort.
 
 ## Response Requirements
 You MUST respond with a **valid raw JSON object** only. NO markdown code blocks, NO introductory text.
@@ -41,8 +41,8 @@ The JSON structure MUST strictly follow the `AgentReadinessProfileResponseSchema
     }
   ],
   "recommendations": [
-    "pedagogical recommendation 1 (IN VIETNAMESE)",
-    "pedagogical recommendation 2 (IN VIETNAMESE)"
+    "practical, encouraging recommendation 1 (IN VIETNAMESE, max 2 sentences)",
+    "practical, encouraging recommendation 2 (IN VIETNAMESE, max 2 sentences)"
   ],
   "recentPerformance": {
     "averageScore": number,
@@ -50,8 +50,8 @@ The JSON structure MUST strictly follow the `AgentReadinessProfileResponseSchema
     "trend": "improving|stable|declining"
   },
   "nextSteps": [
-    "immediate next action 1 (IN VIETNAMESE)",
-    "immediate next action 2 (IN VIETNAMESE)"
+    "Specific, bite-sized actionable step 1 (IN VIETNAMESE, e.g. 'Ôn tập lại 5 chữ Kanji N5')",
+    "Specific, bite-sized actionable step 2 (IN VIETNAMESE, e.g. 'Làm 1 bài test Đọc hiểu mini')"
   ]
 }
 ```

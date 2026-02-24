@@ -24,14 +24,13 @@ export default function DashboardLayout({
     }, [])
 
     useEffect(() => {
-        if (mounted && status === 'succeeded' && !isAuthenticated) {
+        if (mounted && (status === 'failed' || status === 'succeeded') && !isAuthenticated) {
             router.push('/login')
         }
     }, [isAuthenticated, status, router, mounted])
 
     // Delay rendering logic until after hydration to avoid mismatch
-    if (!mounted || status === 'loading') {
-
+    if (!mounted || status === 'loading' || status === 'idle' || !isAuthenticated) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-background">
                 <div className="flex flex-col items-center gap-4 animate-in fade-in duration-700">
@@ -40,10 +39,6 @@ export default function DashboardLayout({
                 </div>
             </div>
         )
-    }
-
-    if (!isAuthenticated) {
-        return null
     }
 
     return (

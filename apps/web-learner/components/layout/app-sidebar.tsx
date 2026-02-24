@@ -34,26 +34,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {...props}
             className="border-r border-border bg-card"
         >
-            <SidebarHeader className="h-16 justify-center group-data-[collapsible=icon]:px-0">
-                <SidebarMenu>
-                    <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
-                        <SidebarMenuButton
-                            size="lg"
-                            className={cn(
-                                "hover:bg-transparent transition-all duration-300",
-                                "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
-                            )}
-                        >
-                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg shrink-0">
-                                <Image src="/logo.png" alt="Torii Nihongo" width={32} height={32} className="rounded-lg" />
-                            </div>
-                            <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-bold text-base text-foreground">Torii Nihongo</span>
-                                <span className="truncate text-xs font-medium text-muted-foreground">Cổng học viên</span>
-                            </div>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+            <SidebarHeader className="h-16 justify-center group-data-[collapsible=icon]:px-0 cursor-pointer">
+                <Link href="/" className="block w-full">
+                    <SidebarMenu>
+                        <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
+                            <SidebarMenuButton
+                                size="lg"
+                                className={cn(
+                                    "hover:bg-transparent transition-all duration-300",
+                                    "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
+                                )}
+                            >
+                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg shrink-0">
+                                    <Image src="/logo.png" alt="Torii Nihongo" width={32} height={32} className="rounded-lg" />
+                                </div>
+                                <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
+                                    <span className="truncate font-bold text-base text-foreground">Torii Nihongo</span>
+                                    <span className="truncate text-xs font-medium text-muted-foreground">Cổng học viên</span>
+                                </div>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </Link>
             </SidebarHeader>
 
             <SidebarContent className="scrollbar-none py-2">

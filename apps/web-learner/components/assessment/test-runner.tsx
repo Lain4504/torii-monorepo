@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ArrowLeft, CheckCircle2, ChevronRight, XCircle, RotateCcw, BookCheck, ClipboardList, Target } from "lucide-react"
+import { ArrowLeft, CheckCircle2, ChevronRight, XCircle, RotateCcw, BookCheck, ClipboardList, Target, Clock } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Progress } from "@workspace/ui/components/progress"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -57,6 +57,9 @@ const TEST_SECTIONS = [
 export function TestRunner() {
     const [status, setStatus] = React.useState<"setup" | "running" | "result">("setup")
     const [config, setConfig] = React.useState<TestConfig>({ level: "N5", section: "vocabulary" })
+    const [questionCount, setQuestionCount] = React.useState("10")
+    const [timeLimitMinutes, setTimeLimitMinutes] = React.useState("10")
+    const [timeLeft, setTimeLeft] = React.useState<number | null>(null)
     const [questions, setQuestions] = React.useState<Question[]>([])
     const [currentIndex, setCurrentIndex] = React.useState(0)
     const [userAnswers, setUserAnswers] = React.useState<Record<string, string>>({})
@@ -101,10 +104,40 @@ export function TestRunner() {
                 explanation: "'本' (hon) is the common word for 'book' in Japanese."
             }
         ]
-        setQuestions(mockQuestions)
+
+        // Trim questions based on requested count (simulating API parameters)
+        const actualCount = questionCount === "all" ? mockQuestions.length : parseInt(questionCount, 10)
+        setQuestions(mockQuestions.slice(0, actualCount))
         setStatus("running")
         setCurrentIndex(0)
         setUserAnswers({})
+        setTimeLeft(timeLimitMinutes === "unlimited" ? null : parseInt(timeLimitMinutes, 10) * 60)
+    }
+
+    // Timer Effect
+    React.useEffect(() => {
+        if (status !== "running" || timeLeft === null || timeLeft <= 0) return
+
+        const timerId = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev === null || prev <= 1) {
+                    clearInterval(timerId)
+                    calculateResult()
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+
+        return () => clearInterval(timerId)
+        // NOTE: Intentionally missing calculateResult dependency to avoid re-triggering loop
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [status, timeLeft])
+
+    const formatTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60)
+        const s = seconds % 60
+        return `${m}:${s.toString().padStart(2, "0")}`
     }
 
     const handleSelectOption = (value: string) => {
@@ -194,6 +227,41 @@ export function TestRunner() {
                                             </Select>
                                             <FieldDescription>Select a specific area to focus on.</FieldDescription>
                                         </Field>
+
+                                        <Field>
+                                            <FieldLabel>Question Count</FieldLabel>
+                                            <Select value={questionCount} onValueChange={setQuestionCount}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select count" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="5">5 Questions</SelectItem>
+                                                    <SelectItem value="10">10 Questions</SelectItem>
+                                                    <SelectItem value="15">15 Questions</SelectItem>
+                                                    <SelectItem value="20">20 Questions</SelectItem>
+                                                    <SelectItem value="all">All Available</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FieldDescription>How many questions to practice today.</FieldDescription>
+                                        </Field>
+
+                                        <Field>
+                                            <FieldLabel>Time Limit</FieldLabel>
+                                            <Select value={timeLimitMinutes} onValueChange={setTimeLimitMinutes}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select time limit" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="5">5 Minutes</SelectItem>
+                                                    <SelectItem value="10">10 Minutes</SelectItem>
+                                                    <SelectItem value="15">15 Minutes</SelectItem>
+                                                    <SelectItem value="20">20 Minutes</SelectItem>
+                                                    <SelectItem value="30">30 Minutes</SelectItem>
+                                                    <SelectItem value="unlimited">No Limit</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FieldDescription>Enforce strict testing conditions.</FieldDescription>
+                                        </Field>
                                     </div>
                                 </FieldSet>
                             </FieldGroup>
@@ -221,7 +289,18 @@ export function TestRunner() {
                 <div className="space-y-6 max-w-xl mx-auto">
                     <div className="flex justify-between items-end">
                         <div className="space-y-1 text-left">
-                            <p className="text-xs font-bold uppercase tracking-widest text-primary">Live Progress</p>
+                            <div className="flex items-center gap-4">
+                                <p className="text-xs font-bold uppercase tracking-widest text-primary">Live Progress</p>
+                                {timeLeft !== null && (
+                                    <Badge variant="outline" className={cn(
+                                        "font-mono font-bold font-lg tracking-wider",
+                                        timeLeft <= 60 ? "text-destructive border-destructive animate-pulse" : "text-primary border-primary/30"
+                                    )}>
+                                        <Clock className="w-4 h-4 mr-2 inline" />
+                                        {formatTime(timeLeft)}
+                                    </Badge>
+                                )}
+                            </div>
                             <h3 className="text-2xl font-bold">Question {currentIndex + 1} of {questions.length}</h3>
                         </div>
                         <span className="text-3xl font-bold text-primary/40">{Math.round(progress)}%</span>
