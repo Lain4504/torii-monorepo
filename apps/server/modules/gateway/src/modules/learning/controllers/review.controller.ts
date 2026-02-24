@@ -74,14 +74,14 @@ export class ReviewController {
         }
     }
 
-    @Get('reviews')
+    @Post('reviews/search')
     @Public()
-    async getAllReviews(@Query() query: any) {
+    async getAllReviews(@Body() body: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.review.findAll' },
-                    { query }
+                    { query: body } // Pass the body as query if it matches the expected structure
                 )
             );
             return successPaginatedResponse(result);

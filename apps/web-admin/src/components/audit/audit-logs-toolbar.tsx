@@ -1,7 +1,12 @@
-import { Search } from 'lucide-react';
+import { Search, Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 import { Input } from '@workspace/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Field, FieldLabel } from '@workspace/ui/components/field';
+import { Button } from '@workspace/ui/components/button';
+import { Calendar } from '@workspace/ui/components/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
+import { cn } from '@workspace/ui/lib/utils';
 import { ENTITY_MAP } from './audit-log-details-sheet';
 
 interface AuditLogsToolbarProps {
@@ -35,14 +40,14 @@ export function AuditLogsToolbar({
                         placeholder="Tìm kiếm hành động..."
                         value={action}
                         onChange={(e) => onActionChange(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 h-10"
                     />
                 </div>
             </Field>
             <Field>
                 <FieldLabel>Đối tượng</FieldLabel>
                 <Select value={entity || 'all'} onValueChange={(val) => onEntityChange(val === 'all' ? '' : val)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10">
                         <SelectValue placeholder="Chọn đối tượng" />
                     </SelectTrigger>
                     <SelectContent>
@@ -55,19 +60,53 @@ export function AuditLogsToolbar({
             </Field>
             <Field>
                 <FieldLabel>Ngày bắt đầu</FieldLabel>
-                <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => onStartDateChange(e.target.value)}
-                />
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            className={cn(
+                                "w-full h-10 justify-start text-left font-normal",
+                                !startDate && "text-muted-foreground"
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {startDate ? format(new Date(startDate), "dd/MM/yyyy") : <span>Chọn ngày</span>}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="single"
+                            selected={startDate ? new Date(startDate) : undefined}
+                            onSelect={(date) => onStartDateChange(date ? format(date, "yyyy-MM-dd") : "")}
+                            initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
             </Field>
             <Field>
                 <FieldLabel>Ngày kết thúc</FieldLabel>
-                <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => onEndDateChange(e.target.value)}
-                />
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            className={cn(
+                                "w-full h-10 justify-start text-left font-normal",
+                                !endDate && "text-muted-foreground"
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {endDate ? format(new Date(endDate), "dd/MM/yyyy") : <span>Chọn ngày</span>}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="single"
+                            selected={endDate ? new Date(endDate) : undefined}
+                            onSelect={(date) => onEndDateChange(date ? format(date, "yyyy-MM-dd") : "")}
+                            initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
             </Field>
         </div>
     );

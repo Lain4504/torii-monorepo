@@ -204,6 +204,7 @@ export default function PaymentHistoryPage() {
                                 <Table className="min-w-[1000px] border-collapse bg-transparent">
                                     <TableHeader className="bg-muted/30 border-b border-border">
                                         <TableRow className="hover:bg-transparent border-none">
+                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[60px]">STT</TableHead>
                                             <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[150px]">Mã đơn</TableHead>
                                             <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Nội dung</TableHead>
                                             <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[180px]">Ngày tạo</TableHead>
@@ -213,10 +214,13 @@ export default function PaymentHistoryPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {orders.length > 0 ? orders.map((order) => {
+                                        {orders.length > 0 ? orders.map((order, index) => {
                                             const statusInfo = getStatusInfo(order.status)
                                             return (
                                                 <TableRow key={order.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
+                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-medium text-center">
+                                                        {(currentPage - 1) * limit + index + 1}
+                                                    </TableCell>
                                                     <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-mono text-muted-foreground">
                                                         #{order.transactionId || order.id.slice(-6).toUpperCase()}
                                                     </TableCell>
@@ -257,7 +261,7 @@ export default function PaymentHistoryPage() {
                                             )
                                         }) : (
                                             <TableRow>
-                                                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                                                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                                                     Bạn chưa có đơn hàng nào.
                                                 </TableCell>
                                             </TableRow>

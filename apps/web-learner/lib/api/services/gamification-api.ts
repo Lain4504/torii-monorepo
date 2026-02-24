@@ -137,7 +137,8 @@ export const gamificationApi = {
         throw new Error(
             response.data.message || 'Failed to redeem points'
         );
-    },};
+    },
+};
 
 /**
  * Hook: Get leaderboard
@@ -213,6 +214,19 @@ export function useStreak(options?: { refetchInterval?: number; enableCelebratio
     return query;
 }
 
+const ACTIVITY_LABELS: Record<string, string> = {
+    LESSON_COMPLETE: 'đã hoàn thành bài học',
+    QUIZ_ANSWER: 'đã trả lời câu hỏi',
+    VIDEO_WATCH: 'đã xem video bài giảng',
+    REVIEW: 'đã xem lại kiến thức',
+    PRACTICE: 'đã luyện tập',
+    FLASHCARD_REVIEW: 'đã ôn tập thẻ từ',
+    EXAM_COMPLETE: 'đã hoàn thành bài thi',
+    BLOG_CREATE: 'đã viết bài blog mới',
+    COMMENT_CREATE: 'đã để lại bình luận',
+    LOGIN: 'đã đăng nhập hằng ngày',
+};
+
 /**
  * Hook: Record user activity
  */
@@ -221,8 +235,18 @@ export function useRecordActivity() {
     return useMutation({
         mutationFn: ({ type, meta }: { type: string; meta?: any }) =>
             gamificationApi.recordActivity(type, meta),
-        onSuccess: () => {
+        onSuccess: (data) => {
+            // Check if backend returned XP info
+            if (data?.xpGained) {
+                const activityLabel = ACTIVITY_LABELS[data.activityType] || 'đã hoàn thành một hoạt động';
+                toast.success(`+${data.xpGained} XP: Bạn ${activityLabel}!`, {
+                    description: data.streakUpdated ? `Chuỗi hiện tại: ${data.currentStreak} ngày 🔥` : undefined,
+                    duration: 3000,
+                });
+            }
+
             queryClient.invalidateQueries({ queryKey: ['streak'] });
+            queryClient.invalidateQueries({ queryKey: ['gamification-profile'] });
         },
     });
 }

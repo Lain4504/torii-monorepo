@@ -63,7 +63,7 @@
         "assets": [
           {
             "include": "assets/**/*",
-            "outDir": "dist/modules/agents/src/assets",
+            "outDir": "dist/modules/agents/src",
             "watchAssets": true
           }
         ]
@@ -90,6 +90,7 @@
         "assets": [
           {
             "include": "**/*.pug",
+            "outDir": "dist/modules/communication/src",
             "watchAssets": true
           }
         ]

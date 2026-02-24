@@ -369,7 +369,7 @@ export default function TakeExamPage() {
                                 <Menu className="w-6 h-6" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="p-0 border-l w-80">
+                        <SheetContent side="right" className="!w-full sm:!max-w-[800px] flex flex-col p-0 border-l">
                             <QuestionNavigator
                                 questions={questions}
                                 currentIndex={currentQuestionIndex}

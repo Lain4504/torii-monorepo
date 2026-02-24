@@ -45,6 +45,10 @@ export class ActivityService {
         streakUpdated: boolean;
         currentStreak: number;
         achievementsUnlocked: string[];
+        xpGained: number;
+        totalXp: number;
+        level: number;
+        currentXp: number;
     }> {
         const today = this.getToday();
 
@@ -83,8 +87,11 @@ export class ActivityService {
         }
 
         // Update User XP and Level
+        let gamification: any;
         if (xpGain > 0) {
-            await this.updateXP(userId, xpGain, activityType);
+            gamification = await this.updateXP(userId, xpGain, activityType);
+        } else {
+            gamification = await this.prisma.userGamification.findUnique({ where: { userId } });
         }
 
         // Update streak
@@ -143,6 +150,10 @@ export class ActivityService {
             streakUpdated: streakResult.streakUpdated,
             currentStreak: streakResult.newStreak,
             achievementsUnlocked,
+            xpGained: xpGain,
+            totalXp: gamification?.totalXp || 0,
+            level: gamification?.level || 1,
+            currentXp: gamification?.currentXp || 0,
         };
     }
 
@@ -218,7 +229,7 @@ export class ActivityService {
     private async updateXP(userId: string, xpGain: number, activityType?: ActivityType) {
         try {
             // Use an upsert for UserGamification to be safe
-            const gamification = await this.prisma.userGamification.upsert({
+            let gamification = await this.prisma.userGamification.upsert({
                 where: { userId },
                 create: {
                     userId,
@@ -239,7 +250,7 @@ export class ActivityService {
                 data: {
                     userId,
                     amount: xpGain,
-                    type: GamificationTransactionType.EARN,
+                    type: GamificationTransactionType.EARN as any,
                     activityType: activityType as any,
                     description: `Earned ${xpGain} points from ${activityType || 'activity'}`,
                 }
@@ -256,7 +267,7 @@ export class ActivityService {
                 const xpForCurrentLevel = Math.pow(newLevel - 1, 2) * 100;
                 const currentXp = totalXp - xpForCurrentLevel;
 
-                await this.prisma.userGamification.update({
+                gamification = await this.prisma.userGamification.update({
                     where: { userId },
                     data: {
                         level: newLevel,
@@ -271,8 +282,11 @@ export class ActivityService {
 
             // Emit XP gained event for UI updates
             this.natsClient.emit('user.xp_gained', { userId, xpGained: xpGain, totalXp: totalXp });
+
+            return gamification;
         } catch (error) {
             this.logger.error(`Failed to update XP for user ${userId}`, error.stack);
+            return null;
         }
     }
 }

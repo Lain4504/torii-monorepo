@@ -6,14 +6,13 @@ import {
     FileQuestion,
     Newspaper,
     CreditCard,
-    Settings,
     BarChart3,
     ShieldCheck,
     Ticket,
-    FileText,
     Key,
     UserCheck,
     UsersRound,
+    Gift,
 } from "lucide-react";
 
 export interface NavItem {
@@ -64,12 +63,6 @@ export const academicNavItems: NavItem[] = [
         icon: FileQuestion,
         permission: "question_pool.manage",
     },
-    {
-        titleKey: "Bài tập & Chấm điểm",
-        url: "/assignments",
-        icon: FileText,
-        permission: "assignment.manage",
-    },
 ];
 
 // 2. Operational & Support items
@@ -109,6 +102,12 @@ export const financeNavItems: NavItem[] = [
         permission: "coupon.manage",
     },
     {
+        titleKey: "Phần thưởng (Rewards)",
+        url: "/rewards",
+        icon: Gift,
+        permission: "gamification.manage",
+    },
+    {
         titleKey: "Báo cáo Tài chính",
         url: "/analytics/revenue",
         icon: BarChart3,
@@ -145,12 +144,6 @@ export const systemNavItems: NavItem[] = [
         url: "/audit-logs",
         icon: ShieldCheck,
         permission: "audit.view",
-    },
-    {
-        titleKey: "Cấu hình ứng dụng",
-        url: "/settings",
-        icon: Settings,
-        permission: "system.config",
     },
 ];
 

@@ -126,6 +126,10 @@ export class StreakService {
      * Record activity and update streak
      * Returns { streakUpdated: boolean, newStreak: number, isMilestone: boolean }
      */
+    /**
+     * Record activity and update streak
+     * Returns { streakUpdated: boolean, newStreak: number, isMilestone: boolean }
+     */
     async recordActivity(userId: string): Promise<{
         streakUpdated: boolean;
         oldStreak: number;
@@ -159,26 +163,28 @@ export class StreakService {
         const oldStreak = gamification.currentStreak;
         let newStreak = gamification.currentStreak;
         let freezeCount = gamification.freezeCount;
+        let freezeUsed = false;
 
         // Calculate streak
         if (!gamification.lastActiveDate) {
-            // First-time activity (no previous lastActiveDate) - start streak at 1
+            // First-time activity: start streak at 1
             newStreak = 1;
         } else if (gamification.lastActiveDate === yesterday) {
             // Continue streak from yesterday
             newStreak = gamification.currentStreak + 1;
         } else {
-            // Missed day(s) - check freeze
+            // Missed day(s) - check if we can save it with a freeze
             const daysMissed = this.getDaysDifference(gamification.lastActiveDate, today);
 
+            // If we missed exactly 1 day (yesterday) and have a freeze
+            // Note: daysMissed = 2 means Sunday was last active, today is Tuesday.
             if (daysMissed === 2 && freezeCount > 0) {
-                // Use freeze for 2-day gap (missed yesterday)
                 freezeCount -= 1;
-                // Streak continues: increment to account for today's activity
                 newStreak = gamification.currentStreak + 1;
-                this.logger.log(`User ${userId} used a freeze. Remaining: ${freezeCount}`);
+                freezeUsed = true;
+                this.logger.log(`User ${userId} used a freeze during login. Remaining: ${freezeCount}`);
             } else {
-                // Reset streak
+                // Too many days missed or no freezes left
                 newStreak = 1;
                 this.logger.log(`User ${userId} streak reset. Days missed: ${daysMissed}`);
             }
@@ -187,26 +193,40 @@ export class StreakService {
         // Update longest streak
         const longestStreak = Math.max(gamification.longestStreak, newStreak);
 
-        // Check if milestone (3, 7, 14, 30, 100, etc.)
+        // Check if milestone
         const milestones = [3, 7, 14, 30, 50, 100, 365];
         const isMilestone = milestones.includes(newStreak);
 
-        // Update database
-        await this.prisma.userGamification.update({
-            where: { userId },
-            data: {
-                currentStreak: newStreak,
-                longestStreak,
-                lastActiveDate: today,
-                freezeCount,
-                totalActiveDays: { increment: 1 },
-                weeklyActiveCount: gamification.lastActiveDate && this.isThisWeek(gamification.lastActiveDate)
-                    ? { increment: 1 }
-                    : 1,
-                monthlyActiveCount: gamification.lastActiveDate && this.isThisMonth(gamification.lastActiveDate)
-                    ? { increment: 1 }
-                    : 1,
-            },
+        // Update database and history if freeze used
+        await this.prisma.$transaction(async (tx) => {
+            await tx.userGamification.update({
+                where: { userId },
+                data: {
+                    currentStreak: newStreak,
+                    longestStreak,
+                    lastActiveDate: today,
+                    freezeCount,
+                    totalActiveDays: { increment: 1 },
+                    weeklyActiveCount: gamification.lastActiveDate && this.isThisWeek(gamification.lastActiveDate)
+                        ? { increment: 1 }
+                        : 1,
+                    monthlyActiveCount: gamification.lastActiveDate && this.isThisMonth(gamification.lastActiveDate)
+                        ? { increment: 1 }
+                        : 1,
+                },
+            });
+
+            if (freezeUsed) {
+                await tx.gamificationHistory.create({
+                    data: {
+                        userId,
+                        amount: 0,
+                        type: 'OTHER' as any,
+                        description: 'Đã sử dụng 1 bùa bảo vệ chuỗi (Tự động)',
+                        metadata: { reason: 'STREAK_FREEZE_USED', streak: oldStreak }
+                    }
+                });
+            }
         });
 
         return {
@@ -242,12 +262,11 @@ export class StreakService {
         const yesterday = this.getYesterday();
         const twoDaysAgo = this.getDaysAgo(2);
 
-        // Find users who missed yesterday (and didn't miss day before that)
+        // Find users who were active 2 days ago but NOT yesterday
         const usersAtRisk = await this.prisma.userGamification.findMany({
             where: {
                 lastActiveDate: {
-                    lt: yesterday,
-                    gte: twoDaysAgo,
+                    equals: twoDaysAgo, // Last active was day before yesterday
                 },
                 currentStreak: {
                     gt: 0,
@@ -257,14 +276,27 @@ export class StreakService {
 
         for (const gamification of usersAtRisk) {
             if (gamification.freezeCount > 0) {
-                // Use freeze
-                await this.prisma.userGamification.update({
-                    where: { id: gamification.id },
-                    data: {
-                        freezeCount: { decrement: 1 },
-                    },
-                });
-                this.logger.log(`Auto-used freeze for user ${gamification.userId}`);
+                // 1. Proactively consume freeze
+                // 2. IMPORTANT: Update lastActiveDate to yesterday so it bridges the gap
+                await this.prisma.$transaction([
+                    this.prisma.userGamification.update({
+                        where: { id: gamification.id },
+                        data: {
+                            freezeCount: { decrement: 1 },
+                            lastActiveDate: yesterday, // bridge the gap!
+                        },
+                    }),
+                    this.prisma.gamificationHistory.create({
+                        data: {
+                            userId: gamification.userId,
+                            amount: 0,
+                            type: 'OTHER' as any,
+                            description: 'Đã sử dụng bùa bảo vệ chuỗi (Hệ thống)',
+                            metadata: { reason: 'AUTO_STREAK_FREEZE', date: yesterday }
+                        }
+                    })
+                ]);
+                this.logger.log(`Auto-used freeze for user ${gamification.userId} to protect streak for ${yesterday}`);
             } else {
                 // Reset streak
                 await this.prisma.userGamification.update({

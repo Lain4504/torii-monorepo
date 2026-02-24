@@ -86,11 +86,9 @@ export const reviewApi = {
     rating?: number,
     search?: string
   ): Promise<PaginatedApiResponse<ReviewResponse & { courseTitle?: string; courseSlug?: string }>> => {
-    const response = await apiClient.get<PaginatedApiResponse<ReviewResponse & { courseTitle?: string; courseSlug?: string }>>(
-      '/api/courses/reviews',
-      {
-        params: { page, limit, rating, search },
-      },
+    const response = await apiClient.post<PaginatedApiResponse<ReviewResponse & { courseTitle?: string; courseSlug?: string }>>(
+      '/api/courses/reviews/search',
+      { page, limit, rating, search },
     );
     return response.data;
   },

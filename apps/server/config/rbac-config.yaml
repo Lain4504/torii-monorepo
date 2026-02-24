@@ -176,6 +176,9 @@ permissions:
   - code: coupon.manage
     description: Create and manage coupons
     category: Payment & Finance
+  - code: gamification.manage
+    description: Create and manage point-based rewards
+    category: Payment & Finance
     
   # Customer Support
   - code: support.handle
@@ -264,6 +267,7 @@ default_role_permissions:
     - payment.view
     - payment.refund
     - coupon.manage
+    - gamification.manage
 
   # Staff-Sales: Sales & Marketing (inherits staff + adds more)
   staff-sales:

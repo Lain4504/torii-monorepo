@@ -62,6 +62,7 @@ import { TeachingScheduleSheet } from '@/components/courses/teaching-schedule-sh
 import { AssignmentsTable } from '@/components/assignments/assignments-table';
 import { CreateAssignmentSheet } from '@/components/assignments/create-assignment-sheet';
 import { EditAssignmentSheet } from '@/components/assignments/edit-assignment-sheet';
+import { SubmissionsSheet } from '@/components/submissions/submissions-sheet';
 import { cn } from '@workspace/ui/lib/utils';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { PageHeader } from '@/components/common/page-header';
@@ -93,6 +94,7 @@ export default function CourseDetailPage() {
     const [selectedLessonIdForAssignment, setSelectedLessonIdForAssignment] = useState<string | null>(null);
     const [editAssignmentOpen, setEditAssignmentOpen] = useState(false);
     const [selectedAssignment, setSelectedAssignment] = useState<AssignmentResponseDTO | null>(null);
+    const [viewSubmissionsOpen, setViewSubmissionsOpen] = useState(false);
     const [assignmentPage, setAssignmentPage] = useState(1);
 
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
@@ -187,7 +189,8 @@ export default function CourseDetailPage() {
     };
 
     const handleViewSubmissions = (assignment: AssignmentResponseDTO) => {
-        navigate(`/assignments/${assignment.id}/submissions`);
+        setSelectedAssignment(assignment);
+        setViewSubmissionsOpen(true);
     };
 
     if (isLoadingCourse) {
@@ -607,6 +610,11 @@ export default function CourseDetailPage() {
             <EditAssignmentSheet
                 open={editAssignmentOpen}
                 onOpenChange={setEditAssignmentOpen}
+                assignment={selectedAssignment}
+            />
+            <SubmissionsSheet
+                open={viewSubmissionsOpen}
+                onOpenChange={setViewSubmissionsOpen}
                 assignment={selectedAssignment}
             />
         </div>

@@ -16,7 +16,6 @@ import {
     BrainCircuit,
     AlignLeft,
     Headphones,
-    Zap,
     MessageSquareQuote
 } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
@@ -145,6 +144,8 @@ export function QuestionDetailSheet({
 
 // Sub-components for specialized UI
 
+import { QuizOption } from '@workspace/ui/components/custom/quiz';
+
 function MultipleChoiceContent({ question }: { question: QuestionResponseDTO }) {
     return (
         <section className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -165,36 +166,18 @@ function MultipleChoiceContent({ question }: { question: QuestionResponseDTO }) 
             )}
 
             <div className="grid grid-cols-1 gap-3">
-                {Object.entries(question.options || {}).map(([key, value]) => {
+                {Object.entries(question.options || {}).map(([key, value], index) => {
                     const isCorrect = key === question.correctAnswer;
                     return (
-                        <div
+                        <QuizOption
                             key={key}
-                            className={cn(
-                                "flex items-center gap-4 p-4 rounded-lg border transition-all",
-                                isCorrect
-                                    ? "bg-card border-primary/30"
-                                    : "bg-card"
-                            )}
-                        >
-                            <div className={cn(
-                                "size-8 flex items-center justify-center rounded-md font-bold text-sm shrink-0",
-                                isCorrect
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-muted text-muted-foreground"
-                            )}>
-                                {key}
-                            </div>
-                            <div className={cn(
-                                "flex-1 text-sm font-medium",
-                                isCorrect ? "text-foreground" : "text-muted-foreground"
-                            )}>
-                                {value}
-                            </div>
-                            {isCorrect && (
-                                <Zap className="size-4 text-primary" />
-                            )}
-                        </div>
+                            index={index}
+                            value={key}
+                            label={value as string}
+                            isCorrect={isCorrect}
+                            isSelected={isCorrect}
+                            disabled
+                        />
                     );
                 })}
             </div>

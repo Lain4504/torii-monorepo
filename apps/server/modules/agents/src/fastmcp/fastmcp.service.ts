@@ -76,25 +76,31 @@ export class FastMcpService {
     const searchDirs = [__dirname, process.cwd()];
     const rootPath = join(sep);
 
-    for (let currentDir of searchDirs) {
-      for (let i = 0; i < 15; i++) { // Increase depth for monorepo
+    for (const startDir of searchDirs) {
+      let currentDir = startDir;
+      for (let i = 0; i < 15; i++) {
         const pathsToTry = [
-          join(currentDir, 'src/assets/prompts', templatePath),
+          // 1. Assets directly under currentDir (common in dist)
           join(currentDir, 'assets/prompts', templatePath),
+          // 2. Src/Assets under currentDir (common in development)
+          join(currentDir, 'src/assets/prompts', templatePath),
+          // 3. Monorepo structure inside dist
+          join(currentDir, 'dist/modules/agents/src/assets/prompts', templatePath),
           join(currentDir, 'modules/agents/src/assets/prompts', templatePath),
+          // 4. Nested monorepo path
           join(currentDir, 'apps/server/modules/agents/src/assets/prompts', templatePath),
         ];
 
         for (const p of pathsToTry) {
           if (existsSync(p)) {
-            // this.logger.debug(`Loaded template from: ${p}`);
             const content = readFileSync(p, 'utf-8');
             return Handlebars.compile(content);
           }
         }
 
-        if (currentDir === rootPath) break;
-        currentDir = dirname(currentDir);
+        const parent = dirname(currentDir);
+        if (parent === currentDir || currentDir === rootPath) break;
+        currentDir = parent;
       }
     }
 
@@ -106,11 +112,13 @@ export class FastMcpService {
     const searchDirs = [__dirname, process.cwd()];
     const rootPath = join(sep);
 
-    for (let currentDir of searchDirs) {
+    for (const startDir of searchDirs) {
+      let currentDir = startDir;
       for (let i = 0; i < 15; i++) {
         const pathsToTry = [
-          join(currentDir, 'src/assets/resources', resourcePath),
           join(currentDir, 'assets/resources', resourcePath),
+          join(currentDir, 'src/assets/resources', resourcePath),
+          join(currentDir, 'dist/modules/agents/src/assets/resources', resourcePath),
           join(currentDir, 'modules/agents/src/assets/resources', resourcePath),
           join(currentDir, 'apps/server/modules/agents/src/assets/resources', resourcePath),
         ];
@@ -122,8 +130,9 @@ export class FastMcpService {
           }
         }
 
-        if (currentDir === rootPath) break;
-        currentDir = dirname(currentDir);
+        const parent = dirname(currentDir);
+        if (parent === currentDir || currentDir === rootPath) break;
+        currentDir = parent;
       }
     }
 

@@ -13,11 +13,13 @@ import {
     OrderStatus,
     OrderType,
     PaymentMethod,
+    PaymentGateway,
 } from '@workspace/schemas';
 import type { IOrderService } from '@server/billing/interfaces/services';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
 import { CouponService } from '@server/billing/modules/coupon/coupon.service';
+import { UserBalanceService } from '@server/billing/modules/user-balance/user-balance.service';
 import type { Prisma } from '@prisma/generated';
 import { lastValueFrom } from 'rxjs';
 import { AppConfigService } from '@server/shared';
@@ -39,6 +41,7 @@ export class OrderService implements IOrderService {
         private readonly natsClient: ClientProxy,
         @InjectMapper()
         private readonly mapper: Mapper,
+        private readonly userBalanceService: UserBalanceService,
     ) { }
 
     /**
@@ -270,6 +273,18 @@ export class OrderService implements IOrderService {
     async create(userId: string, input: OrderCreateDTO): Promise<OrderResponseDTO> {
         this.logger.log(`[OrderService] Creating order for user: ${userId} with input: ${JSON.stringify(input)}`);
 
+        // Enforcement of new flow:
+        // 1. TOP_UP must use PAYOS
+        // 2. COURSE_PURCHASE must use BALANCE
+        if (input.orderType === OrderType.TOP_UP && input.paymentMethod !== PaymentMethod.PAYOS) {
+            throw new BadRequestException('Nạp tiền vào tài khoản chỉ hỗ trợ qua phương thức PayOS');
+        }
+
+        if (input.orderType === OrderType.COURSE_PURCHASE &&
+            input.paymentMethod !== PaymentMethod.BALANCE) {
+            throw new BadRequestException('Mua khóa học chỉ hỗ trợ thanh toán bằng Coin (Số dư ví Torii)');
+        }
+
         let amount = 0;
         let course: any = null;
 
@@ -303,9 +318,11 @@ export class OrderService implements IOrderService {
 
             this.logger.log(`Creating order for course ${courseId}: price=${course.price}, discountPrice=${course.discountPrice}, calculatedAmount=${amount}, isFree=${course.isFree}`);
 
+            // If amount is 0, we still allow order creation (e.g. 100% discount coupon)
+            // The system will handle it as a free transaction in the next steps.
             if (course && (amount === 0 || course.isFree)) {
-                this.logger.log(`Course ${courseId} is free, skipping order creation. calculatedAmount=${amount}, isFree=${course.isFree}`);
-                throw new BadRequestException('Free courses do not require payment');
+                this.logger.log(`Order for course ${courseId} has 0 amount. isFree: ${course.isFree}, calculatedAmount: ${amount}`);
+                // We don't throw here anymore to support 100% coupons in the checkout flow
             }
         } else if (input.orderType === OrderType.TOP_UP) {
             amount = Number((input as any).amount);
@@ -379,13 +396,20 @@ export class OrderService implements IOrderService {
                 couponId = redemption.couponId;
                 couponDiscount = redemption.discountAmount;
 
+                // Validation as per user rule: system doesn't support coupons greater than or equal to course price
+                if (couponDiscount >= amount) {
+                    // Release the coupon since redemption succeeded but we are rejecting the order flow
+                    await this.couponService.releaseCoupon(couponId);
+                    throw new BadRequestException('Mã giảm giá không hợp lệ cho đơn hàng này (Giá trị khuyến mãi phải nhỏ hơn giá khóa học)');
+                }
+
                 // Recalculate amount
-                amount = Math.max(0, amount - couponDiscount);
+                amount = Math.round(amount - couponDiscount);
 
                 this.logger.log(`Coupon ${input.couponCode} applied. Discount: ${couponDiscount}. Final Amount: ${amount}`);
             } catch (error: any) {
                 this.logger.warn(`Failed to apply coupon ${input.couponCode}: ${error.message}`);
-                throw new BadRequestException(`Coupon error: ${error.message}`);
+                throw error instanceof BadRequestException ? error : new BadRequestException(`Coupon error: ${error.message}`);
             }
         } else {
             this.logger.log(`[OrderService] No coupon code provided in input.`);
@@ -426,8 +450,8 @@ export class OrderService implements IOrderService {
                 user: { connect: { id: userId } },
                 amount,
                 currency: 'VND',
-                paymentMethod: input.paymentMethod || 'mock',
-                paymentGateway: input.paymentGateway || 'mock',
+                paymentMethod: input.paymentMethod || PaymentMethod.BALANCE,
+                paymentGateway: input.paymentGateway || (input.paymentMethod === PaymentMethod.PAYOS ? PaymentGateway.PAYOS : PaymentGateway.BALANCE),
                 status: OrderStatus.PENDING,
                 orderType: input.orderType || OrderType.COURSE_PURCHASE,
                 description: input.description || undefined,
@@ -506,6 +530,11 @@ export class OrderService implements IOrderService {
                 }
             }
 
+            // Handle BALANCE payment immediately if requested
+            if (input.paymentMethod === PaymentMethod.BALANCE && created.orderType === OrderType.COURSE_PURCHASE) {
+                return this.payWithBalance(created.id, userId);
+            }
+
             return this.toOrderDto(created);
 
         } catch (dbError: any) {
@@ -535,7 +564,7 @@ export class OrderService implements IOrderService {
         }
 
         try {
-            const transactionId = input.transactionId || `MOCK-${Date.now()}-${orderId.substring(0, 8)}`;
+            const transactionId = input.transactionId || `PAY-${Date.now()}-${orderId.substring(0, 8)}`;
 
             const updated = await this.orderRepository.update(orderId, {
                 status: OrderStatus.COMPLETED,
@@ -877,7 +906,9 @@ export class OrderService implements IOrderService {
                         this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
                             userId: order.userId,
                             amount: Math.round(Number(deletedEnrollment.finalPrice)),
-                            reason: `Hoàn tiền đơn hàng #${order.id}. ${reason || ''}`
+                            reason: `Hoàn tiền đơn hàng #${order.id}. ${reason || ''}`,
+                            type: 'REFUND',
+                            metadata: { orderId: order.id }
                         })
                     );
                 }
@@ -895,5 +926,54 @@ export class OrderService implements IOrderService {
         });
 
         return this.toOrderDto(updated);
+    }
+
+    /**
+     * Pay order using user balance (Coins)
+     */
+    async payWithBalance(orderId: string, userId: string): Promise<OrderResponseDTO> {
+        const order = await this.orderRepository.findById(orderId);
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        if (order.userId !== userId) {
+            throw new BadRequestException('Unauthorized to pay for this order');
+        }
+
+        if (order.status !== OrderStatus.PENDING) {
+            throw new BadRequestException(`Order is already ${order.status}`);
+        }
+
+        if (order.orderType !== OrderType.COURSE_PURCHASE && order.orderType !== OrderType.GIFT) {
+            throw new BadRequestException('Balance payment is only available for course purchases');
+        }
+
+        const amountNum = Number(order.amount);
+
+        try {
+            // 1. Check & Deduct Balance
+            await this.userBalanceService.deductBalance(
+                userId,
+                amountNum,
+                `Thanh toán khóa học (Đơn hàng #${order.id})`,
+                'PURCHASE' as any,
+                { orderId: order.id }
+            );
+
+            // 2. Confirm Order (This will trigger Enrollment activation)
+            return this.confirm(order.id, {
+                orderId: order.id,
+                transactionId: `WALLETPAY-${Date.now()}`,
+                gatewayTransactionId: `WALLET-${order.id}`,
+                metadata: { paymentSource: 'wallet' }
+            });
+
+        } catch (error: any) {
+            this.logger.error(`Balance payment failed for order ${orderId}: ${error.message}`);
+            // If deduction failed (insufficient balance), we keep order as PENDING
+            // The frontend can then show "Insufficient balance"
+            throw error;
+        }
     }
 }

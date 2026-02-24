@@ -457,30 +457,37 @@ export default function ProfilePage() {
                                 ))}
                             </div>
                         ) : achievements.length > 0 ? (
-                            <div className="space-y-3">
+                            <div className="grid grid-cols-1 gap-3">
                                 {achievements.slice(0, 4).map((achievement) => (
                                     <div key={achievement.id} className={cn(
-                                        "flex items-center gap-3 p-3 rounded-xl transition-all",
-                                        achievement.earned ? "bg-muted/30" : "opacity-40"
+                                        "flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 border border-transparent",
+                                        achievement.earned
+                                            ? "bg-primary/5 border-primary/10 shadow-sm hover:shadow-md"
+                                            : "opacity-40 grayscale"
                                     )}>
                                         <div className={cn(
-                                            "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
-                                            achievement.earned ? "bg-background text-primary shadow-sm" : "bg-muted text-muted-foreground"
+                                            "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform",
+                                            achievement.earned
+                                                ? "bg-gradient-to-br from-primary/20 to-primary/5 text-primary shadow-inner group-hover:scale-110"
+                                                : "bg-muted text-muted-foreground"
                                         )}>
-                                            <achievement.icon className="w-5 h-5" />
+                                            <achievement.icon className={cn(
+                                                "w-6 h-6",
+                                                achievement.earned ? "drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
+                                            )} />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-xs font-bold text-foreground truncate">{achievement.title}</p>
-                                            {achievement.earned && achievement.date && (
-                                                <p className="text-[10px] font-medium text-muted-foreground mt-0.5">{achievement.date}</p>
-                                            )}
+                                            <p className="text-sm font-black text-foreground truncate">{achievement.title}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mt-0.5">
+                                                {achievement.earned && achievement.date ? `Đạt được: ${achievement.date}` : 'Chưa hoàn thành'}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-sm text-muted-foreground text-center py-4">
-                                Chưa có thành tích nào
+                            <div className="text-sm text-muted-foreground text-center py-4 bg-muted/20 rounded-2xl">
+                                Bạn chưa đạt được thành tích nào
                             </div>
                         )}
                     </div>

@@ -8,6 +8,7 @@ import {
     SheetFooter,
 } from '@workspace/ui/components/sheet';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
+import { cn } from '@workspace/ui/lib/utils';
 import { Button } from '@workspace/ui/components/button';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Badge } from '@workspace/ui/components/badge';
@@ -129,12 +130,38 @@ export function TicketDetailSheet({
                             </div>
                             <div className="space-y-3">
                                 {isRefund && (
-                                    <Alert variant="destructive" className="border-amber-500/20 bg-amber-500/5 text-amber-700">
-                                        <AlertTriangle className="size-4" />
-                                        <AlertDescription className="font-bold">
-                                            Khóa học hoàn tiền: <span className="font-mono">{(ticket.metadata as any)?.courseId?.slice(0, 12)}</span>
-                                        </AlertDescription>
-                                    </Alert>
+                                    <div className="space-y-3">
+                                        <Alert variant="destructive" className="border-amber-500/20 bg-amber-500/5 text-amber-700">
+                                            <AlertTriangle className="size-4" />
+                                            <AlertDescription className="font-bold flex flex-col gap-1">
+                                                <span>Khóa học yêu cầu hoàn tiền:</span>
+                                                <span className="font-mono text-[10px] break-all">{(ticket.metadata as any)?.courseId}</span>
+                                            </AlertDescription>
+                                        </Alert>
+
+                                        {/* Refund Audit Section for Staff */}
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <Item variant="outline" className="bg-muted/30">
+                                                <ItemContent>
+                                                    <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Tiến độ học</ItemTitle>
+                                                    <ItemDescription className={cn(
+                                                        "text-sm font-black",
+                                                        (ticket.metadata as any)?.progress > 20 ? "text-destructive" : "text-emerald-600"
+                                                    )}>
+                                                        {(ticket.metadata as any)?.progress || 0}%
+                                                    </ItemDescription>
+                                                </ItemContent>
+                                            </Item>
+                                            <Item variant="outline" className="bg-muted/30">
+                                                <ItemContent>
+                                                    <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Ngày đăng ký</ItemTitle>
+                                                    <ItemDescription className="text-sm font-bold text-foreground">
+                                                        {(ticket.metadata as any)?.enrollmentDate ? formatDateTime((ticket.metadata as any)?.enrollmentDate) : 'N/A'}
+                                                    </ItemDescription>
+                                                </ItemContent>
+                                            </Item>
+                                        </div>
+                                    </div>
                                 )}
                                 <Item variant="outline">
                                     <ItemContent>

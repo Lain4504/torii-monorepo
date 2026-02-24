@@ -11,24 +11,13 @@ export enum OrderStatus {
 }
 
 export enum PaymentMethod {
-    CREDIT_CARD = 'credit_card',
-    BANK_TRANSFER = 'bank_transfer',
-    MOMO = 'momo',
-    ZALOPAY = 'zalopay',
-    VNPAY = 'vnpay',
     PAYOS = 'payos',
-    SEPAY = 'sepay',
-    MOCK = 'mock',
+    BALANCE = 'balance',
 }
 
 export enum PaymentGateway {
-    STRIPE = 'stripe',
-    PAYPAL = 'paypal',
-    VNPAY = 'vnpay',
-    MOMO = 'momo',
     PAYOS = 'payos',
-    SEPAY = 'sepay',
-    MOCK = 'mock',
+    BALANCE = 'balance',
 }
 
 export enum OrderType {
@@ -43,7 +32,7 @@ export const orderSchema = z.object({
     userId: z.string().uuid(),
     amount: z.number().min(0),
     currency: z.string().length(3).default('VND'),
-    paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.MOCK),
+    paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.BALANCE),
     paymentGateway: z.nativeEnum(PaymentGateway).optional(),
     transactionId: z.string().optional(),
     gatewayTransactionId: z.string().optional(),
