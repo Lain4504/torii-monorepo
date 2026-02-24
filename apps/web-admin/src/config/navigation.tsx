@@ -30,6 +30,7 @@ export interface NavItem {
         titleKey: string;
         url: string;
         permission?: string;
+        anyPermission?: string[];
     }[];
 }
 
@@ -44,25 +45,25 @@ export const academicNavItems: NavItem[] = [
         titleKey: "Khóa học",
         url: "/courses",
         icon: BookOpen,
-        anyPermission: ["course.manage", "course.view_restricted", "course.view_my"],
+        anyPermission: ["course.create", "course.update", "course.publish", "course.view_restricted", "course.view_my"],
         items: [
             { titleKey: "Khóa học của tôi", url: "/courses/my", permission: "course.view_my" },
             { titleKey: "Quản lý khóa học", url: "/courses", permission: "course.view_restricted" },
-            { titleKey: "Phản hồi học viên", url: "/courses/reviews", permission: "course.manage" },
-            { titleKey: "Yêu cầu đổi lịch", url: "/courses/requests", permission: "course.manage" },
+            { titleKey: "Phản hồi học viên", url: "/courses/reviews", anyPermission: ["course.update", "course.view_restricted"] },
+            { titleKey: "Yêu cầu đổi lịch", url: "/courses/requests", anyPermission: ["course.update", "course.view_restricted"] },
         ]
     },
     {
         titleKey: "Lớp học trực tuyến",
         url: "/rooms",
         icon: Video,
-        anyPermission: ["live_class.schedule", "live_class.view"],
+        anyPermission: ["live_class.schedule", "live_class.manage"],
     },
     {
         titleKey: "Ngân hàng Câu hỏi",
         url: "/question-bank",
         icon: FileQuestion,
-        permission: "question_pool.manage",
+        permission: "exam.manage",
     },
     {
         titleKey: "Bài tập & Chấm điểm",
@@ -78,13 +79,13 @@ export const operationsNavItems: NavItem[] = [
         titleKey: "Quản lý Học viên",
         url: "/learners",
         icon: Users,
-        permission: "user.manage",
+        anyPermission: ["user.manage", "user.view"],
     },
     {
         titleKey: "Bài viết & Tin tức",
         url: "/blogs",
         icon: Newspaper,
-        permission: "blog.manage",
+        anyPermission: ["blog.manage", "blog.write"],
     },
     {
         titleKey: "Yêu cầu hỗ trợ",
@@ -100,7 +101,7 @@ export const financeNavItems: NavItem[] = [
         titleKey: "Đơn hàng & Doanh thu",
         url: "/orders",
         icon: CreditCard,
-        permission: "payment.manage",
+        anyPermission: ["payment.view", "payment.refund"],
     },
     {
         titleKey: "Mã giảm giá (Coupons)",
@@ -122,13 +123,13 @@ export const personnelNavItems: NavItem[] = [
         titleKey: "Đội ngũ Giảng viên",
         url: "/personnel/lecturers",
         icon: UserCheck,
-        permission: "user.manage",
+        anyPermission: ["user.manage", "user.view"],
     },
     {
         titleKey: "Nhân viên vận hành",
         url: "/personnel/staff",
         icon: UsersRound,
-        permission: "user.manage",
+        anyPermission: ["user.manage", "user.view"],
     },
     {
         titleKey: "Phân quyền (Roles)",

@@ -33,7 +33,7 @@ export class ModuleController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('search')
-    @Permissions('module.view')
+    @Permissions('course.view_restricted', 'course.view_my')
     async searchModules(
         @Body(new ZodValidationPipe(moduleSearchRequestDTOSchema)) dto: ModuleSearchRequestDTO,
     ) {

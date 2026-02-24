@@ -23,11 +23,6 @@ roles:
     name: System Administrator
     description: Full access to all system resources
     
-  # Main Actor 2: Staff (Base Role)
-  - code: staff
-    name: Center Staff
-    description: Base role for all center staff members
-    
   # Staff Variant 1: LMS/Academic Staff
   - code: staff-lms
     name: LMS Staff
@@ -207,13 +202,6 @@ default_role_permissions:
   # Admin: Full access
   admin:
     - "*"  # Wildcard - all permissions
-    
-  # Staff (Base): Common permissions for all staff
-  staff:
-    - user.view
-    - blog.write
-    - report.view
-    - audit.view
     
   # Staff-LMS: Academic operations
   staff-lms:

@@ -313,7 +313,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 </>
                             ) : null}
 
-                            {can('user.manage') && ( // Assuming course deletion is restricted to high-level users
+                            {can('course.update') && ( // Assuming course deletion is restricted to high-level users
                                 <>
                                     <DropdownMenuSeparator className="bg-border/40 m-1" />
                                     <DropdownMenuItem

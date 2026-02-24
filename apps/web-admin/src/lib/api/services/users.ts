@@ -14,9 +14,9 @@ export interface FindAllUsersParams {
 // ============================================================================
 
 export const usersApi = {
-    // GET /api/admin/users
+    // POST /api/admin/users/search (Replaces GET /api/admin/users)
     async findAll(params: FindAllUsersParams): Promise<PaginatedApiResponse<UserResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<UserResponseDTO>>('/api/admin/users', { params });
+        const response = await apiClient.post<PaginatedApiResponse<UserResponseDTO>>('/api/admin/users/search', params);
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to fetch users');
         }
