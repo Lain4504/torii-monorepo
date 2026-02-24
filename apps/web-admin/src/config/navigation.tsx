@@ -6,11 +6,9 @@ import {
     FileQuestion,
     Newspaper,
     CreditCard,
-    Settings,
     BarChart3,
     ShieldCheck,
     Ticket,
-    FileText,
     Key,
     UserCheck,
     UsersRound,
@@ -63,12 +61,6 @@ export const academicNavItems: NavItem[] = [
         url: "/question-bank",
         icon: FileQuestion,
         permission: "question_pool.manage",
-    },
-    {
-        titleKey: "Bài tập & Chấm điểm",
-        url: "/assignments",
-        icon: FileText,
-        permission: "assignment.manage",
     },
 ];
 
@@ -145,12 +137,6 @@ export const systemNavItems: NavItem[] = [
         url: "/audit-logs",
         icon: ShieldCheck,
         permission: "audit.view",
-    },
-    {
-        titleKey: "Cấu hình ứng dụng",
-        url: "/settings",
-        icon: Settings,
-        permission: "system.config",
     },
 ];
 

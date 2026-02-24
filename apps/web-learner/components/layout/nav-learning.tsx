@@ -11,14 +11,14 @@ import { SidebarGroup, SidebarGroupLabel, useSidebar } from "@workspace/ui/compo
 
 export function NavLearning() {
     const { data: courses, isLoading } = useMyCourses()
-    const { state } = useSidebar()
+    const { state, isMobile } = useSidebar()
     const isCollapsed = state === "collapsed"
     const [showExpiredModal, setShowExpiredModal] = useState(false)
 
     const activeCourse = courses?.[0]
     const isExpired = activeCourse?.expiresAt && new Date(activeCourse.expiresAt) < new Date()
 
-    if (isLoading || !activeCourse || isCollapsed) return null
+    if (isLoading || !activeCourse || (isCollapsed && !isMobile)) return null
 
     return (
         <SidebarGroup>

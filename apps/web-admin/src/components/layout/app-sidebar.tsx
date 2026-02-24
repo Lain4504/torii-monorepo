@@ -93,9 +93,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         const userRole = user.role as string;
 
         // Determine base workspaces based on role
-        let baseWorkspaces = [];
+        let baseWorkspaces: Workspace[] = [];
         if (userRole === UserRole.ADMIN) {
-            baseWorkspaces = WORKSPACES;
+            // Special "Universal" workspace for Admin
+            const universalWorkspace: Workspace = {
+                id: "universal",
+                name: "Toàn bộ hệ thống",
+                logo: LayoutGrid,
+                plan: "Toàn quyền quản trị",
+                roles: [UserRole.ADMIN],
+                navItems: [
+                    ...WORKSPACES.flatMap(ws => ws.navItems)
+                ]
+            };
+            baseWorkspaces = [universalWorkspace, ...WORKSPACES];
         } else {
             baseWorkspaces = WORKSPACES.filter(ws => ws.roles.includes(userRole));
         }
@@ -147,14 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {...props}
             className="border-r border-border/10 bg-card/60 backdrop-blur-xl"
         >
-            <SidebarHeader className="h-auto py-4 px-2 flex flex-col gap-4 group-data-[collapsible=icon]:px-0">
-                <div className="flex items-center gap-3 px-2 group-data-[collapsible=icon]:hidden">
-                    <img src="/logo.png" alt="Torii" className="size-8 rounded-lg shadow-sm" />
-                    <span className="font-bold text-lg tracking-tight">Torii <span className="text-primary">Admin</span></span>
-                </div>
-                <div className="lg:hidden flex justify-center group-data-[collapsible=icon]:flex">
-                    <img src="/logo.png" alt="Torii" className="size-8 rounded-lg" />
-                </div>
+            <SidebarHeader className="h-auto py-2 px-2 flex flex-col gap-2 group-data-[collapsible=icon]:px-0">
                 <TeamSwitcher
                     teams={availableWorkspaces}
                     activeTeam={activeWorkspace}

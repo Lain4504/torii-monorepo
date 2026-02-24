@@ -52,7 +52,7 @@ export function NavMain({
     items: NavMainItem[]
 }) {
     const { pathname } = useLocation()
-    const { state } = useSidebar()
+    const { state, isMobile } = useSidebar()
     const isCollapsed = state === "collapsed"
 
     return (
@@ -88,7 +88,7 @@ export function NavMain({
                     )
 
                     const content = hasSubItems ? (
-                        isCollapsed ? (
+                        isCollapsed && !isMobile ? (
                             <DropdownMenu key={item.title}>
                                 <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
                                     <DropdownMenuTrigger asChild>
