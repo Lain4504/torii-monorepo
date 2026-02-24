@@ -20,12 +20,21 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, Image as ImageIcon, Film, X, UploadCloud } from 'lucide-react';
-import { toast } from '@workspace/ui/components/sonner';
-import { storageApi } from '@/api/services/storage-api.ts';
-import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
-import { useCreateCourse } from "@/api/services/courses.ts";
+import { Image as ImageIcon, Film, X, UploadCloud } from 'lucide-react';
+import { Checkbox } from '@workspace/ui/components/checkbox';
+import {
+    Item,
+    ItemMedia,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
 
+import { toast } from '@workspace/ui/components/sonner';
+import { storageApi } from '@/lib/api/services/storage-api.ts';
+import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
+import { useCreateCourse } from "@/lib/api/services/courses.ts";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface CreateCourseSheetProps {
     open: boolean;
@@ -162,7 +171,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background space-y-0">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo Khóa Học Mới</SheetTitle>
                     <SheetDescription>
@@ -170,22 +179,22 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-10 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
+                        <div className="space-y-6 p-6">
 
                             {/* Basic Information */}
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                         Thông Tin Cơ Bản
                                     </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                 </div>
 
                                 <Field>
-                                    <FieldLabel htmlFor="title" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                    <FieldLabel htmlFor="title" className="">
                                         Tên Khóa Học <span className="text-destructive">*</span>
                                     </FieldLabel>
                                     <Input
@@ -198,7 +207,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel htmlFor="description" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                    <FieldLabel htmlFor="description" className="">
                                         Mô Tả <span className="text-destructive">*</span>
                                     </FieldLabel>
                                     <Textarea
@@ -213,7 +222,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
-                                        <FieldLabel htmlFor="price" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="price" className="">
                                             Học Phí <span className="text-destructive">*</span>
                                         </FieldLabel>
                                         <Input
@@ -230,7 +239,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                     </Field>
 
                                     <Field>
-                                        <FieldLabel htmlFor="jlptLevel" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="jlptLevel" className="">
                                             Trình Độ JLPT
                                         </FieldLabel>
                                         <Controller
@@ -241,11 +250,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                     <SelectTrigger id="jlptLevel" className="mt-1">
                                                         <SelectValue placeholder="Chọn Trình Độ" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
+                                                    <SelectContent>
                                                         {Object.values(JlptLevel).map((level) => (
-                                                            <SelectItem key={level} value={level} className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                                {level}
-                                                            </SelectItem>
+                                                            <SelectItem key={level} value={level}>{level}</SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
@@ -257,7 +264,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
-                                        <FieldLabel htmlFor="shortDescription" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="shortDescription" className="">
                                             Mô Tả Ngắn
                                         </FieldLabel>
                                         <Textarea
@@ -271,7 +278,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                     </Field>
 
                                     <Field>
-                                        <FieldLabel htmlFor="type" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="type" className="">
                                             Loại Khóa Học
                                         </FieldLabel>
                                         <Controller
@@ -279,16 +286,12 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             control={control}
                                             render={({ field }) => (
                                                 <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger id="type" className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus:ring-primary/20 text-sm font-medium transition-all">
+                                                    <SelectTrigger id="type" className="">
                                                         <SelectValue placeholder="Chọn loại khóa học" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl overflow-hidden p-1">
-                                                        <SelectItem value="vod" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                            Video theo yêu cầu (VOD)
-                                                        </SelectItem>
-                                                        <SelectItem value="live" className="rounded-lg cursor-pointer text-xs font-medium focus:bg-primary/10 focus:text-primary py-2.5">
-                                                            Phát trực tiếp
-                                                        </SelectItem>
+                                                    <SelectContent>
+                                                        <SelectItem value="vod">Video theo yêu cầu (VOD)</SelectItem>
+                                                        <SelectItem value="live">Phát trực tiếp</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             )}
@@ -298,7 +301,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
-                                        <FieldLabel htmlFor="discountPrice" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="discountPrice" className="">
                                             Giá Khuyến Mãi
                                         </FieldLabel>
                                         <Input
@@ -315,7 +318,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                     </Field>
 
                                     <Field>
-                                        <FieldLabel htmlFor="durationWeeks" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="durationWeeks" className="">
                                             Thời Lượng (Tuần)
                                         </FieldLabel>
                                         <Input
@@ -336,7 +339,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                 {/* VOD: Thời hạn truy cập */}
                                 {courseType === 'vod' && (
                                     <Field>
-                                        <FieldLabel htmlFor="expirationMonths" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="expirationMonths" className="">
                                             Thời Hạn Truy Cập (Tháng)
                                         </FieldLabel>
                                         <Input
@@ -368,18 +371,18 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                         </div>
                                         <div className="grid grid-cols-2 gap-6">
                                             <Field>
-                                                <FieldLabel htmlFor="startDate" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                <FieldLabel htmlFor="startDate" className="">
                                                     Ngày Khai Giảng
                                                 </FieldLabel>
                                                 <Input
                                                     id="startDate"
                                                     type="datetime-local"
                                                     {...register('startDate' as any)}
-                                                    className="h-11 px-4 rounded-xl bg-background border-border hover:bg-muted/5 focus-visible:ring-primary/20 text-sm font-medium transition-all"
+                                                    className=""
                                                 />
                                             </Field>
                                             <Field>
-                                                <FieldLabel htmlFor="expiresAt" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                <FieldLabel htmlFor="expiresAt" className="">
                                                     Ngày Kết Thúc Khóa Học
                                                 </FieldLabel>
                                                 <Input
@@ -391,7 +394,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             </Field>
                                         </div>
                                         <Field>
-                                            <FieldLabel htmlFor="registrationClosedAt" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                            <FieldLabel htmlFor="registrationClosedAt" className="">
                                                 Hạn Đăng Ký <span className="text-rose-500">*</span>
                                             </FieldLabel>
                                             <Input
@@ -406,38 +409,28 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
-                                        <FieldLabel htmlFor="isFree" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="isFree" className="">
                                             Giá Cả
                                         </FieldLabel>
                                         <Controller
                                             name="isFree"
                                             control={control}
                                             render={({ field }) => (
-                                                <div className="flex items-center gap-3 mt-1.5 p-3 rounded-xl bg-background border border-border cursor-pointer hover:bg-muted/5 transition-all"
-                                                    onClick={() => {
-                                                        const newValue = !field.value;
-                                                        field.onChange(newValue);
-                                                        if (newValue) {
-                                                            setValue('price', 0);
-                                                            setValue('discountPrice', 0);
-                                                        }
-                                                    }}>
-                                                    <input
+                                                <div className="flex items-center gap-3 mt-1.5">
+                                                    <Checkbox
                                                         id="isFree"
-                                                        type="checkbox"
-                                                        checked={field.value} // Controlled checked attribute
-                                                        onChange={(e) => {
-                                                            field.onChange(e.target.checked);
-                                                            if (e.target.checked) {
+                                                        checked={field.value}
+                                                        onCheckedChange={(checked) => {
+                                                            field.onChange(checked);
+                                                            if (checked) {
                                                                 setValue('price', 0);
                                                                 setValue('discountPrice', 0);
                                                             }
                                                         }}
-                                                        className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
                                                     />
-                                                    <span className="text-xs font-medium text-foreground/80">
+                                                    <FieldLabel htmlFor="isFree" className="cursor-pointer mb-0">
                                                         Truy cập mở / Khóa học miễn phí
-                                                    </span>
+                                                    </FieldLabel>
                                                 </div>
                                             )}
                                         />
@@ -446,11 +439,11 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                        <div className="h-px flex-1 bg-border/20" />
+                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
                                         <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                             Chương Trình Học
                                         </h3>
-                                        <div className="h-px flex-1 bg-border/20" />
+                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     </div>
 
                                     <Controller
@@ -458,7 +451,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                         control={control}
                                         render={({ field }) => (
                                             <Field>
-                                                <FieldLabel htmlFor="tags" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                <FieldLabel htmlFor="tags" className="">
                                                     Thẻ (Tags)
                                                 </FieldLabel>
                                                 <Input
@@ -484,7 +477,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                         control={control}
                                         render={({ field }) => (
                                             <Field>
-                                                <FieldLabel htmlFor="learningOutcomes" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                <FieldLabel htmlFor="learningOutcomes" className="">
                                                     Mục Tiêu Khóa Học
                                                 </FieldLabel>
                                                 <Textarea
@@ -511,7 +504,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                         control={control}
                                         render={({ field }) => (
                                             <Field>
-                                                <FieldLabel htmlFor="requirements" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                <FieldLabel htmlFor="requirements" className="">
                                                     Yêu Cầu
                                                 </FieldLabel>
                                                 <Textarea
@@ -538,20 +531,20 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                             {/* Media Files */}
                             <div className="space-y-6 pt-6">
                                 <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                     <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
                                         Phương Tiện
                                     </h3>
-                                    <div className="h-px flex-1 bg-border/20" />
+                                    <div className="h-px flex-1 bg-border/20 min-h-0" />
                                 </div>
 
                                 <Field>
-                                    <FieldLabel htmlFor="thumbnail" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                    <FieldLabel htmlFor="thumbnail" className="">
                                         Ảnh Bìa
                                     </FieldLabel>
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="relative flex-1">
+                                            <div className="relative flex-1 min-h-0">
                                                 <Input
                                                     id="thumbnail"
                                                     type="file"
@@ -573,26 +566,26 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             )}
                                         </div>
                                         {thumbnailFile && (
-                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                                                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                                            <Item variant="outline">
+                                                <ItemMedia>
                                                     <ImageIcon className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-bold text-foreground truncate">{thumbnailFile.name}</p>
-                                                    <p className="text-[10px] text-muted-foreground font-mono">{(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                                </div>
-                                            </div>
+                                                </ItemMedia>
+                                                <ItemContent>
+                                                    <ItemTitle className="text-xs font-bold truncate">{thumbnailFile.name}</ItemTitle>
+                                                    <ItemDescription>{(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB</ItemDescription>
+                                                </ItemContent>
+                                            </Item>
                                         )}
                                     </div>
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel htmlFor="video" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                    <FieldLabel htmlFor="video" className="">
                                         Video Giới Thiệu
                                     </FieldLabel>
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="relative flex-1">
+                                            <div className="relative flex-1 min-h-0">
                                                 <Input
                                                     id="video"
                                                     type="file"
@@ -614,15 +607,15 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             )}
                                         </div>
                                         {videoFile && (
-                                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                                                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                                            <Item variant="outline">
+                                                <ItemMedia>
                                                     <Film className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-bold text-foreground truncate">{videoFile.name}</p>
-                                                    <p className="text-[10px] text-muted-foreground font-mono">{(videoFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                                </div>
-                                            </div>
+                                                </ItemMedia>
+                                                <ItemContent>
+                                                    <ItemTitle className="text-xs font-bold truncate">{videoFile.name}</ItemTitle>
+                                                    <ItemDescription>{(videoFile.size / 1024 / 1024).toFixed(2)} MB</ItemDescription>
+                                                </ItemContent>
+                                            </Item>
                                         )}
                                     </div>
                                 </Field>
@@ -632,15 +625,21 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                         </div>
                     </ScrollArea>
-
-                    {/* Footer */}
                     <SheetFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                            disabled={uploading}>
+                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
+                            Hủy Bỏ
+                        </Button>
                         <Button
                             type="submit"
                             disabled={uploading || !isDirty}>
                             {uploading ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang tạo...
                                 </>
                             ) : (
@@ -650,17 +649,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                 </>
                             )}
                         </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleClose}
-                            disabled={uploading}>
-                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
-                            Hủy Bỏ
-                        </Button>
                     </SheetFooter>
                 </form>
             </SheetContent>
-        </Sheet>
+        </Sheet >
     );
 }

@@ -41,7 +41,7 @@ export function LessonNavigation({ duration, order, hasPrevious, hasNext, onPrev
                     size="sm"
                     onClick={onPrevious}
                     disabled={!hasPrevious}
-                    className="rounded-full h-10 px-5 text-xs font-bold uppercase tracking-widest border-border/50 hover:bg-muted cursor-pointer transition-all"
+                    className="px-5 text-xs font-bold uppercase tracking-widest border-border/50 hover:bg-muted cursor-pointer transition-all"
                 >
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Trước
@@ -50,7 +50,7 @@ export function LessonNavigation({ duration, order, hasPrevious, hasNext, onPrev
                     size="sm"
                     onClick={onNext}
                     // disabled={!hasNext && false} // Allow redirect to completion
-                    className="rounded-full h-10 px-6 text-xs font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 cursor-pointer transition-all active:scale-95"
+                    className="px-6 text-xs font-bold uppercase tracking-widest cursor-pointer transition-all"
                 >
                     {hasNext ? (
                         <>Bài Tiếp <ChevronRight className="w-4 h-4 ml-2" /></>

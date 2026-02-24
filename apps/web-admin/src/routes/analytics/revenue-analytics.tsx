@@ -7,18 +7,17 @@ import {
     CardHeader,
     CardTitle,
 } from "@workspace/ui/components/card"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@workspace/ui/components/table"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
-import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@workspace/ui/components/dialog"
 import {
     DollarSign,
     TrendingUp,
@@ -27,12 +26,12 @@ import {
     CreditCard,
     ArrowDownRight,
     Filter,
-    Download,
-    Loader2,
+    Download
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
-import { usePlatformOverview } from "../../api/services/analytics"
-import { reportApi } from "../../api/services/reports"
+import { usePlatformOverview } from "@/lib/api/services/analytics"
+import { formatDateTime, formatCurrency, formatNumber } from "@/lib/format-utils"
+import { reportApi } from "@/lib/api/services/reports"
 import {
     AreaChart,
     Area,
@@ -53,6 +52,7 @@ import {
 } from "@workspace/ui/components/chart"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { PageHeader } from "@/components/common/page-header"
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const revenueChartConfig = {
     total: {
@@ -66,9 +66,6 @@ export default function RevenueAnalytics() {
 
     if (isLoading) return <PageLoading />
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
-    }
 
     const revenueByLevelData = overview?.revenueByLevel?.sort((a, b) => b.amount - a.amount) || []
 
@@ -79,20 +76,20 @@ export default function RevenueAnalytics() {
                 subtitle="Theo dõi dòng tiền, tăng trưởng và hiệu suất kinh doanh trên từng phân khúc khóa học."
                 stats={[
                     { label: "Tổng doanh thu", value: formatCurrency(overview?.overview.totalRevenue || 0) },
-                    { label: "Đơn hàng hoàn tất", value: overview?.overview.totalEnrollments.toLocaleString() || "0" }
+                    { label: "Đơn hàng hoàn tất", value: formatNumber(overview?.overview.totalEnrollments) || "0" }
                 ]}
                 actions={
                     <>
                         <Button variant="outline">
-                            <Filter />
+                            <Filter className="mr-2 size-4" />
                             Lọc dữ liệu
                         </Button>
-                        <ExportReportDialog />
+                        <ExportRevenueSheet />
                         <Button
                             onClick={() => refetch()}
                         >
+                            <RefreshCw className={cn("mr-2 size-4", isLoading && "animate-spin")} />
                             Làm mới
-                            <RefreshCw className={cn(isLoading && "animate-spin")} />
                         </Button>
                     </>
                 }
@@ -135,12 +132,10 @@ export default function RevenueAnalytics() {
 
             {/* Main Charts */}
             <div className="grid gap-6 md:grid-cols-12">
-                <Card className="md:col-span-8 rounded-2xl border-border/40 shadow-sm bg-card overflow-hidden">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle className="text-lg font-bold uppercase tracking-tight">Biểu đồ <span className="text-primary">Tăng trưởng</span></CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Doanh thu 6 tháng gần nhất</CardDescription>
-                        </div>
+                <Card className="md:col-span-8 overflow-hidden">
+                    <CardHeader>
+                        <CardTitle>Biểu đồ Tăng trưởng</CardTitle>
+                        <CardDescription>Doanh thu 6 tháng gần nhất</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[400px]">
                         <ChartContainer config={revenueChartConfig} className="w-full h-full">
@@ -161,10 +156,10 @@ export default function RevenueAnalytics() {
                     </CardContent>
                 </Card>
 
-                <Card className="md:col-span-4 rounded-2xl border-border/40 shadow-sm bg-card">
+                <Card className="md:col-span-4">
                     <CardHeader>
-                        <CardTitle className="text-lg font-bold uppercase tracking-tight">Doanh thu <span className="text-emerald-500">Cấp độ</span></CardTitle>
-                        <CardDescription className="text-[10px] font-bold uppercase text-muted-foreground/40 font-mono">Báo cáo theo trình độ JLPT (N5 - N1)</CardDescription>
+                        <CardTitle>Doanh thu theo Cấp độ</CardTitle>
+                        <CardDescription>Báo cáo theo trình độ JLPT (N5 - N1)</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -197,182 +192,293 @@ export default function RevenueAnalytics() {
             </div>
 
             {/* Recent Transactions Table */}
-            <div className="rounded-xl border bg-card overflow-hidden">
-                <div className="p-6 border-b">
-                    <h3 className="text-lg font-semibold">Giao dịch Gần đây</h3>
-                    <p className="text-sm text-muted-foreground">Chi tiết các đơn hàng vừa hoàn thành</p>
-                </div>
-                <div className="relative overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b bg-muted/30">
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Đơn hàng</th>
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Khách hàng</th>
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Số tiền</th>
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Thời gian</th>
-                                <th className="h-10 px-4 text-xs font-semibold text-muted-foreground uppercase">Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Giao dịch Gần đây</CardTitle>
+                    <CardDescription>Chi tiết các đơn hàng vừa hoàn thành</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Đơn hàng</TableHead>
+                                <TableHead>Khách hàng</TableHead>
+                                <TableHead>Số tiền</TableHead>
+                                <TableHead>Thời gian</TableHead>
+                                <TableHead>Trạng thái</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {overview?.recentSales.map((sale, i) => (
-                                <tr key={i} className="hover:bg-muted/30 transition-colors">
-                                    <td className="py-4 px-4">
-                                        <span className="text-xs font-mono font-medium">#{sale.id.slice(-8).toUpperCase()}</span>
-                                    </td>
-                                    <td className="py-4 px-4">
-                                        <div className="space-y-0.5">
-                                            <p className="text-sm font-semibold">{sale.userName}</p>
-                                            <p className="text-xs text-muted-foreground">{sale.userEmail}</p>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-4 text-sm font-semibold">{formatCurrency(Number(sale.amount))}</td>
-                                    <td className="py-4 px-4 text-xs text-muted-foreground">{new Date(sale.date).toLocaleString('vi-VN')}</td>
-                                    <td className="py-4 px-4">
-                                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-none">Hoàn tất</Badge>
-                                    </td>
-                                </tr>
+                                <TableRow key={i}>
+                                    <TableCell className="font-mono">{sale.id.slice(-8).toUpperCase()}</TableCell>
+                                    <TableCell>
+                                        <div className="font-medium">{sale.userName}</div>
+                                        <div className="text-xs text-muted-foreground">{sale.userEmail}</div>
+                                    </TableCell>
+                                    <TableCell className="font-semibold">{formatCurrency(Number(sale.amount))}</TableCell>
+                                    <TableCell className="text-muted-foreground">{formatDateTime(sale.date, 'dd/MM/yyyy HH:mm')}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">Hoàn tất</Badge>
+                                    </TableCell>
+                                </TableRow>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
         </div>
     )
 }
 
 function RevenueCard({ title, value, sub, icon: Icon, trend, trendUp, inverseColor }: any) {
     return (
-        <Card className="rounded-2xl border-border/40 shadow-sm bg-card group overflow-hidden relative">
-            <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="p-2.5 rounded-xl bg-muted/50 group-hover:bg-primary/10 group-hover:text-primary transition-all">
-                        <Icon className="size-5" />
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{title}</CardTitle>
+                <Icon className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{value}</div>
+                <p className="text-xs text-muted-foreground">{sub}</p>
+                {trend && (
+                    <div className={cn(
+                        "flex items-center gap-1 text-xs mt-1",
+                        trendUp ? (inverseColor ? "text-rose-500" : "text-emerald-500") :
+                            (inverseColor ? "text-emerald-500" : "text-rose-500")
+                    )}>
+                        <span>{trend}</span>
+                        <ArrowUpRight className={cn("size-4", !trendUp && "rotate-90")} />
                     </div>
-                    {trend && (
-                        <div className={cn(
-                            "flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-md",
-                            trendUp ? (inverseColor ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500") :
-                                (inverseColor ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500")
-                        )}>
-                            {trend}
-                            <ArrowUpRight className={cn("size-3", !trendUp && "rotate-90")} />
-                        </div>
-                    )}
-                </div>
-                <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">{title}</p>
-                    <h3 className="text-2xl font-black tracking-tight text-foreground">{value}</h3>
-                    <p className="text-[9px] font-medium text-muted-foreground/60 pt-1 uppercase italic border-l-2 border-border/30 pl-3">{sub}</p>
-                </div>
+                )}
             </CardContent>
         </Card>
     )
 }
 
-function ExportReportDialog() {
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [isExporting, setIsExporting] = useState<string | null>(null);
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+    SheetFooter,
+} from "@workspace/ui/components/sheet"
+import { Calendar } from "@workspace/ui/components/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
+import { Calendar as CalendarIcon, XCircle, CheckCircle2 } from "lucide-react"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import {
+    Item,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+} from "@workspace/ui/components/item"
+import { vi } from "@/lib/format-utils"
+
+function ExportRevenueSheet() {
+    const [startDate, setStartDate] = useState<string>("");
+    const [endDate, setEndDate] = useState<string>("");
+    const [reportType, setReportType] = useState<'orders' | 'balance' | 'revenue'>("revenue");
+    const [isExporting, setIsExporting] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const handleExport = async (type: "orders" | "balance" | "revenue") => {
+    const handleExport = async () => {
         try {
-            setIsExporting(type);
-            toast.info(`Đang tạo báo cáo ${type === 'orders' ? 'đơn hàng' : type === 'balance' ? 'biến động số dư' : 'doanh thu'}...`);
-            await reportApi.exportReport(type, startDate, endDate);
+            setIsExporting(true);
+            toast.info(`Đang tạo báo cáo ${reportType === 'orders' ? 'đơn hàng' : reportType === 'balance' ? 'biến động số dư' : 'doanh thu'}...`);
+            await reportApi.exportReport(reportType, startDate, endDate);
             toast.success("Xuất báo cáo thành công!");
             setOpen(false);
         } catch (error) {
             console.error("Export failed:", error);
             toast.error("Xuất báo cáo thất bại. Vui lòng thử lại sau.");
         } finally {
-            setIsExporting(null);
+            setIsExporting(false);
         }
     };
 
+    const reportTypes = [
+        {
+            id: "revenue",
+            title: "Báo cáo Doanh thu",
+            description: "Thống kê hiệu suất bán khóa học và tăng trưởng.",
+            icon: TrendingUp,
+            color: "text-amber-500",
+            bg: "bg-amber-500/10"
+        },
+        {
+            id: "orders",
+            title: "Nhật ký Đơn hàng",
+            description: "Chi tiết các giao dịch thanh toán và trạng thái đơn hàng.",
+            icon: CreditCard,
+            color: "text-emerald-500",
+            bg: "bg-emerald-500/10"
+        },
+        {
+            id: "balance",
+            title: "Biến động Số dư",
+            description: "Lịch sử nạp, trừ và hoàn trả coin trong hệ thống.",
+            icon: RefreshCw,
+            color: "text-blue-500",
+            bg: "bg-blue-500/10"
+        }
+    ];
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+        <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
                 <Button variant="outline">
-                    <Download />
+                    <Download className="mr-2 size-4" />
                     Xuất báo cáo
                 </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle className="uppercase tracking-widest text-lg font-bold">Xuất báo cáo</DialogTitle>
-                    <DialogDescription className="text-xs">
-                        Chọn khoảng thời gian và loại báo cáo để xuất dưới dạng tập tin Excel phục vụ đối soát và quản trị.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="start-date" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-0.5">Từ ngày</Label>
-                            <Input
-                                id="start-date"
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                            />
+            </SheetTrigger>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0">
+                <SheetHeader className="p-6 border-b">
+                    <SheetTitle>Xuất báo cáo dữ liệu</SheetTitle>
+                    <SheetDescription>
+                        Chọn khoảng thời gian và loại báo cáo để xuất dưới dạng tập tin Excel.
+                    </SheetDescription>
+                </SheetHeader>
+
+                <ScrollArea className="flex-1">
+                    <div className="space-y-8 p-6">
+                        {/* Date Range Selection */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/60">Khoảng thời gian</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label>Từ ngày</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className={cn(
+                                                    "w-full h-11 justify-start text-left font-normal",
+                                                    !startDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {startDate ? formatDateTime(startDate, "dd/MM/yyyy") : <span>Chọn ngày bắt đầu</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={startDate ? new Date(startDate) : undefined}
+                                                onSelect={(date) => setStartDate(date ? formatDateTime(date, "yyyy-MM-dd") : '')}
+                                                initialFocus
+                                                locale={vi}
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Đến ngày</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className={cn(
+                                                    "w-full h-11 justify-start text-left font-normal",
+                                                    !endDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {endDate ? formatDateTime(endDate, "dd/MM/yyyy") : <span>Chọn ngày kết thúc</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={endDate ? new Date(endDate) : undefined}
+                                                onSelect={(date) => setEndDate(date ? formatDateTime(date, "yyyy-MM-dd") : '')}
+                                                initialFocus
+                                                locale={vi}
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
+                            {(startDate || endDate) && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-muted-foreground hover:text-foreground"
+                                    onClick={() => { setStartDate(''); setEndDate(''); }}
+                                >
+                                    <XCircle className="mr-2 size-3.5" />
+                                    Xóa khoảng thời gian
+                                </Button>
+                            )}
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="end-date" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-0.5">Đến ngày</Label>
-                            <Input
-                                id="end-date"
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                            />
+
+                        {/* Report Type Selection */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/60">Loại báo cáo</h4>
+                            <div className="grid gap-3">
+                                {reportTypes.map((type) => (
+                                    <Item
+                                        key={type.id}
+                                        variant={reportType === type.id ? "default" : "outline"}
+                                        className={cn(
+                                            "cursor-pointer transition-all duration-200 border-2",
+                                            reportType === type.id ? "border-primary bg-primary/5" : "hover:border-primary/20"
+                                        )}
+                                        onClick={() => setReportType(type.id as any)}
+                                    >
+                                        <ItemMedia>
+                                            <div className={cn("p-2 rounded-lg", type.bg, type.color)}>
+                                                <type.icon className="size-5" />
+                                            </div>
+                                        </ItemMedia>
+                                        <ItemContent>
+                                            <ItemTitle className="font-bold">{type.title}</ItemTitle>
+                                            <ItemDescription>{type.description}</ItemDescription>
+                                        </ItemContent>
+                                        {reportType === type.id && (
+                                            <div className="pr-4">
+                                                <CheckCircle2 className="size-5 text-primary" />
+                                            </div>
+                                        )}
+                                    </Item>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                    <div className="space-y-2 mt-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block ml-0.5">Loại báo cáo</Label>
+                </ScrollArea>
+
+                <SheetFooter className="p-6 border-t bg-muted/30">
+                    <div className="flex w-full items-center justify-between gap-4">
                         <Button
-                            variant="outline"
-                            className="w-full justify-start h-auto p-4 gap-4"
-                            onClick={() => handleExport("revenue")}
-                            disabled={!!isExporting}
+                            variant="ghost"
+                            onClick={() => setOpen(false)}
+                            disabled={isExporting}
                         >
-                            <div className="bg-amber-500/10 text-amber-500 p-2 rounded-lg shrink-0">
-                                {isExporting === "revenue" ? <Loader2 className="size-4 animate-spin" /> : <TrendingUp className="size-4" />}
-                            </div>
-                            <div className="flex flex-col items-start gap-1 text-left">
-                                <span className="font-bold">Báo cáo Doanh thu</span>
-                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Thống kê hiệu suất bán khóa học và doanh thu quy đổi.</span>
-                            </div>
+                            Hủy
                         </Button>
                         <Button
-                            variant="outline"
-                            className="w-full justify-start h-auto p-4 gap-4"
-                            onClick={() => handleExport("orders")}
-                            disabled={!!isExporting}
+                            className="px-8 font-bold"
+                            onClick={handleExport}
+                            disabled={isExporting}
                         >
-                            <div className="bg-emerald-500/10 text-emerald-500 p-2 rounded-lg shrink-0">
-                                {isExporting === "orders" ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />}
-                            </div>
-                            <div className="flex flex-col items-start gap-1 text-left">
-                                <span className="font-bold">Nhật ký Đơn hàng</span>
-                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Chi tiết các giao dịch thanh toán thành công.</span>
-                            </div>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="w-full justify-start h-auto p-4 gap-4"
-                            onClick={() => handleExport("balance")}
-                            disabled={!!isExporting}
-                        >
-                            <div className="bg-blue-500/10 text-blue-500 p-2 rounded-lg shrink-0">
-                                {isExporting === "balance" ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-                            </div>
-                            <div className="flex flex-col items-start gap-1 text-left">
-                                <span className="font-bold">Biến động Số dư</span>
-                                <span className="text-xs font-normal text-muted-foreground whitespace-normal">Lịch sử nạp, trừ và hoàn trả coin của học viên.</span>
-                            </div>
+                            {isExporting ? (
+                                <>
+                                    <Spinner className="mr-2 size-4" />
+                                    Đang xuất file...
+                                </>
+                            ) : (
+                                <>
+                                    <Download className="mr-2 size-4" />
+                                    Xuất Excel
+                                </>
+                            )}
                         </Button>
                     </div>
-                </div>
-            </DialogContent>
-        </Dialog>
-    )
+                </SheetFooter>
+            </SheetContent>
+        </Sheet>
+    );
 }

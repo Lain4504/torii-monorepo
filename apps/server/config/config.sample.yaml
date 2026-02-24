@@ -136,8 +136,9 @@ thirdParty:
 
 identity:
   twoFactorIssuer: "Torii Nihongo"
-  webAdminUrl: "https://app.torii.sbs"
-  frontendUrl: "https://app.torii.sbs"
+  webAdminUrl: "https://admin.torii.sbs"
+  webLearnerUrl: "https://app.torii.sbs"
+  webMeetUrl: "https://meet.torii.sbs"
   twoFactorTempTokenExpiry: 300
   defaultAdmin:
     email: "admin@torii.com"

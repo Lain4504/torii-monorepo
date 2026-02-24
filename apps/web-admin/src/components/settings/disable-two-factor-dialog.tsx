@@ -7,12 +7,21 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
+    DialogFooter,
+    DialogClose,
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
+import {
+    Field,
+    FieldGroup,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import { toast } from '@workspace/ui/components/sonner';
-import { AlertTriangle, Lock, Loader2 } from 'lucide-react';
-import { useDisableTotp } from '@/api/services/two-factor-auth';
+import { AlertTriangle, Lock } from 'lucide-react';
+import { useDisableTotp } from '@/lib/api/services/two-factor-auth';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const disableSchema = z.object({
     password: z.string().min(1, 'Password is required'),
@@ -46,91 +55,85 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-md">
+            <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-xl font-bold">
                         <AlertTriangle className="size-5 text-rose-600 dark:text-rose-400" />
-                        Disable Two-Factor Authentication
+                        Tắt Xác Thực Hai Yếu Tố
                     </DialogTitle>
-                    <DialogDescription className="text-sm text-muted-foreground/60">
-                        This will make your account less secure
+                    <DialogDescription>
+                        Điều này sẽ làm cho tài khoản của bạn kém an toàn hơn
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6 py-4">
-                    {/* Warning */}
-                    <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-4">
-                        <div className="flex gap-3">
-                            <AlertTriangle className="size-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-                            <div className="space-y-1">
-                                <p className="text-sm font-medium text-foreground">
-                                    Are you sure?
-                                </p>
-                                <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                                    Disabling two-factor authentication will make your account more vulnerable to unauthorized access. We strongly recommend keeping it enabled.
-                                </p>
+                <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <FieldGroup className="space-y-6">
+                        {/* Warning */}
+                        <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-4">
+                            <div className="flex gap-3">
+                                <AlertTriangle className="size-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                    <p className="text-sm font-medium text-foreground">
+                                        Bạn có chắc chắn không?
+                                    </p>
+                                    <p className="text-xs text-muted-foreground/60 leading-relaxed">
+                                        Tắt xác thực hai yếu tố sẽ làm cho tài khoản của bạn dễ bị truy cập trái phép hơn. Chúng tôi khuyên bạn nên duy trì nó.
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Password Form */}
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">
-                                Xác nhận mật khẩu của bạn
-                            </label>
-                            <Controller
-                                name="password"
-                                control={form.control}
-                                render={({ field, fieldState }) => (
-                                    <div className="space-y-1">
-                                        <div className="relative">
-                                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
-                                            <Input
-                                                {...field}
-                                                type="password"
-                                                placeholder="Nhập mật khẩu của bạn"
-                                                className="pl-10 rounded-lg"
-                                                autoComplete="current-password"
-                                            />
-                                        </div>
-                                        {fieldState.error && (
-                                            <p className="text-xs text-rose-500">{fieldState.error.message}</p>
-                                        )}
+                        {/* Password Field */}
+                        <Controller
+                            name="password"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid} className="space-y-2">
+                                    <FieldLabel htmlFor={field.name} className="text-sm font-medium">
+                                        Xác nhận mật khẩu của bạn
+                                    </FieldLabel>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                                        <Input
+                                            {...field}
+                                            id={field.name}
+                                            type="password"
+                                            placeholder="Nhập mật khẩu của bạn"
+                                            className="pl-10"
+                                            autoComplete="current-password"
+                                        />
                                     </div>
-                                )}
-                            />
-                        </div>
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
+                            )}
+                        />
+                    </FieldGroup>
 
-                        <div className="flex gap-3">
+                    <DialogFooter className="mt-6">
+                        <DialogClose asChild>
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => {
-                                    onOpenChange(false);
-                                    form.reset();
-                                }}
-                                className="flex-1 rounded-lg"
                             >
                                 Hủy
                             </Button>
-                            <Button
-                                type="submit"
-                                disabled={disableMutation.isPending}
-                                className="flex-1 gap-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white"
-                            >
-                                {disableMutation.isPending ? (
-                                    <>
-                                        <Loader2 className="size-4 animate-spin" />
-                                        Đang tắt...
-                                    </>
-                                ) : (
-                                    'Tắt 2FA'
-                                )}
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+                        </DialogClose>
+                        <Button
+                            type="submit"
+                            disabled={disableMutation.isPending}
+                            className="bg-rose-600 hover:bg-rose-700 text-white border-rose-600"
+                        >
+                            {disableMutation.isPending ? (
+                                <>
+                                    <Spinner />
+                                    Đang tắt...
+                                </>
+                            ) : (
+                                'Tắt 2FA'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );

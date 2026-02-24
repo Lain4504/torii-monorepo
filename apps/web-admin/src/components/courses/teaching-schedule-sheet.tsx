@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import {
     Sheet,
     SheetContent,
@@ -10,13 +10,10 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@workspace/ui/components/form';
+    Field,
+    FieldLabel,
+    FieldError,
+} from '@workspace/ui/components/field';
 import {
     Select,
     SelectContent,
@@ -27,18 +24,19 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select";
 import { InstructorRole, type CourseResponseDTO } from '@workspace/schemas';
-import { useCourseInstructors } from '@/api/services/course-instructors';
+import { useCourseInstructors } from '@/lib/api/services/course-instructors';
 import {
     useTeachingSchedules,
     useAssignTeachingSchedule,
     useRemoveTeachingSchedule,
     useCheckAvailability
-} from '@/api/services/live-sessions';
+} from '@/lib/api/services/live-sessions';
 import { toast } from '@workspace/ui/components/sonner';
 import { Calendar, Clock, Trash, AlertCircle } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Card } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 
 interface TeachingScheduleSheetProps {
     open: boolean;
@@ -139,113 +137,94 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
         }
     };
 
-    const handleRemove = async (scheduleId: string) => {
-        if (!confirm('Xóa lịch cố định này? Các buổi học tương lai chưa diễn ra sẽ bị hủy.')) return;
-        try {
-            await removeMutation.mutateAsync(scheduleId);
-            toast.success('Đã xóa lịch cố định');
-            refetch();
-        } catch (error) {
-            toast.error('Không thể xóa lịch dạy');
-        }
-    };
-
     if (!course) return null;
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] overflow-y-auto bg-background/95 backdrop-blur-xl border-l border-border/40">
-                <SheetHeader className="pb-6 border-b border-border/20">
-                    <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight">
-                        Lịch dạy <span className="text-primary not-italic">Cố định</span>
-                    </SheetTitle>
-                    <SheetDescription className="text-xs font-medium text-muted-foreground/60 uppercase tracking-widest pt-1">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Lịch dạy Cố định</SheetTitle>
+                    <SheetDescription>
                         {course.title}
                     </SheetDescription>
                 </SheetHeader>
 
-                <div className="space-y-8 py-6">
-                    {/* Current Schedules */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                            Lịch hiện tại
-                        </h3>
-                        {schedules && schedules.length > 0 ? (
-                            <div className="space-y-3">
-                                {schedules.map((schedule) => (
-                                    <Card key={schedule.id} className="p-4 rounded-2xl border-border/40 bg-muted/20 hover:bg-muted/30 transition-colors">
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="flex-1 space-y-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Badge variant="outline" className="text-[10px] font-bold uppercase">
-                                                        {DAYS_OF_WEEK[schedule.dayOfWeek]}
-                                                    </Badge>
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {schedule.lecturer?.displayName || 'Chưa chỉ định'}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <Clock className="size-3.5 text-primary" />
-                                                        {schedule.startTime}
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="space-y-8 p-6">
+                        {/* Current Schedules */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                                Lịch hiện tại
+                            </h3>
+                            {schedules && schedules.length > 0 ? (
+                                <div className="space-y-3">
+                                    {schedules.map((schedule) => (
+                                        <Card key={schedule.id} className="p-4">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex-1 space-y-2 min-h-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline">
+                                                            {DAYS_OF_WEEK[schedule.dayOfWeek]}
+                                                        </Badge>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {schedule.lecturer?.displayName || 'Chưa chỉ định'}
+                                                        </span>
                                                     </div>
-                                                    <div className="flex items-center gap-1.5">
-                                                        <Calendar className="size-3.5 text-primary" />
-                                                        {schedule.duration} phút
+                                                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <Clock className="size-3.5 text-primary" />
+                                                            {schedule.startTime}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <Calendar className="size-3.5 text-primary" />
+                                                            {schedule.duration} phút
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleRemove(schedule.id)}
+                                                    className="size-8 text-destructive hover:bg-destructive/10"
+                                                >
+                                                    <Trash className="size-4" />
+                                                </Button>
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleRemove(schedule.id)}
-                                                className="size-8 rounded-lg text-destructive hover:bg-destructive/10">
-                                                <Trash className="size-4" />
-                                            </Button>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="p-8 text-center border-2 border-dashed border-border/40 rounded-2xl bg-muted/5">
-                                <AlertCircle className="size-8 mx-auto mb-3 text-muted-foreground/20" />
-                                <p className="text-sm text-muted-foreground/60">Chưa có lịch cố định nào</p>
-                            </div>
-                        )}
-                    </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-8 text-center border border-dashed rounded-lg">
+                                    <AlertCircle className="size-8 mx-auto mb-3 text-muted-foreground/40" />
+                                    <p className="text-sm text-muted-foreground">Chưa có lịch cố định nào</p>
+                                </div>
+                            )}
+                        </div>
 
-                    {/* Add New Schedule */}
-                    <div className="space-y-4 pt-6 border-t border-border/20">
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                            Thêm lịch mới
-                        </h3>
+                        {/* Add New Schedule */}
+                        <div className="space-y-4 pt-6 border-t">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                                Thêm lịch mới
+                            </h3>
 
-                        <Form {...(form as any)}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                                <FormField
-                                    control={form.control as any}
+                                <Controller
                                     name="lecturerId"
-                                    render={({ field }: any) => (
-                                        <FormItem>
-                                            <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                                                Giảng viên
-                                            </FormLabel>
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor="lecturerId">Giảng viên</FieldLabel>
                                             <Select onValueChange={field.onChange} value={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="rounded-xl border-border/40 h-11">
-                                                        <SelectValue placeholder="Chọn giảng viên..." />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent className="rounded-2xl">
+                                                <SelectTrigger id="lecturerId" aria-invalid={fieldState.invalid}>
+                                                    <SelectValue placeholder="Chọn giảng viên..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
                                                     <SelectGroup>
-                                                        <SelectLabel className="text-[10px] uppercase tracking-widest font-black opacity-30">
-                                                            Danh sách giảng viên
-                                                        </SelectLabel>
+                                                        <SelectLabel>Danh sách giảng viên</SelectLabel>
                                                         {instructors?.map((instructor) => (
                                                             <SelectItem
                                                                 key={instructor.id}
                                                                 value={instructor.lecturerId}
-                                                                className="rounded-lg"
                                                             >
                                                                 {instructor.lecturer?.displayName || instructor.lecturerId}
                                                                 {' '}
@@ -255,15 +234,13 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
-                                            <FormMessage className="text-[10px] pl-1 font-bold" />
-                                        </FormItem>
+                                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                        </Field>
                                     )}
                                 />
 
                                 <div className="space-y-2">
-                                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                                        Chọn các ngày trong tuần
-                                    </FormLabel>
+                                    <FieldLabel>Chọn các ngày trong tuần</FieldLabel>
                                     <div className="flex flex-wrap gap-2">
                                         {DAYS_SHORT.map((day, idx) => {
                                             const isSelected = selectedDays.includes(idx);
@@ -281,9 +258,10 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                                         );
                                                     }}
                                                     className={cn(
-                                                        "size-11 rounded-xl text-[10px] font-bold",
-                                                        isSelected && "shadow-md shadow-primary/20"
-                                                    )}>
+                                                        "size-11",
+                                                        isSelected && "shadow-sm"
+                                                    )}
+                                                >
                                                     {day}
                                                 </Button>
                                             );
@@ -292,43 +270,37 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
-                                    <FormField
-                                        control={form.control as any}
+                                    <Controller
                                         name="startTime"
-                                        render={({ field }: any) => (
-                                            <FormItem>
-                                                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                                                    Giờ bắt đầu
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type="time"
-                                                        {...field}
-                                                        className="rounded-xl border-border/40 h-11"
-                                                    />
-                                                </FormControl>
-                                                <FormMessage className="text-[10px] pl-1 font-bold" />
-                                            </FormItem>
+                                        control={form.control}
+                                        render={({ field, fieldState }) => (
+                                            <Field data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor="startTime">Giờ bắt đầu</FieldLabel>
+                                                <Input
+                                                    {...field}
+                                                    id="startTime"
+                                                    type="time"
+                                                    aria-invalid={fieldState.invalid}
+                                                />
+                                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                            </Field>
                                         )}
                                     />
-                                    <FormField
-                                        control={form.control as any}
+                                    <Controller
                                         name="duration"
-                                        render={({ field }: any) => (
-                                            <FormItem>
-                                                <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                                                    Thời lượng (phút)
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type="number"
-                                                        {...field}
-                                                        onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                                        className="rounded-xl border-border/40 h-11"
-                                                    />
-                                                </FormControl>
-                                                <FormMessage className="text-[10px] pl-1 font-bold" />
-                                            </FormItem>
+                                        control={form.control}
+                                        render={({ field, fieldState }) => (
+                                            <Field data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor="duration">Thời lượng (phút)</FieldLabel>
+                                                <Input
+                                                    {...field}
+                                                    id="duration"
+                                                    type="number"
+                                                    aria-invalid={fieldState.invalid}
+                                                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                                />
+                                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                            </Field>
                                         )}
                                     />
                                 </div>
@@ -339,31 +311,45 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                         variant="secondary"
                                         onClick={handleCheckAvailability}
                                         disabled={availabilityMutation.isPending}
-                                        className="w-full h-10 rounded-xl text-[10px] font-bold uppercase tracking-widest">
+                                        className="w-full"
+                                    >
                                         {availabilityMutation.isPending ? 'Đang kiểm tra...' : 'Kiểm tra lịch trùng'}
                                     </Button>
                                 )}
 
-                                <div className="flex gap-3 pt-4">
+                                <div className="flex gap-3 pt-2">
                                     <Button
                                         type="button"
-                                        variant="ghost"
+                                        variant="outline"
                                         onClick={() => onOpenChange(false)}
-                                        className="flex-1 h-11 rounded-xl text-[10px] font-bold uppercase tracking-widest">
+                                        className="flex-1"
+                                    >
                                         Hủy bỏ
                                     </Button>
                                     <Button
                                         type="submit"
                                         disabled={assignMutation.isPending || selectedDays.length === 0}
-                                        className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm">
+                                        className="flex-1"
+                                    >
                                         Lưu lịch cố định
                                     </Button>
                                 </div>
                             </form>
-                        </Form>
+                        </div>
                     </div>
-                </div>
+                </ScrollArea>
             </SheetContent>
         </Sheet>
     );
+
+    async function handleRemove(scheduleId: string) {
+        if (!confirm('Xóa lịch cố định này? Các buổi học tương lai chưa diễn ra sẽ bị hủy.')) return;
+        try {
+            await removeMutation.mutateAsync(scheduleId);
+            toast.success('Đã xóa lịch cố định');
+            refetch();
+        } catch {
+            toast.error('Không thể xóa lịch dạy');
+        }
+    }
 }

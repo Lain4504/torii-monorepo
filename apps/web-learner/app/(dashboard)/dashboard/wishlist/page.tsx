@@ -3,20 +3,16 @@
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import {
-    PlayCircle,
-    BookOpen,
-    Clock,
-    Loader2,
-    Heart,
-    Trash2,
-} from 'lucide-react'
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyHeader } from '@workspace/ui/components/empty'
+import { PlayCircle, BookOpen, Clock, Heart, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { wishlistApi } from '@/apis/services/wishlist-api'
-import { courseApi } from '@/apis/services/course-api'
+import { wishlistApi } from '@/lib/api/services/wishlist-api'
+import { courseApi } from '@/lib/api/services/course-api'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { formatCurrency } from '@/utils/format-utils'
 
 interface WishlistCourse extends CourseResponseDTO {
     wishlistId: string;
@@ -84,7 +80,7 @@ export default function WishlistPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <Spinner className="w-8 h-8 animate-spin text-primary" />
             </div>
         )
     }
@@ -168,18 +164,18 @@ export default function WishlistPage() {
                                         {course.durationWeeks || 0} tuần
                                     </span>
                                     <span className="text-base font-bold text-primary">
-                                        {course.price === 0 ? 'Miễn phí' : `${course.price?.toLocaleString()}đ`}
+                                        {course.price === 0 ? 'Miễn phí' : formatCurrency(course.price)}
                                     </span>
                                 </div>
 
                                 <div className="flex items-center gap-3">
                                     <Link href={`/courses/${course.slug}`} className="flex-1 md:flex-none">
-                                        <Button variant="outline" className="w-full md:w-auto rounded-xl h-9 text-xs font-bold px-4">
+                                        <Button variant="outline" size="sm" className="w-full md:w-auto">
                                             Chi tiết
                                         </Button>
                                     </Link>
                                     <Link href={`/checkout?courseId=${course.id}`} className="flex-1 md:flex-none">
-                                        <Button className="w-full md:w-auto rounded-xl h-9 text-xs font-bold px-4 bg-primary text-primary-foreground hover:bg-primary/90">
+                                        <Button size="sm" className="w-full md:w-auto">
                                             Mua ngay
                                         </Button>
                                     </Link>
@@ -191,17 +187,21 @@ export default function WishlistPage() {
             </div>
 
             {courses.length === 0 && (
-                <div className="py-20 text-center space-y-4 rounded-2xl border border-dashed border-border bg-muted/5">
-                    <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto">
-                        <Heart className="w-8 h-8 text-muted-foreground/40" />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-foreground">Wishlist còn trống</h3>
-                        <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">Hãy bắt đầu khám phá và lưu lại những khóa học mà bạn yêu thích nhất.</p>
-                        <Link href="/courses">
-                            <Button className="mt-4 rounded-xl font-bold" variant="outline">Khám phá ngay</Button>
+                <div className="py-20 rounded-2xl border border-dashed border-border bg-muted/5 flex justify-center">
+                    <Empty className="max-w-md">
+                        <EmptyHeader>
+                            <EmptyMedia variant="icon" className="bg-muted/20">
+                                <Heart className="text-muted-foreground/40 w-6 h-6" />
+                            </EmptyMedia>
+                            <EmptyTitle className="text-lg font-bold text-foreground">Wishlist còn trống</EmptyTitle>
+                            <EmptyDescription className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
+                                Hãy bắt đầu khám phá và lưu lại những khóa học mà bạn yêu thích nhất.
+                            </EmptyDescription>
+                        </EmptyHeader>
+                        <Link href="/courses" className="mt-4 flex justify-center">
+                            <Button variant="outline">Khám phá ngay</Button>
                         </Link>
-                    </div>
+                    </Empty>
                 </div>
             )}
         </div>

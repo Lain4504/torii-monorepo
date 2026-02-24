@@ -2,27 +2,19 @@ import { useState, useEffect } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import type { QuestionQueryDTO, QuestionResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import { useQuestions, useApproveQuestion, useDeactivateQuestion, useRejectQuestion, useSendForReviewQuestion } from "@/api/services/questions.ts";
+import { useQuestions, useApproveQuestion, useDeactivateQuestion, useRejectQuestion, useSendForReviewQuestion } from "@/lib/api/services/questions.ts";
 import { QuestionsPrimaryToolbar } from "@/components/questions/questions-primary-toolbar.tsx";
 import { QuestionsTable } from "@/components/questions/questions-table.tsx";
 import { QuestionFormSheet } from "@/components/questions/question-form-sheet";
 import { QuestionDetailSheet } from "@/components/questions/question-detail-sheet";
 import { DeleteQuestionDialog } from "@/components/questions/delete-question-dialog.tsx";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@workspace/ui/components/pagination";
+import { SmartPagination } from '@/components/common/smart-pagination';
 import { toast } from '@workspace/ui/components/sonner';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
-import { cn } from '@workspace/ui/lib/utils';
 import { Plus, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function QuestionsPage() {
     const [page, setPage] = useState(1);
@@ -121,74 +113,7 @@ export default function QuestionsPage() {
         );
     }
 
-    const renderPaginationItems = () => {
-        if (!meta) return null;
-        const items = [];
-        const maxVisiblePages = 5;
 
-        let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(meta.totalPages, startPage + maxVisiblePages - 1);
-
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(1, endPage - maxVisiblePages + 1);
-        }
-
-        if (startPage > 1) {
-            items.push(
-                <PaginationItem key={1}>
-                    <PaginationLink
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setPage(1);
-                        }}
-                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all cursor-pointer"
-                    >
-                        1
-                    </PaginationLink>
-                </PaginationItem>
-            );
-            if (startPage > 2) items.push(<PaginationEllipsis key="start-ellipsis" className="opacity-20" />);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            items.push(
-                <PaginationItem key={i}>
-                    <PaginationLink
-                        isActive={page === i}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setPage(i);
-                        }}
-                        className={cn(
-                            "rounded-xl h-10 w-10 text-[11px] font-black transition-all cursor-pointer",
-                            page === i ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-primary/10 text-muted-foreground/60 hover:text-primary"
-                        )}
-                    >
-                        {i}
-                    </PaginationLink>
-                </PaginationItem>
-            );
-        }
-
-        if (endPage < meta.totalPages) {
-            if (endPage < meta.totalPages - 1) items.push(<PaginationEllipsis key="end-ellipsis" className="opacity-20" />);
-            items.push(
-                <PaginationItem key={meta.totalPages}>
-                    <PaginationLink
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setPage(meta.totalPages);
-                        }}
-                        className="rounded-xl h-10 w-10 text-[11px] font-black hover:bg-primary/10 transition-all cursor-pointer"
-                    >
-                        {meta.totalPages}
-                    </PaginationLink>
-                </PaginationItem>
-            );
-        }
-
-        return items;
-    };
 
     return (
         <div className="flex flex-col gap-8">
@@ -233,64 +158,34 @@ export default function QuestionsPage() {
             />
 
             {/* Table */}
-            <div className="rounded-xl border bg-card overflow-hidden">
-                <QuestionsTable
-                    data={questions}
-                    onView={setViewingQuestion}
-                    onEdit={setEditingQuestion}
-                    onDelete={setDeletingQuestion}
-                    onApprove={handleApprove}
-                    onDeactivate={handleDeactivate}
-                    onReject={handleReject}
-                    onSendForReview={handleSendForReview}
-                    page={page}
-                    limit={queryParams.limit || 10}
-                    isLoading={isLoading}
-                />
-            </div>
+            <Card className="overflow-hidden">
+            <CardContent className="p-0">
 
-            {/* Pagination */}
-            {meta && meta.totalPages > 1 && (
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-2">
-                    <div className="flex items-center gap-4 text-xs font-medium">
-                        <div className="text-muted-foreground">Trang {page} / {meta.totalPages}</div>
-                        <div className="w-1 h-1 rounded-full bg-border" />
-                        <div className="text-muted-foreground">Tổng cộng: <span className="text-foreground font-semibold">{meta.total}</span> câu hỏi</div>
-                    </div>
+                            <QuestionsTable
+                                data={questions}
+                                onView={setViewingQuestion}
+                                onEdit={setEditingQuestion}
+                                onDelete={setDeletingQuestion}
+                                onApprove={handleApprove}
+                                onDeactivate={handleDeactivate}
+                                onReject={handleReject}
+                                onSendForReview={handleSendForReview}
+                                page={page}
+                                limit={queryParams.limit || 10}
+                                isLoading={isLoading}
+                            />
+                        
+            </CardContent>
+            </Card>
 
-                    <Pagination>
-                        <PaginationContent className="gap-2">
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (page > 1) setPage(p => p - 1);
-                                    }}
-                                    className={cn(
-                                        page === 1 && "opacity-30 pointer-events-none"
-                                    )}
-                                />
-                            </PaginationItem>
+            <SmartPagination
+                page={page}
+                totalPages={meta?.totalPages || 0}
+                totalItems={meta?.total || 0}
+                onPageChange={setPage}
+                itemName="câu hỏi"
+            />
 
-                            <div className="hidden md:flex items-center gap-1">
-                                {renderPaginationItems()}
-                            </div>
-
-                            <PaginationItem>
-                                <PaginationNext
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (page < meta.totalPages) setPage(p => p + 1);
-                                    }}
-                                    className={cn(
-                                        page === meta.totalPages && "opacity-30 pointer-events-none"
-                                    )}
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                </div>
-            )}
 
             {/* Sheets & Dialogs */}
             <QuestionFormSheet

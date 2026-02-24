@@ -13,24 +13,26 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription
+  SheetDescription,
+  SheetFooter
 } from "@workspace/ui/components/sheet";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
+import { Controller } from "react-hook-form";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@workspace/ui/components/form";
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@workspace/ui/components/field";
 import { Input } from "@workspace/ui/components/input";
 import { Button } from "@workspace/ui/components/button";
 import { Textarea } from "@workspace/ui/components/textarea";
-import { useGradeSubmission, useReturnSubmission } from "@/api/services/submissions";
+import { useGradeSubmission, useReturnSubmission } from "@/lib/api/services/submissions";
 import { toast } from "@workspace/ui/components/sonner";
-import { Loader2, FileText, Download, ExternalLink, PenLine } from "lucide-react";
+import { FileText, Download, ExternalLink, PenLine } from "lucide-react";
 
 import { Badge } from "@workspace/ui/components/badge";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface GradeSubmissionSheetProps {
   open: boolean;
@@ -97,7 +99,7 @@ export function GradeSubmissionSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:w-[700px] !max-w-[700px] h-full flex flex-col p-0 border-l border-border/50 shadow-2xl overflow-hidden outline-none text-left">
+      <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0 overflow-hidden text-left">
         <SheetHeader className="p-6 border-b border-border/40 bg-muted/5">
           <div className="flex items-center gap-3 mb-1">
             <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight uppercase">
@@ -112,13 +114,13 @@ export function GradeSubmissionSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <div className="p-6 space-y-8">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-6 space-y-6">
             {/* Submission Content */}
             <section className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-                <FileText className="size-4 text-primary" />
-                <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Nội dung bài nộp</h3>
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <FileText className="size-4" />
+                <h3 className="text-sm font-semibold">Nội dung bài nộp</h3>
               </div>
 
               {submission.textAnswer && (
@@ -163,92 +165,87 @@ export function GradeSubmissionSheet({
             </section>
 
             {/* Grading Form */}
-            <section className="space-y-6">
-              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-                <PenLine className="size-4 text-primary" />
-                <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Đánh giá & Chấm điểm</h3>
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <PenLine className="size-4" />
+                <h3 className="text-sm font-semibold">Đánh giá & Chấm điểm</h3>
               </div>
 
-              <Form {...form}>
-                <form id="grade-form" onSubmit={form.handleSubmit(onGrade)} className="space-y-6">
-                  <div className="p-5 rounded-2xl bg-muted/10 border border-border/40 space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="score"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Điểm số</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                {...field}
-                                value={field.value || ''}
-                                onChange={e => {
-                                  const input = e.target.value;
-                                  field.onChange(input === '' ? 0 : parseFloat(input));
-                                }}
-                                className="rounded-xl pr-12 font-black text-2xl h-14 bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all"
-                                placeholder="0"
-                                min="0"
-                                max={maxScore}
-                                step="0.5"
-                              />
-                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-muted-foreground/40 italic">
-                                / {maxScore} điểm
-                              </span>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+              <form id="grade-form" onSubmit={form.handleSubmit(onGrade)} className="space-y-6 flex flex-col overflow-hidden">
+                <FieldGroup>
+                  <Controller
+                    control={form.control}
+                    name="score"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Điểm số</FieldLabel>
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            id={field.name}
+                            {...field}
+                            value={field.value || ''}
+                            onChange={e => {
+                              const input = e.target.value;
+                              field.onChange(input === '' ? 0 : parseFloat(input));
+                            }}
+                            className="pr-16"
+                            placeholder="0"
+                            min="0"
+                            max={maxScore}
+                            step="0.5"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                            / {maxScore}
+                          </span>
+                        </div>
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="feedback"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Phản hồi</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              {...field}
-                              className="min-h-[120px] rounded-xl resize-none bg-background shadow-sm border-border/50 focus:border-primary/50 transition-all text-sm leading-relaxed"
-                              placeholder="Nhập nhận xét chi tiết..."
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </form>
-              </Form>
+                  <Controller
+                    control={form.control}
+                    name="feedback"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={field.name}>Phản hồi</FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          {...field}
+                          className="min-h-[120px]"
+                          placeholder="Nhập nhận xét chi tiết..."
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+                </FieldGroup>
+              </form>
             </section>
           </div>
-        </div>
+        </ScrollArea>
 
-        <div className="p-6 border-t border-border/40 bg-muted/5">
-          <div className="flex items-center justify-between gap-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onReturn}
-              disabled={returnMutation.isPending || gradeMutation.isPending}
-              className="flex-1 h-11 rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 font-bold uppercase text-xs tracking-wide">
-              {returnMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Trả lại bài
-            </Button>
-            <Button
-              type="submit"
-              form="grade-form"
-              disabled={gradeMutation.isPending || returnMutation.isPending}
-              className="flex-[2] h-11 rounded-xl font-bold uppercase text-xs tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
-              {gradeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Hoàn tất chấm điểm
-            </Button>
-          </div>
-        </div>
+        <SheetFooter>
+          <Button
+            type="submit"
+            form="grade-form"
+            disabled={gradeMutation.isPending || returnMutation.isPending}
+          >
+            {gradeMutation.isPending && <Spinner className="mr-2" />}
+            Hoàn tất chấm điểm
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onReturn}
+            disabled={returnMutation.isPending || gradeMutation.isPending}
+            className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-100"
+          >
+            {returnMutation.isPending && <Spinner className="mr-2" />}
+            Trả lại bài
+          </Button>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

@@ -14,9 +14,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 interface NoteEntry {
     id: string
     word: string
-    phonetic: string
+    phonetic?: string
     meaning: string
-    note: string
+    note?: string
     partOfSpeech: string
 }
 
@@ -37,7 +37,9 @@ function shuffleArray<T>(arr: T[]): T[] {
     const a = [...arr]
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]]
+        const temp = a[i] as T
+        a[i] = a[j] as T
+        a[j] = temp
     }
     return a
 }
@@ -57,6 +59,7 @@ export function NotebookFlashcardStudy({ entries, notebookName, onClose }: Noteb
     }, [])
 
     const handleRate = useCallback((rating: Rating) => {
+        if (!currentCard) return
         setResults(prev => [...prev, { entryId: currentCard.id, rating }])
         setIsFlipped(false)
 
@@ -193,60 +196,62 @@ export function NotebookFlashcardStudy({ entries, notebookName, onClose }: Noteb
             {/* Card */}
             <div className="min-h-[320px] md:min-h-[380px] flex flex-col justify-center" style={{ perspective: '1200px' }}>
                 <AnimatePresence mode="wait">
-                    <motion.div
-                        key={currentCard.id + (isFlipped ? '-back' : '-front')}
-                        initial={{ opacity: 0, rotateX: isFlipped ? -80 : 80, scale: 0.97 }}
-                        animate={{ opacity: 1, rotateX: 0, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.96 }}
-                        transition={{ duration: 0.28, ease: 'easeOut' }}
-                        onClick={handleFlip}
-                        className={cn(
-                            "relative w-full min-h-[300px] md:min-h-[360px] rounded-[2rem] border bg-card/60 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center cursor-pointer group transition-colors p-8 md:p-14 text-center overflow-hidden select-none",
-                            isFlipped
-                                ? "border-primary/25 bg-primary/5"
-                                : "border-border hover:border-primary/20"
-                        )}
-                    >
-                        {/* Corner decoration */}
-                        <div className="absolute top-5 left-5 flex gap-1.5">
-                            <div className="size-2 rounded-full bg-foreground/10" />
-                            <div className="size-2 rounded-full bg-foreground/5" />
-                        </div>
-                        <div className="absolute top-5 right-5 text-[9px] font-black uppercase tracking-[0.2em] text-foreground/10">
-                            {isFlipped ? 'Mặt sau' : 'Mặt trước'}
-                        </div>
-
-                        <div className="space-y-4 max-w-xl">
-                            {isFlipped ? (
-                                <>
-                                    <p className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                                        {currentCard.meaning}
-                                    </p>
-                                    {currentCard.phonetic && (
-                                        <p className="text-lg text-primary/60 font-mono">[{currentCard.phonetic}]</p>
-                                    )}
-                                    {currentCard.note && (
-                                        <p className="text-sm text-muted-foreground italic leading-relaxed">
-                                            &ldquo;{currentCard.note}&rdquo;
-                                        </p>
-                                    )}
-                                </>
-                            ) : (
-                                <>
-                                    <h2 className="text-5xl md:text-7xl font-black tracking-tight text-foreground">
-                                        {currentCard.word}
-                                    </h2>
-                                    {currentCard.phonetic && (
-                                        <p className="text-base text-muted-foreground font-mono">[{currentCard.phonetic}]</p>
-                                    )}
-                                </>
+                    {currentCard && (
+                        <motion.div
+                            key={currentCard.id + (isFlipped ? '-back' : '-front')}
+                            initial={{ opacity: 0, rotateX: isFlipped ? -80 : 80, scale: 0.97 }}
+                            animate={{ opacity: 1, rotateX: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.96 }}
+                            transition={{ duration: 0.28, ease: 'easeOut' }}
+                            onClick={handleFlip}
+                            className={cn(
+                                "relative w-full min-h-[300px] md:min-h-[360px] rounded-[2rem] border bg-card/60 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center cursor-pointer group transition-colors p-8 md:p-14 text-center overflow-hidden select-none",
+                                isFlipped
+                                    ? "border-primary/25 bg-primary/5"
+                                    : "border-border hover:border-primary/20"
                             )}
-                        </div>
+                        >
+                            {/* Corner decoration */}
+                            <div className="absolute top-5 left-5 flex gap-1.5">
+                                <div className="size-2 rounded-full bg-foreground/10" />
+                                <div className="size-2 rounded-full bg-foreground/5" />
+                            </div>
+                            <div className="absolute top-5 right-5 text-[9px] font-black uppercase tracking-[0.2em] text-foreground/10">
+                                {isFlipped ? 'Mặt sau' : 'Mặt trước'}
+                            </div>
 
-                        <div className="absolute bottom-5 text-[10px] font-bold uppercase tracking-[0.25em] text-foreground/15">
-                            {isFlipped ? 'Chạm để lật lại' : 'Chạm để xem nghĩa'}
-                        </div>
-                    </motion.div>
+                            <div className="space-y-4 max-w-xl">
+                                {isFlipped ? (
+                                    <>
+                                        <p className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+                                            {currentCard.meaning}
+                                        </p>
+                                        {currentCard.phonetic && (
+                                            <p className="text-lg text-primary/60 font-mono">[{currentCard.phonetic}]</p>
+                                        )}
+                                        {currentCard.note && (
+                                            <p className="text-sm text-muted-foreground italic leading-relaxed">
+                                                &ldquo;{currentCard.note}&rdquo;
+                                            </p>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <h2 className="text-5xl md:text-7xl font-black tracking-tight text-foreground">
+                                            {currentCard.word}
+                                        </h2>
+                                        {currentCard.phonetic && (
+                                            <p className="text-base text-muted-foreground font-mono">[{currentCard.phonetic}]</p>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
+                            <div className="absolute bottom-5 text-[10px] font-bold uppercase tracking-[0.25em] text-foreground/15">
+                                {isFlipped ? 'Chạm để lật lại' : 'Chạm để xem nghĩa'}
+                            </div>
+                        </motion.div>
+                    )}
                 </AnimatePresence>
             </div>
 

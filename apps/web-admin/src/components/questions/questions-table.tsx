@@ -14,6 +14,7 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import { useState } from 'react';
 import { Inbox } from 'lucide-react';
 import type { QuestionResponseDTO } from '@workspace/schemas';
@@ -126,17 +127,19 @@ export function QuestionsTable({
                     <TableRow className="hover:bg-transparent">
                         <TableCell
                             colSpan={columns.length}
-                            className="h-64 text-center"
+                            className="h-[400px] text-center"
                         >
-                            <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                                <div className="p-4 rounded-full bg-muted/30">
-                                    <Inbox className="size-10 text-muted-foreground/40" />
-                                </div>
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-bold text-muted-foreground/60">Danh sách trống</h3>
-                                    <p className="text-sm text-muted-foreground/40">Không tìm thấy câu hỏi nào phù hợp với điều kiện lọc.</p>
-                                </div>
-                            </div>
+                            <Empty>
+                                <EmptyMedia>
+                                    <Inbox className="size-8 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Danh sách trống</EmptyTitle>
+                                    <EmptyDescription>
+                                        Không tìm thấy câu hỏi nào phù hợp với điều kiện lọc.
+                                    </EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
                         </TableCell>
                     </TableRow>
                 )}

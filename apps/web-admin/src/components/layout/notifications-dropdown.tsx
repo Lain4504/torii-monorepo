@@ -7,8 +7,8 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { cn } from '@workspace/ui/lib/utils';
-import { formatDistanceToNow } from 'date-fns';
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/api/services/notifications';
+import { formatRelativeTime } from '@/lib/format-utils';
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/api/services/notifications';
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas';
 
 // UI Notification type
@@ -47,7 +47,7 @@ function mapNotificationToUI(notification: NotificationResponseDTO): UINotificat
         id: notification.id,
         title: notification.title,
         message: notification.message,
-        time: formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
+        time: formatRelativeTime(notification.createdAt),
         read: notification.isRead,
         type: mapNotificationType(notification.notificationType),
     };

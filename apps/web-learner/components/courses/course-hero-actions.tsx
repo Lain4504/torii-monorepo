@@ -24,12 +24,12 @@ export function CourseHeroActions({ courseId, courseSlug }: CourseHeroActionsPro
 
     return (
         <div className="pt-6">
-            <Button
+<Button
                 size="lg"
-                className="gap-2 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="gap-2 text-base font-semibold shadow-lg transition-all hover:shadow-xl"
                 onClick={() => router.push(`/courses/${courseSlug}/learn`)}
             >
-                <PlayCircle className="w-5 h-5" />
+                <PlayCircle className="h-5 w-5" />
                 Tiếp tục học
             </Button>
         </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useExams } from '@/apis/services/exam-api'
+import { useExams } from '@/lib/api/services/exam-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Card } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
@@ -10,6 +10,7 @@ import { FileText, Clock, Trophy, Search, Play, History } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useMemo } from 'react'
 import { ExamSessionStatus } from '@workspace/schemas'
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@workspace/ui/components/empty'
 
 export default function ExamsPage() {
     const [searchQuery, setSearchQuery] = useState('')
@@ -53,7 +54,7 @@ export default function ExamsPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 icon-xs text-muted-foreground" />
                     <Input
                         placeholder="Tìm kiếm bài thi..."
-                        className="pl-9 h-10 rounded-xl bg-background border-input focus:ring-1 focus:ring-primary text-sm font-medium"
+                        className="pl-9"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -62,13 +63,15 @@ export default function ExamsPage() {
 
             {/* Grid */}
             {filteredExams.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-xl bg-muted/5">
-                    <div className="p-4 rounded-full bg-muted/20 mb-4">
-                        <FileText className="size-8 text-muted-foreground/50" />
-                    </div>
-                    <h3 className="text-lg font-bold text-foreground">Không tìm thấy bài thi</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Vui lòng điều chỉnh tiêu chí tìm kiếm.</p>
-                </div>
+                <Empty>
+                    <EmptyMedia variant="icon" className="bg-muted/20">
+                        <FileText className="size-8 text-muted-foreground/30" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Không tìm thấy bài thi</EmptyTitle>
+                        <EmptyDescription>Vui lòng điều chỉnh tiêu chí tìm kiếm.</EmptyDescription>
+                    </EmptyContent>
+                </Empty>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {filteredExams.map((exam) => (
@@ -118,7 +121,7 @@ export default function ExamsPage() {
                                 </div>
 
                                 <div className="p-4 bg-muted/20 border-t border-border/50">
-                                    <Button className="w-full h-10 rounded-xl text-xs font-bold shadow-sm">
+                                    <Button className="w-full">
                                         {(exam.sessionStatus === ExamSessionStatus.SUBMITTED || exam.sessionStatus === ExamSessionStatus.COMPLETED) ? (
                                             <>
                                                 <History className="mr-2 size-3.5" /> Xem kết quả

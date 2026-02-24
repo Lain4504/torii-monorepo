@@ -91,6 +91,21 @@ export class OrderController {
         }
     }
 
+    @Get('stats')
+    async getStats(@Query() query: OrderQueryDTO) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.order.getStats' },
+                    query
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch order statistics');
+        }
+    }
+
     @Get('transactions')
     async findMyPayments(@Query() query: PaymentQueryDTO, @Req() req: ReqWithRequester) {
         try {

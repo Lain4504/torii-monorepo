@@ -18,12 +18,12 @@ export type QuestionsColumnsProps = {
     onView: (question: QuestionResponseDTO) => void;
     onEdit: (question: QuestionResponseDTO) => void;
     onDelete: (question: QuestionResponseDTO) => void;
-    onApprove: (question: QuestionResponseDTO) => void;
-    onDeactivate: (question: QuestionResponseDTO) => void;
-    onReject: (question: QuestionResponseDTO) => void;
-    onSendForReview: (question: QuestionResponseDTO) => void;
-    page: number;
-    limit: number;
+    onApprove?: (question: QuestionResponseDTO) => void;
+    onDeactivate?: (question: QuestionResponseDTO) => void;
+    onReject?: (question: QuestionResponseDTO) => void;
+    onSendForReview?: (question: QuestionResponseDTO) => void;
+    page?: number;
+    limit?: number;
 };
 
 const getStatusColor = (status: QuestionStatus) => {
@@ -75,8 +75,8 @@ export const getQuestionsColumns = ({
     onDeactivate,
     onReject,
     onSendForReview,
-    page,
-    limit,
+    page = 1,
+    limit = 10,
 }: QuestionsColumnsProps) => [
         // STT Column
         columnHelper.display({
@@ -226,7 +226,7 @@ export const getQuestionsColumns = ({
                                     <span>Chỉnh sửa Câu hỏi</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="bg-border/20 mx-2" />
-                                {status === 'review' && (
+                                {status === 'review' && onApprove && onReject && (
                                     <>
                                         <DropdownMenuItem
                                             onClick={() => onApprove(question)}
@@ -244,7 +244,7 @@ export const getQuestionsColumns = ({
                                         </DropdownMenuItem>
                                     </>
                                 )}
-                                {status === 'active' && (
+                                {status === 'active' && onDeactivate && (
                                     <DropdownMenuItem
                                         onClick={() => onDeactivate(question)}
                                         className="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-amber-500 focus:text-amber-600 focus:bg-amber-500/10 cursor-pointer flex gap-3"
@@ -253,7 +253,7 @@ export const getQuestionsColumns = ({
                                         <span>Ngừng hoạt động</span>
                                     </DropdownMenuItem>
                                 )}
-                                {(status === 'active' || status === 'inactive') && (
+                                {(status === 'active' || status === 'inactive') && onSendForReview && (
                                     <DropdownMenuItem
                                         onClick={() => onSendForReview(question)}
                                         className="rounded-md px-4 py-3 text-[10px] font-black uppercase tracking-widest focus:bg-primary/5 focus:text-primary cursor-pointer flex gap-3"

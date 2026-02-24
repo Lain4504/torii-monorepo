@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Card } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import {
     Plus,
@@ -8,12 +9,12 @@ import {
     Search,
 } from 'lucide-react';
 import { Input } from "@workspace/ui/components/input";
-import { useQuestionPool } from '@/api/services/question-pools';
-import { useQuestionsByPool } from '@/api/services/questions';
+import { useQuestionPool } from '@/lib/api/services/question-pools';
+import { useQuestionsByPool } from '@/lib/api/services/questions';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { PageHeader } from '@/components/common/page-header';
-import { QuestionsTable } from '@/components/question-pools/questions-table.tsx';
+import { PoolQuestionsTable } from '@/components/question-pools/pool-questions-table';
 import { QuestionFormSheet } from '@/components/questions/question-form-sheet';
 import { QuestionDetailSheet } from '@/components/questions/question-detail-sheet';
 import { DeleteQuestionDialog } from '@/components/questions/delete-question-dialog.tsx';
@@ -103,15 +104,15 @@ export default function PoolDetailPage() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <QuestionsTable
+                <Card>
+                    <PoolQuestionsTable
                         data={filteredQuestions}
                         isLoading={isLoadingQuestions}
                         onView={setViewingQuestion}
                         onEdit={setEditingQuestion}
                         onDelete={setDeletingQuestion}
                     />
-                </div>
+                </Card>
             </div>
 
             {/* Sheets & Dialogs */}

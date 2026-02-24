@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { apiClient, extractErrorMessage } from '@/apis/api-client';
+import { apiClient, extractErrorMessage } from '@/lib/api/api-client';
 import type { UserResponseDTO, UserLoginDTO, UserRegistrationDTO } from '@workspace/schemas';
 import type { AxiosError } from 'axios';
 

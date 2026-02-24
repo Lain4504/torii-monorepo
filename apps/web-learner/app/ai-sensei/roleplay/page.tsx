@@ -1,6 +1,7 @@
 "use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { Card } from "@workspace/ui/components/card"
 import { RoleplayStudio } from "@/components/ai-sensei/roleplay-studio"
 import { InteractiveRoleplay } from "@/components/ai-sensei/interactive-roleplay"
 import { MonitorPlay, MessageSquareText } from "lucide-react"
@@ -26,14 +27,14 @@ export default function RoleplayPage() {
                     </TabsList>
                 </div>
 
-                <div className="flex-1 min-h-0 border rounded-xl bg-background/50 shadow-sm overflow-hidden backdrop-blur-sm">
+                <Card className="flex-1 min-h-0 bg-background/50 shadow-sm overflow-hidden backdrop-blur-sm">
                     <TabsContent value="interactive" className="h-full min-h-0 m-0 data-[state=inactive]:hidden border-none outline-none overflow-hidden">
                         <InteractiveRoleplay />
                     </TabsContent>
                     <TabsContent value="scenario" className="h-full min-h-0 m-0 data-[state=inactive]:hidden border-none outline-none p-4 md:p-6 overflow-y-auto">
                         <RoleplayStudio />
                     </TabsContent>
-                </div>
+                </Card>
             </Tabs>
         </div>
     )

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ReviewItem } from './review-item'
-import { reviewApi, ReviewResponse } from '@/apis/services/review-api'
+import { reviewApi, ReviewResponse } from '@/lib/api/services/review-api'
 import { MessageSquareOff } from 'lucide-react'
 import {
     AlertDialog,
@@ -12,6 +12,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
+import { Skeleton } from "@workspace/ui/components/skeleton"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@workspace/ui/components/empty"
 
 interface ReviewListProps {
     learnerId: string
@@ -69,7 +71,7 @@ export function ReviewList({ learnerId }: ReviewListProps) {
         return (
             <div className="grid gap-6 md:grid-cols-2">
                 {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-100" />
+                    <Skeleton key={i} className="h-40 rounded-lg" />
                 ))}
             </div>
         )
@@ -77,15 +79,17 @@ export function ReviewList({ learnerId }: ReviewListProps) {
 
     if (reviews.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50/50 py-16 text-center">
-                <div className="mb-4 rounded-full bg-slate-100 p-4">
-                    <MessageSquareOff className="h-8 w-8 text-slate-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900">Chưa có đánh giá nào</h3>
-                <p className="max-w-sm text-sm text-slate-500">
-                    Học viên này chưa nhận được đánh giá nào từ giảng viên hoặc bạn học.
-                </p>
-            </div>
+            <Empty className="py-16">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon" className="bg-muted">
+                        <MessageSquareOff className="text-muted-foreground" />
+                    </EmptyMedia>
+                    <EmptyTitle>Chưa có đánh giá nào</EmptyTitle>
+                    <EmptyDescription>
+                        Học viên này chưa nhận được đánh giá nào từ giảng viên hoặc bạn học.
+                    </EmptyDescription>
+                </EmptyHeader>
+            </Empty>
         )
     }
 
@@ -111,7 +115,7 @@ export function ReviewList({ learnerId }: ReviewListProps) {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Hủy</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogAction onClick={confirmDelete} variant="destructive">
                             Xóa
                         </AlertDialogAction>
                     </AlertDialogFooter>

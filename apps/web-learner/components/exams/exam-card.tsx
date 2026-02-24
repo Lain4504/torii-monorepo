@@ -82,11 +82,11 @@ export function ExamCard({
                     <div className="rounded-lg bg-muted/50 p-4 flex items-center justify-between">
                         <div>
                             <p className="text-xs text-muted-foreground mb-1">Kết quả</p>
-                            <p className={cn('text-2xl font-bold', passed ? 'text-emerald-600' : 'text-destructive')}>
+                            <p className={cn('text-2xl font-bold', passed ? 'text-primary' : 'text-destructive')}>
                                 {score} <span className="text-sm font-normal text-muted-foreground">/ {maxScore}</span>
                             </p>
                         </div>
-                        <Badge variant="secondary" className={cn(passed ? 'bg-emerald-500/10 text-emerald-600' : 'bg-destructive/10 text-destructive')}>
+                        <Badge variant="secondary" className={cn(passed ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive')}>
                             {passed ? 'ĐẠT' : 'KHÔNG ĐẠT'}
                         </Badge>
                     </div>

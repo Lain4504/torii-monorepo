@@ -21,11 +21,12 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { storageApi } from '@/api/services/storage-api';
+import { storageApi } from '@/lib/api/services/storage-api';
 import { LessonContentType, lessonUpdateDTOSchema, type LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useUpdateLesson } from "@/api/services/lesson";
-import { Loader2, Video, FileText, ClipboardList, BookOpen, Box, LayoutDashboard, CloudUpload, Lock, Eye, FileType, Save } from 'lucide-react';
+import { useUpdateLesson } from "@/lib/api/services/lesson";
+import { Save, Video } from 'lucide-react';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const updateLessonSchema = lessonUpdateDTOSchema;
 
@@ -129,103 +130,58 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] max-h-screen flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background [&>button]:top-6 [&>button]:right-6 [&>button]:bg-background/20 [&>button]:rounded-xl [&>button]:w-10 [&>button]:h-10">
-
-                {/* Header Section */}
-                <SheetHeader className="px-6 py-6 border-b border-border/10 flex-shrink-0">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
-                                <Box className="size-4" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <SheetTitle className="text-xl font-bold tracking-tight">
-                                    Chỉnh Sửa Bài Học
-                                </SheetTitle>
-                                <p className="text-xs font-medium text-muted-foreground/60">
-                                    Mã: {lesson.id.substring(0, 8)}...
-                                </p>
-                            </div>
-                        </div>
-                        <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
-                            Cập nhật chi tiết bài học và cấu hình nội dung.
-                        </SheetDescription>
-                    </div>
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Chỉnh Sửa Bài Học</SheetTitle>
+                    <SheetDescription>
+                        Cập nhật nội dung cho bài học {lesson.id.substring(0, 8)}...
+                    </SheetDescription>
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-8 space-y-8">
+                        <div className="space-y-6 p-6">
                             {/* Basic Info */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-2 pb-2 border-b border-border/10">
-                                    <LayoutDashboard className="size-4 text-primary opacity-60" />
-                                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                                        Chi Tiết
-                                    </h3>
-                                </div>
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                                    Chi Tiết Bài Học
+                                </h3>
 
                                 <Controller
                                     control={control}
                                     name="title"
                                     render={({ field, fieldState }) => (
-                                        <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
-                                                Tiêu Đề
-                                            </FieldLabel>
+                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                            <FieldLabel htmlFor={field.name}>Tiêu Đề</FieldLabel>
                                             <Input
                                                 id={field.name}
                                                 {...field}
                                                 placeholder="VD: Giới thiệu về ngữ pháp"
-                                                className="h-11 pl-4 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-medium text-sm"
-                                                aria-invalid={fieldState.invalid}
                                             />
-                                            <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
+                                            <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
 
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-2 gap-4">
                                     <Controller
                                         control={control}
                                         name="contentType"
                                         render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
-                                                    Loại Nội Dung
-                                                </FieldLabel>
+                                            <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name}>Loại Nội Dung</FieldLabel>
                                                 <Select
                                                     value={field.value}
                                                     onValueChange={(value) => field.onChange(value as LessonContentType)}
                                                 >
-                                                    <SelectTrigger id={field.name} className="h-11 rounded-xl border-border bg-background hover:bg-muted/30 transition-all font-medium text-sm">
+                                                    <SelectTrigger id={field.name}>
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-border shadow-xl bg-background rounded-xl p-1">
-                                                        <SelectItem value={LessonContentType.VIDEO} className="rounded-lg px-3 py-2.5 text-xs font-medium cursor-pointer focus:bg-primary/10 focus:text-primary">
-                                                            <div className="flex items-center gap-2">
-                                                                <Video className="h-3.5 w-3.5 opacity-70" />
-                                                                Video
-                                                            </div>
-                                                        </SelectItem>
-                                                        <SelectItem value={LessonContentType.ARTICLE} className="rounded-lg px-3 py-2.5 text-xs font-medium cursor-pointer focus:bg-primary/10 focus:text-primary">
-                                                            <div className="flex items-center gap-2">
-                                                                <FileText className="h-3.5 w-3.5 opacity-70" />
-                                                                Bài viết
-                                                            </div>
-                                                        </SelectItem>
-                                                        <SelectItem value={LessonContentType.QUIZ} className="rounded-lg px-3 py-2.5 text-xs font-medium cursor-pointer focus:bg-primary/10 focus:text-primary">
-                                                            <div className="flex items-center gap-2">
-                                                                <ClipboardList className="h-3.5 w-3.5 opacity-70" />
-                                                                Trắc nghiệm
-                                                            </div>
-                                                        </SelectItem>
-                                                        <SelectItem value={LessonContentType.ASSIGNMENT} className="rounded-lg px-3 py-2.5 text-xs font-medium cursor-pointer focus:bg-primary/10 focus:text-primary">
-                                                            <div className="flex items-center gap-2">
-                                                                <BookOpen className="h-3.5 w-3.5 opacity-70" />
-                                                                Bài tập
-                                                            </div>
-                                                        </SelectItem>
+                                                    <SelectContent>
+                                                        <SelectItem value={LessonContentType.VIDEO}>Video</SelectItem>
+                                                        <SelectItem value={LessonContentType.ARTICLE}>Bài viết</SelectItem>
+                                                        <SelectItem value={LessonContentType.QUIZ}>Trắc nghiệm</SelectItem>
+                                                        <SelectItem value={LessonContentType.ASSIGNMENT}>Bài tập</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </Field>
@@ -236,16 +192,13 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                         control={control}
                                         name="orderIndex"
                                         render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
-                                                    Thứ Tự
-                                                </FieldLabel>
+                                            <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name}>Thứ Tự</FieldLabel>
                                                 <Input
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
                                                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                    className="h-11 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all font-mono font-medium text-sm"
                                                 />
                                             </Field>
                                         )}
@@ -254,42 +207,28 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                             </div>
 
                             {/* Content Specifics */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-2 pb-2 border-b border-border/10">
-                                    <FileType className="size-4 text-primary opacity-60" />
-                                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
-                                        Cấu Hình Nội Dung
-                                    </h3>
-                                </div>
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                                    Cấu Hình Nội Dung
+                                </h3>
 
                                 {watch('contentType') === LessonContentType.VIDEO && (
-                                    <div className="space-y-3 p-6 rounded-2xl bg-muted/5 border border-border/10">
-                                        <div className="flex justify-between items-center">
-                                            <label className="text-xs font-bold text-muted-foreground flex items-center gap-2 uppercase tracking-wider">
-                                                <CloudUpload className="size-3.5" />
-                                                Cập Nhật Video
-                                            </label>
-                                            <span className="text-[10px] font-medium text-muted-foreground/50">Ghi đè bản cũ</span>
-                                        </div>
-                                        <div className="relative group/upload">
-                                            <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-hover/upload:opacity-100 transition-opacity pointer-events-none" />
+                                    <div className="space-y-4">
+                                        <Field className="space-y-1.5">
+                                            <FieldLabel>Cập Nhật Video</FieldLabel>
                                             <Input
                                                 id="video-file"
                                                 type="file"
                                                 accept="video/*"
                                                 onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                                                className="h-16 border border-dashed border-border bg-background file:bg-primary/10 file:text-primary file:border-0 file:rounded-lg file:mr-4 file:px-4 file:h-10 file:font-medium file:text-xs cursor-pointer rounded-xl transition-all pt-2.5 pl-4 text-xs font-medium text-muted-foreground hover:border-primary/30"
                                             />
-                                        </div>
-                                        {lesson.videoUrl && (
-                                            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
-                                                <div className="p-1.5 rounded-lg bg-primary/20 text-primary">
-                                                    <Video className="size-3" />
-                                                </div>
-                                                <div className="flex flex-col gap-0.5 min-w-0">
-                                                    <span className="text-[10px] font-bold uppercase tracking-wide text-primary/80">Video Hiện Tại</span>
-                                                    <span className="text-[10px] font-medium text-muted-foreground truncate font-mono">{lesson.videoUrl}</span>
-                                                </div>
+                                            <p className="text-[10px] text-muted-foreground">Ghi đè bản cũ nếu tải lên mới</p>
+                                        </Field>
+
+                                        {lesson.videoUrl && !videoFile && (
+                                            <div className="flex items-center gap-2 p-2 rounded-md bg-muted/50 border text-xs">
+                                                <Video className="size-3.5 text-primary" />
+                                                <span className="truncate flex-1">Hiện tại: {lesson.videoUrl}</span>
                                             </div>
                                         )}
                                     </div>
@@ -300,47 +239,33 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                         control={control}
                                         name="articleContent"
                                         render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="text-xs font-bold text-muted-foreground ml-1 flex items-center gap-2 uppercase tracking-wider">
-                                                    Nội Dung
-                                                </FieldLabel>
+                                            <Field className="space-y-1" data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor={field.name}>Nội Dung Bài Viết</FieldLabel>
                                                 <Textarea
                                                     id={field.name}
                                                     {...field}
                                                     value={field.value || ''}
                                                     placeholder="Nội dung Markdown hoặc HTML..."
-                                                    className="min-h-[200px] p-4 rounded-xl border-border bg-background hover:bg-muted/30 focus-visible:ring-primary/20 transition-all resize-none font-mono text-xs leading-relaxed"
-                                                    aria-invalid={fieldState.invalid}
+                                                    className="min-h-[200px]"
                                                 />
-                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-destructive ml-1" />
+                                                <FieldError errors={[fieldState.error]} />
                                             </Field>
                                         )}
                                     />
                                 )}
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-4">
                                     <Controller
                                         control={control}
                                         name="isPreview"
                                         render={({ field }) => (
-                                            <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all cursor-pointer group/check" onClick={() => field.onChange(!field.value)}>
-                                                <div className="p-2 rounded-xl bg-background border border-border/20 group-hover/check:border-primary/40 transition-colors">
-                                                    <Checkbox
-                                                        id={field.name}
-                                                        checked={field.value}
-                                                        onCheckedChange={field.onChange}
-                                                        className="h-5 w-5 border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-md"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col gap-1">
-                                                    <label htmlFor={field.name} className="text-xs font-bold text-foreground cursor-pointer select-none flex items-center gap-2 uppercase tracking-wider">
-                                                        <Eye className="size-3.5 opacity-50" />
-                                                        Xem Thử Công Khai
-                                                    </label>
-                                                    <p className="text-[10px] text-muted-foreground/60">
-                                                        Cho phép xem không cần đăng ký
-                                                    </p>
-                                                </div>
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox
+                                                    id={field.name}
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                                <FieldLabel htmlFor={field.name} className="cursor-pointer mb-0">Xem Thử Công Khai</FieldLabel>
                                             </div>
                                         )}
                                     />
@@ -349,24 +274,13 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                         control={control}
                                         name="isUnlocked"
                                         render={({ field }) => (
-                                            <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/5 border border-border/10 hover:border-primary/20 hover:bg-muted/10 transition-all cursor-pointer group/check" onClick={() => field.onChange(!field.value)}>
-                                                <div className="p-2 rounded-xl bg-background border border-border/20 group-hover/check:border-primary/40 transition-colors">
-                                                    <Checkbox
-                                                        id={field.name}
-                                                        checked={field.value}
-                                                        onCheckedChange={field.onChange}
-                                                        className="h-5 w-5 border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-md"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col gap-1">
-                                                    <label htmlFor={field.name} className="text-xs font-bold text-foreground cursor-pointer select-none flex items-center gap-2 uppercase tracking-wider">
-                                                        <Lock className="size-3.5 opacity-50" />
-                                                        Mở Khóa Truy Cập
-                                                    </label>
-                                                    <p className="text-[10px] text-muted-foreground/60">
-                                                        Mở khóa ngay khi đăng ký
-                                                    </p>
-                                                </div>
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox
+                                                    id={field.name}
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                                <FieldLabel htmlFor={field.name} className="cursor-pointer mb-0">Mở Khóa Truy Cập</FieldLabel>
                                             </div>
                                         )}
                                     />
@@ -376,29 +290,29 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                     </ScrollArea>
 
                     <SheetFooter>
-                        <div className="flex w-full gap-4">
-                            <Button
-                                type="submit"
-                                disabled={uploading || !isDirty}>
-                                {uploading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Đang đồng bộ...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        Lưu Thay Đổi
-                                    </>
-                                )}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => onOpenChange(false)}>
-                                Hủy Bỏ
-                            </Button>
-                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Hủy Bỏ
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={uploading || !isDirty}
+                        >
+                            {uploading ? (
+                                <>
+                                    <Spinner className="mr-2" />
+                                    Đang đồng bộ...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Lưu Thay Đổi
+                                </>
+                            )}
+                        </Button>
                     </SheetFooter>
                 </form>
             </SheetContent>

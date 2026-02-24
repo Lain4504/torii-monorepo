@@ -10,19 +10,17 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog";
+import { Controller } from "react-hook-form";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@workspace/ui/components/form";
+    Field,
+    FieldError,
+    FieldLabel,
+} from "@workspace/ui/components/field";
 import { Textarea } from "@workspace/ui/components/textarea";
-import { useRejectCourse } from "@/api/services/courses";
+import { useRejectCourse } from "@/lib/api/services/courses";
 import type { CourseResponseDTO } from "@workspace/schemas";
 import { toast } from "@workspace/ui/components/sonner";
-import { Loader2, XCircle } from "lucide-react";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 const formSchema = z.object({
     reason: z.string().min(10, {
@@ -69,12 +67,9 @@ export function RejectCourseDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[95vw] sm:w-[500px] !max-w-[500px] border-destructive/20 bg-background/95 backdrop-blur-xl">
+            <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-destructive font-sans italic text-xl">
-                        <XCircle className="w-5 h-5" />
-                        Từ chối khóa học
-                    </DialogTitle>
+                    <DialogTitle>Từ chối khóa học</DialogTitle>
                     <DialogDescription>
                         Bạn có chắc chắn muốn từ chối khóa học{' '}
                         <span className="font-semibold text-foreground">
@@ -84,47 +79,44 @@ export function RejectCourseDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <Form {...(form as any)}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control as any}
-                            name="reason"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Lý do từ chối & Phản hồi</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="Nhập lý do từ chối và hướng dẫn chỉnh sửa..."
-                                            className="min-h-[120px] resize-none"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <Controller
+                        control={form.control as any}
+                        name="reason"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Lý do từ chối & Phản hồi</FieldLabel>
+                                <Textarea
+                                    id={field.name}
+                                    placeholder="Nhập lý do từ chối và hướng dẫn chỉnh sửa..."
+                                    className="min-h-[120px] resize-none"
+                                    {...field}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
-                        <DialogFooter className="gap-2 sm:gap-0">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => onOpenChange(false)}
-                            >
-                                Hủy bỏ
-                            </Button>
-                            <Button
-                                type="submit"
-                                variant="destructive"
-                                disabled={mutation.isPending}
-                            >
-                                {mutation.isPending && (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                )}
-                                Xác nhận Từ chối
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
+                    <DialogFooter className="gap-2 sm:gap-0 mt-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Hủy bỏ
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="destructive"
+                            disabled={mutation.isPending}
+                        >
+                            {mutation.isPending && (
+                                <Spinner className="mr-2" />
+                            )}
+                            Xác nhận Từ chối
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );

@@ -4,14 +4,23 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
 import { Badge } from '@workspace/ui/components/badge';
+import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
-import { format } from 'date-fns';
-import { Mail, Shield, Clock, Activity, Fingerprint, ScanEye, Terminal, AlertTriangle, Zap, Lock } from 'lucide-react';
+import { formatDateTime } from '@/lib/format-utils';
+import { Mail, Shield, Clock, Activity, Fingerprint, Terminal, AlertTriangle, Zap, Lock } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
+import {
+    Item,
+    ItemMedia,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
 
 interface ViewUserSheetProps {
     open: boolean;
@@ -43,23 +52,16 @@ export function ViewUserSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[500px] !max-w-[500px] flex flex-col p-0">
-                <SheetHeader className="px-6 py-6 border-b">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                            <ScanEye className="size-5 text-foreground" />
-                        </div>
-                        <div className="flex-1">
-                            <SheetTitle>Chi tiết người dùng</SheetTitle>
-                            <SheetDescription>
-                                Thông tin chi tiết tài khoản và lịch sử hoạt động
-                            </SheetDescription>
-                        </div>
-                    </div>
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Chi tiết người dùng</SheetTitle>
+                    <SheetDescription>
+                        Thông tin chi tiết tài khoản và lịch sử hoạt động
+                    </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
-                    <div className="px-6 py-8 space-y-8">
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="space-y-6 p-6">
                         {/* User Profile */}
                         <div className="flex items-center gap-6 p-6 rounded-lg border bg-card">
                             <Avatar className="h-16 w-16 rounded-full border">
@@ -67,7 +69,7 @@ export function ViewUserSheet({
                                     {user.displayName?.charAt(0).toUpperCase() || 'U'}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 min-h-0">
                                 <h3 className="text-lg font-semibold truncate">{user.displayName}</h3>
                                 <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
                                     <Mail className="size-3.5" />
@@ -83,26 +85,32 @@ export function ViewUserSheet({
 
                         {/* Role & Status */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 rounded-lg border bg-muted/20 space-y-2">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Shield className="size-3.5" />
-                                    <span className="text-[10px] font-bold uppercase tracking-wider">Vai trò</span>
-                                </div>
-                                <Badge variant="secondary" className="w-full justify-center capitalize">
-                                    {user.role}
-                                </Badge>
-                            </div>
+                            <Item variant="outline">
+                                <ItemMedia>
+                                    <Shield className="size-4" />
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground">Vai trò</ItemTitle>
+                                    <ItemDescription>
+                                        <Badge variant="secondary" className="capitalize">{user.role}</Badge>
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
 
-                            <div className="p-4 rounded-lg border bg-muted/20 space-y-2">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Activity className="size-3.5" />
-                                    <span className="text-[10px] font-bold uppercase tracking-wider">Trạng thái</span>
-                                </div>
-                                <Badge variant="outline" className={cn("w-full justify-center capitalize", status.includes('cấm') || status.includes('xóa') ? "border-destructive text-destructive" : "")}>
-                                    <StatusIcon className="size-3 mr-1.5" />
-                                    {status}
-                                </Badge>
-                            </div>
+                            <Item variant="outline">
+                                <ItemMedia>
+                                    <Activity className="size-4" />
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground">Trạng thái</ItemTitle>
+                                    <ItemDescription>
+                                        <Badge variant="outline" className={cn(status.includes('cấm') || status.includes('xóa') ? "border-destructive text-destructive" : "")}>
+                                            <StatusIcon className="size-3 mr-1.5" />
+                                            {status}
+                                        </Badge>
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
                         </div>
 
                         {/* Timeline */}
@@ -122,24 +130,27 @@ export function ViewUserSheet({
                                 ]
                                     .filter(Boolean)
                                     .map((item: any, i) => (
-                                        <div key={i} className="flex items-center gap-4 p-3 rounded-md border bg-muted/5">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background border shadow-sm">
-                                                <item.icon className="size-3.5 text-muted-foreground" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                                                    {item.label}
-                                                </p>
-                                                <p className="text-xs font-medium truncate">
-                                                    {format(new Date(item.value), 'PPpp')}
-                                                </p>
-                                            </div>
-                                        </div>
+                                        <Item key={i} variant="outline">
+                                            <ItemMedia>
+                                                <item.icon className="size-4" />
+                                            </ItemMedia>
+                                            <ItemContent>
+                                                <ItemTitle className="text-[10px] uppercase tracking-wider text-muted-foreground">{item.label}</ItemTitle>
+                                                <ItemDescription className="text-xs font-medium">
+                                                    {formatDateTime(item.value, 'PPpp')}
+                                                </ItemDescription>
+                                            </ItemContent>
+                                        </Item>
                                     ))}
                             </div>
                         </div>
                     </div>
                 </ScrollArea>
+                <SheetFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Đóng
+                    </Button>
+                </SheetFooter>
             </SheetContent>
         </Sheet>
     );

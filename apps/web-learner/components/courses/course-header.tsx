@@ -1,6 +1,8 @@
-import { Badge } from '@workspace/ui/components/badge'
-import { Calendar, Globe, Users, Star } from 'lucide-react'
 import type { CourseResponseDTO } from '@workspace/schemas'
+import { Badge } from '@workspace/ui/components/badge'
+import { Calendar, Globe, Star, Users } from 'lucide-react'
+
+import { formatNumber } from '@/utils/format-utils'
 
 interface CourseHeaderProps {
     course: CourseResponseDTO
@@ -8,7 +10,8 @@ interface CourseHeaderProps {
 
 export function CourseHeader({ course }: CourseHeaderProps) {
     const formatDate = (date: Date | string | undefined) => {
-        if (!date) return ''
+        if (!date)
+            return ''
         const d = new Date(date)
         return `T${d.getMonth() + 1}/${d.getFullYear()}`
     }
@@ -25,72 +28,64 @@ export function CourseHeader({ course }: CourseHeaderProps) {
     }
 
     return (
-        <div className="relative py-12 md:py-16 bg-muted/10 border-b border-border">
-            <div className="container relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center">
-                    <div className="lg:col-span-2 space-y-8 animate-in fade-in slide-in-from-left-4 duration-700">
-                        {/* Badges & Rating */}
-                        <div className="flex flex-wrap items-center gap-3">
-                            <Badge className="h-7 px-3 rounded-lg bg-primary text-white font-bold text-xs hover:bg-primary/90">
-                                JLPT {course.jlptLevel}
-                            </Badge>
-                            <Badge variant="outline" className="h-7 px-3 rounded-lg border-border text-xs font-bold text-muted-foreground bg-background">
-                                {getLevelLabel(course.jlptLevel)}
-                            </Badge>
-                            <div className="flex items-center gap-2 pl-3 border-l border-border/60">
-                                <div className="flex gap-0.5">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
-                                    ))}
-                                </div>
-                                <span className="text-sm font-bold text-foreground">4.9</span>
-                                <span className="text-xs text-muted-foreground font-medium hidden xs:inline-block border-b border-muted-foreground/30 hover:border-muted-foreground hover:text-foreground transition-all cursor-pointer">
-                                    (1.2k đánh giá)
-                                </span>
+        <div className="relative border-b bg-muted/50 py-12 md:py-16">
+            <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="max-w-4xl space-y-8">
+                    {/* Badges & Rating */}
+                    <div className="flex flex-wrap items-center gap-3">
+                        <Badge variant="secondary" className="font-bold">
+                            JLPT {course.jlptLevel}
+                        </Badge>
+                        <Badge variant="outline" className="font-bold">
+                            {getLevelLabel(course.jlptLevel)}
+                        </Badge>
+                        <div className="flex items-center gap-2 border-l pl-3">
+                            <div className="flex gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star key={i} className="size-4 fill-primary text-primary" />
+                                ))}
                             </div>
+                            <span className="text-sm font-bold">4.9</span>
+                            <span className="text-xs text-muted-foreground">
+                                (1.2k đánh giá)
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Title & Description */}
+                    <div className="space-y-4">
+                        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
+                            {course.title}
+                        </h1>
+                        <p className="max-w-2xl text-lg text-muted-foreground">
+                            {course.shortDescription || `Hành trình chinh phục trình độ ${course.jlptLevel} với lộ trình tối ưu và công nghệ AI hiện đại.`}
+                        </p>
+                    </div>
+
+                    {/* Stats Bar */}
+                    <div className="grid grid-cols-2 gap-8 border-t pt-8 sm:grid-cols-3">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                <Users className="size-5 text-primary" />
+                                <span className="text-xl font-bold">{formatNumber(course.totalStudents)}+</span>
+                            </div>
+                            <div className="text-sm text-muted-foreground">Học viên</div>
                         </div>
 
-                        {/* Title & Description */}
-                        <div className="space-y-4">
-                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-extrabold tracking-tight text-foreground leading-tight">
-                                {course.title}
-                            </h1>
-                            <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
-                                {course.shortDescription || "Hành trình chinh phục trình độ " + course.jlptLevel + " với lộ trình tối ưu và công nghệ AI hiện đại."}
-                            </p>
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="size-5 text-primary" />
+                                <span className="text-xl font-bold">{formatDate(course.updatedAt)}</span>
+                            </div>
+                            <div className="text-sm text-muted-foreground">Cập nhật</div>
                         </div>
 
-                        {/* Stats Bar */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 md:gap-12 pt-6 border-t border-border/40 w-full md:max-w-2xl">
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                    <div className="p-1.5 rounded-md bg-primary/10 text-primary">
-                                        <Users className="w-4 h-4" />
-                                    </div>
-                                    <span className="text-xl font-bold text-foreground">{course.totalStudents.toLocaleString()}+</span>
-                                </div>
-                                <div className="text-sm font-medium text-muted-foreground">Học viên</div>
+                        <div className="hidden space-y-1 sm:block">
+                            <div className="flex items-center gap-2">
+                                <Globe className="size-5 text-primary" />
+                                <span className="text-xl font-bold">Tiếng Việt</span>
                             </div>
-
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                    <div className="p-1.5 rounded-md bg-primary/10 text-primary">
-                                        <Calendar className="w-4 h-4" />
-                                    </div>
-                                    <span className="text-xl font-bold text-foreground">{formatDate(course.updatedAt)}</span>
-                                </div>
-                                <div className="text-sm font-medium text-muted-foreground">Cập nhật</div>
-                            </div>
-
-                            <div className="space-y-1 hidden sm:block">
-                                <div className="flex items-center gap-2">
-                                    <div className="p-1.5 rounded-md bg-primary/10 text-primary">
-                                        <Globe className="w-4 h-4" />
-                                    </div>
-                                    <span className="text-xl font-bold text-foreground">Tiếng Việt</span>
-                                </div>
-                                <div className="text-sm font-medium text-muted-foreground">Ngôn ngữ</div>
-                            </div>
+                            <div className="text-sm text-muted-foreground">Ngôn ngữ</div>
                         </div>
                     </div>
                 </div>

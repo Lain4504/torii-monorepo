@@ -1,10 +1,13 @@
 'use client'
 
+import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from '@workspace/ui/components/empty';
 import { useState } from 'react';
-import { Clock, LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
-import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/apis/services/session-api';
+import { Spinner } from '@workspace/ui/components/spinner';
+import { Card, CardContent } from '@workspace/ui/components/card';
+import { useSessions, useRevokeSession, useRevokeOtherSessions } from '@/lib/api/services/session-api';
 import { toast } from '@workspace/ui/components/sonner';
+import { Clock, LogOut } from 'lucide-react';
 
 // Child components
 import { SessionsInfoBanner } from './sessions-info-banner';
@@ -44,7 +47,7 @@ export function SessionsManagement() {
     if (isLoading) {
         return (
             <div className="flex h-[200px] items-center justify-center">
-                <Loader2 className="size-8 animate-spin text-primary" />
+                <Spinner className="size-8 text-primary" />
             </div>
         );
     }
@@ -57,11 +60,11 @@ export function SessionsManagement() {
                 Phiên đăng nhập
             </h3>
 
-            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+            <Card className="overflow-hidden">
                 <SessionsInfoBanner />
 
                 {/* Sessions List */}
-                <div className="divide-y divide-border">
+                <CardContent className="p-0 divide-y divide-border">
                     {sessions?.map((session) => (
                         <SessionItem
                             key={session.id}
@@ -72,23 +75,26 @@ export function SessionsManagement() {
                     ))}
 
                     {sessions?.length === 0 && (
-                        <div className="p-10 text-center text-muted-foreground text-sm italic">
-                            Không tìm thấy dữ liệu phiên hoạt động.
-                        </div>
+                        <Empty className="border-none py-12">
+                            <EmptyContent>
+                                <EmptyTitle>Không tìm thấy phiên</EmptyTitle>
+                                <EmptyDescription>Không có dữ liệu phiên hoạt động.</EmptyDescription>
+                            </EmptyContent>
+                        </Empty>
                     )}
-                </div>
+                </CardContent>
 
                 {/* Footer Action */}
-                <div className="p-5 bg-muted/20">
+                <div className="p-4 bg-muted/30 border-t">
                     <Button
                         variant="ghost"
                         onClick={() => setIsRevokeOtherOpen(true)}
                         disabled={revokeOtherMutation.isPending || (sessions?.length || 0) <= 1}
-                        className="w-full rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive h-10 font-bold text-xs uppercase tracking-wider transition-all duration-200"
+                        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive text-xs uppercase tracking-wider"
                     >
                         {revokeOtherMutation.isPending ? (
                             <div className="flex items-center gap-2">
-                                <Loader2 className="size-3 animate-spin" />
+                                <Spinner className="size-3" />
                                 Đang xử lý...
                             </div>
                         ) : (
@@ -99,7 +105,7 @@ export function SessionsManagement() {
                         )}
                     </Button>
                 </div>
-            </div>
+            </Card>
 
             {/* Confirmation Dialogs */}
             <RevokeSessionDialog

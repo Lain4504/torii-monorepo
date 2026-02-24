@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { UsersPrimaryToolbar } from '@/components/users/users-primary-toolbar.tsx';
 import { UsersTable } from '@/components/users/users-table.tsx';
-import { CreateUserSheet } from '@/components/users/create-user-sheet.tsx';
+
 import { EditUserSheet } from '@/components/users/edit-user-sheet.tsx';
 import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { useUsers } from "@/api/services/users.ts";
+import { useUsers } from "@/lib/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
-import { useBoolean } from "@workspace/ui/hooks/use-boolean";
+
 
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { UserPlus, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { formatNumber } from "@/lib/format-utils";
 
 export default function LearnersPage() {
     const [page, setPage] = useState(1);
@@ -23,7 +25,7 @@ export default function LearnersPage() {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
     // Dialog States
-    const createDialog = useBoolean();
+
     const [editingUser, setEditingUser] = useState<UserResponseDTO | null>(null);
     const [deletingUser, setDeletingUser] = useState<UserResponseDTO | null>(null);
     const [viewingUser, setViewingUser] = useState<UserResponseDTO | null>(null);
@@ -39,6 +41,7 @@ export default function LearnersPage() {
     });
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPage(1);
     }, [debouncedSearch]);
 
@@ -76,14 +79,9 @@ export default function LearnersPage() {
                 title="Hồ sơ Học viên"
                 subtitle="Danh sách học viên đăng ký trên hệ thống. Theo dõi lộ trình và kết quả học tập."
                 stats={[
-                    { label: "Tổng số học viên", value: total.toLocaleString() }
+                    { label: "Tổng số học viên", value: formatNumber(total) }
                 ]}
-                actions={
-                    <Button onClick={createDialog.setTrue} size="lg">
-                        <UserPlus />
-                        Tạo tài khoản học viên
-                    </Button>
-                }
+
             />
 
 
@@ -104,17 +102,21 @@ export default function LearnersPage() {
                 />
 
                 {/* Table container */}
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <UsersTable
-                        data={users}
-                        onEdit={setEditingUser}
-                        onDelete={setDeletingUser}
-                        onView={setViewingUser}
-                        page={page}
-                        limit={limit}
-                        isLoading={isLoading}
-                    />
-                </div>
+                <Card className="overflow-hidden">
+                    <CardContent className="p-0">
+
+                        <UsersTable
+                            data={users}
+                            onEdit={setEditingUser}
+                            onDelete={setDeletingUser}
+                            onView={setViewingUser}
+                            page={page}
+                            limit={limit}
+                            isLoading={isLoading}
+                        />
+
+                    </CardContent>
+                </Card>
 
                 {/* Footer / Pagination */}
                 <SmartPagination
@@ -126,11 +128,7 @@ export default function LearnersPage() {
                 />
             </div>
 
-            {/* Sheets & Dialogs */}
-            <CreateUserSheet
-                open={createDialog.value}
-                onOpenChange={createDialog.setValue}
-            />
+
 
             <EditUserSheet
                 open={!!editingUser}

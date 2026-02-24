@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
-import { useCourses, useUnpublishCourse, useSubmitCourseForReview } from "@/api/services/courses.ts";
+import { useCourses, useUnpublishCourse, useSubmitCourseForReview } from "@/lib/api/services/courses.ts";
 import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
 import { CoursesTable } from "@/components/courses/courses-table.tsx";
 import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";
@@ -19,6 +19,8 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { toast } from '@workspace/ui/components/sonner';
 import { Plus, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { formatNumber } from "@/lib/format-utils";
 
 export default function CoursesPage() {
   const navigate = useNavigate();
@@ -110,7 +112,7 @@ export default function CoursesPage() {
         title="Quản lý Khóa học"
         subtitle="Hệ sinh thái chương trình giảng dạy Torii Academy"
         stats={[
-          { label: "Tổng số khóa học", value: meta?.total.toLocaleString() || 0 }
+          { label: "Tổng số khóa học", value: formatNumber(meta?.total) || 0 }
         ]}
         actions={
           <Can permission="course.create">
@@ -133,27 +135,31 @@ export default function CoursesPage() {
           onJlptLevelFilterChange={setJlptLevelFilter}
         />
 
-        <div className="rounded-xl border bg-card overflow-hidden">
-          <CoursesTable
-            data={courses}
-            onEdit={setEditingCourse}
-            onDelete={setDeletingCourse}
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
 
-            onTitleClick={(course) => navigate(`/courses/${course.id}`)}
-            onModules={(course) => navigate(`/courses/${course.id}`)}
-            onManageInstructors={setManagingInstructorsCourse}
-            onPublish={setPublishingCourse}
-            onReject={setRejectingCourse}
-            onViewAuditLog={setViewingAuditLogCourse}
-            onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
-            onSubmitForReview={handleSubmitForReview}
-            onUnpublish={handleUnpublish}
-            can={can}
-            page={page}
-            limit={queryParams.limit || 10}
-            isLoading={isLoading}
-          />
-        </div>
+            <CoursesTable
+              data={courses}
+              onEdit={setEditingCourse}
+              onDelete={setDeletingCourse}
+
+              onTitleClick={(course) => navigate(`/courses/${course.id}`)}
+              onModules={(course) => navigate(`/courses/${course.id}`)}
+              onManageInstructors={setManagingInstructorsCourse}
+              onPublish={setPublishingCourse}
+              onReject={setRejectingCourse}
+              onViewAuditLog={setViewingAuditLogCourse}
+              onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
+              onSubmitForReview={handleSubmitForReview}
+              onUnpublish={handleUnpublish}
+              can={can}
+              page={page}
+              limit={queryParams.limit || 10}
+              isLoading={isLoading}
+            />
+
+          </CardContent>
+        </Card>
 
         {/* Pagination */}
         <SmartPagination

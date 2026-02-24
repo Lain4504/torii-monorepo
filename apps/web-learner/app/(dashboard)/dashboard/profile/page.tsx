@@ -22,15 +22,16 @@ import {
     Heart,
     User,
     FileText,
-    Loader2,
 } from 'lucide-react'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { formatDate } from '@/utils/format-utils'
 import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { profileApi, type UpdateProfileDTO } from '@/apis/services/profile-api'
+import { profileApi, type UpdateProfileDTO } from '@/lib/api/services/profile-api'
 import { UserRole } from '@workspace/schemas'
 import { useAvatarUrl } from '@/hooks/useAvatarUrl'
-import { learningProgressApi } from '@/apis/services/learning-progress-api'
-import { useAchievements } from '@/apis/services/gamification-api'
+import { learningProgressApi } from '@/lib/api/services/learning-progress-api'
+import { useAchievements } from '@/lib/api/services/gamification-api'
 import { fetchProfile } from '@/store/slices/authSlice'
 import { toast } from 'sonner'
 import { PageLoading } from '@workspace/ui/components/page-loading'
@@ -177,7 +178,7 @@ export default function ProfilePage() {
             title: achievement.achievement.title,
             icon: Icon,
             earned: achievement.isUnlocked,
-            date: achievement.unlockedAt ? new Date(achievement.unlockedAt).toLocaleDateString('vi-VN') : null,
+            date: achievement.unlockedAt ? formatDate(achievement.unlockedAt) : null,
         }
     }) || []
 
@@ -238,14 +239,14 @@ export default function ProfilePage() {
                         </AvatarFallback>
                     </Avatar>
                     <Button
-                        size="icon"
                         variant="secondary"
                         onClick={handleAvatarClick}
                         disabled={isUploadingAvatar}
-                        className="absolute bottom-0 right-0 rounded-full w-9 h-9 shadow-md border border-border cursor-pointer bg-background hover:bg-muted disabled:opacity-50"
+                        size="icon"
+                        className="absolute bottom-0 right-0 w-9 h-9 shadow-md border border-border cursor-pointer bg-background hover:bg-muted disabled:opacity-50 rounded-full"
                     >
                         {isUploadingAvatar ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Spinner className="size-4" />
                         ) : (
                             <Camera className="w-4 h-4" />
                         )}
@@ -307,7 +308,7 @@ export default function ProfilePage() {
                                 <Button
                                     variant="outline"
                                     onClick={() => setIsEditing(true)}
-                                    className="h-9 px-4 text-xs font-bold rounded-xl transition-all"
+                                    size="sm"
                                 >
                                     Chỉnh sửa
                                 </Button>
@@ -316,18 +317,18 @@ export default function ProfilePage() {
                                     <Button
                                         variant="ghost"
                                         onClick={() => setIsEditing(false)}
-                                        className="h-9 text-xs font-bold rounded-xl"
+                                        size="sm"
                                     >
                                         Hủy
                                     </Button>
                                     <Button
                                         onClick={handleSave}
                                         disabled={updateProfileMutation.isPending}
-                                        className="h-9 px-5 text-xs font-bold rounded-xl bg-primary text-white disabled:opacity-50"
+                                        size="sm"
                                     >
                                         {updateProfileMutation.isPending ? (
                                             <>
-                                                <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                                <Spinner className="size-3 mr-2" />
                                                 Đang lưu...
                                             </>
                                         ) : (
@@ -346,7 +347,6 @@ export default function ProfilePage() {
                                         <Input
                                             value={formData.displayName}
                                             onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                                            className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                         />
                                     ) : (
                                         <p className="text-sm font-medium text-foreground">{formData.displayName}</p>
@@ -358,7 +358,6 @@ export default function ProfilePage() {
                                         <Input
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                             disabled={updateProfileMutation.isPending}
                                             placeholder="Chưa cập nhật"
                                         />
@@ -373,10 +372,9 @@ export default function ProfilePage() {
                                             type="date"
                                             value={formData.dateOfBirth}
                                             onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                                            className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                         />
                                     ) : (
-                                        <p className="text-sm font-medium text-foreground">{new Date(formData.dateOfBirth).toLocaleDateString('vi-VN')}</p>
+                                        <p className="text-sm font-medium text-foreground">{formatDate(formData.dateOfBirth)}</p>
                                     )}
                                 </div>
                                 <div className="space-y-2">
@@ -385,7 +383,6 @@ export default function ProfilePage() {
                                         <Input
                                             value={formData.location}
                                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                            className="h-10 text-sm rounded-xl border-2 border-muted-foreground/20 bg-background focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                             disabled={updateProfileMutation.isPending}
                                             placeholder="Chưa cập nhật"
                                         />
@@ -402,7 +399,7 @@ export default function ProfilePage() {
                                         value={formData.bio}
                                         onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                                         rows={8}
-                                        className="text-sm rounded-xl border-2 border-muted-foreground/20 bg-background resize-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                        className="resize-none"
                                     />
                                 ) : (
                                     <div className="text-sm text-foreground/80 leading-relaxed p-4 bg-muted/30 rounded-2xl">

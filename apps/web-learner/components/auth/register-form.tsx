@@ -7,15 +7,17 @@ import { useAppDispatch, useAppSelector } from '@/hooks/hooks'
 import { register as registerAction, clearError, checkAuth } from '@/store/slices/authSlice'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
-import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
+import { Field, FieldLabel, FieldError, FieldGroup } from '@workspace/ui/components/field'
 import { Separator } from '@workspace/ui/components/separator'
 import { toast } from '@workspace/ui/components/sonner'
-import { Loader2, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { cn } from '@workspace/ui/lib/utils'
-import { useGoogleAuth } from '@/apis/services/auth-api'
+import { useGoogleAuth } from '@/lib/api/services/auth-api'
 import { useEffect as useCleanup } from 'react'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { Badge } from '@workspace/ui/components/badge'
 
 const registerFormSchema = z
     .object({
@@ -136,122 +138,131 @@ export function RegisterForm() {
     }
 
     return (
-        <div className="space-y-4">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
-                <Controller
-                    control={form.control}
-                    name="email"
-                    render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                            <Input
-                                {...field}
-                                id={field.name}
-                                type="email"
-                                placeholder="futurehero@torii.jp"
-                                autoComplete="email"
-                                aria-invalid={fieldState.invalid}
-                            />
-                            <FieldError errors={[fieldState.error]} />
-                        </Field>
-                    )}
-                />
-
-                <Controller
-                    control={form.control}
-                    name="password"
-                    render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Tạo mật khẩu</FieldLabel>
-                            <div className="relative">
+        <div className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
+                <FieldGroup>
+                    <Controller
+                        control={form.control}
+                        name="email"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                                 <Input
                                     {...field}
                                     id={field.name}
-                                    type={showPassword ? 'text' : 'password'}
-                                    placeholder="••••••••"
-                                    aria-invalid={fieldState.invalid}
-                                    className="pr-10"
+                                    type="email"
+                                    placeholder="futurehero@torii.jp"
+                                    autoComplete="email"
                                 />
-                                <button
-                                    type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
-                            </div>
-                            {password && (
-                                <div className="flex flex-wrap gap-x-4 gap-y-1">
-                                    {requirements.map((req, i) => (
-                                        <span
-                                            key={i}
-                                            className={cn(
-                                                'flex items-center gap-1 text-xs',
-                                                req.valid ? 'text-emerald-600' : 'text-muted-foreground'
-                                            )}
-                                        >
-                                            <span className={cn('w-1 h-1 rounded-full', req.valid ? 'bg-emerald-500' : 'bg-muted-foreground/40')} />
-                                            {req.label}
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+
+                    <Controller
+                        control={form.control}
+                        name="password"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Tạo mật khẩu</FieldLabel>
+                                <div className="relative">
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder="••••••••"
+                                        className="pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff className="size-4 text-muted-foreground" /> : <Eye className="size-4 text-muted-foreground" />}
+                                        <span className="sr-only">
+                                            {showPassword ? 'Toggle password visibility' : 'Toggle password visibility'}
                                         </span>
-                                    ))}
+                                    </Button>
                                 </div>
-                            )}
-                            <FieldError errors={[fieldState.error]} />
-                        </Field>
-                    )}
-                />
+                                {password && (
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                        {requirements.map((req, i) => (
+                                            <Badge
+                                                key={i}
+                                                variant={req.valid ? "secondary" : "outline"}
+                                                className={cn(
+                                                    "text-[10px] font-bold uppercase tracking-wider",
+                                                    !req.valid && "text-muted-foreground/50 border-muted-foreground/20"
+                                                )}
+                                            >
+                                                {req.label}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
 
-                <Controller
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu</FieldLabel>
-                            <div className="relative">
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    placeholder="••••••••"
-                                    aria-invalid={fieldState.invalid}
-                                    className="pr-10"
-                                />
-                                <button
-                                    type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                >
-                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
-                            </div>
-                            <FieldError errors={[fieldState.error]} />
-                        </Field>
-                    )}
-                />
+                    <Controller
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu mới</FieldLabel>
+                                <div className="relative">
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        placeholder="••••••••"
+                                        className="pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="size-4 text-muted-foreground" /> : <Eye className="size-4 text-muted-foreground" />}
+                                        <span className="sr-only">
+                                            {showConfirmPassword ? 'Toggle password visibility' : 'Toggle password visibility'}
+                                        </span>
+                                    </Button>
+                                </div>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+                </FieldGroup>
 
                 <Button type="submit" className="w-full" disabled={isLoading || googleLoading}>
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading && <Spinner className="mr-2" />}
                     Đăng ký
                 </Button>
             </form>
 
-            <div className="relative flex items-center gap-3 py-1">
+            <div className="relative flex items-center gap-3 py-2">
                 <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">Hoặc</span>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Hoặc</span>
                 <Separator className="flex-1" />
             </div>
 
             <Button
                 type="button"
                 variant="outline"
-                className="w-full"
+                className="w-full gap-2"
                 onClick={handleGoogleButtonClick}
                 disabled={isLoading || googleLoading}
             >
                 {googleLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Spinner className="size-4" />
                 ) : (
-                    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    <svg className="size-4" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />

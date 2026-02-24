@@ -18,10 +18,15 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Loader2, X, Ticket, Calendar as CalendarIcon, Percent, DollarSign } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
+import { Calendar } from '@workspace/ui/components/calendar';
+import { cn } from '@workspace/ui/lib/utils';
+import { format } from 'date-fns';
+import { X, Ticket, CalendarIcon, Percent, DollarSign } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { CouponDiscountType, type CouponCreateDTO } from '@workspace/schemas';
-import { useCreateCoupon } from "@/api/services/coupons";
+import { useCreateCoupon } from "@/lib/api/services/coupons";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface CreateCouponSheetProps {
     open: boolean;
@@ -79,8 +84,8 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                 minOrderAmount: data.minOrderAmount ? Number(data.minOrderAmount) : undefined,
                 usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
                 userUsageLimit: Number(data.userUsageLimit || 1),
-                validFrom: new Date(data.validFrom),
-                validUntil: new Date(data.validUntil)
+                validFrom: data.validFrom,
+                validUntil: data.validUntil
             });
 
             toast.success('Đã tạo coupon', {
@@ -96,26 +101,17 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="w-full sm:w-[600px] !max-w-[600px] flex flex-col p-0 gap-0 border-l border-border/50 shadow-2xl bg-background space-y-0">
-                <SheetHeader className="px-8 pt-8 pb-6 border-b border-border/10 bg-muted/5">
-                    <div className="relative flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
-                            <Ticket className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                            <SheetTitle className="text-2xl font-sans font-bold italic tracking-tight text-foreground uppercase">
-                                Tạo Coupon Mới
-                            </SheetTitle>
-                            <SheetDescription className="text-xs font-medium text-muted-foreground/60">
-                                Thiết lập mã giảm giá mới cho hệ thống.
-                            </SheetDescription>
-                        </div>
-                    </div>
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Tạo Coupon Mới</SheetTitle>
+                    <SheetDescription>
+                        Thiết lập mã giảm giá mới cho hệ thống.
+                    </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden relative">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
-                        <div className="px-8 py-8 space-y-8">
+                        <div className="space-y-6 p-6">
 
                             {/* Basic Info */}
                             <div className="space-y-6">
@@ -128,7 +124,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             id="code"
                                             {...register('code', { required: 'Mã coupon là bắt buộc' })}
                                             placeholder="VD: SALE50, SUMMER2024"
-                                            className="h-11 px-4 rounded-xl font-mono uppercase tracking-widest font-bold placeholder:normal-case"
+                                            className="font-mono uppercase tracking-widest font-bold placeholder:normal-case"
                                         />
                                         {errors.code && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.code.message}</FieldError>}
                                     </Field>
@@ -140,7 +136,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             id="name"
                                             {...register('name', { required: 'Tên chiến dịch là bắt buộc' })}
                                             placeholder="VD: Siêu sale mùa hè"
-                                            className="h-11 px-4 rounded-xl"
+                                            className=""
                                         />
                                         {errors.name && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.name.message}</FieldError>}
                                     </Field>
@@ -176,10 +172,10 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             control={control}
                                             render={({ field }) => (
                                                 <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="h-11 px-4 rounded-xl">
+                                                    <SelectTrigger className="">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="rounded-xl">
+                                                    <SelectContent>
                                                         <SelectItem value={CouponDiscountType.PERCENTAGE}>Theo phần trăm (%)</SelectItem>
                                                         <SelectItem value={CouponDiscountType.FIXED_AMOUNT}>Số tiền cố định (VND)</SelectItem>
                                                     </SelectContent>
@@ -198,7 +194,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                                 type="number"
                                                 min="0"
                                                 {...register('discountValue', { valueAsNumber: true, required: true, min: 1 })}
-                                                className="h-11 pl-10 pr-4 rounded-xl font-mono font-bold"
+                                                className="pl-10 font-mono font-bold"
                                             />
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                                                 {discountType === CouponDiscountType.PERCENTAGE ? <Percent className="size-4" /> : <DollarSign className="size-4" />}
@@ -218,7 +214,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             min="0"
                                             {...register('maxDiscountAmount', { valueAsNumber: true })}
                                             placeholder="Không giới hạn"
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                         <p className="text-[10px] text-muted-foreground mt-1.5 ml-1">Để trống nếu không giới hạn số tiền giảm.</p>
                                     </Field>
@@ -234,7 +230,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                         min="0"
                                         {...register('minOrderAmount', { valueAsNumber: true })}
                                         placeholder="0"
-                                        className="h-11 px-4 rounded-xl font-mono"
+                                        className="font-mono"
                                     />
                                 </Field>
                             </div>
@@ -256,7 +252,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             min="0"
                                             {...register('usageLimit', { valueAsNumber: true })}
                                             placeholder="Không giới hạn"
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                     </Field>
                                     <Field>
@@ -269,7 +265,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                             min="1"
                                             {...register('userUsageLimit', { valueAsNumber: true, min: 1 })}
                                             defaultValue={1}
-                                            className="h-11 px-4 rounded-xl font-mono"
+                                            className="font-mono"
                                         />
                                     </Field>
                                 </div>
@@ -282,35 +278,75 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                 </h3>
 
                                 <div className="grid grid-cols-2 gap-6">
-                                    <Field>
-                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Bắt Đầu
-                                        </FieldLabel>
-                                        <div className="relative">
-                                            <Input
-                                                type="date"
-                                                {...register('validFrom', { valueAsDate: true })}
-                                                className="h-11 px-4 rounded-xl"
-                                                defaultValue={new Date().toISOString().split('T')[0]}
-                                            />
-                                            <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                                        </div>
-                                    </Field>
+                                    <Controller
+                                        control={control}
+                                        name="validFrom"
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                    Bắt Đầu
+                                                </FieldLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full justify-start text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                                            {field.value ? format(field.value, "PPP") : <span>Chọn ngày</span>}
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value ? new Date(field.value) : undefined}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                {errors.validFrom && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.validFrom.message}</FieldError>}
+                                            </Field>
+                                        )}
+                                    />
 
-                                    <Field>
-                                        <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Kết Thúc
-                                        </FieldLabel>
-                                        <div className="relative">
-                                            <Input
-                                                type="date"
-                                                {...register('validUntil', { valueAsDate: true })}
-                                                className="h-11 px-4 rounded-xl"
-                                                defaultValue={defaultValidUntil.toISOString().split('T')[0]}
-                                            />
-                                            <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                                        </div>
-                                    </Field>
+                                    <Controller
+                                        control={control}
+                                        name="validUntil"
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                                    Kết Thúc
+                                                </FieldLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full justify-start text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                                            {field.value ? format(field.value, "PPP") : <span>Chọn ngày</span>}
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value ? new Date(field.value) : undefined}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                {errors.validUntil && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.validUntil.message}</FieldError>}
+                                            </Field>
+                                        )}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -322,7 +358,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                             disabled={createMutation.isPending || !isDirty}>
                             {createMutation.isPending ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <Spinner className="mr-2" />
                                     Đang tạo...
                                 </>
                             ) : (

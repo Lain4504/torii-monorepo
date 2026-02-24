@@ -4,8 +4,8 @@ import * as React from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { AppSidebar } from '@/components/dashboard/app-sidebar'
-import { DashboardHeader } from '@/components/dashboard/dashboard-header'
+import { AppSidebar } from '@/components/layout/app-sidebar'
+import { DashboardHeader } from '@/components/layout/dashboard-header'
 import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
 
 export default function DashboardLayout({

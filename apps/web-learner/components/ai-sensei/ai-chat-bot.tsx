@@ -4,7 +4,7 @@ import { useCallback, useState, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { toast } from "sonner"
 import { CheckIcon, GlobeIcon, MicIcon } from "lucide-react"
-import { agentApi } from "@/apis/services/agent-api"
+import { agentApi } from "@/lib/api/services/agent-api"
 
 import {
     Attachment,

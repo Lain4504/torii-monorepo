@@ -1,10 +1,13 @@
 'use client'
 
 import { Card, CardContent } from '@workspace/ui/components/card'
+import { ComponentLoading } from '@workspace/ui/components/component-loading'
+import { formatDate } from '@/utils/format-utils';
 import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
 import { Input } from '@workspace/ui/components/input'
 import { Badge } from '@workspace/ui/components/badge'
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@workspace/ui/components/empty'
 import {
     Search,
     PlayCircle,
@@ -13,14 +16,14 @@ import {
     Award,
     TrendingUp,
     ChevronRight,
-    Loader2,
     Video
 } from 'lucide-react'
+import { Spinner } from '@workspace/ui/components/spinner'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { learningProgressApi, type MyCourseResponse, type LearningStats } from '@/apis/services/learning-progress-api'
 import { LiveSessionBlock } from '@/components/courses/live-session-block'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
+import { learningProgressApi, MyCourseResponse, LearningStats } from '@/lib/api/services/learning-progress-api'
 
 export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
@@ -68,7 +71,7 @@ export default function MyCoursesPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <Spinner className="size-8 text-primary" />
             </div>
         )
     }
@@ -111,7 +114,7 @@ export default function MyCoursesPage() {
                         placeholder="Tìm khóa học..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-10 bg-background border-input focus:ring-1 focus:ring-primary rounded-xl"
+                        className="pl-9"
                     />
                 </div>
                 <div className="flex bg-muted/50 p-1 rounded-xl">
@@ -119,7 +122,6 @@ export default function MyCoursesPage() {
                         variant={filter === 'all' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('all')}
-                        className="rounded-lg text-xs font-bold px-4 h-8 transition-all"
                     >
                         Tất cả
                     </Button>
@@ -127,7 +129,6 @@ export default function MyCoursesPage() {
                         variant={filter === 'in-progress' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('in-progress')}
-                        className="rounded-lg text-xs font-bold px-4 h-8 transition-all"
                     >
                         Đang học
                     </Button>
@@ -135,7 +136,6 @@ export default function MyCoursesPage() {
                         variant={filter === 'completed' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setFilter('completed')}
-                        className="rounded-lg text-xs font-bold px-4 h-8 transition-all"
                     >
                         Đã xong
                     </Button>
@@ -145,8 +145,8 @@ export default function MyCoursesPage() {
             {/* Courses Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCourses.map((course) => (
-                    <Card 
-                        key={course.id} 
+                    <Card
+                        key={course.id}
                         onClick={() => {
                             if (course.expiresAt && new Date(course.expiresAt) < new Date()) {
                                 setExpiredCourse({ title: course.title, slug: course.slug })
@@ -212,7 +212,7 @@ export default function MyCoursesPage() {
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <Clock className="w-3.5 h-3.5" />
-                                        {course.lastAccessed ? new Date(course.lastAccessed).toLocaleDateString('vi-VN') : 'Mới'}
+                                        {course.lastAccessed ? formatDate(course.lastAccessed) : 'Mới'}
                                     </span>
                                 </div>
                             </div>
@@ -225,19 +225,20 @@ export default function MyCoursesPage() {
 
                             <div className="pt-2">
                                 {course.expiresAt && new Date(course.expiresAt) < new Date() ? (
-                                    <Button 
+                                    <Button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setExpiredCourse({ title: course.title, slug: course.slug })
                                         }}
-                                        className="w-full rounded-xl h-10 text-xs font-bold bg-destructive hover:bg-destructive/90 transition-all shadow-sm"
+                                        variant="destructive"
+                                        className="w-full text-xs"
                                     >
                                         Gia hạn khóa học
                                         <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                     </Button>
                                 ) : (
                                     <Link href={`/courses/${course.slug}/learn`} className="w-full" onClick={(e) => e.stopPropagation()}>
-                                        <Button className="w-full rounded-xl h-10 text-xs font-bold hover:bg-primary/90 transition-all shadow-sm">
+                                        <Button className="w-full text-xs">
                                             {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
                                             <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                         </Button>
@@ -250,18 +251,18 @@ export default function MyCoursesPage() {
             </div>
 
             {filteredCourses.length === 0 && (
-                <div className="py-20 text-center space-y-4 rounded-2xl border border-dashed border-border bg-muted/5">
-                    <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto">
-                        <Search className="w-8 h-8 text-muted-foreground/40" />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-foreground">Không tìm thấy khóa học</h3>
-                        <p className="text-sm text-muted-foreground mt-1">Bạn chưa đăng ký khóa học nào hoặc không tìm thấy kết quả phù hợp.</p>
+                <Empty>
+                    <EmptyMedia variant="icon" className="bg-muted/20">
+                        <Search className="size-8 text-muted-foreground/40" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                        <EmptyTitle>Không tìm thấy khóa học</EmptyTitle>
+                        <EmptyDescription>Bạn chưa đăng ký khóa học nào hoặc không tìm thấy kết quả phù hợp.</EmptyDescription>
                         <Link href="/courses">
-                            <Button className="mt-4 rounded-xl font-bold" variant="outline">Khám phá khóa học</Button>
+                            <Button className="mt-4" variant="outline">Khám phá khóa học</Button>
                         </Link>
-                    </div>
-                </div>
+                    </EmptyContent>
+                </Empty>
             )}
             <CourseExpirationModal
                 isOpen={!!expiredCourse}

@@ -9,7 +9,7 @@ import { CouponsPrimaryToolbar } from '@/components/coupons/coupons-primary-tool
 import { Can } from '@/lib/guard/can';
 
 
-import { useCoupons } from '@/api/services/coupons';
+import { useCoupons } from '@/lib/api/services/coupons';
 import { CouponsTable } from '@/components/coupons/coupons-table';
 import type { CouponResponseDTO } from '@workspace/schemas';
 import { CouponStatus } from '@workspace/schemas';
@@ -20,6 +20,7 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { DeleteCouponDialog } from '@/components/coupons/delete-coupon-dialog';
 
 import { PageHeader } from '@/components/common/page-header';
+import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function CouponsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -121,25 +122,29 @@ export default function CouponsPage() {
                 />
 
                 {/* Table */}
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <CouponsTable
-                        data={coupons}
-                        isLoading={isLoading}
-                        page={page}
-                        limit={limit}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                    />
+                <Card className="overflow-hidden">
+                <CardContent className="p-0">
 
-                    {/* Pagination */}
-                    <SmartPagination
-                        page={page}
-                        totalPages={totalPages}
-                        totalItems={data?.total || 0}
-                        onPageChange={handlePageChange}
-                        itemName="mã giảm giá"
-                    />
-                </div>
+                                    <CouponsTable
+                                        data={coupons}
+                                        isLoading={isLoading}
+                                        page={page}
+                                        limit={limit}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                    />
+                                
+                </CardContent>
+                </Card>
+
+                {/* Pagination */}
+                <SmartPagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalItems={data?.total || 0}
+                    onPageChange={handlePageChange}
+                    itemName="mã giảm giá"
+                />
             </div>
 
 

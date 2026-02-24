@@ -4,16 +4,18 @@ import { useState, useEffect, Suspense } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
-import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
+import { Field, FieldLabel, FieldError, FieldGroup } from '@workspace/ui/components/field'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Loader2, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react'
+import { Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useResetPassword, useVerifyResetToken } from '@/apis/services/auth-api'
+import { useResetPassword, useVerifyResetToken } from '@/lib/api/services/auth-api'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert'
 
 const resetPasswordSchema = z
     .object({
@@ -109,126 +111,132 @@ function ResetPasswordFormContent() {
 
     if (tokenValid === false) {
         return (
-            <div className="space-y-4">
-                <div className="flex flex-col items-center text-center gap-3 p-6 rounded-lg border bg-destructive/5">
-                    <ShieldAlert className="w-8 h-8 text-destructive" />
-                    <div className="space-y-1">
-                        <p className="font-medium text-sm">Link không hợp lệ</p>
-                        <p className="text-sm text-muted-foreground">
-                            Liên kết đặt lại mật khẩu đã hết hạn hoặc không hợp lệ.
-                        </p>
-                    </div>
-                </div>
+            <div className="space-y-6">
+                <Alert variant="destructive" className="py-6">
+                    <ShieldAlert className="size-5" />
+                    <AlertTitle className="text-base font-bold">Liên kết không hợp lệ</AlertTitle>
+                    <AlertDescription className="text-sm">
+                        Liên kết đặt lại mật khẩu đã hết hạn hoặc không hợp lệ. Vui lòng yêu cầu một liên kết mới.
+                    </AlertDescription>
+                </Alert>
                 <Button asChild className="w-full">
-                    <Link href="/forgot-password">Yêu cầu link mới</Link>
+                    <Link href="/forgot-password">Yêu cầu liên kết mới</Link>
                 </Button>
             </div>
         )
     }
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            <Controller
-                control={form.control}
-                name="password"
-                render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor={field.name}>Mật khẩu mới</FieldLabel>
-                        <div className="relative">
-                            <Input
-                                {...field}
-                                id={field.name}
-                                type={showPassword ? 'text' : 'password'}
-                                placeholder="••••••••"
-                                aria-invalid={fieldState.invalid}
-                                className="pr-10"
-                            />
-                            <button
-                                type="button"
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                        </div>
-                        {password && (
-                            <>
-                                <div className="flex gap-1 h-1">
-                                    {[1, 2, 3, 4].map((i) => (
-                                        <div
-                                            key={i}
-                                            className={cn(
-                                                'h-full flex-1 rounded-full transition-all',
-                                                i <= strengthScore
-                                                    ? strengthScore === 4
-                                                        ? 'bg-emerald-500'
-                                                        : strengthScore === 3
-                                                            ? 'bg-amber-500'
-                                                            : 'bg-destructive'
-                                                    : 'bg-muted'
-                                            )}
-                                        />
-                                    ))}
+        <div className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
+                <FieldGroup>
+                    <Controller
+                        control={form.control}
+                        name="password"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Mật khẩu mới</FieldLabel>
+                                <div className="relative">
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder="••••••••"
+                                        className="pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff className="size-4 text-muted-foreground" /> : <Eye className="size-4 text-muted-foreground" />}
+                                        <span className="sr-only">Toggle password visibility</span>
+                                    </Button>
                                 </div>
-                                <div className="flex flex-wrap gap-x-4 gap-y-1">
-                                    {[
-                                        { label: '8+ ký tự', valid: passwordStrength.length },
-                                        { label: 'In hoa', valid: passwordStrength.uppercase },
-                                        { label: 'Thường', valid: passwordStrength.lowercase },
-                                        { label: 'Số', valid: passwordStrength.number },
-                                    ].map((req, idx) => (
-                                        <span
-                                            key={idx}
-                                            className={cn(
-                                                'flex items-center gap-1 text-xs',
-                                                req.valid ? 'text-emerald-600' : 'text-muted-foreground'
-                                            )}
-                                        >
-                                            <span className={cn('w-1 h-1 rounded-full', req.valid ? 'bg-emerald-500' : 'bg-muted-foreground/40')} />
-                                            {req.label}
-                                        </span>
-                                    ))}
-                                </div>
-                            </>
+                                {password && (
+                                    <div className="space-y-3 pt-2">
+                                        <div className="flex gap-1.5 h-1.5">
+                                            {[1, 2, 3, 4].map((i) => (
+                                                <div
+                                                    key={i}
+                                                    className={cn(
+                                                        'h-full flex-1 rounded-full transition-all duration-500',
+                                                        i <= strengthScore
+                                                            ? strengthScore === 4
+                                                                ? 'bg-emerald-500 shadow-[0_0_8px_-2px_rgba(16,185,129,0.5)]'
+                                                                : strengthScore === 3
+                                                                    ? 'bg-amber-500'
+                                                                    : 'bg-destructive'
+                                                            : 'bg-muted'
+                                                    )}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {[
+                                                { label: '8+ ký tự', valid: passwordStrength.length },
+                                                { label: 'In hoa', valid: passwordStrength.uppercase },
+                                                { label: 'Thường', valid: passwordStrength.lowercase },
+                                                { label: 'Số', valid: passwordStrength.number },
+                                            ].map((req, idx) => (
+                                                <Badge
+                                                    key={idx}
+                                                    variant={req.valid ? "secondary" : "outline"}
+                                                    className={cn(
+                                                        "text-[10px] font-bold uppercase tracking-wider",
+                                                        !req.valid && "text-muted-foreground/50 border-muted-foreground/20"
+                                                    )}
+                                                >
+                                                    {req.label}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
-                        <FieldError errors={[fieldState.error]} />
-                    </Field>
-                )}
-            />
+                    />
 
-            <Controller
-                control={form.control}
-                name="confirmPassword"
-                render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu</FieldLabel>
-                        <div className="relative">
-                            <Input
-                                {...field}
-                                id={field.name}
-                                type={showConfirmPassword ? 'text' : 'password'}
-                                placeholder="••••••••"
-                                aria-invalid={fieldState.invalid}
-                                className="pr-10"
-                            />
-                            <button
-                                type="button"
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            >
-                                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                        </div>
-                        <FieldError errors={[fieldState.error]} />
-                    </Field>
-                )}
-            />
+                    <Controller
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu mới</FieldLabel>
+                                <div className="relative">
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        placeholder="••••••••"
+                                        className="pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="size-4 text-muted-foreground" /> : <Eye className="size-4 text-muted-foreground" />}
+                                        <span className="sr-only">Toggle password visibility</span>
+                                    </Button>
+                                </div>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+                </FieldGroup>
 
-            <Button type="submit" className="w-full" disabled={isLoading || strengthScore < 4}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Thiết lập mật khẩu
-            </Button>
-        </form>
+                <Button type="submit" className="w-full" disabled={isLoading || strengthScore < 4}>
+                    {isLoading && <Spinner className="mr-2" />}
+                    Thiết lập mật khẩu mới
+                </Button>
+            </form>
+        </div>
     )
 }
 

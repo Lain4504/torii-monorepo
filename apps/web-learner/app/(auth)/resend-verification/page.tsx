@@ -29,8 +29,8 @@ export default function ResendVerificationPage() {
                     </div>
                     <div className="space-y-3">
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-background border">
-                            <div className="w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <Mail className="w-4 h-4" />
+                            <div className="size-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <Mail className="size-4" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium">Kiểm tra Spam</p>
@@ -38,8 +38,8 @@ export default function ResendVerificationPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-background border">
-                            <div className="w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <RefreshCcw className="w-4 h-4" />
+                            <div className="size-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <RefreshCcw className="size-4" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium">Gửi lại ngay</p>

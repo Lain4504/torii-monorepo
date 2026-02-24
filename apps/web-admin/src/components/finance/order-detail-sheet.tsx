@@ -4,23 +4,25 @@ import {
     SheetHeader,
     SheetTitle,
     SheetDescription,
+    SheetFooter,
 } from '@workspace/ui/components/sheet';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
+import { Spinner } from '@workspace/ui/components/spinner';
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import {
     ShieldCheck,
     Clock,
     CheckCircle2,
     XCircle,
     AlertCircle,
-    Receipt,
     ExternalLink,
     RotateCcw
 } from 'lucide-react';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
-import { useOrderPayments } from '@/api/services/finance';
+import { useOrderPayments } from '@/lib/api/services/finance';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
 
@@ -82,19 +84,16 @@ export function OrderDetailSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-2xl flex flex-col p-0 overflow-hidden">
-                <SheetHeader className="px-6 py-4 border-b">
-                    <div className="flex items-center gap-2">
-                        <Receipt className="h-5 w-5 text-primary" />
-                        <SheetTitle>Chi tiết Đơn hàng</SheetTitle>
-                    </div>
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Chi tiết Đơn hàng</SheetTitle>
                     <SheetDescription>
-                        Mã đơn hàng: <span className="font-mono font-medium text-foreground">{order.id}</span>
+                        Mã đơn hàng: {order.id}
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
-                    <div className="p-6 space-y-8">
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="space-y-8 p-6">
                         {/* Status Section */}
                         <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
                             <div className="flex items-center gap-3">
@@ -111,8 +110,8 @@ export function OrderDetailSheet({
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-1">
                                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Khách hàng</p>
-                                <p className="text-sm font-semibold">{order.userName || 'Chưa cập nhật'}</p>
-                                <p className="text-xs text-muted-foreground">{order.userEmail || order.userId}</p>
+                                <p className="text-sm font-semibold">{(order as any).userName || 'Chưa cập nhật'}</p>
+                                <p className="text-xs text-muted-foreground">{(order as any).userEmail || order.userId}</p>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Ngày tạo</p>
@@ -142,14 +141,21 @@ export function OrderDetailSheet({
 
                             {isLoadingPayments ? (
                                 <div className="py-8 flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                                    <Clock className="h-5 w-5 animate-spin" />
+                                    <Spinner className="h-5 w-5" />
                                     <p className="text-xs uppercase font-bold tracking-widest">Đang tải...</p>
                                 </div>
                             ) : !paymentsData?.data?.length ? (
-                                <div className="p-8 text-center border rounded-lg border-dashed">
-                                    <AlertCircle className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
-                                    <p className="text-sm text-muted-foreground">Chưa có dữ liệu giao dịch</p>
-                                </div>
+                                <Empty>
+                                    <EmptyMedia>
+                                        <AlertCircle className="h-8 w-8 text-muted-foreground/20" />
+                                    </EmptyMedia>
+                                    <EmptyContent>
+                                        <EmptyTitle>Chưa có dữ liệu giao dịch</EmptyTitle>
+                                        <EmptyDescription>
+                                            Lịch sử giao dịch chưa được ghi nhận.
+                                        </EmptyDescription>
+                                    </EmptyContent>
+                                </Empty>
                             ) : (
                                 <div className="space-y-3">
                                     {paymentsData.data.map((payment) => (
@@ -172,15 +178,17 @@ export function OrderDetailSheet({
                     </div>
                 </ScrollArea>
 
-                <div className="flex items-center justify-end gap-3 p-6 border-t bg-muted/50">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Đóng</Button>
+                <SheetFooter>
                     {order.metadata?.checkoutUrl && (
                         <Button onClick={() => window.open(order.metadata.checkoutUrl, '_blank')}>
                             <ExternalLink className="mr-2 h-4 w-4" />
                             Trang thanh toán
                         </Button>
                     )}
-                </div>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Đóng
+                    </Button>
+                </SheetFooter>
             </SheetContent>
         </Sheet>
     );

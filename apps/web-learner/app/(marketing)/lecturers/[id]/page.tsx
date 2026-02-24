@@ -19,7 +19,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { CourseCard } from '@/components/catalog/course-card'
 import { Separator } from '@workspace/ui/components/separator'
-import { apiClient } from '@/apis/api-client'
+import { apiClient } from '@/lib/api/api-client'
+import { formatNumber } from '@/utils/format-utils'
 
 // Types
 interface InstructorProfile {
@@ -181,28 +182,28 @@ export default function InstructorProfilePage() {
 
                             <div className="flex justify-center gap-3 mt-6">
                                 {profile.socials.website && (
-                                    <Button variant="outline" size="icon" className="h-9 w-9 rounded-full bg-background hover:bg-primary hover:text-white transition-colors border-primary/20" asChild>
+                                    <Button variant="outline" size="icon" className="rounded-full bg-background hover:bg-primary hover:text-white transition-colors border-primary/20" asChild>
                                         <a href={profile.socials.website} target="_blank" rel="noopener noreferrer">
                                             <Globe className="w-4 h-4" />
                                         </a>
                                     </Button>
                                 )}
                                 {profile.socials.linkedin && (
-                                    <Button variant="outline" size="icon" className="h-9 w-9 rounded-full bg-background hover:bg-[#0077b5] hover:text-white hover:border-[#0077b5] transition-colors border-primary/20" asChild>
+                                    <Button variant="outline" size="icon" className="rounded-full bg-background hover:bg-[#0077b5] hover:text-white hover:border-[#0077b5] transition-colors border-primary/20" asChild>
                                         <a href={profile.socials.linkedin} target="_blank" rel="noopener noreferrer">
                                             <Linkedin className="w-4 h-4" />
                                         </a>
                                     </Button>
                                 )}
                                 {profile.socials.twitter && (
-                                    <Button variant="outline" size="icon" className="h-9 w-9 rounded-full bg-background hover:bg-black hover:text-white hover:border-black transition-colors border-primary/20" asChild>
+                                    <Button variant="outline" size="icon" className="rounded-full bg-background hover:bg-black hover:text-white hover:border-black transition-colors border-primary/20" asChild>
                                         <a href={profile.socials.twitter} target="_blank" rel="noopener noreferrer">
                                             <Twitter className="w-4 h-4" />
                                         </a>
                                     </Button>
                                 )}
                                 {profile.socials.youtube && (
-                                    <Button variant="outline" size="icon" className="h-9 w-9 rounded-full bg-background hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors border-primary/20" asChild>
+                                    <Button variant="outline" size="icon" className="rounded-full bg-background hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors border-primary/20" asChild>
                                         <a href={profile.socials.youtube} target="_blank" rel="noopener noreferrer">
                                             <Youtube className="w-4 h-4" />
                                         </a>
@@ -225,7 +226,7 @@ export default function InstructorProfilePage() {
                                 <div className="flex items-center gap-2">
                                     <Users className="w-5 h-5 text-primary" />
                                     <div>
-                                        <p className="text-lg font-bold leading-none">{profile.stats.totalStudents.toLocaleString()}</p>
+                                        <p className="text-lg font-bold leading-none">{formatNumber(profile.stats.totalStudents)}</p>
                                         <p className="text-xs font-medium text-muted-foreground">Học viên</p>
                                     </div>
                                 </div>
@@ -233,7 +234,7 @@ export default function InstructorProfilePage() {
                                 <div className="flex items-center gap-2">
                                     <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
                                     <div>
-                                        <p className="text-lg font-bold leading-none">{profile.stats.averageRating} ({profile.stats.totalReviews.toLocaleString()})</p>
+                                        <p className="text-lg font-bold leading-none">{profile.stats.averageRating} ({formatNumber(profile.stats.totalReviews)})</p>
                                         <p className="text-xs font-medium text-muted-foreground">Đánh giá</p>
                                     </div>
                                 </div>
@@ -248,10 +249,10 @@ export default function InstructorProfilePage() {
                             </div>
 
                             <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
-                                <Button className="h-10 px-6 rounded-lg font-semibold">
+                                <Button className="px-6 rounded-lg font-semibold">
                                     Theo dõi
                                 </Button>
-                                <Button variant="outline" className="h-10 px-6 rounded-lg font-semibold border-primary/20 text-primary hover:bg-primary/5">
+                                <Button variant="outline" className="px-6 rounded-lg font-semibold border-primary/20 text-primary hover:bg-primary/5">
                                     Gửi tin nhắn
                                 </Button>
                             </div>

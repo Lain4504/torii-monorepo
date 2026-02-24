@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { Video, Loader2, ExternalLink } from 'lucide-react';
+import { Video, ExternalLink } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { liveSessionsApi } from '@/api/services/live-sessions';
+import { liveSessionsApi } from '@/lib/api/services/live-sessions';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface JoinSessionButtonProps {
     sessionId: string;
@@ -63,7 +64,7 @@ export function JoinSessionButton({
         >
             {isJoining ? (
                 <>
-                    <Loader2 className="size-4 animate-spin" />
+                    <Spinner />
                     Đang kết nối...
                 </>
             ) : (

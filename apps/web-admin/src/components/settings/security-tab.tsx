@@ -1,13 +1,27 @@
 import { useState } from 'react';
-import { Shield, Smartphone, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Shield, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Skeleton } from '@workspace/ui/components/skeleton';
-import { use2FAStatus } from '@/api/services/two-factor-auth';
+import { use2FAStatus } from '@/lib/api/services/two-factor-auth';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+} from '@workspace/ui/components/card';
+import {
+    Item,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+} from '@workspace/ui/components/item';
+import { Badge } from '@workspace/ui/components/badge';
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatRelativeTime } from '@/lib/format-utils';
 
 export function SecurityTab() {
     const { data: status, isLoading } = use2FAStatus();
@@ -33,101 +47,98 @@ export function SecurityTab() {
     return (
         <div className="space-y-4">
             {/* 2FA Card */}
-            <div className="rounded-xl border bg-card">
-                <div className="flex items-center justify-between gap-3 p-5 border-b border-border">
-                    <div className="flex items-center gap-3">
-                        <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                            <Smartphone className="size-4" />
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div className="grid gap-1">
+                            <CardTitle>Xác Thực Hai Yếu Tố</CardTitle>
+                            <CardDescription>Thêm lớp bảo mật bổ sung cho tài khoản</CardDescription>
                         </div>
-                        <div>
-                            <h3 className="text-sm font-semibold text-foreground">Xác Thực Hai Yếu Tố</h3>
-                            <p className="text-xs text-muted-foreground">Thêm lớp bảo mật bổ sung cho tài khoản</p>
-                        </div>
+                        <Badge variant={isEnabled ? 'default' : 'secondary'}>
+                            {isEnabled ? 'Đã Bật' : 'Đã Tắt'}
+                        </Badge>
                     </div>
-                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide shrink-0 ${isEnabled
-                        ? 'bg-emerald-500/10 text-emerald-600'
-                        : 'bg-muted text-muted-foreground'
-                        }`}>
-                        {isEnabled ? 'Đã Bật' : 'Đã Tắt'}
-                    </span>
-                </div>
+                </CardHeader>
 
-                <div className="p-5 space-y-4">
+                <CardContent className="space-y-4">
                     {/* Status Info when enabled */}
                     {isEnabled && status && (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
-                                <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Phương Thức</p>
-                                <p className="text-sm font-semibold text-foreground">
-                                    {status.method === 'totp' ? 'Ứng dụng xác thực' : 'Không xác định'}
-                                </p>
-                            </div>
-                            <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
-                                <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Mã Dự Phòng</p>
-                                <p className="text-sm font-semibold text-foreground">
-                                    Còn {status.backupCodesRemaining || 0} mã
-                                </p>
-                            </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <Item variant="outline">
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Phương Thức</ItemTitle>
+                                    <ItemDescription className="text-sm font-semibold text-foreground">
+                                        {status.method === 'totp' ? 'Ứng dụng xác thực' : 'Không xác định'}
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
+                            <Item variant="outline">
+                                <ItemContent>
+                                    <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Mã Dự Phòng</ItemTitle>
+                                    <ItemDescription className="text-sm font-semibold text-foreground">
+                                        Còn {status.backupCodesRemaining || 0} mã
+                                    </ItemDescription>
+                                </ItemContent>
+                            </Item>
                             {status.enabledAt && (
-                                <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Đã Bật</p>
-                                    <p className="text-sm font-semibold text-foreground">
-                                        {formatDistanceToNow(new Date(status.enabledAt), { addSuffix: true, locale: vi })}
-                                    </p>
-                                </div>
+                                <Item variant="outline">
+                                    <ItemContent>
+                                        <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Đã Bật</ItemTitle>
+                                        <ItemDescription className="text-sm font-semibold text-foreground">
+                                            {formatRelativeTime(status.enabledAt)}
+                                        </ItemDescription>
+                                    </ItemContent>
+                                </Item>
                             )}
                             {status.lastUsedAt && (
-                                <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Sử Dụng Lần Cuối</p>
-                                    <p className="text-sm font-semibold text-foreground">
-                                        {formatDistanceToNow(new Date(status.lastUsedAt), { addSuffix: true, locale: vi })}
-                                    </p>
-                                </div>
+                                <Item variant="outline">
+                                    <ItemContent>
+                                        <ItemTitle className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Sử Dụng Lần Cuối</ItemTitle>
+                                        <ItemDescription className="text-sm font-semibold text-foreground">
+                                            {formatRelativeTime(status.lastUsedAt)}
+                                        </ItemDescription>
+                                    </ItemContent>
+                                </Item>
                             )}
                         </div>
                     )}
 
                     {/* Info banner when disabled */}
                     {!isEnabled && (
-                        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 flex gap-3">
-                            <Shield className="size-4 text-blue-600 shrink-0 mt-0.5" />
-                            <div className="space-y-1">
-                                <p className="text-sm font-semibold text-foreground">Bảo vệ tài khoản với 2FA</p>
-                                <p className="text-xs text-muted-foreground leading-relaxed">
-                                    Xác thực hai yếu tố thêm một lớp bảo mật bằng cách yêu cầu mã từ điện thoại của bạn cùng với mật khẩu.
-                                </p>
-                            </div>
-                        </div>
+                        <Alert className="border-blue-500/20 bg-blue-500/5 text-blue-600">
+                            <Shield className="size-4" />
+                            <AlertTitle className="text-foreground">Bảo vệ tài khoản với 2FA</AlertTitle>
+                            <AlertDescription className="text-muted-foreground">
+                                Xác thực hai yếu tố thêm một lớp bảo mật bằng cách yêu cầu mã từ điện thoại của bạn cùng với mật khẩu.
+                            </AlertDescription>
+                        </Alert>
                     )}
 
                     {/* Low backup codes warning */}
                     {isEnabled && status && status.backupCodesRemaining !== undefined && status.backupCodesRemaining < 3 && (
-                        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 flex gap-3">
-                            <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
-                            <div className="space-y-1">
-                                <p className="text-sm font-semibold text-foreground">Sắp hết mã dự phòng</p>
-                                <p className="text-xs text-muted-foreground leading-relaxed">
-                                    Bạn chỉ còn {status.backupCodesRemaining} mã dự phòng. Hãy cân nhắc tạo bộ mã mới.
-                                </p>
-                            </div>
-                        </div>
+                        <Alert variant="destructive" className="border-amber-500/20 bg-amber-500/5 text-amber-600">
+                            <AlertTriangle className="size-4" />
+                            <AlertTitle className="text-foreground">Sắp hết mã dự phòng</AlertTitle>
+                            <AlertDescription className="text-muted-foreground">
+                                Bạn chỉ còn {status.backupCodesRemaining} mã dự phòng. Hãy cân nhắc tạo bộ mã mới.
+                            </AlertDescription>
+                        </Alert>
                     )}
 
                     {/* Actions */}
                     <div className="flex flex-wrap gap-2 pt-1">
                         {!isEnabled ? (
-                            <Button size="sm" onClick={() => setShowEnableDialog(true)}>
+                            <Button onClick={() => setShowEnableDialog(true)} size="lg">
                                 <Shield className="size-4 mr-2" />
                                 Bật Xác Thực Hai Yếu Tố
                             </Button>
                         ) : (
                             <>
-                                <Button size="sm" variant="outline" onClick={() => setShowBackupCodesDialog(true)}>
+                                <Button variant="outline" onClick={() => setShowBackupCodesDialog(true)}>
                                     <RefreshCw className="size-4 mr-2" />
                                     Tạo Mã Dự Phòng
                                 </Button>
                                 <Button
-                                    size="sm"
                                     variant="outline"
                                     onClick={() => setShowDisableDialog(true)}
                                     className="border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive"
@@ -138,8 +149,8 @@ export function SecurityTab() {
                             </>
                         )}
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Dialogs */}
             <EnableTwoFactorDialog open={showEnableDialog} onOpenChange={setShowEnableDialog} />

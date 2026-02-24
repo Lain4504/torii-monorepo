@@ -9,10 +9,11 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { Button } from '@workspace/ui/components/button';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { useDeleteQuestion } from '@/api/services/questions.ts';
+import { useDeleteQuestion } from '@/lib/api/services/questions.ts';
 import type { QuestionResponseDTO } from '@workspace/schemas';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface DeleteQuestionDialogProps {
     open: boolean;
@@ -66,7 +67,7 @@ export function DeleteQuestionDialog({
                         disabled={deleteQuestion.isPending}
                     >
                         {deleteQuestion.isPending ? (
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner />
                         ) : (
                             "Xóa câu hỏi"
                         )}

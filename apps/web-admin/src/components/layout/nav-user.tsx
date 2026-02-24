@@ -66,8 +66,8 @@ export function NavUser({
                         <SidebarMenuButton
                             size="lg"
                             className={cn(
-                                "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground transition-all duration-300",
-                                "group-data-[collapsible=icon]:!mx-auto group-data-[collapsible=icon]:justify-center"
+                                "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground transition-all duration-200",
+                                "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                             )}
                         >
                             <div className="relative shrink-0 flex items-center justify-center">

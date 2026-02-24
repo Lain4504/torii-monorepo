@@ -1,7 +1,7 @@
 import {
     useTeachingSchedules,
     useRemoveTeachingSchedule
-} from '@/api/services/live-sessions';
+} from '@/lib/api/services/live-sessions';
 import { Button } from '@workspace/ui/components/button';
 import { Card } from '@workspace/ui/components/card';
 import { toast } from '@workspace/ui/components/sonner';

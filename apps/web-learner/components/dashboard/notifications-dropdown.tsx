@@ -1,5 +1,6 @@
 'use client'
 
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { Bell, Check } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import {
@@ -10,7 +11,9 @@ import {
 import { cn } from '@workspace/ui/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/apis/services/notification-api'
+import { Spinner } from '@workspace/ui/components/spinner'
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle, ItemDescription } from '@workspace/ui/components/item'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/api/services/notification-api'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
 type UINotificationType = 'info' | 'success' | 'warning' | 'error';
@@ -71,13 +74,13 @@ export function NotificationsDropdown() {
     const getTypeColor = (type: UINotificationType) => {
         switch (type) {
             case 'success':
-                return 'text-green-500 bg-green-500/10';
+                return 'text-success bg-success/10';
             case 'warning':
-                return 'text-amber-500 bg-amber-500/10';
+                return 'text-warning bg-warning/10';
             case 'error':
-                return 'text-rose-500 bg-rose-500/10';
+                return 'text-destructive bg-destructive/10';
             default:
-                return 'text-blue-500 bg-blue-500/10';
+                return 'text-primary bg-primary/10';
         }
     };
 
@@ -87,25 +90,25 @@ export function NotificationsDropdown() {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="relative size-9 rounded-xl text-muted-foreground hover:text-primary hover:bg-muted/30 transition-all data-[state=open]:bg-muted/30 group"
+                    className="relative"
                 >
-                    <Bell className="size-4 transition-transform duration-300 group-hover:scale-110" />
+                    <Bell className="size-4" />
                     {unreadCount > 0 && (
-                        <span className="absolute top-2.5 right-2.5 size-2 bg-rose-500 rounded-full ring-2 ring-background animate-pulse shadow-sm" />
+                        <span className="absolute right-2 top-2 size-2 animate-pulse rounded-full bg-destructive ring-2 ring-background" />
                     )}
                 </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
                 align="end"
-                className="w-[90vw] sm:w-[380px] p-0 rounded-lg border-border/40"
+                className="w-[90vw] sm:w-[380px] p-0"
             >
                 {/* Header */}
-                <div className="px-4 py-3 border-b">
+                <div className="border-b px-4 py-3">
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-sm font-semibold">Thông báo</h3>
-                            <p className="text-xs text-muted-foreground mt-0.5">
+                            <p className="text-xs text-muted-foreground">
                                 {unreadCount > 0 ? `Bạn có ${unreadCount} tin nhắn chưa đọc` : 'Bạn đã xem hết thông báo'}
                             </p>
                         </div>
@@ -115,9 +118,9 @@ export function NotificationsDropdown() {
                                 size="sm"
                                 onClick={markAllAsRead}
                                 disabled={markAllAsReadMutation.isPending}
-                                className="h-7 px-2 text-xs font-medium hover:text-primary transition-colors disabled:opacity-50"
+                                className="h-7 px-2 text-xs"
                             >
-                                <Check className="size-3.5 mr-1" />
+                                <Check className="mr-1 size-3.5" />
                                 {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
                             </Button>
                         )}
@@ -125,79 +128,81 @@ export function NotificationsDropdown() {
                 </div>
 
                 {/* Notifications List */}
-                <div className="max-h-[60vh] sm:max-h-[420px] overflow-y-auto custom-scrollbar">
+                <div className="custom-scrollbar max-h-[60vh] overflow-y-auto sm:max-h-[420px]">
                     {isLoading ? (
-                        <div className="py-12 text-center space-y-3">
-                            <div className="w-12 h-12 rounded-xl bg-muted/30 mx-auto flex items-center justify-center border border-border/10">
-                                <Bell className="size-5 text-muted-foreground/30 animate-pulse" />
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-xs text-muted-foreground/50 font-medium">Đang tải thông báo...</p>
-                            </div>
+                        <div className="flex flex-col items-center justify-center space-y-3 py-12">
+                            <Spinner className="h-6 w-6 text-muted-foreground/30" />
+                            <p className="text-xs font-medium text-muted-foreground/50">Đang tải thông báo...</p>
                         </div>
                     ) : notifications.length > 0 ? (
                         <div className="divide-y divide-border/5">
                             {notifications.map((notification) => (
-                                <div
+                                <Item
                                     key={notification.id}
+                                    variant={notification.read ? "default" : "muted"}
                                     className={cn(
-                                        "group px-5 py-4 transition-all duration-200 cursor-pointer relative hover:bg-muted/30",
-                                        !notification.read ? "bg-primary/[0.03]" : "",
-                                        markAsReadMutation.isPending ? "opacity-50 cursor-wait" : ""
+                                        'cursor-pointer px-4 py-3',
+                                        markAsReadMutation.isPending && 'cursor-wait opacity-50'
                                     )}
                                     onClick={() => !notification.read && markAsRead(notification.id)}
                                 >
-                                    <div className="flex gap-4">
+                                    <ItemMedia>
                                         <div className={cn(
-                                            "mt-0.5 size-9 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 border border-border/10 shadow-sm",
-                                            getTypeColor(notification.type)
+                                            'flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/10',
+                                            getTypeColor(notification.type),
                                         )}>
                                             <Bell className="size-4" />
                                         </div>
-
-                                        <div className="flex-1 min-w-0 space-y-1">
-                                            <div className="flex items-start justify-between gap-2">
-                                                <h4 className={cn(
-                                                    "text-[13px] font-semibold transition-colors line-clamp-1",
-                                                    !notification.read ? "text-foreground" : "text-muted-foreground/80"
-                                                )}>
-                                                    {notification.title}
-                                                </h4>
-                                                {!notification.read && (
-                                                    <div className="size-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                                                )}
-                                            </div>
-                                            <p className="text-[12px] text-muted-foreground/70 leading-relaxed line-clamp-2">
-                                                {notification.message}
-                                            </p>
-                                            <div className="flex items-center gap-2 pt-1">
-                                                <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-wider">
-                                                    {notification.time}
-                                                </span>
-                                            </div>
+                                    </ItemMedia>
+                                    <ItemContent>
+                                        <div className="flex items-start justify-between gap-2">
+                                            <ItemTitle className={cn(
+                                                'text-xs font-semibold',
+                                                !notification.read ? 'text-foreground' : 'text-muted-foreground',
+                                            )}>
+                                                {notification.title}
+                                            </ItemTitle>
+                                            {!notification.read && (
+                                                <div className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
+                                            )}
                                         </div>
-                                    </div>
-                                </div>
+                                        <ItemDescription className="line-clamp-2 text-xs">
+                                            {notification.message}
+                                        </ItemDescription>
+                                        <div className="pt-0.5">
+                                            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
+                                                {notification.time}
+                                            </span>
+                                        </div>
+                                    </ItemContent>
+                                </Item>
                             ))}
                         </div>
                     ) : (
-                        <div className="py-12 text-center space-y-3">
-                            <div className="w-12 h-12 rounded-xl bg-muted/30 mx-auto flex items-center justify-center border border-border/10">
+                        <Empty className="border-none py-12">
+                            <EmptyMedia variant="icon" className="border border-border/10 bg-muted/30">
                                 <Bell className="size-5 text-muted-foreground/30" />
-                            </div>
-                            <div className="space-y-1">
-                                <h3 className="text-xs font-semibold text-foreground">Không có thông báo mới</h3>
-                                <p className="text-[10px] text-muted-foreground/50 font-medium">Bạn đã cập nhật tất cả thông tin.</p>
-                            </div>
-                        </div>
+                            </EmptyMedia>
+                            <EmptyContent>
+                                <EmptyTitle className="text-xs">Không có thông báo mới</EmptyTitle>
+                                <EmptyDescription className="text-[10px]">Bạn đã cập nhật tất cả thông tin.</EmptyDescription>
+                            </EmptyContent>
+                        </Empty>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="p-2 border-t text-center">
-                    <Link href="/dashboard/notifications" className="block text-xs font-medium text-muted-foreground hover:text-primary transition-colors py-1">
-                        Xem tất cả thông báo
-                    </Link>
+                <div className="p-2 border-t">
+                    <Button
+                        asChild
+                        variant="link"
+                        size="sm"
+                        className="w-full text-xs"
+                    >
+                        <Link href="/dashboard/notifications">
+                            Xem tất cả thông báo
+                        </Link>
+                    </Button>
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>

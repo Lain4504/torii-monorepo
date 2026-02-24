@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Dumbbell, ArrowRight, Loader2, CheckCircle2, XCircle, HelpCircle } from "lucide-react"
+import { Dumbbell, ArrowRight, CheckCircle2, XCircle, HelpCircle, Sparkles } from 'lucide-react'
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -11,32 +11,50 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { agentApi } from "@/apis/services/agent-api"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
+import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentDrillResponseDTO as DrillResponse } from "@workspace/schemas"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Label } from "@workspace/ui/components/label"
 import { cn } from "@workspace/ui/lib/utils"
+import { Spinner } from '@workspace/ui/components/spinner'
+import { Separator } from "@workspace/ui/components/separator"
+import { Alert, AlertTitle, AlertDescription } from "@workspace/ui/components/alert"
+
+const drillFormSchema = z.object({
+    type: z.enum(['grammar', 'vocabulary', 'kanji', 'listening', 'reading']),
+    topic: z.string().min(1, "Vui lòng nhập chủ đề"),
+    difficulty: z.enum(["N5", "N4", "N3", "N2", "N1"]),
+})
+
+type DrillFormData = z.infer<typeof drillFormSchema>
 
 export function DrillGenerator() {
-    const [topic, setTopic] = React.useState("")
-    const [difficulty, setDifficulty] = React.useState<"N5" | "N4" | "N3" | "N2" | "N1">("N5")
-    const [type, setType] = React.useState<string>("grammar")
     const [isLoading, setIsLoading] = React.useState(false)
     const [result, setResult] = React.useState<DrillResponse | null>(null)
     const [userAnswers, setUserAnswers] = React.useState<Record<number, string>>({})
     const [showResults, setShowResults] = React.useState(false)
 
-    const handleGenerate = async () => {
-        if (!topic.trim()) return
-        setIsLoading(true)
-        setResult(null)
-        setUserAnswers({})
-        setShowResults(false)
+    const form = useForm<DrillFormData>({
+        resolver: zodResolver(drillFormSchema),
+        defaultValues: {
+            type: "grammar",
+            topic: "",
+            difficulty: "N5",
+        },
+    })
 
+    const handleGenerate = async (data: DrillFormData) => {
+        setIsLoading(true)
         try {
-            const data = await agentApi.sensei.generateDrill(type as 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading', topic, difficulty)
-            setResult(data)
+            const res = await agentApi.sensei.generateDrill(data.type, data.topic, data.difficulty)
+            setResult(res)
+            setUserAnswers({})
+            setShowResults(false)
         } catch (error) {
             console.error(error)
         } finally {
@@ -54,154 +72,195 @@ export function DrillGenerator() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-20">
-            {/* Header */}
-            <div className="space-y-1 pb-2 border-b border-border/40">
-                <h2 className="text-2xl font-bold tracking-tight">Practice Drills</h2>
-                <p className="text-sm text-muted-foreground">
-                    Bài tập luyện tập theo kỹ năng
-                </p>
-            </div>
-
-            {/* Input Section */}
-            <div className="rounded-xl border border-border bg-card shadow-sm p-6 space-y-6">
-                <div className="grid md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Kỹ năng</label>
-                        <Select value={type} onValueChange={setType}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="grammar">Ngữ pháp (Grammar)</SelectItem>
-                                <SelectItem value="vocabulary">Từ vựng (Vocabulary)</SelectItem>
-                                <SelectItem value="kanji">Hán tự (Kanji)</SelectItem>
-                                <SelectItem value="reading">Đọc hiểu (Reading)</SelectItem>
-                            </SelectContent>
-                        </Select>
+        <div className="h-full overflow-y-auto w-full">
+            <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 md:px-8 space-y-8 animate-in fade-in duration-500">
+                {/* Header */}
+                <header className="space-y-2 border-b pb-6">
+                    <div className="flex items-center gap-2 text-primary font-medium">
+                        <Dumbbell className="size-4" />
+                        <span className="text-xs font-bold uppercase tracking-wider">AI Sensei</span>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Chủ đề</label>
-                        <Input
-                            placeholder="Ví dụ: Particles, Family, Travel..."
-                            value={topic}
-                            onChange={(e) => setTopic(e.target.value)}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Trình độ</label>
-                        <Select value={difficulty} onValueChange={(v: any) => setDifficulty(v)}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="N5">N5 (Beginner)</SelectItem>
-                                <SelectItem value="N4">N4 (Basic)</SelectItem>
-                                <SelectItem value="N3">N3 (Intermediate)</SelectItem>
-                                <SelectItem value="N2">N2 (Pre-Advanced)</SelectItem>
-                                <SelectItem value="N1">N1 (Advanced)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
+                    <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Luyện tập Kỹ năng</h1>
+                    <p className="text-muted-foreground mt-1">Tạo các bài tập tùy chỉnh để rèn luyện kỹ năng tiếng Nhật của bạn.</p>
+                </header>
 
-                <div className="flex justify-end">
-                    <Button
-                        onClick={handleGenerate}
-                        disabled={!topic.trim() || isLoading}
-                        className="px-6 font-semibold min-w-[140px]"
-                    >
-                        {isLoading ? (
-                            <><Loader2 className="mr-2 size-4 animate-spin" /> Generating...</>
-                        ) : (
-                            <>
-                                Generate Drill <ArrowRight className="ml-2 size-4" />
-                            </>
-                        )}
-                    </Button>
-                </div>
-            </div>
+                {/* Configuration Card */}
+                <Card className="shadow-sm">
+                    <CardHeader className="py-4">
+                        <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Cấu hình bài tập</CardTitle>
+                    </CardHeader>
+                    <Separator />
+                    <CardContent className="pt-6">
+                        <form id="drill-form" onSubmit={form.handleSubmit(handleGenerate)} className="grid md:grid-cols-3 gap-6">
+                            <Controller
+                                name="type"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Kỹ năng</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="grammar">Ngữ pháp</SelectItem>
+                                                <SelectItem value="vocabulary">Từ vựng</SelectItem>
+                                                <SelectItem value="kanji">Hán tự</SelectItem>
+                                                <SelectItem value="reading">Đọc hiểu</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </Field>
+                                )}
+                            />
+                            <Controller
+                                name="topic"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Chủ đề</FieldLabel>
+                                        <Input
+                                            {...field}
+                                            placeholder="Ví dụ: Particles, Family..."
+                                            disabled={isLoading}
+                                        />
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
+                            <Controller
+                                name="difficulty"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <Field>
+                                        <FieldLabel>Trình độ</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="N5">N5</SelectItem>
+                                                <SelectItem value="N4">N4</SelectItem>
+                                                <SelectItem value="N3">N3</SelectItem>
+                                                <SelectItem value="N2">N2</SelectItem>
+                                                <SelectItem value="N1">N1</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </Field>
+                                )}
+                            />
+                        </form>
+                    </CardContent>
+                    <CardFooter className="flex justify-end py-4 bg-muted/30">
+                        <Button
+                            form="drill-form"
+                            type="submit"
+                            disabled={!form.watch("topic").trim() || isLoading}
+                        >
+                            {isLoading ? <Spinner className="mr-2" /> : <Sparkles className="size-4 mr-2" />}
+                            Tạo bài tập
+                        </Button>
+                    </CardFooter>
+                </Card>
 
-            {/* Result Section */}
-            {result && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <Dumbbell className="size-5 text-primary" />
-                            {result.topic} <span className="text-muted-foreground text-sm font-normal capitalize">({type} - {difficulty})</span>
-                        </h3>
-                        {Object.keys(userAnswers).length === result.drills.length && !showResults && (
-                            <Button onClick={checkAnswers} variant="default" className="gap-2">
-                                <CheckCircle2 className="size-4" /> Check Answers
-                            </Button>
-                        )}
-                    </div>
+                {/* Drill Content */}
+                {result && (
+                    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <h3 className="text-xl font-bold flex items-center gap-2">
+                                <CheckCircle2 className="size-5 text-primary" />
+                                {result.topic}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">({result.drills.length} câu hỏi)</span>
+                            </h3>
+                            {Object.keys(userAnswers).length === result.drills.length && !showResults && (
+                                <Button onClick={checkAnswers} variant="default" className="shadow-sm">
+                                    Nộp bài & Xem kết quả
+                                </Button>
+                            )}
+                        </div>
 
-                    <div className="grid gap-6">
-                        {result.drills.map((drill, i) => {
-                            const userAnswer = userAnswers[i]
-                            const isCorrect = userAnswer === drill.correctAnswer
+                        <div className="space-y-6">
+                            {result.drills.map((drill, i) => {
+                                const userAnswer = userAnswers[i]
+                                const isCorrect = userAnswer === drill.correctAnswer
 
-                            return (
-                                <Card key={i} className={cn("overflow-hidden transition-colors",
-                                    showResults && isCorrect ? "border-green-500/50 bg-green-500/5" :
-                                        showResults && !isCorrect && userAnswer ? "border-red-500/50 bg-red-500/5" : ""
-                                )}>
-                                    <CardHeader className="pb-3 bg-muted/30">
-                                        <CardTitle className="text-base font-medium flex gap-3 leading-relaxed">
-                                            <span className="flex-none flex items-center justify-center size-6 rounded bg-background border text-muted-foreground text-sm font-bold">
-                                                {i + 1}
-                                            </span>
-                                            {drill.question}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="pt-4">
-                                        <RadioGroup
-                                            value={userAnswer}
-                                            onValueChange={(val) => handleAnswer(i, val)}
-                                            disabled={showResults}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-3"
-                                        >
-                                            {drill.options.map((option, optIdx) => (
-                                                <div key={optIdx} className={cn(
-                                                    "flex items-center space-x-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors",
-                                                    userAnswer === option ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border",
-                                                    showResults && option === drill.correctAnswer ? "border-green-500 bg-green-100 dark:bg-green-900/20 ring-1 ring-green-500" : "",
-                                                    showResults && userAnswer === option && !isCorrect ? "border-red-500 bg-red-100 dark:bg-red-900/20" : ""
+                                return (
+                                    <Card key={i} className={cn(
+                                        "transition-all",
+                                        showResults && isCorrect ? "border-emerald-500/50 bg-emerald-50/30" :
+                                            showResults && !isCorrect && userAnswer ? "border-destructive/30 bg-destructive/5" : ""
+                                    )}>
+                                        <CardHeader className="py-4 bg-muted/20">
+                                            <CardTitle className="text-base font-medium flex gap-3 text-foreground leading-relaxed">
+                                                <span className="flex-none flex items-center justify-center size-7 rounded-full bg-background border text-primary text-sm font-bold">
+                                                    {i + 1}
+                                                </span>
+                                                {drill.question}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="pt-6">
+                                            <RadioGroup
+                                                value={userAnswer}
+                                                onValueChange={(val) => handleAnswer(i, val)}
+                                                disabled={showResults}
+                                                className="grid gap-3"
+                                            >
+                                                {drill.options.map((option, optIdx) => (
+                                                    <div key={optIdx} className="relative">
+                                                        <RadioGroupItem value={option} id={`q${i}-opt${optIdx}`} className="sr-only" />
+                                                        <Label
+                                                            htmlFor={`q${i}-opt${optIdx}`}
+                                                            className={cn(
+                                                                "flex items-center gap-3 rounded-lg border p-4 cursor-pointer transition-colors font-medium",
+                                                                userAnswer === option
+                                                                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                                                                    : "border-border hover:bg-muted/50",
+                                                                showResults && option === drill.correctAnswer ? "border-emerald-500 bg-emerald-500/10" : "",
+                                                                showResults && userAnswer === option && !isCorrect ? "border-destructive bg-destructive/10" : ""
+                                                            )}
+                                                        >
+                                                            <div className={cn(
+                                                                "size-6 rounded flex items-center justify-center text-[10px] font-black transition-colors shrink-0",
+                                                                userAnswer === option ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                                            )}>
+                                                                {String.fromCharCode(65 + optIdx)}
+                                                            </div>
+                                                            <span className="flex-1">{option}</span>
+                                                        </Label>
+                                                    </div>
+                                                ))}
+                                            </RadioGroup>
+                                        </CardContent>
+
+                                        {showResults && (
+                                            <CardFooter className="flex flex-col items-start gap-4 pt-4 border-t bg-muted/10">
+                                                <div className={cn(
+                                                    "flex items-center gap-2 font-bold text-sm",
+                                                    isCorrect ? "text-emerald-600" : "text-destructive"
                                                 )}>
-                                                    <RadioGroupItem value={option} id={`q${i}-opt${optIdx}`} />
-                                                    <Label htmlFor={`q${i}-opt${optIdx}`} className="flex-1 cursor-pointer font-normal">{option}</Label>
+                                                    {isCorrect ? <CheckCircle2 className="size-4" /> : <XCircle className="size-4" />}
+                                                    {isCorrect ? "Chính xác!" : "Chưa đúng"}
                                                 </div>
-                                            ))}
-                                        </RadioGroup>
-                                    </CardContent>
-
-                                    {showResults && (
-                                        <CardFooter className={cn(
-                                            "flex flex-col items-start gap-2 pt-4 border-t text-sm",
-                                            isCorrect ? "bg-green-100/50 dark:bg-green-900/10 text-green-800 dark:text-green-300" : "bg-red-100/50 dark:bg-red-900/10 text-red-800 dark:text-red-300"
-                                        )}>
-                                            <div className="flex items-center gap-2 font-semibold">
-                                                {isCorrect ? <CheckCircle2 className="size-4" /> : <XCircle className="size-4" />}
-                                                {isCorrect ? "Correct!" : "Incorrect"}
-                                            </div>
-                                            {!isCorrect && (
-                                                <div className="text-foreground">
-                                                    Correct answer: <span className="font-bold">{drill.correctAnswer}</span>
-                                                </div>
-                                            )}
-                                            <div className="flex gap-2 text-muted-foreground mt-1 bg-background/50 p-3 rounded w-full border border-black/5 dark:border-white/5">
-                                                <HelpCircle className="size-4 mt-0.5 flex-none" />
-                                                <span>{drill.explanation}</span>
-                                            </div>
-                                        </CardFooter>
-                                    )}
-                                </Card>
-                            )
-                        })}
+                                                {!isCorrect && (
+                                                    <div className="text-sm">
+                                                        Đáp án đúng: <span className="font-bold text-emerald-600">{drill.correctAnswer}</span>
+                                                    </div>
+                                                )}
+                                                <Alert className="border-primary/20 bg-primary/5 shadow-none">
+                                                    <HelpCircle className="size-4 text-primary" />
+                                                    <AlertTitle className="text-xs font-bold uppercase tracking-wider text-primary">Giải thích</AlertTitle>
+                                                    <AlertDescription className="text-foreground mt-1 text-sm leading-relaxed">
+                                                        {drill.explanation}
+                                                    </AlertDescription>
+                                                </Alert>
+                                            </CardFooter>
+                                        )}
+                                    </Card>
+                                )
+                            })}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     )
 }

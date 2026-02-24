@@ -20,18 +20,23 @@ export class EmailService {
         try {
             let templatePath = path.join(this.templateDir, `${templateName}.pug`);
 
-            // Handle monorepo structure mismatch: templates might be flattened in dist/modules/email
+            // Handle monorepo structure mismatch: templates might be in different relative locations
             if (!fs.existsSync(templatePath)) {
-                this.logger.debug(`Template not found at ${templatePath}, trying fallback location...`);
-                // Try going up to dist/modules/email/templates/pug
-                const flattenedPath = path.join(__dirname, '../../../../email/templates/pug', `${templateName}.pug`);
-                if (fs.existsSync(flattenedPath)) {
-                    templatePath = flattenedPath;
-                } else {
-                    // Try one more: relative to process root if running from apps/server
-                    const rootPath = path.join(process.cwd(), 'dist/modules/email/templates/pug', `${templateName}.pug`);
-                    if (fs.existsSync(rootPath)) {
-                        templatePath = rootPath;
+                this.logger.debug(`Template not found at ${templatePath}, trying fallback locations...`);
+
+                const fallbacks = [
+                    // Relative to dist root in monorepo
+                    path.join(__dirname, '../../../../communication/src/modules/email/templates/pug', `${templateName}.pug`),
+                    // Relative to process working directory (apps/server)
+                    path.join(process.cwd(), 'modules/communication/src/modules/email/templates/pug', `${templateName}.pug`),
+                    // Simplified dist path
+                    path.join(process.cwd(), 'dist/modules/communication/src/modules/email/templates/pug', `${templateName}.pug`)
+                ];
+
+                for (const fallback of fallbacks) {
+                    if (fs.existsSync(fallback)) {
+                        templatePath = fallback;
+                        break;
                     }
                 }
             }

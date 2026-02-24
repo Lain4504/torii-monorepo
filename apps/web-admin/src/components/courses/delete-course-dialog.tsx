@@ -11,8 +11,9 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import type { CourseResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useDeleteCourse } from "@/api/services/courses";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { useDeleteCourse } from "@/lib/api/services/courses";
+import { AlertTriangle } from "lucide-react";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface DeleteCourseDialogProps {
     course: CourseResponseDTO | null;
@@ -65,7 +66,7 @@ export function DeleteCourseDialog({
                         disabled={deleteCourse.isPending}
                     >
                         {deleteCourse.isPending ? (
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner />
                         ) : (
                             "Xóa khóa học"
                         )}

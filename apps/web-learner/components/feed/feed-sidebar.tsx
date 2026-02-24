@@ -1,4 +1,4 @@
-    'use client'
+'use client'
 
 import { Search, User, Heart, MessageCircle, History, Flame, LayoutList } from 'lucide-react'
 import { Input } from '@workspace/ui/components/input'
@@ -8,8 +8,10 @@ import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { feedApi } from '@/apis/services/feed-api'
+import { feedApi } from '@/lib/api/services/feed-api'
 import type { FeedResponseDTO } from '@workspace/schemas'
+import { Item, ItemContent, ItemMedia, ItemTitle, ItemDescription } from '@workspace/ui/components/item'
+import { Separator } from '@workspace/ui/components/separator'
 
 interface FeedSidebarProps {
     activeCategory?: string
@@ -17,7 +19,7 @@ interface FeedSidebarProps {
     onSearch?: (query: string) => void
 }
 
-export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSidebarProps) {
+export function FeedSidebar({ onSortChange, onSearch }: FeedSidebarProps) {
     const { user } = useAppSelector(state => state.auth)
     const pathname = usePathname()
     const isProfilePage = pathname.startsWith('/user/')
@@ -47,62 +49,71 @@ export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSide
     }, [])
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* Search Widget */}
-            <div className="bg-background rounded-xl border border-border/40 p-4 shadow-sm">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Tìm kiếm..."
-                        className="pl-9 bg-muted/40 border-border/40 focus-visible:ring-primary/20"
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                onSearch?.((e.target as HTMLInputElement).value)
-                            }
-                        }}
-                    />
-                </div>
-            </div>
+            <Card className="border shadow-sm group overflow-hidden">
+                <CardContent className="p-4">
+                    <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                        <Input
+                            placeholder="Tìm kiếm câu hỏi..."
+                            className="pl-11 h-12 rounded-md bg-muted/30 focus:bg-background transition-colors font-medium"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    onSearch?.((e.target as HTMLInputElement).value)
+                                }
+                            }}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
 
 
             {/* Profile/QA List Link Widget */}
-            <Link href={isProfilePage ? '/dashboard/feed' : (user ? `/user/${(user as any).id}` : '/login')} className="block">
-                <div className="bg-background rounded-xl border border-border/40 p-4 shadow-sm hover:border-primary/30 transition-all flex items-center gap-3 group">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                        {isProfilePage ? <LayoutList className="h-5 w-5" /> : <User className="h-5 w-5" />}
-                    </div>
-                    <span className="font-medium text-foreground group-hover:text-primary transition-colors">
-                        {isProfilePage ? 'Danh sách câu hỏi' : 'Trang cá nhân'}
-                    </span>
-                </div>
+            <Link href={isProfilePage ? '/dashboard/feed' : (user ? `/user/${(user as any).id}` : '/login')} className="block group">
+                <Item variant="outline" className="p-5 border shadow-none bg-card hover:border-primary/50 transition-colors">
+                    <ItemMedia className="size-11 rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-sm">
+                        {isProfilePage ? <LayoutList className="size-5" /> : <User className="size-5" />}
+                    </ItemMedia>
+                    <ItemContent className="space-y-0.5">
+                        <ItemTitle className="font-bold text-base group-hover:text-primary transition-colors">
+                            {isProfilePage ? 'Danh sách câu hỏi' : 'Trang cá nhân'}
+                        </ItemTitle>
+                        <ItemDescription className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">
+                            {isProfilePage ? 'Quay lại feed' : 'Xem hồ sơ của bạn'}
+                        </ItemDescription>
+                    </ItemContent>
+                </Item>
             </Link>
 
 
             {/* Featured Filters Widget */}
-            <Card className="rounded-xl border-border/40 shadow-sm overflow-hidden">
-                <CardHeader className="pb-3 border-b border-border/30 bg-muted/20 px-4 pt-4">
-                    <CardTitle className="text-base font-semibold">Bài viết nổi bật</CardTitle>
+            <Card className="border shadow-sm overflow-hidden">
+                <CardHeader className="pb-4 px-6 pt-6 space-y-2">
+                    <CardTitle className="text-[10px] font-bold uppercase text-muted-foreground/60 leading-none">Lọc bài viết</CardTitle>
+                    <p className="text-base font-bold text-foreground">Sắp xếp & Bộ lọc</p>
                 </CardHeader>
-                <CardContent className="p-2">
-                    <div className="space-y-1">
+                <Separator className="mx-6 w-auto opacity-50" />
+                <CardContent className="p-3 pt-4">
+                    <div className="space-y-1.5">
                         <Button
                             variant="ghost"
-                            className="w-full justify-start gap-3 text-muted-foreground hover:text-primary font-normal h-10 px-3"
+                            className="w-full justify-start gap-3 px-4 h-11 rounded-md font-bold text-sm text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all group"
                             onClick={() => onSortChange?.('likes')}
                         >
-                            <Heart className="h-4 w-4" />
+                            <Heart className="size-4 group-hover:fill-current" />
                             Được yêu thích
                         </Button>
                         <Button
                             variant="ghost"
-                            className="w-full justify-start gap-3 text-muted-foreground hover:text-primary font-normal h-10 px-3"
+                            className="w-full justify-start gap-3 px-4 h-11 rounded-md font-bold text-sm text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all group"
                             onClick={() => onSortChange?.('comments')}
                         >
-                            <MessageCircle className="h-4 w-4" />
+                            <MessageCircle className="size-4 group-hover:fill-current" />
                             Được quan tâm
                         </Button>
-                        <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-primary font-normal h-10 px-3">
-                            <History className="h-4 w-4" />
+                        <Button variant="ghost" className="w-full justify-start gap-3 px-4 h-11 rounded-md font-bold text-sm text-muted-foreground hover:text-foreground/80 transition-all group">
+                            <History className="size-4 group-hover:rotate-[-45deg] transition-transform" />
                             Đã tương tác
                         </Button>
                     </div>
@@ -110,44 +121,50 @@ export function FeedSidebar({ activeCategory, onSortChange, onSearch }: FeedSide
             </Card>
 
             {/* Hot Questions Widget */}
-            <Card className="rounded-xl border-border/40 shadow-sm overflow-hidden">
-                <CardHeader className="pb-3 border-b border-border/30 bg-muted/20 px-4 pt-4">
-                    <CardTitle className="text-base font-semibold flex items-center gap-2">
-                        <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
-                        Câu hỏi nổi bật
+            <Card className="border shadow-sm overflow-hidden">
+                <CardHeader className="pb-4 px-6 pt-6 space-y-2">
+                    <CardTitle className="text-[10px] font-bold uppercase text-orange-500/80 flex items-center gap-2 leading-none">
+                        <Flame className="size-3.5 fill-current animate-pulse" />
+                        Xung quanh bạn
                     </CardTitle>
+                    <p className="text-base font-bold text-foreground">Câu hỏi nổi bật</p>
                 </CardHeader>
-                <CardContent className="p-0">
-                    <div className="divide-y divide-border/30">
+                <Separator className="mx-6 w-auto opacity-50" />
+                <CardContent className="p-0 pt-3">
+                    <div className="divide-y divide-border/5">
                         {loadingHotFeeds ? (
-                            <div className="p-6 text-center text-sm text-muted-foreground">
-                                Đang tải...
+                            <div className="p-12 text-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest animate-pulse">
+                                Đang tải bài viết...
                             </div>
                         ) : hotFeeds.length > 0 ? (
                             hotFeeds.map((feed, i) => (
                                 <Link
                                     key={feed.id}
                                     href={`/feed/${feed.id}`}
-                                    className="block p-3 hover:bg-muted/30 cursor-pointer transition-colors group"
+                                    className="block p-5 hover:bg-muted/30 cursor-pointer transition-colors group"
                                 >
-                                    <div className="text-xs font-semibold text-muted-foreground mb-1 group-hover:text-primary/70">{i + 1}.</div>
-                                    <h4 className="text-sm font-medium text-foreground/90 line-clamp-2 group-hover:text-primary transition-colors">
-                                        {feed.title || feed.content.substring(0, 50) + '...'}
-                                    </h4>
-                                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                                        <span className="flex items-center gap-1">
-                                            <Heart className="h-3 w-3" />
-                                            {feed.likes || 0}
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <MessageCircle className="h-3 w-3" />
-                                            {feed.comments || 0}
-                                        </span>
+                                    <div className="flex gap-4">
+                                        <div className="text-xs font-bold text-muted-foreground/30 group-hover:text-primary transition-colors pt-0.5 tracking-tighter w-4">{i + 1}</div>
+                                        <div className="flex-1 space-y-2.5">
+                                            <h4 className="text-sm font-bold text-foreground/90 line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                                                {feed.title || feed.content.substring(0, 50) + '...'}
+                                            </h4>
+                                            <div className="flex items-center gap-5 text-[10px] font-bold text-muted-foreground/60 uppercase">
+                                                <span className="flex items-center gap-1.5 transition-colors group-hover:text-destructive">
+                                                    <Heart className="size-3" />
+                                                    {feed.likes || 0}
+                                                </span>
+                                                <span className="flex items-center gap-1.5 transition-colors group-hover:text-primary">
+                                                    <MessageCircle className="size-3" />
+                                                    {feed.comments || 0}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </Link>
                             ))
                         ) : (
-                            <div className="p-6 text-center text-sm text-muted-foreground">
+                            <div className="p-12 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
                                 Chưa có câu hỏi nào
                             </div>
                         )}

@@ -8,7 +8,7 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { QuestionType, QuestionStatus, QuestionCategory, QuestionDifficultyLevel, QuestionJlptLevel } from '@workspace/schemas';
-import { useQuestionPools } from '@/api/services/question-pools.ts';
+import { useQuestionPools } from '@/lib/api/services/question-pools.ts';
 
 interface QuestionsPrimaryToolbarProps {
     search: string;
@@ -54,7 +54,7 @@ export function QuestionsPrimaryToolbar({
                     placeholder="Tìm kiếm câu hỏi..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-11 pl-10 rounded-xl border-border bg-background"
+                    className="pl-10 w-[250px]"
                 />
             </div>
 
@@ -67,16 +67,16 @@ export function QuestionsPrimaryToolbar({
                         onQuestionTypeFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-10 min-w-[140px] rounded-xl border-border bg-background">
+                    <SelectTrigger className="min-w-[140px]">
                         <SelectValue placeholder="Loại câu hỏi" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                        <SelectItem value="all" className="cursor-pointer">Tất cả loại</SelectItem>
-                        <SelectItem value={QuestionType.MULTIPLE_CHOICE} className="cursor-pointer">Trắc nghiệm</SelectItem>
-                        <SelectItem value={QuestionType.TRUE_FALSE} className="cursor-pointer">Đúng/Sai</SelectItem>
-                        <SelectItem value={QuestionType.FILL_BLANK} className="cursor-pointer">Điền vào chỗ trống</SelectItem>
-                        <SelectItem value={QuestionType.MATCHING} className="cursor-pointer">Ghép cặp</SelectItem>
-                        <SelectItem value={QuestionType.ESSAY} className="cursor-pointer">Tự luận</SelectItem>
+                    <SelectContent>
+                        <SelectItem value="all">Tất cả loại</SelectItem>
+                        <SelectItem value={QuestionType.MULTIPLE_CHOICE}>Trắc nghiệm</SelectItem>
+                        <SelectItem value={QuestionType.TRUE_FALSE}>Đúng/Sai</SelectItem>
+                        <SelectItem value={QuestionType.FILL_BLANK}>Điền vào chỗ trống</SelectItem>
+                        <SelectItem value={QuestionType.MATCHING}>Ghép cặp</SelectItem>
+                        <SelectItem value={QuestionType.ESSAY}>Tự luận</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -87,15 +87,15 @@ export function QuestionsPrimaryToolbar({
                         onCategoryFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-10 min-w-[130px] rounded-xl border-border bg-background">
+                    <SelectTrigger className="min-w-[130px]">
                         <SelectValue placeholder="Danh mục" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                        <SelectItem value="all" className="cursor-pointer">Tất cả danh mục</SelectItem>
-                        <SelectItem value={QuestionCategory.VOCAB} className="cursor-pointer">Từ vựng</SelectItem>
-                        <SelectItem value={QuestionCategory.GRAMMAR} className="cursor-pointer">Ngữ pháp</SelectItem>
-                        <SelectItem value={QuestionCategory.READING} className="cursor-pointer">Đọc hiểu</SelectItem>
-                        <SelectItem value={QuestionCategory.LISTENING} className="cursor-pointer">Nghe hiểu</SelectItem>
+                    <SelectContent>
+                        <SelectItem value="all">Tất cả danh mục</SelectItem>
+                        <SelectItem value={QuestionCategory.VOCAB}>Từ vựng</SelectItem>
+                        <SelectItem value={QuestionCategory.GRAMMAR}>Ngữ pháp</SelectItem>
+                        <SelectItem value={QuestionCategory.READING}>Đọc hiểu</SelectItem>
+                        <SelectItem value={QuestionCategory.LISTENING}>Nghe hiểu</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -106,16 +106,16 @@ export function QuestionsPrimaryToolbar({
                         onJlptLevelFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-10 min-w-[110px] rounded-xl border-border bg-background">
+                    <SelectTrigger className="min-w-[110px]">
                         <SelectValue placeholder="Cấp độ JLPT" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                        <SelectItem value="all" className="cursor-pointer">Tất cả cấp độ</SelectItem>
-                        <SelectItem value={QuestionJlptLevel.N5} className="cursor-pointer">N5</SelectItem>
-                        <SelectItem value={QuestionJlptLevel.N4} className="cursor-pointer">N4</SelectItem>
-                        <SelectItem value={QuestionJlptLevel.N3} className="cursor-pointer">N3</SelectItem>
-                        <SelectItem value={QuestionJlptLevel.N2} className="cursor-pointer">N2</SelectItem>
-                        <SelectItem value={QuestionJlptLevel.N1} className="cursor-pointer">N1</SelectItem>
+                    <SelectContent>
+                        <SelectItem value="all">Tất cả cấp độ</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N5}>N5</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N4}>N4</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N3}>N3</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N2}>N2</SelectItem>
+                        <SelectItem value={QuestionJlptLevel.N1}>N1</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -126,14 +126,14 @@ export function QuestionsPrimaryToolbar({
                         onDifficultyFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-10 min-w-[120px] rounded-xl border-border bg-background">
+                    <SelectTrigger className="min-w-[120px]">
                         <SelectValue placeholder="Độ khó" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                        <SelectItem value="all" className="cursor-pointer">Tất cả độ khó</SelectItem>
-                        <SelectItem value={QuestionDifficultyLevel.EASY} className="cursor-pointer">Dễ</SelectItem>
-                        <SelectItem value={QuestionDifficultyLevel.MEDIUM} className="cursor-pointer">Trung bình</SelectItem>
-                        <SelectItem value={QuestionDifficultyLevel.HARD} className="cursor-pointer">Khó</SelectItem>
+                    <SelectContent>
+                        <SelectItem value="all">Tất cả độ khó</SelectItem>
+                        <SelectItem value={QuestionDifficultyLevel.EASY}>Dễ</SelectItem>
+                        <SelectItem value={QuestionDifficultyLevel.MEDIUM}>Trung bình</SelectItem>
+                        <SelectItem value={QuestionDifficultyLevel.HARD}>Khó</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -144,15 +144,15 @@ export function QuestionsPrimaryToolbar({
                         onStatusFilterChange(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="h-10 min-w-[130px] rounded-xl border-border bg-background">
+                    <SelectTrigger className="min-w-[130px]">
                         <SelectValue placeholder="Trạng thái" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                        <SelectItem value="all" className="cursor-pointer">Tất cả trạng thái</SelectItem>
-                        <SelectItem value={QuestionStatus.ACTIVE} className="cursor-pointer">Đang hoạt động</SelectItem>
-                        <SelectItem value={QuestionStatus.INACTIVE} className="cursor-pointer">Không hoạt động</SelectItem>
-                        <SelectItem value={QuestionStatus.REVIEW} className="cursor-pointer">Chờ duyệt</SelectItem>
-                        <SelectItem value={QuestionStatus.ARCHIVED} className="cursor-pointer">Đã lưu trữ</SelectItem>
+                    <SelectContent>
+                        <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                        <SelectItem value={QuestionStatus.ACTIVE}>Đang hoạt động</SelectItem>
+                        <SelectItem value={QuestionStatus.INACTIVE}>Không hoạt động</SelectItem>
+                        <SelectItem value={QuestionStatus.REVIEW}>Chờ duyệt</SelectItem>
+                        <SelectItem value={QuestionStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -164,13 +164,13 @@ export function QuestionsPrimaryToolbar({
                             onPoolIdFilterChange(value === 'all' ? '' : value)
                         }
                     >
-                        <SelectTrigger className="h-10 min-w-[150px] rounded-xl border-border bg-background">
+                        <SelectTrigger className="min-w-[150px]">
                             <SelectValue placeholder="Nhóm câu hỏi" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl max-h-[300px]">
-                            <SelectItem value="all" className="cursor-pointer">Tất cả nhóm</SelectItem>
+                        <SelectContent className="max-h-[300px]">
+                            <SelectItem value="all">Tất cả nhóm</SelectItem>
                             {poolsData?.data?.map((pool) => (
-                                <SelectItem key={pool.id} value={pool.id} className="cursor-pointer">
+                                <SelectItem key={pool.id} value={pool.id}>
                                     {pool.name}
                                 </SelectItem>
                             ))}

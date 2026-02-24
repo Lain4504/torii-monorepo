@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
 import { logout } from '@/store/slices/authSlice'
 import { Button } from '@workspace/ui/components/button'
@@ -17,20 +18,27 @@ import {
     X,
     LayoutDashboard,
     Coins,
+    BadgeCheck,
+    Bell,
+    Heart,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { toast } from '@workspace/ui/components/sonner'
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
+import { formatNumber } from '@/utils/format-utils'
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
 import { Separator } from '@workspace/ui/components/separator'
+import { cn } from "@workspace/ui/lib/utils"
 
 const navigation = [
     { name: 'Khóa học', href: '/courses', icon: BookOpen },
@@ -63,98 +71,102 @@ export function Header() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
-            <div className="container mx-auto px-4">
-                <div className="flex h-14 items-center justify-between gap-4">
-                    {/* Brand + Nav */}
-                    <div className="flex items-center gap-6">
-                        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-                            <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-                                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <path d="M3 10h18" strokeLinecap="round" />
-                                    <path d="M5 10v8" strokeLinecap="round" />
-                                    <path d="M19 10v8" strokeLinecap="round" />
-                                    <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-                                </svg>
-                            </div>
-                            <span className="font-bold text-base tracking-tight">
-                                Torii <span className="text-primary">Nihongo</span>
-                            </span>
-                        </Link>
+            <div className="container mx-auto px-4 max-w-7xl">
+                <div className="flex h-16 items-center justify-between gap-4">
+                    {/* Brand */}
+                    <Link href="/" className="flex items-center gap-2.5 shrink-0">
+                        <Image src="/logo.png" alt="Torii Nihongo" width={36} height={36} className="rounded-lg" />
+                        <span className="font-bold text-lg tracking-tight hidden sm:inline">
+                            Torii <span className="text-primary">Nihongo</span>
+                        </span>
+                    </Link>
 
-                        <nav className="hidden lg:flex items-center gap-0.5">
-                            {navigation.map((item) => (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className="px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                                >
+                    {/* Nav - Centered */}
+                    <nav className="hidden lg:flex items-center justify-center flex-1 gap-2">
+                        {navigation.map((item) => (
+                            <Button
+                                key={item.name}
+                                asChild
+                                variant="ghost"
+                                size="sm"
+                                className="text-muted-foreground hover:text-foreground font-medium transition-colors"
+                            >
+                                <Link href={item.href}>
                                     {item.name}
                                 </Link>
-                            ))}
-                        </nav>
-                    </div>
+                            </Button>
+                        ))}
+                    </nav>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3 shrink-0 justify-end">
                         {/* Balance */}
                         {isAuthenticated && (
-                            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold border border-amber-500/20">
-                                <Coins className="w-3.5 h-3.5" />
-                                {((user as any)?.balance || 0).toLocaleString()}
-                            </div>
+                            <Link href="/dashboard/wallet" className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-md bg-muted text-xs font-bold border hover:bg-muted/80 transition-colors">
+                                <Coins className="size-4 text-amber-500" />
+                                {formatNumber((user as any)?.balance || 0)}
+                            </Link>
                         )}
 
-                        {/* Theme Toggle */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="hidden sm:flex h-8 w-8">
-                                    <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                    <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                                    <span className="sr-only">Toggle theme</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setTheme('light')}>Chế độ Sáng</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setTheme('dark')}>Chế độ Tối</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setTheme('system')}>Theo Hệ thống</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
 
                         {/* User Menu / Auth Buttons */}
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full p-0">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                    <Button variant="ghost" size="icon" className="rounded-full">
+                                        <Avatar className="size-8">
+                                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
                                                 {user?.displayName?.[0]?.toUpperCase() || 'U'}
                                             </AvatarFallback>
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-52">
-                                    <div className="px-2 py-1.5">
-                                        <p className="text-sm font-medium">{user?.displayName}</p>
-                                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                                    </div>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/dashboard">
-                                            <LayoutDashboard className="mr-2 h-4 w-4" /> Tổng quan
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/dashboard/settings">
-                                            <Settings className="mr-2 h-4 w-4" /> Cài đặt tài khoản
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
+                                <DropdownMenuContent className="w-64 p-2 shadow-md" align="end" forceMount>
+                                    <DropdownMenuLabel className="font-normal px-2 pb-3">
+                                        <div className="flex flex-col space-y-1">
+                                            <p className="text-sm font-bold leading-none">{user?.displayName || 'Người dùng'}</p>
+                                            <p className="text-xs leading-none text-muted-foreground font-medium">
+                                                {user?.email || 'Học viên'}
+                                            </p>
+                                        </div>
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator className="mx-2 mb-2" />
+                                    <DropdownMenuGroup className="space-y-1">
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard')}>
+                                            <LayoutDashboard className="mr-3 size-4 text-primary" />
+                                            <span>Dashboard</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/profile')}>
+                                            <BadgeCheck className="mr-3 size-4 text-primary" />
+                                            <span>Hồ sơ cá nhân</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/notifications')}>
+                                            <Bell className="mr-3 size-4 text-muted-foreground" />
+                                            <span>Thông báo</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/wishlist')}>
+                                            <Heart className="mr-3 size-4 text-muted-foreground" />
+                                            <span>Khóa học yêu thích</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/settings')}>
+                                            <Settings className="mr-3 size-4 text-muted-foreground" />
+                                            <span>Cài đặt tài khoản</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator className="mx-2 my-2" />
+                                    <DropdownMenuGroup className="space-y-1">
+                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                                            {theme === 'dark' ? <Sun className="mr-3 size-4 text-muted-foreground" /> : <Moon className="mr-3 size-4 text-muted-foreground" />}
+                                            <span>Đổi giao diện ({theme === 'dark' ? 'Sáng' : 'Tối'})</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator className="mx-2 my-2" />
                                     <DropdownMenuItem
                                         onClick={handleLogout}
                                         disabled={isLoggingOut}
-                                        className="text-destructive focus:text-destructive"
+                                        className="cursor-pointer text-destructive focus:text-destructive py-2 font-medium"
                                     >
-                                        <LogOut className="mr-2 h-4 w-4" />
+                                        <LogOut className="mr-3 size-4" />
                                         {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -165,7 +177,7 @@ export function Header() {
                                     <Link href="/login">Đăng nhập</Link>
                                 </Button>
                                 <Button size="sm" asChild>
-                                    <Link href="/register">Đăng ký</Link>
+                                    <Link href="/register">Tham gia ngay</Link>
                                 </Button>
                             </div>
                         )}
@@ -174,10 +186,10 @@ export function Header() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="lg:hidden h-8 w-8"
+                            className="lg:hidden"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
-                            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                            {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
                         </Button>
                     </div>
                 </div>
@@ -185,44 +197,44 @@ export function Header() {
 
             {/* Mobile Menu */}
             {mobileMenuOpen && (
-                <div className="lg:hidden border-t bg-background absolute w-full left-0 p-4 shadow-md">
-                    <nav className="flex flex-col gap-1 mb-4">
+                <div className="lg:hidden border-t bg-background absolute w-full left-0 p-6 shadow-xl animate-in fade-in slide-in-from-top-4 duration-200">
+                    <nav className="flex flex-col gap-1 mb-6">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-accent transition-colors"
+                                className="flex items-center gap-4 px-4 py-3 rounded-md text-base font-medium hover:bg-muted transition-colors"
                             >
-                                <item.icon className="w-4 h-4 text-primary" />
+                                <item.icon className="size-5 text-muted-foreground" />
                                 {item.name}
                             </Link>
                         ))}
                     </nav>
 
-                    <Separator className="mb-4" />
+                    <Separator className="mb-6" />
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         {!isAuthenticated && (
-                            <>
+                            <div className="grid gap-3">
                                 <Button variant="outline" className="w-full" asChild>
                                     <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
                                 </Button>
                                 <Button className="w-full" asChild>
-                                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Đăng ký miễn phí</Link>
+                                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Bắt đầu miễn phí</Link>
                                 </Button>
-                            </>
+                            </div>
                         )}
-                        <div className="flex items-center justify-between px-1">
-                            <span className="text-sm text-muted-foreground">Giao diện</span>
+                        <div className="flex items-center justify-between px-4 py-3 rounded-md bg-muted/50">
+                            <span className="text-sm font-medium">Chế độ giao diện</span>
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 w-8 p-0"
+                                className="rounded-full"
                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                             >
-                                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                             </Button>
                         </div>
                     </div>

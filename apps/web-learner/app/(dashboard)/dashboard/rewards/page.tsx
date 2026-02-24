@@ -1,13 +1,15 @@
 'use client'
 
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@workspace/ui/components/empty'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@workspace/ui/components/card'
-import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Gift, Star, Ticket, ArrowRight, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react'
-import { useGamificationProfile, useRewards, useRedeemPoints } from '@/apis/services/gamification-api'
-import { useMyCoupons } from '@/apis/services/coupon-api'
+import { useGamificationProfile, useRewards, useRedeemPoints } from '@/lib/api/services/gamification-api'
+import { useMyCoupons } from '@/lib/api/services/coupon-api'
 import { toast } from 'sonner'
+import { Button } from '@workspace/ui/components/button'
+import { formatDate, formatCurrency, formatNumber } from '@/utils/format-utils'
 import { useState } from 'react'
 import {
     Dialog,
@@ -63,13 +65,13 @@ export default function RewardsPage() {
                     <p className="text-muted-foreground mt-2">Dùng điểm tích lũy để đổi lấy các ưu đãi đặc quyền.</p>
                 </div>
 
-                <div className="bg-primary/5 border border-primary/10 rounded-2xl px-6 py-4 flex items-center gap-4 shadow-sm">
+                <div className="bg-primary/5 border border-primary/10 rounded-xl px-6 py-4 flex items-center gap-4 shadow-sm">
                     <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center">
                         <Star className="size-6 text-primary fill-primary" />
                     </div>
                     <div>
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Điểm hiện có</p>
-                        <p className="text-2xl font-black text-primary">{profile?.points?.toLocaleString() || 0} Points</p>
+                        <p className="text-2xl font-black text-primary">{formatNumber(profile?.points) || 0} Points</p>
                     </div>
                 </div>
             </div>
@@ -91,12 +93,12 @@ export default function RewardsPage() {
                             <div className="flex flex-wrap gap-2 mt-2">
                                 {reward.minOrderAmount && (
                                     <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
-                                        Đơn tối thiểu: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(reward.minOrderAmount)}
+                                        Đơn tối thiểu: {formatCurrency(reward.minOrderAmount)}
                                     </Badge>
                                 )}
                                 {reward.maxDiscountAmount && (
                                     <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
-                                        Giảm tối đa: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(reward.maxDiscountAmount)}
+                                        Giảm tối đa: {formatCurrency(reward.maxDiscountAmount)}
                                     </Badge>
                                 )}
                             </div>
@@ -111,7 +113,7 @@ export default function RewardsPage() {
 
                         <CardFooter>
                             <Button
-                                className="w-full rounded-xl font-bold group"
+                                className="w-full"
                                 variant={(profile?.points || 0) >= reward.points ? "default" : "outline"}
                                 disabled={(profile?.points || 0) < reward.points || redeemMutation.isPending}
                                 onClick={() => handleRedeemClick(reward)}
@@ -136,7 +138,7 @@ export default function RewardsPage() {
                 {coupons && coupons.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {coupons.map((coupon: any) => (
-                            <div key={coupon.id} className="bg-card border border-border rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+                            <Card key={coupon.id} className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-4 w-full">
                                     <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                                         <CheckCircle2 className="size-6 text-primary" />
@@ -148,24 +150,30 @@ export default function RewardsPage() {
                                         </div>
                                         <p className="text-sm font-medium text-foreground truncate">{coupon.name}</p>
                                         <p className="text-xs text-muted-foreground mt-0.5">
-                                            Hạn dùng: {new Date(coupon.validUntil).toLocaleDateString('vi-VN')}
-                                            {coupon.maxDiscountAmount && ` • Giảm tối đa ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(coupon.maxDiscountAmount))}`}
+                                            Hạn dùng: {formatDate(coupon.validUntil)}
+                                            {coupon.maxDiscountAmount && ` • Giảm tối đa ${formatCurrency(coupon.maxDiscountAmount)}`}
                                         </p>
                                     </div>
                                 </div>
-                                <Button variant="outline" size="sm" className="rounded-lg font-bold shrink-0" onClick={() => {
+                                <Button variant="outline" size="sm" onClick={() => {
                                     navigator.clipboard.writeText(coupon.code)
                                     toast.success('Đã sao chép mã!')
                                 }}>
                                     Sao chép
                                 </Button>
-                            </div>
+                            </Card>
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-muted/30 rounded-2xl p-10 text-center border-2 border-dashed border-border">
-                        <p className="text-muted-foreground font-medium">Bạn chưa có mã giảm giá nào. Hãy tích lũy điểm và đổi quà nhé!</p>
-                    </div>
+                    <Empty>
+                        <EmptyMedia variant="icon" className="bg-muted/20">
+                            <Ticket className="size-8 text-muted-foreground/30" />
+                        </EmptyMedia>
+                        <EmptyContent>
+                            <EmptyTitle>Chưa có mã giảm giá</EmptyTitle>
+                            <EmptyDescription>Hãy tích lũy điểm và đổi quà nhé!</EmptyDescription>
+                        </EmptyContent>
+                    </Empty>
                 )}
             </div>
 

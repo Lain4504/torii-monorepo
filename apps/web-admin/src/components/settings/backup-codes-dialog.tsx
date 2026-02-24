@@ -5,11 +5,14 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
+    DialogFooter,
+    DialogClose,
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { toast } from '@workspace/ui/components/sonner';
-import { Key, Download, Copy, Check, Loader2, AlertTriangle } from 'lucide-react';
-import { useRegenerateBackupCodes } from '@/api/services/two-factor-auth';
+import { Key, Download, Copy, Check, AlertTriangle } from 'lucide-react';
+import { useRegenerateBackupCodes } from '@/lib/api/services/two-factor-auth';
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface BackupCodesDialogProps {
     open: boolean;
@@ -64,7 +67,7 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6 py-4">
+                <div className="space-y-6">
                     {backupCodes.length === 0 ? (
                         <>
                             {/* Warning */}
@@ -73,33 +76,36 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                                     <AlertTriangle className="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                                     <div className="space-y-1">
                                         <p className="text-sm font-medium text-foreground">
-                                            This will invalidate your old backup codes
+                                            Điều này sẽ làm mất hiệu lực các mã dựa phòng cũ của bạn
                                         </p>
                                         <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                                            Any previously generated backup codes will no longer work. Make sure to save the new codes in a safe place.
+                                            Bất kỳ mã dự phòng nào đã tạo trước đó sẽ không còn hoạt động. Hãy chắc chắn lưu các mã mới ở nơi an toàn.
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Generate Button */}
-                            <Button
-                                onClick={handleRegenerate}
-                                disabled={regenerateMutation.isPending}
-                                className="w-full gap-2 rounded-lg"
-                            >
-                                {regenerateMutation.isPending ? (
-                                    <>
-                                        <Loader2 className="size-4 animate-spin" />
-                                        Generating...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Key className="size-4" />
-                                        Generate New Backup Codes
-                                    </>
-                                )}
-                            </Button>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Hủy</Button>
+                                </DialogClose>
+                                <Button
+                                    onClick={handleRegenerate}
+                                    disabled={regenerateMutation.isPending}
+                                >
+                                    {regenerateMutation.isPending ? (
+                                        <>
+                                            <Spinner />
+                                            Đang tạo...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Key className="size-4" />
+                                            Tạo mã dự phòng mới
+                                        </>
+                                    )}
+                                </Button>
+                            </DialogFooter>
                         </>
                     ) : (
                         <>
@@ -135,7 +141,7 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                                 <Button
                                     onClick={copyBackupCodes}
                                     variant="outline"
-                                    className="flex-1 gap-2 rounded-lg"
+                                    className="flex-1 gap-2"
                                 >
                                     {copiedCodes ? <Check className="size-4 text-emerald-600" /> : <Copy className="size-4" />}
                                     Sao chép mã
@@ -143,22 +149,24 @@ export function BackupCodesDialog({ open, onOpenChange }: BackupCodesDialogProps
                                 <Button
                                     onClick={downloadBackupCodes}
                                     variant="outline"
-                                    className="flex-1 gap-2 rounded-lg"
+                                    className="flex-1 gap-2"
                                 >
                                     <Download className="size-4" />
                                     Tải xuống
                                 </Button>
                             </div>
 
-                            <Button
-                                onClick={() => {
-                                    onOpenChange(false);
-                                    setBackupCodes([]);
-                                }}
-                                className="w-full rounded-lg"
-                            >
-                                Tôi đã lưu mã dự phòng
-                            </Button>
+                            <DialogFooter>
+                                <Button
+                                    onClick={() => {
+                                        onOpenChange(false);
+                                        setBackupCodes([]);
+                                    }}
+                                    className="w-full"
+                                >
+                                    Tôi đã lưu mã dự phòng
+                                </Button>
+                            </DialogFooter>
                         </>
                     )}
                 </div>

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from './store'
 import { Toaster } from '@workspace/ui/components/sonner'
@@ -28,9 +29,8 @@ import CourseLiveSessionsPage from '@/routes/courses/course-live-sessions-page.t
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import OrdersPage from '@/routes/finance/orders-page.tsx'
-import TransactionsPage from '@/routes/finance/payments-page.tsx'
 
-import NotificationsPage from '@/routes/settings/notifications-page.tsx'
+import NotificationsPage from '@/routes/notification/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
@@ -38,6 +38,8 @@ import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
 import ForgotPasswordPage from '@/routes/auth/forgot-password-page.tsx'
+import ResetPasswordPage from '@/routes/auth/reset-password-page.tsx'
+
 import TwoFactorVerifyPage from '@/routes/auth/two-factor-verify-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
 import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
@@ -54,6 +56,8 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 30, // 30 minutes
+      retry: 1, // Reduced for easier debugging
+      refetchOnWindowFocus: false, // Avoid unexpected reloads during dev
     },
   },
 })
@@ -68,6 +72,8 @@ function App() {
               <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+
                 <Route path="/auth/verify-2fa" element={<TwoFactorVerifyPage />} />
                 <Route element={
                   <AuthGuard>
@@ -107,7 +113,6 @@ function App() {
 
                   <Route element={<RoutePermissionGuard permission="payment.manage" />}>
                     <Route path="orders" element={<OrdersPage />} />
-                    <Route path="transactions" element={<TransactionsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="report.view" />}>
@@ -141,6 +146,7 @@ function App() {
             </BrowserRouter>
             <Toaster position="top-center" />
           </TooltipProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </ThemeProvider>
     </ReduxProvider>

@@ -3,8 +3,9 @@ import { Clock, Eye, MessageSquare, ChevronRight } from 'lucide-react'
 import type { BlogResponseDTO } from '@workspace/schemas'
 import { Badge } from '@workspace/ui/components/badge'
 import { Separator } from '@workspace/ui/components/separator'
-import { format } from 'date-fns'
-import { vi } from 'date-fns/locale'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { formatNumber, formatDate } from '@/utils/format-utils'
+import Image from 'next/image'
 
 interface BlogSidebarProps {
     recentBlogs: BlogResponseDTO[]
@@ -17,27 +18,29 @@ export function BlogSidebar({ recentBlogs, mostViewedBlogs = [], popularTags }: 
         <aside className="space-y-8">
             {/* Most Viewed */}
             {mostViewedBlogs.length > 0 && (
-                <div className="space-y-4">
-                    <h3 className="text-sm font-semibold">Xem nhiều nhất</h3>
-                    <div className="space-y-3">
+                <div className="space-y-6">
+                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 leading-none">Xem nhiều nhất</h3>
+                    <div className="space-y-6">
                         {mostViewedBlogs.map((blog, i) => (
-                            <Link key={blog.id} href={`/blog/${blog.id}`} className="flex items-start gap-3 group">
-                                <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-muted">
-                                    <img
+                            <Link key={blog.id} href={`/blog/${blog.id}`} className="flex items-start gap-4 group">
+                                <div className="relative size-16 rounded-xl overflow-hidden shrink-0 bg-muted shadow-sm">
+                                    <Image
                                         src={blog.coverImageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=200&auto=format&fit=crop'}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover transition-transform group-hover:scale-110"
                                         alt={blog.title}
+                                        unoptimized={!!blog.coverImageUrl}
                                     />
-                                    <div className="absolute top-0 left-0 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center rounded-br">
+                                    <div className="absolute top-0 left-0 size-6 bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center rounded-br-lg shadow-sm">
                                         {i + 1}
                                     </div>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                                <div className="flex-1 min-w-0 space-y-1.5 pt-0.5">
+                                    <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors leading-snug text-foreground/90">
                                         {blog.title}
                                     </h4>
-                                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                        <Eye className="w-3 h-3" /> {blog.viewCount || 0} lượt xem
+                                    <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest flex items-center gap-1.5">
+                                        <Eye className="size-3" /> {formatNumber(blog.viewCount || 0)} lượt xem
                                     </p>
                                 </div>
                             </Link>
@@ -46,29 +49,31 @@ export function BlogSidebar({ recentBlogs, mostViewedBlogs = [], popularTags }: 
                 </div>
             )}
 
-            <Separator />
+            <Separator className="opacity-50" />
 
             {/* Recent Blogs */}
             {recentBlogs.length > 0 && (
-                <div className="space-y-4">
-                    <h3 className="text-sm font-semibold">Bài viết gần đây</h3>
-                    <div className="space-y-3">
+                <div className="space-y-6">
+                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 leading-none">Bài viết gần đây</h3>
+                    <div className="space-y-6">
                         {recentBlogs.map((blog) => (
-                            <Link key={blog.id} href={`/blog/${blog.id}`} className="flex items-start gap-3 group">
-                                <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-muted">
-                                    <img
+                            <Link key={blog.id} href={`/blog/${blog.id}`} className="flex items-start gap-4 group">
+                                <div className="relative size-16 rounded-xl overflow-hidden shrink-0 bg-muted shadow-sm">
+                                    <Image
                                         src={blog.coverImageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=200&auto=format&fit=crop'}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover transition-transform group-hover:scale-110"
                                         alt={blog.title}
+                                        unoptimized={!!blog.coverImageUrl}
                                     />
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                                <div className="flex-1 min-w-0 space-y-1.5 pt-0.5">
+                                    <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors leading-snug text-foreground/90">
                                         {blog.title}
                                     </h4>
-                                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                        <Clock className="w-3 h-3" />
-                                        {format(new Date(blog.publishedAt || blog.createdAt), 'dd/MM/yyyy', { locale: vi })}
+                                    <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest flex items-center gap-1.5">
+                                        <Clock className="size-3" />
+                                        {formatDate(blog.publishedAt || blog.createdAt)}
                                     </p>
                                 </div>
                             </Link>
@@ -77,17 +82,17 @@ export function BlogSidebar({ recentBlogs, mostViewedBlogs = [], popularTags }: 
                 </div>
             )}
 
-            <Separator />
+            <Separator className="opacity-50" />
 
             {/* Tags */}
             {popularTags.length > 0 && (
-                <div className="space-y-3">
-                    <h3 className="text-sm font-semibold">Chủ đề phổ biến</h3>
+                <div className="space-y-4">
+                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 leading-none">Chủ đề phổ biến</h3>
                     <div className="flex flex-wrap gap-2">
                         {popularTags.map((tag) => (
                             <Link key={tag} href={`/blog?tag=${tag}`}>
-                                <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                                    {tag}
+                                <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-wider hover:bg-primary hover:text-primary-foreground transition-all">
+                                    #{tag}
                                 </Badge>
                             </Link>
                         ))}
@@ -95,21 +100,25 @@ export function BlogSidebar({ recentBlogs, mostViewedBlogs = [], popularTags }: 
                 </div>
             )}
 
-            <Separator />
+            <Separator className="opacity-50" />
 
             {/* CTA */}
-            <div className="rounded-xl border bg-primary/5 border-primary/20 p-5 space-y-3">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                    <MessageSquare className="w-5 h-5" />
-                </div>
-                <h3 className="font-semibold text-sm">Cần tư vấn lộ trình học?</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                    Liên hệ với chúng tôi để được tư vấn lộ trình từ N5 tới N1 miễn phí.
-                </p>
-                <Link href="/contact" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-                    Liên hệ ngay <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-            </div>
+            <Card className="shadow-none border border-primary/10 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardContent className="p-6 space-y-4">
+                    <div className="size-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/20">
+                        <MessageSquare className="size-5" />
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="font-bold text-sm text-foreground">Cần tư vấn lộ trình học?</h3>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                            Liên hệ với chúng tôi để được tư vấn lộ trình từ N5 tới N1 miễn phí.
+                        </p>
+                    </div>
+                    <Link href="/contact" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary group transition-all">
+                        Liên hệ ngay <ChevronRight className="size-3.5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </CardContent>
+            </Card>
         </aside>
     )
 }

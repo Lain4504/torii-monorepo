@@ -1,15 +1,13 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@workspace/ui/components/sheet';
-import { format } from 'date-fns';
-import { type AuditLog, useEntityActivity } from "@/api/services/audit-logs.ts";
+import { formatDateTime } from '@/lib/format-utils';
+import { type AuditLog, useEntityActivity } from "@/lib/api/services/audit-logs.ts";
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import {
     Activity,
-    History,
     User,
     Clock,
-    FileText,
     ShieldCheck,
     ChevronDown,
     ExternalLink
@@ -62,7 +60,7 @@ function LogItem({ log }: { log: AuditLog }) {
                         </Badge>
                         <span className="text-[10px] font-medium text-muted-foreground/50 flex items-center gap-1">
                             <Clock className="size-3" />
-                            {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm')}
+                            {formatDateTime(log.createdAt, 'yyyy-MM-dd HH:mm')}
                         </span>
                     </div>
                     <p className="text-sm font-semibold text-foreground leading-tight">
@@ -83,7 +81,7 @@ function LogItem({ log }: { log: AuditLog }) {
                 {(log.oldValues || log.newValues || (log.metadata && Object.keys(log.metadata).length > 0)) && (
                     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                         <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-7 px-2 -ml-1 text-[10px] text-primary hover:bg-primary/5 font-bold uppercase tracking-wide gap-1">
+                            <Button variant="ghost" size="sm" className="-ml-1 text-primary hover:bg-primary/5 font-bold uppercase tracking-wide gap-1">
                                 <ChevronDown className={cn("size-3 transition-transform duration-200", isOpen && "rotate-180")} />
                                 {isOpen ? "Ẩn chi tiết" : "Xem chi tiết dữ liệu"}
                             </Button>
@@ -129,26 +127,16 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
 
     return (
         <Sheet open={!!courseId} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent className="w-full sm:w-[800px] !max-w-[800px] p-0 border-l border-border/20 shadow-2xl bg-background/95 backdrop-blur-xl">
-                <div className="flex flex-col h-full">
-                    <SheetHeader className="p-8 pb-6 border-b border-border/10">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 rounded-2xl bg-primary/10 text-primary shadow-sm shadow-primary/10">
-                                <History className="size-5" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <SheetTitle className="text-xl font-sans font-bold italic tracking-tight uppercase">
-                                    Lịch sử <span className="text-primary not-italic">Kiểm duyệt</span>
-                                </SheetTitle>
-                                <SheetDescription className="text-xs font-medium text-muted-foreground/60 flex items-center gap-1.5">
-                                    <FileText className="size-3" />
-                                    {courseTitle || "Khóa học"}
-                                </SheetDescription>
-                            </div>
-                        </div>
-                    </SheetHeader>
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+                <SheetHeader>
+                    <SheetTitle>Lịch sử Kiểm duyệt</SheetTitle>
+                    <SheetDescription>
+                        {courseTitle || "Khóa học"}
+                    </SheetDescription>
+                </SheetHeader>
 
-                    <ScrollArea className="flex-1 px-8 py-8">
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="space-y-6 p-6">
                         {isLoading ? (
                             <div className="space-y-8 pl-8 relative">
                                 <div className="absolute left-[11px] top-0 bottom-0 w-[2px] bg-muted/20" />
@@ -180,17 +168,17 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
                                 </div>
                             </div>
                         )}
-                    </ScrollArea>
-
-                    <div className="p-8 pt-4 border-t border-border/10 bg-muted/5">
-                        <Button
-                            variant="outline"
-                            className="w-full h-11 rounded-xl border-border/40 bg-background hover:bg-muted text-xs font-bold uppercase tracking-widest gap-2 shadow-sm"
-                            onClick={() => window.location.href = '/audit'}>
-                            <ExternalLink className="size-3.5 opacity-50" />
-                            Xem toàn bộ nhật ký hệ thống
-                        </Button>
                     </div>
+                </ScrollArea>
+
+                <div className="p-6 border-t">
+                    <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => window.location.href = '/audit'}>
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Xem toàn bộ nhật ký hệ thống
+                    </Button>
                 </div>
             </SheetContent>
         </Sheet>

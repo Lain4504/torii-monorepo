@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { blogApi } from '@/apis/services/blog-api'
+import { blogApi } from '@/lib/api/services/blog-api'
 import { BlogCard } from '@/components/blog/blog-card'
 import { BlogSidebar } from '@/components/blog/blog-sidebar'
 import type { BlogResponseDTO } from '@workspace/schemas'

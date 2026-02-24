@@ -124,7 +124,7 @@ export default function StatisticsPage() {
                                 <h4 className="text-base font-bold">Xếp hạng học tập</h4>
                                 <p className="text-xs text-muted-foreground font-medium mt-1">Tiến trình vượt bậc</p>
                             </div>
-                            <Button variant="ghost" size="sm" className="text-xs font-bold text-primary hover:text-primary/80 h-8 rounded-lg">
+                            <Button variant="ghost" size="sm" className="text-xs font-bold text-primary hover:text-primary/80 rounded-lg">
                                 Xem chi tiết <ChevronRight className="ml-1 w-3.5 h-3.5" />
                             </Button>
                         </Card>
@@ -150,7 +150,7 @@ export default function StatisticsPage() {
                                 </div>
                                 <span className="text-xs font-semibold opacity-80">Cùng 1,200 người khác</span>
                             </div>
-                            <Button className="w-full bg-background text-primary hover:bg-background/90 rounded-xl h-10 text-xs font-bold shadow-sm">
+                            <Button className="w-full bg-background text-primary hover:bg-background/90 rounded-xl font-bold shadow-sm">
                                 Luyện Nghe Ngay
                             </Button>
                         </CardContent>

@@ -1,6 +1,8 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Facebook, Youtube, Instagram, Mail, MapPin } from 'lucide-react'
 import { Separator } from '@workspace/ui/components/separator'
+import { Button } from '@workspace/ui/components/button'
 
 const footerLinks = {
     courses: {
@@ -44,50 +46,50 @@ export function Footer() {
     const year = new Date().getFullYear()
 
     return (
-        <footer className="border-t bg-background">
-            <div className="container mx-auto px-4 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <footer className="border-t bg-background pt-16 pb-12">
+            <div className="container mx-auto px-4 max-w-7xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
                     {/* Brand */}
-                    <div className="lg:col-span-2 space-y-4">
-                        <Link href="/" className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-                                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <path d="M3 10h18" strokeLinecap="round" />
-                                    <path d="M5 10v8" strokeLinecap="round" />
-                                    <path d="M19 10v8" strokeLinecap="round" />
-                                    <path d="M3 7c0-1 1-2 3-2h12c2 0 3 1 3 2" strokeLinecap="round" />
-                                </svg>
-                            </div>
-                            <span className="font-bold text-base tracking-tight">
+                    <div className="lg:col-span-2 space-y-6">
+                        <Link href="/" className="flex items-center gap-3">
+                            <Image src="/logo.png" alt="Torii Nihongo" width={36} height={36} className="rounded-lg" />
+                            <span className="font-bold text-lg tracking-tight">
                                 Torii <span className="text-primary">Nihongo</span>
                             </span>
                         </Link>
 
-                        <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-                            Nền tảng học tiếng Nhật hiện đại ứng dụng AI và cộng đồng năng động, giúp bạn chinh phục JLPT nhanh chóng.
+                        <p className="text-sm text-muted-foreground leading-relaxed max-w-sm font-medium">
+                            Nền tảng học tiếng Nhật hiện đại ứng dụng trí tuệ nhân tạo (AI) và cộng đồng năng động, giúp bạn chinh phục JLPT nhanh chóng và hiệu quả.
                         </p>
 
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
+                                <div className="size-7 rounded-md bg-muted flex items-center justify-center">
+                                    <MapPin className="size-3.5" />
+                                </div>
                                 Thủ Đức, TP. Hồ Chí Minh
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Mail className="w-3.5 h-3.5 shrink-0" />
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
+                                <div className="size-7 rounded-md bg-muted flex items-center justify-center">
+                                    <Mail className="size-3.5" />
+                                </div>
                                 hello@torii-nihongo.vn
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 pt-2">
                             {socials.map((s) => (
-                                <Link
+                                <Button
                                     key={s.label}
-                                    href={s.href}
-                                    aria-label={s.label}
-                                    className="w-8 h-8 rounded-md flex items-center justify-center bg-muted text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                                    variant="ghost"
+                                    size="icon"
+                                    asChild
+                                    className="size-10 bg-muted/50 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
                                 >
-                                    <s.icon className="w-4 h-4" />
-                                </Link>
+                                    <Link href={s.href} aria-label={s.label}>
+                                        <s.icon className="size-5" />
+                                    </Link>
+                                </Button>
                             ))}
                         </div>
                     </div>
@@ -95,14 +97,14 @@ export function Footer() {
                     {/* Link Columns */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:col-span-3 gap-8">
                         {Object.entries(footerLinks).map(([key, section]) => (
-                            <div key={key} className="space-y-3">
-                                <h3 className="text-sm font-semibold">{section.title}</h3>
-                                <ul className="space-y-2">
+                            <div key={key} className="space-y-5">
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">{section.title}</h3>
+                                <ul className="space-y-3">
                                     {section.links.map((link) => (
                                         <li key={link.href}>
                                             <Link
                                                 href={link.href}
-                                                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                                className="text-sm text-muted-foreground hover:text-foreground font-semibold transition-colors"
                                             >
                                                 {link.name}
                                             </Link>
@@ -114,15 +116,16 @@ export function Footer() {
                     </div>
                 </div>
 
-                <Separator className="my-8" />
-
-                {/* Bottom */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-                    <p>© {year} Torii Nihongo. All rights reserved.</p>
-                    <div className="flex items-center gap-4">
-                        <Link href="/privacy" className="hover:text-foreground transition-colors">Quyền riêng tư</Link>
-                        <Link href="/terms" className="hover:text-foreground transition-colors">Điều khoản</Link>
-                        <Link href="/cookies" className="hover:text-foreground transition-colors">Cookies</Link>
+                <div className="mt-16 pt-8 border-t">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-sm">
+                        <p className="font-bold text-muted-foreground/60">
+                            © {year} <span className="text-foreground">Torii Nihongo</span>. Thiết kế cho cộng đồng tự học.
+                        </p>
+                        <div className="flex items-center gap-6">
+                            <Link href="/privacy" className="text-muted-foreground hover:text-foreground font-bold transition-colors">Quyền riêng tư</Link>
+                            <Link href="/terms" className="text-muted-foreground hover:text-foreground font-bold transition-colors">Điều khoản</Link>
+                            <Link href="/cookies" className="text-muted-foreground hover:text-foreground font-bold transition-colors">Cookies</Link>
+                        </div>
                     </div>
                 </div>
             </div>

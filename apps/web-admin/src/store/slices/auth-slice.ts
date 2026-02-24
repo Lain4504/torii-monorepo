@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '@/store';
-import { apiClient, extractErrorMessage } from '@/api/api-client.ts';
+import { apiClient, extractErrorMessage } from '@/lib/api/api-client.ts';
 import type { UserResponseDTO, UserLoginDTO } from '@workspace/schemas';
 import type { AxiosError } from 'axios';
 
@@ -86,7 +86,7 @@ export const checkAuth = createAsyncThunk(
             }
 
             return rejectWithValue('Not authenticated');
-        } catch (error: unknown) {
+        } catch {
             // Don't show error for auth check - it's expected to fail if not logged in
             return rejectWithValue('Not authenticated');
         }

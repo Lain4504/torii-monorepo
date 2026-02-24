@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { Calendar, Clock, ArrowRight } from 'lucide-react'
-import { format } from 'date-fns'
-import { vi } from 'date-fns/locale'
+import { formatDate } from '@/utils/format-utils'
 import type { BlogResponseDTO } from '@workspace/schemas'
 import { Badge } from '@workspace/ui/components/badge'
+import { Card, CardContent } from '@workspace/ui/components/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Separator } from '@workspace/ui/components/separator'
+import Image from 'next/image'
 
 interface BlogCardProps {
     blog: BlogResponseDTO
@@ -17,17 +18,19 @@ export function BlogCard({ blog }: BlogCardProps) {
 
     return (
         <Link href={`/blog/${blog.id}`} className="block group">
-            <article className="flex flex-col sm:flex-row gap-0 overflow-hidden rounded-xl border bg-card hover:border-primary/40 transition-colors">
+            <Card className="flex flex-col sm:flex-row gap-0 overflow-hidden hover:bg-muted/30 transition-colors border shadow-sm rounded-lg group/card">
                 {/* Thumbnail */}
                 <div className="relative w-full sm:w-56 shrink-0 aspect-video sm:aspect-auto overflow-hidden bg-muted">
-                    <img
+                    <Image
                         src={blog.coverImageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop'}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        className="object-cover"
                         alt={blog.title}
+                        unoptimized={!!blog.coverImageUrl}
                     />
                     {blog.tags?.[0] && (
-                        <div className="absolute top-3 left-3">
-                            <Badge variant="secondary" className="text-xs">
+                        <div className="absolute top-4 left-4">
+                            <Badge variant="secondary" className="text-[9px] font-bold uppercase backdrop-blur-md bg-background/60 border-none shadow-sm px-2.5 py-1">
                                 {blog.tags[0]}
                             </Badge>
                         </div>
@@ -35,48 +38,49 @@ export function BlogCard({ blog }: BlogCardProps) {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 p-5 flex flex-col gap-3">
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {format(new Date(blog.publishedAt || blog.createdAt), "dd 'thg' MM, yyyy", { locale: vi })}
+                <CardContent className="flex-1 p-6 sm:p-8 flex flex-col gap-5">
+                    <div className="flex items-center gap-5 text-[10px] font-bold text-muted-foreground uppercase opacity-60">
+                        <span className="flex items-center gap-2">
+                            <Calendar className="size-3.5" />
+                            {formatDate(blog.publishedAt || blog.createdAt)}
                         </span>
-                        <span>·</span>
-                        <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5" />
-                            {readingTime} phút đọc
+                        <span className="opacity-30">•</span>
+                        <span className="flex items-center gap-2">
+                            <Clock className="size-3.5" />
+                            {readingTime} min read
                         </span>
                     </div>
 
-                    <h3 className="font-semibold leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                        {blog.title}
-                    </h3>
+                    <div className="space-y-3">
+                        <h3 className="font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2 text-xl tracking-tight">
+                            {blog.title}
+                        </h3>
 
-                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                        {blog.excerpt || 'Khám phá những kiến thức thú vị về tiếng Nhật và văn hóa Nhật Bản...'}
-                    </p>
+                        <p className="text-sm font-medium text-muted-foreground/90 line-clamp-2 leading-relaxed">
+                            {blog.excerpt || 'Khám phá những kiến thức thú vị về tiếng Nhật và văn hóa Nhật Bản...'}
+                        </p>
+                    </div>
 
-                    <Separator className="mt-auto" />
-
-                    <div className="flex items-center justify-between pt-1">
-                        <div className="flex items-center gap-2">
-                            <Avatar className="w-7 h-7">
+                    <div className="flex items-center justify-between pt-6 mt-auto border-t">
+                        <div className="flex items-center gap-3">
+                            <Avatar className="size-9 border">
                                 <AvatarImage src={blog.author?.avatarUrl || undefined} />
-                                <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
-                                    {blog.author?.displayName?.charAt(0) || 'T'}
+                                <AvatarFallback className="text-[10px] bg-muted text-foreground font-bold">
+                                    {(blog.author?.displayName || 'T').charAt(0).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
-                            <span className="text-xs font-medium text-muted-foreground truncate max-w-[120px]">
+                            <span className="text-xs font-bold text-foreground/80 tracking-tight">
                                 {blog.author?.displayName || 'Torii Writer'}
                             </span>
                         </div>
 
-                        <span className="text-xs font-medium text-primary flex items-center gap-1">
-                            Đọc bài <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase group/btn">
+                            <span>Read More</span>
+                            <ArrowRight className="size-3.5 group-hover/btn:translate-x-1 transition-transform" />
+                        </div>
                     </div>
-                </div>
-            </article>
+                </CardContent>
+            </Card>
         </Link>
     )
 }
