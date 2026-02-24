@@ -83,8 +83,6 @@ const isPublicEndpoint = (url?: string): boolean => {
         '/auth/set-password',
         '/auth/logout',
         '/auth/refresh', // Refresh itself should be considered "safe" to fail
-        '/posts',
-        '/comments',
     ];
 
     // Normalize URL by removing query params and hash for matching, and trim trailing slash
