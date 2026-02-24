@@ -6,6 +6,7 @@ import { PayOSService } from './payos.service';
 import { PaymentCron } from './payment.cron';
 import { ORDER_SERVICE_TOKEN, ORDER_REPOSITORY_TOKEN } from '@server/billing/interfaces';
 import { CouponModule } from '@server/billing/modules/coupon/coupon.module';
+import { UserBalanceModule } from '@server/billing/modules/user-balance/user-balance.module';
 import { OrderProfile } from '@server/billing/infrastructure/mappings/order.profile';
 import { PaymentProfile } from '@server/billing/infrastructure/mappings/payment.profile';
 
@@ -13,7 +14,7 @@ import { PaymentProfile } from '@server/billing/infrastructure/mappings/payment.
  * Order Module (Handling Orders and Payments)
  */
 @Module({
-    imports: [PrismaModule, NatsClientModule, CouponModule],
+    imports: [PrismaModule, NatsClientModule, CouponModule, UserBalanceModule],
     providers: [
         OrderService,
         PayOSService,
