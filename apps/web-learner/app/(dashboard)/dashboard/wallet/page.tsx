@@ -201,7 +201,7 @@ export default function WalletPage() {
                     <TabsContent value="coins" className="pt-6 space-y-6">
                         {balanceLoading ? (
                             <div className="py-20 flex flex-col items-center justify-center gap-4">
-                                <Spinner size="lg" />
+                                <Spinner className="size-8" />
                                 <p className="text-sm text-muted-foreground font-medium">Đang tải lịch sử giao dịch...</p>
                             </div>
                         ) : (balanceData?.data?.length ?? 0) > 0 ? (
@@ -274,7 +274,7 @@ export default function WalletPage() {
                     <TabsContent value="points" className="pt-6 space-y-6">
                         {pointsLoading ? (
                             <div className="py-20 flex flex-col items-center justify-center gap-4">
-                                <Spinner size="lg" />
+                                <Spinner />
                                 <p className="text-sm text-muted-foreground font-medium">Đang tải lịch sử điểm thưởng...</p>
                             </div>
                         ) : (pointsData?.data?.length ?? 0) > 0 ? (

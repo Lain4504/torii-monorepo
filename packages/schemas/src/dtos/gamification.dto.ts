@@ -225,8 +225,8 @@ export const PointRewardDtoSchema = z.object({
     discountValue: z.number().positive(),
     maxDiscountAmount: z.number().positive().optional().nullable(),
     minOrderAmount: z.number().nonnegative().optional().nullable(),
-    validDuration: z.number().int().positive().default(30),
-    isActive: z.boolean().default(true),
+    validDuration: z.number().int().positive(),
+    isActive: z.boolean(),
     createdAt: z.string().datetime().optional(),
     updatedAt: z.string().datetime().optional(),
 });

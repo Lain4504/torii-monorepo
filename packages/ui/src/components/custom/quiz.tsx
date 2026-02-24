@@ -5,10 +5,9 @@ import { Progress } from "@workspace/ui/components/progress"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { Item, ItemContent, ItemMedia, ItemTitle, ItemDescription, ItemActions, ItemGroup } from "@workspace/ui/components/item"
+import { Item, ItemGroup } from "@workspace/ui/components/item"
 import { cn } from "@workspace/ui/lib/utils"
-import { CheckCircle2, XCircle, ChevronRight, ChevronLeft, RotateCcw, Target } from "lucide-react"
+import { ChevronRight, ChevronLeft, RotateCcw } from "lucide-react"
 
 // --- Quiz Container ---
 export function QuizContainer({ children, className }: { children: React.ReactNode, className?: string }) {
