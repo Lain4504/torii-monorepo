@@ -14,18 +14,12 @@ export interface FindAllUsersParams {
 // ============================================================================
 
 export const usersApi = {
-    // POST /api/admin/users/search (Replaces GET /api/admin/users)
+    // POST /api/admin/users/search
     async findAll(params: FindAllUsersParams): Promise<PaginatedApiResponse<UserResponseDTO>> {
         const response = await apiClient.post<PaginatedApiResponse<UserResponseDTO>>('/api/admin/users/search', params);
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to fetch users');
         }
-        return response.data;
-    },
-
-    // POST /api/admin/users/search
-    getUsers: async (params: any = {}) => {
-        const response = await apiClient.post<PaginatedApiResponse<UserResponseDTO>>('/api/admin/users/search', params);
         return response.data;
     },
 

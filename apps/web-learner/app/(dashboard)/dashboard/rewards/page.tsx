@@ -4,13 +4,14 @@ import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { Gift, Star, Ticket, ArrowRight, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react'
+import { Gift, Star, Ticket, ArrowRight, CheckCircle2, AlertCircle, TrendingUp, Snowflake } from 'lucide-react'
 import { useGamificationProfile, useRewards, useRedeemPoints } from '@/lib/api/services/gamification-api'
 import { useMyCoupons } from '@/lib/api/services/coupon-api'
 import { toast } from 'sonner'
 import { Button } from '@workspace/ui/components/button'
 import { formatDate, formatCurrency, formatNumber } from '@/utils/format-utils'
 import { useState } from 'react'
+import { cn } from "@workspace/ui/lib/utils"
 import {
     Dialog,
     DialogContent,
@@ -48,9 +49,14 @@ export default function RewardsPage() {
 
         try {
             const result = await redeemMutation.mutateAsync(selectedDeal.id)
-            setRedeemedCoupon(result.coupon)
+            if (result.isInternal) {
+                setRedeemedCoupon(null)
+                toast.success(result.message || 'Đổi quà thành công!')
+            } else {
+                setRedeemedCoupon(result.coupon)
+                toast.success('Đã nhận được mã giảm giá!')
+            }
             setIsConfirmOpen(false)
-            toast.success('Đổi quà thành công!')
         } catch (error: any) {
             toast.error(error.message || 'Đã có lỗi xảy ra')
         }
@@ -65,65 +71,81 @@ export default function RewardsPage() {
                     <p className="text-muted-foreground mt-2">Dùng điểm tích lũy để đổi lấy các ưu đãi đặc quyền.</p>
                 </div>
 
-                <div className="bg-primary/5 border border-primary/10 rounded-xl px-6 py-4 flex items-center gap-4 shadow-sm">
-                    <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <Star className="size-6 text-primary fill-primary" />
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Điểm hiện có</p>
-                        <p className="text-2xl font-black text-primary">{formatNumber(profile?.points) || 0} Points</p>
+                <div className="flex items-center gap-4">
+                    <div className="bg-primary/5 border border-primary/10 rounded-xl px-6 py-4 flex items-center gap-4 shadow-sm">
+                        <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Star className="size-6 text-primary fill-primary" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Điểm hiện có</p>
+                            <p className="text-2xl font-black text-primary">{formatNumber(profile?.points) || 0} Points</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Rewards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {rewards?.map((reward) => (
-                    <Card key={reward.id} className="relative overflow-hidden group hover:shadow-xl transition-all duration-300 border-border/50">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Gift className="size-16" />
-                        </div>
+                {rewards?.map((reward) => {
+                    const isStreakFreeze = reward.name.toLowerCase().includes('streak freeze') ||
+                        reward.name.toLowerCase().includes('bùa bảo vệ chuỗi');
 
-                        <CardHeader>
-                            <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                {reward.type === 'percentage' ? <TrendingUp className="size-5 text-primary" /> : <Ticket className="size-5 text-primary" />}
+                    return (
+                        <Card key={reward.id} className={cn(
+                            "relative overflow-hidden group hover:shadow-xl transition-all duration-300 border-border/50",
+                            isStreakFreeze && "hover:border-blue-500/50"
+                        )}>
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                {isStreakFreeze ? <Snowflake className="size-16" /> : <Gift className="size-16" />}
                             </div>
-                            <CardTitle className="text-xl">{reward.name}</CardTitle>
-                            <CardDescription>{reward.description}</CardDescription>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                                {reward.minOrderAmount && (
-                                    <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
-                                        Đơn tối thiểu: {formatCurrency(reward.minOrderAmount)}
-                                    </Badge>
-                                )}
-                                {reward.maxDiscountAmount && (
-                                    <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
-                                        Giảm tối đa: {formatCurrency(reward.maxDiscountAmount)}
-                                    </Badge>
-                                )}
-                            </div>
-                        </CardHeader>
 
-                        <CardContent>
-                            <div className="flex items-center gap-2 text-primary font-bold">
-                                <Star className="size-4 fill-primary" />
-                                <span>{reward.pointsContent}</span>
-                            </div>
-                        </CardContent>
+                            <CardHeader>
+                                <div className={cn(
+                                    "size-10 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform",
+                                    isStreakFreeze ? "bg-blue-500/10" : "bg-primary/10"
+                                )}>
+                                    {isStreakFreeze ? (
+                                        <Snowflake className="size-5 text-blue-500" />
+                                    ) : (
+                                        reward.type === 'percentage' ? <TrendingUp className="size-5 text-primary" /> : <Ticket className="size-5 text-primary" />
+                                    )}
+                                </div>
+                                <CardTitle className="text-xl">{reward.name}</CardTitle>
+                                <CardDescription>{reward.description}</CardDescription>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {reward.minOrderAmount ? (
+                                        <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
+                                            Đơn tối thiểu: {formatCurrency(reward.minOrderAmount)}
+                                        </Badge>
+                                    ) : isStreakFreeze ? (
+                                        <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal bg-blue-50 text-blue-600 border-none">
+                                            Vật phẩm bảo vệ
+                                        </Badge>
+                                    ) : null}
+                                </div>
+                            </CardHeader>
 
-                        <CardFooter>
-                            <Button
-                                className="w-full"
-                                variant={(profile?.points || 0) >= reward.points ? "default" : "outline"}
-                                disabled={(profile?.points || 0) < reward.points || redeemMutation.isPending}
-                                onClick={() => handleRedeemClick(reward)}
-                            >
-                                {(profile?.points || 0) >= reward.points ? 'Đổi ngay' : 'Chưa đủ điểm'}
-                                <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                ))}
+                            <CardContent>
+                                <div className="flex items-center gap-2 text-primary font-bold">
+                                    <Star className="size-4 fill-primary" />
+                                    <span>{reward.pointsContent}</span>
+                                </div>
+                            </CardContent>
+
+                            <CardFooter>
+                                <Button
+                                    className="w-full"
+                                    variant={(profile?.points || 0) >= reward.points ? (isStreakFreeze ? "outline" : "default") : "outline"}
+                                    disabled={(profile?.points || 0) < reward.points || redeemMutation.isPending}
+                                    onClick={() => handleRedeemClick(reward)}
+                                >
+                                    {(profile?.points || 0) >= reward.points ? 'Đổi ngay' : 'Chưa đủ điểm'}
+                                    <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    );
+                })}
             </div>
 
             {/* My Coupons Section */}

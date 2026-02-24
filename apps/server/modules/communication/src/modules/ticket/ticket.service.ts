@@ -51,6 +51,8 @@ export class TicketService implements ITicketService {
     }
 
     async createTicket(userId: string, dto: CreateTicketDTO): Promise<Ticket> {
+        let ticketMetadata = dto.metadata;
+
         // Validate refund ticket
         if (dto.type === TicketType.REFUND) {
             const courseId = dto.metadata?.courseId;
@@ -76,6 +78,19 @@ export class TicketService implements ITicketService {
                 if (diffDays > 14) {
                     throw new BadRequestException('Bạn chỉ có thể yêu cầu hoàn tiền trong vòng 14 ngày kể từ ngày đăng ký khóa học.');
                 }
+
+                // NEW: Check learning progress - Avoid refund if user already studied > 20%
+                const progress = result.enrollment?.completionPercentage || 0; // Use correct field name
+                if (progress > 20) {
+                    this.logger.warn(`User ${userId} attempted refund for course ${courseId} with ${progress}% progress.`);
+                    throw new BadRequestException('Khóa học không đủ điều kiện hoàn tiền do bạn đã hoàn thành hơn 20% nội dung.');
+                }
+
+                ticketMetadata = {
+                    ...dto.metadata,
+                    progress,
+                    enrollmentDate: result.enrollment.enrollmentDate
+                };
             } catch (error) {
                 if (error instanceof BadRequestException) throw error;
                 this.logger.error(`Error checking enrollment for refund: ${error.message}`);
@@ -83,7 +98,11 @@ export class TicketService implements ITicketService {
             }
         }
 
-        const ticket = await this.ticketRepository.create({ ...dto, userId });
+        const ticket = await this.ticketRepository.create({
+            ...dto,
+            userId,
+            metadata: ticketMetadata
+        });
 
 
 
@@ -144,68 +163,59 @@ export class TicketService implements ITicketService {
                         throw new BadRequestException('Khóa học này đã quá thời hạn 14 ngày để hoàn tiền.');
                     }
 
-                    // Find order associated with this course and user
+                    // Find order associated with this course and user to process formal refund
                     let orderId = (ticket.metadata as any)?.orderId;
                     if (!orderId) {
-                        const orders = await firstValueFrom(
+                        const ordersRes = await firstValueFrom(
                             this.natsClient.send({ cmd: 'billing.order.findAll' }, { userId, status: OrderStatus.COMPLETED })
                         );
                         // Find the one with matching courseId in metadata
-                        const matchingOrder = orders.data?.find((o: any) => o.metadata?.courseId === courseId);
+                        const matchingOrder = ordersRes.data?.find((o: any) => o.metadata?.courseId === courseId);
                         if (matchingOrder) {
                             orderId = matchingOrder.id;
                         }
                     }
 
-                    this.logger.log(`Refund approved: Cancelling enrollment for User ${userId}, Course ${courseId}.`);
+                    this.logger.log(`Refund approved: Processing via Billing Service for Ticket #${ticket.id}. OrderId: ${orderId || 'Not found'}`);
 
-                    // 1. Delete enrollment and get the final price paid
-                    const deletedEnrollment = await firstValueFrom(
-                        this.natsClient.send({ cmd: 'learning.enrollment.delete' }, { userId, courseId })
-                    );
+                    let refundAmount = 0;
+                    let finalCourseName = 'Khóa học';
 
-                    // 2. Refund balance if applicable
-                    if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
-                        const refundUserId = deletedEnrollment.senderId || userId;
-                        const refundAmount = Math.round(Number(deletedEnrollment.finalPrice));
-
-                        this.logger.log(`Refunding ${refundAmount} coins to User ${refundUserId} (Original student: ${userId})`);
-
-                        await firstValueFrom(
-                            this.natsClient.send(
-                                { cmd: 'billing.user_balance.add' },
-                                {
-                                    userId: refundUserId,
+                    if (orderId) {
+                        // Use the formal refund process in Billing module
+                        const refundedOrder = await firstValueFrom(
+                            this.natsClient.send({ cmd: 'billing.order.refund' }, { id: orderId, reason: `Hoàn tiền theo Ticket #${ticket.id}: ${dto.response || ''}` })
+                        );
+                        refundAmount = Math.round(Number(refundedOrder.amount || 0));
+                    } else {
+                        this.logger.warn(`No associated order found for refund ticket ${ticket.id}. Falling back to manual enrollment deletion.`);
+                        // Fallback: Manually delete enrollment and refund if no order is found (e.g. legacy data)
+                        const deletedEnrollment = await firstValueFrom(
+                            this.natsClient.send({ cmd: 'learning.enrollment.delete' }, { userId, courseId })
+                        );
+                        if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
+                            refundAmount = Math.round(Number(deletedEnrollment.finalPrice));
+                            await firstValueFrom(
+                                this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
+                                    userId: deletedEnrollment.senderId || userId,
                                     amount: refundAmount,
-                                    reason: `Hoàn tiền khóa học - Ticket #${ticket.id}`,
+                                    reason: `Hoàn tiền xóa thủ công - Ticket #${ticket.id}`,
                                     type: 'REFUND',
-                                    metadata: {
-                                        ticketId: ticket.id,
-                                        courseId,
-                                        originalStudentId: userId,
-                                        originalAmount: deletedEnrollment.finalPrice
-                                    }
-                                }
-                            )
-                        ).catch(err => {
-                            this.logger.error(`Failed to refund coins via NATS: ${err.message}`);
-                            // We continue because enrollment is already deleted, but this is a critical failure
-                        });
+                                    metadata: { ticketId: ticket.id, courseId }
+                                })
+                            );
+                        }
                     }
 
-                    this.logger.log(`Refund processed for User ${userId}, Course ${courseId}. Deleted Enrollment ID: ${deletedEnrollment?.id}`);
+                    // Get course title for email if needed
+                    const courseResult = await firstValueFrom(this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId })).catch(() => null);
+                    finalCourseName = courseResult?.title || finalCourseName;
+
+                    // Fetch user for email
+                    const userResult = await firstValueFrom(this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: userId })).catch(() => null);
 
                     // Send Email Notification
                     try {
-                        this.logger.log(`Fetching user and course details for refund email (UserId: ${userId}, CourseId: ${courseId})`);
-                        const [userResult, courseResult] = await Promise.all([
-                            firstValueFrom(this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: userId })),
-                            firstValueFrom(this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId }))
-                        ]).catch(err => {
-                            this.logger.error(`Failed to fetch user/course details via NATS: ${err.message}`);
-                            return [null, null];
-                        });
-
                         if (userResult?.user?.email) {
                             this.logger.log(`Directly calling EmailService for refund email to: ${userResult.user.email}`);
                             await this.emailService.sendEmail({
@@ -213,21 +223,19 @@ export class TicketService implements ITicketService {
                                 to: userResult.user.email,
                                 data: {
                                     displayName: userResult.user.displayName || userResult.user.username || 'Học viên',
-                                    courseName: courseResult?.title || 'Khóa học',
-                                    amount: Math.round(Number(deletedEnrollment?.finalPrice || 0)),
+                                    courseName: finalCourseName,
+                                    amount: refundAmount,
                                     currency: 'Coin',
                                     ticketId: ticket.id,
                                     reason: dto.response,
                                     status: 'APPROVED'
                                 }
                             });
-                            this.logger.log(`Refund email processed by EmailService for: ${userResult.user.email}`);
-                        } else {
-                            this.logger.warn(`Could not send refund email: User email not found. UserResult: ${JSON.stringify(userResult)}`);
                         }
                     } catch (emailError) {
-                        this.logger.error(`Failed to trigger refund email: ${emailError.message}`, emailError.stack);
+                        this.logger.error(`Failed to trigger refund email: ${emailError.message}`);
                     }
+
                 } catch (error) {
                     if (error instanceof BadRequestException) throw error;
                     this.logger.error(`Error processing refund cancellation: ${error.message}`);

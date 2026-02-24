@@ -340,7 +340,7 @@ export default function SupportPage() {
                                     <SelectContent>
                                         {enrollments.map((en: any) => (
                                             <SelectItem key={en.courseId} value={en.courseId}>
-                                                {en.courseId.slice(0, 8)} (Khóa học của tôi)
+                                                {en.course?.title || `Khóa học #${en.courseId.slice(0, 8)}`}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

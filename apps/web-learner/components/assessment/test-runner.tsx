@@ -1,26 +1,33 @@
 "use client"
 
 import * as React from "react"
-import { ArrowLeft, CheckCircle2, ChevronRight, XCircle, RotateCcw, BookCheck, ClipboardList, Target } from "lucide-react"
+import {
+    QuizContainer,
+    QuizHeader,
+    QuizProgress,
+    QuizQuestion,
+    QuizOption,
+    QuizNavigation,
+    QuizResultSummary,
+    QuizReviewItem,
+    QuizResultView
+} from "@workspace/ui/components/custom/quiz"
+import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
-import { Progress } from "@workspace/ui/components/progress"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
-import { Label } from "@workspace/ui/components/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
-import { Badge } from "@workspace/ui/components/badge"
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@workspace/ui/components/item"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
     Field,
     FieldDescription,
     FieldGroup,
     FieldLabel,
     FieldLegend,
-    FieldSeparator,
-    FieldSet,
+    FieldSet
 } from "@workspace/ui/components/field"
-import { cn } from "@workspace/ui/lib/utils"
+import { Target, ChevronRight, ClipboardList, CheckCircle2, XCircle, BookCheck, Clock, Sparkles } from "lucide-react"
+import { agentApi } from "@/lib/api/services/agent-api"
+import { Spinner } from "@workspace/ui/components/spinner"
+import { DrillGenerator } from "@/components/ai-sensei/drill-generator"
 
 // Types
 interface TestConfig {
@@ -32,8 +39,8 @@ interface Question {
     id: string
     text: string
     options: string[]
-    correctAnswer: string
-    explanation: string
+    correctAnswer?: string
+    explanation?: string
 }
 
 interface TestResult {
@@ -42,69 +49,76 @@ interface TestResult {
     correctCount: number
     incorrectCount: number
     percentage: number
-    questions: (Question & { userSelection: string | undefined; isCorrect: boolean })[]
+    questions: {
+        id: string
+        text: string
+        userSelection?: string
+        correctAnswer: string
+        isCorrect: boolean
+        explanation?: string
+    }[]
 }
 
 const JLPT_LEVELS = ["N5", "N4", "N3", "N2", "N1"]
 const TEST_SECTIONS = [
-    { value: "vocabulary", label: "Vocabulary & Kanji" },
-    { value: "grammar", label: "Grammar" },
-    { value: "reading", label: "Reading" },
-    { value: "listening", label: "Listening" },
-    { value: "full", label: "Full Simulation" }
+    { value: "vocabulary", label: "Từ vựng & Kanji" },
+    { value: "grammar", label: "Ngữ pháp" },
+    { value: "reading", label: "Đọc hiểu" },
+    { value: "listening", label: "Nghe hiểu" },
+    { value: "full", label: "Mô phỏng Đầy đủ" }
 ]
 
 export function TestRunner() {
     const [status, setStatus] = React.useState<"setup" | "running" | "result">("setup")
+    const [isLoading, setIsLoading] = React.useState(false)
     const [config, setConfig] = React.useState<TestConfig>({ level: "N5", section: "vocabulary" })
+    const [testId, setTestId] = React.useState<string | null>(null)
     const [questions, setQuestions] = React.useState<Question[]>([])
     const [currentIndex, setCurrentIndex] = React.useState(0)
     const [userAnswers, setUserAnswers] = React.useState<Record<string, string>>({})
     const [result, setResult] = React.useState<TestResult | null>(null)
+    const [timeLeft, setTimeLeft] = React.useState<number>(0)
+
+    // Timer effect
+    React.useEffect(() => {
+        if (status === "running" && timeLeft > 0) {
+            const timer = setInterval(() => {
+                setTimeLeft(prev => {
+                    if (prev <= 1) {
+                        clearInterval(timer)
+                        handleSubmit()
+                        return 0
+                    }
+                    return prev - 1
+                })
+            }, 1000)
+            return () => clearInterval(timer)
+        }
+    }, [status, timeLeft])
 
     const startTest = async () => {
-        // Mocking question fetch
-        const mockQuestions: Question[] = [
-            {
-                id: "q1",
-                text: "昨日、デパートへ（　）に行きました。",
-                options: ["買い物", "買います", "買った", "買う"],
-                correctAnswer: "買い物",
-                explanation: "The structure 'V-stem/Noun + に行く' expresses purpose."
-            },
-            {
-                id: "q2",
-                text: "この料理は（　）ないです。",
-                options: ["おいしく", "おいしい", "おいしいな", "おいしくく"],
-                correctAnswer: "おいしく",
-                explanation: "For i-adjectives, the negative form is stem + くない."
-            },
-            {
-                id: "q3",
-                text: "私は毎日、日本語を（　）います。",
-                options: ["勉強して", "勉強する", "勉強した", "勉強し"],
-                correctAnswer: "勉強して",
-                explanation: "The -te form of a verb followed by 'います' indicates an ongoing action or state."
-            },
-            {
-                id: "q4",
-                text: "田中さんは（　）背が高いです。",
-                options: ["とても", "あまり", "ぜんぜん", "少しも"],
-                correctAnswer: "とても",
-                explanation: "'とても' means 'very' and is used with positive adjectives. 'あまり' and 'ぜんぜん' are used with negative forms."
-            },
-            {
-                id: "q5",
-                text: "これは私の（　）です。",
-                options: ["本", "ほん", "ブック", "書物"],
-                correctAnswer: "本",
-                explanation: "'本' (hon) is the common word for 'book' in Japanese."
-            }
-        ]
-        setQuestions(mockQuestions)
-        setStatus("running")
-        setCurrentIndex(0)
-        setUserAnswers({})
+        setIsLoading(true)
+        try {
+            const count = config.section === "full" ? 20 : 10
+            const data = await agentApi.assessment.generateTest(config.level, config.section, count)
+
+            setTestId(data.testId)
+            setQuestions(data.questions.map(q => ({
+                id: q.id,
+                text: q.question,
+                options: q.options || []
+            })))
+
+            // Set timer based on section (approx 1 min per question)
+            setTimeLeft(count * 60)
+            setStatus("running")
+            setCurrentIndex(0)
+            setUserAnswers({})
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const handleSelectOption = (value: string) => {
@@ -118,254 +132,207 @@ export function TestRunner() {
         if (currentIndex < questions.length - 1) {
             setCurrentIndex(prev => prev + 1)
         } else {
-            calculateResult()
+            handleSubmit()
         }
     }
 
-    const calculateResult = () => {
-        const scoredQuestions = questions.map(q => {
-            const userSelection = userAnswers[q.id]
-            return {
-                ...q,
-                userSelection,
-                isCorrect: userSelection === q.correctAnswer
-            }
-        })
+    const handleSubmit = async () => {
+        if (!testId) return
+        setIsLoading(true)
+        try {
+            const formattedAnswers = Object.entries(userAnswers).map(([qId, ans]) => ({
+                questionId: qId,
+                userAnswer: ans
+            }))
 
-        const correctCount = scoredQuestions.filter(q => q.isCorrect).length
-        const total = questions.length
+            const evaluation = await agentApi.assessment.evaluateTest(testId, formattedAnswers)
 
-        setResult({
-            score: correctCount,
-            totalQuestions: total,
-            correctCount,
-            incorrectCount: total - correctCount,
-            percentage: (correctCount / total) * 100,
-            questions: scoredQuestions
-        })
-        setStatus("result")
+            setResult({
+                score: evaluation.score || 0,
+                totalQuestions: questions.length,
+                correctCount: evaluation.score || 0,
+                incorrectCount: questions.length - (evaluation.score || 0),
+                percentage: evaluation.percentage || ((evaluation.score || 0) / questions.length * 100),
+                questions: questions.map(q => {
+                    const detail = evaluation.details?.find(d => d.questionId === q.id)
+                    return {
+                        ...q,
+                        userSelection: userAnswers[q.id],
+                        isCorrect: detail?.isCorrect ?? false,
+                        correctAnswer: q.correctAnswer || "",
+                        explanation: detail?.explanation || q.explanation
+                    }
+                }) as any
+            })
+            setStatus("result")
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60)
+        const secs = seconds % 60
+        return `${mins}:${secs.toString().padStart(2, '0')}`
     }
 
     if (status === "setup") {
         return (
-            <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-8 pb-20 animate-in fade-in duration-500">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div className="space-y-1">
-                        <h1 className="text-3xl font-bold tracking-tight">Practice Test</h1>
-                        <p className="text-muted-foreground font-medium">Select your targeted JLPT level and section to begin.</p>
-                    </div>
-                </div>
+            <QuizContainer>
+                <QuizHeader
+                    title="JLPT Practice Test"
+                    description="Kỳ thi thử mô phỏng cấu trúc JLPT thực tế với giới hạn thời gian."
+                />
 
-                <Card className="border-border/50">
-                    <CardHeader>
-                        <CardTitle className="text-xl font-bold flex items-center gap-2">
-                            <Target className="size-6 text-primary" />
-                            Session Configuration
+                <Card className="border-border shadow-none rounded-xl overflow-hidden">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-2">
+                            <Target className="size-5 text-primary" />
+                            Cấu hình bài thi
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form className="space-y-6" onSubmit={e => { e.preventDefault(); startTest(); }}>
                             <FieldGroup>
                                 <FieldSet>
-                                    <FieldLegend>Test Parameters</FieldLegend>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <Field>
-                                            <FieldLabel>Target Level</FieldLabel>
+                                            <FieldLabel>Trình độ mục tiêu</FieldLabel>
                                             <Select value={config.level} onValueChange={v => setConfig(prev => ({ ...prev, level: v }))}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select level" />
+                                                <SelectTrigger className="rounded-lg">
+                                                    <SelectValue placeholder="Chọn cấp độ" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {JLPT_LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                                                 </SelectContent>
                                             </Select>
-                                            <FieldDescription>Choose your current training level.</FieldDescription>
+                                            <FieldDescription>Chọn cấp độ thi JLPT bạn đang luyện tập.</FieldDescription>
                                         </Field>
 
                                         <Field>
-                                            <FieldLabel>Focus Section</FieldLabel>
+                                            <FieldLabel>Phần thi trọng tâm</FieldLabel>
                                             <Select value={config.section} onValueChange={v => setConfig(prev => ({ ...prev, section: v }))}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select section" />
+                                                <SelectTrigger className="rounded-lg">
+                                                    <SelectValue placeholder="Chọn phần thi" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {TEST_SECTIONS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                                                 </SelectContent>
                                             </Select>
-                                            <FieldDescription>Select a specific area to focus on.</FieldDescription>
+                                            <FieldDescription>Tập trung vào một kỹ năng cụ thể hoặc làm bài thi tổng hợp.</FieldDescription>
                                         </Field>
                                     </div>
                                 </FieldSet>
                             </FieldGroup>
 
-                            <div className="flex justify-end pt-4">
-                                <Button size="lg" className="w-full md:w-auto">
-                                    Start Session
-                                    <ChevronRight className="ml-2 size-5" />
+                            <div className="flex justify-end pt-2">
+                                <Button size="lg" disabled={isLoading} className="w-full md:w-auto rounded-lg font-bold uppercase tracking-widest text-[10px] h-11 px-8 shadow-md">
+                                    {isLoading ? <Spinner className="mr-2" /> : null}
+                                    Bắt đầu thi ngay
+                                    <ChevronRight className="ml-2 size-4" />
                                 </Button>
                             </div>
                         </form>
                     </CardContent>
                 </Card>
-            </div>
+            </QuizContainer>
         )
     }
 
     if (status === "running" && questions.length > 0) {
         const q = questions[currentIndex]
         if (!q) return null
-        const progress = ((currentIndex + 1) / questions.length) * 100
 
         return (
-            <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-8 pb-20 animate-in fade-in duration-500 text-center">
-                <div className="space-y-6 max-w-xl mx-auto">
-                    <div className="flex justify-between items-end">
-                        <div className="space-y-1 text-left">
-                            <p className="text-xs font-bold uppercase tracking-widest text-primary">Live Progress</p>
-                            <h3 className="text-2xl font-bold">Question {currentIndex + 1} of {questions.length}</h3>
+            <QuizContainer className="text-center">
+                <QuizHeader
+                    title={`${config.level} Practice Session`}
+                    description={`${config.section.toUpperCase()} - ${questions.length} Questions`}
+                    actions={
+                        <div className={cn(
+                            "flex items-center gap-2 px-3 py-1.5 rounded-full border bg-muted/50 font-mono text-sm font-bold",
+                            timeLeft < 60 ? "text-destructive animate-pulse border-destructive/50" : "text-primary"
+                        )}>
+                            <Clock className="size-4" />
+                            {formatTime(timeLeft)}
                         </div>
-                        <span className="text-3xl font-bold text-primary/40">{Math.round(progress)}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                </div>
+                    }
+                />
+
+                <QuizProgress current={currentIndex + 1} total={questions.length} />
 
                 <div className="space-y-12">
-                    <div className="space-y-6">
-                        <Badge variant="secondary">
-                            {config.section} drill • {config.level}
-                        </Badge>
-                        <h2 className="text-3xl md:text-4xl font-bold leading-tight tracking-tight max-w-2xl mx-auto">
-                            {q.text}
-                        </h2>
-                    </div>
+                    <QuizQuestion
+                        question={q.text}
+                        level={config.level}
+                        category={config.section}
+                        index={currentIndex + 1}
+                    />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                         {q.options.map((option, idx) => (
-                            <Button
+                            <QuizOption
                                 key={idx}
-                                variant="outline"
-                                onClick={() => handleSelectOption(option)}
-                                className={cn(
-                                    "h-auto p-6 rounded-xl transition-all text-left flex justify-start gap-4",
-                                    userAnswers[q.id] === option
-                                        ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                        : "bg-card hover:bg-accent"
-                                )}
-                            >
-                                <div className={cn(
-                                    "size-10 rounded-lg flex items-center justify-center text-sm font-bold shrink-0",
-                                    userAnswers[q.id] === option ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted text-muted-foreground"
-                                )}>
-                                    {String.fromCharCode(65 + idx)}
-                                </div>
-                                <span className={cn(
-                                    "text-lg font-bold transition-colors",
-                                    userAnswers[q.id] === option ? "text-primary" : "text-muted-foreground"
-                                )}>
-                                    {option}
-                                </span>
-                            </Button>
+                                index={idx}
+                                value={option}
+                                label={option}
+                                isSelected={userAnswers[q.id] === option}
+                                onSelect={handleSelectOption}
+                            />
                         ))}
                     </div>
 
-                    <div className="pt-12 flex justify-center items-center gap-4">
-                        <Button
-                            variant="outline"
-                            onClick={() => setCurrentIndex(p => Math.max(0, p - 1))}
-                            disabled={currentIndex === 0}
-                        >
-                            Back
-                        </Button>
-                        <Button
-                            onClick={nextQuestion}
-                            disabled={!userAnswers[q.id]}
-                        >
-                            {currentIndex === questions.length - 1 ? "End Session" : "Next Question"}
-                            <ChevronRight className="ml-2 size-5" />
-                        </Button>
-                    </div>
+                    <QuizNavigation
+                        onBack={() => setCurrentIndex(p => Math.max(0, p - 1))}
+                        onNext={nextQuestion}
+                        backDisabled={currentIndex === 0 || isLoading}
+                        nextDisabled={!userAnswers[q.id] || isLoading}
+                        isLast={currentIndex === questions.length - 1}
+                        nextLabel={currentIndex === questions.length - 1 ? "Submit Exam" : "Next Question"}
+                    />
                 </div>
-            </div>
+            </QuizContainer>
         )
     }
 
     if (status === "result" && result) {
         return (
-            <div className="max-w-5xl mx-auto space-y-8 p-4 md:p-8 pb-20 animate-in fade-in zoom-in-95 duration-500">
-                <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-                    <div className="space-y-1">
-                        <Badge variant="outline">Practice Results</Badge>
-                        <h1 className="text-3xl font-bold tracking-tight">{config.level} {config.section.charAt(0).toUpperCase() + config.section.slice(1)} Performance</h1>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => setStatus("setup")}>
-                            <RotateCcw className="mr-2 size-4" /> Try Different
-                        </Button>
-                        <Button onClick={startTest}>
-                            Retry
-                        </Button>
-                    </div>
-                </div>
+            <QuizContainer className="max-w-6xl space-y-12">
+                <QuizResultView
+                    badge="Practice Results"
+                    title={`${config.level} ${config.section.charAt(0).toUpperCase() + config.section.slice(1)} Performance`}
+                    percentage={result.percentage}
+                    stats={[
+                        { label: "Total Questions", value: result.totalQuestions, icon: ClipboardList },
+                        { label: "Correct Answers", value: result.correctCount, icon: CheckCircle2 },
+                        { label: "Needs Review", value: result.incorrectCount, icon: XCircle }
+                    ]}
+                    questions={result.questions}
+                    onRetry={startTest}
+                    onSecondaryAction={{
+                        label: "Try Different Level",
+                        onClick: () => setStatus("setup")
+                    }}
+                />
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <Card className="md:col-span-1 bg-primary text-primary-foreground border-none flex flex-col justify-center items-center p-8 text-center space-y-2">
-                        <div className="text-5xl font-bold leading-none">{Math.round(result.percentage)}%</div>
-                        <div className="text-xs font-bold uppercase tracking-widest opacity-80">Accuracy</div>
+                <div className="pt-12 border-t space-y-8">
+                    <div className="space-y-2">
+                        <h3 className="text-xl font-bold flex items-center gap-2">
+                            <Sparkles className="size-5 text-primary" />
+                            Lấp lỗ hổng kiến thức
+                        </h3>
+                        <p className="text-sm text-muted-foreground">AI Sensei gợi ý bạn luyện tập tập trung vào phần vừa thi để cải thiện điểm số.</p>
+                    </div>
+
+                    <Card className="border-primary/20 bg-primary/5 shadow-none rounded-2xl overflow-hidden">
+                        <CardContent className="p-0">
+                            <DrillGenerator embed />
+                        </CardContent>
                     </Card>
-                    <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {[
-                            { label: "Total", val: result.totalQuestions, icon: ClipboardList, variant: "outline" },
-                            { label: "Correct", val: result.correctCount, icon: CheckCircle2, variant: "outline" },
-                            { label: "Review", val: result.incorrectCount, icon: XCircle, variant: "outline" }
-                        ].map((stat, i) => (
-                            <Card key={i} className="bg-muted/50 p-6 flex flex-col justify-between border-border/50">
-                                <div className="p-2 bg-background rounded-lg flex items-center justify-center mb-4 w-fit">
-                                    <stat.icon className="size-5 text-primary" />
-                                </div>
-                                <div>
-                                    <div className="text-3xl font-bold">{stat.val}</div>
-                                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</div>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
                 </div>
-
-                <div className="space-y-6">
-                    <h2 className="text-2xl font-bold flex items-center gap-3">
-                        <BookCheck className="size-6 text-primary" />
-                        Detailed Review
-                    </h2>
-
-                    <div className="space-y-4">
-                        {result.questions.map((q, i) => (
-                            <Item key={q.id} variant="outline" className={cn(
-                                "p-6 rounded-xl border transition-all group",
-                                q.isCorrect ? "hover:border-primary/30" : "border-destructive/20 hover:border-destructive/40 bg-destructive/[0.02]"
-                            )}>
-                                <ItemMedia className={cn(
-                                    "p-3 rounded-lg",
-                                    q.isCorrect ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
-                                )}>
-                                    {q.isCorrect ? <CheckCircle2 className="size-6" /> : <XCircle className="size-6" />}
-                                </ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle className="text-lg font-bold mb-1">Q{i + 1}: {q.text}</ItemTitle>
-                                    <ItemDescription className="text-base">
-                                        Your answer: <span className={cn("font-bold px-2 py-0.5 rounded-md", q.isCorrect ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive")}>{q.userSelection || "(No answer)"}</span>
-                                        {!q.isCorrect && <span className="ml-2 text-muted-foreground">Correct: <span className="font-bold text-primary underline underline-offset-4 decoration-2">{q.correctAnswer}</span></span>}
-                                    </ItemDescription>
-                                    {!q.isCorrect && (
-                                        <div className="mt-4 p-4 rounded-xl bg-muted/50 border border-border/50 text-sm font-medium leading-relaxed italic text-muted-foreground">
-                                            “{q.explanation}”
-                                        </div>
-                                    )}
-                                </ItemContent>
-                            </Item>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            </QuizContainer>
         )
     }
 

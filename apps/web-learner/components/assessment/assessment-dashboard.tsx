@@ -18,6 +18,13 @@ import Link from "next/link"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentReadinessProfileResponseDTO as ReadinessProfileResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@workspace/ui/components/tabs"
+import { DrillGenerator } from "@/components/ai-sensei/drill-generator"
 
 export function AssessmentDashboard() {
     const [profile, setProfile] = React.useState<ReadinessProfileResponse | null>(null)
@@ -38,168 +45,190 @@ export function AssessmentDashboard() {
     }, [])
 
     return (
-        <div className="max-w-6xl mx-auto space-y-10 p-6 md:p-10 pb-24 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                <div className="space-y-2">
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">Assessment Center</h1>
-                    <p className="text-muted-foreground font-medium text-lg">Đánh giá năng lực và theo dõi lộ trình JLPT</p>
+        <div className="max-w-6xl mx-auto space-y-8 p-6 md:p-10 pb-24 animate-in fade-in duration-500">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="space-y-1.5">
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Assessment Center</h1>
+                    <p className="text-muted-foreground font-medium text-sm">Theo dõi tiến độ và chinh phục kỳ thi JLPT của bạn</p>
                 </div>
-                <div className="flex items-center gap-4">
-                    <Button asChild variant="outline" size="lg" className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-12 shadow-sm">
-                        <Link href="/assessment/placement">
-                            <GraduationCap className="mr-2.5 size-4" />
-                            Placement Test
-                        </Link>
-                    </Button>
-                    <Button asChild size="lg" className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-12 shadow-lg shadow-primary/20">
+                <div className="flex items-center gap-3">
+                    <Button asChild size="sm" className="font-bold uppercase tracking-wider text-[10px] h-9 px-5 rounded-lg shadow-md shadow-primary/10">
                         <Link href="/assessment/test">
-                            <BookCheck className="mr-2.5 size-4" />
-                            Take Practice Test
+                            <BookCheck className="mr-2 size-3.5" />
+                            Bắt đầu Thi thử JLPT
                         </Link>
                     </Button>
                 </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <Card className="border-border/50 shadow-none hover:border-primary/20 transition-all duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                        <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">JLPT Readiness</CardTitle>
-                        <div className="p-2.5 bg-primary/10 rounded-xl">
-                            <GraduationCap className="size-4 text-primary" />
-                        </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="flex items-baseline gap-3">
-                            <span className="text-5xl font-bold tracking-tighter">{profile?.targetLevel || "N5"}</span>
-                            <Badge variant="secondary" className="font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                                Active Target
-                            </Badge>
-                        </div>
-                        <div className="space-y-3">
-                            <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                                <span>Progress</span>
-                                <span className="text-primary">{profile?.readinessPercentage || 0}%</span>
+            <Tabs defaultValue="overview" className="w-full space-y-8">
+                <TabsList className="bg-muted/50 p-1 rounded-xl w-full md:w-auto h-11 border">
+                    <TabsTrigger value="overview" className="rounded-lg px-6 font-bold text-[10px] uppercase tracking-widest data-[state=active]:shadow-sm">
+                        Tổng quan năng lực
+                    </TabsTrigger>
+                    <TabsTrigger value="drills" className="rounded-lg px-6 font-bold text-[10px] uppercase tracking-widest data-[state=active]:shadow-sm">
+                        Luyện tập Trọng tâm
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="overview" className="space-y-10 focus-visible:outline-none">
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        <Card className="border-border shadow-none">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">JLPT Readiness</CardTitle>
+                                <div className="p-2 bg-primary/5 rounded-lg border shadow-sm">
+                                    <GraduationCap className="size-4 text-primary/70" />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-5">
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl font-black tracking-tight">{profile?.targetLevel || "N5"}</span>
+                                    <Badge variant="secondary" className="font-bold text-[9px] px-2 py-0.5 rounded-sm uppercase tracking-wider h-5">
+                                        Active Target
+                                    </Badge>
+                                </div>
+                                <div className="space-y-2.5">
+                                    <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest text-muted-foreground/80">
+                                        <span>Progress</span>
+                                        <span className="text-primary">{profile?.readinessPercentage || 0}%</span>
+                                    </div>
+                                    <Progress value={profile?.readinessPercentage || 0} className="h-1.5 rounded-full" />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="border-border shadow-none">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Performance</CardTitle>
+                                <div className="p-2 bg-primary/5 rounded-lg border shadow-sm">
+                                    <BarChart3 className="size-4 text-primary/70" />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-5">
+                                <div className="text-4xl font-black tracking-tight">{profile?.recentPerformance?.averageScore || 0}%</div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                                    Avg Score ({profile?.recentPerformance?.testsTaken || 0} tests)
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {profile?.skillGaps && (
+                                        <>
+                                            <Badge variant="outline" className="font-bold text-[9px] uppercase tracking-wider border-border/60 rounded-sm">
+                                                Vocab: {profile.skillGaps.vocabulary}%
+                                            </Badge>
+                                            <Badge variant="outline" className="font-bold text-[9px] uppercase tracking-wider border-border/60 rounded-sm">
+                                                Grammar: {profile.skillGaps.grammar}%
+                                            </Badge>
+                                            <Badge variant="outline" className="font-bold text-[9px] uppercase tracking-wider border-border/60 rounded-sm">
+                                                Reading: {profile.skillGaps.reading}%
+                                            </Badge>
+                                        </>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="border-border shadow-none">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">AI Recommendation</CardTitle>
+                                <div className="p-2 bg-primary/5 rounded-lg border shadow-sm">
+                                    <Sparkles className="size-4 text-primary/70" />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="text-xs leading-relaxed text-muted-foreground font-medium line-clamp-2">
+                                    {profile?.recommendations?.[0] || "Take more tests to get personalized insights."}
+                                </div>
+                                <Button variant="link" className="p-0 h-auto font-bold text-[10px] uppercase tracking-widest text-primary group" asChild>
+                                    <Link href="/ai-analytics">
+                                        Full Analysis <ArrowRight className="ml-1.5 size-3 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-10">
+                        <div className="md:col-span-2 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-base font-bold text-foreground">Gợi ý cho bạn</h2>
                             </div>
-                            <Progress value={profile?.readinessPercentage || 0} className="h-2 rounded-full" />
-                        </div>
-                    </CardContent>
-                </Card>
+                            <div className="space-y-3">
+                                <Item variant="outline" className="group cursor-pointer hover:bg-muted/50 transition-colors rounded-xl p-3 border-border">
+                                    <ItemMedia className="bg-primary/5 p-3 rounded-lg group-hover:bg-primary/10 transition-colors">
+                                        <BookCheck className="size-5 text-primary/70" />
+                                    </ItemMedia>
+                                    <ItemContent>
+                                        <ItemTitle className="text-sm font-bold text-foreground transition-colors">N5 Vocabulary Drill</ItemTitle>
+                                        <ItemDescription className="text-xs font-medium">Perfect for strengthening your daily word bank.</ItemDescription>
+                                    </ItemContent>
+                                    <ItemActions>
+                                        <Badge variant="secondary" className="font-bold text-[9px] uppercase tracking-widest px-2 h-5 rounded-sm">Quick</Badge>
+                                        <ArrowRight className="size-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                    </ItemActions>
+                                </Item>
 
-                <Card className="border-border/50 shadow-none hover:border-primary/20 transition-all duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                        <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Performance</CardTitle>
-                        <div className="p-2.5 bg-primary/10 rounded-xl">
-                            <BarChart3 className="size-4 text-primary" />
+                                <Item variant="outline" className="group cursor-pointer hover:bg-muted/50 transition-colors rounded-xl p-3 border-border">
+                                    <ItemMedia className="bg-muted/30 p-3 rounded-lg group-hover:bg-muted/50 transition-colors">
+                                        <Clock className="size-5 text-muted-foreground" />
+                                    </ItemMedia>
+                                    <ItemContent>
+                                        <ItemTitle className="text-sm font-bold text-foreground transition-colors">Speed Reading Challenge</ItemTitle>
+                                        <ItemDescription className="text-xs font-medium">Improve your reading comprehension speed.</ItemDescription>
+                                    </ItemContent>
+                                    <ItemActions>
+                                        <Badge variant="secondary" className="font-bold text-[9px] uppercase tracking-widest px-2 h-5 rounded-sm">Medium</Badge>
+                                        <ArrowRight className="size-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                    </ItemActions>
+                                </Item>
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="text-5xl font-bold tracking-tighter">{profile?.recentPerformance?.averageScore || 0}%</div>
-                        <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                            Avg Score ({profile?.recentPerformance?.testsTaken || 0} recent tests)
-                        </p>
-                        <div className="flex flex-wrap gap-2.5">
-                            {profile?.skillGaps && (
-                                <>
-                                    <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-wider px-2 border-border/60">
-                                        Vocab: {profile.skillGaps.vocabulary}%
-                                    </Badge>
-                                    <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-wider px-2 border-border/60">
-                                        Grammar: {profile.skillGaps.grammar}%
-                                    </Badge>
-                                    <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-wider px-2 border-border/60">
-                                        Reading: {profile.skillGaps.reading}%
-                                    </Badge>
-                                </>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
 
-                <Card className="border-border/50 shadow-none hover:border-primary/20 transition-all duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                        <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">AI Recommendation</CardTitle>
-                        <div className="p-2.5 bg-primary/10 rounded-xl">
-                            <Sparkles className="size-4 text-primary" />
-                        </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="text-sm leading-relaxed text-muted-foreground font-medium line-clamp-2">
-                            {profile?.recommendations?.[0] || "Take more tests to get personalized insights."}
-                        </div>
-                        <Button variant="link" className="p-0 h-auto font-bold text-xs uppercase tracking-widest text-primary group" asChild>
-                            <Link href="/ai-analytics">
-                                Full Analysis <ArrowRight className="ml-1.5 size-3.5 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
+                        <div className="space-y-6">
+                            <h2 className="text-base font-bold text-foreground">AI Insights</h2>
 
-            <div className="grid md:grid-cols-3 gap-10">
-                <div className="md:col-span-2 space-y-8">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold text-foreground">Recommended For You</h2>
-                        <Button variant="ghost" size="sm" className="font-bold text-[10px] uppercase tracking-widest">
-                            View All
-                        </Button>
+                            <Card className="border border-primary/20 bg-primary/5 shadow-none rounded-xl overflow-hidden">
+                                <CardHeader className="space-y-1 pb-3">
+                                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                                        <GraduationCap className="size-4 text-primary" />
+                                        Placement Test
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <p className="text-xs leading-relaxed text-muted-foreground font-medium">
+                                        Bạn không chắc mình nên bắt đầu từ đâu? Hãy thực hiện bài test nhanh để AI xác định cấp độ JLPT phù hợp nhất với bạn.
+                                    </p>
+                                    <Button asChild variant="default" className="w-full font-bold uppercase tracking-widest text-[9px] h-9 rounded-lg shadow-sm">
+                                        <Link href="/assessment/placement">Kiểm tra trình độ ngay</Link>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="border shadow-none rounded-xl overflow-hidden">
+                                <CardHeader className="space-y-1 pb-3">
+                                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                                        <Sparkles className="size-4 text-primary" />
+                                        Phân tích Động
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-xs leading-relaxed text-muted-foreground font-medium">
+                                        {profile?.recommendations?.[1] || "Dựa trên hoạt động của bạn, chúng tôi gợi ý tập trung vào các bài luyện từ vựng để củng cố kiến thữ nền tảng."}
+                                    </p>
+                                </CardContent>
+                                <CardFooter className="pt-4">
+                                    <Button variant="outline" className="w-full font-bold uppercase tracking-widest text-[9px] h-9 rounded-lg">
+                                        Chi tiết báo cáo
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        </div>
                     </div>
-                    <div className="space-y-4">
-                        <Item variant="outline" className="group cursor-pointer hover:border-primary/50 transition-all duration-300 rounded-2xl p-4">
-                            <ItemMedia className="bg-primary/5 p-4 rounded-xl group-hover:bg-primary/10 transition-colors">
-                                <BookCheck className="size-6 text-primary" />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle className="text-base font-bold text-foreground group-hover:text-primary transition-colors">N5 Vocabulary Drill</ItemTitle>
-                                <ItemDescription className="text-sm font-medium">Perfect for strengthening your daily word bank.</ItemDescription>
-                            </ItemContent>
-                            <ItemActions>
-                                <Badge variant="secondary" className="font-bold text-[10px] uppercase tracking-widest px-2.5">Quick</Badge>
-                                <div className="p-2 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                                    <ArrowRight className="size-5" />
-                                </div>
-                            </ItemActions>
-                        </Item>
+                </TabsContent>
 
-                        <Item variant="outline" className="group cursor-pointer hover:border-primary/50 transition-all duration-300 rounded-2xl p-4">
-                            <ItemMedia className="bg-muted p-4 rounded-xl group-hover:bg-muted/80 transition-colors">
-                                <Clock className="size-6 text-muted-foreground" />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle className="text-base font-bold text-foreground group-hover:text-primary transition-colors">Speed Reading Challenge</ItemTitle>
-                                <ItemDescription className="text-sm font-medium">Improve your reading comprehension speed.</ItemDescription>
-                            </ItemContent>
-                            <ItemActions>
-                                <Badge variant="secondary" className="font-bold text-[10px] uppercase tracking-widest px-2.5">Medium</Badge>
-                                <div className="p-2 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                                    <ArrowRight className="size-5" />
-                                </div>
-                            </ItemActions>
-                        </Item>
-                    </div>
-                </div>
-
-                <div className="space-y-8">
-                    <h2 className="text-2xl font-bold text-foreground">AI Insights</h2>
-                    <Card className="bg-foreground text-background border-none shadow-2xl shadow-foreground/10 overflow-hidden rounded-2xl">
-                        <CardHeader className="space-y-1 pb-4">
-                            <CardTitle className="text-lg font-bold flex items-center gap-2.5">
-                                <Sparkles className="size-5 text-primary" />
-                                Dynamic Analysis
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm leading-relaxed opacity-80 font-medium">
-                                {profile?.recommendations?.[1] || "Based on your activity, we suggest starting with vocabulary drills to improve your foundational knowledge."}
-                            </p>
-                        </CardContent>
-                        <CardFooter className="pt-6">
-                            <Button variant="secondary" className="w-full font-bold uppercase tracking-widest text-[10px] h-11 rounded-xl">
-                                View Detailed Report
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                </div>
-            </div>
+                <TabsContent value="drills" className="focus-visible:outline-none">
+                    <DrillGenerator embed />
+                </TabsContent>
+            </Tabs>
         </div>
     )
 }

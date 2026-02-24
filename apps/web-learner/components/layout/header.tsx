@@ -43,7 +43,7 @@ import { cn } from "@workspace/ui/lib/utils"
 const navigation = [
     { name: 'Khóa học', href: '/courses', icon: BookOpen },
     { name: 'Lớp trực tuyến', href: '/live-classes', icon: Users },
-    { name: 'Cộng đồng', href: '/post', icon: Newspaper },
+    { name: 'Cộng đồng', href: '/blogs', icon: Newspaper },
     { name: 'Test', href: '/placement-test', icon: Award },
 ]
 

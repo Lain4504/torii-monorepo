@@ -48,7 +48,7 @@ export function NavMain({
     items: NavMainItem[]
 }) {
     const pathname = usePathname()
-    const { state } = useSidebar()
+    const { state, isMobile } = useSidebar()
     const isCollapsed = state === "collapsed"
 
     return (
@@ -66,8 +66,8 @@ export function NavMain({
                             tooltip={isCollapsed ? undefined : item.name}
                             className={cn(
                                 "h-10 transition-all duration-200",
-                                isItemActive 
-                                    ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                                isItemActive
+                                    ? "bg-primary/10 text-primary hover:bg-primary/20"
                                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                                 "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                             )}
@@ -88,7 +88,7 @@ export function NavMain({
                     return (
                         <SidebarMenuItem key={item.name} className="px-2 group-data-[collapsible=icon]:px-0">
                             {hasSubItems ? (
-                                isCollapsed ? (
+                                isCollapsed && !isMobile ? (
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             {menuButton}
@@ -150,8 +150,8 @@ export function NavMain({
                                     tooltip={item.name}
                                     className={cn(
                                         "h-10 transition-all duration-200",
-                                        isItemActive 
-                                            ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                                        isItemActive
+                                            ? "bg-primary/10 text-primary hover:bg-primary/20"
                                             : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                                         "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                                     )}

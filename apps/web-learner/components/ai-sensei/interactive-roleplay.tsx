@@ -23,6 +23,7 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select"
 import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { cn } from "@workspace/ui/lib/utils"
 import { useForm, Controller } from "react-hook-form"
@@ -515,67 +516,66 @@ export function InteractiveRoleplay() {
     if (!isStarted) {
         return (
             <div className="h-full flex flex-col items-center justify-center animate-in fade-in duration-500 max-w-2xl mx-auto p-6">
-                <Card className="w-full space-y-8 p-10 text-center">
-                    <div className="flex flex-col items-center">
-                        <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                            <Sparkles className="size-10 text-primary" />
+                <Card className="w-full border-border shadow-none">
+                    <CardHeader className="text-center space-y-4">
+                        <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Sparkles className="size-8 text-primary" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <CardTitle className="text-2xl font-bold">Roleplay với Sensei</CardTitle>
+                            <CardDescription className="text-sm">
+                                Chọn một chủ đề và bắt đầu hội thoại. Sensei sẽ đóng vai và phản hồi sau khi kết thúc.
+                            </CardDescription>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-4 max-w-md mx-auto">
+                            <Controller
+                                name="topic"
+                                control={topicForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <Input
+                                            {...field}
+                                            id={field.name}
+                                            placeholder="Nhập chủ đề (VD: Mua vé tàu, Phỏng vấn xin việc)..."
+                                            className="h-11"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') topicForm.handleSubmit(handleStart)()
+                                            }}
+                                        />
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                    </Field>
+                                )}
+                            />
+                            <Button
+                                size="lg"
+                                className="w-full h-11 font-bold uppercase tracking-widest text-[10px]"
+                                onClick={topicForm.handleSubmit(handleStart)}
+                                disabled={!topicForm.watch("topic").trim() || isLoading}
+                            >
+                                {isLoading ? <Spinner className="mr-2" /> : null}
+                                Bắt đầu hội thoại
+                            </Button>
                         </div>
 
-                        <div className="space-y-2">
-                            <h2 className="text-3xl font-bold tracking-tight">Roleplay với Sensei</h2>
-                            <p className="text-muted-foreground text-lg">
-                                Chọn bất kỳ chủ đề nào và bắt đầu hội thoại. <br />
-                                Sensei sẽ đóng vai và đưa ra phản hồi sau khi kết thúc.
-                            </p>
+                        <div className="pt-6 border-t">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center mb-4">Gợi ý chủ đề</p>
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {["Đi siêu thị", "Gọi điện thoại", "Hỏi đường", "Kết bạn mới", "Tại sân bay"].map(t => (
+                                    <Button
+                                        key={t}
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => topicForm.setValue("topic", t)}
+                                        className="rounded-full text-[10px] font-bold uppercase tracking-wider h-8"
+                                    >
+                                        {t}
+                                    </Button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-
-                    <div className="space-y-4 max-w-md mx-auto">
-                        <Controller
-                            name="topic"
-                            control={topicForm.control}
-                            render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid}>
-                                    <Input
-                                        {...field}
-                                        id={field.name}
-                                        placeholder="Nhập chủ đề (VD: Mua vé tàu, Phỏng vấn xin việc)..."
-                                        className="h-12"
-                                        aria-invalid={fieldState.invalid}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') topicForm.handleSubmit(handleStart)()
-                                        }}
-                                    />
-                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                                </Field>
-                            )}
-                        />
-                        <Button
-                            size="lg"
-                            className="w-full h-12"
-                            onClick={topicForm.handleSubmit(handleStart)}
-                            disabled={!topicForm.watch("topic").trim() || isLoading}
-                        >
-                            {isLoading ? "Đang khởi tạo..." : "Bắt đầu hội thoại"}
-                        </Button>
-                    </div>
-
-                    <div className="pt-6 border-t">
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Gợi ý chủ đề</p>
-                        <div className="flex flex-wrap justify-center gap-2">
-                            {["Đi siêu thị", "Gọi điện thoại", "Hỏi đường", "Kết bạn mới", "Tại sân bay"].map(t => (
-                                <Button
-                                    key={t}
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={() => topicForm.setValue("topic", t)}
-                                    className="rounded-full"
-                                >
-                                    {t}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
+                    </CardContent>
                 </Card>
             </div>
         )
@@ -586,12 +586,12 @@ export function InteractiveRoleplay() {
             {/* Header */}
             <div className="flex-none flex items-center justify-between p-4 border-b border-border bg-card/50 backdrop-blur-sm z-10">
                 <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Sparkles className="size-5 text-primary" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg leading-none">{topicForm.getValues("topic")}</h3>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <h3 className="font-bold text-base leading-none">{topicForm.getValues("topic")}</h3>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mt-1.5">
                             {isFinished ? "Đã kết thúc" : `${turnCount} lượt trao đổi • Đang hội thoại`}
                         </p>
                     </div>
@@ -602,6 +602,7 @@ export function InteractiveRoleplay() {
                         <Button
                             variant="default"
                             size="sm"
+                            className="h-9 px-4 font-bold uppercase tracking-widest text-[10px]"
                             onClick={() => {
                                 setIsStarted(false)
                                 setMessages([])
@@ -610,7 +611,7 @@ export function InteractiveRoleplay() {
                                 setIsFinished(false)
                             }}
                         >
-                            <RefreshCcw className="size-4 mr-2" /> Quay về
+                            <RefreshCcw className="size-3.5 mr-2" /> Quay về
                         </Button>
                     )}
 
@@ -619,29 +620,30 @@ export function InteractiveRoleplay() {
                         <Button
                             variant="default"
                             size="sm"
+                            className="h-9 px-4 font-bold uppercase tracking-widest text-[10px]"
                             onClick={handleFinish}
                             disabled={isLoading}
                         >
-                            <CheckCircle className="size-4 mr-2" /> Kết thúc & Đánh giá
+                            <CheckCircle className="size-3.5 mr-2" /> Kết thúc & Đánh giá
                         </Button>
                     )}
 
                     <Dialog open={showSettings} onOpenChange={setShowSettings}>
                         <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                                <Settings className="size-4 mr-2" /> Cài đặt
+                            <Button variant="ghost" size="sm" className="h-9 font-bold uppercase tracking-widest text-[10px] text-muted-foreground">
+                                <Settings className="size-3.5 mr-2" /> Cài đặt
                             </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                                <DialogTitle>Cài đặt giọng nói</DialogTitle>
+                                <DialogTitle className="text-xl font-bold">Cài đặt giọng nói</DialogTitle>
                                 <DialogDescription>
-                                    Chọn giọng đọc và kiểm tra âm thanh.
+                                    Chọn giọng đọc và kiểm tra âm thanh phản hồi từ AI.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4 py-4">
+                            <div className="space-y-6 py-4">
                                 <Field>
-                                    <FieldLabel className="text-sm font-medium">Giọng đọc (Voice)</FieldLabel>
+                                    <FieldLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Giọng đọc (Voice)</FieldLabel>
                                     <Select value={selectedVoiceURI} onValueChange={setSelectedVoiceURI}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Chọn giọng đọc..." />
@@ -657,28 +659,23 @@ export function InteractiveRoleplay() {
                                                 Server (Keita - Nam, Tự nhiên)
                                             </SelectItem>
 
-                                            <div className="mx-2 my-2 text-xs text-muted-foreground font-bold uppercase tracking-wider op-70">
-                                                Giọng từ trình duyệt của bạn:
-                                            </div>
-
-                                            {availableVoices.length === 0 ? (
-                                                <SelectItem value="none" disabled>Không tìm thấy giọng đọc nào</SelectItem>
-                                            ) : (
-                                                availableVoices.map(voice => (
-                                                    <SelectItem key={voice.voiceURI} value={voice.voiceURI}>
-                                                        {voice.name} ({voice.lang})
-                                                    </SelectItem>
-                                                ))
+                                            {availableVoices.length > 0 && (
+                                                <div className="mx-2 my-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider opacity-60">
+                                                    Giọng từ trình duyệt
+                                                </div>
                                             )}
+
+                                            {availableVoices.map(voice => (
+                                                <SelectItem key={voice.voiceURI} value={voice.voiceURI}>
+                                                    {voice.name} ({voice.lang})
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
-                                    <p className="text-xs text-muted-foreground">
-                                        Nếu trình duyệt không có giọng đọc tiếng Nhật, hãy chọn "Server Voice".
-                                    </p>
                                 </Field>
 
-                                <Button onClick={testVoice} className="w-full" variant="secondary">
-                                    <Play className="size-4 mr-2" /> Nghe thử giọng nói
+                                <Button onClick={testVoice} className="w-full font-bold uppercase tracking-widest text-[10px]" variant="secondary">
+                                    <Play className="size-3.5 mr-2" /> Nghe thử giọng nói
                                 </Button>
                             </div>
                         </DialogContent>
@@ -692,49 +689,20 @@ export function InteractiveRoleplay() {
                             setAutoPlay(newState)
                             if (!newState) stopSpeaking()
                         }}
-                        className={cn("text-muted-foreground", autoPlay && "text-primary bg-primary/10")}
+                        className={cn("h-9 font-bold uppercase tracking-widest text-[10px] transition-colors", autoPlay ? "text-primary bg-primary/10" : "text-muted-foreground")}
                     >
-                        {autoPlay ? <Volume2 className="size-4 mr-2" /> : <VolumeX className="size-4 mr-2" />}
+                        {autoPlay ? <Volume2 className="size-3.5 mr-2" /> : <VolumeX className="size-3.5 mr-2" />}
                         {autoPlay ? "Bật" : "Tắt"}
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={handleReset} className="text-muted-foreground hover:text-foreground">
-                        <RefreshCcw className="size-4 mr-2" /> Thoát
+                    <Button variant="ghost" size="sm" onClick={handleReset} className="h-9 font-bold uppercase tracking-widest text-[10px] text-muted-foreground">
+                        <RefreshCcw className="size-3.5 mr-2" /> Thoát
                     </Button>
                 </div>
             </div>
 
-            {/* Browser Incompatibility Warning */}
-            {isSupportChecked && !isSpeechSupported && (
-                <div className="bg-muted text-muted-foreground px-4 py-2 text-sm text-center border-b flex items-center justify-center gap-2 relative">
-                    <div className="flex items-center gap-2">
-                        <AlertCircle className="size-4" />
-                        <span>
-                            Trình duyệt này có thể không hỗ trợ nhận diện giọng nói hoặc cần quyền truy cập microphone/HTTPS.
-                        </span>
-                    </div>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsSupportChecked(false)}
-                        className="absolute right-4"
-                    >
-                        ✕
-                    </Button>
-                </div>
-            )}
-
-            {/* Error Message Toast */}
-            {voiceError && (
-                <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-destructive text-destructive-foreground px-4 py-2 rounded-full text-sm font-bold shadow-lg animate-in slide-in-from-top-2 fade-in duration-300 flex items-center gap-2">
-                    <AlertCircle className="size-4" />
-                    {voiceError}
-                    <Button variant="ghost" size="icon" onClick={() => setVoiceError(null)} className="h-6 w-6 ml-2">✕</Button>
-                </div>
-            )}
-
             {/* Chat Area */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 scroll-smooth" ref={scrollRef}>
-                <div className="max-w-4xl mx-auto space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6 scroll-smooth" ref={scrollRef}>
+                <div className="max-w-4xl mx-auto space-y-6">
                     {messages.map((msg) => (
                         <div
                             key={msg.id}
@@ -749,33 +717,30 @@ export function InteractiveRoleplay() {
                             )}>
                                 {/* Message bubble */}
                                 <div className={cn(
-                                    "relative group",
-                                    msg.role === 'user'
-                                        ? "ml-auto"
-                                        : "mr-auto"
+                                    "relative space-y-2",
+                                    msg.role === 'user' ? "ml-auto" : "mr-auto"
                                 )}>
                                     <div className={cn(
-                                        "p-4 rounded-lg text-base leading-relaxed relative border",
+                                        "p-4 rounded-xl text-base leading-relaxed border shadow-sm",
                                         msg.role === 'user'
-                                            ? "bg-primary text-primary-foreground"
+                                            ? "bg-primary text-primary-foreground border-primary"
                                             : msg.isFeedback
-                                                ? "bg-accent border-border text-accent-foreground"
-                                                : "bg-muted text-foreground"
+                                                ? "bg-muted border-border font-medium"
+                                                : "bg-card border-border"
                                     )}>
                                         {msg.isFeedback ? (
                                             <div className="prose prose-sm dark:prose-invert max-w-none">
-                                                <div className="markdown-content whitespace-pre-wrap font-medium">{msg.content}</div>
+                                                <div className="whitespace-pre-wrap">{msg.content}</div>
                                             </div>
                                         ) : (
-                                            <div className="flex items-start gap-2">
+                                            <div className="flex items-start gap-4">
                                                 <p className="flex-1">{msg.content}</p>
-                                                {/* Speak button for individual messages */}
                                                 {msg.role === 'assistant' && (
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => speak(msg.content)}
-                                                        className="h-8 w-8 rounded-full"
+                                                        className="h-8 w-8 rounded-full shrink-0"
                                                     >
                                                         <Volume2 className="size-4" />
                                                     </Button>
@@ -783,15 +748,15 @@ export function InteractiveRoleplay() {
                                             </div>
                                         )}
                                     </div>
-                                </div>
 
-                                {/* Helper text for AI responses */}
-                                {msg.role === 'assistant' && !msg.isFeedback && (
-                                    <div className="px-3 mt-2 space-y-1 text-left">
-                                        {msg.romaji && <p className="text-xs text-muted-foreground font-bold italic">{msg.romaji}</p>}
-                                        {msg.vietnamese && <p className="text-xs text-muted-foreground opacity-70">{msg.vietnamese}</p>}
-                                    </div>
-                                )}
+                                    {/* Helper text for AI responses */}
+                                    {msg.role === 'assistant' && !msg.isFeedback && (
+                                        <div className="px-1 space-y-1">
+                                            {msg.romaji && <p className="text-[10px] text-primary/70 font-bold italic tracking-wider">{msg.romaji}</p>}
+                                            {msg.vietnamese && <p className="text-xs text-muted-foreground font-medium">{msg.vietnamese}</p>}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}

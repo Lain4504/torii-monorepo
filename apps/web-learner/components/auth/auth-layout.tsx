@@ -84,7 +84,7 @@ export function AuthLayout({
                             <ToriiLogo size="sm" />
                         </div>
 
-                        <Card className="border-none shadow-[0_20px_50px_rgba(0,0,0,0.1)] bg-white/95 backdrop-blur-sm overflow-hidden rounded-2xl">
+                        <Card className="border shadow-2xl bg-card/95 backdrop-blur-sm overflow-hidden rounded-2xl">
                             <CardHeader className="space-y-2 pt-8 px-8">
                                 <CardTitle className="text-3xl font-extrabold text-center tracking-tight">
                                     {title}
@@ -95,11 +95,11 @@ export function AuthLayout({
                                     </CardDescription>
                                 )}
                             </CardHeader>
-                            <CardContent className="p-8">
+                            <CardContent className="p-8 font-sans">
                                 {children}
                             </CardContent>
                             {footerText && (
-                                <CardFooter className="flex flex-col gap-6 bg-muted/50 py-6 px-8 border-t">
+                                <CardFooter className="flex flex-col gap-6 bg-muted/30 py-6 px-8 border-t">
                                     <div className="text-center w-full">
                                         <p className="text-sm font-medium text-muted-foreground">
                                             {footerText}

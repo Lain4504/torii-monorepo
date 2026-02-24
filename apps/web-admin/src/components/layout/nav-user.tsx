@@ -2,7 +2,7 @@
 
 import {
     BadgeCheck,
-    Bell,
+    Settings,
     ChevronsUpDown,
     LogOut,
 } from "lucide-react"
@@ -113,9 +113,9 @@ export function NavUser({
                                 <BadgeCheck className="size-4 mr-2 text-muted-foreground" />
                                 Tài khoản
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/notifications')}>
-                                <Bell className="size-4 mr-2 text-muted-foreground" />
-                                Thông báo
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/settings')}>
+                                <Settings className="size-4 mr-2 text-muted-foreground" />
+                                Cấu hình
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
