@@ -126,31 +126,39 @@ export function AssessmentDashboard() {
                         <CardDescription>Based on your recent activity</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-4">
-                                <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                    <BookCheck className="size-5" />
+                        {profile?.nextSteps && profile.nextSteps.length > 0 ? (
+                            profile.nextSteps.slice(0, 3).map((step, idx) => (
+                                <Link href="/assessment/test" key={idx} className="block">
+                                    <div className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors cursor-pointer">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2 bg-primary/10 rounded-full text-primary">
+                                                {idx % 2 === 0 ? <BookCheck className="size-5" /> : <Clock className="size-5 text-orange-500" />}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-semibold text-sm line-clamp-1">{step}</h4>
+                                                <p className="text-xs text-muted-foreground mt-1">Recommended Action</p>
+                                            </div>
+                                        </div>
+                                        <Button size="sm" variant="ghost" asChild><ArrowRight className="size-4" /></Button>
+                                    </div>
+                                </Link>
+                            ))
+                        ) : (
+                            <Link href="/assessment/placement" className="block">
+                                <div className="flex items-center justify-between p-4 border rounded-lg border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-2 bg-primary/20 rounded-full text-primary">
+                                            <GraduationCap className="size-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-primary">Làm Bài Kiểm Tra Đầu Vào</h4>
+                                            <p className="text-sm text-foreground/70">Xác định năng lực để nhận lộ trình cá nhân hóa</p>
+                                        </div>
+                                    </div>
+                                    <Button size="sm" variant="ghost" className="text-primary hover:text-primary"><ArrowRight className="size-4" /></Button>
                                 </div>
-                                <div>
-                                    <h4 className="font-semibold">N5 Vocabulary Drill</h4>
-                                    <p className="text-sm text-muted-foreground">10 Questions • 5 Mins</p>
-                                </div>
-                            </div>
-                            <Button size="sm" variant="ghost"><ArrowRight className="size-4" /></Button>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-4">
-                                <div className="p-2 bg-orange-500/10 rounded-full text-orange-500">
-                                    <Clock className="size-5" />
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold">Speed Reading Challenge</h4>
-                                    <p className="text-sm text-muted-foreground">3 Texts • 8 Mins</p>
-                                </div>
-                            </div>
-                            <Button size="sm" variant="ghost"><ArrowRight className="size-4" /></Button>
-                        </div>
+                            </Link>
+                        )}
                     </CardContent>
                 </Card>
 

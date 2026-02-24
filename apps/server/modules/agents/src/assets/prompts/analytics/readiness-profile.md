@@ -59,4 +59,5 @@ The JSON structure MUST strictly follow the `AgentReadinessProfileResponseSchema
 Additional Rules:
 - All descriptive text, topic names, and recommendations MUST be in **Vietnamese**.
 - Ensure the assessment is realistic based on the provided user context.
+- **CRITICAL ANTI-HALLUCINATION RULE**: If the number of `attemptedQuizzes` in the `metrics` is 0, you MUST NOT invent or guess any skill gaps. You MUST set all values within `skillGaps` to `0`, `readinessPercentage` to `0`, and your `nextSteps` MUST strongly suggest the user to take a "Placement Test" (Bài kiểm tra đầu vào) to gather initial data.
 - Output ONLY raw JSON. No backticks.

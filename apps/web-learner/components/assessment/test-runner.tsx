@@ -16,19 +16,24 @@ export function TestRunner() {
     const [step, setStep] = React.useState<"setup" | "test" | "result">("setup")
     const [level, setLevel] = React.useState<string>("N5")
     const [section, setSection] = React.useState<string>("full")
+    const [questionCount, setQuestionCount] = React.useState<string>("10")
+    const [timeLimitMinutes, setTimeLimitMinutes] = React.useState<string>("5")
     const [isLoading, setIsLoading] = React.useState(false)
     const [testData, setTestData] = React.useState<TestGenerationResponse | null>(null)
     const [answers, setAnswers] = React.useState<Record<string, string>>({})
     const [evaluation, setEvaluation] = React.useState<TestEvaluationResponse | null>(null)
+    const [timeLeft, setTimeLeft] = React.useState<number | null>(null)
 
     // Generate Test
     const handleStart = async () => {
         setIsLoading(true)
         try {
-            const data = await agentApi.assessment.generateTest(level, section, 10)
+            const count = parseInt(questionCount) || 10
+            const data = await agentApi.assessment.generateTest(level, section, count)
             setTestData(data)
             setStep("test")
             setAnswers({})
+            setTimeLeft((parseInt(timeLimitMinutes) || 5) * 60)
         } catch (error) {
             console.error(error)
         } finally {
@@ -36,20 +41,42 @@ export function TestRunner() {
         }
     }
 
+    // Timer Effect
+    React.useEffect(() => {
+        if (step !== "test" || timeLeft === null || timeLeft <= 0) return
+
+        const timerId = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev === null || prev <= 1) {
+                    clearInterval(timerId)
+                    handleSubmit()
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+
+        return () => clearInterval(timerId)
+    }, [step, timeLeft])
+
     // Submit Test
     const handleSubmit = async () => {
         if (!testData) return
         setIsLoading(true)
         try {
-            // Format answers for API
-            const formattedAnswers = Object.entries(answers).map(([qId, answer]) => ({
-                questionId: qId,
-                answer: answer
-            }))
+            // Format answers for API. Unanswered questions default to empty string.
+            const formattedAnswers = testData.questions.map((q) => {
+                return {
+                    questionId: q.id,
+                    userAnswer: answers[q.id] || "",
+                    correctAnswer: q.correctAnswer || 0
+                }
+            })
 
             const result = await agentApi.assessment.evaluateTest(testData.testId, formattedAnswers)
             setEvaluation(result)
             setStep("result")
+            setTimeLeft(null)
         } catch (error) {
             console.error(error)
         } finally {
@@ -63,6 +90,14 @@ export function TestRunner() {
             ...prev,
             [questionId]: answer
         }))
+    }
+
+    // Format time display
+    const formatTime = (seconds: number | null) => {
+        if (seconds === null) return "--:--"
+        const m = Math.floor(seconds / 60)
+        const s = seconds % 60
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
     }
 
     // --- Renders ---
@@ -103,6 +138,31 @@ export function TestRunner() {
                                 </SelectContent>
                             </Select>
                         </div>
+                        <div className="space-y-2">
+                            <Label>Number of Questions</Label>
+                            <Select value={questionCount} onValueChange={setQuestionCount}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="5">5 Questions</SelectItem>
+                                    <SelectItem value="10">10 Questions</SelectItem>
+                                    <SelectItem value="15">15 Questions</SelectItem>
+                                    <SelectItem value="20">20 Questions</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Time Limit</Label>
+                            <Select value={timeLimitMinutes} onValueChange={setTimeLimitMinutes}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="5">5 Minutes</SelectItem>
+                                    <SelectItem value="10">10 Minutes</SelectItem>
+                                    <SelectItem value="15">15 Minutes</SelectItem>
+                                    <SelectItem value="20">20 Minutes</SelectItem>
+                                    <SelectItem value="30">30 Minutes</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </CardContent>
                     <CardFooter>
                         <Button onClick={handleStart} className="w-full" disabled={isLoading}>
@@ -119,9 +179,9 @@ export function TestRunner() {
             <div className="max-w-3xl mx-auto py-8">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold">Test: {level} - {section}</h2>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Timer className="size-4" />
-                        <span>--:--</span>
+                    <div className={cn("flex items-center gap-2 font-mono text-lg", timeLeft && timeLeft <= 60 ? "text-red-500 font-bold animate-pulse" : "text-muted-foreground")}>
+                        <Timer className="size-5" />
+                        <span>{formatTime(timeLeft)}</span>
                     </div>
                 </div>
 
@@ -135,7 +195,7 @@ export function TestRunner() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <RadioGroup value={answers[q.id]} onValueChange={(val) => handleAnswer(q.id, val)}>
+                                <RadioGroup value={answers[q.id] || ""} onValueChange={(val) => handleAnswer(q.id, val)}>
                                     {q.options?.map((opt, idx) => (
                                         <div key={idx} className="flex items-center space-x-2 py-2">
                                             <RadioGroupItem value={opt} id={`${q.id}-${idx}`} />
@@ -148,8 +208,13 @@ export function TestRunner() {
                     ))}
                 </div>
 
-                <div className="flex justify-end">
-                    <Button onClick={handleSubmit} disabled={isLoading || Object.keys(answers).length < testData.questions.length}>
+                <div className="flex justify-end pt-4 pb-20">
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={isLoading || Object.keys(answers).length < testData.questions.length}
+                        size="lg"
+                        className="min-w-[150px]"
+                    >
                         {isLoading ? <><Loader2 className="mr-2 size-4 animate-spin" /> Submitting...</> : "Submit Test"}
                     </Button>
                 </div>
