@@ -1,21 +1,13 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { flashcardApi } from '@/lib/api/services/flashcard-api'
-import { PageLoading } from '@workspace/ui/components/page-loading'
-import { Button } from '@workspace/ui/components/button'
-import { Input } from '@workspace/ui/components/input'
-import { Card } from '@workspace/ui/components/card'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@workspace/ui/components/table'
+import * as React from "react"
+import { useParams, useRouter } from "next/navigation"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { flashcardApi } from "@/lib/api/services/flashcard-api"
+import { PageLoading } from "@workspace/ui/components/page-loading"
+import { Button } from "@workspace/ui/components/button"
+import { Input } from "@workspace/ui/components/input"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@workspace/ui/components/card"
 import {
     Plus,
     Search,
@@ -26,9 +18,10 @@ import {
     FileUp,
     MoreVertical,
     Info,
-    Sparkles
-} from 'lucide-react'
-import { agentApi } from '@/lib/api/services/agent-api'
+    Sparkles,
+    RefreshCw
+} from "lucide-react"
+import { agentApi } from "@/lib/api/services/agent-api"
 import {
     Dialog,
     DialogContent,
@@ -36,17 +29,41 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@workspace/ui/components/dialog'
+} from "@workspace/ui/components/dialog"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu'
-import { toast } from '@workspace/ui/components/sonner'
-import { Label } from '@workspace/ui/components/label'
-import { Textarea } from '@workspace/ui/components/textarea'
-import { Badge } from '@workspace/ui/components/badge'
+} from "@workspace/ui/components/dropdown-menu"
+import { toast } from "@workspace/ui/components/sonner"
+import { Textarea } from "@workspace/ui/components/textarea"
+import { Badge } from "@workspace/ui/components/badge"
+import { Spinner } from "@workspace/ui/components/spinner"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
+import {
+    Flashcard,
+    FlashcardHeader,
+    FlashcardContent,
+    FlashcardFooter,
+    FlashcardFront,
+    FlashcardBack,
+    FlashcardFurigana,
+    FlashcardExample
+} from "@workspace/ui/components/flashcard"
+import { cn } from "@workspace/ui/lib/utils"
+
+const flashcardSchema = z.object({
+    frontText: z.string().min(1, "Mặt trước không được để trống"),
+    backText: z.string().min(1, "Mặt sau không được để trống"),
+    furigana: z.string().optional(),
+    exampleSentence: z.string().optional(),
+})
+
+type FlashcardFormValues = z.infer<typeof flashcardSchema>
 
 export default function ManageDeckPage() {
     const params = useParams()
@@ -54,29 +71,33 @@ export default function ManageDeckPage() {
     const queryClient = useQueryClient()
     const deckId = params.deckId as string
 
-    const [searchQuery, setSearchQuery] = useState('')
-    const [isAddCardOpen, setIsAddCardOpen] = useState(false)
-    const [isImportOpen, setIsImportOpen] = useState(false)
-    const [isAiImportOpen, setIsAiImportOpen] = useState(false)
-    const [editingCard, setEditingCard] = useState<any>(null)
-    const [tsvContent, setTsvContent] = useState('')
-    const [aiTopic, setAiTopic] = useState('')
-    const [isGeneratingAi, setIsGeneratingAi] = useState(false)
+    const [searchQuery, setSearchQuery] = React.useState("")
+    const [isAddCardOpen, setIsAddCardOpen] = React.useState(false)
+    const [isImportOpen, setIsImportOpen] = React.useState(false)
+    const [isAiImportOpen, setIsAiImportOpen] = React.useState(false)
+    const [editingCardId, setEditingCardId] = React.useState<string | null>(null)
+    const [tsvContent, setTsvContent] = React.useState("")
+    const [aiTopic, setAiTopic] = React.useState("")
+    const [isGeneratingAi, setIsGeneratingAi] = React.useState(false)
 
-    // Form states for individual card
-    const [frontText, setFrontText] = useState('')
-    const [backText, setBackText] = useState('')
-    const [furigana, setFurigana] = useState('')
-    const [exampleSentence, setExampleSentence] = useState('')
+    const form = useForm<FlashcardFormValues>({
+        resolver: zodResolver(flashcardSchema),
+        defaultValues: {
+            frontText: "",
+            backText: "",
+            furigana: "",
+            exampleSentence: "",
+        },
+    })
 
     // Data Fetching
     const { data: deck, isLoading: isLoadingDeck } = useQuery({
-        queryKey: ['flashcard-deck', deckId],
+        queryKey: ["flashcard-deck", deckId],
         queryFn: () => flashcardApi.getDeckById(deckId),
     })
 
     const { data: flashcardsData, isLoading: isLoadingCards } = useQuery({
-        queryKey: ['flashcards', deckId, searchQuery],
+        queryKey: ["flashcards", deckId, searchQuery],
         queryFn: () => flashcardApi.getFlashcards({ deckId: deckId, search: searchQuery, limit: 100 }),
     })
 
@@ -84,7 +105,7 @@ export default function ManageDeckPage() {
     const createCardMutation = useMutation({
         mutationFn: flashcardApi.createFlashcard,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['flashcards', deckId] })
+            queryClient.invalidateQueries({ queryKey: ["flashcards", deckId] })
             setIsAddCardOpen(false)
             resetCardForm()
             toast.success("Thẻ mới đã được thêm!")
@@ -95,8 +116,9 @@ export default function ManageDeckPage() {
     const updateCardMutation = useMutation({
         mutationFn: flashcardApi.updateFlashcard,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['flashcards', deckId] })
-            setEditingCard(null)
+            queryClient.invalidateQueries({ queryKey: ["flashcards", deckId] })
+            setEditingCardId(null)
+            setIsAddCardOpen(false)
             resetCardForm()
             toast.success("Thẻ đã được cập nhật!")
         },
@@ -106,7 +128,7 @@ export default function ManageDeckPage() {
     const deleteCardMutation = useMutation({
         mutationFn: flashcardApi.deleteFlashcard,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['flashcards', deckId] })
+            queryClient.invalidateQueries({ queryKey: ["flashcards", deckId] })
             toast.success("Đã xóa thẻ!")
         },
         onError: () => toast.error("Không thể xóa thẻ.")
@@ -115,35 +137,24 @@ export default function ManageDeckPage() {
     const bulkImportMutation = useMutation({
         mutationFn: flashcardApi.bulkOperations,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['flashcards', deckId] })
+            queryClient.invalidateQueries({ queryKey: ["flashcards", deckId] })
             setIsImportOpen(false)
-            setTsvContent('')
+            setTsvContent("")
             toast.success("Đã nhập thẻ thành công!")
         },
         onError: () => toast.error("Lỗi khi nhập thẻ từ TSV.")
     })
 
-    const handleSaveCard = () => {
-        if (!frontText || !backText) {
-            toast.error("Vui lòng điền đủ mặt trước và mặt sau.")
-            return
-        }
-
-        if (editingCard) {
+    const handleSaveCard = (values: FlashcardFormValues) => {
+        if (editingCardId) {
             updateCardMutation.mutate({
-                id: editingCard.id,
-                frontText,
-                backText,
-                furigana,
-                exampleSentence
+                id: editingCardId,
+                ...values
             })
         } else {
             createCardMutation.mutate({
                 deckId,
-                frontText,
-                backText,
-                furigana,
-                exampleSentence
+                ...values
             })
         }
     }
@@ -154,15 +165,15 @@ export default function ManageDeckPage() {
             return
         }
 
-        const lines = tsvContent.trim().split('\n')
+        const lines = tsvContent.trim().split("\n")
         const createData = lines.map(line => {
-            const parts = line.split('\t')
+            const parts = line.split("\t")
             return {
                 deckId,
-                frontText: parts[0]?.trim() || '',
-                backText: parts[1]?.trim() || '',
-                furigana: parts[2]?.trim() || '',
-                exampleSentence: parts[3]?.trim() || ''
+                frontText: parts[0]?.trim() || "",
+                backText: parts[1]?.trim() || "",
+                furigana: parts[2]?.trim() || "",
+                exampleSentence: parts[3]?.trim() || ""
             }
         }).filter(item => item.frontText && item.backText) as any[]
 
@@ -178,21 +189,21 @@ export default function ManageDeckPage() {
         if (!aiTopic.trim()) return
         setIsGeneratingAi(true)
         try {
-            const result = await agentApi.sensei.createFlashcard(aiTopic, 'N3')
+            const result = await agentApi.sensei.createFlashcard(aiTopic, "N3")
 
             const createData = result.flashcards.map(card => ({
                 deckId,
                 frontText: card.front,
                 backText: card.back,
-                furigana: card.reading || '',
-                exampleSentence: '' // AI doesn't return example sentence in this format currently
+                furigana: card.reading || "",
+                exampleSentence: ""
             }))
 
             if (createData.length > 0) {
                 bulkImportMutation.mutate({ create: createData }, {
                     onSuccess: () => {
                         setIsAiImportOpen(false)
-                        setAiTopic('')
+                        setAiTopic("")
                     }
                 })
             }
@@ -205,19 +216,23 @@ export default function ManageDeckPage() {
     }
 
     const resetCardForm = () => {
-        setFrontText('')
-        setBackText('')
-        setFurigana('')
-        setExampleSentence('')
-        setEditingCard(null)
+        form.reset({
+            frontText: "",
+            backText: "",
+            furigana: "",
+            exampleSentence: "",
+        })
+        setEditingCardId(null)
     }
 
     const startEditing = (card: any) => {
-        setEditingCard(card)
-        setFrontText(card.frontText)
-        setBackText(card.backText)
-        setFurigana(card.furigana || '')
-        setExampleSentence(card.exampleSentence || '')
+        setEditingCardId(card.id)
+        form.reset({
+            frontText: card.frontText,
+            backText: card.backText,
+            furigana: card.furigana || "",
+            exampleSentence: card.exampleSentence || "",
+        })
         setIsAddCardOpen(true)
     }
 
@@ -228,49 +243,50 @@ export default function ManageDeckPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-20">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b">
                 <div className="space-y-4">
-                    <button
-                        onClick={() => router.push('/dashboard/flashcards')}
-                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-colors mb-4"
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push("/dashboard/flashcards")}
+                        className="h-8 px-0 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors hover:bg-transparent"
                     >
-                        <ArrowLeft className="size-3" />
+                        <ArrowLeft className="size-3 mr-2" />
                         Quay lại kho thẻ
-                    </button>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary rounded-full text-[10px] font-sans font-bold italic uppercase tracking-wide">
-                        <BrainCircuit className="size-3.5" />
-                        Quản lý nội dung
+                    </Button>
+                    <div className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-3xl font-bold tracking-tight">{deck?.name}</h1>
+                            <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-wider">{deck?.jlptLevel || "ALL"}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            {cards.length} thẻ trong bộ // Quản lý và cập nhật nội dung kiến thức.
+                        </p>
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                        {deck?.name}
-                    </h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                        {cards.length} THẺ TRONG BỘ // {deck?.jlptLevel || 'ALL LEVELS'}
-                    </p>
                 </div>
 
-                <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                     <Button
                         onClick={() => { resetCardForm(); setIsAddCardOpen(true) }}
-                        className="h-12 px-6 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
+                        className="w-full sm:w-auto font-bold uppercase tracking-widest text-[10px]"
                     >
-                        <Plus className="size-4 mr-2" />
+                        <Plus className="size-3.5 mr-2" />
                         Thêm thẻ lẻ
                     </Button>
                     <Button
                         variant="outline"
                         onClick={() => setIsImportOpen(true)}
-                        className="h-12 px-6 rounded-2xl border-white/10 bg-white/5 font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all"
+                        className="w-full sm:w-auto font-bold uppercase tracking-widest text-[10px]"
                     >
-                        <FileUp className="size-4 mr-2" />
+                        <FileUp className="size-3.5 mr-2" />
                         Import TSV
                     </Button>
                     <Button
                         variant="outline"
                         onClick={() => setIsAiImportOpen(true)}
-                        className="h-12 px-6 rounded-2xl border-pink-500/20 bg-pink-500/10 text-pink-500 font-black uppercase tracking-widest text-[10px] hover:bg-pink-500/20 transition-all"
+                        className="w-full sm:w-auto border-primary/20 bg-primary/5 text-primary font-bold uppercase tracking-widest text-[10px] hover:bg-primary/10"
                     >
-                        <Sparkles className="size-4 mr-2" />
+                        <Sparkles className="size-3.5 mr-2" />
                         AI Sensei
                     </Button>
                 </div>
@@ -278,160 +294,141 @@ export default function ManageDeckPage() {
 
             {/* Filter & Search */}
             <div className="relative group w-full">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
-                    placeholder="TÌM KIẾM THẺ (MẶT TRƯỚC, MẶT SAU)..."
-                    className="pl-12 h-14 rounded-2xl bg-muted/10 border-border/40 focus:bg-background/80 transition-all font-bold uppercase tracking-wider text-xs"
+                    placeholder="Tìm kiếm thẻ theo nội dung..."
+                    className="pl-11 h-12"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
 
-            {/* Cards Table */}
-            <Card className="overflow-hidden border-border/40 bg-background/50 backdrop-blur-xl rounded-[2.5rem] shadow-2xl">
-                <div className="overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-white/5 hover:bg-transparent">
-                                <TableHead className="w-[30%] text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 py-6 pl-8">Mặt trước / Cách đọc</TableHead>
-                                <TableHead className="w-[40%] text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 py-6">Mặt sau / Ví dụ</TableHead>
-                                <TableHead className="w-[20%] text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 py-6">Trạng thái SRS</TableHead>
-                                <TableHead className="w-[10%] text-right pr-8"></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoadingCards ? (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="h-24 text-center">
-                                        <div className="flex items-center justify-center gap-2 opacity-50">
-                                            <div className="size-2 bg-primary rounded-full animate-bounce" />
-                                            <div className="size-2 bg-primary rounded-full animate-bounce delay-150" />
-                                            <div className="size-2 bg-primary rounded-full animate-bounce delay-300" />
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : cards.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="h-64 text-center">
-                                        <div className="flex flex-col items-center justify-center opacity-30">
-                                            <BrainCircuit className="size-12 mb-4" />
-                                            <p className="font-sans italic text-lg capitalize">Chưa có thẻ nào trong bộ này</p>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                cards.map((card: any) => (
-                                    <TableRow key={card.id} className="group border-white/5 hover:bg-white/[0.02] transition-colors">
-                                        <TableCell className="py-6 pl-8">
-                                            <div className="space-y-1">
-                                                <div className="text-base font-bold text-foreground">{card.frontText}</div>
-                                                {card.furigana && <div className="text-[10px] font-medium text-primary/60 font-mono tracking-wider">{card.furigana}</div>}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-6">
-                                            <div className="space-y-1">
-                                                <div className="text-sm font-medium text-muted-foreground">{card.backText}</div>
-                                                {card.exampleSentence && <div className="text-[10px] italic text-muted-foreground/40 line-clamp-1">"{card.exampleSentence}"</div>}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-6">
-                                            <Badge variant="outline" className="bg-white/5 border-white/5 text-[9px] font-black uppercase tracking-widest px-3 py-1">
-                                                Level {card.intervalDays === 0 ? '0 (New)' : Math.floor(Math.log2(card.intervalDays + 1))}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="py-6 pr-8 text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="size-8 rounded-xl hover:bg-muted/20">
-                                                        <MoreVertical className="size-4 text-muted-foreground/40" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-40 rounded-xl bg-background/90 backdrop-blur-3xl p-1">
-                                                    <DropdownMenuItem
-                                                        onClick={() => startEditing(card)}
-                                                        className="text-[10px] font-bold uppercase tracking-wider rounded-lg p-2 cursor-pointer"
-                                                    >
-                                                        <Edit className="size-3 mr-2 text-primary" /> Chỉnh sửa
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onClick={() => deleteCardMutation.mutate(card.id)}
-                                                        className="text-[10px] font-bold uppercase tracking-wider rounded-lg p-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                                    >
-                                                        <Trash2 className="size-3 mr-2" /> Xóa thẻ
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+            {/* Cards Grid */}
+            {isLoadingCards ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div key={i} className="h-48 rounded-xl bg-muted/50 animate-pulse border border-border" />
+                    ))}
                 </div>
-            </Card>
+            ) : cards.length === 0 ? (
+                <Card className="flex flex-col items-center justify-center py-20 border-dashed border-2 shadow-none bg-muted/5">
+                    <div className="p-4 rounded-full bg-muted mb-4 text-muted-foreground/40">
+                        <BrainCircuit className="size-8" />
+                    </div>
+                    <h3 className="text-lg font-bold">Chưa có thẻ nào</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Bắt đầu bằng cách thêm thẻ lẻ hoặc nhập từ AI.</p>
+                </Card>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {cards.map((card: any) => (
+                        <Flashcard key={card.id} className="h-full border-border shadow-none hover:shadow-md transition-all group">
+                            <FlashcardHeader className="pb-2">
+                                <div className="flex justify-between items-start mb-2">
+                                    <Badge variant="secondary" className="font-bold text-[9px] uppercase tracking-wider">
+                                        LEVEL {card.intervalDays === 0 ? "0" : Math.floor(Math.log2(card.intervalDays + 1))}
+                                    </Badge>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="size-7 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <MoreVertical className="size-3.5" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-32">
+                                            <DropdownMenuItem onClick={() => startEditing(card)} className="text-xs font-bold uppercase">
+                                                <Edit className="size-3 mr-2" /> Sửa
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => deleteCardMutation.mutate(card.id)} className="text-xs font-bold uppercase text-destructive focus:text-destructive">
+                                                <Trash2 className="size-3 mr-2" /> Xóa
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                                <FlashcardFront className="p-0 border-none bg-transparent h-auto">
+                                    {card.furigana && <FlashcardFurigana className="mb-1">{card.furigana}</FlashcardFurigana>}
+                                    <div className="text-xl font-bold tracking-tight">{card.frontText}</div>
+                                </FlashcardFront>
+                            </FlashcardHeader>
+                            <FlashcardContent className="space-y-3">
+                                <FlashcardBack className="p-0 border-none bg-transparent h-auto text-sm text-muted-foreground">
+                                    {card.backText}
+                                </FlashcardBack>
+                                {card.exampleSentence && (
+                                    <FlashcardExample className="p-0 border-none bg-transparent h-auto italic text-xs opacity-70">
+                                        "{card.exampleSentence}"
+                                    </FlashcardExample>
+                                )}
+                            </FlashcardContent>
+                        </Flashcard>
+                    ))}
+                </div>
+            )}
 
             {/* Add/Edit Modal */}
             <Dialog open={isAddCardOpen} onOpenChange={setIsAddCardOpen}>
-                <DialogContent className="sm:max-w-[500px] bg-background/80 backdrop-blur-2xl border-white/10 rounded-[2.5rem]">
+                <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">
-                            {editingCard ? 'Cập nhật thẻ' : 'Thêm thẻ mới'}
+                        <DialogTitle className="text-xl font-bold">
+                            {editingCardId ? "Cập nhật thẻ" : "Thêm thẻ mới"}
                         </DialogTitle>
-                        <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                            Hệ thống ghi nhớ Torii SRS
+                        <DialogDescription>
+                            Nhập thông tin cho thẻ nhớ của bạn.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-6 py-4">
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mặt trước (Kanji/Từ vựng)</Label>
-                            <Input
-                                value={frontText}
-                                onChange={(e) => setFrontText(e.target.value)}
-                                className="h-12 rounded-xl bg-white/5 border-white/10 font-bold"
-                                placeholder="VD: 勉強"
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Cách đọc (Furigana/Romaji)</Label>
-                            <Input
-                                value={furigana}
-                                onChange={(e) => setFurigana(e.target.value)}
-                                className="h-12 rounded-xl bg-white/5 border-white/10 font-mono"
-                                placeholder="VD: べんきょう"
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mặt sau (Nghĩa)</Label>
-                            <Input
-                                value={backText}
-                                onChange={(e) => setBackText(e.target.value)}
-                                className="h-12 rounded-xl bg-white/5 border-white/10 font-bold"
-                                placeholder="VD: Học tập"
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Ví dụ (Sentence)</Label>
-                            <Textarea
-                                value={exampleSentence}
-                                onChange={(e) => setExampleSentence(e.target.value)}
-                                className="min-h-[100px] rounded-xl bg-white/5 border-white/10 font-sans italic"
-                                placeholder="VD: 毎日勉強します。"
-                            />
-                        </div>
-                    </div>
+                    <form id="card-form" onSubmit={form.handleSubmit(handleSaveCard)} className="space-y-6 py-4">
+                        <Controller
+                            name="frontText"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Mặt trước (Kanji/Từ vựng)</FieldLabel>
+                                    <Input {...field} placeholder="VD: 勉強" className="h-11" />
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
+                            )}
+                        />
+                        <Controller
+                            name="furigana"
+                            control={form.control}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Cách đọc (Furigana)</FieldLabel>
+                                    <Input {...field} placeholder="VD: べんきょう" className="h-11 font-mono" />
+                                </Field>
+                            )}
+                        />
+                        <Controller
+                            name="backText"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Mặt sau (Nghĩa)</FieldLabel>
+                                    <Input {...field} placeholder="VD: Học tập" className="h-11" />
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </Field>
+                            )}
+                        />
+                        <Controller
+                            name="exampleSentence"
+                            control={form.control}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Ví dụ (Sentence)</FieldLabel>
+                                    <Textarea {...field} placeholder="VD: 毎日勉強します。" className="min-h-[100px] italic" />
+                                </Field>
+                            )}
+                        />
+                    </form>
 
                     <DialogFooter>
                         <Button
-                            onClick={handleSaveCard}
-                            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px]"
+                            form="card-form"
+                            type="submit"
+                            className="w-full h-11 font-bold uppercase tracking-widest text-[10px]"
                             disabled={createCardMutation.isPending || updateCardMutation.isPending}
                         >
-                            {(createCardMutation.isPending || updateCardMutation.isPending) ? (
-                                'ĐANG LƯU...'
-                            ) : (
-                                editingCard ? 'CẬP NHẬT THẺ' : 'XÁC NHẬN THÊM'
-                            )}
+                            {createCardMutation.isPending || updateCardMutation.isPending ? <Spinner className="mr-2" /> : null}
+                            {editingCardId ? "CẬP NHẬT THẺ" : "XÁC NHẬN THÊM"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -439,51 +436,38 @@ export default function ManageDeckPage() {
 
             {/* Bulk Import Modal */}
             <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-                <DialogContent className="sm:max-w-[700px] bg-background/80 backdrop-blur-2xl border-white/10 rounded-[2.5rem]">
+                <DialogContent className="sm:max-w-[700px]">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-sans font-bold italic uppercase tracking-tight">
-                            Nhập thẻ từ TSV
-                        </DialogTitle>
-                        <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                            Hỗ trợ Anki tsv format (Tab separated values)
-                        </DialogDescription>
+                        <DialogTitle className="text-xl font-bold">Nhập thẻ từ TSV</DialogTitle>
+                        <DialogDescription>Hỗ trợ định dạng Anki TSV (Mặt trước [Tab] Mặt sau [Tab] Cách đọc [Tab] Ví dụ).</DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-6 py-4">
-                        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex gap-4">
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-4">
                             <Info className="size-5 text-primary shrink-0" />
-                            <div className="text-[10px] leading-relaxed text-muted-foreground/80">
-                                <p className="font-bold text-primary mb-1 uppercase tracking-widest">Định dạng file:</p>
-                                <p>Mặt trước [Tab] Mặt sau [Tab] Cách đọc [Tab] Ví dụ</p>
-                                <p className="mt-2 text-muted-foreground/40 uppercase">VÍ DỤ: 先生 [Tab] Giáo viên [Tab] せんせい [Tab] 先生は怖いです。</p>
+                            <div className="text-xs leading-relaxed text-muted-foreground">
+                                <p className="font-bold text-primary mb-1 uppercase tracking-widest">Cách dùng:</p>
+                                <p>Tách các trường bằng phím Tab. Mỗi thẻ một dòng.</p>
+                                <p className="mt-2 text-muted-foreground/60 italic font-mono">Ví dụ: 先生 [Tab] Giáo viên [Tab] せんせい [Tab] 先生は怖いです。</p>
                             </div>
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Dán nội dung TSV của bạn vào đây</Label>
+                        <Field>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Nội dung TSV</FieldLabel>
                             <Textarea
                                 value={tsvContent}
                                 onChange={(e) => setTsvContent(e.target.value)}
-                                className="min-h-[300px] rounded-2xl bg-white/5 border-white/10 font-mono text-xs p-6"
-                                placeholder="Paste TSV data here..."
+                                className="min-h-[300px] font-mono text-xs p-6"
+                                placeholder="Dán dữ liệu vào đây..."
                             />
-                        </div>
+                        </Field>
                     </div>
 
-                    <DialogFooter className="flex-col sm:flex-row gap-4">
-                        <Button
-                            variant="outline"
-                            className="flex-1 h-12 rounded-xl border-white/10"
-                            onClick={() => setIsImportOpen(false)}
-                        >
-                            HỦY
-                        </Button>
-                        <Button
-                            onClick={handleBulkImport}
-                            className="flex-[2] h-12 rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px]"
-                            disabled={bulkImportMutation.isPending}
-                        >
-                            {bulkImportMutation.isPending ? 'Đang xử lý...' : 'NHẬP TOÀN BỘ'}
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setIsImportOpen(false)} className="flex-1 font-bold uppercase tracking-widest text-[10px]">HỦY</Button>
+                        <Button onClick={handleBulkImport} className="flex-[2] font-bold uppercase tracking-widest text-[10px]" disabled={bulkImportMutation.isPending}>
+                            {bulkImportMutation.isPending ? <Spinner className="mr-2" /> : null}
+                            NHẬP TOÀN BỘ
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -491,42 +475,43 @@ export default function ManageDeckPage() {
 
             {/* AI Generation Modal */}
             <Dialog open={isAiImportOpen} onOpenChange={setIsAiImportOpen}>
-                <DialogContent className="sm:max-w-[500px] bg-background/80 backdrop-blur-2xl border-pink-500/20 rounded-[2.5rem]">
+                <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight flex items-center gap-2">
-                            <Sparkles className="size-6 text-pink-500" />
+                        <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                            <Sparkles className="size-6 text-primary" />
                             AI Sensei Generator
                         </DialogTitle>
-                        <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                            Tạo thẻ từ vựng tự động theo chủ đề
+                        <DialogDescription className="font-medium text-muted-foreground">
+                            Tạo thẻ từ vựng tự động theo chủ đề.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-6 py-6">
-                        <div className="bg-pink-500/5 border border-pink-500/10 rounded-2xl p-4 flex gap-4">
-                            <BrainCircuit className="size-5 text-pink-500 shrink-0" />
-                            <p className="text-[10px] leading-relaxed text-muted-foreground/80">
-                                Nhập chủ đề bạn muốn học (VD: "Đồ dùng nhà bếp", "Từ lóng giới trẻ", "Email công việc"). AI sẽ tạo danh sách thẻ và tự động thêm vào bộ này.
+                    <div className="space-y-6 py-6">
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-4">
+                            <BrainCircuit className="size-5 text-primary shrink-0" />
+                            <p className="text-xs leading-relaxed text-muted-foreground">
+                                Nhập chủ đề bạn muốn học. AI sẽ tạo danh sách thẻ và tự động thêm vào bộ này.
                             </p>
                         </div>
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Chủ đề từ vựng</Label>
+                        <Field>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Chủ đề từ vựng</FieldLabel>
                             <Input
                                 value={aiTopic}
                                 onChange={(e) => setAiTopic(e.target.value)}
-                                className="h-14 rounded-xl bg-white/5 border-pink-500/20 font-bold text-lg"
-                                placeholder="VD: Món ăn Nhật Bản..."
+                                className="h-12 border-primary/20 font-bold"
+                                placeholder="VD: Món ăn Nhật Bản, Du lịch..."
                             />
-                        </div>
+                        </Field>
                     </div>
 
                     <DialogFooter>
                         <Button
                             onClick={handleAiGenerate}
-                            className="w-full h-12 rounded-xl bg-pink-500 text-white hover:bg-pink-600 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-pink-500/20"
+                            className="w-full h-11 font-bold uppercase tracking-widest text-[10px]"
                             disabled={!aiTopic.trim() || isGeneratingAi || bulkImportMutation.isPending}
                         >
-                            {isGeneratingAi || bulkImportMutation.isPending ? 'ĐANG TẠO & LƯU...' : 'TẠO & THÊM VÀO BỘ THẺ'}
+                            {isGeneratingAi || bulkImportMutation.isPending ? <Spinner className="mr-2" /> : null}
+                            {isGeneratingAi || bulkImportMutation.isPending ? "ĐANG TẠO & LƯU..." : "TẠO & THÊM VÀO BỘ THẺ"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

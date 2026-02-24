@@ -24,9 +24,10 @@ import {
     FieldLegend,
     FieldSet
 } from "@workspace/ui/components/field"
-import { Target, ChevronRight, ClipboardList, CheckCircle2, XCircle, BookCheck, Clock } from "lucide-react"
+import { Target, ChevronRight, ClipboardList, CheckCircle2, XCircle, BookCheck, Clock, Sparkles } from "lucide-react"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { DrillGenerator } from "@/components/ai-sensei/drill-generator"
 
 // Types
 interface TestConfig {
@@ -298,7 +299,7 @@ export function TestRunner() {
 
     if (status === "result" && result) {
         return (
-            <QuizContainer>
+            <QuizContainer className="max-w-6xl space-y-12">
                 <QuizResultView
                     badge="Practice Results"
                     title={`${config.level} ${config.section.charAt(0).toUpperCase() + config.section.slice(1)} Performance`}
@@ -315,6 +316,22 @@ export function TestRunner() {
                         onClick: () => setStatus("setup")
                     }}
                 />
+
+                <div className="pt-12 border-t space-y-8">
+                    <div className="space-y-2">
+                        <h3 className="text-xl font-bold flex items-center gap-2">
+                            <Sparkles className="size-5 text-primary" />
+                            Lấp lỗ hổng kiến thức
+                        </h3>
+                        <p className="text-sm text-muted-foreground">AI Sensei gợi ý bạn luyện tập tập trung vào phần vừa thi để cải thiện điểm số.</p>
+                    </div>
+
+                    <Card className="border-primary/20 bg-primary/5 shadow-none rounded-2xl overflow-hidden">
+                        <CardContent className="p-0">
+                            <DrillGenerator embed />
+                        </CardContent>
+                    </Card>
+                </div>
             </QuizContainer>
         )
     }

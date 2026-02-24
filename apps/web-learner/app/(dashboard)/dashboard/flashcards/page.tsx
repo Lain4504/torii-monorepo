@@ -3,8 +3,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { flashcardApi } from '@/lib/api/services/flashcard-api'
 import { Button } from '@workspace/ui/components/button'
-import { Card } from '@workspace/ui/components/card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@workspace/ui/components/card'
 import { Input } from '@workspace/ui/components/input'
+import { Badge } from '@workspace/ui/components/badge'
+import { Field, FieldLabel } from '@workspace/ui/components/field'
+import { Spinner } from '@workspace/ui/components/spinner'
 import {
     Sparkles,
     Plus,
@@ -36,7 +39,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@workspace/ui/components/dialog'
-import { Label } from '@workspace/ui/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
 import { toast } from '@workspace/ui/components/sonner'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -174,40 +176,41 @@ export default function FlashcardsPage() {
 
         <div className="space-y-8 animate-in fade-in duration-700 pb-20">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-2 border-b border-border">
-                <div className="space-y-2">
-                    <h1 className="text-3xl font-bold text-foreground">
-                        Kho thẻ nhớ
-                    </h1>
-                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b">
+                <div className="space-y-1.5">
+                    <h1 className="text-3xl font-bold tracking-tight">Kho thẻ nhớ</h1>
+                    <p className="text-muted-foreground max-w-xl">
                         Hệ thống ghi nhớ dài hạn tích cực. Tạo và quản lý các bộ thẻ của bạn.
                     </p>
                 </div>
 
-                <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                     <div className="relative group w-full md:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
                             placeholder="Tìm kiếm bộ thẻ..."
-                            className="pl-10"
+                            className="pl-9 h-10"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Button
-                        onClick={() => { resetForm(); setIsDeckModalOpen(true) }}
-                    >
-                        <Plus className="size-4 mr-2" />
-                        Tạo bộ thẻ
-                    </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => { resetForm(); setIsAiDeckModalOpen(true) }}
-                        className="h-10 border-pink-500/20 bg-pink-500/10 text-pink-500 font-bold uppercase tracking-widest text-[10px] hover:bg-pink-500/20 transition-all"
-                    >
-                        <Sparkles className="size-4 mr-2" />
-                        AI Create Deck
-                    </Button>
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <Button
+                            onClick={() => { resetForm(); setIsDeckModalOpen(true) }}
+                            className="flex-1 sm:flex-none font-bold uppercase tracking-widest text-[10px]"
+                        >
+                            <Plus className="size-3.5 mr-2" />
+                            Tạo bộ thẻ
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => { resetForm(); setIsAiDeckModalOpen(true) }}
+                            className="flex-1 sm:flex-none border-primary/20 bg-primary/5 text-primary font-bold uppercase tracking-widest text-[10px] hover:bg-primary/10"
+                        >
+                            <Sparkles className="size-3.5 mr-2" />
+                            AI Create Deck
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -215,93 +218,83 @@ export default function FlashcardsPage() {
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
-                        <Card key={i} className="h-64 animate-pulse bg-muted/10 border-border rounded-2xl" />
+                        <Card key={i} className="h-64 animate-pulse bg-muted/50 shadow-none border-border" />
                     ))}
                 </div>
             ) : decks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl bg-muted/5">
-                    <div className="p-4 rounded-full bg-muted/20 mb-4">
-                        <Layers className="size-8 text-muted-foreground/40" />
+                <Card className="flex flex-col items-center justify-center py-20 border-dashed border-2 shadow-none bg-muted/5">
+                    <div className="p-4 rounded-full bg-muted mb-4 text-muted-foreground/40">
+                        <Layers className="size-8" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">Không tìm thấy bộ thẻ</h3>
+                    <h3 className="text-lg font-bold">Không tìm thấy bộ thẻ</h3>
                     <p className="text-sm text-muted-foreground mt-1">Tạo bộ thẻ mới để bắt đầu quá trình ôn tập ghi nhớ.</p>
-                </div>
+                </Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {decks.map((deck) => (
-                        <Card key={deck.id} className="group relative overflow-hidden transition-all hover:shadow-lg bg-card border-border rounded-2xl h-full shadow-sm flex flex-col">
-                            <div className="p-6 space-y-6 relative z-10 flex-1 flex flex-col">
+                        <Card key={deck.id} className="group flex flex-col shadow-none hover:shadow-md transition-all border-border h-full overflow-hidden">
+                            <CardHeader className="flex-none p-6 pb-4">
                                 <div className="flex justify-between items-start">
-                                    <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                        <Sparkles className="size-6" />
+                                    <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                        <Layers className="size-5" />
                                     </div>
-                                    <div className="flex items-start gap-2">
+                                    <div className="flex items-center gap-2">
                                         {deck.jlptLevel && (
-                                            <span className="px-2.5 py-0.5 rounded-md bg-muted text-xs font-bold text-muted-foreground">
+                                            <Badge variant="secondary" className="font-bold text-[10px] uppercase">
                                                 {deck.jlptLevel}
-                                            </span>
+                                            </Badge>
                                         )}
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="size-8 rounded-lg hover:bg-muted text-muted-foreground">
+                                                <Button variant="ghost" size="icon" className="size-8 text-muted-foreground">
                                                     <MoreVertical className="size-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-48 rounded-xl p-1">
-                                                <DropdownMenuItem
-                                                    onClick={() => startEditing(deck)}
-                                                    className="text-xs font-medium rounded-lg cursor-pointer"
-                                                >
+                                            <DropdownMenuContent align="end" className="w-48">
+                                                <DropdownMenuItem onClick={() => startEditing(deck)} className="text-sm font-medium">
                                                     <Edit className="size-3.5 mr-2" /> Chỉnh sửa
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() => router.push(`/dashboard/flashcards/${deck.id}/manage`)}
-                                                    className="text-xs font-medium rounded-lg cursor-pointer"
-                                                >
-                                                    <Layers className="size-3.5 mr-2" /> Quản lý nội dung
+                                                <DropdownMenuItem onClick={() => router.push(`/dashboard/flashcards/${deck.id}/manage`)} className="text-sm font-medium">
+                                                    <BrainCircuit className="size-3.5 mr-2" /> Quản lý nội dung
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() => deleteDeckMutation.mutate(deck.id)}
-                                                    className="text-xs font-medium rounded-lg cursor-pointer text-destructive focus:text-destructive"
-                                                >
+                                                <DropdownMenuItem onClick={() => deleteDeckMutation.mutate(deck.id)} className="text-sm font-medium text-destructive focus:text-destructive">
                                                     <Trash2 className="size-3.5 mr-2" /> Xóa bộ thẻ
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
                                 </div>
-
-                                <div className="space-y-2 flex-1">
-                                    <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">
-                                        {deck.name}
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5em]">
+                                <div className="space-y-1.5 mt-4">
+                                    <CardTitle className="text-lg font-bold line-clamp-1 group-hover:text-primary transition-colors">{deck.name}</CardTitle>
+                                    <CardDescription className="line-clamp-2 min-h-[40px] leading-relaxed">
                                         {deck.description || "Không có mô tả cho bộ thẻ này."}
-                                    </p>
+                                    </CardDescription>
                                 </div>
+                            </CardHeader>
 
-                                <div className="pt-4 border-t border-border/50 flex flex-col gap-4 mt-auto">
-                                    <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                            <CardContent className="flex-1 flex flex-col justify-end p-6 pt-0 mt-auto">
+                                <div className="pt-4 border-t space-y-4">
+                                    <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                                         <div className="flex items-center gap-1.5">
-                                            <Layers className="size-3.5" />
-                                            <span>{deck.cardCount} thẻ</span>
+                                            <Layers className="size-3.5 opacity-60" />
+                                            <span>{deck.cardCount} THẺ</span>
                                         </div>
                                         {deck.lastStudiedAt && (
                                             <div className="flex items-center gap-1.5">
-                                                <Clock className="size-3.5" />
+                                                <Clock className="size-3.5 opacity-60" />
                                                 <span>
-                                                    {formatDistanceToNow(new Date(deck.lastStudiedAt))} trước
+                                                    {formatDistanceToNow(new Date(deck.lastStudiedAt))}
                                                 </span>
                                             </div>
                                         )}
                                     </div>
                                     <Link href={`/dashboard/flashcards/${deck.id}`} className="w-full">
-                                        <Button className="w-full">
+                                        <Button className="w-full font-bold uppercase tracking-widest text-[10px]">
                                             Bắt đầu học
                                         </Button>
                                     </Link>
                                 </div>
-                            </div>
+                            </CardContent>
                         </Card>
                     ))}
                 </div>
@@ -309,40 +302,42 @@ export default function FlashcardsPage() {
 
             {/* Create/Edit Deck Modal */}
             <Dialog open={isDeckModalOpen} onOpenChange={setIsDeckModalOpen}>
-                <DialogContent className="sm:max-w-[425px] rounded-2xl border-border bg-background shadow-lg">
+                <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold">
                             {editingDeck ? 'Cập nhật bộ thẻ' : 'Tạo bộ thẻ mới'}
                         </DialogTitle>
-                        <DialogDescription className="text-sm text-muted-foreground">
-                            Hệ thống quản lý kho tri thức cá nhân
+                        <DialogDescription>
+                            Tạo một không gian để quản lý các thẻ nhớ theo chủ đề riêng của bạn.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-6 py-4">
-                        <div className="grid gap-2">
-                            <Label className="text-xs font-bold text-muted-foreground uppercase">Tên bộ thẻ</Label>
+                    <div className="space-y-6 py-4">
+                        <Field>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Tên bộ thẻ</FieldLabel>
                             <Input
                                 value={deckName}
                                 onChange={(e) => setDeckName(e.target.value)}
                                 placeholder="VD: 2000 Kanji thông dụng"
+                                className="h-11"
                             />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label className="text-xs font-bold text-muted-foreground uppercase">Mô tả</Label>
+                        </Field>
+                        <Field>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Mô tả</FieldLabel>
                             <Input
                                 value={deckDesc}
                                 onChange={(e) => setDeckDesc(e.target.value)}
                                 placeholder="Mục tiêu học tập của bạn..."
+                                className="h-11"
                             />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label className="text-xs font-bold text-muted-foreground uppercase">Cấp độ JLPT</Label>
+                        </Field>
+                        <Field>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Cấp độ JLPT</FieldLabel>
                             <Select value={jlptLevel} onValueChange={setJlptLevel}>
-                                <SelectTrigger className="h-10 rounded-lg bg-background">
+                                <SelectTrigger className="h-11">
                                     <SelectValue placeholder="Chọn cấp độ" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-border">
+                                <SelectContent>
                                     <SelectItem value="N5">N5</SelectItem>
                                     <SelectItem value="N4">N4</SelectItem>
                                     <SelectItem value="N3">N3</SelectItem>
@@ -351,13 +346,13 @@ export default function FlashcardsPage() {
                                     <SelectItem value="All">All Levels</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
                     </div>
 
                     <DialogFooter>
                         <Button
                             onClick={handleSaveDeck}
-                            className="w-full"
+                            className="w-full h-11 font-bold uppercase tracking-widest text-[10px]"
                         >
                             {editingDeck ? 'Cập nhật' : 'Xác nhận tạo'}
                         </Button>
@@ -367,49 +362,49 @@ export default function FlashcardsPage() {
 
             {/* AI Create Deck Modal */}
             <Dialog open={isAiDeckModalOpen} onOpenChange={setIsAiDeckModalOpen}>
-                <DialogContent className="sm:max-w-[500px] bg-background/80 backdrop-blur-2xl border-pink-500/20 rounded-[2.5rem]">
+                <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-serif font-bold italic uppercase tracking-tight flex items-center gap-2">
-                            <Sparkles className="size-6 text-pink-500" />
+                        <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                            <Sparkles className="size-6 text-primary" />
                             AI Sensei Deck Creator
                         </DialogTitle>
-                        <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                            Tạo bộ thẻ & sinh từ vựng tự động
+                        <DialogDescription className="font-medium text-muted-foreground">
+                            Tạo bộ thẻ & sinh từ vựng tự động bằng AI.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid gap-6 py-6">
-                        <div className="bg-pink-500/5 border border-pink-500/10 rounded-2xl p-4 flex gap-4">
-                            <BrainCircuit className="size-5 text-pink-500 shrink-0" />
-                            <p className="text-[10px] leading-relaxed text-muted-foreground/80">
+                    <div className="space-y-6 py-6">
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-4">
+                            <BrainCircuit className="size-5 text-primary shrink-0" />
+                            <p className="text-xs leading-relaxed text-muted-foreground">
                                 Nhập tên bộ thẻ và chủ đề. AI sẽ tự động tạo bộ thẻ mới và điền sẵn các từ vựng phù hợp cho bạn.
                             </p>
                         </div>
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Tên bộ thẻ</Label>
+                        <Field>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Tên bộ thẻ</FieldLabel>
                             <Input
                                 value={deckName}
                                 onChange={(e) => setDeckName(e.target.value)}
-                                className="bg-white/5 border-pink-500/20 font-bold"
+                                className="h-11 border-primary/20 font-bold"
                                 placeholder="VD: Từ vựng Du lịch Nhật Bản"
                             />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Chủ đề từ khóa (Cho AI)</Label>
+                        </Field>
+                        <Field>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Chủ đề từ khóa (Cho AI)</FieldLabel>
                             <Input
                                 value={aiTopic}
                                 onChange={(e) => setAiTopic(e.target.value)}
-                                className="bg-white/5 border-pink-500/20 font-bold"
+                                className="h-11 border-primary/20 font-bold"
                                 placeholder="VD: Nhà hàng, Sân bay, Khách sạn..."
                             />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Cấp độ JLPT</Label>
+                        </Field>
+                        <Field>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Cấp độ JLPT</FieldLabel>
                             <Select value={jlptLevel} onValueChange={setJlptLevel}>
-                                <SelectTrigger className="h-12 rounded-xl bg-white/5 border-pink-500/20">
+                                <SelectTrigger className="h-11 border-primary/20">
                                     <SelectValue placeholder="Chọn cấp độ" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-white/10 bg-background/95 backdrop-blur-xl">
+                                <SelectContent>
                                     <SelectItem value="N5">N5</SelectItem>
                                     <SelectItem value="N4">N4</SelectItem>
                                     <SelectItem value="N3">N3</SelectItem>
@@ -418,15 +413,16 @@ export default function FlashcardsPage() {
                                     <SelectItem value="All">All Levels</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
                     </div>
 
                     <DialogFooter>
                         <Button
                             onClick={handleAiDeckCreate}
-                            className="w-full bg-pink-500 text-white hover:bg-pink-600 font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-pink-500/20"
+                            className="w-full h-11 font-bold uppercase tracking-widest text-[10px]"
                             disabled={!aiTopic.trim() || !deckName.trim() || isGeneratingAi}
                         >
+                            {isGeneratingAi ? <Spinner className="mr-2" /> : null}
                             {isGeneratingAi ? 'ĐANG TẠO & SINH THẺ...' : 'TẠO BỘ THẺ AI'}
                         </Button>
                     </DialogFooter>

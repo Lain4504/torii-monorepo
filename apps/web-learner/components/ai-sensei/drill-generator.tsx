@@ -98,24 +98,23 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
                 />
             )}
 
-            <Card className="shadow-sm rounded-3xl overflow-hidden border-border/50">
-                <CardHeader className="py-4 bg-muted/30">
-                    <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                        <Target className="size-3.5" />
+            <Card className="shadow-none border-border">
+                <CardHeader className="pb-4">
+                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                        <Target className="size-4" />
                         Cấu hình bài tập
                     </CardTitle>
                 </CardHeader>
-                <Separator />
-                <CardContent className="pt-8">
-                    <form id="drill-form" onSubmit={form.handleSubmit(handleGenerate)} className="grid md:grid-cols-3 gap-8">
+                <CardContent className="pt-6">
+                    <form id="drill-form" onSubmit={form.handleSubmit(handleGenerate)} className="grid md:grid-cols-3 gap-6">
                         <Controller
                             name="type"
                             control={form.control}
-                            render={({ field, fieldState }) => (
+                            render={({ field }) => (
                                 <Field>
-                                    <FieldLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Kỹ năng</FieldLabel>
+                                    <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Kỹ năng</FieldLabel>
                                     <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger className="rounded-xl h-11">
+                                        <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -133,12 +132,11 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Chủ đề</FieldLabel>
+                                    <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Chủ đề</FieldLabel>
                                     <Input
                                         {...field}
                                         placeholder="Ví dụ: Particles, Family..."
                                         disabled={isLoading}
-                                        className="rounded-xl h-11"
                                     />
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                 </Field>
@@ -149,9 +147,9 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
                             control={form.control}
                             render={({ field }) => (
                                 <Field>
-                                    <FieldLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Trình độ</FieldLabel>
+                                    <FieldLabel className="text-xs font-semibold uppercase text-muted-foreground">Trình độ</FieldLabel>
                                     <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger className="rounded-xl h-11">
+                                        <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -167,42 +165,42 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
                         />
                     </form>
                 </CardContent>
-                <CardFooter className="flex justify-end py-6 bg-muted/10 border-t">
+                <CardFooter className="flex justify-end pt-6">
                     <Button
                         form="drill-form"
                         type="submit"
                         disabled={!form.watch("topic").trim() || isLoading}
-                        className="rounded-xl px-8 h-11 font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20"
+                        className="font-bold uppercase tracking-widest text-[10px]"
                     >
-                        {isLoading ? <Spinner className="mr-2" /> : <Sparkles className="size-4 mr-2" />}
+                        {isLoading ? <Spinner className="mr-2" /> : <Sparkles className="size-3.5 mr-2" />}
                         Tạo bài tập
                     </Button>
                 </CardFooter>
             </Card>
 
             {result && !showResults && (
-                <div className="space-y-12 pt-12 animate-in slide-in-from-bottom-6 duration-500">
+                <div className="space-y-10 pt-10 animate-in fade-in duration-500">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b pb-6">
-                        <h3 className="text-2xl font-bold flex items-center gap-3">
-                            <CheckCircle2 className="size-6 text-primary" />
+                        <h3 className="text-xl font-bold flex items-center gap-2">
+                            <CheckCircle2 className="size-5 text-primary" />
                             {result.topic}
-                            <Badge variant="secondary" className="ml-3 font-bold text-[10px] uppercase tracking-wider">{result.drills.length} Questions</Badge>
+                            <Badge variant="secondary" className="ml-2 font-bold text-[10px] uppercase">{result.drills.length} Questions</Badge>
                         </h3>
                         {Object.keys(userAnswers).length === result.drills.length && (
-                            <Button onClick={checkAnswers} className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-11 shadow-xl shadow-primary/20">
+                            <Button onClick={checkAnswers} className="font-bold uppercase tracking-widest text-[10px]">
                                 Nộp bài & Xem kết quả
                             </Button>
                         )}
                     </div>
 
-                    <div className="space-y-10">
+                    <div className="space-y-8">
                         {result.drills.map((drill, i) => (
-                            <div key={i} className="space-y-8">
+                            <div key={i} className="space-y-6">
                                 <QuizQuestion
                                     index={i + 1}
                                     question={drill.question}
                                 />
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
                                     {drill.options.map((option, optIdx) => (
                                         <QuizOption
                                             key={optIdx}
@@ -215,7 +213,7 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
                                         />
                                     ))}
                                 </div>
-                                {i < result.drills.length - 1 && <Separator className="max-w-md mx-auto opacity-50" />}
+                                {i < result.drills.length - 1 && <Separator className="max-w-md mx-auto" />}
                             </div>
                         ))}
                     </div>
