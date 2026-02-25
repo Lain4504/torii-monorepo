@@ -31,13 +31,11 @@ export class PermissionsGuard implements CanActivate {
             return true;
         }
 
-        // Check if user has ALL required permissions for this endpoint
-        // (Alternative: could be SOME, but usually ALL is safer for atomic permissions)
-        const hasAllPermissions = requiredPermissions.every((perm) => userPermissions.includes(perm));
+        // Check if user has ANY required permissions for this endpoint
+        const hasAnyPermission = requiredPermissions.some((perm) => userPermissions.includes(perm));
 
-        if (!hasAllPermissions) {
-            const missing = requiredPermissions.filter(p => !userPermissions.includes(p));
-            throw new ForbiddenException(`Missing required permissions: ${missing.join(', ')}`);
+        if (!hasAnyPermission) {
+            throw new ForbiddenException(`Missing required permissions: one of [${requiredPermissions.join(', ')}]`);
         }
 
         return true;

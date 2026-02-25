@@ -56,7 +56,7 @@ export class TeachingScheduleController {
     }
 
     @Get('course/:courseId')
-    @Permissions('live_class.view')
+    @Permissions('schedule.view')
     async findByCourse(@Param('courseId') courseId: string) {
         const data = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.teachingSchedule.findByCourse' }, { courseId })
@@ -81,7 +81,7 @@ export class TeachingScheduleController {
     }
 
     @Post('requests')
-    @Permissions('live_class.request_change')
+    @Permissions('live_class.schedule', 'schedule.view')
     async createRequest(
         @Req() req: ReqWithRequester,
         @Body() dto: ScheduleRequestCreateDTO

@@ -42,7 +42,7 @@ export class OrderController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('search')
-    @Permissions('order.view')
+    @Permissions('payment.view')
     async searchOrders(@Body(new ZodValidationPipe(orderSearchRequestDTOSchema)) dto: OrderSearchRequestDTO) {
         try {
             const result = await firstValueFrom(
@@ -76,7 +76,7 @@ export class OrderController {
     }
 
     @Post('transactions/search')
-    @Permissions('order.view')
+    @Permissions('payment.view')
     async searchPayments(@Body(new ZodValidationPipe(paymentSearchRequestDTOSchema)) dto: PaymentSearchRequestDTO) {
         try {
             const result = await firstValueFrom(
@@ -92,6 +92,7 @@ export class OrderController {
     }
 
     @Get('stats')
+    @Permissions('payment.view')
     async getStats(@Query() query: OrderQueryDTO) {
         try {
             const result = await firstValueFrom(

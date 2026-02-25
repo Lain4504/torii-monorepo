@@ -35,7 +35,7 @@ export class CourseController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('search')
-    @Permissions('course.view')
+    @Permissions('course.view_restricted', 'course.view_my')
     async searchCourses(
         @Body(new ZodValidationPipe(courseSearchRequestDTOSchema)) dto: CourseSearchRequestDTO,
         @Req() req: ReqWithRequester
@@ -156,7 +156,7 @@ export class CourseController {
     }
 
     @Delete(':id')
-    @Permissions('course.delete')
+    @Permissions('course.update')
     async deleteCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
         await firstValueFrom(
             this.natsClient.send(

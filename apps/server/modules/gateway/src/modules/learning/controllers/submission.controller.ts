@@ -49,19 +49,19 @@ export class SubmissionController {
     }
 
     @Get('assignment/:assignmentId')
-    @Permissions('assignment.grade')
+    @Permissions('submission.grade')
     all(@Param('assignmentId') assignmentId: string) {
         return this.sendCmd('findAll', { assignmentId });
     }
 
     @Put(':id/grade')
-    @Permissions('assignment.grade')
+    @Permissions('submission.grade')
     grade(@Param('id') id: string, @Body(new ZodValidationPipe(gradeSubmissionDto)) dto: any, @Req() req: ReqWithRequester) {
         return this.sendCmd('grade', { id, ...dto, requester: req.requester });
     }
 
     @Post(':id/return')
-    @Permissions('assignment.grade')
+    @Permissions('submission.grade')
     return(@Param('id') id: string, @Body(new ZodValidationPipe(returnSubmissionDto)) dto: any, @Req() req: ReqWithRequester) {
         return this.sendCmd('return', { id, ...dto, requester: req.requester });
     }

@@ -1,16 +1,25 @@
 import { Controller, Get, Post, Body, Query, UseGuards, Inject, Param } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard, ZodValidationPipe } from '@server/shared';
+import { successResponse, errorResponse, successPaginatedResponse, GatewayAuthGuard, ZodValidationPipe, PermissionsGuard, Permissions } from '@server/shared';
 import { AuditLogFiltersDTO, auditLogFiltersDTOSchema } from '@workspace/schemas';
 
 @Controller('api/admin/audit-logs')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
+@Permissions('audit.view')
 export class AuditLogController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('search')
-    async getAuditLogs(@Body(new ZodValidationPipe(auditLogFiltersDTOSchema)) dto: AuditLogFiltersDTO) {
+    async getAuditLogs(@Body() rawBody: any) {
+        let dto: AuditLogFiltersDTO;
+        try {
+            dto = auditLogFiltersDTOSchema.parse(rawBody);
+        } catch (e: any) {
+            console.error("ZOD VALIDATION ERROR:", e.errors);
+            return errorResponse('Validation Failed: ' + JSON.stringify(e.errors));
+        }
+
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

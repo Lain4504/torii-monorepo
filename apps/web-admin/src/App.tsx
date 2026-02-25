@@ -90,15 +90,16 @@ function App() {
 
                   <Route path="rooms" element={<RoomsPage />} />
 
-                  {/* Guarded Routes */}
-                  <Route element={<RoutePermissionGuard permission="user.manage" />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["user.manage", "user.view"]} />}>
                     <Route path="learners" element={<LearnersPage />} />
                     <Route path="personnel/lecturers" element={<PersonnelPage />} />
                     <Route path="personnel/staff" element={<PersonnelPage />} />
+                  </Route>
+                  <Route element={<RoutePermissionGuard permission="user.manage" />}>
                     <Route path="permissions" element={<PermissionsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="blog.manage" />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["blog.manage", "blog.write"]} />}>
                     <Route path="blogs" element={<BlogPage />} />
                   </Route>
 
@@ -110,7 +111,7 @@ function App() {
                     <Route path="coupons" element={<CouponsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="payment.manage" />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["payment.view", "payment.refund", "payment.manage"]} />}>
                     <Route path="orders" element={<OrdersPage />} />
                   </Route>
 
@@ -122,10 +123,12 @@ function App() {
                   </Route>
 
 
+                  <Route element={<RoutePermissionGuard permission="audit.view" />}>
+                    <Route path="audit-logs" element={<AuditLogsPage />} />
+                  </Route>
 
                   <Route element={<RoutePermissionGuard permission="system.config" />}>
                     <Route path="notifications" element={<NotificationsPage />} />
-                    <Route path="audit-logs" element={<AuditLogsPage />} />
                     <Route path="settings" element={<SettingsPage />} />
                   </Route>
 
@@ -149,7 +152,7 @@ function App() {
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </ThemeProvider>
-    </ReduxProvider>
+    </ReduxProvider >
   )
 }
 

@@ -34,7 +34,7 @@ export class LessonController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('search')
-    @Permissions('lesson.view')
+    @Permissions('course.view_restricted', 'course.view_my')
     async searchLessons(
         @Body(new ZodValidationPipe(lessonSearchRequestDTOSchema)) dto: LessonSearchRequestDTO,
     ) {
