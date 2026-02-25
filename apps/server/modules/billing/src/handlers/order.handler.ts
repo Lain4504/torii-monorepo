@@ -61,4 +61,9 @@ export class OrderHandler {
     async refund(@Payload() data: { id: string, reason?: string }) {
         return this.orderService.refund(data.id, data.reason);
     }
+
+    @MessagePattern({ cmd: 'billing.order.export' })
+    async export(@Payload() query: OrderQueryDTO) {
+        return this.orderService.exportOrders(query);
+    }
 }

@@ -827,10 +827,11 @@ export class OrderService implements IOrderService {
             throw new BadRequestException('You do not have permission to cancel this order');
         }
 
-        // Only pending orders can be cancelled manually
-        if (order.status !== OrderStatus.PENDING) {
+        // Only pending or processing orders can be cancelled manually
+        if (order.status !== OrderStatus.PENDING && order.status !== OrderStatus.PROCESSING) {
             throw new BadRequestException(`Cannot cancel order in ${order.status} status`);
         }
+        this.logger.log(`Cancelling order ${id} with status ${order.status} by user ${userId} (role: ${userRole})`);
 
         const updated = await this.orderRepository.update(id, {
             status: OrderStatus.CANCELLED,
@@ -949,6 +950,70 @@ export class OrderService implements IOrderService {
         });
 
         return this.toOrderDto(refundOrder);
+    }
+
+    /**
+     * Export orders based on query filters (for admin)
+     * Returns raw data for CSV/Excel export
+     */
+    async exportOrders(query: OrderQueryDTO): Promise<any[]> {
+        try {
+            const whereClause: Prisma.OrderWhereInput = {};
+            if (query.userId) whereClause.userId = query.userId;
+            if (query.status) whereClause.status = query.status as any;
+
+            if (query.startDate || query.endDate) {
+                whereClause.createdAt = {};
+                if (query.startDate) {
+                    const date = new Date(query.startDate);
+                    if (!isNaN(date.getTime())) {
+                        whereClause.createdAt.gte = date;
+                    }
+                }
+                if (query.endDate) {
+                    const date = new Date(query.endDate);
+                    if (!isNaN(date.getTime())) {
+                        date.setHours(23, 59, 59, 999); // End of the day
+                        whereClause.createdAt.lte = date;
+                    }
+                }
+            }
+
+            const orders = await this.orderRepository.findMany({
+                where: whereClause,
+                take: 999999, // A very large number to get all for export, or remove take/skip entirely
+                skip: 0,
+                orderBy: { createdAt: 'desc' },
+                include: { user: true, coupon: true }, // Include user and coupon for more data
+            });
+
+            return orders.map(order => ({
+                orderId: order.id,
+                userId: order.userId,
+                userName: order.user?.displayName || order.user?.email,
+                userEmail: order.user?.email,
+                amount: Number(order.amount),
+                currency: order.currency,
+                status: order.status,
+                orderType: order.orderType,
+                paymentMethod: order.paymentMethod,
+                paymentGateway: order.paymentGateway,
+                transactionId: order.transactionId,
+                gatewayTransactionId: order.gatewayTransactionId,
+                enrollmentId: order.enrollmentId,
+                couponCode: order.coupon?.code,
+                couponDiscount: order.metadata ? (order.metadata as any).couponDiscount || 0 : 0,
+                originalCourseAmount: order.metadata ? (order.metadata as any).originalAmount || Number(order.amount) : Number(order.amount),
+                createdAt: order.createdAt.toISOString(),
+                completedAt: order.completedAt?.toISOString() || '',
+                cancelledAt: (order.metadata as any)?.cancelledAt || '',
+                // Add more fields as needed for export
+            }));
+
+        } catch (error: any) {
+            this.logger.error(`Error exporting orders: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     /**

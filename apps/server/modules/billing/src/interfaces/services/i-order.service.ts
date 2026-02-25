@@ -57,4 +57,9 @@ export interface IOrderService {
      * Refund an order
      */
     refund(id: string, reason?: string): Promise<OrderResponseDTO>;
+
+    /**
+     * Export orders with filters
+     */
+    exportOrders(query: OrderQueryDTO): Promise<any[]>;
 }
