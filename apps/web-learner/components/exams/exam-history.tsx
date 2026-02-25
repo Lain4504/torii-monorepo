@@ -63,13 +63,15 @@ export function ExamHistory() {
 
     if (loading) {
         return (
-            <div className="rounded-lg border border-border/40 overflow-hidden bg-background/60">
-                <div className="p-12 flex flex-col items-center justify-center space-y-4 text-muted-foreground">
-                    <div className="w-12 h-12 rounded-lg bg-primary/5 flex items-center justify-center animate-pulse">
-                        <Sparkles className="w-6 h-6 text-primary" />
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Loading chronicles...</span>
-                </div>
+            <div className="rounded-lg border border-border/40 overflow-hidden bg-background/60 py-12">
+                <Empty className="border-none shadow-none bg-transparent">
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon" className="animate-pulse bg-primary/5 shadow-none border-none">
+                            <Sparkles className="w-6 h-6 text-primary" />
+                        </EmptyMedia>
+                        <EmptyTitle className="text-[10px] font-bold uppercase tracking-wider animate-pulse">Loading chronicles...</EmptyTitle>
+                    </EmptyHeader>
+                </Empty>
             </div>
         )
     }

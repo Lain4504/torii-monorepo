@@ -12,6 +12,13 @@ import { Edit2, Trash2, Star, Ticket, Percent, Banknote } from "lucide-react"
 import type { PointRewardDto } from "@workspace/schemas"
 import { formatCurrency, formatNumber } from "@/lib/format-utils"
 import { Skeleton } from "@workspace/ui/components/skeleton"
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@workspace/ui/components/empty"
 
 interface RewardsTableProps {
     data: PointRewardDto[]
@@ -54,10 +61,17 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
 
     if (data.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                <Ticket className="h-12 w-12 mb-4 opacity-20" />
-                <p>Chưa có mẫu phần thưởng nào được tạo.</p>
-            </div>
+            <Empty className="py-20">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <Ticket />
+                    </EmptyMedia>
+                    <EmptyTitle>Chưa có mẫu phần thưởng</EmptyTitle>
+                    <EmptyDescription>
+                        Bắt đầu bằng cách tạo mẫu phần thưởng đầu tiên của bạn.
+                    </EmptyDescription>
+                </EmptyHeader>
+            </Empty>
         )
     }
 
