@@ -19,11 +19,28 @@ import {
     GatewayAuthGuard,
     ReqWithRequester,
 } from '@server/shared';
+import { UserRole } from '@workspace/schemas';
 
 @Controller('api/enrollments')
 @UseGuards(GatewayAuthGuard)
 export class EnrollmentController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
+
+    @Get('me')
+    async findMyEnrollments(@Query() query: any, @Req() req: ReqWithRequester) {
+        try {
+            const requester = req.requester;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.enrollment.findAll' },
+                    { ...query, userId: requester.sub }
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch your enrollments');
+        }
+    }
 
     @Get('check-gift')
     async checkGiftRecipient(

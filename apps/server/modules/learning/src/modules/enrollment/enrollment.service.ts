@@ -158,6 +158,7 @@ export class EnrollmentService implements IEnrollmentService {
                     take: validLimit,
                     skip,
                     orderBy: { enrollmentDate: 'desc' },
+                    include: { course: true }, // Include course details
                 }),
             ]);
 
