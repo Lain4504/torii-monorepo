@@ -3,11 +3,11 @@ import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { createMap, forMember, mapFrom } from '@automapper/core';
 import type { DiscussionTopic } from '@prisma/generated';
-import type { FeedResponseDTO } from '@workspace/schemas';
+import type { DiscussionTopicResponseDTO } from '@workspace/schemas';
 
 /**
  * Discussion AutoMapper Profile
- * Maps DiscussionTopic entity (Prisma) to FeedResponseDTO (Temporarily reused)
+ * Maps DiscussionTopic entity (Prisma) to DiscussionTopicResponseDTO
  */
 @Injectable()
 export class DiscussionProfile extends AutomapperProfile {
@@ -20,53 +20,42 @@ export class DiscussionProfile extends AutomapperProfile {
             createMap(
                 mapper,
                 'DiscussionTopic',
-                'FeedResponseDTO',
+                'DiscussionTopicResponseDTO',
                 forMember(
-                    (dest: FeedResponseDTO) => dest.id,
+                    (dest: DiscussionTopicResponseDTO) => dest.id,
                     mapFrom((src: DiscussionTopic) => src.id),
                 ),
                 forMember(
-                    (dest: FeedResponseDTO) => dest.title,
+                    (dest: DiscussionTopicResponseDTO) => dest.title,
                     mapFrom((src: DiscussionTopic) => src.title),
                 ),
                 forMember(
-                    (dest: FeedResponseDTO) => dest.content,
+                    (dest: DiscussionTopicResponseDTO) => dest.content,
                     mapFrom((src: DiscussionTopic) => src.content),
                 ),
                 forMember(
-                    (dest: FeedResponseDTO) => dest.authorId,
+                    (dest: DiscussionTopicResponseDTO) => dest.authorId,
                     mapFrom((src: DiscussionTopic) => src.authorId),
                 ),
-                // Tags removed from DiscussionTopic in schema? Let's check schema.
-                // Schema: DiscussionTopic { id, title, content, authorId, courseId, moduleId, lessonId, isPinned, isLocked, viewCount, commentCount, ... }
-                // No tags array in new schema. 
                 forMember(
-                    (dest: FeedResponseDTO) => dest.tags,
-                    mapFrom(() => []),
-                ),
-                forMember(
-                    (dest: FeedResponseDTO) => dest.viewCount,
+                    (dest: DiscussionTopicResponseDTO) => dest.viewCount,
                     mapFrom((src: DiscussionTopic) => src.viewCount),
                 ),
                 forMember(
-                    (dest: FeedResponseDTO) => dest.likes,
-                    mapFrom(() => 0), // Removed likeCount
-                ),
-                forMember(
-                    (dest: FeedResponseDTO) => dest.comments,
+                    (dest: DiscussionTopicResponseDTO) => dest.commentCount,
                     mapFrom((src: DiscussionTopic) => src.commentCount),
                 ),
                 forMember(
-                    (dest: FeedResponseDTO) => dest.createdAt,
+                    (dest: DiscussionTopicResponseDTO) => dest.createdAt,
                     mapFrom((src: DiscussionTopic) => src.createdAt),
                 ),
                 forMember(
-                    (dest: FeedResponseDTO) => dest.updatedAt,
+                    (dest: DiscussionTopicResponseDTO) => dest.updatedAt,
                     mapFrom((src: DiscussionTopic) => src.updatedAt),
                 ),
                 // author is populated from included relation
                 forMember(
-                    (dest: FeedResponseDTO) => dest.author,
+                    (dest: DiscussionTopicResponseDTO) => dest.author,
                     mapFrom((src: any) =>
                         src.author
                             ? {
@@ -76,10 +65,6 @@ export class DiscussionProfile extends AutomapperProfile {
                             }
                             : undefined,
                     ),
-                ),
-                forMember(
-                    (dest: FeedResponseDTO) => dest.isLiked,
-                    mapFrom(() => false),
                 ),
             );
         };

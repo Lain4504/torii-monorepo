@@ -69,10 +69,12 @@ import { SubmissionHandler } from '@server/learning/handlers/submission.handler'
 import { CertificateHandler } from '@server/learning/handlers/certificate.handler';
 import { NotebookHandler } from '@server/learning/handlers/notebook.handler';
 import { CartHandler } from '@server/learning/handlers/cart.handler';
+import { AttendanceHandler } from '@server/learning/handlers/attendance.handler';
 
 import { AssignmentModule } from '@server/learning/modules/assignment/assignment.module';
 import { SubmissionModule } from '@server/learning/modules/submission/submission.module';
 import { CartModule } from '@server/learning/modules/cart/cart.module';
+import { AttendanceModule } from '@server/learning/modules/attendance/attendance.module';
 
 @Module({
   imports: [
@@ -98,6 +100,7 @@ import { CartModule } from '@server/learning/modules/cart/cart.module';
     SubmissionModule,
     CertificateModule,
     CartModule,
+    AttendanceModule,
 
     // Community Modules
     BlogModule,
@@ -149,6 +152,7 @@ import { CartModule } from '@server/learning/modules/cart/cart.module';
     CertificateHandler,
     NotebookHandler,
     CartHandler,
+    AttendanceHandler,
   ],
   providers: [
     {

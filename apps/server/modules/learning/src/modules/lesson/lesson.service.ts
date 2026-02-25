@@ -183,20 +183,23 @@ export class LessonService implements ILessonService {
     }
 
     // Check enrollment only for non-preview lessons with a known user
-    let isEnrolled = false;
-    if (requester?.sub && !lesson.isPreview) {
+    let isAuthorized = false;
+
+    if (lesson.isPreview) {
+      isAuthorized = true;
+    } else if (requester?.sub) {
       try {
         const module = await this.moduleRepository.findById(lesson.moduleId);
         if (module) {
-          isEnrolled = await this.enrollmentService.isEnrolled(requester.sub, module.courseId);
+          isAuthorized = await this.enrollmentService.checkAccess(requester.sub, module.courseId, lesson.id);
         }
       } catch (error) {
-        this.logger.warn(`Failed to check enrollment for user ${requester.sub} on lesson ${lessonId}`, error);
+        this.logger.warn(`Failed to check access for user ${requester.sub} on lesson ${lessonId}`, error);
       }
     }
 
-    // Accessible if (preview OR enrolled) AND marked unlocked in DB
-    const isAuthorized = (lesson.isPreview || isEnrolled) && lesson.isUnlocked;
+    // Accessible if (preview OR authorized) AND marked unlocked in DB
+    isAuthorized = isAuthorized && lesson.isUnlocked;
     return this.buildProtectedDTO(lesson, isAuthorized);
   }
 
@@ -218,21 +221,30 @@ export class LessonService implements ILessonService {
       return lessons.map(lesson => this.toLessonResponseDTO(lesson));
     }
 
-    // Learner: perform a single enrollment check for the entire module/course
-    let isEnrolledInCourse = false;
+    // Learner: perform a check for accessible lessons
+    let accessibleLessonIds: string[] | 'ALL' = [];
     if (requester?.sub) {
       try {
         const module = await this.moduleRepository.findById(moduleId);
         if (module) {
-          isEnrolledInCourse = await this.enrollmentService.isEnrolled(requester.sub, module.courseId);
+          accessibleLessonIds = await this.enrollmentService.getAccessibleLessonIds(requester.sub, module.courseId);
         }
       } catch (error) {
-        this.logger.warn(`Enrollment check failed for module ${moduleId}`, error);
+        this.logger.warn(`Accessible lessons check failed for module ${moduleId}`, error);
       }
     }
 
     return lessons.map(lesson => {
-      const isAuthorized = (lesson.isPreview || isEnrolledInCourse) && lesson.isUnlocked;
+      let isUserAuthorized = false;
+      if (lesson.isPreview) {
+        isUserAuthorized = true;
+      } else if (accessibleLessonIds === 'ALL') {
+        isUserAuthorized = true;
+      } else if (Array.isArray(accessibleLessonIds) && accessibleLessonIds.includes(lesson.id)) {
+        isUserAuthorized = true;
+      }
+      
+      const isAuthorized = isUserAuthorized && lesson.isUnlocked;
       return this.buildProtectedDTO(lesson, isAuthorized);
     });
   }

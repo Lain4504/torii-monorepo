@@ -27,6 +27,7 @@ export * from './models/discussion-topic.model';
 export * from './models/cart.model';
 export * from './models/assignment.model';
 export * from './models/certificate.model';
+export * from './models/attendance.model';
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
@@ -68,6 +69,7 @@ export * from './dtos/assignment.dto';
 export * from './dtos/certificate.dto';
 export * from './dtos/agent.dto';
 export * from './dtos/balance.dto';
+export * from './dtos/attendance.dto';
 
 // Enums
 export * from './enums/enrollment.enum';

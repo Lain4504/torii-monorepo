@@ -31,6 +31,11 @@ export class EnrollmentHandler {
         return this.enrollmentService.create(userId, input);
     }
 
+    @MessagePattern({ cmd: 'learning.enrollment.createTrial' })
+    async createTrial(@Payload() data: { userId: string; courseId: string }) {
+        return this.enrollmentService.createTrial(data.userId, data.courseId);
+    }
+
     @MessagePattern({ cmd: 'learning.enrollment.activate' })
     async activate(@Payload() data: { enrollmentId: string }) {
         return this.enrollmentService.activateEnrollment(data.enrollmentId);
@@ -44,6 +49,16 @@ export class EnrollmentHandler {
     @MessagePattern({ cmd: 'learning.enrollment.updateOrderId' })
     async updateOrderId(@Payload() data: { id: string, orderId: string }) {
         return this.enrollmentService.updateOrderId(data.id, data.orderId);
+    }
+
+    @MessagePattern({ cmd: 'learning.enrollment.checkAccess' })
+    async checkAccess(@Payload() data: { userId: string, courseId: string, lessonId?: string }) {
+        return this.enrollmentService.checkAccess(data.userId, data.courseId, data.lessonId);
+    }
+
+    @MessagePattern({ cmd: 'learning.enrollment.getAccessibleLessonIds' })
+    async getAccessibleLessonIds(@Payload() data: { userId: string, courseId: string }) {
+        return this.enrollmentService.getAccessibleLessonIds(data.userId, data.courseId);
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.isEnrolled' })

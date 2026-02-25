@@ -15,7 +15,7 @@ import {
 import type { IEnrollmentService, ICertificateService } from '@server/learning/interfaces/services';
 import { CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
-import { ICourseRepository, COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ICourseRepository, COURSE_REPOSITORY_TOKEN, ILessonRepository, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
 
 /**
@@ -30,6 +30,8 @@ export class EnrollmentService implements IEnrollmentService {
         private readonly enrollmentRepository: EnrollmentRepository,
         @Inject(COURSE_REPOSITORY_TOKEN)
         private readonly courseRepository: ICourseRepository,
+        @Inject(LESSON_REPOSITORY_TOKEN)
+        private readonly lessonRepository: ILessonRepository,
         @Inject(CERTIFICATE_SERVICE_TOKEN)
         private readonly certificateService: ICertificateService,
         @Inject('NATS_SERVICE')
@@ -227,13 +229,76 @@ export class EnrollmentService implements IEnrollmentService {
             }
 
             return {
-                isEnrolled: enrollment !== null && (enrollment.completionStatus === 'in_progress' || enrollment.completionStatus === 'completed'),
+                isEnrolled: enrollment !== null && (
+                    enrollment.completionStatus === 'in_progress' || 
+                    enrollment.completionStatus === 'completed' ||
+                    (enrollment.completionStatus === 'trial' && enrollment.trialExpiresAt !== null && new Date(enrollment.trialExpiresAt) > new Date())
+                ),
                 enrollment,
                 hasNewerVersion,
             };
         } catch (error: any) {
             this.logger.error(`Error checking enrollment details: ${error.message}`, error.stack);
             return { isEnrolled: false, enrollment: null, hasNewerVersion: false };
+        }
+    }
+
+    /**
+     * Create a new trial enrollment
+     */
+    async createTrial(userId: string, courseId: string): Promise<EnrollmentResponseDTO> {
+        // Check if course exists
+        const course = await this.courseRepository.findById(courseId);
+        if (!course) {
+            throw new NotFoundException('Course not found');
+        }
+
+        // Check if course allows trial
+        if (!course.trialDays || course.trialDays <= 0) {
+            throw new BadRequestException('This course does not offer a trial period');
+        }
+
+        // Check if already enrolled (any status)
+        const existing = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+        if (existing) {
+            throw new BadRequestException('User already has an enrollment record for this course');
+        }
+
+        try {
+            const now = new Date();
+            const trialExpiresAt = new Date(now);
+            trialExpiresAt.setDate(now.getDate() + course.trialDays);
+
+            // Get latest course version
+            const latestVersion = await this.courseRepository.getLatestVersion(courseId);
+            const versionId = latestVersion ? latestVersion.id : undefined;
+
+            const created = await this.enrollmentRepository.create({
+                user: { connect: { id: userId } },
+                course: { connect: { id: courseId } },
+                ...(versionId ? { version: { connect: { id: versionId } } } : {}),
+                enrollmentDate: now,
+                lastAccessedAt: now,
+                completionStatus: EnrollmentStatus.TRIAL,
+                completionPercentage: 0,
+                finalPrice: 0,
+                trialExpiresAt: trialExpiresAt,
+            });
+
+            // Log Audit
+            await this.logAudit({
+                action: 'enrollment.create_trial',
+                entity: 'enrollment',
+                entityId: created.id,
+                userId: userId,
+                description: `Created trial enrollment for user ${userId} and course ${courseId}`,
+                newValues: { completionStatus: EnrollmentStatus.TRIAL, trialExpiresAt },
+            });
+
+            return this.toEnrollmentDto(created);
+        } catch (error: any) {
+            this.logger.error(`Error creating trial enrollment: ${error.message}`, error.stack);
+            throw error;
         }
     }
 
@@ -372,6 +437,80 @@ export class EnrollmentService implements IEnrollmentService {
 
 
     /**
+     * Check if user has access to a course or specific lesson (handling trial logic)
+     */
+    async checkAccess(userId: string, courseId: string, lessonId?: string): Promise<boolean> {
+        const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+
+        // 1. No enrollment
+        if (!enrollment) {
+            return false;
+        }
+
+        // 2. Full access
+        if (enrollment.completionStatus === EnrollmentStatus.IN_PROGRESS ||
+            enrollment.completionStatus === EnrollmentStatus.COMPLETED) {
+            return true;
+        }
+
+        // 3. Trial access
+        if (enrollment.completionStatus === EnrollmentStatus.TRIAL) {
+            // Check expiry
+            if (enrollment.trialExpiresAt && enrollment.trialExpiresAt < new Date()) {
+                return false;
+            }
+
+            // If checking course level access only -> OK
+            if (!lessonId) {
+                return true;
+            }
+
+            // If checking specific lesson
+            const course = await this.courseRepository.findById(courseId);
+            if (!course) {
+                return false;
+            }
+            
+            // If no limit defined, allow access (since time trial is valid)
+            if (!course.maxTrialLessons || course.maxTrialLessons <= 0) {
+                return true;
+            }
+
+            // Check if lesson is within the first N lessons
+            const allowedLessons = await this.lessonRepository.findTopLessonsByCourse(courseId, course.maxTrialLessons);
+            return allowedLessons.some(l => l.id === lessonId);
+        }
+
+        return false;
+    }
+
+    async getAccessibleLessonIds(userId: string, courseId: string): Promise<string[] | 'ALL'> {
+        const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+        if (!enrollment) return [];
+
+        if (enrollment.completionStatus === EnrollmentStatus.IN_PROGRESS ||
+            enrollment.completionStatus === EnrollmentStatus.COMPLETED) {
+            return 'ALL';
+        }
+
+        if (enrollment.completionStatus === EnrollmentStatus.TRIAL) {
+            if (enrollment.trialExpiresAt && enrollment.trialExpiresAt < new Date()) {
+                return [];
+            }
+
+            const course = await this.courseRepository.findById(courseId);
+            if (!course || !course.maxTrialLessons) {
+                return 'ALL'; // No lesson limit defined for trial -> allow all (time-based only)
+            }
+
+            const lessons = await this.lessonRepository.findTopLessonsByCourse(courseId, course.maxTrialLessons);
+            return lessons.map(l => l.id);
+        }
+
+        return [];
+    }
+
+    /**
      * Check if user is enrolled in a course
      */
     async isEnrolled(userId: string, courseId: string): Promise<boolean> {
@@ -387,7 +526,10 @@ export class EnrollmentService implements IEnrollmentService {
 
             return (
                 enrollment.completionStatus === EnrollmentStatus.IN_PROGRESS ||
-                enrollment.completionStatus === EnrollmentStatus.COMPLETED
+                enrollment.completionStatus === EnrollmentStatus.COMPLETED ||
+                (enrollment.completionStatus === EnrollmentStatus.TRIAL && 
+                 enrollment.trialExpiresAt !== null && 
+                 enrollment.trialExpiresAt > new Date())
             );
         } catch (error: any) {
             this.logger.error(`Error checking enrollment: ${error.message}`, error.stack);

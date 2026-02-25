@@ -359,11 +359,35 @@ model LiveSession {
 
   course   Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   schedule TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  attendances Attendance[]
 
   @@index([courseId])
   @@index([lecturerId])
   @@index([scheduleId])
   @@map("live_sessions")
+}
+
+// Attendance - Tracking student participation in live sessions
+model Attendance {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  liveSessionId String      @map("live_session_id") @db.Uuid
+  userId        String      @map("user_id") @db.Uuid
+  status        String      @default("present") @db.VarChar(20) // present, absent, late, excused
+  joinTime      DateTime?   @map("join_time")
+  leaveTime     DateTime?   @map("leave_time")
+  duration      Int         @default(0) // seconds
+  notes         String?     @db.Text
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at")
+
+  liveSession   LiveSession @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([liveSessionId, userId])
+  @@index([liveSessionId])
+  @@index([userId])
+  @@index([status])
+  @@map("attendances")
 }
 
 // Teaching Schedule - Fixed weekly patterns for a course
