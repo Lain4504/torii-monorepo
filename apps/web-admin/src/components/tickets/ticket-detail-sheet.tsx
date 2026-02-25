@@ -35,6 +35,17 @@ import {
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
 import { formatDateTime } from '@/lib/format-utils';
 import { Spinner } from "@workspace/ui/components/spinner";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@workspace/ui/components/alert-dialog";
 
 interface TicketDetailSheetProps {
     ticket: TicketResponseDTO | null;
@@ -79,6 +90,7 @@ export function TicketDetailSheet({
     if (!ticket) return null;
 
     const isRefund = ticket.type === TicketType.REFUND;
+    const metadata = ticket.metadata as any;
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -135,7 +147,8 @@ export function TicketDetailSheet({
                                             <AlertTriangle className="size-4" />
                                             <AlertDescription className="font-bold flex flex-col gap-1">
                                                 <span>Khóa học yêu cầu hoàn tiền:</span>
-                                                <span className="font-mono text-[10px] break-all">{(ticket.metadata as any)?.courseId}</span>
+                                                <span className="text-sm text-foreground">{metadata?.courseTitle || 'N/A'}</span>
+                                                <span className="font-mono text-[10px] break-all text-muted-foreground">{metadata?.courseId}</span>
                                             </AlertDescription>
                                         </Alert>
 
@@ -146,9 +159,9 @@ export function TicketDetailSheet({
                                                     <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Tiến độ học</ItemTitle>
                                                     <ItemDescription className={cn(
                                                         "text-sm font-black",
-                                                        (ticket.metadata as any)?.progress > 20 ? "text-destructive" : "text-emerald-600"
+                                                        metadata?.progress > 20 ? "text-destructive" : "text-emerald-600"
                                                     )}>
-                                                        {(ticket.metadata as any)?.progress || 0}%
+                                                        {metadata?.progress || 0}%
                                                     </ItemDescription>
                                                 </ItemContent>
                                             </Item>
@@ -156,7 +169,7 @@ export function TicketDetailSheet({
                                                 <ItemContent>
                                                     <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Ngày đăng ký</ItemTitle>
                                                     <ItemDescription className="text-sm font-bold text-foreground">
-                                                        {(ticket.metadata as any)?.enrollmentDate ? formatDateTime((ticket.metadata as any)?.enrollmentDate) : 'N/A'}
+                                                        {metadata?.enrollmentDate ? formatDateTime(metadata?.enrollmentDate) : 'N/A'}
                                                     </ItemDescription>
                                                 </ItemContent>
                                             </Item>
@@ -200,22 +213,79 @@ export function TicketDetailSheet({
                     </div>
                 </ScrollArea>
                 {(ticket.status === TicketStatus.PENDING || ticket.status === TicketStatus.PROCESSING) && (
-                    <SheetFooter>
-                        <Button
-                            onClick={() => handleUpdateStatus(TicketStatus.APPROVED)}
-                            disabled={updateStatusMutation.isPending}
-                        >
-                            {updateStatusMutation.isPending ? (
-                                <Spinner className="mr-2" />
-                            ) : (
-                                <CheckCircle2 className="size-4 mr-2" />
-                            )}
-                            Chấp nhận {isRefund && 'Hoàn tiền'}
-                        </Button>
+                    <SheetFooter className="p-6 border-t bg-muted/5 flex-row gap-2">
+                        {isRefund ? (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        disabled={updateStatusMutation.isPending}
+                                        className="flex-1"
+                                    >
+                                        {updateStatusMutation.isPending ? (
+                                            <Spinner className="mr-2" />
+                                        ) : (
+                                            <CheckCircle2 className="size-4 mr-2" />
+                                        )}
+                                        Chấp nhận Hoàn tiền
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Xác nhận hoàn tiền?</AlertDialogTitle>
+                                        <AlertDialogDescription className="space-y-4">
+                                            <div className="space-y-2">
+                                                <p className="font-medium text-foreground">Hành động này sẽ thực hiện:</p>
+                                                <ul className="list-disc pl-5 text-sm space-y-1">
+                                                    <li>Hủy quyền truy cập khóa học của người dùng ngay lập tức.</li>
+                                                    <li>
+                                                        Hoàn trả lại số <strong className="text-primary">Coin</strong> tương ứng (tỷ lệ 1:1 với VND) vào ví <strong className="text-primary">User Balance</strong>.
+                                                    </li>
+                                                    <li>Gửi email thông báo chính thức cho học viên.</li>
+                                                </ul>
+                                            </div>
+
+                                            {response && (
+                                                <div className="p-3 bg-muted rounded-md text-xs border">
+                                                    <span className="font-bold block mb-1 uppercase tracking-wider text-[10px] text-muted-foreground">Lời nhắn gửi kèm:</span>
+                                                    <p className="italic text-foreground">"{response}"</p>
+                                                </div>
+                                            )}
+
+                                            <p className="text-[11px] text-muted-foreground bg-amber-500/10 p-2 rounded border border-amber-500/20">
+                                                Lưu ý: Hệ thống không hoàn tiền mặt. Số dư Coin có thể được sử dụng để mua các khóa học khác trên nền tảng.
+                                            </p>
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={() => handleUpdateStatus(TicketStatus.APPROVED)}
+                                            className="bg-primary hover:bg-primary/90"
+                                        >
+                                            Xác nhận Hoàn tiền
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        ) : (
+                            <Button
+                                onClick={() => handleUpdateStatus(TicketStatus.APPROVED)}
+                                disabled={updateStatusMutation.isPending}
+                                className="flex-1"
+                            >
+                                {updateStatusMutation.isPending ? (
+                                    <Spinner className="mr-2" />
+                                ) : (
+                                    <CheckCircle2 className="size-4 mr-2" />
+                                )}
+                                Chấp nhận
+                            </Button>
+                        )}
                         <Button
                             variant="outline"
                             onClick={() => handleUpdateStatus(TicketStatus.REJECTED)}
                             disabled={updateStatusMutation.isPending}
+                            className="flex-1"
                         >
                             <XCircle className="size-4 mr-2" />
                             Từ chối

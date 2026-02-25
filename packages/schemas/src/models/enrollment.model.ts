@@ -20,6 +20,7 @@ export const enrollmentSchema = z.object({
     expiresAt: z.date().optional(),
     completedAt: z.date().optional(),
     paymentId: z.string().uuid().optional(),
+    orderId: z.string().uuid().optional(),
     couponAppliedId: z.string().uuid().optional(),
     finalPrice: z.number().min(0),
     isGift: z.boolean().default(false),

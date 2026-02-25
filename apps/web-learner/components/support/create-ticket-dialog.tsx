@@ -92,11 +92,17 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
 
     const onSubmit = async (values: CreateTicketFormValues) => {
         try {
+            const selectedEnrollment = (enrollments as any[]).find((en: any) => en.courseId === values.courseId);
+            const orderId = selectedEnrollment?.orderId;
+
             await createTicketMutation.mutateAsync({
                 type: values.type,
                 subject: values.subject,
                 description: values.description,
-                metadata: values.type === TicketType.REFUND ? { courseId: values.courseId } : {},
+                metadata: values.type === TicketType.REFUND ? {
+                    courseId: values.courseId,
+                    orderId: orderId
+                } : {},
             });
             toast.success('Yêu cầu của bạn đã được gửi thành công.');
             onOpenChange(false);
