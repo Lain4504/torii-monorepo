@@ -156,6 +156,17 @@ export function TicketDetailSheet({
                                         <div className="grid grid-cols-2 gap-3">
                                             <Item variant="outline" className="bg-muted/30">
                                                 <ItemContent>
+                                                    <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Mã đơn hàng</ItemTitle>
+                                                    <ItemDescription className="text-sm font-mono font-bold text-foreground">
+                                                        {metadata?.orderId ? `#${metadata.orderId.slice(0, 8).toUpperCase()}` : 'N/A'}
+                                                    </ItemDescription>
+                                                    {metadata?.orderId && (
+                                                        <span className="text-[9px] text-muted-foreground block truncate max-w-full font-mono">{metadata.orderId}</span>
+                                                    )}
+                                                </ItemContent>
+                                            </Item>
+                                            <Item variant="outline" className="bg-muted/30">
+                                                <ItemContent>
                                                     <ItemTitle className="text-[10px] uppercase tracking-widest text-muted-foreground">Tiến độ học</ItemTitle>
                                                     <ItemDescription className={cn(
                                                         "text-sm font-black",

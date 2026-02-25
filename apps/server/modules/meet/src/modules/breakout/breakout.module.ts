@@ -5,7 +5,7 @@ import { SharedModule } from '@server/shared';
 import { RoomModule } from '@server/meet/modules/room/room.module';
 import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
 import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.module';
-import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
+import { NatsModule } from '@server/meet/handlers/nats.module';
 
 @Module({
   imports: [

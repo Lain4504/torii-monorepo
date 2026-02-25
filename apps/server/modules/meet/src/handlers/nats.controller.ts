@@ -11,7 +11,7 @@
 
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy, Inject, forwardRef } from '@nestjs/common';
 import { NatsService } from './nats.service';
-import { WajlcAuthService } from '../../modules/auth/wajlc-auth.service';
+import { WajlcAuthService } from '../modules/auth/wajlc-auth.service';
 import { NatsUserService } from './nats-user.service';
 import { NatsAuthCalloutService } from './nats-auth-callout.service';
 import { RetentionPolicy, AckPolicy } from 'nats';
@@ -21,8 +21,8 @@ import {
     NatsMsgClientToServerSchema, NatsMsgClientToServerEvents,
     NatsMsgServerToClientEvents, AnalyticsDataMsgSchema
 } from '@workspace/protocol';
-import { RoomUserService } from '../../modules/room/room-user.service';
-import { AnalyticsService } from '../../modules/analytics/analytics.service';
+import { RoomUserService } from '../modules/room/room-user.service';
+import { AnalyticsService } from '../modules/analytics/analytics.service';
 import { AppConfigService } from '@server/shared';
 
 // Constants

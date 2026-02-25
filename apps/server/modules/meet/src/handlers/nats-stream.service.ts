@@ -5,7 +5,7 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsService } from '@server/meet/interfaces/nats/nats.service';
+import { NatsService } from '@server/meet/handlers/nats.service';
 import { AppConfigService } from '@server/shared';
 
 /**

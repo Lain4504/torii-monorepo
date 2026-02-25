@@ -1,8 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { STORAGE_SERVICE_TOKEN, IStorageService } from '../../interfaces/services/i-storage.service';
-import { STORAGE_REPOSITORY_TOKEN, IStorageRepository } from '../../interfaces/repositories/i-storage.repository';
+import { STORAGE_SERVICE_TOKEN, IStorageService } from '../interfaces/services/i-storage.service';
+import { STORAGE_REPOSITORY_TOKEN, IStorageRepository } from '../interfaces/repositories/i-storage.repository';
 import {
     StoragePresignedUrlRequestDTO,
     StorageConfirmUploadRequestDTO,

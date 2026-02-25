@@ -27,15 +27,15 @@ import {
     AppConfigService,
 } from '@server/shared';
 import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
-import { NatsStreamService } from '@server/meet/interfaces/nats/nats-stream.service';
-import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsStreamService } from '@server/meet/handlers/nats-stream.service';
+import { NatsRoomService } from '@server/meet/handlers/nats-room.service';
 import { WebhookNotifierService } from '@server/meet/infrastructure/webhook/webhook-notifier.service';
 import { RoomInfoService } from '@server/meet/modules/room/room-info.service';
 import { FileService } from '@server/meet/modules/file/file.service';
 import { acquireRoomCreationLockWithRetry } from '@server/meet/modules/room/room-lock.helper';
 
 import { RoomDurationService } from '@server/meet/modules/room/room-duration.service';
-import { NatsRoomEventsService } from '@server/meet/interfaces/nats/nats-room-events.service';
+import { NatsRoomEventsService } from '@server/meet/handlers/nats-room-events.service';
 
 /**
  * RoomCreateService handles the creation of new rooms

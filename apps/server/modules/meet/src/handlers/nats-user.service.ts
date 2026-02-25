@@ -20,10 +20,10 @@ import {
     NatsUserMetadataUpdateSchema,
 } from '@workspace/protocol';
 import { toJsonString } from '@bufbuild/protobuf';
-import { NatsService } from '@server/meet/interfaces/nats/nats.service';
-import { NatsConsumerService } from '@server/meet/interfaces/nats/nats-consumer.service';
-import { NatsRoomService, ROOM_STATUS_ENDED } from '@server/meet/interfaces/nats/nats-room.service';
-import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { NatsService } from '@server/meet/handlers/nats.service';
+import { NatsConsumerService } from '@server/meet/handlers/nats-consumer.service';
+import { NatsRoomService, ROOM_STATUS_ENDED } from '@server/meet/handlers/nats-room.service';
+import { NatsSystemEventsService } from '@server/meet/handlers/nats-system-events.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 

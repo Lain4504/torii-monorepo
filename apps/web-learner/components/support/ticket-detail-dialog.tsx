@@ -115,6 +115,24 @@ export function TicketDetailDialog({ open, onOpenChange, ticket, isLoading }: Ti
                                     </div>
                                 </div>
 
+                                {ticket.type === 'REFUND' && ticket.metadata && (
+                                    <div className="space-y-3">
+                                        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                                            Chi tiết hoàn tiền
+                                        </h4>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="p-4 rounded-xl border bg-amber-500/5 border-amber-500/10 space-y-1">
+                                                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Khóa học</span>
+                                                <p className="text-sm font-bold text-foreground">{(ticket.metadata as any).courseTitle || 'N/A'}</p>
+                                            </div>
+                                            <div className="p-4 rounded-xl border bg-indigo-500/5 border-indigo-500/10 space-y-1">
+                                                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Tiến độ lúc yêu cầu</span>
+                                                <p className="text-sm font-bold text-foreground">{(ticket.metadata as any).progress || 0}%</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                                         Phản hồi từ hệ thống

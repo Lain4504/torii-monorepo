@@ -2,9 +2,20 @@ import { Controller, Inject, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import type { INotificationService } from '@server/communication/interfaces/services';
 import { NOTIFICATION_SERVICE_TOKEN } from '@server/communication/interfaces/services';
-import type { NotificationEventData } from '@server/communication/interfaces/events';
 import { Requester } from '@workspace/schemas';
 
+/**
+ * Notification Event Data (for NATS payload)
+ */
+export interface NotificationEventData {
+    recipientId: string;
+    type: 'COMMENT_REPLY' | 'DAILY_SUMMARY';
+    payload: {
+        title: string;
+        body: string;
+        metadata: Record<string, any>;
+    };
+}
 /**
  * Notification NATS Message Handler
  * Handles event-driven notification creation via NATS

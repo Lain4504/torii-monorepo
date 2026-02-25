@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
-import { NatsUserService } from '@server/meet/interfaces/nats/nats-user.service';
+import { NatsRoomService } from '@server/meet/handlers/nats-room.service';
+import { NatsUserService } from '@server/meet/handlers/nats-user.service';
 import { RoomEndService } from '@server/meet/modules/room/room-end.service';
 import { RoomInfoService } from '@server/meet/modules/room/room-info.service';
 import { RoomDurationService } from '@server/meet/modules/room/room-duration.service';

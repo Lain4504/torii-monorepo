@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WajlcAuthService, WajlcTokenClaims } from '@server/meet/modules/auth/wajlc-auth.service';
-import { NatsUserInfoService } from '@server/meet/interfaces/nats/nats-user-info.service';
+import { NatsUserInfoService } from '@server/meet/handlers/nats-user-info.service';
 import { AppConfigService } from '@server/shared';
 import * as jwt from 'jsonwebtoken';
 

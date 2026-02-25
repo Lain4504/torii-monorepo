@@ -6,7 +6,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { InsightsService } from './insights.service';
 import { RedisInsightsService } from '@server/meet/infrastructure/redis/redis-insights.service';
-import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
+import { NatsModule } from '@server/meet/handlers/nats.module';
 import { ArtifactsModule } from '@server/meet/modules/artifacts/artifacts.module';
 import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
 import { AppConfigService } from '@server/shared';

@@ -15,7 +15,8 @@ import {
     ShoppingBag,
     Gift,
     Award,
-    Info
+    Info,
+    RotateCcw,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
@@ -210,9 +211,11 @@ export default function WalletPage() {
                                     <Item key={tx.id} variant="outline" className="p-4 hover:border-primary/20 transition-all border-2">
                                         <ItemMedia className={cn(
                                             "w-12 h-12 rounded-xl flex items-center justify-center border",
-                                            tx.amount > 0 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-orange-50 text-orange-600 border-orange-100"
+                                            tx.type === 'REFUND' ? "bg-amber-50 text-amber-600 border-amber-100" :
+                                                tx.amount > 0 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-orange-50 text-orange-600 border-orange-100"
                                         )}>
-                                            {tx.amount > 0 ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                                            {tx.type === 'REFUND' ? <RotateCcw className="w-5 h-5" /> :
+                                                tx.amount > 0 ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
                                         </ItemMedia>
                                         <ItemContent className="ml-2">
                                             <ItemTitle className="text-base font-bold">{tx.description || "Giao dịch ví"}</ItemTitle>
@@ -228,8 +231,14 @@ export default function WalletPage() {
                                             )}>
                                                 {tx.amount > 0 ? "+" : ""}{formatNumber(tx.amount)}
                                             </span>
-                                            <Badge variant="outline" className="text-[8px] font-black uppercase tracking-[0.2em] opacity-60">
-                                                {tx.type}
+                                            <Badge
+                                                variant="outline"
+                                                className={cn(
+                                                    "text-[8px] font-black uppercase tracking-[0.2em]",
+                                                    tx.type === 'REFUND' ? "bg-amber-500/10 text-amber-600 border-amber-500/20" : "opacity-60"
+                                                )}
+                                            >
+                                                {tx.type === 'REFUND' ? 'Hoàn tiền' : tx.type}
                                             </Badge>
                                         </ItemActions>
                                     </Item>

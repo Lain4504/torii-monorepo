@@ -4,11 +4,11 @@
 
 import { Module, forwardRef } from '@nestjs/common';
 import { ArtifactsService } from './artifacts.service';
-import { ArtifactsHandler } from '@server/meet/interfaces/nats/artifacts.handler';
+import { ArtifactsHandler } from '@server/meet/handlers/artifacts.handler';
 import { SharedModule } from '@server/shared';
 import { WebhookModule } from '@server/meet/infrastructure/webhook/webhook.module';
 
-import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
+import { NatsModule } from '@server/meet/handlers/nats.module';
 import { RedisModule } from '@server/meet/infrastructure/redis/redis.module';
 
 @Module({

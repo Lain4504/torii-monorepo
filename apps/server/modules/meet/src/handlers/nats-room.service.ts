@@ -8,10 +8,10 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import type { RoomMetadata, NatsKvRoomInfo } from '@workspace/protocol';
 import { NatsKvRoomInfoSchema, RoomMetadataSchema, NatsMsgServerToClientEvents, RoomUploadedFileMetadataSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
-import { NatsService } from '@server/meet/interfaces/nats/nats.service';
-import { NatsStreamService } from '@server/meet/interfaces/nats/nats-stream.service';
-import { NatsUserService } from '@server/meet/interfaces/nats/nats-user.service';
-import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { NatsService } from '@server/meet/handlers/nats.service';
+import { NatsStreamService } from '@server/meet/handlers/nats-stream.service';
+import { NatsUserService } from '@server/meet/handlers/nats-user.service';
+import { NatsSystemEventsService } from '@server/meet/handlers/nats-system-events.service';
 
 // Room status constants
 export const ROOM_STATUS_CREATED = 'created';

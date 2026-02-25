@@ -6,10 +6,10 @@
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import type { RoomEndReq } from '@workspace/protocol';
-import { NatsRoomService, ROOM_STATUS_ENDED, ROOM_STATUS_TRIGGERED_END } from '@server/meet/interfaces/nats/nats-room.service';
-import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
-import { NatsStreamService } from '@server/meet/interfaces/nats/nats-stream.service';
-import { NatsUserService } from '@server/meet/interfaces/nats/nats-user.service';
+import { NatsRoomService, ROOM_STATUS_ENDED, ROOM_STATUS_TRIGGERED_END } from '@server/meet/handlers/nats-room.service';
+import { NatsSystemEventsService } from '@server/meet/handlers/nats-system-events.service';
+import { NatsStreamService } from '@server/meet/handlers/nats-stream.service';
+import { NatsUserService } from '@server/meet/handlers/nats-user.service';
 import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
 import { RedisRoomService } from '@server/meet/infrastructure/redis/redis-room.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';

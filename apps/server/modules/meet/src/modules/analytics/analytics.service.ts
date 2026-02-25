@@ -25,10 +25,10 @@ import {
     RoomArtifactMetadataSchema,
 } from '@workspace/protocol';
 import { RedisAnalyticsService } from '@server/meet/infrastructure/redis/redis-analytics.service';
-import { NatsService } from '@server/meet/interfaces/nats/nats.service';
+import { NatsService } from '@server/meet/handlers/nats.service';
 import { PrismaService, AppConfigService } from '@server/shared';
 import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
-import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsRoomService } from '@server/meet/handlers/nats-room.service';
 import { ArtifactsService } from '@server/meet/modules/artifacts/artifacts.service';
 import { WebhookNotifierService } from '@server/meet/infrastructure/webhook/webhook-notifier.service';
 

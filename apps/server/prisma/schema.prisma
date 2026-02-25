@@ -1478,6 +1478,7 @@ enum OrderType {
   subscription
   top_up
   gift
+  refund
 }
 
 // Order - Business entity representing a purchase intent (Invoice)

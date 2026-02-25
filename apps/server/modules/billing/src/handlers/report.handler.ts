@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ReportService } from '../../modules/report/report.service';
+import { ReportService } from '@server/billing/modules/report/report.service';
 
 @Controller()
 export class ReportHandler {

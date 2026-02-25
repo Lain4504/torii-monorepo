@@ -878,7 +878,8 @@ export class OrderService implements IOrderService {
             throw new BadRequestException('Only completed orders can be refunded');
         }
 
-        const updated = await this.orderRepository.update(id, {
+        // 1. Update original order status to REFUNDED (to mark it as net-zero)
+        await this.orderRepository.update(id, {
             status: OrderStatus.REFUNDED as any,
             metadata: {
                 ...(order.metadata as Record<string, any>),
@@ -887,10 +888,29 @@ export class OrderService implements IOrderService {
             }
         });
 
+        // 2. Create a NEW Order of type REFUND to track the historic return event
+        const refundOrder = await this.orderRepository.create({
+            user: { connect: { id: order.userId } },
+            amount: order.amount,
+            currency: order.currency,
+            paymentMethod: order.paymentMethod,
+            paymentGateway: order.paymentGateway,
+            status: OrderStatus.COMPLETED as any, // The refund "transaction" itself is successful
+            orderType: 'refund' as any,
+            transactionId: `REFUND-${order.transactionId || order.id.slice(0, 8)}`,
+            description: `Hoàn tiền: ${order.description}`,
+            metadata: {
+                originalOrderId: order.id,
+                refundReason: reason,
+                courseId: (order.metadata as any)?.courseId
+            },
+            completedAt: new Date(),
+        });
+
         const metadata = order.metadata as Record<string, any>;
         const courseId = metadata?.courseId;
 
-        // 1. Thu hồi quyền truy cập (Un-enroll)
+        // 3. Un-enroll and Add Balance
         if (courseId) {
             try {
                 const deletedEnrollment = await lastValueFrom(
@@ -900,7 +920,6 @@ export class OrderService implements IOrderService {
                     })
                 );
 
-                // 2. Hoàn tiền nếu là giao dịch có phí
                 if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
                     await lastValueFrom(
                         this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
@@ -908,24 +927,28 @@ export class OrderService implements IOrderService {
                             amount: Math.round(Number(deletedEnrollment.finalPrice)),
                             reason: `Hoàn tiền đơn hàng #${order.id}. ${reason || ''}`,
                             type: 'REFUND',
-                            metadata: { orderId: order.id }
+                            metadata: {
+                                orderId: order.id,
+                                refundOrderId: refundOrder.id
+                            }
                         })
                     );
                 }
             } catch (error: any) {
                 this.logger.error(`Failed to process un-enrollment/refund logic properly: ${error.message}`);
-                // We still proceed since order status is already updated
+                // Proceed since order status is updated
             }
         }
 
-        // 3. Thông báo qua NATS
+        // 4. Emit event
         this.natsClient.emit({ cmd: 'billing.order.refunded' }, {
             orderId: id,
+            refundOrderId: refundOrder.id,
             userId: order.userId,
             reason
         });
 
-        return this.toOrderDto(updated);
+        return this.toOrderDto(refundOrder);
     }
 
     /**
