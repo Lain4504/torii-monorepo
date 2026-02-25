@@ -45,7 +45,7 @@ export class ExamAdminController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.exam-admin.findOne' },
+                    { cmd: 'learning.exam-admin.findById' },
                     { id }
                 )
             );

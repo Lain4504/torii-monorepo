@@ -16,8 +16,8 @@ export class QuestionHandler {
         return this.questionService.findAll(query);
     }
 
-    @MessagePattern({ cmd: 'learning.question.findOne' })
-    async findOne(@Payload() data: { id: string }) {
+    @MessagePattern({ cmd: 'learning.question.findById' })
+    async findById(@Payload() data: { id: string }) {
         return this.questionService.findOne(data.id);
     }
 

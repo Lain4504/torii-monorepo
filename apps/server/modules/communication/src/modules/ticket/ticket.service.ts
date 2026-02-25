@@ -88,7 +88,7 @@ export class TicketService implements ITicketService {
 
                 // Get course title for admin visibility
                 const courseResult = await firstValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId })
+                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: courseId })
                 ).catch(() => null);
 
                 ticketMetadata = {
@@ -214,11 +214,11 @@ export class TicketService implements ITicketService {
                     }
 
                     // Get course title for email if needed
-                    const courseResult = await firstValueFrom(this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId })).catch(() => null);
+                    const courseResult = await firstValueFrom(this.natsClient.send({ cmd: 'learning.course.findById' }, { id: courseId })).catch(() => null);
                     finalCourseName = courseResult?.title || finalCourseName;
 
                     // Fetch user for email
-                    const userResult = await firstValueFrom(this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: userId })).catch(() => null);
+                    const userResult = await firstValueFrom(this.natsClient.send({ cmd: 'identity.users.findById' }, { id: userId })).catch(() => null);
 
                     // Send Email Notification
                     try {

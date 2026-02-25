@@ -21,7 +21,7 @@ export class TicketHandler {
         return this.ticketService.getTickets(query);
     }
 
-    @MessagePattern({ cmd: 'communication.ticket.findOne' })
+    @MessagePattern({ cmd: 'communication.ticket.findById' })
     async getTicketById(@Payload() payload: { id: string }) {
         return this.ticketService.getTicketById(payload.id);
     }

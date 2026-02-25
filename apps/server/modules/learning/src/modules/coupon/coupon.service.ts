@@ -435,7 +435,7 @@ export class CouponService implements ICouponService {
             let course: any;
             try {
                 course = await firstValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: request.courseId })
+                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: request.courseId })
                 );
             } catch (error) {
                 this.logger.error(`Failed to fetch course ${request.courseId}`, error);

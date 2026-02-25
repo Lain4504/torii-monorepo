@@ -30,8 +30,8 @@ export class CourseHandler {
         return this.courseService.getByType(data.type);
     }
 
-    @MessagePattern({ cmd: 'learning.course.findOne' })
-    async findOne(@Payload() data: { id: string, requester?: Requester }) {
+    @MessagePattern({ cmd: 'learning.course.findById' })
+    async findById(@Payload() data: { id: string, requester?: Requester }) {
         return this.courseService.findOne(data.id);
     }
 

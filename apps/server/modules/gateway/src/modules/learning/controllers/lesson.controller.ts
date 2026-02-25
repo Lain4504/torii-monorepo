@@ -113,7 +113,7 @@ export class LessonController {
             const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.lesson.findOne' },
+                    { cmd: 'learning.lesson.findById' },
                     { id, requester: req.requester }
                 )
             );

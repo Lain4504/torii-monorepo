@@ -36,8 +36,8 @@ export class ReviewHandler {
         return this.reviewService.create(userId, courseId, dto);
     }
 
-    @MessagePattern({ cmd: 'learning.review.findOne' })
-    async findOne(@Payload() data: { id: string }) {
+    @MessagePattern({ cmd: 'learning.review.findById' })
+    async findById(@Payload() data: { id: string }) {
         return this.reviewService.findOne(data.id);
     }
 }

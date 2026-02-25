@@ -18,9 +18,14 @@ export class UsersHandler {
         return this.usersService.findAll(data);
     }
 
-    @MessagePattern({ cmd: 'identity.users.findOne' })
-    async findOne(@Payload() data: { id: string }) {
-        return { user: await this.usersService.findOne(data.id) };
+    @MessagePattern({ cmd: 'identity.users.findById' })
+    async findById(@Payload() data: { id: string }) {
+        return { user: await this.usersService.findById(data.id) };
+    }
+
+    @MessagePattern({ cmd: 'identity.users.findByEmail' })
+    async findByEmail(@Payload() data: { email: string }) {
+        return { user: await this.usersService.findByEmail(data.email) };
     }
 
     @MessagePattern({ cmd: 'identity.users.create' })

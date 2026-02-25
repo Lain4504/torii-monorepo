@@ -14,8 +14,8 @@ export class WishlistHandler {
         return this.wishlistService.findAll(query);
     }
 
-    @MessagePattern({ cmd: 'learning.wishlist.findOne' })
-    async findOne(@Payload() data: { id: string }) {
+    @MessagePattern({ cmd: 'learning.wishlist.findById' })
+    async findById(@Payload() data: { id: string }) {
         return this.wishlistService.findOne(data.id);
     }
 

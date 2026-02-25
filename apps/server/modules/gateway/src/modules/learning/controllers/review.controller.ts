@@ -48,7 +48,7 @@ export class ReviewController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.review.findOne' },
+                    { cmd: 'learning.review.findById' },
                     { id }
                 )
             );

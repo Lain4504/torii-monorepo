@@ -102,7 +102,7 @@ export class EnrollmentController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.enrollment.findOne' },
+                    { cmd: 'learning.enrollment.findById' },
                     { id }
                 )
             );

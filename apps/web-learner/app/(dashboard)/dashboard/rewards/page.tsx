@@ -188,13 +188,16 @@ export default function RewardsPage() {
                         ))}
                     </div>
                 ) : (
-                    <Empty>
+                    <Empty className="py-12 border-2 border-dashed bg-muted/5">
                         <EmptyMedia variant="icon" className="bg-muted/20">
                             <Ticket className="size-8 text-muted-foreground/30" />
                         </EmptyMedia>
                         <EmptyContent>
-                            <EmptyTitle>Chưa có mã giảm giá</EmptyTitle>
-                            <EmptyDescription>Hãy tích lũy điểm và đổi quà nhé!</EmptyDescription>
+                            <EmptyTitle>Bạn chưa có mã giảm giá</EmptyTitle>
+                            <EmptyDescription>
+                                Các mã giảm giá bạn đã đổi từ điểm thưởng sẽ xuất hiện tại đây.
+                                <br />Hãy tích lũy điểm và bắt đầu mua sắm nhé!
+                            </EmptyDescription>
                         </EmptyContent>
                     </Empty>
                 )}

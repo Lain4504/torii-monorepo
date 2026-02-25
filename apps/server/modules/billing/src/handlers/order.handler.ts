@@ -27,8 +27,8 @@ export class OrderHandler {
         return this.orderService.findAllPayments(query);
     }
 
-    @MessagePattern({ cmd: 'billing.order.findOne' })
-    async findOne(@Payload() data: { id: string }) {
+    @MessagePattern({ cmd: 'billing.order.findById' })
+    async findById(@Payload() data: { id: string }) {
         return this.orderService.findOne(data.id);
     }
 

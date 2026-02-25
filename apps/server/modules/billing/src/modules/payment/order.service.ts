@@ -296,7 +296,7 @@ export class OrderService implements IOrderService {
             // Fetch course via NATS
             try {
                 course = await lastValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId })
+                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: courseId })
                 );
             } catch (error: any) {
                 this.logger.error(`Error calling learning.course.findOne: ${error.message}`);
@@ -349,7 +349,7 @@ export class OrderService implements IOrderService {
             try {
                 // Verify recipient exists
                 const identityResponse = await lastValueFrom(
-                    this.natsClient.send({ cmd: 'identity.users.findOne' }, { email: recipientEmail })
+                    this.natsClient.send({ cmd: 'identity.users.findByEmail' }, { email: recipientEmail })
                 );
 
                 if (!identityResponse || !identityResponse.user) {
@@ -655,7 +655,7 @@ export class OrderService implements IOrderService {
                     // Emit order_payment_success event
                     try {
                         const course = await lastValueFrom(
-                            this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: metadata.courseId })
+                            this.natsClient.send({ cmd: 'learning.course.findById' }, { id: metadata.courseId })
                         );
                         const user = await this.orderRepository.getUserById(order.userId);
 

@@ -71,7 +71,7 @@ export class EnrollmentService implements IEnrollmentService {
             // Fetch User
             try {
                 const response = await lastValueFrom(
-                    this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: enrollment.userId })
+                    this.natsClient.send({ cmd: 'identity.users.findById' }, { id: enrollment.userId })
                 );
                 const user = response?.user;
 
@@ -341,7 +341,7 @@ export class EnrollmentService implements IEnrollmentService {
                 try {
                     this.logger.log(`Fetching user ${userId} for enrollment notification`);
                     const response = await lastValueFrom(
-                        this.natsClient.send({ cmd: 'identity.users.findOne' }, { id: userId })
+                        this.natsClient.send({ cmd: 'identity.users.findById' }, { id: userId })
                     );
 
                     const user = response?.user;

@@ -2,11 +2,11 @@ import { Controller, UsePipes } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { CERTIFICATE_SERVICE_TOKEN, ICertificateService } from '@server/learning/interfaces/services';
-import { 
-    CertificateQueryDTO, 
+import {
+    CertificateQueryDTO,
     certificateQueryDTOSchema,
     CertificateIssueDTO,
-    certificateIssueDTOSchema 
+    certificateIssueDTOSchema
 } from '@workspace/schemas';
 import { ZodValidationPipe } from '@server/shared';
 
@@ -22,8 +22,8 @@ export class CertificateHandler {
         return this.certificateService.findAll(query);
     }
 
-    @MessagePattern({ cmd: 'learning.certificate.findOne' })
-    async findOne(@Payload() data: { id: string }) {
+    @MessagePattern({ cmd: 'learning.certificate.findById' })
+    async findById(@Payload() data: { id: string }) {
         return this.certificateService.findOne(data.id);
     }
 

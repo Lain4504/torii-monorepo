@@ -130,7 +130,7 @@ export class OrderController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'billing.order.findOne' },
+                    { cmd: 'billing.order.findById' },
                     { id }
                 )
             );

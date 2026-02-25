@@ -53,7 +53,7 @@ export class UsersController {
     async findOne(@Param('id') id: string) {
         try {
             const user = await firstValueFrom(
-                this.natsClient.send({ cmd: 'identity.users.findOne' }, { id }),
+                this.natsClient.send({ cmd: 'identity.users.findById' }, { id }),
             );
             return successResponse({ user });
         } catch (error: unknown) {

@@ -204,7 +204,7 @@ describe('TicketService (Exhaustive)', () => {
                     if (cmd === 'billing.order.findAll') return of({ data: [{ id: ORDER_ID, metadata: { courseId: COURSE_ID } }] });
                     if (cmd === 'learning.enrollment.delete') return of({ id: 'en-1', finalPrice: 1000, senderId: USER_ID });
                     if (cmd === 'billing.user_balance.add') return of({ success: true });
-                    if (cmd === 'identity.users.findOne') return of({ user: { email: 'test@user.com', displayName: 'User' } });
+                    if (cmd === 'identity.users.findById') return of({ user: { email: 'test@user.com', displayName: 'User' } });
                     if (cmd === 'learning.course.findOne') return of({ title: 'Course Name' });
                     return of({});
                 });
@@ -233,7 +233,7 @@ describe('TicketService (Exhaustive)', () => {
 
             it('should skip email if user results verify email is missing', async () => {
                 natsClient.send.mockImplementation((pattern: any) => {
-                    if (pattern.cmd === 'identity.users.findOne') return of({ user: {} }); // No email
+                    if (pattern.cmd === 'identity.users.findById') return of({ user: {} }); // No email
                     return of({ isEnrolled: true, enrollment: { enrollmentDate: new Date() }, finalPrice: 0 });
                 });
                 await service.updateTicketStatus(TICKET_ID, 'staff-1', { status: TicketStatus.APPROVED });
@@ -254,7 +254,7 @@ describe('TicketService (Exhaustive)', () => {
             it('should handle NATS fetch user/course details failure gracefully', async () => {
                 natsClient.send.mockImplementation((pattern: any) => {
                     const cmd = pattern.cmd;
-                    if (cmd === 'identity.users.findOne' || cmd === 'learning.course.findOne') {
+                    if (cmd === 'identity.users.findById' || cmd === 'learning.course.findOne') {
                         return throwError(() => new Error('NATS Fetch Fail'));
                     }
                     if (cmd === 'learning.enrollment.check') return of({ isEnrolled: true, enrollment: { enrollmentDate: new Date() } });
@@ -263,7 +263,7 @@ describe('TicketService (Exhaustive)', () => {
                 });
 
                 await service.updateTicketStatus(TICKET_ID, 'staff-1', { status: TicketStatus.APPROVED });
-                
+
                 expect(Logger.prototype.error).toHaveBeenCalledWith(expect.stringContaining('Failed to fetch user/course details via NATS'));
                 expect(emailService.sendEmail).not.toHaveBeenCalled();
                 expect(ticketRepository.updateStatus).toHaveBeenCalled(); // Flow still completes

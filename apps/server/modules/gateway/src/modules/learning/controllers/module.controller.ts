@@ -92,7 +92,7 @@ export class ModuleController {
     async findOne(@Param('id') id: string) {
         try {
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.module.findOne' }, { id })
+                this.natsClient.send({ cmd: 'learning.module.findById' }, { id })
             );
             return successResponse({ module: result });
         } catch (error: any) {

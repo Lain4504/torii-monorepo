@@ -51,7 +51,7 @@ export class CertificateController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.certificate.findOne' },
+                    { cmd: 'learning.certificate.findById' },
                     { id }
                 )
             );

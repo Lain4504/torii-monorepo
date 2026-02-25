@@ -45,7 +45,7 @@ export class WishlistController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.wishlist.findOne' },
+                    { cmd: 'learning.wishlist.findById' },
                     { id }
                 )
             );

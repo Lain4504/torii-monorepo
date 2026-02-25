@@ -29,8 +29,8 @@ export class ModuleHandler {
         return this.moduleService.findByCourseId(data.courseId, data.requester);
     }
 
-    @MessagePattern({ cmd: 'learning.module.findOne' })
-    async findOne(@Payload() data: { id: string }) {
+    @MessagePattern({ cmd: 'learning.module.findById' })
+    async findById(@Payload() data: { id: string }) {
         return this.moduleService.findOne(data.id);
     }
 

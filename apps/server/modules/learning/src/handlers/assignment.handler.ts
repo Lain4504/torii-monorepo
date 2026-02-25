@@ -33,8 +33,8 @@ export class AssignmentHandler {
     return this.assignmentService.findAll(requester, query);
   }
 
-  @MessagePattern({ cmd: 'learning.assignment.findOne' })
-  async findOne(@Payload() data: { id: string }) {
+  @MessagePattern({ cmd: 'learning.assignment.findById' })
+  async findById(@Payload() data: { id: string }) {
     const { id } = data;
     return this.assignmentService.findOne(id);
   }

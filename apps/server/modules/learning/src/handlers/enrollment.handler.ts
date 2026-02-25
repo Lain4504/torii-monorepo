@@ -15,8 +15,8 @@ export class EnrollmentHandler {
         return this.enrollmentService.findAll(query);
     }
 
-    @MessagePattern({ cmd: 'learning.enrollment.findOne' })
-    async findOne(@Payload() data: { id: string }) {
+    @MessagePattern({ cmd: 'learning.enrollment.findById' })
+    async findById(@Payload() data: { id: string }) {
         return this.enrollmentService.findOne(data.id);
     }
 

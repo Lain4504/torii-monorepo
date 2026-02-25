@@ -146,10 +146,10 @@ export default function WalletPage() {
                         </div>
                         <div className="mt-6 flex gap-3">
                             <Button
-                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6"
+                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 shadow-lg shadow-primary/20"
                                 onClick={() => setIsTopUpOpen(true)}
                             >
-                                <Zap className="w-3 h-3 mr-2" /> Nạp thêm ngay
+                                <Zap className="w-3 h-3 mr-2 fill-current" /> Nạp thêm Coins (PayOS)
                             </Button>
                         </div>
                     </CardContent>
@@ -176,10 +176,10 @@ export default function WalletPage() {
                             <Button
                                 asChild
                                 variant="outline"
-                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 border-indigo-500/20 text-indigo-600 hover:bg-indigo-50"
+                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 border-indigo-500/30 text-indigo-600 hover:bg-indigo-50 shadow-sm"
                             >
                                 <Link href="/dashboard/rewards">
-                                    <Gift className="w-3 h-3 mr-2" /> Đổi phần thưởng
+                                    <ShoppingBag className="w-3 h-3 mr-2" /> Ghé Cửa hàng quà tặng
                                 </Link>
                             </Button>
                         </div>
@@ -486,6 +486,9 @@ export default function WalletPage() {
                                         Cổng PayOS (Ngân hàng/QR)
                                         <Info className="size-3" />
                                     </span>
+                                </div>
+                                <div className="text-[9px] text-center text-muted-foreground italic font-medium pt-2">
+                                    Bạn sẽ được chuyển đến trang thanh toán an toàn của PayOS.
                                 </div>
                             </div>
                         </FieldGroup>

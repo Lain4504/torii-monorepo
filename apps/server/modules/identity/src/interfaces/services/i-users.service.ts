@@ -28,12 +28,20 @@ export interface IUsersService {
     findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<UserResponseDTO>>;
 
     /**
-     * Find one user by ID
-     * @param userId - The user's unique identifier
+     * Find user by ID
+     * @param id - The user's unique identifier
      * @returns The user data
      * @throws NotFoundException if user not found
      */
-    findOne(userId: string): Promise<UserResponseDTO>;
+    findById(id: string): Promise<UserResponseDTO>;
+
+    /**
+     * Find user by email
+     * @param email - The user's email
+     * @returns The user data
+     * @throws NotFoundException if user not found
+     */
+    findByEmail(email: string): Promise<UserResponseDTO>;
 
     /**
      * Create a new user (admin only)

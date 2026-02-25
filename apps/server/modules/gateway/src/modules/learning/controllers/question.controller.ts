@@ -46,7 +46,7 @@ export class QuestionController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.question.findOne' },
+                    { cmd: 'learning.question.findById' },
                     { id }
                 )
             );

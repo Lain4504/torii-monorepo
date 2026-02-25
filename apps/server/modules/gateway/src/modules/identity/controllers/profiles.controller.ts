@@ -23,7 +23,7 @@ export class ProfilesController {
     async findOne(@Param('id') id: string) {
         try {
             const response = await firstValueFrom(
-                this.natsClient.send({ cmd: 'identity.users.findOne' }, { id }),
+                this.natsClient.send({ cmd: 'identity.users.findById' }, { id }),
             );
             const user = response?.user;
 

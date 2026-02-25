@@ -21,8 +21,8 @@ export class CouponHandler {
         return this.couponService.findAll(query);
     }
 
-    @MessagePattern({ cmd: 'learning.coupon.findOne' })
-    async findOne(@Payload() data: { id: string }) {
+    @MessagePattern({ cmd: 'learning.coupon.findById' })
+    async findById(@Payload() data: { id: string }) {
         return this.couponService.findOne(data.id);
     }
 

@@ -52,7 +52,7 @@ export class CouponController {
     @Permissions('coupon.manage')
     async findOne(@Param('id', ParseUUIDPipe) id: string) {
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.coupon.findOne' }, { id })
+            this.natsClient.send({ cmd: 'learning.coupon.findById' }, { id })
         );
         return successResponse({ coupon: result });
     }

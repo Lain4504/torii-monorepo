@@ -23,7 +23,7 @@ export class CouponHandler {
         if (data.courseId) {
             try {
                 const course = await lastValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: data.courseId })
+                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: data.courseId })
                 );
                 if (course && course.price) {
                     orderAmount = Number(course.price);
