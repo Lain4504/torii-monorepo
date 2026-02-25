@@ -23,7 +23,7 @@ import { CertificateModule } from '@server/learning/modules/certificate/certific
 // Community Modules
 import { BlogModule } from '@server/learning/modules/blog/blog.module';
 import { CommentModule } from '@server/learning/modules/comment/comment.module';
-import { FeedModule } from '@server/learning/modules/feed/feed.module';
+import { DiscussionModule } from '@server/learning/modules/discussion/discussion.module';
 
 // Assessment Modules
 import { QuestionModule } from '@server/learning/modules/question/question.module';
@@ -55,7 +55,7 @@ import { ReviewHandler } from '@server/learning/handlers/review.handler';
 import { WishlistHandler } from '@server/learning/handlers/wishlist.handler';
 import { BlogHandler } from '@server/learning/handlers/blog.handler';
 import { CommentHandler } from '@server/learning/handlers/comment.handler';
-import { FeedHandler } from '@server/learning/handlers/feed.handler';
+import { DiscussionHandler } from '@server/learning/handlers/discussion.handler';
 import { FlashcardDeckHandler } from '@server/learning/handlers/flashcard-deck.handler';
 import { FlashcardHandler } from '@server/learning/handlers/flashcard.handler';
 import { FlashcardReviewHandler } from '@server/learning/handlers/flashcard-review.handler';
@@ -68,9 +68,11 @@ import { AssignmentHandler } from '@server/learning/handlers/assignment.handler'
 import { SubmissionHandler } from '@server/learning/handlers/submission.handler';
 import { CertificateHandler } from '@server/learning/handlers/certificate.handler';
 import { NotebookHandler } from '@server/learning/handlers/notebook.handler';
+import { CartHandler } from '@server/learning/handlers/cart.handler';
 
 import { AssignmentModule } from '@server/learning/modules/assignment/assignment.module';
 import { SubmissionModule } from '@server/learning/modules/submission/submission.module';
+import { CartModule } from '@server/learning/modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -95,11 +97,12 @@ import { SubmissionModule } from '@server/learning/modules/submission/submission
     AssignmentModule,
     SubmissionModule,
     CertificateModule,
+    CartModule,
 
     // Community Modules
     BlogModule,
     CommentModule,
-    FeedModule,
+    DiscussionModule,
 
     // Assessment Modules
     QuestionModule,
@@ -132,7 +135,7 @@ import { SubmissionModule } from '@server/learning/modules/submission/submission
     WishlistHandler,
     BlogHandler,
     CommentHandler,
-    FeedHandler,
+    DiscussionHandler,
     FlashcardDeckHandler,
     FlashcardHandler,
     FlashcardReviewHandler,
@@ -145,6 +148,7 @@ import { SubmissionModule } from '@server/learning/modules/submission/submission
     SubmissionHandler,
     CertificateHandler,
     NotebookHandler,
+    CartHandler,
   ],
   providers: [
     {

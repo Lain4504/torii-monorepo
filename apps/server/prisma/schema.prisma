@@ -59,8 +59,12 @@ model Course {
   updatedAt        DateTime     @default(now()) @updatedAt @map("updated_at")
   deletedAt        DateTime?    @map("deleted_at")
 
+  trialDays            Int?         @map("trial_days")                // Số ngày học thử
+  maxTrialLessons      Int?         @map("max_trial_lessons")         // Giới hạn số bài học thử
+  
   // Relations
   modules      Module[]
+  discussions   DiscussionTopic[]
   wishlists    Wishlist[]
   reviews      Review[]
   quizzes      Quiz[]
@@ -605,8 +609,7 @@ model User {
   scheduleRequests  LiveSessionScheduleRequest[] @relation("LecturerScheduleRequests")
 
   // QA Relations
-  feeds           Feed[]
-  feedLikes       FeedUserLike[]
+  discussions     DiscussionTopic[]
   commentLikes    CommentLike[]
   // Ticket Relations
   tickets         Ticket[]         @relation("UserTickets")
@@ -616,6 +619,7 @@ model User {
   balanceTransactions   BalanceTransaction[]
   gamificationHistories GamificationHistory[]
   notebooks             Notebook[]
+  cart                  Cart?
 
   @@index([email])
   @@index([role])
@@ -1092,7 +1096,7 @@ model Blog {
 
 enum CommentTargetType {
   BLOG
-  FEED
+  DISCUSSION
   LESSON
 }
 
@@ -1133,42 +1137,40 @@ model CommentTarget {
   @@map("comment_targets")
 }
 
-// Feed - Community Questions/Posts (separate from Blog Posts)
-model Feed {
+// ============================================
+// DISCUSSION SYSTEM (Replaces Feed)
+// ============================================
+
+model DiscussionTopic {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title       String?  @db.VarChar(255) // Optional, as some posts might just be content
+  title       String   @db.VarChar(255)
   content     String   @db.Text
   authorId    String   @map("author_id") @db.Uuid
-  tags        String[] @default([]) @db.VarChar(50)
+  
+  // Context
+  courseId    String   @map("course_id") @db.Uuid
+  moduleId    String?  @map("module_id") @db.Uuid
+  lessonId    String?  @map("lesson_id") @db.Uuid
+  
+  // Status
+  isPinned    Boolean  @default(false) @map("is_pinned")
+  isLocked    Boolean  @default(false) @map("is_locked")
   viewCount   Int      @default(0) @map("view_count")
   commentCount Int     @default(0) @map("comment_count")
-  likeCount   Int      @default(0) @map("like_count")
   
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  likes       FeedUserLike[]
-
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@index([courseId])
+  @@index([moduleId])
+  @@index([lessonId])
   @@index([authorId])
   @@index([createdAt(sort: Desc)])
-  @@map("feeds")
-}
-
-model FeedUserLike {
-  feedId    String   @map("feed_id") @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at")
-
-  feed Feed @relation(fields: [feedId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([feedId, userId])
-  @@index([feedId])
-  @@index([userId])
-  @@map("feed_user_likes")
+  @@map("discussion_topics")
 }
 
 model CommentLike {
@@ -1422,6 +1424,7 @@ model Enrollment {
   giftMessage          String?   @map("gift_message") @db.Text
   senderId             String?   @map("sender_id") @db.Uuid
   expiresAt            DateTime? @map("expires_at")
+  trialExpiresAt       DateTime? @map("trial_expires_at") // Hết hạn học thử
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
 
@@ -1538,6 +1541,37 @@ model Payment {
   @@index([orderId])
   @@index([transactionId])
   @@map("payments")
+}
+
+// ============================================
+// CART SYSTEM
+// ============================================
+
+model Cart {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String     @unique @map("user_id") @db.Uuid
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  
+  items     CartItem[]
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cartId    String   @map("cart_id") @db.Uuid
+  courseId  String   @map("course_id") @db.Uuid
+  addedAt   DateTime @default(now()) @map("added_at")
+
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, courseId])
+  @@index([cartId])
+  @@index([courseId])
+  @@map("cart_items")
 }
 
 // ============================================

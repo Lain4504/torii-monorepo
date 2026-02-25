@@ -21,12 +21,14 @@ interface OrdersTableProps {
     data: OrderResponseDTO[];
     isLoading: boolean;
     onView: (order: OrderResponseDTO) => void;
+    onCancel: (order: OrderResponseDTO) => void;
+    onExport: (order: OrderResponseDTO) => void;
     page: number;
     limit: number;
 }
 
-export function OrdersTable({ data, isLoading, onView, page, limit }: OrdersTableProps) {
-    const columns = getOrdersColumns({ onView, page, limit });
+export function OrdersTable({ data, isLoading, onView, onCancel, onExport, page, limit }: OrdersTableProps) {
+    const columns = getOrdersColumns({ onView, onCancel, onExport, page, limit });
 
     const table = useReactTable({
         data,

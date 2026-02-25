@@ -42,4 +42,12 @@ export const orderApi = {
         const response = await apiClient.post<PaginatedApiResponse<PaymentResponseDTO>>('/api/orders/transactions/search', query);
         return response.data;
     },
+
+    /**
+     * Cancel an order
+     */
+    async cancelOrder(id: string): Promise<OrderResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${id}/cancel`);
+        return response.data.data!.order;
+    },
 };

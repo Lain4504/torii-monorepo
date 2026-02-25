@@ -23,6 +23,8 @@ export * from './models/order.model';
 export * from './models/coupon.model';
 export * from './models/ticket.model';
 export * from './models/feed.model';
+export * from './models/discussion-topic.model';
+export * from './models/cart.model';
 export * from './models/assignment.model';
 export * from './models/certificate.model';
 
@@ -60,10 +62,15 @@ export * from './dtos/live-session.dto';
 export * from './dtos/teaching-schedule.dto';
 export * from './dtos/ticket.dto';
 export * from './dtos/feed.dto';
+export * from './dtos/discussion-topic.dto';
+export * from './dtos/cart.dto';
 export * from './dtos/assignment.dto';
 export * from './dtos/certificate.dto';
 export * from './dtos/agent.dto';
 export * from './dtos/balance.dto';
+
+// Enums
+export * from './enums/enrollment.enum';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';
