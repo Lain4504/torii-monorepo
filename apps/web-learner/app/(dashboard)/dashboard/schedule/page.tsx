@@ -129,7 +129,7 @@ export default function SchedulePage() {
 
     const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 1 }) // Mon–Sun
     const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
-    const weekEnd = days[6]
+    const weekEnd = addDays(weekStart, 6)
 
     const weekSessions = allSessions.filter((s) => {
         const d = new Date(s.scheduledAt)
@@ -236,7 +236,7 @@ export default function SchedulePage() {
                         <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleJoin(liveSessions[0].id)}
+                            onClick={() => liveSessions[0] && handleJoin(liveSessions[0].id)}
                             disabled={!!joiningId}
                         >
                             {joiningId ? <Spinner className="size-4" /> : 'Vào lớp ngay'}

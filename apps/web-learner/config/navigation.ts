@@ -22,6 +22,7 @@ import {
     MessagesSquare,
     Dumbbell,
     Library,
+    CalendarDays,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -38,6 +39,7 @@ export interface NavItem {
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
+    { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
     { name: 'Sổ tay từ vựng', href: '/dashboard/notes', icon: FileText },
 ]
@@ -69,6 +71,3 @@ export const aiSenseiNav: NavItem[] = [
     { name: 'Hội thoại nhập vai', href: '/ai-sensei/roleplay', icon: MessagesSquare },
     { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
 ]
-
-
-
