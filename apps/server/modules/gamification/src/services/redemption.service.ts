@@ -84,7 +84,7 @@ export class RedemptionService {
         // Request Billing to create a personal coupon
         try {
             const coupon = await lastValueFrom(
-                this.natsClient.send('billing.coupon.createRedeemed', {
+                this.natsClient.send({ cmd: 'billing.coupon.createRedeemed' }, {
                     userId,
                     name: reward.name,
                     discountType: reward.discountType,

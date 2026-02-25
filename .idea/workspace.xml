@@ -4,111 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update notebook API and enhance flashcard component functionality">
-      <change afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/.gitkeep" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: update external media player text for clarity">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/communication.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/communication/src/communication.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/events/notification.event.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/events/notification.event.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/nats/email.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/communication/handlers/email.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/nats/notification.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/communication/handlers/notification.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/nats/ticket.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/communication/handlers/ticket.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/ticket/ticket.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/ticket/ticket.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/webhook.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/webhook.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/infrastructure/mappings/enrollment.profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/infrastructure/mappings/enrollment.profile.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/analytics.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/analytics.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/assignment.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/assignment.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/blog.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/blog.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/certificate.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/certificate.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/comment.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/comment.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/coupon.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/coupon.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/course-instructor.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/course-instructor.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/course.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/course.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/enrollment.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/enrollment.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/exam.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/exam.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/feed.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/feed.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/flashcard-deck.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/flashcard-deck.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/flashcard-review.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/flashcard-review.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/flashcard.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/flashcard.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/learning-progress.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/learning-progress.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/lesson-material.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/lesson-material.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/lesson.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/lesson.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/live-session.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/live-session.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/module.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/module.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/notebook.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/notebook.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/payos.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/payos.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/question-pool.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/question-pool.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/question.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/question.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/review.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/review.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/staff-dashboard.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/staff-dashboard.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/submission.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/submission.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/teaching-schedule.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/teaching-schedule.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/interfaces/nats/wishlist.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/handlers/wishlist.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/learning.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/webhook/webhook-notifier.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/webhook/webhook-notifier.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/webhook/webhook.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/webhook/webhook.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/webhook/webhook.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/infrastructure/webhook/webhook.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/artifacts.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/artifacts.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/ingress.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/ingress.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/insights.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/insights.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-auth-callout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-auth-callout.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-cache.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-cache.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-consumer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-consumer.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-room-events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-room-events.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-room.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-stream.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-stream.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-system-events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-system-events.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-user-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-user-info.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats-user.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/nats.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/nats.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/polls.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/polls.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/room.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/room.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/speech-to-text.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/speech-to-text.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/user.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/user.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/waiting-room.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/waiting-room.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces/nats/webhook.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/handlers/webhook.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/meet.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/analytics/analytics.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/artifacts/artifacts.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/artifacts/artifacts.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/artifacts/artifacts.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/artifacts/artifacts.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/auth/wajlc-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/auth/wajlc-auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/external-display/external-display.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/external-display/external-display.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/external-media/external-media.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/external-media/external-media.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/file/file.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/file/file.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/file/file.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/file/file.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/ingress/ingress.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/ingress/ingress.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/ingress/ingress.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/ingress/ingress.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/insights/insights.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/insights/insights.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/insights/insights.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/insights/insights.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor-room.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor-user.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/janitor/janitor.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/polls/polls.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/polls/polls.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/polls/polls.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/polls/polls.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/recording/recording.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/recording/recording.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-create.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-create.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-duration.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-duration.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-end.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-info.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-modify.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-modify.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room-user.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/room/room.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/speech-to-text/speech-to-text.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/speech-to-text/speech-to-text.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/speech-to-text/speech-to-text.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/speech-to-text/speech-to-text.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/waiting-room/waiting-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/src/modules/waiting-room/waiting-room.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/meet/test/wajlc-auth.service.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/meet/test/wajlc-auth.service.spec.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/storage/src/interfaces/nats/storage.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/storage/src/handlers/storage.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/storage/src/storage.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/storage/src/storage.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/ticket-detail-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/ticket-detail-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/payment/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/payment/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/create-reward-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/create-reward-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/edit-reward-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/edit-reward-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/rewards-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/rewards-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/rewards/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/rewards/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/support/ticket-detail-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/support/ticket-detail-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/order.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/order.model.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +23,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1860" />
+    <option name="cachedIndexableFilesCount" value="1892" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -210,8 +112,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   },
   &quot;editorReviewEnabled&quot;: false
 }</component>
@@ -252,7 +154,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;update-error-sheet&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#250 on update-error-sheet&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
@@ -267,7 +169,7 @@
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -338,8 +240,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
       </set>
     </attachedChunks>
   </component>
@@ -501,22 +402,7 @@
       <workItem from="1771980219330" duration="69000" />
       <workItem from="1771986308534" duration="331000" />
       <workItem from="1771990667306" duration="886000" />
-    </task>
-    <task id="LOCAL-00821" summary="refactor: streamline workspace.xml configuration">
-      <option name="closed" value="true" />
-      <created>1770170557205</created>
-      <option name="number" value="00821" />
-      <option name="presentableId" value="LOCAL-00821" />
-      <option name="project" value="LOCAL" />
-      <updated>1770170557205</updated>
-    </task>
-    <task id="LOCAL-00822" summary="refactor: inject Redis client into services for improved dependency management">
-      <option name="closed" value="true" />
-      <created>1770199247848</created>
-      <option name="number" value="00822" />
-      <option name="presentableId" value="LOCAL-00822" />
-      <option name="project" value="LOCAL" />
-      <updated>1770199247848</updated>
+      <workItem from="1771996036213" duration="3105000" />
     </task>
     <task id="LOCAL-00823" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
       <option name="closed" value="true" />
@@ -894,7 +780,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771860695712</updated>
     </task>
-    <option name="localTasksCounter" value="870" />
+    <task id="LOCAL-00870" summary="fix: update external media player text for clarity">
+      <option name="closed" value="true" />
+      <created>1771994879512</created>
+      <option name="number" value="00870" />
+      <option name="presentableId" value="LOCAL-00870" />
+      <option name="project" value="LOCAL" />
+      <updated>1771994879513</updated>
+    </task>
+    <task id="LOCAL-00871" summary="fix: update external media player text for clarity">
+      <option name="closed" value="true" />
+      <created>1771996995367</created>
+      <option name="number" value="00871" />
+      <option name="presentableId" value="LOCAL-00871" />
+      <option name="project" value="LOCAL" />
+      <updated>1771996995370</updated>
+    </task>
+    <option name="localTasksCounter" value="872" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -929,7 +831,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: restructure agent handlers and update request payloads" />
     <MESSAGE value="refactor: enhance prompt and resource loading with dynamic path resolution" />
     <MESSAGE value="chore: update dependencies and improve project configuration" />
     <MESSAGE value="refactor: update imports from @radix-ui to radix-ui for consistency" />
@@ -954,7 +855,8 @@
     <MESSAGE value="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components" />
     <MESSAGE value="refactor: simplify layout and styling in dashboard and feed components" />
     <MESSAGE value="refactor: update notebook API and enhance flashcard component functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update notebook API and enhance flashcard component functionality" />
+    <MESSAGE value="fix: update external media player text for clarity" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: update external media player text for clarity" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

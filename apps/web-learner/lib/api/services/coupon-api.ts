@@ -7,20 +7,18 @@ export const couponApi = {
         return response.data.data
     },
 
-    getMyCoupons: async (userId: string): Promise<any[]> => {
-        if (!userId) return []
-        const response = await apiClient.get<any>(`/api/billing/coupons/my-coupons?userId=${userId}`)
-        // Adjust for StandardApiResponse if needed
-        return response.data?.data || response.data || []
+    getMyCoupons: async (): Promise<any[]> => {
+        const response = await apiClient.get<any>('/api/billing/coupons/my-coupons')
+        return response.data?.data || []
     }
 }
 
 import { useQuery } from '@tanstack/react-query'
 
-export const useMyCoupons = (userId: string | undefined) => {
+export const useMyCoupons = (enabled: boolean = true) => {
     return useQuery({
-        queryKey: ['my-coupons', userId],
-        queryFn: () => couponApi.getMyCoupons(userId!),
-        enabled: !!userId,
+        queryKey: ['my-coupons'],
+        queryFn: () => couponApi.getMyCoupons(),
+        enabled,
     })
 }

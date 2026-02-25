@@ -1,5 +1,6 @@
 import {
     Controller,
+    Get,
     Post,
     Body,
     Req,
@@ -51,6 +52,24 @@ export class CouponController {
             // Coupon validation usually returns success=true/false in isValid field,
             // but if it throws exception, we catch here.
             return errorResponse(error.message || 'Failed to validate coupon');
+        }
+    }
+
+    @Get('my-coupons')
+    @UseGuards(GatewayAuthGuard)
+    async getMyCoupons(@Req() req: ReqWithRequester) {
+        try {
+            const user = req.requester;
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.coupon.getMyCoupons' },
+                    { userId: user.sub }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to get coupons for user`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch coupons');
         }
     }
 }

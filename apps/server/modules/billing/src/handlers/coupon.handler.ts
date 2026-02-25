@@ -68,4 +68,15 @@ export class CouponHandler {
             throw error;
         }
     }
+
+    @MessagePattern({ cmd: 'billing.coupon.getMyCoupons' })
+    async getMyCoupons(@Payload() data: { userId: string }) {
+        this.logger.log(`[CouponHandler] Getting coupons for user: ${data.userId}`);
+        try {
+            return await this.couponService.getCouponsForUser(data.userId);
+        } catch (error: any) {
+            this.logger.error(`[CouponHandler] Failed to get coupons for user: ${error.message}`);
+            throw error;
+        }
+    }
 }

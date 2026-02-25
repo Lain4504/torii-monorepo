@@ -17,6 +17,8 @@ import {
     Award,
     Info,
     RotateCcw,
+    Ticket,
+    CheckCircle2,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
@@ -25,6 +27,7 @@ import { Badge } from "@workspace/ui/components/badge"
 import { cn } from "@workspace/ui/lib/utils"
 import { useBalanceHistory, orderApi } from "@/lib/api/services/order-api"
 import { useGamificationHistory } from "@/lib/api/services/gamification-api"
+import { useMyCoupons } from "@/lib/api/services/coupon-api"
 import { useAppSelector } from "@/hooks/hooks"
 import { formatNumber, formatCurrency, formatDateTime } from "@/utils/format-utils"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -79,6 +82,7 @@ export default function WalletPage() {
 
     const { data: balanceData, isLoading: balanceLoading } = useBalanceHistory({ page: balancePage, limit: 10 })
     const { data: pointsData, isLoading: pointsLoading } = useGamificationHistory({ page: pointsPage, limit: 10 })
+    const { data: coupons, isLoading: couponsLoading } = useMyCoupons(!!user)
 
     const handleTopUp = async () => {
         const amount = parseInt(topUpAmount, 10)
@@ -194,9 +198,10 @@ export default function WalletPage() {
                 </div>
 
                 <Tabs defaultValue="coins" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 max-w-md bg-muted/50 p-1">
+                    <TabsList className="grid w-full grid-cols-3 max-w-lg bg-muted/50 p-1">
                         <TabsTrigger value="coins" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Số dư Coin</TabsTrigger>
-                        <TabsTrigger value="points" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Điểm thưởng (XP)</TabsTrigger>
+                        <TabsTrigger value="points" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Thưởng (XP)</TabsTrigger>
+                        <TabsTrigger value="coupons" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Mã giảm giá</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="coins" className="pt-6 space-y-6">
@@ -351,6 +356,66 @@ export default function WalletPage() {
                                     Sau <ChevronRight className="w-3.5 h-3.5 ml-1" />
                                 </Button>
                             </div>
+                        )}
+                    </TabsContent>
+
+                    <TabsContent value="coupons" className="pt-6 space-y-6">
+                        {couponsLoading ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-4">
+                                <Spinner />
+                                <p className="text-sm text-muted-foreground font-medium">Đang tải mã giảm giá của bạn...</p>
+                            </div>
+                        ) : (coupons?.length ?? 0) > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {coupons?.map((coupon: any) => (
+                                    <Card key={coupon.id} className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 hover:shadow-md transition-shadow border-2">
+                                        <div className="flex items-center gap-4 w-full">
+                                            <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                                                <Ticket className="size-6 text-primary" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-lg font-black text-primary tracking-widest truncate">{coupon.code}</h3>
+                                                    {coupon.isPublic && <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider">Công khai</Badge>}
+                                                </div>
+                                                <p className="text-sm font-bold text-foreground truncate">{coupon.name}</p>
+                                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">
+                                                    Hạn: {formatDateTime(coupon.validUntil, "dd MMM yyyy")}
+                                                    {coupon.maxDiscountAmount > 0 && ` • Giảm tối đa ${formatCurrency(coupon.maxDiscountAmount)}`}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="shrink-0 w-full md:w-auto">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="w-full font-bold uppercase tracking-widest text-[10px] h-8 border-2"
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(coupon.code)
+                                                    toast.success('Đã sao chép mã!')
+                                                }}
+                                            >
+                                                Sao chép
+                                            </Button>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <Empty className="py-16 border-2 border-dashed bg-muted/5">
+                                <EmptyMedia>
+                                    <Ticket className="size-10 text-muted-foreground/20" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Chưa có mã giảm giá</EmptyTitle>
+                                    <EmptyDescription>Bạn có thể đổi mã giảm giá bằng điểm thưởng tại Cửa hàng quà tặng.</EmptyDescription>
+                                    <div className="mt-6">
+                                        <Button asChild variant="outline" className="font-bold uppercase tracking-widest text-[10px] border-2">
+                                            <Link href="/dashboard/rewards">Đến cửa hàng ngay</Link>
+                                        </Button>
+                                    </div>
+                                </EmptyContent>
+                            </Empty>
                         )}
                     </TabsContent>
                 </Tabs>

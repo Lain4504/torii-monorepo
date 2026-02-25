@@ -84,7 +84,7 @@ export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0">
                 <SheetHeader className="p-6 pb-0">
                     <SheetTitle className="flex items-center gap-2">
                         <Gift className="h-5 w-5 text-primary" />
@@ -95,7 +95,7 @@ export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-6 p-6">
                         <form id="create-reward-form" onSubmit={handleSubmit(onSubmit)}>
                             <FieldGroup>

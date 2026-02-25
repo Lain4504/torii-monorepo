@@ -1,6 +1,5 @@
-import { Search, LogOut, BadgeCheck, Bell, Heart, Coins, Flame, Snowflake, Star, Zap, Gem } from 'lucide-react'
+import { LogOut, BadgeCheck, Bell, Heart, Coins, Flame, Snowflake, Star, Zap, Gem } from 'lucide-react'
 import { UserRole } from '@workspace/schemas'
-import { Input } from '@workspace/ui/components/input'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
 import { ModeToggle } from './mode-toggle'
@@ -36,6 +35,8 @@ import {
     TooltipTrigger,
 } from "@workspace/ui/components/tooltip"
 
+import { CommandMenu } from './command-menu'
+
 export function DashboardHeader() {
     const { user } = useAppSelector((state) => state.auth)
     const { data: profile } = useGamificationProfile()
@@ -70,13 +71,7 @@ export function DashboardHeader() {
 
                 {/* Center: Search */}
                 <div className="flex-1 max-w-xl hidden lg:block">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Tìm kiếm bài học, kanji..."
-                            className="pl-9 bg-muted/50 border-none"
-                        />
-                    </div>
+                    <CommandMenu />
                 </div>
 
                 {/* Right: Actions & Gamification */}

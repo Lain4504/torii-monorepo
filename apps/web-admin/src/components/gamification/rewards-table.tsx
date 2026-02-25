@@ -26,6 +26,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
             <Table>
                 <TableHeader>
                     <TableRow>
+                        <TableHead className="w-[80px]">STT</TableHead>
                         <TableHead>Tên phần thưởng</TableHead>
                         <TableHead>Số điểm cần</TableHead>
                         <TableHead>Loại giảm giá</TableHead>
@@ -37,6 +38,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                 <TableBody>
                     {Array.from({ length: 5 }).map((_, i) => (
                         <TableRow key={i}>
+                            <TableCell><Skeleton className="h-4 w-8" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
@@ -63,6 +65,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
         <Table>
             <TableHeader>
                 <TableRow>
+                    <TableHead className="w-[80px]">STT</TableHead>
                     <TableHead>Tên phần thưởng</TableHead>
                     <TableHead>Số điểm cần</TableHead>
                     <TableHead>Loại giảm giá</TableHead>
@@ -72,8 +75,11 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {data.map((reward) => (
+                {data.map((reward, index) => (
                     <TableRow key={reward.id}>
+                        <TableCell className="font-medium text-muted-foreground">
+                            {index + 1}
+                        </TableCell>
                         <TableCell>
                             <div className="flex flex-col">
                                 <span className="font-medium text-foreground">{reward.name}</span>
