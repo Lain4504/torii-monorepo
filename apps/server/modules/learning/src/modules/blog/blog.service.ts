@@ -93,7 +93,7 @@ export class BlogService implements IBlogService {
       coverImageUrl: finalDto.coverImageUrl,
       authorId: finalDto.authorId,
       status: finalDto.status || BlogStatus.DRAFT,
-      publishedAt: finalDto.publishedAt || null,
+      publishedAt: (finalDto.status === BlogStatus.PUBLISHED && !finalDto.publishedAt) ? new Date() : finalDto.publishedAt || null,
       tags: finalDto.tags || [],
       seoTitle: finalDto.seoTitle,
       seoDescription: finalDto.seoDescription,
@@ -125,6 +125,7 @@ export class BlogService implements IBlogService {
         { title: { contains: query.search, mode: 'insensitive' } },
         { excerpt: { contains: query.search, mode: 'insensitive' } },
         { content: { contains: query.search, mode: 'insensitive' } },
+        { slug: { contains: query.search, mode: 'insensitive' } },
       ];
     }
 
@@ -247,6 +248,9 @@ export class BlogService implements IBlogService {
 
     if (dto.publishedAt !== undefined) {
       updateData.publishedAt = dto.publishedAt;
+      if (dto.status === BlogStatus.PUBLISHED && !dto.publishedAt) {
+        updateData.publishedAt = new Date();
+      }
     }
 
     if (dto.tags !== undefined) {

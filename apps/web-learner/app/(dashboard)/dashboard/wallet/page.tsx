@@ -15,7 +15,10 @@ import {
     ShoppingBag,
     Gift,
     Award,
-    Info
+    Info,
+    RotateCcw,
+    Ticket,
+    CheckCircle2,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
@@ -24,6 +27,7 @@ import { Badge } from "@workspace/ui/components/badge"
 import { cn } from "@workspace/ui/lib/utils"
 import { useBalanceHistory, orderApi } from "@/lib/api/services/order-api"
 import { useGamificationHistory } from "@/lib/api/services/gamification-api"
+import { useMyCoupons } from "@/lib/api/services/coupon-api"
 import { useAppSelector } from "@/hooks/hooks"
 import { formatNumber, formatCurrency, formatDateTime } from "@/utils/format-utils"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -78,6 +82,7 @@ export default function WalletPage() {
 
     const { data: balanceData, isLoading: balanceLoading } = useBalanceHistory({ page: balancePage, limit: 10 })
     const { data: pointsData, isLoading: pointsLoading } = useGamificationHistory({ page: pointsPage, limit: 10 })
+    const { data: coupons, isLoading: couponsLoading } = useMyCoupons(!!user)
 
     const handleTopUp = async () => {
         const amount = parseInt(topUpAmount, 10)
@@ -141,10 +146,10 @@ export default function WalletPage() {
                         </div>
                         <div className="mt-6 flex gap-3">
                             <Button
-                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6"
+                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 shadow-lg shadow-primary/20"
                                 onClick={() => setIsTopUpOpen(true)}
                             >
-                                <Zap className="w-3 h-3 mr-2" /> Nạp thêm ngay
+                                <Zap className="w-3 h-3 mr-2 fill-current" /> Nạp thêm Coins (PayOS)
                             </Button>
                         </div>
                     </CardContent>
@@ -171,10 +176,10 @@ export default function WalletPage() {
                             <Button
                                 asChild
                                 variant="outline"
-                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 border-indigo-500/20 text-indigo-600 hover:bg-indigo-50"
+                                className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 border-indigo-500/30 text-indigo-600 hover:bg-indigo-50 shadow-sm"
                             >
                                 <Link href="/dashboard/rewards">
-                                    <Gift className="w-3 h-3 mr-2" /> Đổi phần thưởng
+                                    <ShoppingBag className="w-3 h-3 mr-2" /> Ghé Cửa hàng quà tặng
                                 </Link>
                             </Button>
                         </div>
@@ -193,9 +198,10 @@ export default function WalletPage() {
                 </div>
 
                 <Tabs defaultValue="coins" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 max-w-md bg-muted/50 p-1">
+                    <TabsList className="grid w-full grid-cols-3 max-w-lg bg-muted/50 p-1">
                         <TabsTrigger value="coins" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Số dư Coin</TabsTrigger>
-                        <TabsTrigger value="points" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Điểm thưởng (XP)</TabsTrigger>
+                        <TabsTrigger value="points" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Thưởng (XP)</TabsTrigger>
+                        <TabsTrigger value="coupons" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Mã giảm giá</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="coins" className="pt-6 space-y-6">
@@ -210,9 +216,11 @@ export default function WalletPage() {
                                     <Item key={tx.id} variant="outline" className="p-4 hover:border-primary/20 transition-all border-2">
                                         <ItemMedia className={cn(
                                             "w-12 h-12 rounded-xl flex items-center justify-center border",
-                                            tx.amount > 0 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-orange-50 text-orange-600 border-orange-100"
+                                            tx.type === 'REFUND' ? "bg-amber-50 text-amber-600 border-amber-100" :
+                                                tx.amount > 0 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-orange-50 text-orange-600 border-orange-100"
                                         )}>
-                                            {tx.amount > 0 ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                                            {tx.type === 'REFUND' ? <RotateCcw className="w-5 h-5" /> :
+                                                tx.amount > 0 ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
                                         </ItemMedia>
                                         <ItemContent className="ml-2">
                                             <ItemTitle className="text-base font-bold">{tx.description || "Giao dịch ví"}</ItemTitle>
@@ -228,8 +236,14 @@ export default function WalletPage() {
                                             )}>
                                                 {tx.amount > 0 ? "+" : ""}{formatNumber(tx.amount)}
                                             </span>
-                                            <Badge variant="outline" className="text-[8px] font-black uppercase tracking-[0.2em] opacity-60">
-                                                {tx.type}
+                                            <Badge
+                                                variant="outline"
+                                                className={cn(
+                                                    "text-[8px] font-black uppercase tracking-[0.2em]",
+                                                    tx.type === 'REFUND' ? "bg-amber-500/10 text-amber-600 border-amber-500/20" : "opacity-60"
+                                                )}
+                                            >
+                                                {tx.type === 'REFUND' ? 'Hoàn tiền' : tx.type}
                                             </Badge>
                                         </ItemActions>
                                     </Item>
@@ -344,6 +358,66 @@ export default function WalletPage() {
                             </div>
                         )}
                     </TabsContent>
+
+                    <TabsContent value="coupons" className="pt-6 space-y-6">
+                        {couponsLoading ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-4">
+                                <Spinner />
+                                <p className="text-sm text-muted-foreground font-medium">Đang tải mã giảm giá của bạn...</p>
+                            </div>
+                        ) : (coupons?.length ?? 0) > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {coupons?.map((coupon: any) => (
+                                    <Card key={coupon.id} className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 hover:shadow-md transition-shadow border-2">
+                                        <div className="flex items-center gap-4 w-full">
+                                            <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                                                <Ticket className="size-6 text-primary" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-lg font-black text-primary tracking-widest truncate">{coupon.code}</h3>
+                                                    {coupon.isPublic && <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider">Công khai</Badge>}
+                                                </div>
+                                                <p className="text-sm font-bold text-foreground truncate">{coupon.name}</p>
+                                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">
+                                                    Hạn: {formatDateTime(coupon.validUntil, "dd MMM yyyy")}
+                                                    {coupon.maxDiscountAmount > 0 && ` • Giảm tối đa ${formatCurrency(coupon.maxDiscountAmount)}`}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="shrink-0 w-full md:w-auto">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="w-full font-bold uppercase tracking-widest text-[10px] h-8 border-2"
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(coupon.code)
+                                                    toast.success('Đã sao chép mã!')
+                                                }}
+                                            >
+                                                Sao chép
+                                            </Button>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <Empty className="py-16 border-2 border-dashed bg-muted/5">
+                                <EmptyMedia>
+                                    <Ticket className="size-10 text-muted-foreground/20" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Chưa có mã giảm giá</EmptyTitle>
+                                    <EmptyDescription>Bạn có thể đổi mã giảm giá bằng điểm thưởng tại Cửa hàng quà tặng.</EmptyDescription>
+                                    <div className="mt-6">
+                                        <Button asChild variant="outline" className="font-bold uppercase tracking-widest text-[10px] border-2">
+                                            <Link href="/dashboard/rewards">Đến cửa hàng ngay</Link>
+                                        </Button>
+                                    </div>
+                                </EmptyContent>
+                            </Empty>
+                        )}
+                    </TabsContent>
                 </Tabs>
             </div>
 
@@ -412,6 +486,9 @@ export default function WalletPage() {
                                         Cổng PayOS (Ngân hàng/QR)
                                         <Info className="size-3" />
                                     </span>
+                                </div>
+                                <div className="text-[9px] text-center text-muted-foreground italic font-medium pt-2">
+                                    Bạn sẽ được chuyển đến trang thanh toán an toàn của PayOS.
                                 </div>
                             </div>
                         </FieldGroup>

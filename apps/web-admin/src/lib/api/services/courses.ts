@@ -14,7 +14,7 @@ export const coursesApi = {
     },
 
     // GET /api/admin/courses/:id
-    async findOne(id: string): Promise<CourseResponseDTO> {
+    async findById(id: string): Promise<CourseResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`);
         return response.data.data!.course;
     },
@@ -94,7 +94,7 @@ export function useCourses(params: CourseQueryDTO) {
 export function useCourse(id: string) {
     return useQuery({
         queryKey: ['courses', id],
-        queryFn: () => coursesApi.findOne(id),
+        queryFn: () => coursesApi.findById(id),
         enabled: !!id,
     });
 }

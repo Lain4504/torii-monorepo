@@ -25,7 +25,7 @@ export interface ICouponService {
     /**
      * Find one coupon by ID
      */
-    findOne(couponId: string): Promise<CouponResponseDTO>;
+    findById(couponId: string): Promise<CouponResponseDTO>;
 
     /**
      * Find coupon by code

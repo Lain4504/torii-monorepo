@@ -268,7 +268,7 @@ export class CourseService implements ICourseService {
   /**
    * Find one course by ID
    */
-  async findOne(courseId: string): Promise<CourseResponseDTO> {
+  async findById(courseId: string): Promise<CourseResponseDTO> {
     const course = await this.courseRepository.findById(courseId);
 
     if (!course || course.deletedAt) {

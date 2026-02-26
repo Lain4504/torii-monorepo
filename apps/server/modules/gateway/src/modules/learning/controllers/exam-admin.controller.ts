@@ -41,11 +41,11 @@ export class ExamAdminController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findById(@Param('id') id: string) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.exam-admin.findOne' },
+                    { cmd: 'learning.exam-admin.findById' },
                     { id }
                 )
             );

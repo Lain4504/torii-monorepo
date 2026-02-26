@@ -147,7 +147,7 @@ describe('EnrollmentService', () => {
         });
     });
 
-    describe('findOne', () => {
+    describe('findById', () => {
         const mockDate = new Date();
         it('should return enrollment if found', async () => {
             mockEnrollmentRepository.findById.mockResolvedValue({
@@ -161,13 +161,13 @@ describe('EnrollmentService', () => {
                 createdAt: mockDate,
                 updatedAt: mockDate
             });
-            const result = await service.findOne('enr-1');
+            const result = await service.findById('enr-1');
             expect(result?.id).toBe('enr-1');
         });
 
         it('should return null if not found', async () => {
             mockEnrollmentRepository.findById.mockResolvedValue(null);
-            const result = await service.findOne('non-existent');
+            const result = await service.findById('non-existent');
             expect(result).toBeNull();
         });
     });

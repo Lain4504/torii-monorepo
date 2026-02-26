@@ -1,3 +1,3 @@
 export * from './repositories';
 export * from './services';
-export * from './nats';
+export * from '../handlers';

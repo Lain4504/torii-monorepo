@@ -21,7 +21,7 @@ export const questionsApi = {
     },
 
     // GET /api/questions/:id
-    async findOne(id: string): Promise<QuestionResponseDTO> {
+    async findById(id: string): Promise<QuestionResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ question: QuestionResponseDTO }>>(`/api/questions/${id}`);
         return response.data.data!.question;
     },
@@ -109,7 +109,7 @@ export function useQuestions(params: QuestionQueryDTO) {
 export function useQuestion(id: string) {
     return useQuery({
         queryKey: ['questions', id],
-        queryFn: () => questionsApi.findOne(id),
+        queryFn: () => questionsApi.findById(id),
         enabled: !!id,
     });
 }

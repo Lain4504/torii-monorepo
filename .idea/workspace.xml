@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update notebook API and enhance flashcard component functionality" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: update external media player text for clarity">
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/discussion-topic.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/discussion-topic.dto.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,7 +20,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1860" />
+    <option name="cachedIndexableFilesCount" value="1892" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -147,7 +151,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#250 on update-error-sheet&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
@@ -162,7 +166,7 @@
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -192,11 +196,11 @@
       <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\app" />
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\components\dashboard" />
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\components\layout" />
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\components" />
+      <recent name="$PROJECT_DIR$/apps/server/modules/communication/handlers" />
+      <recent name="$PROJECT_DIR$/apps/server/modules/learning/src/handlers" />
+      <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/handlers" />
+      <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces" />
+      <recent name="$PROJECT_DIR$/apps/server/modules/storage/src/handlers" />
     </key>
   </component>
   <component name="RunManager" selected="JavaScript Debug.localhost:3000">
@@ -393,22 +397,11 @@
       <workItem from="1771816089601" duration="6372000" />
       <workItem from="1771831921551" duration="1608000" />
       <workItem from="1771893900153" duration="2000" />
-    </task>
-    <task id="LOCAL-00821" summary="refactor: streamline workspace.xml configuration">
-      <option name="closed" value="true" />
-      <created>1770170557205</created>
-      <option name="number" value="00821" />
-      <option name="presentableId" value="LOCAL-00821" />
-      <option name="project" value="LOCAL" />
-      <updated>1770170557205</updated>
-    </task>
-    <task id="LOCAL-00822" summary="refactor: inject Redis client into services for improved dependency management">
-      <option name="closed" value="true" />
-      <created>1770199247848</created>
-      <option name="number" value="00822" />
-      <option name="presentableId" value="LOCAL-00822" />
-      <option name="project" value="LOCAL" />
-      <updated>1770199247848</updated>
+      <workItem from="1771980219330" duration="69000" />
+      <workItem from="1771986308534" duration="331000" />
+      <workItem from="1771990667306" duration="886000" />
+      <workItem from="1771996036213" duration="3105000" />
+      <workItem from="1772038435231" duration="18000" />
     </task>
     <task id="LOCAL-00823" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
       <option name="closed" value="true" />
@@ -786,7 +779,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771860695712</updated>
     </task>
-    <option name="localTasksCounter" value="870" />
+    <task id="LOCAL-00870" summary="fix: update external media player text for clarity">
+      <option name="closed" value="true" />
+      <created>1771994879512</created>
+      <option name="number" value="00870" />
+      <option name="presentableId" value="LOCAL-00870" />
+      <option name="project" value="LOCAL" />
+      <updated>1771994879513</updated>
+    </task>
+    <task id="LOCAL-00871" summary="fix: update external media player text for clarity">
+      <option name="closed" value="true" />
+      <created>1771996995367</created>
+      <option name="number" value="00871" />
+      <option name="presentableId" value="LOCAL-00871" />
+      <option name="project" value="LOCAL" />
+      <updated>1771996995370</updated>
+    </task>
+    <option name="localTasksCounter" value="872" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -821,7 +830,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: restructure agent handlers and update request payloads" />
     <MESSAGE value="refactor: enhance prompt and resource loading with dynamic path resolution" />
     <MESSAGE value="chore: update dependencies and improve project configuration" />
     <MESSAGE value="refactor: update imports from @radix-ui to radix-ui for consistency" />
@@ -846,7 +854,8 @@
     <MESSAGE value="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components" />
     <MESSAGE value="refactor: simplify layout and styling in dashboard and feed components" />
     <MESSAGE value="refactor: update notebook API and enhance flashcard component functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update notebook API and enhance flashcard component functionality" />
+    <MESSAGE value="fix: update external media player text for clarity" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: update external media player text for clarity" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

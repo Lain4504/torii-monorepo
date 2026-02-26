@@ -10,9 +10,9 @@ import { TicketModule } from './modules/ticket/ticket.module';
 
 // Controllers
 // import { NotificationController } from './controllers/notification.controller';
-import { NotificationHandler } from './interfaces/nats/notification.handler';
-import { EmailHandler } from './interfaces/nats/email.handler';
-import { TicketHandler } from './interfaces/nats/ticket.handler';
+import { NotificationHandler } from '@server/communication/handlers/notification.handler';
+import { EmailHandler } from '@server/communication/handlers/email.handler';
+import { TicketHandler } from '@server/communication/handlers/ticket.handler';
 
 @Module({
   imports: [

@@ -27,8 +27,8 @@ import { create, toJson, fromJson } from '@bufbuild/protobuf';
 import { generateTokenForDownloadRecording } from '@server/shared';
 import * as jwt from 'jsonwebtoken';
 import { RedisInsightsService } from '@server/meet/infrastructure/redis/redis-insights.service';
-import { NatsService } from '@server/meet/interfaces/nats/nats.service';
-import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
+import { NatsService } from '@server/meet/handlers/nats.service';
+import { NatsRoomService } from '@server/meet/handlers/nats-room.service';
 import {
     AnalyticsEvents,
     AnalyticsEventType,

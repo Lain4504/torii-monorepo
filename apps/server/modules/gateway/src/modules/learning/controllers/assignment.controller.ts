@@ -64,9 +64,9 @@ export class AssignmentController {
     }
 
     @Get(':id')
-    async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    async findById(@Param('id', new ParseUUIDPipe()) id: string) {
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.assignment.findOne' }, { id })
+            this.natsClient.send({ cmd: 'learning.assignment.findById' }, { id })
         );
         return successResponse({ assignment: result });
     }

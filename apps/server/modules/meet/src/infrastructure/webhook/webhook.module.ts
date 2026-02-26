@@ -11,7 +11,7 @@ import { RedisRoomService } from '@server/meet/infrastructure/redis/redis-room.s
 import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
 import { RoomModule } from '@server/meet/modules/room/room.module';
 import { SpeechToTextModule } from '@server/meet/modules/speech-to-text/speech-to-text.module';
-import { NatsModule } from '@server/meet/interfaces/nats/nats.module';
+import { NatsModule } from '@server/meet/handlers/nats.module';
 import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.module';
 import { WajlcAuthModule } from '@server/meet/modules/auth/wajlc-auth.module';
 import { BreakoutModule } from '@server/meet/modules/breakout/breakout.module';

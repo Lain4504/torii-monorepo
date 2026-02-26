@@ -356,13 +356,23 @@ export default function CheckoutPage() {
                                                             </div>
                                                         )}
                                                         {recipientStatus === 'available' && (
-                                                            <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
-                                                                <CheckCircle2 className="w-3 h-3" /> Có thể nhận quà
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
+                                                                    <CheckCircle2 className="w-3 h-3" /> Có thể nhận quà
+                                                                </div>
+                                                                <div className="text-[9px] text-muted-foreground italic pl-5">
+                                                                    * Nếu tài khoản chưa kích hoạt, món quà vẫn sẽ được gửi và thông báo qua email.
+                                                                </div>
                                                             </div>
                                                         )}
                                                         {recipientStatus === 'not_found' && (
-                                                            <div className="flex items-center gap-2 text-[10px] font-bold text-blue-500 uppercase tracking-widest">
-                                                                <Sparkles className="w-3 h-3" /> Tạo tài khoản mới tự động
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="flex items-center gap-2 text-[10px] font-bold text-blue-500 uppercase tracking-widest">
+                                                                    <Sparkles className="w-3 h-3" /> Tạo tài khoản mới tự động
+                                                                </div>
+                                                                <div className="text-[9px] text-muted-foreground italic pl-5">
+                                                                    * Người nhận sẽ nhận được email hướng dẫn kích hoạt tài khoản để nhận quà.
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </FieldDescription>

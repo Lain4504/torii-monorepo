@@ -25,7 +25,7 @@ export interface IModuleService {
      * @returns The module data
      * @throws NotFoundException if module not found
      */
-    findOne(moduleId: string): Promise<ModuleResponseDTO>;
+    findById(moduleId: string): Promise<ModuleResponseDTO>;
 
     /**
      * Find all modules for a specific course

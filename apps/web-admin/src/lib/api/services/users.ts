@@ -24,7 +24,7 @@ export const usersApi = {
     },
 
     // GET /api/admin/users/:id
-    async findOne(id: string): Promise<UserResponseDTO> {
+    async findById(id: string): Promise<UserResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ user: UserResponseDTO }>>(`/api/admin/users/${id}`);
         if (response.data.success && response.data.data) {
             return response.data.data.user;
@@ -92,7 +92,7 @@ export function useUsers(params: FindAllUsersParams) {
 export function useUser(id: string) {
     return useQuery({
         queryKey: ['users', id],
-        queryFn: () => usersApi.findOne(id),
+        queryFn: () => usersApi.findById(id),
         enabled: !!id,
     });
 }

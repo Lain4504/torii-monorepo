@@ -21,7 +21,7 @@ export const lessonsApi = {
     },
 
     // GET /api/admin/lessons/:id
-    async findOne(id: string): Promise<LessonResponseDTO> {
+    async findById(id: string): Promise<LessonResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ lesson: LessonResponseDTO }>>(`/api/lessons/${id}`);
         return response.data.data!.lesson;
     },
@@ -72,7 +72,7 @@ export function useLessons(params: LessonQueryDTO) {
 export function useLesson(id: string) {
     return useQuery({
         queryKey: ['lessons', id],
-        queryFn: () => lessonsApi.findOne(id),
+        queryFn: () => lessonsApi.findById(id),
         enabled: !!id,
     });
 }

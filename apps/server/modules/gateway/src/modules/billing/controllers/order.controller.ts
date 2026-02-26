@@ -57,6 +57,22 @@ export class OrderController {
         }
     }
 
+    @Post('export')
+    @Permissions('payment.view')
+    async exportOrders(@Body(new ZodValidationPipe(orderSearchRequestDTOSchema)) dto: OrderSearchRequestDTO) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'billing.order.export' },
+                    dto
+                )
+            );
+            return successResponse({ data: result });
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to export orders');
+        }
+    }
+
     @Get()
     async findMyOrders(@Query() query: OrderQueryDTO, @Req() req: ReqWithRequester) {
         try {
@@ -126,11 +142,11 @@ export class OrderController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findById(@Param('id') id: string) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'billing.order.findOne' },
+                    { cmd: 'billing.order.findById' },
                     { id }
                 )
             );

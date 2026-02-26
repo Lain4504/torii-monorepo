@@ -180,7 +180,7 @@ export class QuestionService implements IQuestionService {
     /**
      * Find one question by ID
      */
-    async findOne(questionId: string): Promise<QuestionResponseDTO> {
+    async findById(questionId: string): Promise<QuestionResponseDTO> {
         const question = await this.questionRepository.findById(questionId);
 
         if (!question) {

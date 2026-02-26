@@ -31,7 +31,7 @@ export interface IExamService {
     /**
      * Find one exam by ID
      */
-    findOne(examId: string): Promise<ExamResponseDTO>;
+    findById(examId: string): Promise<ExamResponseDTO>;
 
     /**
      * Create a new exam/quiz

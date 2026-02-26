@@ -108,12 +108,12 @@ export class LessonController {
 
     @Get(':id')
     @Public()
-    async findOne(@Param('id') id: string, @Req() req: ReqWithRequester) {
+    async findById(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.lesson.findOne' },
+                    { cmd: 'learning.lesson.findById' },
                     { id, requester: req.requester }
                 )
             );

@@ -108,18 +108,18 @@ describe('UsersService', () => {
         });
     });
 
-    describe('findOne', () => {
+    describe('findById', () => {
         it('should return a user if found', async () => {
             usersRepository.findById.mockResolvedValue(mockUser);
             mapper.map.mockReturnValue({ ...mockUser });
 
-            const result = await service.findOne(mockUser.id);
+            const result = await service.findById(mockUser.id);
             expect(result.id).toBe(mockUser.id);
         });
 
         it('should throw NotFoundException if user not found', async () => {
             usersRepository.findById.mockResolvedValue(null);
-            await expect(service.findOne('404')).rejects.toThrow(NotFoundException);
+            await expect(service.findById('404')).rejects.toThrow(NotFoundException);
         });
     });
 

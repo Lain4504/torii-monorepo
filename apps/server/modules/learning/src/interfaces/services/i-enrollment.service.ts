@@ -18,7 +18,7 @@ export interface IEnrollmentService {
     /**
      * Find enrollment by ID
      */
-    findOne(id: string): Promise<EnrollmentResponseDTO | null>;
+    findById(id: string): Promise<EnrollmentResponseDTO | null>;
 
     /**
      * Find enrollment by user and course
@@ -34,6 +34,22 @@ export interface IEnrollmentService {
      * Create a new enrollment
      */
     create(userId: string, input: EnrollmentCreateDTO): Promise<EnrollmentResponseDTO>;
+
+    /**
+     * Create a new trial enrollment
+     */
+    createTrial(userId: string, courseId: string): Promise<EnrollmentResponseDTO>;
+
+    /**
+     * Check if user has access to a course or specific lesson (handling trial logic)
+     */
+    checkAccess(userId: string, courseId: string, lessonId?: string): Promise<boolean>;
+
+    /**
+     * Get list of accessible lesson IDs for a user in a course
+     * Returns 'ALL' if full access, or array of lesson IDs if limited (e.g. trial)
+     */
+    getAccessibleLessonIds(userId: string, courseId: string): Promise<string[] | 'ALL'>;
 
     /**
      * Check if user is enrolled in a course

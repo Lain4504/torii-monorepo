@@ -132,11 +132,11 @@ describe('WishlistService', () => {
         });
     });
 
-    describe('findOne', () => {
+    describe('findById', () => {
         it('should return a wishlist by ID', async () => {
             repository.findById.mockResolvedValue(mockWishlist);
 
-            const result = await service.findOne(mockWishlistId);
+            const result = await service.findById(mockWishlistId);
 
             expect(repository.findById).toHaveBeenCalledWith(mockWishlistId);
             expect(result).toEqual(mockWishlistResponse);
@@ -145,7 +145,7 @@ describe('WishlistService', () => {
         it('should return null if wishlist not found', async () => {
             repository.findById.mockResolvedValue(null);
 
-            const result = await service.findOne(mockWishlistId);
+            const result = await service.findById(mockWishlistId);
 
             expect(result).toBeNull();
         });
@@ -153,7 +153,7 @@ describe('WishlistService', () => {
         it('should return null on error', async () => {
             repository.findById.mockRejectedValue(new Error('Database error'));
 
-            const result = await service.findOne(mockWishlistId);
+            const result = await service.findById(mockWishlistId);
 
             expect(result).toBeNull();
         });

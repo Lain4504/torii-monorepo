@@ -124,7 +124,7 @@ export class QuestionPoolService implements IQuestionPoolService {
     /**
      * Find one pool by ID
      */
-    async findOne(poolId: string): Promise<QuestionPoolResponseDTO> {
+    async findById(poolId: string): Promise<QuestionPoolResponseDTO> {
         const pool = await this.questionPoolRepository.findById(poolId);
 
         if (!pool) {

@@ -9,7 +9,7 @@ import { PrismaModule, SharedModule, GlobalRpcExceptionFilter, NatsClientModule 
 import { OrderModule, CouponModule, UserBalanceModule, ReportModule } from './modules';
 
 // Handlers
-import { OrderHandler, CouponHandler, AnalyticsHandler, UserBalanceHandler, ReportHandler } from './interfaces/nats';
+import { OrderHandler, CouponHandler, AnalyticsHandler, UserBalanceHandler, ReportHandler } from './handlers';
 
 @Module({
     imports: [

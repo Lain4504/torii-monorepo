@@ -10,7 +10,18 @@ import type {
 
 export const enrollmentApi = {
     /**
-     * Get all enrollments
+     * Get current user's enrollments
+     */
+    async getMyEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<EnrollmentResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<EnrollmentResponseDTO>>(
+            '/api/enrollments/me',
+            { params: query }
+        );
+        return response.data;
+    },
+
+    /**
+     * Get all enrollments (Admin/Staff use)
      */
     async getAllEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<EnrollmentResponseDTO>> {
         const response = await apiClient.get<PaginatedApiResponse<EnrollmentResponseDTO>>(
@@ -82,12 +93,12 @@ export const enrollmentApi = {
 
 
 /**
- * Hook: Get paginated enrollments
+ * Hook: Get paginated enrollments for current user
  */
 export function useEnrollments(query?: EnrollmentQueryDTO) {
     return useQuery({
-        queryKey: ['enrollments', query],
-        queryFn: () => enrollmentApi.getAllEnrollments(query),
+        queryKey: ['enrollments', 'me', query],
+        queryFn: () => enrollmentApi.getMyEnrollments(query),
     });
 }
 

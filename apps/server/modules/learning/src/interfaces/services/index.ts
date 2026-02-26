@@ -15,6 +15,7 @@ export * from './i-flashcard.service';
 export * from './i-flashcard-deck.service';
 export * from './i-coupon.service';
 export * from './i-certificate.service';
+export * from './i-attendance.service';
 
 // Injection tokens for services
 export const COURSE_SERVICE_TOKEN = Symbol('COURSE_SERVICE');
@@ -27,3 +28,4 @@ export const ENROLLMENT_SERVICE_TOKEN = Symbol('ENROLLMENT_SERVICE');
 export const LIVE_SESSION_SERVICE_TOKEN = Symbol('LIVE_SESSION_SERVICE');
 export const COUPON_SERVICE_TOKEN = Symbol('COUPON_SERVICE');
 export const CERTIFICATE_SERVICE_TOKEN = Symbol('CERTIFICATE_SERVICE');
+export const ATTENDANCE_SERVICE_TOKEN = Symbol('ATTENDANCE_SERVICE');

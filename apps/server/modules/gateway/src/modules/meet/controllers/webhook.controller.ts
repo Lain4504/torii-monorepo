@@ -52,7 +52,7 @@ class WebhookAuthService {
 }
 
 /**
- * WebhookController handles LiveKit webhook events
+ * WebhookHandler handles LiveKit webhook events
  */
 @Controller('webhook')
 export class WebhookController {

@@ -25,6 +25,7 @@ export enum OrderType {
     SUBSCRIPTION = 'subscription',
     TOP_UP = 'top_up',
     GIFT = 'gift',
+    REFUND = 'refund',
 }
 
 export const orderSchema = z.object({

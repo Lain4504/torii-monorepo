@@ -60,7 +60,7 @@ export class TicketController {
     @Get(':id')
     async getTicket(@Param('id') id: string) {
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'communication.ticket.findOne' }, { id })
+            this.natsClient.send({ cmd: 'communication.ticket.findById' }, { id })
         );
         return successResponse(result);
     }

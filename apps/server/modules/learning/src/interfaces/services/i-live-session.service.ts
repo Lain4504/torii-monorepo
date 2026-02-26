@@ -8,7 +8,7 @@ export interface ILiveSessionService {
     /**
      * Get live session by ID
      */
-    findOne(id: string): Promise<LiveSessionResponseDTO>;
+    findById(id: string): Promise<LiveSessionResponseDTO>;
 
     /**
      * Get all live sessions for a course

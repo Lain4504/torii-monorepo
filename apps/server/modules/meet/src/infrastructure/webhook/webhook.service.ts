@@ -8,10 +8,10 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsRoomService } from '../../interfaces/nats/nats-room.service';
-import { NatsUserInfoService } from '../../interfaces/nats/nats-user-info.service';
-import { NatsUserService } from '../../interfaces/nats/nats-user.service';
-import { NatsService } from '../../interfaces/nats/nats.service';
+import { NatsRoomService } from '../../handlers/nats-room.service';
+import { NatsUserInfoService } from '../../handlers/nats-user-info.service';
+import { NatsUserService } from '../../handlers/nats-user.service';
+import { NatsService } from '../../handlers/nats.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
 import { WebhookNotifierService } from './webhook-notifier.service';
 import {
@@ -31,10 +31,10 @@ import type { WebhookEvent } from '@livekit/protocol';
 import { TrackSource } from '@livekit/protocol';
 
 import { LiveKitService } from '../livekit/livekit.service';
-import { ROOM_STATUS_ACTIVE, ROOM_STATUS_ENDED } from '../../interfaces/nats/nats-room.service';
+import { ROOM_STATUS_ACTIVE, ROOM_STATUS_ENDED } from '../../handlers/nats-room.service';
 import { RoomDurationService } from '../../modules/room/room-duration.service';
 import { RoomInfoService } from '../../modules/room/room-info.service';
-import { NatsRoomEventsService } from '../../interfaces/nats/nats-room-events.service';
+import { NatsRoomEventsService } from '../../handlers/nats-room-events.service';
 import { AnalyticsService } from '../../modules/analytics/analytics.service';
 import { SpeechToTextService } from '../../modules/speech-to-text/speech-to-text.service';
 import { RoomEndService } from '../../modules/room/room-end.service';
