@@ -44,11 +44,11 @@
     },
     "meet": {
       "type": "application",
-      "root": "modules/meet",
+      "root": "services/meet",
       "entryFile": "main",
-      "sourceRoot": "modules/meet/src",
+      "sourceRoot": "services/meet/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/meet/tsconfig.app.json",
+        "tsConfigPath": "services/meet/tsconfig.app.json",
         "webpack": false
       }
     },

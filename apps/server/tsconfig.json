@@ -42,7 +42,7 @@
         "./modules/billing/src/*"
       ],
       "@server/meet/*": [
-        "./modules/meet/src/*"
+        "./services/meet/src/*"
       ],
       "@server/learning/*": [
         "./modules/learning/src/*"

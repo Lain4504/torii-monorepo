@@ -24,7 +24,7 @@
     "prod:gateway": "node dist/modules/gateway/src/main",
     "prod:identity": "node dist/services/identity/src/main",
     "prod:learning": "node dist/modules/learning/src/main",
-    "prod:meet": "node dist/modules/meet/src/main",
+    "prod:meet": "node dist/services/meet/src/main",
     "prod:agents": "node dist/modules/agents/src/main",
     "prod:gamification": "node dist/modules/gamification/src/main",
     "prod:communication": "node dist/services/communication/src/main",
@@ -175,6 +175,7 @@
     "moduleNameMapper": {
       "^@server/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",
       "^@server/identity(|/.*)$": "<rootDir>/services/identity/src/$1",
+      "^@server/meet(|/.*)$": "<rootDir>/services/meet/src/$1",
       "^@server/learning(|/.*)$": "<rootDir>/modules/learning/src/$1",
       "^@server/gamification(|/.*)$": "<rootDir>/modules/gamification/src/$1",
       "^@server/agents(|/.*)$": "<rootDir>/modules/agents/src/$1",
