@@ -47,6 +47,8 @@
     "@bufbuild/protobuf": "^2.10.2",
     "@google/generative-ai": "^0.24.1",
     "@keyv/redis": "^5.1.5",
+    "@livekit/agents": "^1.0.47",
+    "@livekit/agents-plugin-google": "^1.0.47",
     "@livekit/protocol": "^1.43.4",
     "@nats-io/jwt": "0.0.10-5",
     "@nestjs/axios": "^4.0.1",

@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@livekit/components-react": "^2.9.20",
+    "@livekit/components-styles": "^1.2.0",
     "@payos/payos-checkout": "^1.0.8",
     "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/typography": "^0.5.19",
@@ -25,6 +27,7 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "framer-motion": "^12.25.0",
+    "livekit-client": "2.16.1",
     "lucide-react": "^0.475.0",
     "nanoid": "^5.1.6",
     "next": "16.1.0-canary.19",

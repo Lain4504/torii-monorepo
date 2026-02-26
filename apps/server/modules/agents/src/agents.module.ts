@@ -4,6 +4,7 @@ import { SenseiHandler } from './handlers/sensei.handler';
 import { AssessmentHandler } from './handlers/assessment.handler';
 import { AnalyticsHandler } from './handlers/analytics.handler';
 import { SenseiModule, AssessmentModule, AnalyticsModule } from '@server/agents/modules';
+import { LivekitAgentService } from './modules/livekit/livekit-agent.service';
 
 
 /**
@@ -32,6 +33,8 @@ import { SenseiModule, AssessmentModule, AnalyticsModule } from '@server/agents/
     AssessmentHandler,
     AnalyticsHandler,
   ],
-  providers: [],
+  providers: [
+    LivekitAgentService
+  ],
 })
 export class AgentsModule { }

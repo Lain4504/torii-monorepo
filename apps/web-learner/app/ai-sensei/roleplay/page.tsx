@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Card } from "@workspace/ui/components/card"
-import { RoleplayStudio } from "@/components/ai-sensei/roleplay-studio"
+import { LivekitVoiceAgent } from "@/components/ai-sensei/livekit-voice-agent"
 import { InteractiveRoleplay } from "@/components/ai-sensei/interactive-roleplay"
 import { MonitorPlay, MessageSquareText } from "lucide-react"
 
@@ -22,7 +22,7 @@ export default function RoleplayPage() {
                         </TabsTrigger>
                         <TabsTrigger value="scenario" className="gap-2">
                             <MonitorPlay className="size-4" />
-                            Tạo tình huống mẫu
+                            Live Voice Roleplay
                         </TabsTrigger>
                     </TabsList>
                 </div>
@@ -32,7 +32,7 @@ export default function RoleplayPage() {
                         <InteractiveRoleplay />
                     </TabsContent>
                     <TabsContent value="scenario" className="h-full min-h-0 m-0 data-[state=inactive]:hidden border-none outline-none p-4 md:p-6 overflow-y-auto">
-                        <RoleplayStudio />
+                        <LivekitVoiceAgent />
                     </TabsContent>
                 </Card>
             </Tabs>

@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SenseiService } from '@server/agents/modules';
 import { TTSService } from '@server/agents/modules/sensei/tts.service';
+import { LivekitAgentService } from '../modules/livekit/livekit-agent.service';
 import { Requester } from '@workspace/schemas';
 
 /**
@@ -13,7 +14,14 @@ export class SenseiHandler {
   constructor(
     private readonly senseiService: SenseiService,
     private readonly ttsService: TTSService,
+    private readonly livekitAgentService: LivekitAgentService,
   ) { }
+
+  @MessagePattern({ cmd: 'agents.livekit.joinRoom' })
+  async handleJoinRoom(@Payload() data: { roomName: string; participantIdentity?: string }) {
+    console.log(`[SenseiHandler] Received agents.livekit.joinRoom for room: ${data.roomName}`);
+    return this.livekitAgentService.joinRoom(data.roomName, data.participantIdentity);
+  }
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; requester: Requester }) {

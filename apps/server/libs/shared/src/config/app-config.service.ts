@@ -15,6 +15,7 @@ export class AppConfigService {
     get redis(): AppConfig['redis'] { return this.configService.get<AppConfig['redis']>('redis')!; }
     get nats(): AppConfig['nats'] { return this.configService.get<AppConfig['nats']>('nats')!; }
     get livekit(): AppConfig['livekit'] { return this.configService.get<AppConfig['livekit']>('livekit')!; }
+    get livekitRoleplay(): AppConfig['livekitRoleplay'] { return this.configService.get<AppConfig['livekitRoleplay']>('livekitRoleplay')!; }
     get security(): AppConfig['security'] { return this.configService.get<AppConfig['security']>('security')!; }
     get upload(): AppConfig['upload'] { return this.configService.get<AppConfig['upload']>('upload')!; }
     get room(): AppConfig['room'] { return this.configService.get<AppConfig['room']>('room')!; }
