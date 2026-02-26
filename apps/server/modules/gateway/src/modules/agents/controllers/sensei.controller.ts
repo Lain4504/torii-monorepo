@@ -13,7 +13,9 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, GatewayAuthGuard, ReqWithRequester } from '@server/shared';
+import { successResponse, errorResponse, GatewayAuthGuard, ReqWithRequester, AppConfigService, generateLivekitAccessToken } from '@server/shared';
+import { WajlcTokenClaimsSchema } from '@workspace/protocol';
+import { create } from '@bufbuild/protobuf';
 
 /**
  * Sensei Gateway Handler
@@ -26,6 +28,7 @@ export class SenseiHandler {
 
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        private readonly appConfig: AppConfigService,
     ) { }
 
     @Post('grammar-check')
@@ -203,6 +206,60 @@ export class SenseiHandler {
         } catch (error: any) {
             this.logger.error(`TTS generation failed`, error.stack);
             return errorResponse(error.message || 'Failed to generate TTS');
+        }
+    }
+
+    @Post('livekit-token')
+    @UseGuards(GatewayAuthGuard)
+    async getLivekitToken(@Req() req: ReqWithRequester) {
+        const requester = req.requester;
+        const userId = requester?.sub;
+
+        try {
+            this.logger.log(`🔑 Fetching LiveKit Token for Roleplay Cloud from user ${userId}`);
+
+            const { apiKey, apiSecret, wsUrl } = this.appConfig.livekitRoleplay;
+            const tokenValidity = 7200; // 2 hours
+            const roomId = `roleplay-${userId}`; // Unique room for this user's agent
+
+            const claims = create(WajlcTokenClaimsSchema, {
+                roomId: roomId,
+                name: (requester as any)?.name || 'Student',
+                userId: userId,
+                isAdmin: false,
+            });
+
+            const token = await generateLivekitAccessToken(apiKey, apiSecret, tokenValidity, claims);
+
+            return successResponse({
+                token,
+                wsUrl,
+                roomId
+            });
+        } catch (error: any) {
+            this.logger.error(`Failed to generate LiveKit token for user ${userId}`, error.stack);
+            return errorResponse(error.message || 'Failed to generate token');
+        }
+    }
+
+    @Post('livekit-join')
+    @UseGuards(GatewayAuthGuard)
+    async livekitJoin(@Req() req: ReqWithRequester, @Body() body: { roomName: string }) {
+        const requester = req.requester;
+        const userId = requester?.sub;
+
+        try {
+            this.logger.log(`📡 Triggering Room Join for room ${body.roomName} from user ${userId}`);
+            await firstValueFrom(
+                this.natsClient.send({ cmd: 'agents.livekit.joinRoom' }, {
+                    roomName: body.roomName,
+                    participantIdentity: userId
+                })
+            );
+            return successResponse({ success: true });
+        } catch (error: any) {
+            this.logger.error(`❌ Failed to trigger Room Join: ${error.message}`);
+            return errorResponse(error.message || 'Failed to join room');
         }
     }
 }

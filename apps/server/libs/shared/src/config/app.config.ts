@@ -56,6 +56,12 @@ const ConfigSchema = z.object({
         apiKey: z.string().min(1),
         apiSecret: z.string().min(1),
     }),
+    livekitRoleplay: z.object({
+        apiUrl: z.string().min(1),
+        wsUrl: z.string().min(1),
+        apiKey: z.string().min(1),
+        apiSecret: z.string().min(1),
+    }),
     security: z.object({
         jwt: z.object({
             secret: z.string().min(1),
