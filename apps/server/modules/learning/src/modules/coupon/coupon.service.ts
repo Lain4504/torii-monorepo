@@ -97,7 +97,7 @@ export class CouponService implements ICouponService {
     /**
      * Find one coupon by ID
      */
-    async findOne(couponId: string): Promise<CouponResponseDTO> {
+    async findById(couponId: string): Promise<CouponResponseDTO> {
         const coupon = await this.couponRepository.findById(couponId);
 
         if (!coupon) {
@@ -435,7 +435,7 @@ export class CouponService implements ICouponService {
             let course: any;
             try {
                 course = await firstValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: request.courseId })
+                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: request.courseId })
                 );
             } catch (error) {
                 this.logger.error(`Failed to fetch course ${request.courseId}`, error);

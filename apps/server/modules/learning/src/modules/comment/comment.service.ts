@@ -87,13 +87,13 @@ export class CommentService implements ICommentService {
       if (!blog) {
         throw new NotFoundException(`Blog with id "${dto.entityId}" not found`);
       }
-    } else if (dto.targetType === 'FEED' && !dto.parentId) {
-      const feed = await this.prisma.feed.findUnique({
+    } else if (dto.targetType === 'DISCUSSION' as any && !dto.parentId) {
+      const discussion = await this.prisma.discussionTopic.findUnique({
         where: { id: dto.entityId },
       });
 
-      if (!feed) {
-        throw new NotFoundException(`Feed with id "${dto.entityId}" not found`);
+      if (!discussion) {
+        throw new NotFoundException(`Discussion with id "${dto.entityId}" not found`);
       }
     }
 
@@ -155,9 +155,9 @@ export class CommentService implements ICommentService {
       await this.blogRepository.update(dto.entityId, {
         commentCount: { increment: 1 },
       });
-    } else if (dto.targetType === 'FEED') {
+    } else if (dto.targetType === 'DISCUSSION' as any) {
       try {
-        await this.prisma.feed.update({
+        await this.prisma.discussionTopic.update({
           where: { id: dto.entityId },
           data: { commentCount: { increment: 1 } }
         });
@@ -334,9 +334,9 @@ export class CommentService implements ICommentService {
       await this.blogRepository.update(entityId, {
         commentCount: { decrement: 1 },
       });
-    } else if (targetType === 'FEED') {
+    } else if (targetType === 'DISCUSSION' as any) {
       try {
-        await this.prisma.feed.update({
+        await this.prisma.discussionTopic.update({
           where: { id: entityId },
           data: { commentCount: { decrement: 1 } }
         });

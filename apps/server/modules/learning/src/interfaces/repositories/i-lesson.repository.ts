@@ -65,4 +65,9 @@ export interface ILessonRepository {
      * Find preview lessons for a course (through modules)
      */
     findPreviewLessonsByCourseId(courseId: string): Promise<Lesson[]>;
+
+    /**
+     * Find top N lessons for a course (ordered by module and lesson index)
+     */
+    findTopLessonsByCourse(courseId: string, limit: number): Promise<Lesson[]>;
 }

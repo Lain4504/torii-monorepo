@@ -40,7 +40,7 @@ export interface ICourseService {
      * @returns The course data
      * @throws NotFoundException if course not found
      */
-    findOne(courseId: string): Promise<CourseResponseDTO>;
+    findById(courseId: string): Promise<CourseResponseDTO>;
 
     /**
      * Find course by slug

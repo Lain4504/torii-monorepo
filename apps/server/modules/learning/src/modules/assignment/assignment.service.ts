@@ -245,7 +245,7 @@ export class AssignmentService {
   /**
    * Get Assignment Details
    */
-  async findOne(assignmentId: string) {
+  async findById(assignmentId: string) {
     const assignment = await this.assignmentRepository.findById(assignmentId);
     if (!assignment) {
       throw new NotFoundException('Assignment not found');

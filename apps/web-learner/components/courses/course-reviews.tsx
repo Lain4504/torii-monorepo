@@ -28,6 +28,15 @@ import {
 } from "@workspace/ui/components/item"
 import { Input } from "@workspace/ui/components/input";
 
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@workspace/ui/components/empty"
+
 const courseReviewSchema = z.object({
     rating: z.number().min(1, 'Vui lòng chọn số sao'),
     comment: z.string().optional(),
@@ -232,11 +241,15 @@ export function CourseReviews({ course }: CourseReviewsProps) {
 
     if (loading && page === 1) {
         return (
-            <div className="py-24 flex flex-col items-center justify-center space-y-4 text-muted-foreground">
-                <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center animate-pulse">
-                    <MessageSquare className="w-5 h-5" />
-                </div>
-                <span className="text-sm font-medium">Đang tải đánh giá...</span>
+            <div className="py-24">
+                <Empty className="border-none shadow-none bg-transparent">
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon" className="animate-pulse bg-primary/5">
+                            <MessageSquare className="w-5 h-5 text-primary" />
+                        </EmptyMedia>
+                        <EmptyTitle className="text-sm font-medium animate-pulse">Đang tải đánh giá...</EmptyTitle>
+                    </EmptyHeader>
+                </Empty>
             </div>
         )
     }
@@ -353,9 +366,18 @@ export function CourseReviews({ course }: CourseReviewsProps) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {reviews.length === 0 ? (
-                                <div className="col-span-full py-12 flex flex-col items-center justify-center text-center space-y-4 text-muted-foreground">
-                                    <MessageSquare className="w-10 h-10 opacity-50" />
-                                    <p className="text-sm font-medium">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                                <div className="col-span-full py-12">
+                                    <Empty className="border-none shadow-none bg-transparent">
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon">
+                                                <MessageSquare className="w-10 h-10 opacity-20" />
+                                            </EmptyMedia>
+                                            <EmptyTitle>Chưa có đánh giá nào</EmptyTitle>
+                                            <EmptyDescription>
+                                                Hãy là người đầu tiên chia sẻ cảm nhận về khóa học này!
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
                                 </div>
                             ) : (
                                 reviews.slice(0, 5).map((review) => (

@@ -21,7 +21,7 @@ export const assignmentsApi = {
     },
 
     // GET /api/assignments/:id
-    async findOne(id: string): Promise<AssignmentResponseDTO> {
+    async findById(id: string): Promise<AssignmentResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ assignment: AssignmentResponseDTO }>>(`/api/assignments/${id}`);
         return response.data.data!.assignment;
     },
@@ -72,7 +72,7 @@ export function useAssignments(params: QueryAssignmentsDto) {
 export function useAssignment(id: string) {
     return useQuery({
         queryKey: ['assignments', id],
-        queryFn: () => assignmentsApi.findOne(id),
+        queryFn: () => assignmentsApi.findById(id),
         enabled: !!id,
     });
 }

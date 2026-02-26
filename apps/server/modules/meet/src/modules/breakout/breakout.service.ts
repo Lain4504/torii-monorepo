@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { NatsRoomService } from '@server/meet/interfaces/nats/nats-room.service';
-import { NatsSystemEventsService } from '@server/meet/interfaces/nats/nats-system-events.service';
+import { NatsRoomService } from '@server/meet/handlers/nats-room.service';
+import { NatsSystemEventsService } from '@server/meet/handlers/nats-system-events.service';
 import {
   CreateBreakoutRoomsReq,
   BreakoutRoom,
@@ -25,12 +25,12 @@ import {
   fromJsonString,
 } from '@bufbuild/protobuf';
 import { RoomDurationService } from '@server/meet/modules/room/room-duration.service';
-import { NatsService } from '@server/meet/interfaces/nats/nats.service';
-import { NatsRoomEventsService } from '@server/meet/interfaces/nats/nats-room-events.service';
+import { NatsService } from '@server/meet/handlers/nats.service';
+import { NatsRoomEventsService } from '@server/meet/handlers/nats-room-events.service';
 import {
   NatsUserService,
   USER_STATUS_ONLINE,
-} from '@server/meet/interfaces/nats/nats-user.service';
+} from '@server/meet/handlers/nats-user.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import {

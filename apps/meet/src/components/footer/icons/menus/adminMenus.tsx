@@ -113,7 +113,7 @@ const AdminMenus = () => {
           text={
             isActiveExternalMediaPlayer
               ? 'Dừng trình phát đa phương tiện bên ngoài'
-              : 'Bắt đầu trình phát đa phương tiện bên ngoài'
+              : 'Chạy trình phát đa phương tiện bên ngoài'
           }
         />
       )}

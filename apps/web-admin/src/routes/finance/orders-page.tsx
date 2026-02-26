@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { OrdersTable } from '@/components/finance/orders-table';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
-  RotateCcw, ShieldCheck, TrendingUp, Activity, Search, Calendar as CalendarIcon
+  RotateCcw, ShieldCheck, TrendingUp, Activity, Search, Calendar as CalendarIcon, Download
 } from 'lucide-react';
 import { formatDateTime, vi, formatCurrency, formatNumber } from '@/lib/format-utils';
 import { Calendar } from '@workspace/ui/components/calendar';
@@ -20,9 +21,11 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { PageHeader } from '@/components/common/page-header';
 import { OrderDetailSheet } from '@/components/finance/order-detail-sheet';
 import { useOrders, useOrderStats } from '@/lib/api/services/finance';
+import { orderApi } from '@/lib/api/services/order-api';
 import { XCircle } from 'lucide-react';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { cn } from "@workspace/ui/lib/utils";
+import { toast } from 'sonner';
 
 export default function OrdersPage() {
   const [page, setPage] = useState(1);
@@ -51,6 +54,72 @@ export default function OrdersPage() {
   const total = ordersResponse?.total || 0;
   const totalPages = ordersResponse?.totalPages || 1;
   const stats = statsResponse?.data;
+
+  const queryClient = useQueryClient();
+
+  const cancelMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      return orderApi.cancelOrder(orderId);
+    },
+    onSuccess: () => {
+      toast.success('Hủy đơn hàng thành công');
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders-stats'] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Không thể hủy đơn hàng');
+    }
+  });
+
+  const handleExportCSV = async () => {
+    try {
+      toast.info('Đang chuẩn bị dữ liệu xuất CSV...');
+      const limit = 1000;
+      const res = await orderApi.getAllOrders({
+        page: 1,
+        limit,
+        status: status !== 'all' ? status as OrderStatus : undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      } as any);
+
+      if (!res.data?.length) {
+        toast.error('Không có dữ liệu để xuất');
+        return;
+      }
+
+      const headers = ['Mã đơn hàng', 'Khách hàng', 'Email/ID', 'Số tiền', 'Dịch vụ', 'Phương thức', 'Trạng thái', 'Ngày tạo'];
+      const rows = res.data.map(order => [
+        order.id,
+        (order as any).userName || '',
+        (order as any).userEmail || order.userId,
+        order.amount,
+        order.orderType,
+        order.paymentMethod,
+        getStatusLabel(order.status),
+        new Date(order.createdAt).toLocaleString('vi-VN')
+      ]);
+
+      const csvContent =
+        "data:text/csv;charset=utf-8,\uFEFF" +
+        [
+          headers.join(','),
+          ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        ].join('\n');
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `danh-sach-giao-dich-${formatDateTime(new Date(), 'dd-MM-yyyy')}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Đã xuất ${res.data.length} giao dịch thành công`);
+    } catch (error: any) {
+      toast.error('Lỗi khi xuất dữ liệu: ' + (error?.message || 'Lỗi không xác định'));
+    }
+  };
 
 
   const getStatusLabel = (status: OrderStatus) => {
@@ -83,14 +152,24 @@ export default function OrdersPage() {
           { label: "Tổng số Giao dịch", value: formatNumber(total) }
         ]}
         actions={
-          <Button
-            variant="outline"
-            onClick={() => window.location.reload()}
-            disabled={isLoading}
-          >
-            <RotateCcw className={cn("mr-2 size-4", isLoading && "animate-spin")} />
-            Làm mới Dữ liệu
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={handleExportCSV}
+              disabled={isLoading || orders.length === 0}
+            >
+              <Download className="mr-2 size-4" />
+              Xuất CSV Tổng
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+              disabled={isLoading}
+            >
+              <RotateCcw className={cn("mr-2 size-4", isLoading && "animate-spin")} />
+              Làm mới Dữ liệu
+            </Button>
+          </div>
         }
       />
 
@@ -259,6 +338,41 @@ export default function OrdersPage() {
           onView={(order) => {
             setSelectedOrder(order);
             setIsSheetOpen(true);
+          }}
+          onCancel={(order) => {
+            if (confirm(`Bạn có chắc muốn hủy đơn hàng ${order.id.slice(0, 8)}...?`)) {
+              cancelMutation.mutate(order.id);
+            }
+          }}
+          onExport={(order) => {
+            // Reusing total export logic but for single one
+            const headers = ['Mã đơn hàng', 'Khách hàng', 'Email/ID', 'Số tiền', 'Dịch vụ', 'Phương thức', 'Trạng thái', 'Ngày tạo'];
+            const rows = [[
+              order.id,
+              (order as any).userName || '',
+              (order as any).userEmail || order.userId,
+              order.amount,
+              order.orderType,
+              order.paymentMethod,
+              getStatusLabel(order.status),
+              new Date(order.createdAt).toLocaleString('vi-VN')
+            ]];
+            const csvContent =
+              "data:text/csv;charset=utf-8,\uFEFF" +
+              [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+              ].join('\n');
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `hoa-don-${order.id.slice(0, 8)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast.success(`Đã xuất hóa đơn ${order.id.slice(0, 8)}...`);
           }}
           page={page}
           limit={10}

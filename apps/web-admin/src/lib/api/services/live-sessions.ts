@@ -15,7 +15,7 @@ import type {
 
 export const liveSessionsApi = {
     // GET /api/live-sessions/:id
-    async findOne(id: string): Promise<LiveSessionResponseDTO> {
+    async findById(id: string): Promise<LiveSessionResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO>>(`/api/live-sessions/${id}`);
         return response.data.data!;
     },
@@ -109,7 +109,7 @@ export function useLiveSessions(courseId: string) {
 export function useLiveSession(id: string) {
     return useQuery({
         queryKey: ['live-sessions', id],
-        queryFn: () => liveSessionsApi.findOne(id),
+        queryFn: () => liveSessionsApi.findById(id),
         enabled: !!id,
     });
 }

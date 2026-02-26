@@ -22,6 +22,8 @@ import { cn } from "@workspace/ui/lib/utils";
 
 interface OrdersColumnsProps {
     onView: (order: OrderResponseDTO) => void;
+    onCancel: (order: OrderResponseDTO) => void;
+    onExport: (order: OrderResponseDTO) => void;
     page: number;
     limit: number;
 }
@@ -64,7 +66,7 @@ const getStatusLabel = (status: OrderStatus) => {
     }
 };
 
-export const getOrdersColumns = ({ onView, page, limit }: OrdersColumnsProps): ColumnDef<OrderResponseDTO>[] => [
+export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: OrdersColumnsProps): ColumnDef<OrderResponseDTO>[] => [
     {
         id: 'stt',
         header: () => <div className="text-center">#</div>,
@@ -160,12 +162,15 @@ export const getOrdersColumns = ({ onView, page, limit }: OrdersColumnsProps): C
                                 <Eye className="mr-2 h-4 w-4" />
                                 Xem chi tiết
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onExport(order)}>
                                 <FileText className="mr-2 h-4 w-4" />
                                 Xuất hóa đơn
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => onCancel(order)}
+                            >
                                 <XCircle className="mr-2 h-4 w-4" />
                                 Hủy đơn hàng
                             </DropdownMenuItem>

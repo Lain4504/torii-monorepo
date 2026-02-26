@@ -50,10 +50,10 @@ export class UsersController {
 
     @Get(':id')
     @Permissions('user.view')
-    async findOne(@Param('id') id: string) {
+    async findById(@Param('id') id: string) {
         try {
             const user = await firstValueFrom(
-                this.natsClient.send({ cmd: 'identity.users.findOne' }, { id }),
+                this.natsClient.send({ cmd: 'identity.users.findById' }, { id }),
             );
             return successResponse({ user });
         } catch (error: unknown) {

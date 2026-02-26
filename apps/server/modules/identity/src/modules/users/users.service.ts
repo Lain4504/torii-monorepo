@@ -128,16 +128,28 @@ export class UsersService implements IUsersService {
     }
 
     /**
-     * Find one user by ID
+     * Find user by ID
      */
-    async findOne(userId: string): Promise<UserResponseDTO> {
-        const user = await this.usersRepository.findById(userId);
+    async findById(id: string): Promise<UserResponseDTO> {
+        const user = await this.usersRepository.findById(id);
 
         if (!user) {
             throw new NotFoundException('User not found');
         }
 
-        // Map Prisma User to UserResponseDTO using AutoMapper
+        return this.mapper.map<User, UserResponseDTO>(user, 'User', 'UserResponseDTO');
+    }
+
+    /**
+     * Find user by email
+     */
+    async findByEmail(email: string): Promise<UserResponseDTO> {
+        const user = await this.usersRepository.findByEmail(email);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
         return this.mapper.map<User, UserResponseDTO>(user, 'User', 'UserResponseDTO');
     }
 
@@ -225,10 +237,10 @@ export class UsersService implements IUsersService {
     }
 
     /**
-     * Get user by ID (alias for findOne)
+     * Get user by ID (alias for findById)
      */
     async getUser(userId: string): Promise<UserResponseDTO> {
-        return this.findOne(userId);
+        return this.findById(userId);
     }
 
     /**

@@ -7,9 +7,11 @@ import {
     Search,
     Eye,
     Filter,
+    RotateCcw,
 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
+import { Badge } from '@workspace/ui/components/badge'
 import {
     Dialog,
     DialogContent,
@@ -100,6 +102,12 @@ export default function PaymentHistoryPage() {
                     label: 'Hết thời gian',
                     color: 'bg-slate-500/5 text-slate-600 border-slate-500/10',
                     icon: <Clock className="w-3 h-3" />
+                }
+            case 'refunded':
+                return {
+                    label: 'Đã hoàn tiền',
+                    color: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+                    icon: <RotateCcw className="w-3 h-3" />
                 }
             default:
                 return {
@@ -226,15 +234,23 @@ export default function PaymentHistoryPage() {
                                                     </TableCell>
                                                     <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
                                                         <div className="flex flex-col">
-                                                            <span className="font-semibold text-foreground truncate max-w-[300px]">{order.description || 'Thanh toán khóa học'}</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-semibold text-foreground truncate max-w-[300px]">{order.description || 'Thanh toán khóa học'}</span>
+                                                                {(order as any).orderType === 'refund' && (
+                                                                    <Badge variant="outline" className="text-[9px] h-4 bg-amber-50 text-amber-600 border-amber-200 uppercase font-black tracking-tighter">Hoàn trả</Badge>
+                                                                )}
+                                                            </div>
                                                             <span className="text-xs text-muted-foreground font-medium">{order.paymentMethod || 'Cổng thanh toán'}</span>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-muted-foreground font-medium">
+                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-muted-foreground font-medium text-center">
                                                         {formatDateTime(order.createdAt)}
                                                     </TableCell>
-                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right font-bold">
-                                                        {formatCurrency(order.amount)}
+                                                    <TableCell className={cn(
+                                                        "py-3 px-4 text-sm whitespace-nowrap border-r border-border/10 last:border-r-0 text-right font-bold tabular-nums",
+                                                        (order as any).orderType === 'refund' ? "text-emerald-600" : "text-foreground"
+                                                    )}>
+                                                        {(order as any).orderType === 'refund' ? "+" : ""}{formatCurrency(order.amount)}
                                                     </TableCell>
                                                     <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0">
                                                         <div className="flex justify-center">

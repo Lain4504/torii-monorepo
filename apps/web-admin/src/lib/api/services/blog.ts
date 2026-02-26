@@ -21,7 +21,7 @@ export const blogApi = {
     },
 
     // GET /api/blogs/:id
-    async findOne(id: string): Promise<BlogResponseDTO> {
+    async findById(id: string): Promise<BlogResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ blog: BlogResponseDTO }>>(`/api/blogs/${id}`);
         return response.data.data!.blog;
     },
@@ -65,7 +65,7 @@ export function useBlogs(params: BlogQueryDTO) {
 export function useBlog(id: string) {
     return useQuery({
         queryKey: ['blogs', id],
-        queryFn: () => blogApi.findOne(id),
+        queryFn: () => blogApi.findById(id),
         enabled: !!id,
     });
 }

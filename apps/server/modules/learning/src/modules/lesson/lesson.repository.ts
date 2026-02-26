@@ -158,5 +158,27 @@ export class LessonRepository implements ILessonRepository {
             ],
         });
     }
+
+    /**
+     * Find top N lessons for a course (ordered by module and lesson index)
+     */
+    async findTopLessonsByCourse(courseId: string, limit: number): Promise<Lesson[]> {
+        return this.prisma.lesson.findMany({
+            where: {
+                module: {
+                    courseId,
+                    deletedAt: null,
+                    status: 'published',
+                },
+                deletedAt: null,
+                status: 'published',
+            },
+            take: limit,
+            orderBy: [
+                { module: { orderIndex: 'asc' } },
+                { orderIndex: 'asc' },
+            ],
+        });
+    }
 }
 

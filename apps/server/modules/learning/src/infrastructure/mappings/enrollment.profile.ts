@@ -62,6 +62,10 @@ export class EnrollmentProfile extends AutomapperProfile {
                     mapFrom((src) => src.paymentId || undefined),
                 ),
                 forMember(
+                    (dest) => dest.orderId,
+                    mapFrom((src: any) => src.orderId || undefined),
+                ),
+                forMember(
                     (dest) => dest.couponAppliedId,
                     mapFrom((src) => src.couponAppliedId || undefined),
                 ),

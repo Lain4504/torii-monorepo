@@ -6,8 +6,25 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { ArrowLeft, Play, Clock, Circle } from 'lucide-react'
+import { ArrowLeft, Play, Clock, Circle, Video, FileText } from 'lucide-react'
 import { courseApi } from '@/lib/api/services/course-api'
+import {
+    Item,
+    ItemActions,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+    ItemGroup
+} from "@workspace/ui/components/item"
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle
+} from "@workspace/ui/components/empty"
 
 export default function ModulePage() {
     const params = useParams()
@@ -93,55 +110,59 @@ export default function ModulePage() {
                         <CardTitle>Danh sách bài học</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-3">
-                            {module.lessons && module.lessons.length > 0 ? (
-                                module.lessons.map((lesson: any, index: number) => (
-                                    <div
-                                        key={lesson.id || index}
-                                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
-                                    >
-                                        <div className="flex items-center gap-4 flex-1">
-                                            <div className="p-2 rounded bg-muted">
-                                                {lesson.isPreview ? (
-                                                    <Play className="w-4 h-4" />
-                                                ) : (
-                                                    <Circle className="w-4 h-4" />
+                        {module.lessons && module.lessons.length > 0 ? (
+                            <ItemGroup>
+                                {module.lessons.map((lesson: any, index: number) => (
+                                    <Item key={lesson.id || index} variant="outline" className="p-4">
+                                        <ItemMedia variant="icon" className="bg-muted">
+                                            {lesson.isPreview ? (
+                                                <Video className="w-4 h-4 text-primary" />
+                                            ) : (
+                                                <FileText className="w-4 h-4" />
+                                            )}
+                                        </ItemMedia>
+                                        <ItemContent>
+                                            <div className="flex items-center gap-2">
+                                                <ItemTitle className="font-medium">{lesson.title}</ItemTitle>
+                                                {lesson.isPreview && (
+                                                    <Badge variant="secondary" className="text-[10px] h-4">
+                                                        Xem trước
+                                                    </Badge>
                                                 )}
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <h3 className="font-medium text-foreground">{lesson.title}</h3>
-                                                    {lesson.isPreview && (
-                                                        <Badge variant="outline" className="text-xs">
-                                                            Xem trước
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                                {lesson.videoDuration && (
-                                                    <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
-                                                        <Clock className="w-3 h-3" />
-                                                        <span>
-                                                            {Math.floor(lesson.videoDuration / 60)}:{(lesson.videoDuration % 60).toString().padStart(2, '0')}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => router.push(`/courses/${slug}/learn/lessons/${lesson.id}`)}
-                                        >
-                                            Học ngay
-                                        </Button>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-muted-foreground text-center py-8">
-                                    Chưa có bài học nào trong học phần này
-                                </p>
-                            )}
-                        </div>
+                                            {lesson.videoDuration && (
+                                                <ItemDescription className="flex items-center gap-1 mt-1">
+                                                    <Clock className="w-3 h-3" />
+                                                    {Math.floor(lesson.videoDuration / 60)}:{(lesson.videoDuration % 60).toString().padStart(2, '0')}
+                                                </ItemDescription>
+                                            )}
+                                        </ItemContent>
+                                        <ItemActions>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="font-bold border-primary/20 hover:border-primary/50 text-primary"
+                                                onClick={() => router.push(`/courses/${slug}/learn/lessons/${lesson.id}`)}
+                                            >
+                                                Học ngay
+                                            </Button>
+                                        </ItemActions>
+                                    </Item>
+                                ))}
+                            </ItemGroup>
+                        ) : (
+                            <Empty className="py-12 border-none">
+                                <EmptyHeader>
+                                    <EmptyMedia variant="icon">
+                                        <Circle className="w-8 h-8 text-muted-foreground/30" />
+                                    </EmptyMedia>
+                                    <EmptyTitle>Chưa có bài học nào</EmptyTitle>
+                                    <EmptyDescription>
+                                        Học phần này hiện đang được cập nhật nội dung.
+                                    </EmptyDescription>
+                                </EmptyHeader>
+                            </Empty>
+                        )}
                     </CardContent>
                 </Card>
             </div>

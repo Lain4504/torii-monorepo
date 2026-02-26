@@ -21,7 +21,7 @@ export const modulesApi = {
     },
 
     // GET /api/admin/modules/:id
-    async findOne(id: string): Promise<ModuleResponseDTO> {
+    async findById(id: string): Promise<ModuleResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ module: ModuleResponseDTO }>>(`/api/modules/${id}`);
         return response.data.data!.module;
     },
@@ -89,7 +89,7 @@ export function useCourseModules(courseId: string) {
 export function useModule(id: string) {
     return useQuery({
         queryKey: ['modules', id],
-        queryFn: () => modulesApi.findOne(id),
+        queryFn: () => modulesApi.findById(id),
         enabled: !!id,
     });
 }

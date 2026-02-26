@@ -36,7 +36,7 @@ describe('LessonService', () => {
     };
 
     const mockCourseService = {
-        findOne: jest.fn(),
+        findById: jest.fn(),
         recalculateStats: jest.fn(),
         isInstructor: jest.fn(),
     };
@@ -87,7 +87,7 @@ describe('LessonService', () => {
 
         it('nên tạo bài học thành công cho VOD course', async () => {
             mockModuleRepository.findById.mockResolvedValue({ id: 'mod-1', courseId: 'course-1' });
-            mockCourseService.findOne.mockResolvedValue({ id: 'course-1', type: 'vod' });
+            mockCourseService.findById.mockResolvedValue({ id: 'course-1', type: 'vod' });
             mockLessonRepository.getMaxOrderIndex.mockResolvedValue(5);
             mockLessonRepository.create.mockResolvedValue({ id: 'les-1', ...dto, orderIndex: 6 });
 
@@ -103,7 +103,7 @@ describe('LessonService', () => {
 
         it('nên báo lỗi khi tạo bài học Video cho LIVE course (Business Logic Check)', async () => {
             mockModuleRepository.findById.mockResolvedValue({ id: 'mod-1', courseId: 'course-1' });
-            mockCourseService.findOne.mockResolvedValue({ id: 'course-1', type: 'live' });
+            mockCourseService.findById.mockResolvedValue({ id: 'course-1', type: 'live' });
 
             await expect(service.create(requester as any, dto as any))
                 .rejects.toThrow(BadRequestException);
@@ -117,7 +117,7 @@ describe('LessonService', () => {
         });
     });
 
-    describe('findOne', () => {
+    describe('findById', () => {
         it('nên trả về đầy đủ videoUrl nếu người dùng đã đăng ký học', async () => {
             const lesson = { id: 'les-1', moduleId: 'mod-1', contentType: 'video', videoUrl: 'private-url', isPreview: false, isUnlocked: true };
             mockLessonRepository.findById.mockResolvedValue(lesson);
@@ -125,7 +125,7 @@ describe('LessonService', () => {
             mockEnrollmentService.isEnrolled.mockResolvedValue(true);
             const requester = { sub: 'user-student', role: 'LEARNER' as any, permissions: [] };
 
-            const result = await service.findOne('les-1', requester);
+            const result = await service.findById('les-1', requester);
 
             expect(result.videoUrl).toBe('private-url');
         });
@@ -137,7 +137,7 @@ describe('LessonService', () => {
             mockEnrollmentService.isEnrolled.mockResolvedValue(false);
             const requester = { sub: 'user-stranger', role: 'LEARNER' as any, permissions: [] };
 
-            const result = await service.findOne('les-1', requester);
+            const result = await service.findById('les-1', requester);
 
             expect(result.videoUrl).toBeUndefined();
         });
@@ -147,7 +147,7 @@ describe('LessonService', () => {
             mockLessonRepository.findById.mockResolvedValue(lesson);
             const requester = { sub: 'admin-1', role: 'ADMIN' as any, permissions: ['lesson.update'] };
 
-            const result = await service.findOne('les-1', requester);
+            const result = await service.findById('les-1', requester);
 
             expect(result.videoUrl).toBe('private-url');
             expect(mockEnrollmentService.isEnrolled).not.toHaveBeenCalled();
@@ -160,7 +160,7 @@ describe('LessonService', () => {
             mockEnrollmentService.isEnrolled.mockResolvedValue(false);
             const requester = { sub: 'user-stranger', role: 'LEARNER' as any, permissions: [] };
 
-            const result = await service.findOne('les-1', requester);
+            const result = await service.findById('les-1', requester);
 
             expect(result.isUnlocked).toBe(false);
             expect(result.videoUrl).toBeUndefined();
@@ -173,7 +173,7 @@ describe('LessonService', () => {
             mockEnrollmentService.isEnrolled.mockResolvedValue(true);
             const requester = { sub: 'user-student', role: 'LEARNER' as any, permissions: [] };
 
-            const result = await service.findOne('les-1', requester);
+            const result = await service.findById('les-1', requester);
 
             expect(result.isUnlocked).toBe(false);
             expect(result.videoUrl).toBeUndefined();

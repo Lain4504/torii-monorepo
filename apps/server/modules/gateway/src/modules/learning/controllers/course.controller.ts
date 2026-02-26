@@ -120,7 +120,7 @@ export class CourseController {
     async getCourse(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.findOne' },
+                { cmd: 'learning.course.findById' },
                 { id, requester: req.requester }
             )
         );

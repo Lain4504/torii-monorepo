@@ -214,7 +214,7 @@ Dựa trên rà soát kiến trúc Prisma và Service logic, đây là các lỗ
 Sau khi dive-deep vào `CourseService`, `LessonService` và kiến trúc `Prisma`, tôi phát hiện các vấn đề nghiêm trọng về logic cốt lõi:
 
 #### 12.1. Lỗ hổng Bảo mật Nội dung (Content Protection Leak)
-*   **Chỉ bảo vệ Video**: `LessonService.findOne` chỉ chặn `videoUrl` nếu chưa enrollment. 
+*   **Chỉ bảo vệ Video**: `LessonService.findById` chỉ chặn `videoUrl` nếu chưa enrollment. 
 *   **Leak Article & Materials**: Toàn bộ nội dung `articleContent` (bài viết chuyên sâu) và `LessonMaterial` (file PDF, slides, tài liệu đính kèm) **KHÔNG được kiểm tra quyền truy cập**. Chỉ cần có ID bài học, user chưa mua khóa học vẫn có thể đọc toàn bộ tài liệu và bài giảng văn bản.
 
 #### 12.2. Bug Logic Thống kê (Stats Recalculation Bug)

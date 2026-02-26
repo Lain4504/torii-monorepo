@@ -1,32 +1,25 @@
 import { z } from 'zod';
+import { baseModelSchema } from './base.model';
+import { EnrollmentStatus } from '../enums/enrollment.enum';
 
-export enum EnrollmentStatus {
-    PENDING_PAYMENT = 'pending_payment',
-    IN_PROGRESS = 'in_progress',
-    COMPLETED = 'completed',
-    DROPPED = 'dropped',
-    EXPIRED = 'expired',
-}
-
-export const enrollmentSchema = z.object({
-    id: z.string().uuid(),
-    userId: z.string().uuid(),
-    courseId: z.string().uuid(),
-    versionId: z.string().uuid().optional(),
-    enrollmentDate: z.date(),
-    completionStatus: z.nativeEnum(EnrollmentStatus).default(EnrollmentStatus.IN_PROGRESS),
-    completionPercentage: z.number().min(0).max(100).default(0),
-    lastAccessedAt: z.date().optional(),
-    expiresAt: z.date().optional(),
-    completedAt: z.date().optional(),
-    paymentId: z.string().uuid().optional(),
-    couponAppliedId: z.string().uuid().optional(),
-    finalPrice: z.number().min(0),
-    isGift: z.boolean().default(false),
-    giftMessage: z.string().optional(),
-    senderId: z.string().uuid().optional(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
+export const enrollmentSchema = baseModelSchema.extend({
+  userId: z.string().uuid(),
+  courseId: z.string().uuid(),
+  versionId: z.string().uuid().nullable().optional(),
+  enrollmentDate: z.date(),
+  completionStatus: z.nativeEnum(EnrollmentStatus).default(EnrollmentStatus.IN_PROGRESS),
+  completionPercentage: z.number().min(0).max(100).default(0),
+  lastAccessedAt: z.date().nullable().optional(),
+  expiresAt: z.date().nullable().optional(),
+  trialExpiresAt: z.date().nullable().optional(), // For Trial logic
+  completedAt: z.date().nullable().optional(),
+  paymentId: z.string().uuid().nullable().optional(),
+  orderId: z.string().uuid().nullable().optional(),
+  couponAppliedId: z.string().uuid().nullable().optional(),
+  finalPrice: z.number().min(0),
+  isGift: z.boolean().default(false),
+  giftMessage: z.string().nullable().optional(),
+  senderId: z.string().uuid().nullable().optional(),
 });
 
 export type Enrollment = z.infer<typeof enrollmentSchema>;

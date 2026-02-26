@@ -3,7 +3,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule, SharedModule, NatsClientModule } from '@server/shared';
 
 // NATS Handlers
-import { GamificationHandler, ActivityHandler } from '@server/gamification/interfaces/nats';
+import { GamificationHandler, ActivityHandler } from '@server/gamification/handlers';
 
 // Services
 import {

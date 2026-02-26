@@ -85,7 +85,7 @@ export class WishlistService implements IWishlistService {
   /**
    * Find wishlist by ID
    */
-  async findOne(id: string): Promise<WishlistResponseDTO | null> {
+  async findById(id: string): Promise<WishlistResponseDTO | null> {
     try {
       const item = await this.wishlistRepository.findById(id);
       if (!item) return null;

@@ -1,5 +1,7 @@
 import { z } from 'zod';
-import { enrollmentSchema, EnrollmentStatus } from '../models/enrollment.model';
+import { enrollmentSchema } from '../models/enrollment.model';
+import { EnrollmentStatus } from '../enums/enrollment.enum';
+import { paginationQuerySchema } from './common.dto';
 
 // Response DTO - includes backward compatibility aliases
 export const enrollmentResponseDTOSchema = enrollmentSchema;
@@ -11,14 +13,17 @@ export const enrollmentCreateDTOSchema = z.object({
     isGift: z.boolean().optional(),
     giftMessage: z.string().optional(),
     senderId: z.string().uuid().optional(),
-    status: z.nativeEnum(EnrollmentStatus).optional(),
 });
 
 export type EnrollmentCreateDTO = z.infer<typeof enrollmentCreateDTOSchema>;
 
-export const enrollmentQueryDTOSchema = z.object({
-    page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(1).default(10),
+export const trialEnrollmentCreateDTOSchema = z.object({
+    courseId: z.string().uuid(),
+});
+
+export type TrialEnrollmentCreateDTO = z.infer<typeof trialEnrollmentCreateDTOSchema>;
+
+export const enrollmentQueryDTOSchema = paginationQuerySchema.extend({
     userId: z.string().uuid().optional(),
     courseId: z.string().uuid().optional(),
     status: z.nativeEnum(EnrollmentStatus).optional(),

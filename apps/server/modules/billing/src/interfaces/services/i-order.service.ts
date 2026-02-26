@@ -31,7 +31,7 @@ export interface IOrderService {
     /**
      * Find order by ID
      */
-    findOne(id: string): Promise<OrderResponseDTO | null>;
+    findById(id: string): Promise<OrderResponseDTO | null>;
 
     /**
      * Create a new order
@@ -57,4 +57,9 @@ export interface IOrderService {
      * Refund an order
      */
     refund(id: string, reason?: string): Promise<OrderResponseDTO>;
+
+    /**
+     * Export orders with filters
+     */
+    exportOrders(query: OrderQueryDTO): Promise<any[]>;
 }

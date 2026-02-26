@@ -7,6 +7,7 @@ import { EnrollmentProfile } from '@server/learning/infrastructure/mappings/enro
 
 import { ENROLLMENT_SERVICE_TOKEN, ENROLLMENT_REPOSITORY_TOKEN } from '@server/learning/interfaces';
 import { CourseModule } from '@server/learning/modules/course/course.module';
+import { LessonModule } from '@server/learning/modules/lesson/lesson.module';
 import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';
 
 /**
@@ -17,7 +18,8 @@ import { CertificateModule } from '@server/learning/modules/certificate/certific
         PrismaModule,
         NatsClientModule,
         forwardRef(() => CourseModule),
-        forwardRef(() => CertificateModule)
+        forwardRef(() => CertificateModule),
+        forwardRef(() => LessonModule)
     ],
     controllers: [],
     providers: [

@@ -6,12 +6,12 @@ import { ArtifactsModule } from './modules/artifacts/artifacts.module';
 import { WebhookModule } from './infrastructure/webhook/webhook.module';
 
 // NATS Handlers (replacing HTTP controllers)
-import { PollsHandler } from './interfaces/nats/polls.handler';
-import { RoomHandler } from './interfaces/nats/room.handler';
-import { WaitingRoomHandler } from './interfaces/nats/waiting-room.handler';
-import { WebhookHandler } from './interfaces/nats/webhook.handler';
-import { UserHandler } from './interfaces/nats/user.handler';
-import { ArtifactsHandler } from './interfaces/nats/artifacts.handler';
+import { PollsHandler } from './handlers/polls.handler';
+import { RoomHandler } from './handlers/room.handler';
+import { WaitingRoomHandler } from './handlers/waiting-room.handler';
+import { WebhookHandler } from './handlers/webhook.handler';
+import { UserHandler } from './handlers/user.handler';
+import { ArtifactsHandler } from './handlers/artifacts.handler';
 import { BreakoutModule } from './modules/breakout/breakout.module';
 import { ExternalMediaModule } from './modules/external-media/external-media.module';
 import { ExternalDisplayModule } from './modules/external-display/external-display.module';
@@ -24,9 +24,9 @@ import { SpeechToTextModule } from './modules/speech-to-text/speech-to-text.modu
 import { JanitorModule } from './modules/janitor/janitor.module';
 
 // NATS Handlers
-import { IngressHandler } from './interfaces/nats/ingress.handler';
-import { InsightsHandler } from './interfaces/nats/insights.handler';
-import { SpeechToTextHandler } from './interfaces/nats/speech-to-text.handler';
+import { IngressHandler } from './handlers/ingress.handler';
+import { InsightsHandler } from './handlers/insights.handler';
+import { SpeechToTextHandler } from './handlers/speech-to-text.handler';
 
 import { SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 

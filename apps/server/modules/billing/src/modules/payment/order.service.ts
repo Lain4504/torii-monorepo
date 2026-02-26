@@ -256,7 +256,7 @@ export class OrderService implements IOrderService {
     /**
      * Find order by ID
      */
-    async findOne(id: string): Promise<OrderResponseDTO | null> {
+    async findById(id: string): Promise<OrderResponseDTO | null> {
         try {
             const item = await this.orderRepository.findById(id);
             if (!item) return null;
@@ -296,10 +296,10 @@ export class OrderService implements IOrderService {
             // Fetch course via NATS
             try {
                 course = await lastValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: courseId })
+                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: courseId })
                 );
             } catch (error: any) {
-                this.logger.error(`Error calling learning.course.findOne: ${error.message}`);
+                this.logger.error(`Error calling learning.course.findById: ${error.message}`);
                 course = null;
             }
 
@@ -349,7 +349,7 @@ export class OrderService implements IOrderService {
             try {
                 // Verify recipient exists
                 const identityResponse = await lastValueFrom(
-                    this.natsClient.send({ cmd: 'identity.users.findOne' }, { email: recipientEmail })
+                    this.natsClient.send({ cmd: 'identity.users.findByEmail' }, { email: recipientEmail })
                 );
 
                 if (!identityResponse || !identityResponse.user) {
@@ -655,7 +655,7 @@ export class OrderService implements IOrderService {
                     // Emit order_payment_success event
                     try {
                         const course = await lastValueFrom(
-                            this.natsClient.send({ cmd: 'learning.course.findOne' }, { id: metadata.courseId })
+                            this.natsClient.send({ cmd: 'learning.course.findById' }, { id: metadata.courseId })
                         );
                         const user = await this.orderRepository.getUserById(order.userId);
 
@@ -827,10 +827,11 @@ export class OrderService implements IOrderService {
             throw new BadRequestException('You do not have permission to cancel this order');
         }
 
-        // Only pending orders can be cancelled manually
-        if (order.status !== OrderStatus.PENDING) {
+        // Only pending or processing orders can be cancelled manually
+        if (order.status !== OrderStatus.PENDING && order.status !== OrderStatus.PROCESSING) {
             throw new BadRequestException(`Cannot cancel order in ${order.status} status`);
         }
+        this.logger.log(`Cancelling order ${id} with status ${order.status} by user ${userId} (role: ${userRole})`);
 
         const updated = await this.orderRepository.update(id, {
             status: OrderStatus.CANCELLED,
@@ -878,7 +879,8 @@ export class OrderService implements IOrderService {
             throw new BadRequestException('Only completed orders can be refunded');
         }
 
-        const updated = await this.orderRepository.update(id, {
+        // 1. Update original order status to REFUNDED (to mark it as net-zero)
+        await this.orderRepository.update(id, {
             status: OrderStatus.REFUNDED as any,
             metadata: {
                 ...(order.metadata as Record<string, any>),
@@ -887,10 +889,29 @@ export class OrderService implements IOrderService {
             }
         });
 
+        // 2. Create a NEW Order of type REFUND to track the historic return event
+        const refundOrder = await this.orderRepository.create({
+            user: { connect: { id: order.userId } },
+            amount: order.amount,
+            currency: order.currency,
+            paymentMethod: order.paymentMethod,
+            paymentGateway: order.paymentGateway,
+            status: OrderStatus.COMPLETED as any, // The refund "transaction" itself is successful
+            orderType: 'refund' as any,
+            transactionId: `REFUND-${order.transactionId || order.id.slice(0, 8)}`,
+            description: `Hoàn tiền: ${order.description}`,
+            metadata: {
+                originalOrderId: order.id,
+                refundReason: reason,
+                courseId: (order.metadata as any)?.courseId
+            },
+            completedAt: new Date(),
+        });
+
         const metadata = order.metadata as Record<string, any>;
         const courseId = metadata?.courseId;
 
-        // 1. Thu hồi quyền truy cập (Un-enroll)
+        // 3. Un-enroll and Add Balance
         if (courseId) {
             try {
                 const deletedEnrollment = await lastValueFrom(
@@ -900,7 +921,6 @@ export class OrderService implements IOrderService {
                     })
                 );
 
-                // 2. Hoàn tiền nếu là giao dịch có phí
                 if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
                     await lastValueFrom(
                         this.natsClient.send({ cmd: 'billing.user_balance.add' }, {
@@ -908,24 +928,92 @@ export class OrderService implements IOrderService {
                             amount: Math.round(Number(deletedEnrollment.finalPrice)),
                             reason: `Hoàn tiền đơn hàng #${order.id}. ${reason || ''}`,
                             type: 'REFUND',
-                            metadata: { orderId: order.id }
+                            metadata: {
+                                orderId: order.id,
+                                refundOrderId: refundOrder.id
+                            }
                         })
                     );
                 }
             } catch (error: any) {
                 this.logger.error(`Failed to process un-enrollment/refund logic properly: ${error.message}`);
-                // We still proceed since order status is already updated
+                // Proceed since order status is updated
             }
         }
 
-        // 3. Thông báo qua NATS
+        // 4. Emit event
         this.natsClient.emit({ cmd: 'billing.order.refunded' }, {
             orderId: id,
+            refundOrderId: refundOrder.id,
             userId: order.userId,
             reason
         });
 
-        return this.toOrderDto(updated);
+        return this.toOrderDto(refundOrder);
+    }
+
+    /**
+     * Export orders based on query filters (for admin)
+     * Returns raw data for CSV/Excel export
+     */
+    async exportOrders(query: OrderQueryDTO): Promise<any[]> {
+        try {
+            const whereClause: Prisma.OrderWhereInput = {};
+            if (query.userId) whereClause.userId = query.userId;
+            if (query.status) whereClause.status = query.status as any;
+
+            if (query.startDate || query.endDate) {
+                whereClause.createdAt = {};
+                if (query.startDate) {
+                    const date = new Date(query.startDate);
+                    if (!isNaN(date.getTime())) {
+                        whereClause.createdAt.gte = date;
+                    }
+                }
+                if (query.endDate) {
+                    const date = new Date(query.endDate);
+                    if (!isNaN(date.getTime())) {
+                        date.setHours(23, 59, 59, 999); // End of the day
+                        whereClause.createdAt.lte = date;
+                    }
+                }
+            }
+
+            const orders = await this.orderRepository.findMany({
+                where: whereClause,
+                take: 999999, // A very large number to get all for export, or remove take/skip entirely
+                skip: 0,
+                orderBy: { createdAt: 'desc' },
+                include: { user: true, coupon: true }, // Include user and coupon for more data
+            });
+
+            return orders.map(order => ({
+                orderId: order.id,
+                userId: order.userId,
+                userName: order.user?.displayName || order.user?.email,
+                userEmail: order.user?.email,
+                amount: Number(order.amount),
+                currency: order.currency,
+                status: order.status,
+                orderType: order.orderType,
+                paymentMethod: order.paymentMethod,
+                paymentGateway: order.paymentGateway,
+                transactionId: order.transactionId,
+                gatewayTransactionId: order.gatewayTransactionId,
+                enrollmentId: order.enrollmentId,
+                couponCode: order.coupon?.code,
+                couponDiscount: order.metadata ? (order.metadata as any).couponDiscount || 0 : 0,
+                originalCourseAmount: order.metadata ? (order.metadata as any).originalAmount || Number(order.amount) : Number(order.amount),
+                createdAt: order.createdAt.toISOString(),
+                completedAt: order.completedAt?.toISOString() || '',
+                cancelledAt: (order.metadata as any)?.cancelledAt || '',
+                // Add more fields as needed for export
+            }));
+
+        } catch (error: any) {
+            this.logger.error(`Error exporting orders: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     /**
