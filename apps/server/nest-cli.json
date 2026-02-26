@@ -81,16 +81,16 @@
     },
     "communication": {
       "type": "application",
-      "root": "modules/communication",
+      "root": "services/communication",
       "entryFile": "main",
-      "sourceRoot": "modules/communication/src",
+      "sourceRoot": "services/communication/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/communication/tsconfig.app.json",
+        "tsConfigPath": "services/communication/tsconfig.app.json",
         "webpack": false,
         "assets": [
           {
             "include": "**/*.pug",
-            "outDir": "dist/modules/communication/src",
+            "outDir": "dist/services/communication/src",
             "watchAssets": true
           }
         ]

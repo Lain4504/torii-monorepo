@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SharedEmailModule } from '@server/shared';
-import { EmailService } from './email.service';
+import { EmailService } from '@server/communication/modules/email/email.service';
+import { EmailHandler } from '@server/communication/modules/email/email.handler';
 
 /**
  * Email Module
@@ -8,6 +9,7 @@ import { EmailService } from './email.service';
  */
 @Module({
     imports: [SharedEmailModule],
+    controllers: [EmailHandler],
     providers: [EmailService],
     exports: [EmailService],
 })

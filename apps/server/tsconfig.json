@@ -48,7 +48,7 @@
         "./modules/learning/src/*"
       ],
       "@server/communication/*": [
-        "./modules/communication/src/*"
+        "./services/communication/src/*"
       ],
       "@server/storage/*": [
         "./modules/storage/src/*"

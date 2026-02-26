@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SharedEmailService } from '@server/shared';
-import { SendEmailEvent, OrderSuccessEmailData, EnrollmentSuccessEmailData, RefundEmailData } from '../../infrastructure/events/email.event';
+import { SendEmailEvent, OrderSuccessEmailData, EnrollmentSuccessEmailData, RefundEmailData } from '@server/communication/infrastructure/events/email.event';
 import * as pug from 'pug';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -28,11 +28,11 @@ export class EmailService {
                     // Relative to dist root in monorepo where Nest CLI might place them
                     path.join(__dirname, '../../../../email/templates/pug', `${templateName}.pug`),
                     // Relative to process working directory dist folder
-                    path.join(process.cwd(), 'dist/modules/email/templates/pug', `${templateName}.pug`),
+                    path.join(process.cwd(), 'dist/services/communication/src/modules/email/templates/pug', `${templateName}.pug`),
                     // Relative to process working directory source folder
-                    path.join(process.cwd(), 'modules/communication/src/modules/email/templates/pug', `${templateName}.pug`),
+                    path.join(process.cwd(), 'apps/server/services/communication/src/modules/email/templates/pug', `${templateName}.pug`),
                     // Absolute path fallback for containerized environments
-                    path.join('/app/apps/server/dist/modules/email/templates/pug', `${templateName}.pug`)
+                    path.join('/app/apps/server/dist/services/communication/src/modules/email/templates/pug', `${templateName}.pug`)
                 ];
 
                 for (const fallback of fallbacks) {

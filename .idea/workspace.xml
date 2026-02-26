@@ -4,12 +4,48 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization-config.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization-seeder.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.service.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor identity service">
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/communication.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/handlers/email.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/handlers/notification.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/handlers/ticket.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/infrastructure/events/email.event.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/infrastructure/events/enrollment.event.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/infrastructure/events/notification.event.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/infrastructure/events/order.event.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/repositories/i-notification.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/repositories/i-ticket.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/repositories/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/services/i-notification.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/services/i-ticket.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/interfaces/services/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/main.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/email.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/email.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/2fa-code.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/enrollment-success.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/invite.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/order-success.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/otp.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/password-reset-confirmation.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/password-reset.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/refund-status.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/verification.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/email/templates/pug/welcome.pug" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/notification/notification.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/notification/notification.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/notification/notification.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/notification/notification.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/ticket/ticket.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/ticket/ticket.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/ticket/ticket.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/test/email.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/test/notification.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/test/ticket.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/tsconfig.app.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -405,22 +441,6 @@
       <workItem from="1771996036213" duration="3105000" />
       <workItem from="1772038435231" duration="18000" />
     </task>
-    <task id="LOCAL-00827" summary="feat: add implementation checklist for Agents Service to track progress on AI-related tasks">
-      <option name="closed" value="true" />
-      <created>1770818642299</created>
-      <option name="number" value="00827" />
-      <option name="presentableId" value="LOCAL-00827" />
-      <option name="project" value="LOCAL" />
-      <updated>1770818642299</updated>
-    </task>
-    <task id="LOCAL-00828" summary="refactor: improve course repository and service methods, add analytics handlers">
-      <option name="closed" value="true" />
-      <created>1771658892653</created>
-      <option name="number" value="00828" />
-      <option name="presentableId" value="LOCAL-00828" />
-      <option name="project" value="LOCAL" />
-      <updated>1771658892653</updated>
-    </task>
     <task id="LOCAL-00829" summary="refactor: improve course repository and service methods, add analytics handlers">
       <option name="closed" value="true" />
       <created>1771659261712</created>
@@ -797,7 +817,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772112211880</updated>
     </task>
-    <option name="localTasksCounter" value="876" />
+    <task id="LOCAL-00876" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772112539041</created>
+      <option name="number" value="00876" />
+      <option name="presentableId" value="LOCAL-00876" />
+      <option name="project" value="LOCAL" />
+      <updated>1772112539041</updated>
+    </task>
+    <task id="LOCAL-00877" summary="refactor identity service">
+      <option name="closed" value="true" />
+      <created>1772112551026</created>
+      <option name="number" value="00877" />
+      <option name="presentableId" value="LOCAL-00877" />
+      <option name="project" value="LOCAL" />
+      <updated>1772112551026</updated>
+    </task>
+    <option name="localTasksCounter" value="878" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -832,7 +868,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="chore: update dependencies and improve project configuration" />
     <MESSAGE value="refactor: update imports from @radix-ui to radix-ui for consistency" />
     <MESSAGE value="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency" />
     <MESSAGE value="refactor: add AspectRatio and DirectionProvider components, update styles and structure for consistency" />
@@ -857,7 +892,8 @@
     <MESSAGE value="refactor: update notebook API and enhance flashcard component functionality" />
     <MESSAGE value="fix: update external media player text for clarity" />
     <MESSAGE value="feat: add initial setup for analytics and audit modules with corresponding handlers and services" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add initial setup for analytics and audit modules with corresponding handlers and services" />
+    <MESSAGE value="refactor identity service" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor identity service" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

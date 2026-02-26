@@ -12,9 +12,9 @@ import {
     NotificationType,
     OrderStatus
 } from '@workspace/schemas';
-import { ITicketService, INotificationService, NOTIFICATION_SERVICE_TOKEN } from '../../interfaces/services';
-import { ITicketRepository, TICKET_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { EmailService } from '../email/email.service';
+import { ITicketService, INotificationService, NOTIFICATION_SERVICE_TOKEN } from '@server/communication/interfaces/services';
+import { ITicketRepository, TICKET_REPOSITORY_TOKEN } from '@server/communication/interfaces/repositories';
+import { EmailService } from '@server/communication/modules/email/email.service';
 
 @Injectable()
 export class TicketService implements ITicketService {

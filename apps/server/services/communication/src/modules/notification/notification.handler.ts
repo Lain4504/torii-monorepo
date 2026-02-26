@@ -1,6 +1,6 @@
 import { Controller, Logger, Inject } from '@nestjs/common';
-import { EventPattern, Payload, ClientProxy } from '@nestjs/microservices';
-import { NotificationType } from '@workspace/schemas';
+import { EventPattern, MessagePattern, Payload, ClientProxy } from '@nestjs/microservices';
+import { NotificationType, Requester } from '@workspace/schemas';
 import type { SendNotificationEvent } from '@server/communication/infrastructure/events/notification.event';
 import type { OrderPaymentSuccessEvent, OrderStatusChangedEvent } from '@server/communication/infrastructure/events/order.event';
 import type { CourseEnrollmentSuccessEvent, CourseGiftReceivedEvent } from '@server/communication/infrastructure/events/enrollment.event';
@@ -10,8 +10,21 @@ import type { INotificationService } from '@server/communication/interfaces/serv
 import { AppConfigService } from '@server/shared';
 
 /**
+ * Notification Event Data (for NATS payload)
+ */
+export interface NotificationEventData {
+    recipientId: string;
+    type: 'COMMENT_REPLY' | 'DAILY_SUMMARY';
+    payload: {
+        title: string;
+        body: string;
+        metadata: Record<string, any>;
+    };
+}
+
+/**
  * Notification Controller
- * Handles NATS events for notifications
+ * Handles NATS events and messages for notifications
  */
 @Controller()
 export class NotificationHandler {
@@ -24,10 +37,10 @@ export class NotificationHandler {
     ) { }
 
     /**
-     * Handle generic send_notification event
+     * Handle generic send_notification event/message
      */
     @EventPattern({ cmd: 'send_notification' })
-    async handleSendNotification(@Payload() event: SendNotificationEvent): Promise<void> {
+    async handleSendNotificationEvent(@Payload() event: SendNotificationEvent): Promise<void> {
         this.logger.log(`Received send_notification event for user ${event.recipientId}, type: ${event.type}`);
 
         try {
@@ -58,8 +71,80 @@ export class NotificationHandler {
     }
 
     /**
+     * Handle unified send_notification message (Request-Response)
+     * Pattern: send_notification
+     * Supports: COMMENT_REPLY, DAILY_SUMMARY
+     */
+    @MessagePattern({ cmd: 'send_notification' })
+    async handleSendNotificationMessage(@Payload() payload: NotificationEventData): Promise<void> {
+        try {
+            this.logger.log(`Received send_notification message: type=${payload.type}, recipientId=${payload.recipientId}`);
+            await this.notificationService.handleSendNotification(payload);
+        } catch (error: any) {
+            this.logger.error(`Error handling send_notification message: ${error?.message}`, error);
+        }
+    }
+
+    /**
+     * Handle course published event
+     * Pattern: course.published
+     * Legacy event, kept for backward compatibility
+     */
+    @MessagePattern({ cmd: 'course.published' })
+    async handleCoursePublished(@Payload() payload: {
+        courseId: string;
+        courseTitle: string;
+        courseJlptLevel: string;
+        userIds?: string[];
+    }): Promise<void> {
+        try {
+            this.logger.log(`Received course.published event for course: ${payload.courseId}`);
+            await this.notificationService.handleCoursePublished(payload);
+        } catch (error: any) {
+            this.logger.error(`Error handling course.published event: ${error?.message}`, error);
+        }
+    }
+
+    // --- Message Patterns for API Gateway ---
+
+    @MessagePattern({ cmd: 'communication.notification.findAll' })
+    async findAll(@Payload() data: { query: { page?: number; limit?: number; isRead?: boolean;[key: string]: any }, requester: Requester }) {
+        return this.notificationService.findAll(data.requester.sub, {
+            page: data.query.page ?? 1,
+            limit: data.query.limit ?? 10,
+            isRead: data.query.isRead,
+        });
+    }
+
+    @MessagePattern({ cmd: 'communication.notification.getUnreadCount' })
+    async getUnreadCount(@Payload() data: { requester: Requester }) {
+        return this.notificationService.getUnreadCount(data.requester.sub);
+    }
+
+    @MessagePattern({ cmd: 'communication.notification.markAsRead' })
+    async markAsRead(@Payload() data: { notificationId: string; requester: Requester }) {
+        return this.notificationService.markAsRead(data.notificationId, data.requester.sub);
+    }
+
+    @MessagePattern({ cmd: 'communication.notification.markAllAsRead' })
+    async markAllAsRead(@Payload() data: { requester: Requester }) {
+        return this.notificationService.markAllAsRead(data.requester.sub);
+    }
+
+    @MessagePattern({ cmd: 'communication.notification.delete' })
+    async delete(@Payload() data: { notificationId: string; requester: Requester }) {
+        return this.notificationService.delete(data.notificationId, data.requester.sub);
+    }
+
+    @MessagePattern({ cmd: 'communication.notification.create' })
+    async create(@Payload() payload: any) {
+        return this.notificationService.create(payload);
+    }
+
+    // --- Event Patterns for internal microservices ---
+
+    /**
      * Handle order_payment_success event
-     * Creates notification and sends email with course link
      */
     @EventPattern({ cmd: 'order_payment_success' })
     async handleOrderPaymentSuccess(@Payload() event: OrderPaymentSuccessEvent): Promise<void> {
@@ -71,7 +156,6 @@ export class NotificationHandler {
                 ? `Bạn đã thanh toán khóa học và gửi tặng cho ${event.recipientName || 'người nhận'} thành công!`
                 : `Bạn đã thanh toán thành công khóa học "${event.courseName}". Bắt đầu học ngay!`;
 
-            // Create in-app notification
             await this.notificationService.create({
                 userId: event.userId,
                 title: 'Thanh toán thành công! 🎉',
@@ -87,9 +171,6 @@ export class NotificationHandler {
                 },
             });
 
-            this.logger.log(`Order success notification created for user ${event.userId}`);
-
-            // Send email with course link
             this.natsClient.emit({ cmd: 'send_email' }, {
                 type: 'order_success',
                 to: event.userEmail,
@@ -102,8 +183,6 @@ export class NotificationHandler {
                     orderId: event.orderId,
                 },
             });
-
-            this.logger.log(`Order success email event emitted for ${event.userEmail}`);
         } catch (error: any) {
             this.logger.error(`Failed to handle order payment success: ${error.message}`, error.stack);
         }
@@ -111,14 +190,12 @@ export class NotificationHandler {
 
     /**
      * Handle course_gift_received event
-     * Creates notification and sends email for recipient
      */
     @EventPattern({ cmd: 'course_gift_received' })
     async handleCourseGiftReceived(@Payload() event: CourseGiftReceivedEvent): Promise<void> {
         this.logger.log(`Received course_gift_received event for user ${event.recipientId}, from ${event.senderName}`);
 
         try {
-            // 1. Create in-app notification for recipient
             await this.notificationService.create({
                 userId: event.recipientId,
                 title: 'Bạn nhận được món quà kiến thức! 🎁',
@@ -134,14 +211,11 @@ export class NotificationHandler {
                 },
             });
 
-            this.logger.log(`Gift received notification created for recipient ${event.recipientId}`);
-
-            // 2. Send enrollment success email to recipient
             this.natsClient.emit({ cmd: 'send_email' }, {
-                type: 'course_enrollment', // Using existing course_enrollment template
+                type: 'course_enrollment',
                 to: event.recipientEmail,
                 data: {
-                    displayName: 'Học viên', // Or get full name if available
+                    displayName: 'Học viên',
                     courseName: event.courseName,
                     courseUrl: `${this.appConfig.server.webUrl}/courses/${event.courseId}`,
                     senderName: event.senderName,
@@ -149,8 +223,6 @@ export class NotificationHandler {
                     giftMessage: event.giftMessage,
                 },
             });
-
-            this.logger.log(`Gift enrollment email event emitted for ${event.recipientEmail}`);
         } catch (error: any) {
             this.logger.error(`Failed to handle course gift received: ${error.message}`, error.stack);
         }
@@ -175,8 +247,6 @@ export class NotificationHandler {
                     newStatus: event.newStatus,
                 },
             });
-
-            this.logger.log(`Order status change notification created for user ${event.userId}`);
         } catch (error: any) {
             this.logger.error(`Failed to handle order status changed: ${error.message}`, error.stack);
         }
@@ -184,19 +254,17 @@ export class NotificationHandler {
 
     /**
      * Handle course_enrollment_success event
-     * Creates notification and sends email for free courses
      */
     @EventPattern({ cmd: 'course_enrollment_success' })
     async handleCourseEnrollmentSuccess(@Payload() event: CourseEnrollmentSuccessEvent): Promise<void> {
         this.logger.log(`Received course_enrollment_success event for enrollment ${event.enrollmentId}, user: ${event.userId}`);
 
         try {
-            // Create in-app notification
             await this.notificationService.create({
                 userId: event.userId,
                 title: 'Tham gia khóa học thành công! 🎉',
                 message: `Bạn đã tham gia thành công khóa học "${event.courseName}". Bắt đầu học ngay!`,
-                notificationType: NotificationType.COURSE, // Use COURSE type for enrollment
+                notificationType: NotificationType.COURSE,
                 metadata: {
                     enrollmentId: event.enrollmentId,
                     courseId: event.courseId,
@@ -204,11 +272,7 @@ export class NotificationHandler {
                 },
             });
 
-            this.logger.log(`Enrollment success notification created for user ${event.userId}`);
-
-            // Send email
             if (event.userEmail) {
-                this.logger.log(`Emitting send_email for ${event.userEmail} (course: ${event.courseName})`);
                 this.natsClient.emit({ cmd: 'send_email' }, {
                     type: 'course_enrollment',
                     to: event.userEmail,
@@ -218,10 +282,6 @@ export class NotificationHandler {
                         courseUrl: `${this.appConfig.server.webUrl}/courses/${event.courseId}`,
                     },
                 });
-
-                this.logger.log(`Enrollment success email event emitted for ${event.userEmail}`);
-            } else {
-                this.logger.warn(`Missing userEmail in CourseEnrollmentSuccessEvent for user ${event.userId}`);
             }
         } catch (error: any) {
             this.logger.error(`Failed to handle course enrollment success: ${error.message}`, error.stack);

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule, NatsClientModule } from '@server/shared';
-import { NotificationService } from './notification.service';
-import { NotificationRepository } from './notification.repository';
-import { NotificationHandler } from './notification.handler';
+import { NotificationService } from '@server/communication/modules/notification/notification.service';
+import { NotificationRepository } from '@server/communication/modules/notification/notification.repository';
+import { NotificationHandler } from '@server/communication/modules/notification/notification.handler';
 import { NOTIFICATION_SERVICE_TOKEN } from '@server/communication/interfaces/services';
 import { NOTIFICATION_REPOSITORY_TOKEN } from '@server/communication/interfaces/repositories';
 

@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
-import { CommunicationModule } from './communication.module';
+import { CommunicationModule } from '@server/communication/communication.module';
 
 async function bootstrap() {
   console.log('🚀 Communication Service starting...');
