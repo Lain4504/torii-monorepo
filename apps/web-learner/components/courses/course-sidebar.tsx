@@ -185,6 +185,12 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                                             : ((course as any).expirationMonths ? `Truy cập trong ${(course as any).expirationMonths} tháng` : 'Truy cập trọn đời'),
                                 },
                                 { icon: Award, text: 'Chứng chỉ hoàn thành Torii' },
+                                ...((course.type === 'live' && course.maxStudents && course.maxStudents > 0)
+                                    ? [{
+                                        icon: Users,
+                                        text: `Còn lại ${course.maxStudents - course.totalStudents} chỗ`,
+                                    }]
+                                    : []),
                             ].map((item, idx) => (
                                 <Item key={idx} variant="default" className="px-3 py-1.5 border-none">
                                     <ItemMedia>

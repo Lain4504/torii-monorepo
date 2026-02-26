@@ -91,6 +91,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                 startDate: (course as any).startDate ?? undefined,
                 expiresAt: (course as any).expiresAt ?? undefined,
                 registrationClosedAt: (course as any).registrationClosedAt ?? undefined,
+                maxStudents: (course as any).maxStudents ?? undefined,
             });
             setThumbnailFile(null);
             setVideoFile(null);
@@ -519,6 +520,27 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                                         id={field.name}
                                                         type="datetime-local"
                                                         {...field}
+                                                        className="mt-1"
+                                                    />
+                                                    <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
+                                                </Field>
+                                            )}
+                                        />
+                                        <Controller
+                                            control={control}
+                                            name={'maxStudents' as any}
+                                            render={({ field, fieldState }) => (
+                                                <Field className="space-y-2" data-invalid={fieldState.invalid}>
+                                                    <FieldLabel htmlFor={field.name} className="">
+                                                        Số Lượng Học Viên Tối Đa
+                                                    </FieldLabel>
+                                                    <Input
+                                                        id={field.name}
+                                                        type="number"
+                                                        {...field}
+                                                        min="0"
+                                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                        placeholder="Bỏ trống nếu không giới hạn"
                                                         className="mt-1"
                                                     />
                                                     <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />

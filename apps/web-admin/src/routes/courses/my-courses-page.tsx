@@ -100,6 +100,7 @@ export default function MyCoursesPage() {
                 onEdit={setSelectedCourse}
                 onDelete={() => { }}
                 onModules={(course) => navigate(`/courses/${course.id}`)}
+                onManageEnrollments={(course) => navigate(`/courses/${course.id}/enrollments`)}
                 onManageInstructors={setManagingInstructorsCourse}
                 onPublish={setPublishingCourse}
                 onReject={setRejectingCourse}

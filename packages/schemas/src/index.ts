@@ -27,6 +27,7 @@ export * from './models/cart.model';
 export * from './models/assignment.model';
 export * from './models/certificate.model';
 export * from './models/attendance.model';
+export * from './models/teaching-schedule.model';
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';

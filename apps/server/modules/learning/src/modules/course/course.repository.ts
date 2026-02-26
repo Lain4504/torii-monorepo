@@ -248,4 +248,18 @@ export class CourseRepository implements ICourseRepository {
             },
         });
     }
+
+    /**
+     * Increment total students for a course
+     */
+    async incrementTotalStudents(courseId: string): Promise<void> {
+        await this.prisma.course.update({
+            where: { id: courseId },
+            data: {
+                totalStudents: {
+                    increment: 1,
+                },
+            },
+        });
+    }
 }

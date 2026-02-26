@@ -20,6 +20,7 @@ export type CoursesColumnsProps = {
     onDelete: (course: CourseResponseDTO) => void;
     onModules: (course: CourseResponseDTO) => void;
     onManageInstructors: (course: CourseResponseDTO) => void;
+    onManageEnrollments: (course: CourseResponseDTO) => void;
     onPublish: (course: CourseResponseDTO) => void;
     onSubmitForReview: (course: CourseResponseDTO) => void;
     onUnpublish: (course: CourseResponseDTO) => void;
@@ -32,7 +33,7 @@ export type CoursesColumnsProps = {
     limit: number;
 };
 
-export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, onManageLiveSessions, can, page, limit }: CoursesColumnsProps) => [
+export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onManageEnrollments, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, onManageLiveSessions, can, page, limit }: CoursesColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -246,6 +247,16 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 >
                                     <Users className="h-4 w-4 opacity-50" />
                                     <span>Quản lý giảng viên</span>
+                                </DropdownMenuItem>
+                            )}
+
+                            {can('course.update') && (
+                                <DropdownMenuItem
+                                    onClick={() => onManageEnrollments(course)}
+                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
+                                >
+                                    <Users className="h-4 w-4 opacity-50" />
+                                    <span>Danh sách học viên</span>
                                 </DropdownMenuItem>
                             )}
 

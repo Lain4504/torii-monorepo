@@ -106,4 +106,9 @@ export interface ICourseRepository {
      * Count published lessons for a course
      */
     countLessons(courseId: string): Promise<number>;
+
+    /**
+     * Increment total students for a course
+     */
+    incrementTotalStudents(courseId: string): Promise<void>;
 }

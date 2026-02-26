@@ -55,6 +55,7 @@ export const courseSchema = z.object({
     totalLessons: z.number().default(0),
     totalQuizzes: z.number().default(0),
     totalStudents: z.number().default(0),
+    maxStudents: z.number().min(0).optional(),
     averageRating: z.number().default(0),
     totalReviews: z.number().default(0),
     status: z.nativeEnum(CourseStatus), // Computed field derived from approvedBy/approvedAt
@@ -72,3 +73,38 @@ export const courseSchema = z.object({
 });
 
 export type Course = z.infer<typeof courseSchema>;
+
+export const courseCreateDTOSchema = courseSchema.pick({
+    title: true,
+    description: true,
+    shortDescription: true,
+    jlptLevel: true,
+    thumbnailUrl: true,
+    previewVideoUrl: true,
+    price: true,
+    discountPrice: true,
+    type: true,
+    isFree: true,
+    durationWeeks: true,
+    expirationMonths: true,
+    startDate: true,
+    expiresAt: true,
+    registrationClosedAt: true,
+    tags: true,
+    learningOutcomes: true,
+    requirements: true,
+    liveConfig: true,
+    maxStudents: true,
+}).partial();
+
+export type CourseCreateDTO = z.infer<typeof courseCreateDTOSchema>;
+
+export const courseUpdateDTOSchema = courseCreateDTOSchema.partial();
+
+export type CourseUpdateDTO = z.infer<typeof courseUpdateDTOSchema>;
+
+export const courseResponseDTOSchema = courseSchema.extend({
+    // Add any relations or computed fields here if needed for response
+});
+
+export type CourseResponseDTO = z.infer<typeof courseResponseDTOSchema>;

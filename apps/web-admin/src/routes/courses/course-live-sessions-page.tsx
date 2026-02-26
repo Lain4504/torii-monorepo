@@ -10,6 +10,7 @@ import {
     Video,
     Trash,
     MoreVertical,
+    Calendar,
 } from 'lucide-react';
 import {
     useLiveSessions,
@@ -30,6 +31,7 @@ import { toast } from '@workspace/ui/components/sonner';
 import { PageHeader } from '@/components/common/page-header';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { TeachingScheduleSheet } from '@/components/courses/teaching-schedule-sheet';
+import { CreateScheduleRequestSheet } from '@/components/courses/create-schedule-request-sheet';
 import {
     Table,
     TableBody,
@@ -38,11 +40,15 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
+import { usePermissions } from '@/hooks/use-permissions';
+import type { LiveSessionResponseDTO } from '@workspace/schemas';
 
 export default function CourseLiveSessionsPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [isScheduleSheetOpen, setIsScheduleSheetOpen] = useState(false);
+    const [requestingSession, setRequestingSession] = useState<LiveSessionResponseDTO | null>(null);
+    const { can } = usePermissions();
 
     const { data: course, isLoading: isLoadingCourse } = useCourse(id || '');
     const { data: sessions, isLoading: isLoadingSessions } = useLiveSessions(id || '');
@@ -240,19 +246,26 @@ export default function CourseLiveSessionsPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
-                                                    {session.status === 'scheduled' && (
+                                                    {session.status === 'scheduled' && can('live_class.manage') && (
                                                         <DropdownMenuItem onClick={() => handleStart(session.id)} className="rounded-lg text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 gap-2 py-2">
                                                             <PlayCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Bắt đầu</span>
                                                         </DropdownMenuItem>
                                                     )}
-                                                    {session.status === 'live' && (
+                                                    {session.status === 'live' && can('live_class.manage') && (
                                                         <DropdownMenuItem onClick={() => handleEnd(session.id)} className="rounded-lg text-orange-600 focus:text-orange-700 focus:bg-orange-50 gap-2 py-2">
                                                             <StopCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Kết thúc</span>
                                                         </DropdownMenuItem>
                                                     )}
-                                                    <DropdownMenuItem onClick={() => handleDelete(session.id)} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
-                                                        <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
-                                                    </DropdownMenuItem>
+                                                    {session.status === 'scheduled' && can('live_class.request_change') && (
+                                                        <DropdownMenuItem onClick={() => setRequestingSession(session)} className="rounded-lg text-blue-600 focus:text-blue-700 focus:bg-blue-50 gap-2 py-2">
+                                                            <Calendar className="size-3.5" /> <span className="font-bold text-xs uppercase">Yêu cầu đổi lịch</span>
+                                                        </DropdownMenuItem>
+                                                    )}
+                                                    {can('live_class.manage') && (
+                                                        <DropdownMenuItem onClick={() => handleDelete(session.id)} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
+                                                            <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
+                                                        </DropdownMenuItem>
+                                                    )}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>
@@ -268,6 +281,11 @@ export default function CourseLiveSessionsPage() {
                 open={isScheduleSheetOpen}
                 onOpenChange={setIsScheduleSheetOpen}
                 course={course}
+            />
+            <CreateScheduleRequestSheet
+                open={!!requestingSession}
+                onOpenChange={(open) => !open && setRequestingSession(null)}
+                session={requestingSession}
             />
         </div>
     );

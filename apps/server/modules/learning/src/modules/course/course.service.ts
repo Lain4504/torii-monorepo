@@ -360,6 +360,7 @@ export class CourseService implements ICourseService {
         requirements: dto.requirements || [],
         createdBy: requester.sub,
         status: 'draft',
+        maxStudents: dto.maxStudents || null,
       };
 
       // Validation: Paid courses must have price > 0
@@ -464,6 +465,7 @@ export class CourseService implements ICourseService {
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
+      if (dto.maxStudents !== undefined) updateData.maxStudents = dto.maxStudents;
 
       // Validation: Paid courses must have price > 0
       const finalIsFree = dto.isFree !== undefined ? dto.isFree : existing.isFree;

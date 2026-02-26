@@ -404,6 +404,19 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                                 className="mt-1"
                                             />
                                         </Field>
+                                        <Field>
+                                            <FieldLabel htmlFor="maxStudents" className="">
+                                                Số Lượng Học Viên Tối Đa
+                                            </FieldLabel>
+                                            <Input
+                                                id="maxStudents"
+                                                type="number"
+                                                min="0"
+                                                {...register('maxStudents' as any, { valueAsNumber: true })}
+                                                placeholder="Bỏ trống nếu không giới hạn"
+                                                className="mt-1"
+                                            />
+                                        </Field>
                                     </div>
                                 )}
 

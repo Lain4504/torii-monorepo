@@ -44,6 +44,7 @@ model Course {
   totalLessons         Int          @default(0) @map("total_lessons")
   totalQuizzes         Int          @default(0) @map("total_quizzes")
   totalStudents        Int          @default(0) @map("total_students")
+  maxStudents          Int?         @map("max_students") // Max students for live courses
   averageRating        Decimal      @default(0.00) @map("average_rating") @db.Decimal(3, 2)
   totalReviews         Int          @default(0) @map("total_reviews")
   status               CourseStatus @default(draft)

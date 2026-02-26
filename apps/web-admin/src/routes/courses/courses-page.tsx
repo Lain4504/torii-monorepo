@@ -145,6 +145,7 @@ export default function CoursesPage() {
 
               onTitleClick={(course) => navigate(`/courses/${course.id}`)}
               onModules={(course) => navigate(`/courses/${course.id}`)}
+              onManageEnrollments={(course) => navigate(`/courses/${course.id}/enrollments`)}
               onManageInstructors={setManagingInstructorsCourse}
               onPublish={setPublishingCourse}
               onReject={setRejectingCourse}
