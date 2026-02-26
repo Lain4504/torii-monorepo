@@ -34,6 +34,7 @@ import { NatsRoomService } from '@server/meet/services/nats-room.service';
 import { RedisInsightsService } from '@server/meet/infrastructure/redis/redis-insights.service';
 import { ArtifactsService } from '@server/meet/modules/artifacts/artifacts.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
+import { InsightsProviderService } from './insights.provider';
 import { v4 as uuidv4 } from 'uuid';
 import { InsightsTaskPayload, InsightsServiceType, InsightsTaskType, AgentTaskResponse } from './insights.types';
 import { AppConfigService } from '@server/shared';
@@ -53,6 +54,7 @@ export class InsightsService {
         private readonly artifactsService: ArtifactsService,
         @Inject(forwardRef(() => AnalyticsService))
         private readonly analyticsService: AnalyticsService,
+        private readonly insightsProvider: InsightsProviderService,
     ) { }
 
     /**
@@ -304,33 +306,29 @@ export class InsightsService {
      * ExecuteChatTranslation performs text translation
      */
     async executeChatTranslation(roomId: string, userId: string, r: InsightsTranslateTextReq): Promise<any> {
-        const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
-        const opts = {
-            text: r.text,
-            source_lang: r.sourceLang,
-            target_langs: r.targetLangs,
-        };
-        const options = new TextEncoder().encode(JSON.stringify(opts));
+        try {
+            const res = await this.insightsProvider.translateText(
+                r.text,
+                r.sourceLang,
+                r.targetLangs
+            );
 
-        const payload: InsightsTaskPayload = {
-            task: InsightsTaskType.UserStart,
-            service_type: InsightsServiceType.Translation,
-            room_id: roomId,
-            room_table_id: roomInfo ? Number(roomInfo.dbTableId) : 0,
-            user_id: userId,
-            options: options,
-        };
+            if (res) {
+                await this.redisInsightsService.incrementChatTranslationUsage(roomId, userId, r.text.length);
+            }
 
-
-        const res = await firstValueFrom(
-            this.natsClient.send<any>('plug-n-meet-insights', payload)
-        );
-
-        if (res.status && res.result) {
-            await this.redisInsightsService.incrementChatTranslationUsage(roomId, userId, r.text.length);
+            return {
+                status: true,
+                msg: 'success',
+                result: res,
+            };
+        } catch (error) {
+            this.logger.error(`Chat translation failed: ${error.message}`);
+            return {
+                status: false,
+                msg: error.message,
+            };
         }
-
-        return res;
     }
 
     /**
@@ -413,51 +411,66 @@ export class InsightsService {
             throw new Error("you're not allowed to use this service");
         }
 
-        // 1. Build history
+        // 1. Build history (SYNC)
         const history = await this.buildHistoryWithUserPrompt(roomId, userId, r.text, metadata);
 
-        // 2. Forward request to agent (or handle locally if providers existed)
-        const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
-        const payload: InsightsTaskPayload = {
-            task: InsightsTaskType.UserStart,
-            service_type: InsightsServiceType.AITextChat,
-            room_id: roomId,
-            room_table_id: roomInfo ? Number(roomInfo.dbTableId) : 0,
-            user_id: userId,
-            options: new TextEncoder().encode(JSON.stringify(history)),
-        };
+        // 2. Launch background processing (ASYNC)
+        const chatModel = 'gemini-pro'; // Default or from config
 
-        // We use NATS Request-Response for the agent call
-        const res = await firstValueFrom(
-            this.natsClient.send<any>('plug-n-meet-insights', payload)
-        );
+        // Fire and forget logic
+        (async () => {
+            try {
+                let fullResponse = '';
+                let promptTokens = 0;
+                let completionTokens = 0;
+                let totalTokens = 0;
 
-        if (res.status && res.result) {
-            // result is InsightsAITextChatStreamResult (or similar containing totalTokens)
-            const aiRes = res.result;
+                const stream = this.insightsProvider.aiTextChatStream(chatModel, history);
 
-            // 3. Append AI response to history
-            const aiMsg = create(InsightsAITextChatContentSchema, {
-                role: 3, // MODEL
-                text: aiRes.text,
-            });
-            await this.redisInsightsService.appendToAITextChatContext(roomId, userId, aiMsg);
+                for await (const chunk of stream) {
+                    if (chunk.isLastChunk) {
+                        promptTokens = chunk.promptTokens;
+                        completionTokens = chunk.completionTokens;
+                        totalTokens = chunk.totalTokens;
+                    } else {
+                        fullResponse += chunk.text;
+                    }
 
-            // 4. Update token usage
-            await this.redisInsightsService.updateAITextChatUsage(
-                roomId,
-                userId,
-                'chat',
-                aiRes.promptTokens || 0,
-                aiRes.completionTokens || 0,
-                aiRes.totalTokens || 0
-            );
+                    // Broadcast chunk to room via NATS
+                    await this.natsSystemEvents.broadcastSystemEventToRoom(
+                        NatsMsgServerToClientEvents.RESP_INSIGHTS_AI_TEXT_CHAT,
+                        roomId,
+                        JSON.stringify(chunk),
+                        userId
+                    );
+                }
 
-            // 5. Trigger background summarization
-            this.checkAndSummarize(roomId, userId, metadata).catch(err => {
-                this.logger.error(`Failed to summarize AI chat: ${err.message}`);
-            });
-        }
+                // 3. Append AI response to history
+                const aiMsg = create(InsightsAITextChatContentSchema, {
+                    role: 3, // MODEL
+                    text: fullResponse,
+                });
+                await this.redisInsightsService.appendToAITextChatContext(roomId, userId, aiMsg);
+
+                // 4. Update token usage
+                await this.redisInsightsService.updateAITextChatUsage(
+                    roomId,
+                    userId,
+                    'chat',
+                    promptTokens,
+                    completionTokens,
+                    totalTokens
+                );
+
+                // 5. Trigger background summarization
+                this.checkAndSummarize(roomId, userId, metadata).catch(err => {
+                    this.logger.error(`Failed to summarize AI chat: ${err.message}`);
+                });
+
+            } catch (error) {
+                this.logger.error(`AI Chat background task failed: ${error.message}`);
+            }
+        })();
 
         return create(CommonResponseSchema, { status: true, msg: 'success' });
     }
@@ -475,7 +488,7 @@ export class InsightsService {
         }
 
         // 2. Get recent context
-        const contextWindow = 5; // default
+        const contextWindow = this.appConfig.insights?.contextWindow || 5;
         const contextMessages = await this.redisInsightsService.getAITextChatContext(roomId, userId, -contextWindow, -1);
         if (contextMessages && contextMessages.length > 0) {
             history.push(...contextMessages);
@@ -496,7 +509,7 @@ export class InsightsService {
     }
 
     private async checkAndSummarize(roomId: string, userId: string, metadata: any): Promise<void> {
-        const contextWindow = 5; // default
+        const contextWindow = this.appConfig.insights?.contextWindow || 5;
         const length = await this.redisInsightsService.getAITextChatContextLength(roomId, userId);
 
         if (length < contextWindow) {
@@ -518,34 +531,31 @@ export class InsightsService {
         }
         historyToSummarize.push(...contextMessages);
 
-        // Call agent to summarize
-        const roomInfo = await this.natsRoomService.getRoomInfo(roomId);
-        const payload: InsightsTaskPayload = {
-            task: 'summarize', // Custom task for summarization
-            service_type: InsightsServiceType.AITextChat,
-            room_id: roomId,
-            room_table_id: roomInfo ? Number(roomInfo.dbTableId) : 0,
-            user_id: userId,
-            options: new TextEncoder().encode(JSON.stringify(historyToSummarize)),
-        };
+        // Call provider to summarize
+        const summarizeModel = 'gemini-pro';
 
-        const res = await firstValueFrom(
-            this.natsClient.send<any>('plug-n-meet-insights', payload)
-        );
-
-        if (res.status && res.summary) {
-            // Update summary in Redis
-            await this.redisInsightsService.setAITextChatSummary(roomId, userId, res.summary);
-
-            // Update token usage for summarization
-            await this.redisInsightsService.updateAITextChatUsage(
-                roomId,
-                userId,
-                'summarize',
-                res.promptTokens || 0,
-                res.completionTokens || 0,
-                (res.promptTokens || 0) + (res.completionTokens || 0)
+        try {
+            const res = await this.insightsProvider.aiChatTextSummarize(
+                summarizeModel,
+                historyToSummarize
             );
+
+            if (res.summary) {
+                // Update summary in Redis
+                await this.redisInsightsService.setAITextChatSummary(roomId, userId, res.summary);
+
+                // Update token usage for summarization
+                await this.redisInsightsService.updateAITextChatUsage(
+                    roomId,
+                    userId,
+                    'summarize',
+                    res.promptTokens,
+                    res.completionTokens,
+                    res.promptTokens + res.completionTokens
+                );
+            }
+        } catch (error) {
+            this.logger.error(`Failed to summarize chat history: ${error.message}`);
         }
     }
 

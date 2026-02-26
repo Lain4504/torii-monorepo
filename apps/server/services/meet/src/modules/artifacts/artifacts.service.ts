@@ -57,6 +57,25 @@ export class ArtifactsService {
         this.tokenValidity = this.appConfig.security.wajlc.tokenValidity;
     }
 
+    private getServicePricing(serviceType: string, modelName: string): any {
+        const serviceConfig = this.appConfig.insights.services?.[serviceType];
+        if (!serviceConfig || !serviceConfig.pricing) {
+            this.logger.warn(`Pricing config block not found for service '${serviceType}'`);
+            return {};
+        }
+
+        if (serviceConfig.pricing[modelName]) {
+            return serviceConfig.pricing[modelName];
+        }
+
+        if (serviceConfig.pricing["default"]) {
+            return serviceConfig.pricing["default"];
+        }
+
+        this.logger.warn(`Pricing config not found for model '${modelName}' (or default) in service '${serviceType}'`);
+        return {};
+    }
+
     /**
      * buildPath constructs absolute and relative storage paths for artifacts
      */
@@ -290,9 +309,8 @@ export class ArtifactsService {
         if (!usageMap || Object.keys(usageMap).length === 0) return;
 
         const total = usageMap['total_usage'] || 0;
-        // Mock pricing
-        const pricePerHour = 1.0; // $1/hour
-        const cost = (total / 3600) * pricePerHour;
+        const pricing = this.getServicePricing('transcription', 'default');
+        const cost = (total / 3600) * (pricing.pricePerHour || 0);
 
         const metadata = create(RoomArtifactMetadataSchema, {
             usageDetails: {
@@ -315,8 +333,8 @@ export class ArtifactsService {
         if (!usageMap || Object.keys(usageMap).length === 0) return;
 
         const total = usageMap['total_usage'] || 0;
-        const pricePerMillion = 10.0; // $10/million chars
-        const cost = (total / 1000000) * pricePerMillion;
+        const pricing = this.getServicePricing('translation', 'default');
+        const cost = (total / 1000000) * (pricing.pricePerMillionCharacters || 0);
 
         const metadata = create(RoomArtifactMetadataSchema, {
             usageDetails: {
@@ -338,8 +356,8 @@ export class ArtifactsService {
         if (!usageMap || Object.keys(usageMap).length === 0) return;
 
         const total = usageMap['total_usage'] || 0;
-        const pricePerMillion = 15.0; // $15/million chars
-        const cost = (total / 1000000) * pricePerMillion;
+        const pricing = this.getServicePricing('speech-synthesis', 'default');
+        const cost = (total / 1000000) * (pricing.pricePerMillionCharacters || 0);
 
         const metadata = create(RoomArtifactMetadataSchema, {
             usageDetails: {
@@ -369,10 +387,9 @@ export class ArtifactsService {
                 const prompt = usageMap[`prompt_tokens_${task}`] || 0;
                 const completion = usageMap[`completion_tokens_${task}`] || 0;
 
-                const inputPrice = 0.5; // $0.5/million tokens
-                const outputPrice = 1.5; // $1.5/million tokens
-                const promptCost = (prompt / 1000000) * inputPrice;
-                const completionCost = (completion / 1000000) * outputPrice;
+                const pricing = this.getServicePricing('ai_text_chat', 'gemini-pro'); 
+                const promptCost = (prompt / 1000000) * (pricing.inputPricePerMillionTokens || 0);
+                const completionCost = (completion / 1000000) * (pricing.outputPricePerMillionTokens || 0);
                 const totalCost = promptCost + completionCost;
 
                 const breakdown: Record<string, bigint> = {};
@@ -426,7 +443,7 @@ export class ArtifactsService {
             roomId: roomId,
             eventValueInteger: eventValueInteger.toString(),
         });
-        // We'll assume AnalyticsService will handle this.
+        // Logic to send to AnalyticsService can be added here
     }
 
     /**
