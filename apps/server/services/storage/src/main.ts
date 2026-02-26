@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
-import { StorageModule } from './storage.module';
+import { StorageModule } from '@server/storage/storage.module';
 
 async function bootstrap() {
     console.log('🚀 Storage Service starting...');

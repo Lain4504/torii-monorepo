@@ -51,7 +51,7 @@
         "./services/communication/src/*"
       ],
       "@server/storage/*": [
-        "./modules/storage/src/*"
+        "./services/storage/src/*"
       ],
       "@prisma/generated": [
         "./generated/prisma/client"

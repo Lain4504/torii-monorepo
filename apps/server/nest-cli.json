@@ -98,11 +98,11 @@
     },
     "storage": {
       "type": "application",
-      "root": "modules/storage",
+      "root": "services/storage",
       "entryFile": "main",
-      "sourceRoot": "modules/storage/src",
+      "sourceRoot": "services/storage/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/storage/tsconfig.app.json",
+        "tsConfigPath": "services/storage/tsconfig.app.json",
         "webpack": false
       }
     },

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { FileAsset, Prisma } from '@prisma/generated';
-import type { IStorageRepository } from '../../interfaces/repositories/i-storage.repository';
+import type { IStorageRepository } from '@server/storage/interfaces/repositories/i-storage.repository';
 
 @Injectable()
 export class StorageRepository implements IStorageRepository {

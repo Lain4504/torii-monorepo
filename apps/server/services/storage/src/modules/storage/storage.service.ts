@@ -11,9 +11,9 @@ import {
     StorageGetSignedUrlResponseDTO,
 } from '@workspace/schemas';
 import { v4 as uuidv4 } from 'uuid';
-import type { IStorageRepository } from '../../interfaces/repositories/i-storage.repository';
-import { STORAGE_REPOSITORY_TOKEN } from '../../interfaces/repositories/i-storage.repository';
-import type { IStorageService } from '../../interfaces/services/i-storage.service';
+import type { IStorageRepository } from '@server/storage/interfaces/repositories/i-storage.repository';
+import { STORAGE_REPOSITORY_TOKEN } from '@server/storage/interfaces/repositories/i-storage.repository';
+import type { IStorageService } from '@server/storage/interfaces/services/i-storage.service';
 
 @Injectable()
 export class StorageService implements IStorageService {
