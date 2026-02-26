@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule, NatsClientModule } from '@server/shared';
-import { UsersService } from './users.service';
-import { UsersRepository } from './users.repository';
+import { UsersService } from '@server/identity/modules/users/users.service';
+import { UsersRepository } from '@server/identity/modules/users/users.repository';
 import { UserProfile } from '@server/identity/modules/users/mappings/user.profile';
-import { AuthorizationModule } from '../authorization/authorization.module';
+import { AuthorizationModule } from '@server/identity/modules/authorization/authorization.module';
 import { USERS_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
 import { USERS_SERVICE_TOKEN } from '@server/identity/interfaces/services';
+
+import { UsersHandler } from '@server/identity/modules/users/users.handler';
 
 /**
  * Users Feature Module
@@ -13,6 +15,7 @@ import { USERS_SERVICE_TOKEN } from '@server/identity/interfaces/services';
  */
 @Module({
     imports: [PrismaModule, NatsClientModule, AuthorizationModule],
+    controllers: [UsersHandler],
     providers: [
         {
             provide: USERS_REPOSITORY_TOKEN,

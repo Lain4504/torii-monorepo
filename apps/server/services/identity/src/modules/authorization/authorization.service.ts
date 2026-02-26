@@ -1,7 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
-import { AuthorizationConfigService } from './authorization-config.service';
+import { AuthorizationConfigService } from '@server/identity/services/authorization-config.service';
 import type { IAuditLogService, IAuthorizationService, RoleMetadata, PermissionMetadata } from '@server/identity/interfaces/services';
 import { AUDIT_LOG_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 import type { AuditContextDTO } from '@workspace/schemas';

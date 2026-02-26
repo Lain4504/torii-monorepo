@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule, NatsClientModule } from '@server/shared';
-import { AuthorizationService } from './authorization.service';
-import { AuthorizationConfigService } from './authorization-config.service';
-import { AuthorizationSeederService } from './authorization-seeder.service';
-import { AuditModule } from '../audit/audit.module';
-import { AUTHORIZATION_SERVICE_TOKEN } from '../../interfaces/services';
+import { AuthorizationService } from '@server/identity/modules/authorization/authorization.service';
+import { AuthorizationConfigService } from '@server/identity/services/authorization-config.service';
+import { AuthorizationSeederService } from '@server/identity/services/authorization-seeder.service';
+import { AuditModule } from '@server/identity/modules/audit/audit.module';
+import { AUTHORIZATION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
+
+import { AuthorizationHandler } from '@server/identity/modules/authorization/authorization.handler';
 
 /**
  * Authorization Feature Module
@@ -12,6 +14,7 @@ import { AUTHORIZATION_SERVICE_TOKEN } from '../../interfaces/services';
  */
 @Module({
     imports: [PrismaModule, NatsClientModule, AuditModule],
+    controllers: [AuthorizationHandler],
     providers: [
         {
             provide: AUTHORIZATION_SERVICE_TOKEN,

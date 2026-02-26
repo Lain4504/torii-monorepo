@@ -111,4 +111,3 @@ export class AuthorizationConfigService {
         this.loadConfig();
     }
 }
-

@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: update external media player text for clarity">
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/discussion-topic.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/discussion-topic.dto.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization-config.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization-seeder.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/authorization/authorization.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,47 +138,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#250 on update-error-sheet&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/test-app/next-app&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JavaScript Debug.localhost:3000.executor": "Debug",
+    "JavaScript Debug.localhost:5173.executor": "Debug",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "refactor-backend-structure",
+    "go.import.settings.migrated": "true",
+    "ignore.virus.scanning.warn.message": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/lain4504/test-app/next-app",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;redis&quot;,
-      &quot;mongo&quot;,
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "redis",
+      "mongo",
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>
@@ -226,9 +228,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
@@ -402,38 +404,6 @@
       <workItem from="1771990667306" duration="886000" />
       <workItem from="1771996036213" duration="3105000" />
       <workItem from="1772038435231" duration="18000" />
-    </task>
-    <task id="LOCAL-00823" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
-      <option name="closed" value="true" />
-      <created>1770199427314</created>
-      <option name="number" value="00823" />
-      <option name="presentableId" value="LOCAL-00823" />
-      <option name="project" value="LOCAL" />
-      <updated>1770199427314</updated>
-    </task>
-    <task id="LOCAL-00824" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
-      <option name="closed" value="true" />
-      <created>1770208275900</created>
-      <option name="number" value="00824" />
-      <option name="presentableId" value="LOCAL-00824" />
-      <option name="project" value="LOCAL" />
-      <updated>1770208275900</updated>
-    </task>
-    <task id="LOCAL-00825" summary="refactor: implement AppConfigService for centralized configuration management across services">
-      <option name="closed" value="true" />
-      <created>1770211151581</created>
-      <option name="number" value="00825" />
-      <option name="presentableId" value="LOCAL-00825" />
-      <option name="project" value="LOCAL" />
-      <updated>1770211151581</updated>
-    </task>
-    <task id="LOCAL-00826" summary="docs: update FEATURES.md to detail Agents Service architecture and user flows">
-      <option name="closed" value="true" />
-      <created>1770817607394</created>
-      <option name="number" value="00826" />
-      <option name="presentableId" value="LOCAL-00826" />
-      <option name="project" value="LOCAL" />
-      <updated>1770817607394</updated>
     </task>
     <task id="LOCAL-00827" summary="feat: add implementation checklist for Agents Service to track progress on AI-related tasks">
       <option name="closed" value="true" />
@@ -795,7 +765,39 @@
       <option name="project" value="LOCAL" />
       <updated>1771996995370</updated>
     </task>
-    <option name="localTasksCounter" value="872" />
+    <task id="LOCAL-00872" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772111299316</created>
+      <option name="number" value="00872" />
+      <option name="presentableId" value="LOCAL-00872" />
+      <option name="project" value="LOCAL" />
+      <updated>1772111299317</updated>
+    </task>
+    <task id="LOCAL-00873" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772111335208</created>
+      <option name="number" value="00873" />
+      <option name="presentableId" value="LOCAL-00873" />
+      <option name="project" value="LOCAL" />
+      <updated>1772111335208</updated>
+    </task>
+    <task id="LOCAL-00874" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772111828245</created>
+      <option name="number" value="00874" />
+      <option name="presentableId" value="LOCAL-00874" />
+      <option name="project" value="LOCAL" />
+      <updated>1772111828246</updated>
+    </task>
+    <task id="LOCAL-00875" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772112211880</created>
+      <option name="number" value="00875" />
+      <option name="presentableId" value="LOCAL-00875" />
+      <option name="project" value="LOCAL" />
+      <updated>1772112211880</updated>
+    </task>
+    <option name="localTasksCounter" value="876" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -812,7 +814,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="agent-refactor" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -830,7 +832,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: enhance prompt and resource loading with dynamic path resolution" />
     <MESSAGE value="chore: update dependencies and improve project configuration" />
     <MESSAGE value="refactor: update imports from @radix-ui to radix-ui for consistency" />
     <MESSAGE value="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency" />
@@ -855,7 +856,8 @@
     <MESSAGE value="refactor: simplify layout and styling in dashboard and feed components" />
     <MESSAGE value="refactor: update notebook API and enhance flashcard component functionality" />
     <MESSAGE value="fix: update external media player text for clarity" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: update external media player text for clarity" />
+    <MESSAGE value="feat: add initial setup for analytics and audit modules with corresponding handlers and services" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add initial setup for analytics and audit modules with corresponding handlers and services" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
@@ -864,24 +866,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
+          <url>file://$PROJECT_DIR$/../../../bmap-capstone/torii-monorepo/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
           <line>25</line>
           <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
-          <line>46</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
-          <line>85</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts</url>
-          <line>66</line>
-          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

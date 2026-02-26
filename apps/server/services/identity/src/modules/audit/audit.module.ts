@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AuditLogService } from './audit-log.service';
-import { AuditLogRepository } from './audit-log.repository';
+import { AuditLogService } from '@server/identity/modules/audit/audit-log.service';
+import { AuditLogRepository } from '@server/identity/modules/audit/audit-log.repository';
 import { AUDIT_LOG_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 import { AUDIT_LOG_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
+
+import { AuditLogHandler } from '@server/identity/modules/audit/audit-log.handler';
 
 /**
  * Audit Logging Feature Module  
  * Handles activity tracking and audit trails
  */
 @Module({
+    controllers: [AuditLogHandler],
     providers: [
         {
             provide: AUDIT_LOG_SERVICE_TOKEN,

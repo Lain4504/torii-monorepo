@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
-import { IdentityModule } from './identity.module';
+import { IdentityModule } from '@server/identity/identity.module';
 
 
 async function bootstrap() {

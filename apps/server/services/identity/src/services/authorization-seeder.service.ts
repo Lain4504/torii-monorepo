@@ -152,5 +152,3 @@ export class AuthorizationSeederService implements OnModuleInit {
         return this.syncPermissionsFromConfig();
     }
 }
-
-export const trigger = 'reseed_r2';

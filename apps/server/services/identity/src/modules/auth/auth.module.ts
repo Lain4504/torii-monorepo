@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { RedisModule, NatsClientModule } from '@server/shared';
-import { AuthService } from './auth.service';
-import { SessionService } from './session.service';
-import { GoogleAuthService } from './google-auth.service';
-import { UserIdentityRepository } from './user-identity.repository';
-import { AuthorizationModule } from '../authorization/authorization.module';
-import { TwoFactorAuthModule } from '../two-factor-auth/two-factor-auth.module';
-import { UsersModule } from '../users/users.module';
+import { AuthService } from '@server/identity/modules/auth/auth.service';
+import { SessionService } from '@server/identity/modules/auth/session.service';
+import { GoogleAuthService } from '@server/identity/modules/auth/google-auth.service';
+import { UserIdentityRepository } from '@server/identity/modules/auth/user-identity.repository';
+import { AuthorizationModule } from '@server/identity/modules/authorization/authorization.module';
+import { TwoFactorAuthModule } from '@server/identity/modules/two-factor-auth/two-factor-auth.module';
+import { UsersModule } from '@server/identity/modules/users/users.module';
 import {
     AUTH_SERVICE_TOKEN,
     SESSION_SERVICE_TOKEN,
@@ -15,6 +15,8 @@ import {
 import {
     USER_IDENTITY_REPOSITORY_TOKEN,
 } from '@server/identity/interfaces/repositories';
+
+import { AuthHandler } from '@server/identity/modules/auth/auth.handler';
 
 /**
  * Authentication Feature Module
@@ -28,6 +30,7 @@ import {
         TwoFactorAuthModule,
         UsersModule,
     ],
+    controllers: [AuthHandler],
     providers: [
         {
             provide: AUTH_SERVICE_TOKEN,

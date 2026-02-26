@@ -2,8 +2,8 @@ import { Controller, Inject, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import type { IAuthorizationService } from '@server/identity/interfaces/services';
 import { AUTHORIZATION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
-import { AuthorizationConfigService } from '@server/identity/modules/authorization/authorization-config.service';
-import { AuthorizationSeederService } from '@server/identity/modules/authorization/authorization-seeder.service';
+import { AuthorizationConfigService } from '@server/identity/services/authorization-config.service';
+import { AuthorizationSeederService } from '@server/identity/services/authorization-seeder.service';
 
 @Controller()
 export class AuthorizationHandler {

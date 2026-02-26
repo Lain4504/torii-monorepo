@@ -24,11 +24,11 @@
     },
     "identity": {
       "type": "application",
-      "root": "modules/identity",
+      "root": "services/identity",
       "entryFile": "main",
-      "sourceRoot": "modules/identity/src",
+      "sourceRoot": "services/identity/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/identity/tsconfig.app.json",
+        "tsConfigPath": "services/identity/tsconfig.app.json",
         "webpack": false
       }
     },

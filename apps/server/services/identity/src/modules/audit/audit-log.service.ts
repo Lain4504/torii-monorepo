@@ -10,7 +10,7 @@ import type {
 } from '@workspace/schemas';
 import type { IAuditLogService } from '@server/identity/interfaces/services';
 import { AUDIT_LOG_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
-import type { AuditLogWithUser } from '../audit/audit-log.repository';
+import type { AuditLogWithUser } from '@server/identity/modules/audit/audit-log.repository';
 
 @Injectable()
 export class AuditLogService implements IAuditLogService {
