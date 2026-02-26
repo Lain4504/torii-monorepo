@@ -1,13 +1,16 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CartRepository } from './cart.repository';
 import { CourseRepository } from '../course/course.repository'; // Assuming this exists from Course module
 import { PrismaService } from '@server/shared';
+
+import { COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ICourseRepository } from '@server/learning/interfaces/repositories';
 
 @Injectable()
 export class CartService {
     constructor(
         private readonly cartRepository: CartRepository,
-        private readonly courseRepository: CourseRepository, // To validate course
+        @Inject(COURSE_REPOSITORY_TOKEN) private readonly courseRepository: ICourseRepository, // To validate course
         private readonly prisma: PrismaService,
     ) { }
 
@@ -48,7 +51,7 @@ export class CartService {
         if (!course) {
             throw new NotFoundException('Course not found');
         }
-        
+
         if (course.status !== 'published') {
             throw new BadRequestException('Cannot add unpublished course to cart');
         }

@@ -229,10 +229,10 @@ export class EnrollmentService implements IEnrollmentService {
             }
 
             return {
-                isEnrolled: enrollment !== null && (
-                    enrollment.completionStatus === 'in_progress' || 
+                isEnrolled: !!enrollment && (
+                    enrollment.completionStatus === 'in_progress' ||
                     enrollment.completionStatus === 'completed' ||
-                    (enrollment.completionStatus === 'trial' && enrollment.trialExpiresAt !== null && new Date(enrollment.trialExpiresAt) > new Date())
+                    (enrollment.completionStatus === 'trial' && !!enrollment.trialExpiresAt && new Date(enrollment.trialExpiresAt).getTime() > Date.now())
                 ),
                 enrollment,
                 hasNewerVersion,
@@ -470,7 +470,7 @@ export class EnrollmentService implements IEnrollmentService {
             if (!course) {
                 return false;
             }
-            
+
             // If no limit defined, allow access (since time trial is valid)
             if (!course.maxTrialLessons || course.maxTrialLessons <= 0) {
                 return true;
@@ -527,9 +527,9 @@ export class EnrollmentService implements IEnrollmentService {
             return (
                 enrollment.completionStatus === EnrollmentStatus.IN_PROGRESS ||
                 enrollment.completionStatus === EnrollmentStatus.COMPLETED ||
-                (enrollment.completionStatus === EnrollmentStatus.TRIAL && 
-                 enrollment.trialExpiresAt !== null && 
-                 enrollment.trialExpiresAt > new Date())
+                (enrollment.completionStatus === EnrollmentStatus.TRIAL &&
+                    enrollment.trialExpiresAt !== null &&
+                    enrollment.trialExpiresAt > new Date())
             );
         } catch (error: any) {
             this.logger.error(`Error checking enrollment: ${error.message}`, error.stack);

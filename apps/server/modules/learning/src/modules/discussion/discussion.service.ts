@@ -54,7 +54,7 @@ export class DiscussionService {
         const skip = (page - 1) * limit;
 
         const where: Prisma.DiscussionTopicWhereInput = {};
-        
+
         if (query.courseId) {
             where.courseId = query.courseId;
         }
@@ -76,26 +76,17 @@ export class DiscussionService {
         }
 
         const orderBy: Prisma.DiscussionTopicOrderByWithRelationInput = {};
-        
+
         // Priority to pinned topics
         // Prisma sort by multiple fields: [ { isPinned: 'desc' }, { createdAt: 'desc' } ]
-        
+
         const sortParams: Prisma.DiscussionTopicOrderByWithRelationInput[] = [
             { isPinned: 'desc' }
         ];
 
-        if (query.sortBy === 'likes') {
-            // Note: DB schema might not have likeCount on DiscussionTopic yet, check schema.
-            // Schema has `viewCount`, `commentCount`. No `likeCount` in new schema replace? 
-            // Wait, I replaced Feed which had likeCount. 
-            // Let's check schema again. `viewCount`, `commentCount` are there. `likeCount` was NOT in my replace string for DiscussionTopic.
-            // I should assume it's NOT there or add it. The schema replace removed likeCount.
-            // Let's stick to commentCount or viewCount.
-            // If the user wants likes, we should add it. For now, let's use viewCount/commentCount.
-             sortParams.push({ commentCount: query.sortOrder || 'desc' });
-        } else if (query.sortBy === 'comments') {
+        if (query.sortBy === 'commentCount') {
             sortParams.push({ commentCount: query.sortOrder || 'desc' });
-        } else if (query.sortBy === 'views') {
+        } else if (query.sortBy === 'viewCount') {
             sortParams.push({ viewCount: query.sortOrder || 'desc' });
         } else {
             sortParams.push({ createdAt: 'desc' });
@@ -122,14 +113,14 @@ export class DiscussionService {
         };
     }
 
-    async findDiscussionById(id: string, currentUserId?: string): Promise<FeedResponseDTO> {
+    async findDiscussionById(id: string, currentUserId?: string): Promise<DiscussionTopicResponseDTO> {
         const discussion = await this.discussionRepository.findById(id);
         if (!discussion) throw new NotFoundException('Discussion not found');
 
         // Increment view count
         await this.discussionRepository.update(id, { viewCount: { increment: 1 } });
 
-        return this.mapper.map<any, FeedResponseDTO>(discussion, 'DiscussionTopic', 'FeedResponseDTO');
+        return this.mapper.map<any, DiscussionTopicResponseDTO>(discussion, 'DiscussionTopic', 'DiscussionTopicResponseDTO');
     }
 
     async deleteDiscussion(id: string, userId: string): Promise<boolean> {

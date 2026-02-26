@@ -38,6 +38,8 @@ export const paginationOptionsDTOSchema = z.object({
     search: z.string().optional(),
 });
 
+export const paginationQuerySchema = paginationOptionsDTOSchema;
+
 export type PaginationOptionsDTO = z.infer<typeof paginationOptionsDTOSchema>;
 
 export const paginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>

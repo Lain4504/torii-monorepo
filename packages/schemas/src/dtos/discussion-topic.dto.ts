@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { paginationQuerySchema } from './common.dto';
+import { discussionTopicModelSchema } from '../models/discussion-topic.model';
 
 export const discussionTopicCreateDTOSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
@@ -33,17 +34,25 @@ export const discussionTopicQueryDTOSchema = paginationQuerySchema.extend({
 
 export type DiscussionTopicQueryDTO = z.infer<typeof discussionTopicQueryDTOSchema>;
 
-export const discussionTopicResponseDTOSchema = discussionTopicModelSchema.extend({
+export type DiscussionTopicResponseDTO = z.infer<typeof discussionTopicModelSchema> & {
+    author?: {
+        id: string;
+        displayName: string;
+        avatarUrl?: string | null;
+    };
+    isLiked?: boolean;
+    replies?: DiscussionTopicResponseDTO[];
+};
+
+export const discussionTopicResponseDTOSchema: z.ZodType<DiscussionTopicResponseDTO, z.ZodTypeDef, any> = discussionTopicModelSchema.extend({
   author: z.object({
     id: z.string().uuid(),
     displayName: z.string(),
     avatarUrl: z.string().nullable().optional(),
   }).optional(),
   isLiked: z.boolean().optional(), // No likes for now on DiscussionTopic, but keep for compatibility
-  replies: z.array(z.lazy(() => discussionTopicResponseDTOSchema)).optional(), // Self-referencing replies
+  replies: z.lazy(() => z.array(discussionTopicResponseDTOSchema)).optional(), // Self-referencing replies
 });
-
-export type DiscussionTopicResponseDTO = z.infer<typeof discussionTopicResponseDTOSchema>;
 
 export const discussionTopicPaginatedResponseSchema = z.object({
   data: z.array(discussionTopicResponseDTOSchema),
