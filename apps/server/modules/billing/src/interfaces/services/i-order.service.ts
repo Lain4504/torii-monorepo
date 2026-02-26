@@ -31,7 +31,7 @@ export interface IOrderService {
     /**
      * Find order by ID
      */
-    findOne(id: string): Promise<OrderResponseDTO | null>;
+    findById(id: string): Promise<OrderResponseDTO | null>;
 
     /**
      * Create a new order

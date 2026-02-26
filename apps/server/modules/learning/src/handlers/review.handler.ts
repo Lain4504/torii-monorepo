@@ -38,7 +38,7 @@ export class ReviewHandler {
 
     @MessagePattern({ cmd: 'learning.review.findById' })
     async findById(@Payload() data: { id: string }) {
-        return this.reviewService.findOne(data.id);
+        return this.reviewService.findById(data.id);
     }
 }
 

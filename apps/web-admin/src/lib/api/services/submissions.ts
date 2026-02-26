@@ -19,7 +19,7 @@ export const submissionsApi = {
     },
 
     // GET /api/submissions/:id
-    async findOne(id: string): Promise<SubmissionResponseDTO> {
+    async findById(id: string): Promise<SubmissionResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ submission: SubmissionResponseDTO }>>(`/api/submissions/${id}`);
         return response.data.data!.submission;
     },
@@ -59,7 +59,7 @@ export function useSubmissions(assignmentId: string) {
 export function useSubmission(id: string) {
     return useQuery({
         queryKey: ['submissions', id],
-        queryFn: () => submissionsApi.findOne(id),
+        queryFn: () => submissionsApi.findById(id),
         enabled: !!id,
     });
 }

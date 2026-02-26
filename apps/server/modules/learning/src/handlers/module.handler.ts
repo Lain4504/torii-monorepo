@@ -31,7 +31,7 @@ export class ModuleHandler {
 
     @MessagePattern({ cmd: 'learning.module.findById' })
     async findById(@Payload() data: { id: string }) {
-        return this.moduleService.findOne(data.id);
+        return this.moduleService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.module.update' })

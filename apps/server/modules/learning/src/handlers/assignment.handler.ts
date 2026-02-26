@@ -36,7 +36,7 @@ export class AssignmentHandler {
   @MessagePattern({ cmd: 'learning.assignment.findById' })
   async findById(@Payload() data: { id: string }) {
     const { id } = data;
-    return this.assignmentService.findOne(id);
+    return this.assignmentService.findById(id);
   }
 
   @MessagePattern({ cmd: 'learning.assignment.delete' })

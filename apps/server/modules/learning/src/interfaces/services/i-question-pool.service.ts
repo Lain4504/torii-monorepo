@@ -20,7 +20,7 @@ export interface IQuestionPoolService {
     /**
      * Find one pool by ID
      */
-    findOne(poolId: string): Promise<QuestionPoolResponseDTO>;
+    findById(poolId: string): Promise<QuestionPoolResponseDTO>;
 
     /**
      * Create a new pool

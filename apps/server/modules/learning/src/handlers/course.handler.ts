@@ -32,7 +32,7 @@ export class CourseHandler {
 
     @MessagePattern({ cmd: 'learning.course.findById' })
     async findById(@Payload() data: { id: string, requester?: Requester }) {
-        return this.courseService.findOne(data.id);
+        return this.courseService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.course.findBySlug' })

@@ -64,7 +64,7 @@ export class ExamHandler {
 
     @MessagePattern({ cmd: 'learning.exam-admin.findById' })
     async findByIdAdmin(@Payload() data: { id: string }) {
-        return this.examService.findOne(data.id);
+        return this.examService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.exam-admin.create' })

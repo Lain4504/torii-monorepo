@@ -21,7 +21,7 @@ export const questionPoolsApi = {
     },
 
     // GET /api/question-pools/:id
-    async findOne(id: string): Promise<QuestionPoolResponseDTO> {
+    async findById(id: string): Promise<QuestionPoolResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ pool: QuestionPoolResponseDTO }>>(`/api/question-pools/${id}`);
         return response.data.data!.pool;
     },
@@ -59,7 +59,7 @@ export function useQuestionPools(params: QuestionPoolQueryDTO) {
 export function useQuestionPool(id: string) {
     return useQuery({
         queryKey: ['question-pools', id],
-        queryFn: () => questionPoolsApi.findOne(id),
+        queryFn: () => questionPoolsApi.findById(id),
         enabled: !!id,
     });
 }

@@ -39,7 +39,7 @@ export class ReviewsApi {
     }
 
     // GET /api/courses/reviews/:id
-    static async findOne(id: string): Promise<ReviewResponseDTO> {
+    static async findById(id: string): Promise<ReviewResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<ReviewResponseDTO>>(`/api/courses/reviews/${id}`);
         return response.data.data!;
     }
@@ -74,7 +74,7 @@ export function useReviews(params: ReviewQueryDTO) {
 export function useReview(id: string | null) {
     return useQuery({
         queryKey: ['review', id],
-        queryFn: () => reviewsApi.findOne(id!),
+        queryFn: () => reviewsApi.findById(id!),
         enabled: !!id,
     });
 }

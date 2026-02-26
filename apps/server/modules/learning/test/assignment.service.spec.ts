@@ -179,16 +179,16 @@ describe('AssignmentService', () => {
         });
     });
 
-    describe('findOne', () => {
+    describe('findById', () => {
         it('should return assignment successfully', async () => {
             mockAssignmentRepository.findById.mockResolvedValue(mockAssignment);
-            const result = await service.findOne('assignment-1');
+            const result = await service.findById('assignment-1');
             expect(result.id).toBe(mockAssignment.id);
         });
 
         it('should throw NotFoundException if not found', async () => {
             mockAssignmentRepository.findById.mockResolvedValue(null);
-            await expect(service.findOne('non-existent')).rejects.toThrow(NotFoundException);
+            await expect(service.findById('non-existent')).rejects.toThrow(NotFoundException);
         });
     });
 

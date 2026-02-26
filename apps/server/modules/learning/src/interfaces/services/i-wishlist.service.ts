@@ -18,7 +18,7 @@ export interface IWishlistService {
     /**
      * Find wishlist by ID
      */
-    findOne(id: string): Promise<WishlistResponseDTO | null>;
+    findById(id: string): Promise<WishlistResponseDTO | null>;
 
     /**
      * Create a new wishlist

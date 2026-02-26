@@ -1008,7 +1008,7 @@ export class ExamService implements IExamService {
      * Get exam by ID (Staff only - includes all details)
      * GET /api/v1/admin/exams/:id
      */
-    async findOne(examId: string): Promise<ExamResponseDTO> {
+    async findById(examId: string): Promise<ExamResponseDTO> {
         try {
             const quiz = await this.examRepository.findById(examId);
 

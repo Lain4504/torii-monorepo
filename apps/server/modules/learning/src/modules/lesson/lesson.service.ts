@@ -165,7 +165,7 @@ export class LessonService implements ILessonService {
   /**
    * Find one lesson by ID
    */
-  async findOne(lessonId: string, requester?: Requester): Promise<LessonResponseDTO> {
+  async findById(lessonId: string, requester?: Requester): Promise<LessonResponseDTO> {
     const lesson = await this.lessonRepository.findById(lessonId);
 
     if (!lesson || lesson.deletedAt) {
@@ -265,7 +265,7 @@ export class LessonService implements ILessonService {
       const module = await this.moduleRepository.findById(dto.moduleId);
       if (!module) throw new NotFoundException('Module not found');
 
-      const course = await this.courseService.findOne(module.courseId);
+      const course = await this.courseService.findById(module.courseId);
 
       // Pure Split: LIVE courses cannot have video lessons (must be article/PDF)
       if (course.type === 'live' && dto.contentType === 'video') {

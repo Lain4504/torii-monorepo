@@ -20,7 +20,7 @@ export class ProfilesController {
 
     @Get(':id')
     @Public()
-    async findOne(@Param('id') id: string) {
+    async findById(@Param('id') id: string) {
         try {
             const response = await firstValueFrom(
                 this.natsClient.send({ cmd: 'identity.users.findById' }, { id }),

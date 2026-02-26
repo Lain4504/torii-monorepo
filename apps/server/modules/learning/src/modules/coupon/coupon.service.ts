@@ -97,7 +97,7 @@ export class CouponService implements ICouponService {
     /**
      * Find one coupon by ID
      */
-    async findOne(couponId: string): Promise<CouponResponseDTO> {
+    async findById(couponId: string): Promise<CouponResponseDTO> {
         const coupon = await this.couponRepository.findById(couponId);
 
         if (!coupon) {

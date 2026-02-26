@@ -20,7 +20,7 @@ export interface IQuestionService {
     /**
      * Find one question by ID
      */
-    findOne(questionId: string): Promise<QuestionResponseDTO>;
+    findById(questionId: string): Promise<QuestionResponseDTO>;
 
     /**
      * Create a new question

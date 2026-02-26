@@ -18,7 +18,7 @@ export class QuestionHandler {
 
     @MessagePattern({ cmd: 'learning.question.findById' })
     async findById(@Payload() data: { id: string }) {
-        return this.questionService.findOne(data.id);
+        return this.questionService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.question.getByCategory' })

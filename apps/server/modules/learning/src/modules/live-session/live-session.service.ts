@@ -74,7 +74,7 @@ export class LiveSessionService implements ILiveSessionService {
         return requester.permissions.includes('*') || requester.permissions.includes(permission);
     }
 
-    async findOne(id: string): Promise<LiveSessionResponseDTO> {
+    async findById(id: string): Promise<LiveSessionResponseDTO> {
         const session = await this.liveSessionRepository.findById(id);
         if (!session) {
             throw new NotFoundException(`Live session with id ${id} not found`);

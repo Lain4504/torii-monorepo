@@ -36,7 +36,7 @@ export class LessonHandler {
 
     @MessagePattern({ cmd: 'learning.lesson.findById' })
     async findById(@Payload() data: { id: string; requester?: Requester }) {
-        return this.lessonService.findOne(data.id, data.requester);
+        return this.lessonService.findById(data.id, data.requester);
     }
 
     @MessagePattern({ cmd: 'learning.lesson.update' })

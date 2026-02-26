@@ -18,7 +18,7 @@ export interface IEnrollmentService {
     /**
      * Find enrollment by ID
      */
-    findOne(id: string): Promise<EnrollmentResponseDTO | null>;
+    findById(id: string): Promise<EnrollmentResponseDTO | null>;
 
     /**
      * Find enrollment by user and course

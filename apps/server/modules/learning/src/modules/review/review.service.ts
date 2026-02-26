@@ -272,7 +272,7 @@ export class ReviewService implements IReviewService {
   /**
    * Find a single review by ID
    */
-  async findOne(id: string): Promise<ReviewResponseDTO & { courseTitle?: string }> {
+  async findById(id: string): Promise<ReviewResponseDTO & { courseTitle?: string }> {
     try {
       const review = await this.reviewRepository.findById(id, true);
 

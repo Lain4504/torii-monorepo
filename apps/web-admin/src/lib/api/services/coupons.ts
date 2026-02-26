@@ -19,7 +19,7 @@ export const couponsApi = {
     },
 
     // GET /api/coupons/:id
-    async findOne(id: string): Promise<CouponResponseDTO> {
+    async findById(id: string): Promise<CouponResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ coupon: CouponResponseDTO }>>(`/api/coupons/${id}`);
         return response.data.data!.coupon;
     },
@@ -78,7 +78,7 @@ export function useCoupons(params: CouponSearchRequestDTO) {
 export function useCoupon(id: string) {
     return useQuery({
         queryKey: ['coupons', id],
-        queryFn: () => couponsApi.findOne(id),
+        queryFn: () => couponsApi.findById(id),
         enabled: !!id,
     });
 }

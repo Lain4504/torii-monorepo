@@ -50,7 +50,7 @@ export class CouponController {
      */
     @Get(':id')
     @Permissions('coupon.manage')
-    async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    async findById(@Param('id', ParseUUIDPipe) id: string) {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.coupon.findById' }, { id })
         );

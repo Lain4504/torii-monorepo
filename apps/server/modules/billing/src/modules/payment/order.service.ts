@@ -256,7 +256,7 @@ export class OrderService implements IOrderService {
     /**
      * Find order by ID
      */
-    async findOne(id: string): Promise<OrderResponseDTO | null> {
+    async findById(id: string): Promise<OrderResponseDTO | null> {
         try {
             const item = await this.orderRepository.findById(id);
             if (!item) return null;
@@ -299,7 +299,7 @@ export class OrderService implements IOrderService {
                     this.natsClient.send({ cmd: 'learning.course.findById' }, { id: courseId })
                 );
             } catch (error: any) {
-                this.logger.error(`Error calling learning.course.findOne: ${error.message}`);
+                this.logger.error(`Error calling learning.course.findById: ${error.message}`);
                 course = null;
             }
 

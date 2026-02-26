@@ -61,7 +61,7 @@ export interface IUsersService {
     createInternalUser(dto: AdminCreateInternalUserDTO, adminId: string): Promise<UserResponseDTO>;
 
     /**
-     * Get user by ID (alias for findOne)
+     * Get user by ID (alias for findById)
      * @param userId - The user's unique identifier
      * @returns The user data
      * @throws NotFoundException if user not found

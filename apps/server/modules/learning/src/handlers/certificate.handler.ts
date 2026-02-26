@@ -24,7 +24,7 @@ export class CertificateHandler {
 
     @MessagePattern({ cmd: 'learning.certificate.findById' })
     async findById(@Payload() data: { id: string }) {
-        return this.certificateService.findOne(data.id);
+        return this.certificateService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.certificate.findByCode' })

@@ -81,7 +81,7 @@ export class CertificateService implements ICertificateService {
         };
     }
 
-    async findOne(id: string): Promise<CertificateResponseDTO | null> {
+    async findById(id: string): Promise<CertificateResponseDTO | null> {
         const cert = await this.certificateRepository.findById(id);
         return cert ? this.toCertificateDto(cert) : null;
     }

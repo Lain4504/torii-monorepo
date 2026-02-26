@@ -205,7 +205,7 @@ describe('TicketService (Exhaustive)', () => {
                     if (cmd === 'learning.enrollment.delete') return of({ id: 'en-1', finalPrice: 1000, senderId: USER_ID });
                     if (cmd === 'billing.user_balance.add') return of({ success: true });
                     if (cmd === 'identity.users.findById') return of({ user: { email: 'test@user.com', displayName: 'User' } });
-                    if (cmd === 'learning.course.findOne') return of({ title: 'Course Name' });
+                    if (cmd === 'learning.course.findById') return of({ title: 'Course Name' });
                     return of({});
                 });
                 ticketRepository.updateStatus.mockResolvedValue({ ...refundTicket, status: TicketStatus.APPROVED });
@@ -254,7 +254,7 @@ describe('TicketService (Exhaustive)', () => {
             it('should handle NATS fetch user/course details failure gracefully', async () => {
                 natsClient.send.mockImplementation((pattern: any) => {
                     const cmd = pattern.cmd;
-                    if (cmd === 'identity.users.findById' || cmd === 'learning.course.findOne') {
+                    if (cmd === 'identity.users.findById' || cmd === 'learning.course.findById') {
                         return throwError(() => new Error('NATS Fetch Fail'));
                     }
                     if (cmd === 'learning.enrollment.check') return of({ isEnrolled: true, enrollment: { enrollmentDate: new Date() } });

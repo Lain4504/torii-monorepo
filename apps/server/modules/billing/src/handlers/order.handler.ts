@@ -29,7 +29,7 @@ export class OrderHandler {
 
     @MessagePattern({ cmd: 'billing.order.findById' })
     async findById(@Payload() data: { id: string }) {
-        return this.orderService.findOne(data.id);
+        return this.orderService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'billing.order.create' })

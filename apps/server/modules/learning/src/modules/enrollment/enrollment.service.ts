@@ -188,7 +188,7 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Find enrollment by ID
      */
-    async findOne(id: string): Promise<EnrollmentResponseDTO | null> {
+    async findById(id: string): Promise<EnrollmentResponseDTO | null> {
         try {
             const item = await this.enrollmentRepository.findById(id);
             if (!item) return null;

@@ -68,7 +68,7 @@ export class LiveSessionHandler {
 
     @MessagePattern({ cmd: 'learning.liveSession.findById' })
     async findById(@Payload() data: { id: string }) {
-        return this.liveSessionService.findOne(data.id);
+        return this.liveSessionService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.start' })

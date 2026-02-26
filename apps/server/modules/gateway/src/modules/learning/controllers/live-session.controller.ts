@@ -34,7 +34,7 @@ export class LiveSessionController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findById(@Param('id') id: string) {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.liveSession.findById' }, { id })
         );

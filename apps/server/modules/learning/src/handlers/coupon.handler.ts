@@ -23,7 +23,7 @@ export class CouponHandler {
 
     @MessagePattern({ cmd: 'learning.coupon.findById' })
     async findById(@Payload() data: { id: string }) {
-        return this.couponService.findOne(data.id);
+        return this.couponService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.coupon.findByCode' })

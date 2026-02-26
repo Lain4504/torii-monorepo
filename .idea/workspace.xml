@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: update external media player text for clarity">
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/ticket/ticket.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/communication/src/modules/ticket/ticket.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/communication/test/ticket.service.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/communication/test/ticket.service.spec.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/identity/controllers/profiles.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/identity/controllers/profiles.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/identity/controllers/users.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/gateway/src/modules/identity/controllers/users.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/handlers/users.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/handlers/users.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/interfaces/services/i-users.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/identity/src/modules/users/users.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/certificate/certificate.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/certificate/certificate.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/enrollment/enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/enrollment/enrollment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/rewards/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/rewards/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/wallet/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/checkout/[courseId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/checkout/[courseId]/page.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: update external media player text for clarity" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -117,13 +103,13 @@
     }
   ]
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "git@github.com:Lain4504/torii-monorepo.git",
-    "accountId": "36ac2fd8-9a60-42a4-b2bf-7fe947db4431"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
   },
-  "editorReviewEnabled": false
-}]]></component>
+  &quot;editorReviewEnabled&quot;: false
+}</component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
@@ -176,7 +162,7 @@
     "nodejs_package_manager_path": "pnpm",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {

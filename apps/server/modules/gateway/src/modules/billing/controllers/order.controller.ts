@@ -142,7 +142,7 @@ export class OrderController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findById(@Param('id') id: string) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

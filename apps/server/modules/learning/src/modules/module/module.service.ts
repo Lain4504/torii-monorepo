@@ -121,7 +121,7 @@ export class ModuleService implements IModuleService {
   /**
    * Find one module by ID
    */
-  async findOne(moduleId: string): Promise<ModuleResponseDTO> {
+  async findById(moduleId: string): Promise<ModuleResponseDTO> {
     const module = await this.moduleRepository.findById(moduleId);
 
     if (!module || module.deletedAt) {

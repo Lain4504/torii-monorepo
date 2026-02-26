@@ -230,7 +230,7 @@ describe('ReviewService', () => {
         });
     });
 
-    describe('findOne', () => {
+    describe('findById', () => {
         it('should return a review if found', async () => {
             const reviewId = 'review1';
             const mockReview = {
@@ -246,7 +246,7 @@ describe('ReviewService', () => {
 
             mockReviewRepository.findById.mockResolvedValue(mockReview);
 
-            const result = await service.findOne(reviewId);
+            const result = await service.findById(reviewId);
 
             expect(repository.findById).toHaveBeenCalledWith(reviewId, true);
             expect(result.id).toBe(reviewId);
@@ -256,7 +256,7 @@ describe('ReviewService', () => {
         it('should throw 404 if review not found', async () => {
             mockReviewRepository.findById.mockResolvedValue(null);
 
-            await expect(service.findOne('non-existent'))
+            await expect(service.findById('non-existent'))
                 .rejects.toThrow(RpcException);
         });
     });

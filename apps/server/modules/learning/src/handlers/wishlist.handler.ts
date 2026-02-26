@@ -16,7 +16,7 @@ export class WishlistHandler {
 
     @MessagePattern({ cmd: 'learning.wishlist.findById' })
     async findById(@Payload() data: { id: string }) {
-        return this.wishlistService.findOne(data.id);
+        return this.wishlistService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.wishlist.create' })
