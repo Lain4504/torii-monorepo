@@ -45,6 +45,12 @@ livekit:
   apiKey: ""
   apiSecret: ""
 
+livekitRoleplay:
+  apiUrl: "wss://your-project.livekit.cloud"
+  wsUrl: "wss://your-project.livekit.cloud"
+  apiKey: ""
+  apiSecret: ""
+
 security:
   jwt:
     secret: ""

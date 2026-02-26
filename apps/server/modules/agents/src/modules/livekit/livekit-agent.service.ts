@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ServerOptions, AgentServer, initializeLogger } from '@livekit/agents';
-import * as dotenv from 'dotenv';
+import { SharedModule, AppConfigService } from '@server/shared';
 import * as path from 'path';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class LivekitAgentService implements OnModuleInit {
     private server?: AgentServer;
     private activeJoins = new Map<string, number>();
 
-    constructor() { }
+    constructor(private readonly appConfig: AppConfigService) { }
 
     async onModuleInit() {
         this.logger.log('Service initialized');
@@ -23,22 +23,18 @@ export class LivekitAgentService implements OnModuleInit {
             }
         }, 30000);
 
-        // Load the credentials from apps/server/.env
-        const envPath = path.resolve(process.cwd(), '.env');
-        dotenv.config({ path: envPath });
+        const { apiKey: googleApiKey } = this.appConfig.thirdParty.gemini;
+        const { wsUrl: livekitUrl } = this.appConfig.livekitRoleplay;
 
-        const apiKey = process.env.GOOGLE_API_KEY;
-        const livekitUrl = process.env.LIVEKIT_URL;
-
-        this.logger.log(`Loaded ENV from ${envPath}. LIVEKIT_URL=${livekitUrl}`);
-
-        if (!apiKey || !livekitUrl) {
-            this.logger.log('Missing GOOGLE_API_KEY or LIVEKIT_URL. LiveKit Agent will not start.');
-            this.logger.warn('Missing GOOGLE_API_KEY or LIVEKIT_URL. LiveKit Agent will not start.');
+        if (!googleApiKey || !livekitUrl) {
+            this.logger.log('Missing Gemini API Key or LiveKit URL in config. LiveKit Agent will not start.');
+            this.logger.warn('Missing Gemini API Key or LiveKit URL in config. LiveKit Agent will not start.');
             return;
         }
 
-        this.logger.log('Starting LiveKit Agent worker...');
+        // Set GOOGLE_API_KEY in environment for the worker
+        process.env.GOOGLE_API_KEY = googleApiKey;
+
         this.logger.log('Starting LiveKit Agent worker...');
 
         // Initialize LiveKit logger first
@@ -109,9 +105,7 @@ export class LivekitAgentService implements OnModuleInit {
         const agentFile = path.resolve(__dirname, 'agent-entry.js');
         this.logger.log(`Agent file path: ${agentFile}`);
 
-        const wsURL = process.env.LIVEKIT_URL;
-        const apiKey = process.env.LIVEKIT_API_KEY;
-        const apiSecret = process.env.LIVEKIT_API_SECRET;
+        const { wsUrl: wsURL, apiKey, apiSecret } = this.appConfig.livekitRoleplay;
 
         const serverOptions = new ServerOptions({
             agent: agentFile,
