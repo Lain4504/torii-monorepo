@@ -1,4 +1,5 @@
-# Torii Server Sample Configuration
+# Torii Server Configuration Sample
+# Copy this file to config.yaml and fill in the missing values.
 
 server:
   port: 8080
@@ -17,10 +18,71 @@ redis:
 
 nats:
   url: "nats://localhost:4222"
+  wsUrls: ["ws://localhost:8222"]
+  accountName: "PNM"
+  # accountSeed: ""
+  # xkeySeed: ""
+  # nkeySeed: ""
   streamName: "wajlc-room-stream"
+  numReplicas: 1
+  pingTimeout: 8000
+  subjects:
+    systemApiWorker: "sysApiWorker"
+    systemJsWorker: "sysJsWorker"
+    systemPublic: "sysPublic"
+    systemPrivate: "sysPrivate"
+    chat: "chat"
+    whiteboard: "whiteboard"
+    dataChannel: "dataChannel"
+  recorder:
+    channel: "recorderChannel"
+    infoKv: "recorderInfo"
+    transcodingJobs: "recorderTranscoderJobs"
+
+livekit:
+  apiUrl: "http://localhost:7880"
+  wsUrl: "ws://localhost:7880"
+  apiKey: ""
+  apiSecret: ""
+
+livekitRoleplay:
+  apiUrl: "wss://your-project.livekit.cloud"
+  wsUrl: "wss://your-project.livekit.cloud"
+  apiKey: ""
+  apiSecret: ""
+
+security:
+  jwt:
+    secret: ""
+    accessExpires: "15m"
+    refreshExpires: "7d"
+    issuer: "auth.torii.edu"
+    audience: "torii-client"
+  encryptionKey: ""
+  wajlc:
+    apiKey: "wajlc"
+    apiSecret: ""
+    tokenValidity: 3600
+
+upload:
+  maxSizeMb: 100
+  maxFileSizeBytes: 52428800
+  maxWhiteboardFileSizeMb: 30
+  allowedTypes: ["jpg", "jpeg", "png", "pdf", "mp4", "mp3", "zip"]
+  keepForever: false
+
+room:
+  defaultMaxParticipants: 0
+  defaultMaxDuration: 0
+  defaultMaxNumBreakoutRooms: 10
+  sharedNotepadEnabled: false
+  copyright:
+    display: true
+    text: "Powered by MiraiMagicLab"
+    allowOverride: false
 
 insights:
-  enabled: true
+  enabled: false
   maxTranscriptionLangs: 2
   maxChatTransLangs: 5
   contextWindow: 5
@@ -66,7 +128,70 @@ insights:
         options:
           endpoint: "https://api.cognitive.microsofttranslator.com/"
 
+ingress:
+  userIdPrefix: "ingress_"
+
+analytics:
+  enabled: true
+
+azureSpeech:
+  enabled: false
+  subscriptionKeys: []
+
+webhook:
+  enabled: true
+  perMeeting: true
+  url: "http://localhost:8080/webhook"
+
+smtp:
+  enabled: false
+  host: "smtp.example.com"
+  port: 587
+  user: ""
+  pass: ""
+  from: "Torii Nihongo <noreply@torii.app>"
+
+janitor:
+  userCheckInterval: 60000
+  roomCheckInterval: 300000
+  backupCheckInterval: 3600000
+  recordingBackupDuration: "72h"
+  artifactsBackupPath: "./storage/trash"
+  recordingBackupPath: "./recording_files/del_backup"
+
+timeouts:
+  waitAfterRoomEnded: 5000
+  waitBeforeAnalyticsStart: 10000
+  waitBeforeSpeechCleanup: 5000
+
 thirdParty:
+  google:
+    clientId: ""
+    clientSecret: ""
   gemini:
-    apiKey: "YOUR_GEMINI_API_KEY"
-  # ... other third party configs
+    apiKey: ""
+  payos:
+    clientId: ""
+    apiKey: ""
+    checksumKey: ""
+  r2:
+    accessKeyId: ""
+    secretAccessKey: ""
+    endpoint: ""
+    bucketName: ""
+    accountId: ""
+    publicUrl: ""
+
+identity:
+  twoFactorIssuer: "Torii Nihongo"
+  webAdminUrl: "https://admin.torii.sbs"
+  webLearnerUrl: "https://app.torii.sbs"
+  webMeetUrl: "https://meet.torii.sbs"
+  twoFactorTempTokenExpiry: 300
+  defaultAdmin:
+    email: "admin@torii.com"
+    password: "admin123"
+    displayName: "System Administrator"
+
+fastmcp:
+  url: "http://localhost:3333"
