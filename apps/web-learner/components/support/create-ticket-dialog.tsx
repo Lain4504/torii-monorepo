@@ -25,9 +25,6 @@ import {
 import {
     Field,
     FieldLabel,
-    FieldGroup,
-    FieldSet,
-    FieldLegend
 } from '@workspace/ui/components/field';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { TicketType } from '@workspace/schemas';
@@ -113,119 +110,88 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden">
+            <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
                 <DialogHeader className="p-6 border-b">
                     <DialogTitle>Gửi yêu cầu hỗ trợ</DialogTitle>
                     <DialogDescription>
-                        Đội ngũ Torii luôn sẵn sàng giải quyết các thắc mắc và vấn đề của bạn.
+                        Vui lòng điền thông tin để chúng tôi có thể hỗ trợ bạn tốt nhất.
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
-                    <ScrollArea className="max-h-[60vh]">
-                        <div className="space-y-6 p-6">
-                            <FieldGroup>
-                                <FieldSet>
-                                    <FieldLegend>Thông tin yêu cầu</FieldLegend>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <Field>
-                                            <FieldLabel>Loại yêu cầu</FieldLabel>
-                                            <Select
-                                                value={selectedType}
-                                                onValueChange={(val) => setValue('type', val as TicketType)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Chọn loại yêu cầu" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={TicketType.SUPPORT}>Hỗ trợ kỹ thuật</SelectItem>
-                                                    <SelectItem value={TicketType.REFUND}>Yêu cầu hoàn tiền</SelectItem>
-                                                    <SelectItem value={TicketType.ERROR_REPORT}>Báo lỗi ứng dụng</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            {errors.type && <p className="text-xs text-destructive">{errors.type.message}</p>}
-                                        </Field>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <ScrollArea className="max-h-[70vh]">
+                        <div className="p-6 space-y-4">
+                            <Field>
+                                <FieldLabel>Loại yêu cầu</FieldLabel>
+                                <Select
+                                    value={selectedType}
+                                    onValueChange={(val) => setValue('type', val as TicketType)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Chọn loại yêu cầu" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={TicketType.SUPPORT}>Hỗ trợ kỹ thuật</SelectItem>
+                                        <SelectItem value={TicketType.REFUND}>Yêu cầu hoàn tiền</SelectItem>
+                                        <SelectItem value={TicketType.ERROR_REPORT}>Báo lỗi ứng dụng</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {errors.type && <p className="text-xs text-destructive">{errors.type.message}</p>}
+                            </Field>
 
-                                        <Field>
-                                            <FieldLabel>Tiêu đề</FieldLabel>
-                                            <Input
-                                                {...register('subject')}
-                                                placeholder="VD: Lỗi thanh toán..."
-                                            />
-                                            {errors.subject && <p className="text-xs text-destructive">{errors.subject.message}</p>}
-                                        </Field>
-                                    </div>
-                                </FieldSet>
+                            <Field>
+                                <FieldLabel>Tiêu đề</FieldLabel>
+                                <Input
+                                    {...register('subject')}
+                                    placeholder="VD: Không vào được bài học..."
+                                />
+                                {errors.subject && <p className="text-xs text-destructive">{errors.subject.message}</p>}
+                            </Field>
 
-                                {selectedType === TicketType.REFUND && (
-                                    <FieldSet>
-                                        <FieldLegend>Chi tiết khóa học</FieldLegend>
-                                        <Field>
-                                            <FieldLabel>Khóa học hoàn tiền</FieldLabel>
-                                            {isLoadingEnrollments ? (
-                                                <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-input bg-muted/50 text-muted-foreground text-sm italic">
-                                                    <Loader2 className="size-4 animate-spin" />
-                                                    Đang tải...
-                                                </div>
-                                            ) : enrollments.length > 0 ? (
-                                                <Select
-                                                    onValueChange={(val) => setValue('courseId', val)}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Chọn khóa học" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {enrollments.map((en: any) => (
-                                                            <SelectItem key={en.courseId} value={en.courseId}>
-                                                                {en.course?.title || `Khóa học ${en.courseId.slice(0, 8).toUpperCase()}`}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            ) : (
-                                                <div className="text-sm text-destructive font-medium border border-destructive/20 bg-destructive/5 p-3 rounded-md">
-                                                    Bạn chưa có khóa học nào để yêu cầu hoàn tiền.
-                                                </div>
-                                            )}
-                                            {errors.courseId && <p className="text-xs text-destructive">{errors.courseId.message}</p>}
-                                        </Field>
-                                    </FieldSet>
-                                )}
-
+                            {selectedType === TicketType.REFUND && (
                                 <Field>
-                                    <FieldLabel>Nội dung chi tiết</FieldLabel>
-                                    <Textarea
-                                        {...register('description')}
-                                        placeholder="Hãy mô tả chi tiết vấn đề của bạn..."
-                                        className="min-h-[150px]"
-                                    />
-                                    {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
+                                    <FieldLabel>Khóa học hoàn tiền</FieldLabel>
+                                    <Select
+                                        onValueChange={(val) => setValue('courseId', val)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={isLoadingEnrollments ? "Đang tải..." : "Chọn khóa học"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {enrollments.map((en: any) => (
+                                                <SelectItem key={en.courseId} value={en.courseId}>
+                                                    {en.course?.title}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.courseId && <p className="text-xs text-destructive">{errors.courseId.message}</p>}
                                 </Field>
-                            </FieldGroup>
+                            )}
+
+                            <Field>
+                                <FieldLabel>Mô tả chi tiết</FieldLabel>
+                                <Textarea
+                                    {...register('description')}
+                                    placeholder="Nội dung yêu cầu của bạn..."
+                                    className="min-h-[120px]"
+                                />
+                                {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
+                            </Field>
                         </div>
                     </ScrollArea>
 
-                    <DialogFooter className="p-6 border-t bg-muted/10">
+                    <DialogFooter className="p-6 border-t bg-muted/20">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
-                            disabled={createTicketMutation.isPending}
                         >
                             Hủy
                         </Button>
-                        <Button
-                            type="submit"
-                            disabled={createTicketMutation.isPending}
-                        >
-                            {createTicketMutation.isPending ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Đang gửi...
-                                </>
-                            ) : (
-                                'Gửi yêu cầu'
-                            )}
+                        <Button type="submit" disabled={createTicketMutation.isPending}>
+                            {createTicketMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Gửi yêu cầu
                         </Button>
                     </DialogFooter>
                 </form>
