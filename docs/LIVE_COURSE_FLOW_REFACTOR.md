@@ -201,44 +201,34 @@ Khóa học tiếng Nhật N5
 ```
 
 **Key points:**
-- ✅ **Lesson ≠ LiveSession**: Lesson là unit nội dung, LiveSession là buổi học trực tiếp
-- ✅ **LiveSession link to Lesson**: Sau khi ended, recording được gán vào lesson
-- ✅ **Pre-materials**: Tài liệu PDF, video lý thuyết trước buổi live
-- ✅ **Post-materials**: Quiz, assignment sau buổi live
+- ✅ **Lesson-Centric**: LiveSession phải luôn gắn với một Lesson (vị trí học) và một Module (chùm chủ đề).
+- ✅ **contentType: 'live_session'**: Giảng viên tạo sẵn các bài học "chờ" buổi Live.
+- ✅ **Auto-linking**: Khi gán lịch, hệ thống sẽ tự tìm các Lesson type 'live_session' để map vào, nếu thiếu sẽ tự tạo thêm bài học placeholder.
+- ✅ **Pre-materials**: Tài liệu PDF, video lý thuyết nằm trong cùng Module/Lesson để học viên dễ tiếp cận.
+- ✅ **Post-materials**: Quiz, assignment đi kèm sau buổi live.
 
-#### **B. Timeline thực tế**
+#### **B. Timeline & Nghiệp vụ thực tế**
 
-Khóa học 8 tuần, bắt đầu 10/03/2026:
+Khóa học 8 tuần, 3 buổi/tuần (Thứ 2-4-6):
 
 ```
-Tháng 2/2026 (4-6 tuần trước khai giảng):
-├── Giảng viên soạn nội dung toàn bộ khóa học
-├── Upload materials: PDFs, videos, worksheets
-├── Tạo modules 1-8, lessons 1.1-8.3
-├── Thiết kế quiz, assignments
-├── Submit for review
-└── Admin approve → Status: PUBLISHED
+1. Nội dung (Curriculum): 
+   - Giảng viên soạn sẵn 4-8 Modules tùy ý.
+   - Mỗi Module chứa tài liệu (PDF, Quizzes).
+   - Đây là "Sách giáo khoa" cố định.
 
-Tháng 3/2026 (1 tuần trước):
-├── Staff tạo TeachingSchedule (8 tuần, Thứ 7 20:00)
-├── Tự động generate 8 LiveSessions
-│   ├── LiveSession 1 → Link to Module 2, Lesson 2.1
-│   ├── LiveSession 2 → Link to Module 3, Lesson 3.1
-│   └── ... (mapping rõ ràng)
-├── Mở enrollment
-└── Learner đăng ký, xem syllabus
+2. Lịch học (LiveSessions): 
+   - Admin gán lịch 3 buổi/tuần.
+   - Hệ thống tạo 24 "Ô lịch" trống.
+   - Mỗi ô lịch chỉ có Title (Buổi 1, 2, 3...) và Thời gian.
 
-10/03/2026 - Buổi 1:
-├── 19:45: Learner chuẩn bị (xem lại PDF)
-├── 20:00: Start session → Create WebRTC room
-├── 20:00-21:30: Học live
-├── 21:30: End session → Recording saved
-└── 21:35: Recording auto-link to Lesson 2.2 (mới tạo)
+3. Trong buổi học:
+   - Giảng viên dạy theo giáo trình đã soạn.
+   - Dạy đến đâu dừng ở đó.
 
-11/03/2026 - Sau buổi 1:
-├── Learner xem lại recording (Lesson 2.2)
-├── Làm Quiz 2
-└── Nộp Assignment 2
+4. Sau buổi học:
+   - Recording được lưu lại.
+   - Giảng viên (hoặc hệ thống) gán Video này vào đúng Lesson đã dạy để học viên xem lại.
 ```
 
 ---
@@ -321,11 +311,9 @@ Tháng 3/2026 (1 tuần trước):
     ↓
 [Lecturer] End session
     ↓
-⚡ TỰ ĐỘNG: Process recording
-    - Recording URL từ LiveKit/Meet
-    - Tạo/update Lesson (contentType=live_recording)
-    - Link recording vào lesson
+⚡ TỰ ĐỘNG: Update status
     - Status → "ended"
+    - [TODO] Recording processing (Xử lý sau)
 
 ┌─────────────────────────────────────────────┐
 │ Phase 5: AFTER CLASS                        │
@@ -338,6 +326,19 @@ Tháng 3/2026 (1 tuần trước):
 [Learner] Làm bài tập/quiz
     ↓
 [Learner] Thảo luận (discussions)
+
+### 3.2 Các trường hợp đặc biệt
+
+#### **A. Ad-hoc Sessions (Buổi học bổ trợ)**
+- Cho phép Admin/Lecturer tạo `LiveSession` lẻ không thông qua `TeachingSchedule`.
+- Khi tạo, bắt buộc chọn `moduleId` để link vào đúng tuần học.
+- Hỗ trợ dạy bù hoặc dạy ôn tập thêm.
+
+#### **B. Reschedule (Đổi lịch)**
+- Khi thay đổi `scheduledAt` của một `LiveSession`:
+    - Nếu Session đã "ended": Không cho phép đổi.
+    - Nếu Session là "scheduled": Cho phép đổi, tự động gửi Notification/Email cho Learner.
+    - Giữ nguyên `moduleId` mapping để không làm xáo trộn lộ trình học.
 ```
 
 ### 3.2 Validation Gates
@@ -403,13 +404,14 @@ model LiveSession {
 }
 ```
 
-#### **B. Lesson (bổ sung fields)**
+#### **B. Lesson (bổ sung phân loại)**
 
 ```prisma
 model Lesson {
   // ... existing fields ...
   
-  contentType    String   // video | article | quiz | live_recording ← NEW
+  // ✅ CHANGE: Thêm type cho buổi live đang chờ
+  contentType    String   // video | article | quiz | live_session | live_recording
   
   // ✅ NEW: Live session link
   liveSessionId  String?  @map("live_session_id") @db.Uuid
@@ -431,6 +433,17 @@ model Course {
   isReadyForScheduling Boolean @default(false) @map("is_ready_for_scheduling")
   
   minimumLessons       Int?    @default(8) @map("minimum_lessons") // Live course cần ít nhất 8 lessons
+}
+```
+
+#### **D. LessonMaterial (bổ sung phân loại)**
+
+```prisma
+model LessonMaterial {
+  // ... existing fields ...
+  
+  // ✅ NEW: Phân loại thời điểm sử dụng
+  usageType    String   @default("pre_class") // pre_class | post_class | recording
 }
 ```
 
@@ -521,64 +534,42 @@ async assignSchedule(requester: Requester, dto: TeachingScheduleCreateDTO) {
   return schedule;
 }
 
-// ✅ NEW: Generate với curriculum mapping
-private async generateLiveSessionsWithCurriculum(
+// ✅ NEW: Simple session generation (Just time slots)
+private async generateLiveSessions(
   scheduleId: string,
   courseId: string,
-  weeks: number
+  totalWeeks: number,
+  sessionsPerWeek: number
 ) {
-  const schedule = await this.prisma.teachingSchedule.findUnique({
-    where: { id: scheduleId },
-    include: { course: true },
-  });
-  
-  // Lấy curriculum
-  const modules = await this.prisma.module.findMany({
-    where: { courseId },
-    orderBy: { orderIndex: 'asc' },
-    include: {
-      lessons: {
-        orderBy: { orderIndex: 'asc' },
-      },
-    },
-  });
-  
+  const totalSessionsCount = totalWeeks * sessionsPerWeek;
   const sessions: any[] = [];
-  const [hours, minutes] = schedule.startTime.split(':').map(Number);
   
-  let currentDate = new Date();
-  const currentDay = currentDate.getDay();
-  const daysUntil = (schedule.dayOfWeek - currentDay + 7) % 7;
-  currentDate.setDate(currentDate.getDate() + daysUntil);
-  currentDate.setHours(hours, minutes, 0, 0);
-  
-  for (let i = 0; i < weeks; i++) {
-    const scheduledAt = new Date(currentDate);
-    scheduledAt.setDate(scheduledAt.getDate() + (i * 7));
-    
-    // ✅ Map to module/lesson
-    const moduleIndex = Math.min(i, modules.length - 1);
-    const module = modules[moduleIndex];
-    const lesson = module?.lessons?.[0]; // Hoặc logic mapping phức tạp hơn
+  // Logic tính toán ngày dựa trên dayOfWeek và startTime của schedule
+  for (let i = 0; i < totalSessionsCount; i++) {
+    const scheduledAt = this.calculateNextDate(i, schedule);
     
     sessions.push({
-      courseId: schedule.courseId,
-      lecturerId: schedule.lecturerId,
-      scheduleId: schedule.id,
-      moduleId: module?.id,
-      lessonId: lesson?.id,
-      title: `${module?.title || schedule.course.title} - Tuần ${i + 1}`,
-      description: module?.description,
+      courseId,
+      scheduleId,
+      title: `Buổi học thứ ${i + 1}`,
       scheduledAt,
-      duration: schedule.duration,
       status: 'scheduled',
-      // ✅ NO meetingId yet
-      meetingId: null,
+      meetingId: null, // Tạo khi Start
     });
   }
   
   await this.prisma.liveSession.createMany({ data: sessions });
 }
+
+// [TODO] Xử lý Recording
+// Tạm thời chỉ kết thúc buổi học, việc lấy recording và link vào lesson sẽ được thực hiện sau
+async endSession(requester: Requester, id: string): Promise<LiveSessionResponseDTO> {
+  const updated = await this.liveSessionRepository.update(id, {
+    status: 'ended' as any,
+  });
+  return this.mapper.map<any, LiveSessionResponseDTO>(updated, 'LiveSession', 'LiveSessionResponseDTO');
+}
+```
 ```
 
 #### **C. LiveSessionService - Lazy create meetingId**
@@ -617,22 +608,27 @@ async startSession(requester: Requester, id: string): Promise<LiveSessionRespons
   // ✅ CREATE meetingId NOW
   const meetingId = `live-${existing.courseId.substring(0, 8)}-${existing.id.substring(0, 8)}`;
   
-  // Create WebRTC room
+  // Create WebRTC room (Keep existing room.create command)
   const roomReq = create(CreateRoomReqSchema, {
     roomId: meetingId,
-    roomTitle: existing.title,
-    // ... same config ...
-    recordingFeatures: create(RecordingFeaturesSchema, {
-      isAllow: true,
-      isAllowCloud: true,
-      isAllowLocal: false,
-      autoRecording: true, // ✅ Auto recording
-      onlyRecordAdminWebcams: false,
-    }),
+    metadata: create(RoomMetadataSchema, {
+        roomTitle: existing.title,
+        // ... giữ nguyên config hiện tại ...
+        roomFeatures: create(RoomCreateFeaturesSchema, {
+            // ...
+            recordingFeatures: create(RecordingFeaturesSchema, {
+                isAllow: true,
+                isAllowCloud: true,
+                isAllowLocal: true,
+                enableAutoCloudRecording: true, // Auto recording khi start
+                onlyRecordAdminWebcams: false,
+            }),
+        })
+    })
   });
   
   const roomResponse = await lastValueFrom(
-    this.natsClient.send({ cmd: 'meet.create_room' }, roomReq)
+    this.natsClient.send({ cmd: 'room.create' }, roomReq) // KHÔNG ĐỔI COMMAND
   );
   
   // Update session
@@ -646,100 +642,9 @@ async startSession(requester: Requester, id: string): Promise<LiveSessionRespons
   return this.mapper.map<any, LiveSessionResponseDTO>(updated, 'LiveSession', 'LiveSessionResponseDTO');
 }
 
-// ✅ NEW: Process recording after end
-async endSession(requester: Requester, id: string): Promise<LiveSessionResponseDTO> {
-  // ... existing end logic ...
-  
-  const updated = await this.liveSessionRepository.update(id, {
-    status: 'ended' as any,
-  });
-  
-  // ✅ Async: Process recording
-  this.processRecording(id).catch(err => {
-    this.logger.error(`Failed to process recording for session ${id}:`, err);
-  });
-  
-  return this.mapper.map<any, LiveSessionResponseDTO>(updated, 'LiveSession', 'LiveSessionResponseDTO');
-}
+// [TODO] Implement recording logic
 
-// ✅ NEW: Process recording
-private async processRecording(sessionId: string) {
-  const session = await this.liveSessionRepository.findById(sessionId);
-  
-  if (!session?.meetingId) {
-    this.logger.warn(`No meetingId for session ${sessionId}, skip recording`);
-    return;
-  }
-  
-  // Get recording URL from Meet/LiveKit
-  const recording = await this.getRecordingFromMeet(session.meetingId);
-  
-  if (!recording?.url) {
-    this.logger.warn(`No recording found for meeting ${session.meetingId}`);
-    return;
-  }
-  
-  // Update session
-  await this.liveSessionRepository.update(sessionId, {
-    recordingUrl: recording.url,
-    recordingDuration: recording.duration,
-  });
-  
-  // ✅ Create/Update Lesson
-  if (session.lessonId) {
-    // Update existing lesson
-    await this.prisma.lesson.update({
-      where: { id: session.lessonId },
-      data: {
-        videoUrl: recording.url,
-        videoDuration: recording.duration,
-        contentType: 'live_recording',
-      },
-    });
-  } else if (session.moduleId) {
-    // Create new lesson
-    const module = await this.prisma.module.findUnique({
-      where: { id: session.moduleId },
-      include: { lessons: true },
-    });
-    
-    const newLesson = await this.prisma.lesson.create({
-      data: {
-        moduleId: session.moduleId,
-        title: `Recording: ${session.title}`,
-        contentType: 'live_recording',
-        videoUrl: recording.url,
-        videoDuration: recording.duration,
-        orderIndex: (module?.lessons.length || 0) + 1,
-        isPreview: false,
-        isUnlocked: true,
-        liveSessionId: sessionId,
-        status: 'published',
-      },
-    });
-    
-    // Link back to session
-    await this.liveSessionRepository.update(sessionId, {
-      lessonId: newLesson.id,
-    });
-  }
-  
-  this.logger.log(`Recording processed for session ${sessionId}: ${recording.url}`);
-}
-
-private async getRecordingFromMeet(meetingId: string): Promise<{ url: string; duration: number } | null> {
-  // Call Meet/LiveKit API to get recording
-  // This is placeholder - implement based on your Meet API
-  try {
-    const response = await lastValueFrom(
-      this.natsClient.send({ cmd: 'meet.get_recording' }, { meetingId })
-    );
-    return response;
-  } catch (error) {
-    this.logger.error(`Failed to get recording from Meet:`, error);
-    return null;
-  }
-}
+// [TODO] Implement recording process and Meet API integration
 ```
 
 ### 4.3 Frontend Changes
@@ -869,52 +774,20 @@ export function LiveSessionBanner({ courseId }: { courseId: string }) {
 
 ---
 
-## 5. Migration Plan
+## 5. Implementation Strategy (No Migration Needed)
 
-### 5.1 Phase 1: Database Migration
+> [!IMPORTANT]
+> Dự án không yêu cầu backward compatibility hoặc data migration. Tất cả dữ liệu cũ sẽ được xóa hoặc bỏ qua để áp dụng flow mới.
 
-```sql
--- Step 1: Add new columns to live_sessions
-ALTER TABLE live_sessions
-  ADD COLUMN module_id UUID REFERENCES modules(id) ON DELETE SET NULL,
-  ADD COLUMN lesson_id UUID REFERENCES lessons(id) ON DELETE SET NULL,
-  ADD COLUMN recording_url TEXT,
-  ADD COLUMN recording_duration INTEGER,
-  ALTER COLUMN meeting_id DROP NOT NULL;
+### 5.1 Phase 1: Clean State
+- Xóa các `live_sessions` có trạng thái `scheduled` hiện tại.
+- Cập nhật schema Prisma và đẩy lên database (`npx prisma db push`).
 
--- Step 2: Add indexes
-CREATE INDEX idx_live_sessions_module_id ON live_sessions(module_id);
-CREATE INDEX idx_live_sessions_lesson_id ON live_sessions(lesson_id);
-
--- Step 3: Add live_session_id to lessons
-ALTER TABLE lessons
-  ADD COLUMN live_session_id UUID REFERENCES live_sessions(id) ON DELETE SET NULL;
-
-CREATE INDEX idx_lessons_live_session_id ON lessons(live_session_id);
-
--- Step 4: Add validation column to courses
-ALTER TABLE courses
-  ADD COLUMN is_ready_for_scheduling BOOLEAN DEFAULT FALSE,
-  ADD COLUMN minimum_lessons INTEGER DEFAULT 8;
-
--- Step 5: Update existing courses (manual review needed)
-UPDATE courses
-SET is_ready_for_scheduling = TRUE
-WHERE type = 'live'
-  AND status = 'published'
-  AND lecturer_id IS NOT NULL
-  AND id IN (
-    SELECT DISTINCT course_id 
-    FROM modules 
-    WHERE deleted_at IS NULL
-  );
-
--- Step 6: Clear future scheduled sessions (will be regenerated)
-DELETE FROM live_sessions
-WHERE status = 'scheduled'
-  AND scheduled_at > NOW()
-  AND meeting_id IS NOT NULL;
-```
+### 5.2 Phase 2: Core Backend Implementation
+1. Cấu hình lại `LiveSession` schema với các field link tới `Module` và `Lesson`.
+2. Refactor `TeachingScheduleService` để mapping Session 1:1 với `Module`.
+3. Cập nhật `LiveSessionService` để trì hoãn việc tạo `meetingId` cho đến khi thực sự "Start".
+4. Tích hợp `room.create` (NATS command cũ) với cấu hình auto-recording.
 
 ### 5.2 Phase 2: Backend Implementation
 
@@ -923,9 +796,9 @@ WHERE status = 'scheduled'
 2. ✅ Update `CourseService.validateForScheduling()`
 3. ✅ Update `TeachingScheduleService.generateLiveSessionsWithCurriculum()`
 4. ✅ Update `LiveSessionService.startSession()` - lazy meetingId
-5. ✅ Implement `LiveSessionService.processRecording()`
-6. ✅ Add API endpoint: `POST /api/courses/:id/validate-scheduling`
-7. ✅ Add API endpoint: `POST /api/live-sessions/:id/upload-recording` (manual upload)
+5. [TODO] Implement `LiveSessionService.processRecording()`
+...
+7. [TODO] Add API endpoint: `POST /api/live-sessions/:id/upload-recording` (manual upload)
 8. ✅ Update interfaces and DTOs
 9. ✅ Write tests
 
@@ -1028,44 +901,7 @@ Week 4: Production rollout
 
 ## 7. Rollback Plan
 
-Nếu có vấn đề sau khi deploy:
-
-### 7.1 Database Rollback
-
-```sql
--- Rollback to old schema (if needed)
-ALTER TABLE live_sessions
-  DROP COLUMN IF EXISTS module_id,
-  DROP COLUMN IF EXISTS lesson_id,
-  DROP COLUMN IF EXISTS recording_url,
-  DROP COLUMN IF EXISTS recording_duration;
-  
-ALTER TABLE live_sessions
-  ALTER COLUMN meeting_id SET NOT NULL;
-  
-ALTER TABLE lessons
-  DROP COLUMN IF EXISTS live_session_id;
-  
-ALTER TABLE courses
-  DROP COLUMN IF EXISTS is_ready_for_scheduling,
-  DROP COLUMN IF EXISTS minimum_lessons;
-```
-
-### 7.2 Code Rollback
-
-```bash
-# Revert backend
-cd apps/server
-git revert <commit-hash>
-
-# Revert frontend
-cd apps/web-learner
-git revert <commit-hash>
-
-# Redeploy
-pnpm build
-pm2 restart all
-```
+Do không yêu cầu migration, rollback đơn giản là revert code về phiên bản trước và thực hiện `prisma db push` để quay lại schema cũ (nếu cấu trúc DB bị thay đổi nhiều).
 
 ---
 
