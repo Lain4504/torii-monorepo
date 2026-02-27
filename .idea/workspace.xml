@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <change afterPath="$PROJECT_DIR$/apps/web-learner/public/herobanner.jpeg" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="stitch ui">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -406,86 +405,6 @@
       <workItem from="1772173061622" duration="2604000" />
       <workItem from="1772200330099" duration="390000" />
     </task>
-    <task id="LOCAL-00852" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693548937</created>
-      <option name="number" value="00852" />
-      <option name="presentableId" value="LOCAL-00852" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693548937</updated>
-    </task>
-    <task id="LOCAL-00853" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693927384</created>
-      <option name="number" value="00853" />
-      <option name="presentableId" value="LOCAL-00853" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693927384</updated>
-    </task>
-    <task id="LOCAL-00854" summary="refactor: update layout and styling for user and module sheets">
-      <option name="closed" value="true" />
-      <created>1771723497169</created>
-      <option name="number" value="00854" />
-      <option name="presentableId" value="LOCAL-00854" />
-      <option name="project" value="LOCAL" />
-      <updated>1771723497169</updated>
-    </task>
-    <task id="LOCAL-00855" summary="feat: add reset password functionality and update identity URLs">
-      <option name="closed" value="true" />
-      <created>1771817516446</created>
-      <option name="number" value="00855" />
-      <option name="presentableId" value="LOCAL-00855" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817516446</updated>
-    </task>
-    <task id="LOCAL-00856" summary="refactor: change location of api folder to lib">
-      <option name="closed" value="true" />
-      <created>1771817703777</created>
-      <option name="number" value="00856" />
-      <option name="presentableId" value="LOCAL-00856" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817703777</updated>
-    </task>
-    <task id="LOCAL-00857" summary="refactor: change location of api folder to lib">
-      <option name="closed" value="true" />
-      <created>1771817780327</created>
-      <option name="number" value="00857" />
-      <option name="presentableId" value="LOCAL-00857" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817780327</updated>
-    </task>
-    <task id="LOCAL-00858" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
-      <option name="closed" value="true" />
-      <created>1771823535746</created>
-      <option name="number" value="00858" />
-      <option name="presentableId" value="LOCAL-00858" />
-      <option name="project" value="LOCAL" />
-      <updated>1771823535747</updated>
-    </task>
-    <task id="LOCAL-00859" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
-      <option name="closed" value="true" />
-      <created>1771823552828</created>
-      <option name="number" value="00859" />
-      <option name="presentableId" value="LOCAL-00859" />
-      <option name="project" value="LOCAL" />
-      <updated>1771823552828</updated>
-    </task>
-    <task id="LOCAL-00860" summary="refactor: improve layout and styling across multiple components">
-      <option name="closed" value="true" />
-      <created>1771843343459</created>
-      <option name="number" value="00860" />
-      <option name="presentableId" value="LOCAL-00860" />
-      <option name="project" value="LOCAL" />
-      <updated>1771843343459</updated>
-    </task>
-    <task id="LOCAL-00861" summary="refactor: reorganize dashboard components and update import paths">
-      <option name="closed" value="true" />
-      <created>1771845443231</created>
-      <option name="number" value="00861" />
-      <option name="presentableId" value="LOCAL-00861" />
-      <option name="project" value="LOCAL" />
-      <updated>1771845443231</updated>
-    </task>
     <task id="LOCAL-00862" summary="feat: replace SVG logo with Image component for improved performance and consistency">
       <option name="closed" value="true" />
       <created>1771851088973</created>
@@ -798,7 +717,87 @@
       <option name="project" value="LOCAL" />
       <updated>1772211562042</updated>
     </task>
-    <option name="localTasksCounter" value="901" />
+    <task id="LOCAL-00901" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772212114569</created>
+      <option name="number" value="00901" />
+      <option name="presentableId" value="LOCAL-00901" />
+      <option name="project" value="LOCAL" />
+      <updated>1772212114569</updated>
+    </task>
+    <task id="LOCAL-00902" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772213144237</created>
+      <option name="number" value="00902" />
+      <option name="presentableId" value="LOCAL-00902" />
+      <option name="project" value="LOCAL" />
+      <updated>1772213144238</updated>
+    </task>
+    <task id="LOCAL-00903" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772213641346</created>
+      <option name="number" value="00903" />
+      <option name="presentableId" value="LOCAL-00903" />
+      <option name="project" value="LOCAL" />
+      <updated>1772213641347</updated>
+    </task>
+    <task id="LOCAL-00904" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214077619</created>
+      <option name="number" value="00904" />
+      <option name="presentableId" value="LOCAL-00904" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214077619</updated>
+    </task>
+    <task id="LOCAL-00905" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214182851</created>
+      <option name="number" value="00905" />
+      <option name="presentableId" value="LOCAL-00905" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214182862</updated>
+    </task>
+    <task id="LOCAL-00906" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214431427</created>
+      <option name="number" value="00906" />
+      <option name="presentableId" value="LOCAL-00906" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214431428</updated>
+    </task>
+    <task id="LOCAL-00907" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214580679</created>
+      <option name="number" value="00907" />
+      <option name="presentableId" value="LOCAL-00907" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214580680</updated>
+    </task>
+    <task id="LOCAL-00908" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214852349</created>
+      <option name="number" value="00908" />
+      <option name="presentableId" value="LOCAL-00908" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214852349</updated>
+    </task>
+    <task id="LOCAL-00909" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214973121</created>
+      <option name="number" value="00909" />
+      <option name="presentableId" value="LOCAL-00909" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214973121</updated>
+    </task>
+    <task id="LOCAL-00910" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772215340698</created>
+      <option name="number" value="00910" />
+      <option name="presentableId" value="LOCAL-00910" />
+      <option name="project" value="LOCAL" />
+      <updated>1772215340699</updated>
+    </task>
+    <option name="localTasksCounter" value="911" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -833,7 +832,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: update button styles and labels for consistency across multiple sheets" />
     <MESSAGE value="rules" />
     <MESSAGE value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
     <MESSAGE value="refactor: update layout and styling for user and module sheets" />
@@ -858,7 +856,8 @@
     <MESSAGE value="refactor: restructure course DTOs and add search request schema" />
     <MESSAGE value="refactor: remove unused community navigation item and clean up related files" />
     <MESSAGE value="feat: implement scheduled cleanup for old audit logs with retention policy" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: implement scheduled cleanup for old audit logs with retention policy" />
+    <MESSAGE value="stitch ui" />
+    <option name="LAST_COMMIT_MESSAGE" value="stitch ui" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

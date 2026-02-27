@@ -1,11 +1,8 @@
-import { Award, ChevronRight, Star, Users } from 'lucide-react'
+import { Users } from 'lucide-react'
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Button } from '@workspace/ui/components/button'
-import { Card } from '@workspace/ui/components/card'
-import Link from 'next/link'
-
-import { formatNumber } from '@/utils/format-utils'
+import Image from 'next/image'
 
 interface CourseInstructorProps {
     course: CourseResponseDTO
@@ -16,116 +13,88 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
 
     if (!lecturer) {
         return (
-            <div className="space-y-6 animate-in fade-in duration-700">
-                <div className="flex items-center gap-3">
-                    <div className="rounded bg-primary/10 p-1.5 text-primary">
-                        <Users className="h-5 w-5" />
+            <div className="space-y-6">
+                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                    <Users className="text-primary size-6" />
+                    Giảng viên
+                </h3>
+
+                <div className="bg-muted/30 p-8 rounded-2xl flex flex-col md:flex-row gap-8 items-start">
+                    <Avatar className="size-32 rounded-2xl shadow-lg">
+                        <AvatarFallback className="bg-primary/10 text-4xl font-bold text-primary rounded-2xl">T</AvatarFallback>
+                    </Avatar>
+
+                    <div className="space-y-4">
+                        <div>
+                            <h3 className="text-2xl font-bold">Giảng viên Torii Nihongo</h3>
+                            <p className="text-primary font-medium">Chuyên gia đào tạo JLPT</p>
+                        </div>
+
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                            Đội ngũ giảng viên giàu kinh nghiệm với phương pháp giảng dạy hiện đại, giúp học viên chinh phục JLPT một cách hiệu quả nhất.
+                        </p>
+
+                        <div className="flex gap-4">
+                            <button className="text-sm font-bold text-primary hover:underline">
+                                Các khóa học khác
+                            </button>
+                            <button className="text-sm font-bold text-primary hover:underline">
+                                Xem hồ sơ đầy đủ
+                            </button>
+                        </div>
                     </div>
-                    <h2 className="text-2xl font-bold text-foreground">Giảng viên</h2>
                 </div>
-
-                <Card className="p-6">
-                    <div className="flex flex-col gap-6 md:flex-row">
-                        <div className="flex shrink-0 flex-col items-center gap-3">
-                            <Avatar className="size-16">
-                                <AvatarFallback className="bg-primary/10 text-xl font-bold text-primary">T</AvatarFallback>
-                            </Avatar>
-                            <div className="flex items-center gap-1">
-                                <Star className="size-3.5 fill-primary text-primary" />
-                                <span className="text-xs font-bold">4.9 Đánh giá</span>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 space-y-4">
-                            <div className="space-y-1">
-                                <h3 className="text-lg font-bold">Giảng viên Torii Nihongo</h3>
-                                <p className="text-sm text-muted-foreground">Chuyên gia đào tạo JLPT</p>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-4">
-                                <div>
-                                    <div className="text-lg font-bold">{formatNumber(course.totalStudents)}+</div>
-                                    <div className="text-xs text-muted-foreground">Học viên</div>
-                                </div>
-                                <div>
-                                    <div className="text-lg font-bold">10+</div>
-                                    <div className="text-xs text-muted-foreground">Khóa học</div>
-                                </div>
-                                <div>
-                                    <div className="text-lg font-bold">JLPT N1</div>
-                                    <div className="text-xs text-muted-foreground">Chứng chỉ</div>
-                                </div>
-                            </div>
-
-                            <p className="text-sm italic text-muted-foreground">
-                                "Sứ mệnh của chúng tôi không chỉ dừng lại ở việc dạy tiếng Nhật, mà là truyền cảm hứng và xây dựng tư duy thành công cho mọi học viên trên con đường chinh phục Nhật Bản."
-                            </p>
-                        </div>
-                    </div>
-                </Card>
             </div>
         )
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700">
-            <div className="flex items-center gap-3">
-                <div className="rounded bg-primary/10 p-1.5 text-primary">
-                    <Users className="h-5 w-5" />
-                </div>
-                <h2 className="text-2xl font-bold text-foreground">Giảng viên hướng dẫn</h2>
-            </div>
+        <div className="space-y-6">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <Users className="text-primary size-6" />
+                Giảng viên
+            </h3>
 
-            <Card className="p-6 transition-colors hover:border-primary/50">
-                <div className="flex flex-col gap-6 md:flex-row">
-                    <div className="flex shrink-0 flex-col items-center gap-3">
-                        <Avatar className="size-16">
-                            <AvatarImage src={lecturer.avatarUrl ?? undefined} className="object-cover" />
-                            <AvatarFallback className="bg-primary/10 text-xl font-bold text-primary">
+            <div className="bg-muted/30 p-8 rounded-2xl flex flex-col md:flex-row gap-8 items-start">
+                <div className="shrink-0">
+                    {lecturer.avatarUrl ? (
+                        <div className="relative size-32 rounded-2xl overflow-hidden shadow-lg">
+                            <Image
+                                src={lecturer.avatarUrl}
+                                alt={lecturer.displayName || 'Instructor'}
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                    ) : (
+                        <Avatar className="size-32 rounded-2xl shadow-lg">
+                            <AvatarFallback className="bg-primary/10 text-4xl font-bold text-primary rounded-2xl">
                                 {lecturer.displayName?.[0]?.toUpperCase() || 'U'}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="flex flex-col items-center gap-0.5">
-                            <div className="flex items-center gap-1 text-primary">
-                                <Star className="size-3.5 fill-current" />
-                                <span className="text-xs font-bold text-foreground">5.0</span>
-                            </div>
-                            <span className="text-[10px] text-muted-foreground">Đánh giá</span>
-                        </div>
+                    )}
+                </div>
+
+                <div className="space-y-4 flex-1">
+                    <div>
+                        <h3 className="text-2xl font-bold">{lecturer.displayName}</h3>
+                        <p className="text-primary font-medium">Giảng viên tại Torii Nihongo</p>
                     </div>
 
-                    <div className="w-full flex-1 space-y-4">
-                        <div className="space-y-1">
-                            <h3 className="text-xl font-bold text-foreground">
-                                {lecturer.displayName}
-                            </h3>
-                            <p className="text-sm font-medium text-muted-foreground">Giảng viên tại Torii Nihongo</p>
-                        </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                        Giảng viên giàu kinh nghiệm với phương pháp giảng dạy hiện đại, giúp học viên chinh phục JLPT một cách hiệu quả và tự tin nhất.
+                    </p>
 
-                        <div className="flex flex-wrap gap-4 text-xs font-medium text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                                <Users className="size-4 text-primary" />
-                                <span>Kinh nghiệm giảng dạy</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Award className="size-4 text-primary" />
-                                <span>Chuyên gia JLPT</span>
-                            </div>
-                        </div>
-
-                        <p className="text-sm text-muted-foreground">
-                            Mang đến trải nghiệm học tiếng Nhật hiện đại, đơn giản và cực kỳ hiệu quả thông qua lộ trình cá nhân hóa.
-                        </p>
-
-                        <Link href={`/lecturers/${lecturer.id}`}>
-                            <Button variant="outline" size="sm" className="font-bold">
-                                Xem hồ sơ chi tiết
-                                <ChevronRight className="ml-1.5 size-4" />
-                            </Button>
-                        </Link>
+                    <div className="flex gap-4">
+                        <button className="text-sm font-bold text-primary hover:underline">
+                            Các khóa học khác
+                        </button>
+                        <button className="text-sm font-bold text-primary hover:underline">
+                            Xem hồ sơ đầy đủ
+                        </button>
                     </div>
                 </div>
-            </Card>
+            </div>
         </div>
     )
 }

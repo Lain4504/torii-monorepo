@@ -1,15 +1,17 @@
 'use client';
 
 import { CourseCard } from "./course-card"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@workspace/ui/components/pagination"
 import { useCourses } from "@/lib/api/services/course-api"
-import { Inbox, Search } from 'lucide-react'
+import { Inbox, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
-import { cn } from "@workspace/ui/lib/utils";
 import { Skeleton } from "@workspace/ui/components/skeleton"
+import { Button } from "@workspace/ui/components/button"
+import { cn } from "@workspace/ui/lib/utils"
+
 interface CourseGridProps {
     searchQuery?: string
     selectedLevels?: string[]
+    selectedTopics?: string[]
     priceFilter?: "all" | "free" | "paid"
     sortBy?: string
     currentPage?: number
@@ -19,6 +21,7 @@ interface CourseGridProps {
 export function CourseGrid({
     searchQuery = "",
     selectedLevels = [],
+    selectedTopics = [],
     priceFilter = "all",
     sortBy = "popular",
     currentPage = 1,
@@ -31,6 +34,7 @@ export function CourseGrid({
         limit: ITEMS_PER_PAGE,
         q: searchQuery,
         levels: selectedLevels,
+        topics: selectedTopics,
         priceFilter: priceFilter,
         sortBy: sortBy
     });
@@ -40,12 +44,29 @@ export function CourseGrid({
 
     const isEmpty = !isLoading && courses.length === 0;
 
+    // Generate page numbers for pagination
+    const getPageNumbers = () => {
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1)
+        }
+        
+        if (currentPage <= 3) {
+            return [1, 2, 3, '...', totalPages]
+        }
+        
+        if (currentPage >= totalPages - 2) {
+            return [1, '...', totalPages - 2, totalPages - 1, totalPages]
+        }
+        
+        return [1, '...', currentPage, '...', totalPages]
+    }
+
     return (
-        <div className="space-y-16">
+        <div className="space-y-12">
             {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
-                        <Skeleton key={i} className="aspect-[4/5] rounded-lg" />
+                        <Skeleton key={i} className="aspect-[4/5] rounded-xl" />
                     ))}
                 </div>
             ) : error ? (
@@ -73,66 +94,59 @@ export function CourseGrid({
                     </Empty>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-700">
-                    {courses.map((course) => (
-                        <CourseCard key={course.id} {...course} />
-                    ))}
-                </div>
-            )}
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {courses.map((course) => (
+                            <CourseCard key={course.id} {...course} />
+                        ))}
+                    </div>
 
-            {!isEmpty && !isLoading && totalPages > 1 && (
-                <div className="pt-8 flex justify-center border-t border-border/50">
-                    <Pagination>
-                        <PaginationContent className="gap-2">
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    href="#"
-                                    onClick={(e) => {
-                                        e.preventDefault()
-                                        if (currentPage > 1) {
-                                            onPageChange(currentPage - 1)
-                                        }
-                                    }}
-                                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-primary/5 hover:text-primary transition-all"}
-                                />
-                            </PaginationItem>
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-center pt-12 pb-8">
+                            <nav className="flex items-center gap-1">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="size-10 rounded-lg"
+                                    onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ChevronLeft className="size-4" />
+                                </Button>
 
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                <PaginationItem key={page}>
-                                    <PaginationLink
-                                        href="#"
-                                        isActive={currentPage === page}
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            onPageChange(page)
-                                        }}
-                                        className={cn(
-                                            "transition-all font-bold",
-                                            currentPage === page
-                                                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
-                                                : "hover:bg-primary/5 hover:text-primary text-muted-foreground"
-                                        )}
-                                    >
-                                        {page}
-                                    </PaginationLink>
-                                </PaginationItem>
-                            ))}
+                                {getPageNumbers().map((pageNum, idx) => (
+                                    pageNum === '...' ? (
+                                        <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">...</span>
+                                    ) : (
+                                        <Button
+                                            key={pageNum}
+                                            variant={currentPage === pageNum ? "default" : "ghost"}
+                                            size="icon"
+                                            className={cn(
+                                                "size-10 rounded-lg font-bold",
+                                                currentPage === pageNum && "bg-primary text-primary-foreground"
+                                            )}
+                                            onClick={() => onPageChange(pageNum as number)}
+                                        >
+                                            {pageNum}
+                                        </Button>
+                                    )
+                                ))}
 
-                            <PaginationItem>
-                                <PaginationNext
-                                    href="#"
-                                    onClick={(e) => {
-                                        e.preventDefault()
-                                        if (currentPage < totalPages) {
-                                            onPageChange(currentPage + 1)
-                                        }
-                                    }}
-                                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-primary/5 hover:text-primary transition-all"}
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                </div>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="size-10 rounded-lg"
+                                    onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    <ChevronRight className="size-4" />
+                                </Button>
+                            </nav>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
