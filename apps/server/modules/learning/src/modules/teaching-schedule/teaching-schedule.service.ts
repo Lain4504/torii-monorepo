@@ -253,7 +253,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
                 courseId: schedule.courseId,
                 lecturerId: schedule.lecturerId,
                 scheduleId: schedule.id,
-                title: `${schedule.course.title} - Buổi học ${i + 1}`,
+                title: `${schedule.course.title} - Buổi học tuần ${i + 1}`,
                 meetingId: `live-${uuidv4().substring(0, 8)}`,
                 scheduledAt,
                 duration: schedule.duration,

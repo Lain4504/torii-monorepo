@@ -54,6 +54,7 @@ export * from './dtos/exam.dto';
 export * from './dtos/lesson-material.dto';
 export * from './dtos/course-instructor.dto';
 export * from './dtos/staff-dashboard.dto';
+export * from './dtos/course.dto';
 export * from './dtos/enrollment.dto';
 export * from './dtos/order.dto';
 export * from './dtos/coupon.dto';
