@@ -3,6 +3,7 @@ import type { CourseResponseDTO } from '@workspace/schemas'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'
+import Link from 'next/link'
 
 import { formatNumber } from '@/utils/format-utils'
 
@@ -120,10 +121,12 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                     Mang đến trải nghiệm học tiếng Nhật hiện đại, đơn giản và cực kỳ hiệu quả thông qua lộ trình cá nhân hóa.
                                 </p>
 
-                                <Button variant="outline" size="sm" className="font-bold">
-                                    Xem hồ sơ chi tiết
-                                    <ChevronRight className="ml-1.5 size-4" />
-                                </Button>
+                                <Link href={`/lecturers/${instructor.userId}`}>
+                                    <Button variant="outline" size="sm" className="font-bold">
+                                        Xem hồ sơ chi tiết
+                                        <ChevronRight className="ml-1.5 size-4" />
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     </Card>

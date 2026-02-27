@@ -29,6 +29,9 @@
       "@server/shared/*": [
         "./libs/shared/src/*"
       ],
+      "@server/identity": [
+        "./services/identity/src"
+      ],
       "@server/identity/*": [
         "./services/identity/src/*"
       ],

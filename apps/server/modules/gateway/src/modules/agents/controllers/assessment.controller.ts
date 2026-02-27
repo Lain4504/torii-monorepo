@@ -65,10 +65,9 @@ export class AssessmentHandler {
     }
 
     @Post('placement/test')
-    @UseGuards(GatewayAuthGuard)
     async generatePlacementTest(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
+        const requester = req.requester || null;
+        const userId = requester?.sub || 'anonymous';
         try {
             this.logger.log(`🎯 Placement test generation request from user ${userId}`);
             const result = await firstValueFrom(
@@ -85,10 +84,9 @@ export class AssessmentHandler {
     }
 
     @Post('placement/evaluate')
-    @UseGuards(GatewayAuthGuard)
     async evaluatePlacementTest(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
+        const requester = req.requester || null;
+        const userId = requester?.sub || 'anonymous';
         try {
             this.logger.log(`📈 Placement test evaluation request from user ${userId}`);
             const result = await firstValueFrom(

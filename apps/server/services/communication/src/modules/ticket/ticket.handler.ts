@@ -35,4 +35,9 @@ export class TicketHandler {
     async getTicketStats() {
         return this.ticketService.getTicketStats();
     }
+
+    @MessagePattern({ cmd: 'communication.ticket.delete' })
+    async deleteTicket(@Payload() payload: { id: string; userId: string }) {
+        return this.ticketService.deleteTicket(payload.id, payload.userId);
+    }
 }

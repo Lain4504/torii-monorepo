@@ -96,4 +96,8 @@ export class TicketRepository implements ITicketRepository {
     async count(where: any): Promise<number> {
         return this.prisma.ticket.count({ where });
     }
+
+    async delete(id: string): Promise<void> {
+        await this.prisma.ticket.delete({ where: { id } });
+    }
 }

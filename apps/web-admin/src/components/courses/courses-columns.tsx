@@ -250,7 +250,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 </DropdownMenuItem>
                             )}
 
-                            {can('course.update') && (
+                            {can('class_member.view') && (
                                 <DropdownMenuItem
                                     onClick={() => onManageEnrollments(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
@@ -260,7 +260,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 </DropdownMenuItem>
                             )}
 
-                            {course.type === 'live' && can('course.update') && (
+                            {course.type === 'live' && can('live_class.manage') && (
                                 <DropdownMenuItem
                                     onClick={() => onManageLiveSessions(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
@@ -280,7 +280,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
 
                             <DropdownMenuSeparator className="bg-border/40 m-1" />
 
-                            {(course.status === 'draft' || course.status === 'rejected') && can('course.update') ? (
+                            {(course.status === 'draft' || course.status === 'rejected') && (can('course.update') || can('module.update')) ? (
                                 <DropdownMenuItem
                                     onClick={() => onSubmitForReview(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium text-blue-600 focus:text-blue-700 focus:bg-blue-500/10 cursor-pointer flex gap-2.5"

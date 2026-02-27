@@ -134,7 +134,7 @@ export function NotebookFlashcardStudy({ entries, notebookName, onClose }: Noteb
             easy: results.filter(r => r.rating === "easy").length,
         }
         const mastered = counts.good + counts.easy
-        const masteredPct = Math.round((mastered / results.length) * 100)
+        const masteredPct = results.length > 0 ? Math.round((mastered / results.length) * 100) : 0
 
         return (
             <div className="max-w-xl mx-auto py-12 px-4 space-y-10 animate-in fade-in zoom-in-95 duration-700">

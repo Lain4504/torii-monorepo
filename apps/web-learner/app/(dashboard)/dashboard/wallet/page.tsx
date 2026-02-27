@@ -130,7 +130,7 @@ export default function WalletPage() {
                 <Card className="border shadow-sm relative overflow-hidden group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                         <div className="space-y-1">
-                            <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground/70">Số dự Ví Torii</CardTitle>
+                            <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground/70">Số dư Ví Torii</CardTitle>
                             <CardDescription>Số dư khả dụng để mua khóa học</CardDescription>
                         </div>
                         <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
@@ -140,7 +140,7 @@ export default function WalletPage() {
                     <CardContent>
                         <div className="flex items-baseline gap-2">
                             <span className="text-4xl font-black tracking-tight tabular-nums">
-                                {formatNumber((user as any)?.balance) || 0}
+                                {formatNumber((user as any)?.balance || 0)}
                             </span>
                             <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Coins</span>
                         </div>

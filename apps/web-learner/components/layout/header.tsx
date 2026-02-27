@@ -43,8 +43,8 @@ import { cn } from "@workspace/ui/lib/utils"
 const navigation = [
     { name: 'Khóa học', href: '/courses', icon: BookOpen },
     { name: 'Lớp trực tuyến', href: '/live-classes', icon: Users },
-    { name: 'Cộng đồng', href: '/blogs', icon: Newspaper },
-    { name: 'Test', href: '/placement-test', icon: Award },
+    { name: 'Cộng đồng', href: '/blog', icon: Newspaper },
+    { name: 'Kiểm tra', href: '/assessment', icon: Award },
 ]
 
 export function Header() {
@@ -91,7 +91,7 @@ export function Header() {
                                 size="sm"
                                 className="text-muted-foreground hover:text-foreground font-medium transition-colors"
                             >
-                                <Link href={item.href}>
+                                <Link href={item.name === 'Kiểm tra' && !isAuthenticated ? '/placement-test' : item.href}>
                                     {item.name}
                                 </Link>
                             </Button>

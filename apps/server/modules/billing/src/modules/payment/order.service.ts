@@ -743,7 +743,18 @@ export class OrderService implements IOrderService {
      * Handle PayOS Webhook
      */
     async handleWebhook(webhookData: any): Promise<any> {
-        const { orderCode, amount, code, desc } = webhookData;
+        // Handle PayOS webhook data. 
+        // Note: webhookData might be the full body OR just the verified 'data' portion
+        const orderCode = webhookData.orderCode;
+        const amount = webhookData.amount;
+        const code = webhookData.code || '00'; // Assume success if code is missing but data is verified
+        const desc = webhookData.desc || webhookData.description || 'Success';
+
+        if (!orderCode) {
+            this.logger.error(`Webhook data missing orderCode: ${JSON.stringify(webhookData)}`);
+            return { success: false, message: 'Missing orderCode' };
+        }
+
         const payOsOrderCode = orderCode.toString();
         const order = await this.orderRepository.findByTransactionId(payOsOrderCode);
 

@@ -6,4 +6,5 @@ export interface ITicketService {
     getTickets(query: TicketQueryDTO): Promise<PaginatedResponseDTO<Ticket>>;
     updateTicketStatus(id: string, handlerId: string, dto: UpdateTicketStatusDTO): Promise<Ticket>;
     getTicketStats(): Promise<{ pendingCount: number; refundCount: number; totalCount: number }>;
+    deleteTicket(id: string, userId: string): Promise<void>;
 }

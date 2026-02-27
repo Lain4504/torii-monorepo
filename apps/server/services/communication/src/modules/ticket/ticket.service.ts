@@ -318,4 +318,30 @@ export class TicketService implements ITicketService {
             totalCount,
         };
     }
+
+    async deleteTicket(id: string, userId: string): Promise<void> {
+        const ticket = await this.ticketRepository.findById(id);
+        if (!ticket) {
+            throw new NotFoundException('Ticket not found');
+        }
+
+        if (ticket.userId !== userId) {
+            throw new BadRequestException('You are not the owner of this ticket');
+        }
+
+        if (ticket.status !== TicketStatus.PENDING) {
+            throw new BadRequestException('Only pending tickets can be deleted');
+        }
+
+        await this.ticketRepository.delete(id);
+
+        await this.createAuditLog({
+            userId,
+            action: 'ticket.delete',
+            entity: 'ticket',
+            entityId: id,
+            description: `Deleted pending ticket ${id}`,
+            metadata: { subject: ticket.subject, type: ticket.type },
+        });
+    }
 }

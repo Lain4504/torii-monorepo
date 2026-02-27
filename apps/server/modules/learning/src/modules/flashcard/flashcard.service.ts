@@ -74,7 +74,11 @@ export class FlashcardService implements IFlashcardService {
             await this.verifyDeckOwnership(userId, deckId);
 
             const result = await firstValueFrom(
-                this.natsClient.send('agents.sensei.createFlashcard', { userId, topic, level })
+                this.natsClient.send('agents.sensei.createFlashcard', {
+                    requester: { sub: userId },
+                    topic,
+                    level
+                })
             );
 
             if (!result || !result.flashcards || !Array.isArray(result.flashcards)) {
@@ -144,6 +148,18 @@ export class FlashcardService implements IFlashcardService {
         const { userId, ...data } = params;
         try {
             const { deckId } = data;
+
+            // Auto-create user if not exists (defensive for microservices DB sync)
+            await this.prisma.user.upsert({
+                where: { id: userId },
+                create: {
+                    id: userId,
+                    email: `user-${userId}@temp.com`,
+                    displayName: 'User',
+                    role: 'LEARNER' as any,
+                },
+                update: {},
+            });
 
             // Verify deck ownership
             await this.verifyDeckOwnership(userId, deckId);
@@ -384,11 +400,14 @@ export class FlashcardService implements IFlashcardService {
         }
     }
 
-    async deleteFlashcard(id: string): Promise<void> {
+    async deleteFlashcard(id: string, userId: string): Promise<void> {
         try {
             // Get flashcard to update deck count
             const fc = await this.flashcardRepository.findById(id);
             if (fc) {
+                // Verify ownership of the deck this flashcard belongs to
+                await this.verifyDeckOwnership(userId, fc.deckId);
+
                 await this.flashcardRepository.delete(id);
                 // Update deck card count
                 await this.deckRepository.update(fc.deckId, {
@@ -398,6 +417,7 @@ export class FlashcardService implements IFlashcardService {
                 });
             }
         } catch (error: any) {
+            if (error instanceof RpcException) throw error;
             this.logger.error(`Error deleting flashcard: ${error.message}`, error.stack);
             throw new RpcException({
                 status: 400,
@@ -464,7 +484,7 @@ export class FlashcardService implements IFlashcardService {
         if (data.delete && data.delete.length > 0) {
             for (const id of data.delete) {
                 try {
-                    await this.deleteFlashcard(id);
+                    await this.deleteFlashcard(id, userId);
                     successCount++;
                 } catch (error: any) {
                     failedCount++;

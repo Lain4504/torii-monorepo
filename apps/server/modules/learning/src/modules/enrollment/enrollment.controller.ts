@@ -1,15 +1,12 @@
 import { Controller, Get, Param, UseGuards, Req, Query, Post, Body } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { EnrollmentService } from './enrollment.service';
-import { JwtAuthGuard } from '@server/identity';
+import { JwtAuthGuard } from '@server/shared';
 import type { EnrollmentQueryDTO, EnrollmentCreateDTO } from '@workspace/schemas';
 
-@ApiTags('Enrollments')
 @Controller('api/enrollments')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
 export class EnrollmentController {
-    constructor(private readonly enrollmentService: EnrollmentService) {}
+    constructor(private readonly enrollmentService: EnrollmentService) { }
 
     @Get('course/:courseId')
     async findByCourse(@Param('courseId') courseId: string, @Query() query: EnrollmentQueryDTO) {

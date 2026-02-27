@@ -22,11 +22,12 @@ import {
     CardHeader,
     CardTitle,
 } from "@workspace/ui/components/card";
-import { useTickets, useTicket } from '@/lib/api/services/ticket-api';
+import { useTickets, useTicket, useDeleteTicket } from '@/lib/api/services/ticket-api';
 import { TicketStatus } from '@workspace/schemas';
 import { TicketTable } from '@/components/support/ticket-table';
 import { CreateTicketDialog } from '@/components/support/create-ticket-dialog';
 import { TicketDetailDialog } from '@/components/support/ticket-detail-dialog';
+import { toast } from '@workspace/ui/components/sonner';
 
 export default function SupportPage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -45,12 +46,24 @@ export default function SupportPage() {
     });
 
     const { data: ticketDetail, isLoading: isLoadingDetail } = useTicket(selectedTicketId || '');
+    const deleteTicket = useDeleteTicket();
 
     const tickets = ticketsData?.data || [];
 
     const handleViewDetail = (id: string) => {
         setSelectedTicketId(id);
         setIsDetailOpen(true);
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('Bạn có chắc chắn muốn hủy yêu cầu này?')) return;
+
+        try {
+            await deleteTicket.mutateAsync(id);
+            toast.success('Đã hủy yêu cầu thành công');
+        } catch (error: any) {
+            toast.error(error.message || 'Không thể hủy yêu cầu');
+        }
     };
 
     return (
@@ -109,6 +122,7 @@ export default function SupportPage() {
                 <TicketTable
                     data={tickets}
                     onView={handleViewDetail}
+                    onDelete={handleDelete}
                     isLoading={isLoadingTickets}
                     page={currentPage}
                     limit={limit}

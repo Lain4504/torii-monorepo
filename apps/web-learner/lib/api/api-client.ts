@@ -39,6 +39,13 @@ const extractErrorMessage = (error: AxiosError): string => {
             }
             return data.message;
         }
+        // Fallback for standard NestJS error format if success: false is missing
+        if (data?.message) {
+            if (Array.isArray(data.message)) {
+                return data.message[0];
+            }
+            return data.message;
+        }
     }
 
     // 2. Network errors

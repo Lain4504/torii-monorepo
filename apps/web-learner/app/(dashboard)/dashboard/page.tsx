@@ -280,7 +280,9 @@ export default function DashboardPage() {
                                 ))}
                             </CardContent>
                             <CardFooter className="bg-transparent rounded-none pt-2">
-                                <Button variant="ghost" className="w-full">Xem lịch chi tiết</Button>
+                                <Link href="/dashboard/schedule" className="w-full">
+                                    <Button variant="ghost" className="w-full">Xem lịch chi tiết</Button>
+                                </Link>
                             </CardFooter>
                         </Card>
 

@@ -283,8 +283,6 @@ default_role_permissions:
     - material.upload
     - material.view
     - schedule.view
-    - course.create
-    - course.update
     - module.update
     - lesson.create
     - lesson.update

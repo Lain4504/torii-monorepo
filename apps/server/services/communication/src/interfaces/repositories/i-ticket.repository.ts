@@ -6,4 +6,5 @@ export interface ITicketRepository {
     findAll(query: TicketQueryDTO): Promise<{ data: any[]; total: number }>;
     updateStatus(id: string, status: string, response?: string, handlerId?: string): Promise<Ticket>;
     count(where: any): Promise<number>;
+    delete(id: string): Promise<void>;
 }

@@ -154,9 +154,14 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         return this.mapper.map<any, ScheduleRequestResponseDTO>(request, 'LiveSessionScheduleRequest', 'ScheduleRequestResponseDTO');
     }
 
-    async getPendingRequests(): Promise<ScheduleRequestResponseDTO[]> {
+    async getPendingRequests(requester: Requester): Promise<ScheduleRequestResponseDTO[]> {
+        const where: any = { status: 'pending' };
+        if (requester.role === 'lecturer') {
+            where.lecturerId = requester.sub;
+        }
+
         const requests = await this.prisma.liveSessionScheduleRequest.findMany({
-            where: { status: 'pending' },
+            where,
             include: { lecturer: true, course: true },
         });
         return requests.map(r => this.mapper.map<any, ScheduleRequestResponseDTO>(r, 'LiveSessionScheduleRequest', 'ScheduleRequestResponseDTO'));

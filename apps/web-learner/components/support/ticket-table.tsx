@@ -26,6 +26,7 @@ import { Card } from '@workspace/ui/components/card';
 interface TicketTableProps {
     data: TicketResponseDTO[];
     onView: (id: string) => void;
+    onDelete?: (id: string) => void;
     isLoading?: boolean;
     page?: number;
     limit?: number;
@@ -34,13 +35,14 @@ interface TicketTableProps {
 export function TicketTable({
     data,
     onView,
+    onDelete,
     isLoading,
     page = 1,
     limit = 10
 }: TicketTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns = getTicketColumns({ onView, page, limit });
+    const columns = getTicketColumns({ onView, onDelete, page, limit });
 
     const table = useReactTable({
         data,
