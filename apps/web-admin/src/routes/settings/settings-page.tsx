@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { ProfileTab } from '@/components/settings/profile-tab';
 import { SecurityTab } from '@/components/settings/security-tab';
@@ -8,7 +8,12 @@ import { PasswordTab } from '@/components/settings/password-tab';
 import { PageHeader } from '@/components/common/page-header';
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState('profile');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'profile';
+
+  const setActiveTab = (tab: string) => {
+    setSearchParams({ tab });
+  };
 
   return (
     <div className="flex flex-col gap-8">

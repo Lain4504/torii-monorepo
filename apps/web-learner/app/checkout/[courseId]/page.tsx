@@ -238,7 +238,7 @@ export default function CheckoutPage() {
             <div className="container max-w-6xl mx-auto px-4 pt-10">
                 {/* Back Link */}
                 <Button variant="ghost" size="sm" asChild className="mb-6 -ml-2 text-muted-foreground">
-                    <Link href={`/courses/${courseId}`}>
+                    <Link href={`/courses/${course?.slug || courseId}`}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Quay lại trang khóa học
                     </Link>
@@ -546,7 +546,7 @@ export default function CheckoutPage() {
                     </div>
                     <DialogFooter className="sm:justify-center flex-col sm:flex-col gap-2">
                         <Button className="w-full" asChild>
-                            <Link href={isGift ? "/dashboard/orders" : `/courses/${courseId}/learn`}>
+                            <Link href={isGift ? "/dashboard/orders" : `/courses/${course.slug}/learn`}>
                                 {isGift ? "Xem lịch sử tặng quà" : "Bắt đầu học ngay"}
                                 <ArrowRight className="ml-2 size-4" />
                             </Link>

@@ -187,18 +187,14 @@ export class CouponService {
     }
 
     async getCouponsForUser(userId: string) {
+        // Repository now only returns personal coupons (with userId)
+        // Public/event coupons are not listed - users must enter them manually
         const coupons = await this.couponRepository.findCouponsForUser(userId);
 
-        // Filter public coupons where user reached limit
+        // Filter out coupons that have reached usage limits
         const availableCoupons: any[] = [];
         for (const coupon of coupons) {
-            // For personal coupons, they are already filtered by userId in repo
-            if (coupon.userId === userId) {
-                availableCoupons.push(coupon);
-                continue;
-            }
-
-            // For public coupons, check usage limit
+            // Check user-specific usage limit
             if (coupon.userUsageLimit) {
                 const usage = await this.couponRepository.checkUserUsage(userId, coupon.id);
                 if (usage >= coupon.userUsageLimit) {
@@ -206,7 +202,7 @@ export class CouponService {
                 }
             }
 
-            // Also check global usage limit
+            // Check global usage limit
             if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
                 continue;
             }

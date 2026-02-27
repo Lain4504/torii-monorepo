@@ -155,10 +155,6 @@ export function CommandMenu() {
                     <CommandSeparator />
 
                     <CommandGroup heading="Cộng đồng & Hỗ trợ">
-                        <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/feed"))}>
-                            <Users className="mr-2 h-4 w-4" />
-                            <span>Cộng đồng</span>
-                        </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/support"))}>
                             <LifeBuoy className="mr-2 h-4 w-4" />
                             <span>Hỗ trợ</span>

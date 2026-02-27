@@ -22,6 +22,10 @@ export class CourseHandler {
 
     @MessagePattern({ cmd: 'learning.course.advancedSearch' })
     async advancedSearch(@Payload() query: any) {
+        // Parse levels from comma-separated string to array
+        if (query.levels && typeof query.levels === 'string') {
+            query.levels = query.levels.split(',').filter(Boolean);
+        }
         return this.courseService.advancedSearch(query);
     }
 

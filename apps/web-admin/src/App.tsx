@@ -33,6 +33,7 @@ import OrdersPage from '@/routes/finance/orders-page.tsx'
 
 import NotificationsPage from '@/routes/notification/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
+import ProfilePage from '@/routes/profile/profile-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
@@ -133,6 +134,8 @@ function App() {
                     <Route path="notifications" element={<NotificationsPage />} />
                     <Route path="settings" element={<SettingsPage />} />
                   </Route>
+
+                  <Route path="profile" element={<ProfilePage />} />
 
                   <Route element={<RoutePermissionGuard permission="support.handle" />}>
                     <Route path="tickets" element={<TicketsPage />} />

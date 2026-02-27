@@ -72,6 +72,33 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
             </div>
         ),
     }),
+    columnHelper.accessor('lecturer.displayName', {
+        id: 'lecturer',
+        header: () => <div className="px-1 text-center">Giảng viên</div>,
+        cell: (info) => {
+            const lecturer = info.row.original.lecturer;
+            if (!lecturer) return (
+                <div className="flex justify-center italic text-muted-foreground/40 text-[10px]">Chưa phân công</div>
+            );
+            return (
+                <div className="flex justify-center">
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-primary/5 border border-primary/10 max-w-[150px]">
+                        <div className="w-5 h-5 rounded-md overflow-hidden bg-primary/20 flex-shrink-0">
+                            {lecturer.avatarUrl ? (
+                                <img src={lecturer.avatarUrl} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-primary">
+                                    {lecturer.displayName.charAt(0)}
+                                </div>
+                            )}
+                        </div>
+                        <span className="text-[10px] font-bold text-foreground truncate">{lecturer.displayName}</span>
+                    </div>
+                </div>
+            );
+        },
+        size: 150,
+    }),
     columnHelper.accessor('jlptLevel', {
         header: () => <div className="px-1 text-center">Trình độ</div>,
         cell: (info) => {

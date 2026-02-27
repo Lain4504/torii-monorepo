@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useBoolean } from '@workspace/ui/hooks/use-boolean';
-import { useAssignLecturer, useCourseInstructors, useUnassignLecturer, useUpdatePrimaryInstructor } from '@/lib/api/services/course-instructors';
+import { useUpdateCourse, useCourse } from '@/lib/api/services/courses';
 import {
     Empty,
     EmptyContent,
@@ -19,17 +18,15 @@ import { Spinner } from '@workspace/ui/components/spinner';
 
 import { Button } from '@workspace/ui/components/button';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { Checkbox } from '@workspace/ui/components/checkbox';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
-import { User as UserIcon, Trash2, Crown, Plus } from 'lucide-react';
+import { User as UserIcon, Trash2, Plus } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import { toast } from '@workspace/ui/components/sonner';
-import { type CourseResponseDTO, UserRole, InstructorRole } from '@workspace/schemas';
+import { type CourseResponseDTO, UserRole } from '@workspace/schemas';
 import { useUsers } from '@/lib/api/services/users';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Field, FieldLabel } from '@workspace/ui/components/field';
-import { cn } from '@workspace/ui/lib/utils';
+
 
 interface ManageInstructorsSheetProps {
     open: boolean;
@@ -39,37 +36,30 @@ interface ManageInstructorsSheetProps {
 
 export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageInstructorsSheetProps) {
     const [selectedLecturerId, setSelectedLecturerId] = useState<string>('');
-    const [selectedRole, setSelectedRole] = useState<InstructorRole>(InstructorRole.MAIN);
-    const isPrimary = useBoolean(false);
-
-    const { data: instructors, isLoading: loadingInstructors } = useCourseInstructors(course?.id || '');
+    const { data: freshCourse, isLoading: loadingCourse } = useCourse(course?.id || '');
     const { data: usersData } = useUsers({ page: 1, limit: 100, search: '' });
-    const assignMutation = useAssignLecturer();
-    const unassignMutation = useUnassignLecturer();
-    const updatePrimaryMutation = useUpdatePrimaryInstructor();
+    const updateMutation = useUpdateCourse();
+
+    const currentLecturer = freshCourse?.lecturer;
 
     // Filter only lecturers from users
     const lecturers = (usersData?.data || []).filter((user: any) => user.role === UserRole.LECTURER);
 
     // Filter lecturers not already assigned
-    const assignedLecturerIds = new Set(instructors?.map(i => i.lecturerId) || []);
-    const availableLecturers = lecturers.filter((l: any) => !assignedLecturerIds.has(l.id));
+    const availableLecturers = lecturers.filter((l: any) => l.id !== freshCourse?.lecturerId);
 
     const handleAssign = async () => {
         if (!course || !selectedLecturerId) return;
 
         try {
-            await assignMutation.mutateAsync({
-                courseId: course.id,
-                lecturerId: selectedLecturerId,
-                role: selectedRole,
-                isPrimary: isPrimary.value,
+            await updateMutation.mutateAsync({
+                id: course.id,
+                course: { lecturerId: selectedLecturerId },
             });
             toast.success('Đã phân công giảng viên', {
-                description: 'Giảng viên đã được thêm vào khóa học thành công.',
+                description: 'Giảng viên đã được gán cho khóa học thành công.',
             });
             setSelectedLecturerId('');
-            isPrimary.setFalse();
         } catch (error: any) {
             toast.error('Phân công thất bại', {
                 description: error.response?.data?.message || 'Không thể phân công giảng viên.',
@@ -77,31 +67,20 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
         }
     };
 
-    const handleUnassign = async (id: string) => {
+    const handleUnassign = async () => {
+        if (!course) return;
+
         try {
-            await unassignMutation.mutateAsync(id);
+            await updateMutation.mutateAsync({
+                id: course.id,
+                course: { lecturerId: null },
+            });
             toast.success('Đã gỡ bỏ giảng viên', {
                 description: 'Giảng viên đã được gỡ khỏi khóa học.',
             });
         } catch (error: any) {
             toast.error('Gỡ bỏ thất bại', {
                 description: error.response?.data?.message || 'Không thể gỡ bỏ giảng viên.',
-            });
-        }
-    };
-
-    const handleTogglePrimary = async (id: string, currentPrimary: boolean) => {
-        try {
-            await updatePrimaryMutation.mutateAsync({
-                id,
-                dto: { isPrimary: !currentPrimary },
-            });
-            toast.success('Cập nhật quyền hạn', {
-                description: `Trạng thái chủ nhiệm đã được ${!currentPrimary ? 'cấp' : 'thu hồi'}.`,
-            });
-        } catch (error: any) {
-            toast.error('Cập nhật thất bại', {
-                description: error.response?.data?.message || 'Không thể cập nhật trạng thái giảng viên.',
             });
         }
     };
@@ -127,14 +106,14 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
 
                                 <div className="space-y-4">
                                     <h3 className="text-sm font-semibold">
-                                        Đội ngũ Hiện tại
+                                        Giảng viên hiện tại
                                     </h3>
 
-                                    {loadingInstructors ? (
+                                    {loadingCourse ? (
                                         <div className="flex items-center justify-center py-12 rounded-3xl border border-border/40 bg-muted/5">
                                             <Spinner className="h-6 w-6 text-muted-foreground/50" />
                                         </div>
-                                    ) : !instructors || instructors.length === 0 ? (
+                                    ) : !currentLecturer ? (
                                         <Empty>
                                             <EmptyMedia>
                                                 <UserIcon className="h-10 w-10 text-muted-foreground/20" />
@@ -148,133 +127,89 @@ export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageIns
                                         </Empty>
                                     ) : (
                                         <div className="space-y-3">
-                                            {instructors.map((instructor) => (
-                                                <div
-                                                    key={instructor.id}
-                                                    className="flex items-center justify-between p-4 rounded-xl bg-card border border-border/40 hover:bg-muted/30 transition-all group shadow-sm hover:shadow-md"
-                                                >
-                                                    <div className="flex items-center gap-4">
-                                                        <Avatar className="h-10 w-10 border border-border/20 rounded-lg">
-                                                            <AvatarImage src={instructor.lecturer?.avatarUrl || undefined} />
-                                                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold rounded-lg">
-                                                                {instructor.lecturer?.displayName?.charAt(0) || 'L'}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                        <div className="space-y-0.5">
-                                                            <div className="flex items-center gap-2">
-                                                                <p className="text-sm font-semibold text-foreground">{instructor.lecturer?.displayName}</p>
-                                                                {instructor.isPrimary && (
-                                                                    <Badge variant="default" className="h-4 px-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider">
-                                                                        Chủ nhiệm
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                            <p className="text-xs text-muted-foreground/60 font-medium">{instructor.lecturer?.email}</p>
+                                            <div
+                                                className="flex items-center justify-between p-4 rounded-xl bg-card border border-border/40 hover:bg-muted/30 transition-all group shadow-sm hover:shadow-md"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <Avatar className="h-10 w-10 border border-border/20 rounded-lg">
+                                                        <AvatarImage src={currentLecturer.avatarUrl || undefined} />
+                                                        <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold rounded-lg">
+                                                            {currentLecturer.displayName?.charAt(0) || 'L'}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="space-y-0.5">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-sm font-semibold text-foreground">{currentLecturer.displayName}</p>
+                                                            <Badge variant="default" className="h-4 px-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider">
+                                                                Chủ nhiệm
+                                                            </Badge>
                                                         </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                                                        <Button
-                                                            size="icon"
-                                                            variant="ghost"
-                                                            className={cn(
-                                                                "h-8 w-8 rounded-lg transition-colors",
-                                                                instructor.isPrimary ? "text-amber-500 bg-amber-500/10" : "text-muted-foreground/40 hover:text-amber-500 hover:bg-amber-500/5"
-                                                            )}
-                                                            onClick={() => handleTogglePrimary(instructor.id, instructor.isPrimary)}
-                                                            disabled={updatePrimaryMutation.isPending}
-                                                            title="Đặt làm chủ nhiệm">
-                                                            <Crown className={cn("h-4 w-4", instructor.isPrimary && "fill-current")} />
-                                                        </Button>
-                                                        <Button
-                                                            size="icon"
-                                                            variant="ghost"
-                                                            className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5"
-                                                            onClick={() => handleUnassign(instructor.id)}
-                                                            disabled={unassignMutation.isPending}
-                                                            title="Gỡ bỏ giảng viên">
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
+                                                        <p className="text-xs text-muted-foreground/60 font-medium">{currentLecturer.email}</p>
                                                     </div>
                                                 </div>
-                                            ))}
+                                                <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5"
+                                                        onClick={handleUnassign}
+                                                        disabled={updateMutation.isPending}
+                                                        title="Gỡ bỏ giảng viên">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="space-y-6 pt-6 border-t border-border/40">
-                                    <div className="space-y-4">
-                                        <Field className="space-y-2.5">
-                                            <FieldLabel htmlFor="lecturer-select" className="text-xs font-bold text-muted-foreground/70 ml-1 uppercase tracking-wider">Thêm giảng viên</FieldLabel>
-                                            <Select
-                                                value={selectedLecturerId}
-                                                onValueChange={setSelectedLecturerId}
-                                            >
-                                                <SelectTrigger id="lecturer-select" className="">
-                                                    <SelectValue placeholder="Chọn giảng viên..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {availableLecturers.map((lecturer) => (
-                                                        <SelectItem key={lecturer.id} value={lecturer.id} className="rounded-lg cursor-pointer text-xs font-medium py-2.5 focus:bg-primary/5 focus:text-primary">
-                                                            <span className="mr-2">{lecturer.displayName}</span>
-                                                            <span className="text-[10px] text-muted-foreground opacity-50 lowercase">{lecturer.email}</span>
-                                                        </SelectItem>
-                                                    ))}
-                                                    {availableLecturers.length === 0 && (
-                                                        <div className="p-4 text-center">
-                                                            <p className="text-xs text-muted-foreground/60 italic">Không có giảng viên khả dụng</p>
-                                                        </div>
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </Field>
+                                {!freshCourse?.lecturerId && (
+                                    <div className="space-y-6 pt-6 border-t border-border/40">
+                                        <div className="space-y-4">
+                                            <Field className="space-y-2.5">
+                                                <FieldLabel htmlFor="lecturer-select" className="text-xs font-bold text-muted-foreground/70 ml-1 uppercase tracking-wider">Phân công giảng viên</FieldLabel>
+                                                <Select
+                                                    value={selectedLecturerId}
+                                                    onValueChange={setSelectedLecturerId}
+                                                >
+                                                    <SelectTrigger id="lecturer-select" className="">
+                                                        <SelectValue placeholder="Chọn giảng viên..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {availableLecturers.map((lecturer) => (
+                                                            <SelectItem key={lecturer.id} value={lecturer.id} className="rounded-lg cursor-pointer text-xs font-medium py-2.5 focus:bg-primary/5 focus:text-primary">
+                                                                <span className="mr-2">{lecturer.displayName}</span>
+                                                                <span className="text-[10px] text-muted-foreground opacity-50 lowercase">{lecturer.email}</span>
+                                                            </SelectItem>
+                                                        ))}
+                                                        {availableLecturers.length === 0 && (
+                                                            <div className="p-4 text-center">
+                                                                <p className="text-xs text-muted-foreground/60 italic">Không có giảng viên khả dụng</p>
+                                                            </div>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </Field>
 
-                                        <Field className="space-y-2.5">
-                                            <FieldLabel htmlFor="role-select" className="text-xs font-bold text-muted-foreground/70 ml-1 uppercase tracking-wider">Vai trò</FieldLabel>
-                                            <Select
-                                                value={selectedRole}
-                                                onValueChange={(val) => setSelectedRole(val as InstructorRole)}
-                                            >
-                                                <SelectTrigger id="role-select" className="">
-                                                    <SelectValue placeholder="Chọn vai trò..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={InstructorRole.MAIN} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Giảng viên chính</SelectItem>
-                                                    <SelectItem value={InstructorRole.ASSISTANT} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Trợ giảng</SelectItem>
-                                                    <SelectItem value={InstructorRole.RECORDER} className="rounded-lg cursor-pointer text-xs font-medium py-2.5">Người ghi hình (VOD)</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </Field>
-
-                                        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-background border border-border/20 cursor-pointer hover:bg-muted/30 transition-all shadow-sm" onClick={() => isPrimary.setValue(!isPrimary.value)}>
-                                            <Checkbox
-                                                id="is-primary"
-                                                checked={isPrimary.value}
-                                                onCheckedChange={(checked: boolean) => isPrimary.setValue(checked)}
-                                                className="h-4 w-4 rounded border-border/40 text-primary focus:ring-primary/20"
-                                            />
-                                            <FieldLabel htmlFor="is-primary" className="text-xs font-medium text-foreground/80 cursor-pointer select-none mb-0">
-                                                Đặt làm giảng viên chủ nhiệm
-                                            </FieldLabel>
+                                            <Button
+                                                onClick={handleAssign}
+                                                disabled={!selectedLecturerId || updateMutation.isPending}
+                                                className="w-full rounded-xl h-11 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transition-all">
+                                                {updateMutation.isPending ? (
+                                                    <>
+                                                        <Spinner className="mr-2 h-3.5 w-3.5" />
+                                                        Đang xử lý...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Plus className="mr-2 h-3.5 w-3.5" />
+                                                        Phân công
+                                                    </>
+                                                )}
+                                            </Button>
                                         </div>
-
-                                        <Button
-                                            onClick={handleAssign}
-                                            disabled={!selectedLecturerId || assignMutation.isPending}
-                                            className="w-full rounded-xl h-11 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transition-all">
-                                            {assignMutation.isPending ? (
-                                                <>
-                                                    <Spinner className="mr-2 h-3.5 w-3.5" />
-                                                    Đang xử lý...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Plus className="mr-2 h-3.5 w-3.5" />
-                                                    Phân công
-                                                </>
-                                            )}
-                                        </Button>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </ScrollArea>
                     </>
