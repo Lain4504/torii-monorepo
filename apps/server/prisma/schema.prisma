@@ -81,6 +81,10 @@ model Course {
   lecturerId String? @map("lecturer_id") @db.Uuid
   lecturer   User?   @relation("CoursesTaught", fields: [lecturerId], references: [id], onDelete: SetNull)
 
+  // Live Course Specific
+  isReadyForScheduling Boolean @default(false) @map("is_ready_for_scheduling")
+  minimumLessons       Int?    @default(8) @map("minimum_lessons")
+
   @@index([jlptLevel])
   @@index([createdBy])
   @@index([approvedBy])
@@ -145,13 +149,17 @@ model Lesson {
   updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
+  liveSessionId String? @map("live_session_id") @db.Uuid
+
   module         Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   quizzes        Quiz[]
   materials      LessonMaterial[]
   lessonProgress LessonProgress[]
   assignments    Assignment[]
+  liveSession    LiveSession?     @relation(fields: [liveSessionId], references: [id])
 
   @@index([moduleId])
+  @@index([liveSessionId])
   @@map("lessons")
 }
 
@@ -338,13 +346,24 @@ model LiveSession {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   scheduleId  String?  @map("schedule_id") @db.Uuid
 
+  // Curriculum Link
+  moduleId String? @map("module_id") @db.Uuid
+  lessonId String? @map("lesson_id") @db.Uuid
+
+  // Recording
+  recordingUrl      String? @map("recording_url") @db.Text
+  recordingDuration Int?    @map("recording_duration")
+
   course      Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   schedule    TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
   attendances Attendance[]
+  lesson      Lesson[]
 
   @@index([courseId])
   @@index([lecturerId])
   @@index([scheduleId])
+  @@index([moduleId])
+  @@index([lessonId])
   @@map("live_sessions")
 }
 
@@ -421,6 +440,7 @@ model LessonMaterial {
   lessonId    String   @map("lesson_id") @db.Uuid
   fileAssetId String   @map("file_asset_id") @db.Uuid
   type        String   @db.VarChar(50) // 'slides' | 'video' | 'reading' | 'assignment'
+  usageType   String   @default("pre_class") @map("usage_type") @db.VarChar(20) // 'pre_class' | 'post_class' | 'recording'
   title       String?  @db.VarChar(255)
   orderIndex  Int      @default(0) @map("order_index")
   createdBy   String   @map("created_by") @db.Uuid

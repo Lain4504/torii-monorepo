@@ -24,8 +24,10 @@ export const courseCreateDTOSchema = courseSchema.pick({
     liveConfig: true,
     maxStudents: true,
     aiMetadata: true,
+    isReadyForScheduling: true,
+    minimumLessons: true,
 }).extend({
-    lecturerId: z.string().uuid().optional(),
+    lecturerId: z.string().uuid().optional().nullable(),
 }).partial({
     description: true,
     shortDescription: true,
@@ -99,3 +101,4 @@ export const courseSearchRequestDTOSchema = paginationOptionsDTOSchema.extend({
 });
 
 export type CourseSearchRequestDTO = z.infer<typeof courseSearchRequestDTOSchema>;
+export type CourseQueryDTO = CourseSearchRequestDTO;

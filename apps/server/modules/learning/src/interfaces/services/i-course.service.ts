@@ -174,6 +174,13 @@ export interface ICourseService {
     recalculateStats(courseId: string): Promise<void>;
 
     /**
+     * Validate if a course is ready for scheduling
+     * @param courseId - The course's unique identifier
+     * @returns Boolean indicating if course is ready and validation message
+     */
+    validateForScheduling(courseId: string): Promise<{ isReady: boolean; message?: string }>;
+
+    /**
      * Check if a user is an instructor for a course
      * @param userId - The user's unique identifier
      * @param courseId - The course's unique identifier

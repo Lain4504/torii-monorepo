@@ -252,7 +252,7 @@ export default function ScheduleRequestsPage() {
 // Internal component for creating a request from the list page
 function CreateGlobalScheduleRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const user = useSelector(selectUser);
-    const { data: courses } = useCourses({ instructorId: user?.id, limit: 100 });
+    const { data: courses } = useCourses({ instructorId: user?.id, limit: 100, page: 1 });
     const [selectedCourseId, setSelectedCourseId] = useState<string>('');
     const { data: schedules } = useTeachingSchedules(selectedCourseId);
     const [selectedSchedule, setSelectedSchedule] = useState<TeachingScheduleResponseDTO | null>(null);

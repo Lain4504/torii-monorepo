@@ -199,18 +199,18 @@ export class CourseService implements ICourseService {
   async advancedSearch(options: {
     page?: number;
     limit?: number;
-    q?: string;
-    levels?: string; // Comma-separated string
+    search?: string;
+    levels?: string[];
     priceMin?: number;
     priceMax?: number;
     ratingMin?: number;
     sortBy?: string;
-  }): Promise<PaginatedResponseDTO<CourseSearchResponseDTO>> {
+  }): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
     try {
       const {
         page = 1,
         limit = 12,
-        q: search,
+        search,
         levels,
         priceMin,
         priceMax,
@@ -229,11 +229,8 @@ export class CourseService implements ICourseService {
       };
 
       // Filter by JLPT levels
-      if (levels) {
-        const levelsArray = levels.split(',').filter(l => l);
-        if (levelsArray.length > 0) {
-          where.jlptLevel = { in: levelsArray };
-        }
+      if (levels && levels.length > 0) {
+        where.jlptLevel = { in: levels };
       }
 
       // Filter by Price Range
@@ -294,7 +291,7 @@ export class CourseService implements ICourseService {
       const totalPages = Math.ceil(total / limitNum);
 
       return {
-        data: courses.map(course => this.toCourseSearchResponseDTO(course)),
+        data: courses.map(course => this.toCourseResponseDTO(course as any)),
         total,
         page: pageNum,
         limit: limitNum,
@@ -405,6 +402,8 @@ export class CourseService implements ICourseService {
         status: 'draft',
         maxStudents: dto.maxStudents || null,
         lecturerId: dto.lecturerId || null,
+        isReadyForScheduling: false,
+        minimumLessons: (dto as any).minimumLessons || 8,
       };
 
       // Validation: Paid courses must have price > 0
@@ -511,6 +510,8 @@ export class CourseService implements ICourseService {
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
       if (dto.maxStudents !== undefined) updateData.maxStudents = dto.maxStudents;
       if (dto.lecturerId !== undefined) updateData.lecturerId = dto.lecturerId;
+      if ((dto as any).isReadyForScheduling !== undefined) updateData.isReadyForScheduling = (dto as any).isReadyForScheduling;
+      if ((dto as any).minimumLessons !== undefined) updateData.minimumLessons = (dto as any).minimumLessons;
 
       // Validation: Paid courses must have price > 0
       const finalIsFree = dto.isFree !== undefined ? dto.isFree : existing.isFree;
@@ -1038,6 +1039,49 @@ export class CourseService implements ICourseService {
     } catch (error) {
       this.logger.error(`Failed to check if user ${userId} is lecturer for course ${courseId}`, error);
       return false;
+    }
+  }
+
+  /**
+   * Validate if a course is ready for scheduling
+   */
+  async validateForScheduling(courseId: string): Promise<{ isReady: boolean; message?: string }> {
+    try {
+      const course = await this.courseRepository.findById(courseId);
+      if (!course || course.deletedAt) {
+        return { isReady: false, message: 'Course not found' };
+      }
+
+      // 1. Check status
+      if (course.status !== 'published') {
+        return { isReady: false, message: 'Course must be published before scheduling' };
+      }
+
+      // 2. Check type
+      if (course.type !== 'live') {
+        return { isReady: false, message: 'Only live courses can be scheduled' };
+      }
+
+      // 3. Check lecturer
+      if (!course.lecturerId) {
+        return { isReady: false, message: 'Course must have an assigned lecturer' };
+      }
+
+      // 4. Check curriculum (minimum lessons)
+      const lessonCount = await this.courseRepository.countLessons(courseId);
+      const minLessons = course.minimumLessons || 8;
+
+      if (lessonCount < minLessons) {
+        return {
+          isReady: false,
+          message: `Course must have at least ${minLessons} lessons in curriculum (currently has ${lessonCount})`
+        };
+      }
+
+      return { isReady: true };
+    } catch (error: any) {
+      this.logger.error(`Failed to validate course ${courseId} for scheduling`, error);
+      return { isReady: false, message: 'Internal validation error' };
     }
   }
 

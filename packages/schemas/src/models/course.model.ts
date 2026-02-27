@@ -64,6 +64,9 @@ export const courseSchema = z.object({
     learningOutcomes: z.any().optional(), // JSONB
     requirements: z.any().optional(), // JSONB
     createdBy: z.string().uuid().optional(),
+    lecturerId: z.string().uuid().optional().nullable(),
+    isReadyForScheduling: z.boolean().default(false),
+    minimumLessons: z.number().int().min(1).default(8),
     approvedBy: z.string().uuid().optional(),
     approvedAt: z.date().optional(),
     rejectionReason: z.string().optional().nullable(),

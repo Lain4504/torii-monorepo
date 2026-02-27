@@ -36,10 +36,18 @@ export function CreateScheduleRequestSheet({ open, onOpenChange, session }: Crea
         formState: { errors },
     } = useForm<ScheduleRequestCreateDTO>({
         resolver: zodResolver(scheduleRequestCreateDTOSchema),
-        defaultValues: {
+        values: {
             liveSessionId: session?.id || '',
             reason: '',
             newTime: '',
+            // Provide dummy values for required fields that are not in this form
+            // but are required by the schema. These will be ignored or overwritten by backend
+            // for "adjusting" a specific session if we implement it that way.
+            lecturerId: session?.lecturerId || '00000000-0000-0000-0000-000000000000',
+            courseId: session?.courseId || '00000000-0000-0000-0000-000000000000',
+            dayOfWeek: 0,
+            startTime: '',
+            duration: session?.duration || 90,
         },
     });
 
@@ -69,7 +77,7 @@ export function CreateScheduleRequestSheet({ open, onOpenChange, session }: Crea
                         render={({ field }) => (
                             <Field>
                                 <FieldLabel htmlFor="newTime">Thời gian mới</FieldLabel>
-                                <Input id="newTime" type="datetime-local" {...field} />
+                                <Input id="newTime" type="datetime-local" {...field} value={field.value || ''} />
                                 {errors.newTime && <FieldError>{errors.newTime.message}</FieldError>}
                             </Field>
                         )}
@@ -80,7 +88,7 @@ export function CreateScheduleRequestSheet({ open, onOpenChange, session }: Crea
                         render={({ field }) => (
                             <Field>
                                 <FieldLabel htmlFor="reason">Lý do</FieldLabel>
-                                <Textarea id="reason" {...field} />
+                                <Textarea id="reason" {...field} value={field.value || ''} />
                                 {errors.reason && <FieldError>{errors.reason.message}</FieldError>}
                             </Field>
                         )}

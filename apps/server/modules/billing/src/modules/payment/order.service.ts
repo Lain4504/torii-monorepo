@@ -117,12 +117,19 @@ export class OrderService implements IOrderService {
 
             // Add search functionality
             if (search && search.trim().length > 0) {
-                whereClause.OR = [
-                    { id: { contains: search, mode: 'insensitive' } },
-                    { userId: { contains: search, mode: 'insensitive' } },
+                const searchOR: any[] = [
                     { user: { email: { contains: search, mode: 'insensitive' } } },
                     { user: { displayName: { contains: search, mode: 'insensitive' } } },
                 ];
+
+                // UUID fields (id, userId) only support exact match
+                const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                if (uuidRegex.test(search.trim())) {
+                    searchOR.push({ id: search.trim() });
+                    searchOR.push({ userId: search.trim() });
+                }
+
+                whereClause.OR = searchOR;
             }
 
             if (startDate || endDate) {

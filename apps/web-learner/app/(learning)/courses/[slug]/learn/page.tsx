@@ -3,28 +3,30 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { courseApi } from '@/lib/api/services/course-api'
-import { BookOpen, AlertCircle, Video } from 'lucide-react'
-import { useCheckEnrollment, useUpgradeCourseVersion } from '@/lib/api/services/enrollment-api'
+import { BookOpen, Calendar, Info } from 'lucide-react'
+import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
+import { useUpgradeCourseVersion } from '@/lib/api/services/enrollment-api'
 import { Button } from '@workspace/ui/components/button'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { useLiveSessions, liveSessionsApi } from '@/lib/api/services/live-sessions'
-import { Badge } from '@workspace/ui/components/badge'
-import { formatDateTime } from '@/utils/format-utils'
-import { toast } from '@workspace/ui/components/sonner'
+import { useCurriculum } from '@/lib/api/services/course-api'
+import { LearningSidebar } from '@/components/courses/learning-sidebar'
+import { LiveSessionBanner } from '@/components/courses/live-session-banner'
+import { LessonHeader } from '@/components/courses/lesson-header'
+import { useCompletedLessons } from '@/lib/api/services/learning-progress-api'
+import { Separator } from '@workspace/ui/components/separator'
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert'
 
 export default function UnifiedLearningPage() {
     const params = useParams()
     const router = useRouter()
     const slug = params.slug as string
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(false)
-    const [course, setCourse] = useState<any>(null)
+    const [sidebarOpen, setSidebarOpen] = useState(true)
 
-    const { data: enrollmentData } = useCheckEnrollment(course?.id || '')
+    const { data: course, isLoading: isLoadingCourse, error: courseError } = useCheckCourse(slug)
+    const { data: curriculumData, isLoading: isLoadingCurriculum } = useCurriculum(course?.id)
+    const { data: completedLessonIds = [] } = useCompletedLessons(course?.id)
+    const { hasNewerVersion } = useCourseEnrollment(course?.id || '', slug)
     const upgradeMutation = useUpgradeCourseVersion()
-    const hasNewerVersion = enrollmentData?.hasNewerVersion || false
-
-    const { data: sessions, isLoading: isLoadingSessions } = useLiveSessions(course?.id || '')
 
     const handleUpgrade = async () => {
         if (!course?.id) return
@@ -36,139 +38,150 @@ export default function UnifiedLearningPage() {
         }
     }
 
+    const handleLessonSelect = (id: string) => {
+        router.push(`/courses/${slug}/learn/lessons/${id}`)
+    }
+
+    // Redirect VOD courses to first lesson immediately
     useEffect(() => {
-        const fetchCourse = async () => {
-            try {
-                setLoading(true)
-                const courseData = await courseApi.getCourseBySlug(slug)
-                if (courseData) {
-                    setCourse(courseData)
-                    if (courseData.type === 'vod') {
-                        const curriculumData = await courseApi.getCurriculum(courseData.id)
-                        const firstLesson = curriculumData.modules?.[0]?.lessons?.[0]
-                        if (firstLesson) {
-                            router.replace(`/courses/${slug}/learn/lessons/${firstLesson.id}`)
-                            return
-                        }
-                    }
-                }
-                setLoading(false)
-            } catch (error) {
-                console.error('Error fetching course:', error)
-                setError(true)
-                setLoading(false)
+        if (course && course.type === 'vod' && curriculumData?.modules) {
+            const firstLesson = curriculumData.modules[0]?.lessons?.[0]
+            if (firstLesson) {
+                router.replace(`/courses/${slug}/learn/lessons/${firstLesson.id}`)
             }
         }
+    }, [course, curriculumData, router, slug])
 
-        if (slug) {
-            fetchCourse()
-        }
-    }, [slug, router])
-
-    const handleJoin = async (sessionId: string) => {
-        try {
-            const joinData = await liveSessionsApi.join(sessionId);
-            const meetUrl = process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com';
-            window.open(`${meetUrl}?access_token=${joinData.token}`, '_blank');
-            toast.success('Đang tham gia buổi học');
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Không thể tham gia buổi học');
-        }
-    };
-
-    if (loading) {
+    if (isLoadingCourse || isLoadingCurriculum) {
         return (
             <div className="flex items-center justify-center h-screen bg-background">
-                <div className="flex flex-col items-center gap-2">
-                    <Spinner className="size-8 text-primary" />
-                    <p className="text-muted-foreground text-sm">Đang tải...</p>
-                </div>
+                <Spinner className="size-8 text-primary" />
             </div>
         )
     }
 
-    if (error) {
+    if (courseError || !course) {
         return (
-            <div className="flex items-center justify-center h-screen bg-background">
-                <p className="text-destructive">Đã xảy ra lỗi khi tải khóa học</p>
+            <div className="flex items-center justify-center h-screen bg-background p-6">
+                <Alert variant="destructive" className="max-w-md">
+                    <AlertTitle>Lỗi</AlertTitle>
+                    <AlertDescription>
+                        Không thể tải thông tin khóa học. Vui lòng thử lại sau.
+                    </AlertDescription>
+                </Alert>
             </div>
         )
     }
 
-    if (course && course.type === 'live') {
-        return (
-            <div className="flex flex-col h-[calc(100vh-4rem)] bg-background">
-                {hasNewerVersion && (
-                    <div className="bg-primary/10 border-b border-primary/20 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex flex-col">
-                            <span className="text-sm font-bold text-primary mb-1">Phiên bản mới của khóa học đã sẵn sàng!</span>
-                            <span className="text-xs text-primary/80">Khóa học này hiện đã có nội dung mới. Hãy cập nhật để bắt đầu học.</span>
-                        </div>
-                        <Button
-                            size="sm"
-                            onClick={handleUpgrade}
-                            disabled={upgradeMutation.isPending}
-                            className="shrink-0 font-bold"
-                        >
-                            {upgradeMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật bản mới nhất'}
-                        </Button>
-                    </div>
-                )}
-                <div className="flex-1 overflow-y-auto p-6">
-                    <h1 className="text-2xl font-bold mb-4">Lịch học trực tuyến</h1>
-                    {isLoadingSessions ? (
-                        <Spinner />
-                    ) : (
-                        <ul className="space-y-4">
-                            {sessions?.map(session => (
-                                <li key={session.id} className="p-4 border rounded-lg flex justify-between items-center">
-                                    <div>
-                                        <h2 className="font-semibold">{session.title}</h2>
-                                        <p className="text-sm text-muted-foreground">{formatDateTime(session.scheduledAt)}</p>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <Badge variant={session.status === 'live' ? 'destructive' : 'default'}>{session.status}</Badge>
-                                        {session.status === 'live' && (
-                                            <Button onClick={() => handleJoin(session.id)}>
-                                                <Video className="mr-2 h-4 w-4" />
-                                                Vào học
+    const curriculum = curriculumData?.modules || []
+    const totalLessons = curriculum.reduce((sum: number, module: any) => sum + (module.lessons?.length || 0), 0)
+    const completedLessons = completedLessonIds.length
+    const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
+
+    return (
+        <div className="flex h-screen bg-background overflow-hidden font-sans">
+            <div className="flex-1 flex flex-col overflow-hidden relative">
+                <LessonHeader
+                    courseTitle={course.title}
+                    lessonTitle="Tổng quan khóa học"
+                    progress={progress}
+                    isCompleted={false}
+                    sidebarOpen={sidebarOpen}
+                    onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                />
+
+                <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-thin">
+                    <div className="max-w-4xl mx-auto space-y-8">
+                        {hasNewerVersion && (
+                            <Alert className="bg-primary/5 border-primary/20">
+                                <Info className="h-4 w-4 text-primary" />
+                                <AlertTitle className="text-primary font-bold">Phiên bản mới khả dụng</AlertTitle>
+                                <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
+                                    <span>Giảng viên đã cập nhật nội dung mới. Hãy làm mới lộ trình của bạn.</span>
+                                    <Button size="sm" onClick={handleUpgrade} disabled={upgradeMutation.isPending}>
+                                        {upgradeMutation.isPending ? 'Đang xử lý...' : 'Cập nhật ngay'}
+                                    </Button>
+                                </AlertDescription>
+                            </Alert>
+                        )}
+
+                        {course.type === 'live' && (
+                            <section className="space-y-4">
+                                <div className="flex items-center gap-2 text-foreground">
+                                    <Calendar className="h-5 w-5 text-primary" />
+                                    <h2 className="text-xl font-bold">Buổi học trực tuyến tiếp theo</h2>
+                                </div>
+                                <LiveSessionBanner courseId={course.id} />
+                            </section>
+                        )}
+
+                        <Separator className="bg-border/50" />
+
+                        <section className="space-y-6">
+                            <div className="flex items-center gap-2 text-foreground">
+                                <BookOpen className="h-5 w-5 text-primary" />
+                                <h2 className="text-xl font-bold">Lộ trình học tập</h2>
+                            </div>
+
+                            {totalLessons > 0 ? (
+                                <div className="grid gap-4">
+                                    <p className="text-muted-foreground text-sm">
+                                        Bạn đã hoàn thành {completedLessons}/{totalLessons} bài học.
+                                        {course.type === 'live' ? ' Hãy tham gia các buổi học trực tuyến và xem lại video bài giảng tại đây.' : ' Bắt đầu học ngay thôi!'}
+                                    </p>
+                                    <div className="flex flex-wrap gap-3">
+                                        {curriculum[0]?.lessons?.[0] && (
+                                            <Button onClick={() => handleLessonSelect(curriculum[0]?.lessons?.[0]?.id || '')} className="font-bold">
+                                                {completedLessons > 0 ? 'Tiếp tục học' : 'Bắt đầu học ngay'}
                                             </Button>
                                         )}
                                     </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            </div>
-        )
-    }
-
-    return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] bg-background">
-            {hasNewerVersion && (
-                <div className="bg-primary/10 border-b border-primary/20 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex flex-col">
-                        <span className="text-sm font-bold text-primary mb-1">Phiên bản mới của khóa học đã sẵn sàng!</span>
-                        <span className="text-xs text-primary/80">Khóa học này hiện đã có nội dung mới. Hãy cập nhật để bắt đầu học.</span>
+                                </div>
+                            ) : (
+                                <div className="rounded-xl border border-dashed p-10 text-center">
+                                    <BookOpen className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
+                                    <h3 className="font-medium">Chưa có nội dung bài học</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Giảng viên chưa cập nhật tài liệu và bài giảng cho khóa học này.
+                                    </p>
+                                </div>
+                            )}
+                        </section>
                     </div>
-                    <Button
-                        size="sm"
-                        onClick={handleUpgrade}
-                        disabled={upgradeMutation.isPending}
-                        className="shrink-0 font-bold"
-                    >
-                        {upgradeMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật bản mới nhất'}
-                    </Button>
-                </div>
-            )}
-            <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                    <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                    <h2 className="text-xl font-semibold mb-2">Chưa có bài học</h2>
-                    <p className="text-muted-foreground">Khóa học này hiện đang trống. Hãy chờ giảng viên cập nhật nội dung nhé.</p>
                 </div>
             </div>
+
+            <LearningSidebar
+                courseTitle={course.title}
+                curriculum={curriculum}
+                progress={progress}
+                completedLessons={completedLessons}
+                completedLessonIds={completedLessonIds}
+                totalLessons={totalLessons}
+                currentLessonId=""
+                isOpen={sidebarOpen}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
+                onLessonSelect={handleLessonSelect}
+                courseId={course.id}
+                isLiveCourse={course.type === 'live'}
+            />
         </div>
     )
+}
+
+// Internal hook for simple course check
+function useCheckCourse(slug: string) {
+    const [data, setData] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<any>(null)
+
+    useEffect(() => {
+        if (!slug) return
+        courseApi.getCourseBySlug(slug)
+            .then(setData)
+            .catch(setError)
+            .finally(() => setIsLoading(false))
+    }, [slug])
+
+    return { data, isLoading, error }
 }

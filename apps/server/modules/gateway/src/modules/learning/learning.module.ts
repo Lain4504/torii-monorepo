@@ -5,7 +5,6 @@ import { CourseController } from './controllers/course.controller';
 import { ModuleController } from './controllers/module.controller';
 import { LessonController } from './controllers/lesson.controller';
 import { LessonMaterialController } from './controllers/lesson-material.controller';
-import { CourseInstructorController } from './controllers/course-instructor.controller';
 import { StaffDashboardController } from './controllers/staff-dashboard.controller';
 import { ExamController } from './controllers/exam.controller';
 import { ExamAdminController } from './controllers/exam-admin.controller';
@@ -43,7 +42,6 @@ import { NotebookController } from './controllers/notebook.controller';
         ModuleController,
         LessonController,
         LessonMaterialController,
-        CourseInstructorController,
         StaffDashboardController,
         ExamController,
         ExamAdminController,

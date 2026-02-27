@@ -7,6 +7,29 @@ import type {
   PaginatedApiResponse
 } from '@workspace/schemas';
 
+export interface CurriculumLesson {
+  id: string;
+  title: string;
+  contentType: 'video' | 'document' | 'assignment';
+  videoDuration?: number;
+  isUnlocked: boolean;
+  isPreview: boolean;
+  order: number;
+}
+
+export interface CurriculumModule {
+  id: string;
+  title: string;
+  order: number;
+  durationMinutes?: number;
+  lessons: CurriculumLesson[];
+}
+
+export interface CurriculumResponse {
+  courseId: string;
+  modules: CurriculumModule[];
+}
+
 export const courseApi = {
   /**
    * Get all courses with pagination and filters
@@ -30,7 +53,7 @@ export const courseApi = {
   advancedSearch: async (params: {
     page?: number;
     limit?: number;
-    q?: string;
+    search?: string;
     levels?: string; // comma separated
     priceMin?: number;
     priceMax?: number;
@@ -41,6 +64,14 @@ export const courseApi = {
       params,
     });
     return response.data;
+  },
+
+  /**
+   * Validate if a course is ready for scheduling
+   */
+  validateForScheduling: async (courseId: string): Promise<{ isReady: boolean; message?: string }> => {
+    const response = await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/courses/${courseId}/validate-scheduling`);
+    return response.data.data!;
   },
 
   /**
@@ -62,8 +93,8 @@ export const courseApi = {
   /**
    * Get course curriculum (modules with lessons)
    */
-  getCurriculum: async (courseId: string): Promise<any> => { // Type as any for now
-    const response = await apiClient.get<StandardApiResponse<any>>(`/api/courses/${courseId}/curriculum`);
+  getCurriculum: async (courseId: string): Promise<CurriculumResponse> => {
+    const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/courses/${courseId}/curriculum`);
     return response.data.data!;
   },
 
@@ -104,7 +135,7 @@ export function useCourses(params: {
       return courseApi.advancedSearch({
         page: params.page,
         limit: params.limit,
-        q: params.q,
+        search: params.q,
         levels: levelsString,
         priceMin,
         priceMax,

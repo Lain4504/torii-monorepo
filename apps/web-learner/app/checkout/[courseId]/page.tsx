@@ -276,14 +276,14 @@ export default function CheckoutPage() {
                                         <h3 className="font-bold text-lg leading-snug">
                                             {course.title}
                                         </h3>
-                                        <ItemGroup size="sm">
-                                            <Item>
+                                        <ItemGroup>
+                                            <Item size="sm">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
                                                 <ItemContent>
                                                     <ItemTitle>{formatNumber(course.totalStudents)} học viên</ItemTitle>
                                                 </ItemContent>
                                             </Item>
-                                            <Item>
+                                            <Item size="sm">
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>
                                                 <ItemContent>
                                                     <ItemTitle>{course.totalLessons} bài học</ItemTitle>
@@ -527,8 +527,8 @@ export default function CheckoutPage() {
                             Thanh toán thành công!
                         </DialogTitle>
                         <DialogDescription className="text-center">
-                            {isGift 
-                                ? `Khóa học đã được gửi tặng đến ${recipientEmail}.` 
+                            {isGift
+                                ? `Khóa học đã được gửi tặng đến ${recipientEmail}.`
                                 : `Chúc mừng! Bạn đã sở hữu khóa học "${course.title}".`}
                         </DialogDescription>
                     </DialogHeader>

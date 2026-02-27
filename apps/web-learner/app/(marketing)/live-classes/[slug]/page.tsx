@@ -86,8 +86,7 @@ export default function LiveClassDetailPage() {
         )
     }
 
-    const instructors = (course as any).instructors || []
-    const mainInstructor = instructors[0]
+    const mainInstructor = course.lecturer
     const learningOutcomes = Array.isArray(course.learningOutcomes) ? course.learningOutcomes : []
     const requirements = Array.isArray(course.requirements) ? course.requirements : []
     const upcomingSessions = sessions
@@ -156,7 +155,7 @@ export default function LiveClassDetailPage() {
                                                 {(mainInstructor as any).displayName || 'Giảng viên'}
                                             </p>
                                             <p className="text-xs font-bold text-muted-foreground">
-                                                {(mainInstructor as any).role === 'MAIN' ? 'Giảng viên chính' : 'Giảng viên'}
+                                                Giảng viên
                                             </p>
                                         </div>
                                     </div>

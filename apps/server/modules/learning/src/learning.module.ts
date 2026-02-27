@@ -11,7 +11,6 @@ import { ModuleModule } from '@server/learning/modules/module/module.module';
 import { LessonModule } from '@server/learning/modules/lesson/lesson.module';
 import { WishlistModule } from '@server/learning/modules/wishlist/wishlist.module';
 import { ReviewModule } from '@server/learning/modules/review/review.module';
-import { CourseInstructorModule } from '@server/learning/modules/course-instructor/course-instructor.module';
 import { LessonMaterialModule } from '@server/learning/modules/lesson-material/lesson-material.module';
 import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
 import { LearningProgressModule } from '@server/learning/modules/learning-progress/learning-progress.module';
@@ -45,7 +44,6 @@ import { CourseHandler } from '@server/learning/handlers/course.handler';
 import { ModuleHandler } from '@server/learning/handlers/module.handler';
 import { LessonHandler } from '@server/learning/handlers/lesson.handler';
 import { LessonMaterialHandler } from '@server/learning/handlers/lesson-material.handler';
-import { CourseInstructorHandler } from '@server/learning/handlers/course-instructor.handler';
 import { StaffDashboardHandler } from '@server/learning/handlers/staff-dashboard.handler';
 import { ExamHandler } from '@server/learning/handlers/exam.handler';
 import { EnrollmentHandler } from '@server/learning/handlers/enrollment.handler';
@@ -89,7 +87,6 @@ import { AttendanceModule } from '@server/learning/modules/attendance/attendance
     LessonModule,
     WishlistModule,
     ReviewModule,
-    CourseInstructorModule,
     LessonMaterialModule,
     EnrollmentModule,
     LearningProgressModule,
@@ -128,7 +125,6 @@ import { AttendanceModule } from '@server/learning/modules/attendance/attendance
     ModuleHandler,
     LessonHandler,
     LessonMaterialHandler,
-    CourseInstructorHandler,
     StaffDashboardHandler,
     ExamHandler,
     EnrollmentHandler,

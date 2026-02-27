@@ -47,9 +47,10 @@ export class LearningProgressService implements ILearningProgressService {
                         thumbnailUrl: true,
                         totalLessons: true,
                         type: true,
-                        instructors: {
-                            where: { isPrimary: true },
-                            take: 1,
+                        lecturer: {
+                            select: {
+                                displayName: true
+                            }
                         }
                     }
                 }
@@ -110,7 +111,7 @@ export class LearningProgressService implements ILearningProgressService {
                 title: e.course.title,
                 thumbnailUrl: e.course.thumbnailUrl,
                 type: e.course.type ?? 'vod',
-                instructor: "Top Instructor",
+                instructor: e.course.lecturer?.displayName || "Chuyên gia Torii",
                 progress: progress,
                 totalLessons: totalLessons,
                 completedLessons: completedLessons,

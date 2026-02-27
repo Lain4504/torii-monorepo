@@ -4,8 +4,6 @@ import {
     User,
     LayoutDashboard,
     BookOpen, // courses
-    Layers, // modules
-    FileText, // lessons
     Database, // question bank
     FileQuestion, // questions
     Video, // rooms

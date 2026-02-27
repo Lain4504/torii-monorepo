@@ -18,7 +18,7 @@ export function CourseCard(props: CourseCardProps) {
         slug,
         thumbnailUrl,
         jlptLevel,
-        instructor,
+        lecturer,
         averageRating = 0,
         totalReviews = 0,
         totalStudents = 0,
@@ -73,7 +73,7 @@ export function CourseCard(props: CourseCardProps) {
                             {title}
                         </h3>
                         <p className="text-xs text-muted-foreground line-clamp-1">
-                            {instructor?.displayName || 'Chuyên gia Torii'}
+                            {lecturer?.displayName || 'Chuyên gia Torii'}
                         </p>
                     </div>
 

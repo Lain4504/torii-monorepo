@@ -86,7 +86,7 @@ export default function LiveClassesPage() {
                 ) : (
                     <div className="grid grid-cols-1 gap-4">
                         {courses.map((course) => {
-                            const instructor = (course as any).instructors?.[0]
+                            const instructor = course.lecturer
                             const level = course.jlptLevel || ''
                             return (
                                 <Link
@@ -132,7 +132,7 @@ export default function LiveClassesPage() {
                                                         <div>
                                                             <p className="text-sm font-medium">{(instructor as any).displayName || 'Giảng viên'}</p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                {(instructor as any).role === 'MAIN' ? 'Giảng viên chính' : 'Giảng viên'}
+                                                                Giảng viên
                                                             </p>
                                                         </div>
                                                     </div>

@@ -90,4 +90,9 @@ export class CourseHandler {
     async recalculateStats(@Payload() data: { courseId: string }) {
         return this.courseService.recalculateStats(data.courseId);
     }
+
+    @MessagePattern({ cmd: 'learning.course.validateScheduling' })
+    async validateScheduling(@Payload() data: { id: string }) {
+        return this.courseService.validateForScheduling(data.id);
+    }
 }

@@ -117,10 +117,6 @@ export class LessonMaterialRepository implements ILessonMaterialRepository {
         });
     }
 
-    /**
-     * Check if lecturer has access to a lesson's materials
-     * (via course_instructors table join through lesson → module → course)
-     */
     async checkLecturerAccess(lessonId: string, lecturerId: string): Promise<boolean> {
         const lesson = await this.prisma.lesson.findUnique({
             where: { id: lessonId },
@@ -128,12 +124,8 @@ export class LessonMaterialRepository implements ILessonMaterialRepository {
                 module: {
                     include: {
                         course: {
-                            include: {
-                                instructors: {
-                                    where: {
-                                        lecturerId,
-                                    },
-                                },
+                            select: {
+                                lecturerId: true,
                             },
                         },
                     },
@@ -142,7 +134,7 @@ export class LessonMaterialRepository implements ILessonMaterialRepository {
         });
 
         // Check if lesson exists and lecturer is assigned to the course
-        return !!(lesson && lesson.module.course.instructors.length > 0);
+        return !!(lesson && lesson.module.course.lecturerId === lecturerId);
     }
 
     /**

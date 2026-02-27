@@ -65,6 +65,9 @@ export const scheduleRequestCreateDTOSchema = scheduleRequestSchema.pick({
     startTime: true,
     duration: true,
     reason: true,
+}).extend({
+    liveSessionId: z.string().uuid().optional(),
+    newTime: z.string().optional(),
 });
 
 export type ScheduleRequestCreateDTO = z.infer<typeof scheduleRequestCreateDTOSchema>;
