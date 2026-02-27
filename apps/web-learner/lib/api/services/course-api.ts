@@ -1,42 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
-import type { CourseResponseDTO, StandardApiResponse, PaginatedApiResponse } from '@workspace/schemas';
-
-export interface CurriculumModule {
-  id: string;
-  title: string;
-  description?: string;
-  order: number;
-  durationMinutes?: number;
-  lessons: Array<{
-    id: string;
-    title: string;
-    contentType: string;
-    videoUrl?: string;
-    videoDuration?: number;
-    order: number;
-    isPreview: boolean;
-    isUnlocked: boolean;
-  }>;
-}
-
-export interface CurriculumResponse {
-  modules: CurriculumModule[];
-}
-
-export interface CourseQueryParams {
-  page?: number;
-  limit?: number;
-  jlptLevel?: string;
-  status?: string;
-  search?: string;
-}
+import type {
+  CourseResponseDTO,
+  CourseSearchResponseDTO,
+  StandardApiResponse,
+  PaginatedApiResponse
+} from '@workspace/schemas';
 
 export const courseApi = {
   /**
    * Get all courses with pagination and filters
    */
-  findAll: async (params: CourseQueryParams = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
+  findAll: async (params: {
+    page?: number;
+    limit?: number;
+    jlptLevel?: string;
+    status?: string;
+    search?: string;
+  } = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
     const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses', {
       params,
     });
@@ -55,8 +36,8 @@ export const courseApi = {
     priceMax?: number;
     rating?: number;
     sort?: string;
-  } = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses/advanced-search', {
+  } = {}): Promise<PaginatedApiResponse<CourseSearchResponseDTO>> => {
+    const response = await apiClient.get<PaginatedApiResponse<CourseSearchResponseDTO>>('/api/courses/advanced-search', {
       params,
     });
     return response.data;
@@ -81,8 +62,8 @@ export const courseApi = {
   /**
    * Get course curriculum (modules with lessons)
    */
-  getCurriculum: async (courseId: string): Promise<CurriculumResponse> => {
-    const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/courses/${courseId}/curriculum`);
+  getCurriculum: async (courseId: string): Promise<any> => { // Type as any for now
+    const response = await apiClient.get<StandardApiResponse<any>>(`/api/courses/${courseId}/curriculum`);
     return response.data.data!;
   },
 
@@ -94,6 +75,45 @@ export const courseApi = {
     return response.data.data?.courses ?? [];
   },
 };
+
+/**
+ * Hook: Search courses for public catalog
+ */
+export function useCourses(params: {
+  page?: number;
+  limit?: number;
+  levels?: string[];
+  q?: string;
+  priceFilter?: 'all' | 'free' | 'paid';
+  sortBy?: string;
+}) {
+  return useQuery({
+    queryKey: ['courses', params],
+    queryFn: async () => {
+      let priceMin: number | undefined;
+      let priceMax: number | undefined;
+
+      if (params.priceFilter === 'free') {
+        priceMax = 0;
+      } else if (params.priceFilter === 'paid') {
+        priceMin = 1;
+      }
+
+      const levelsString = params.levels?.length ? params.levels.join(',') : undefined;
+
+      return courseApi.advancedSearch({
+        page: params.page,
+        limit: params.limit,
+        q: params.q,
+        levels: levelsString,
+        priceMin,
+        priceMax,
+        sort: params.sortBy
+      });
+    },
+  });
+}
+
 
 /**
  * Hook: Get course by slug
@@ -116,10 +136,3 @@ export function useCurriculum(courseId?: string) {
     enabled: !!courseId,
   });
 }
-
-
-
-
-
-
-

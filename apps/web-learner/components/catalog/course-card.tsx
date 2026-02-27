@@ -3,11 +3,11 @@ import Image from 'next/image'
 import { Star, Users, BookOpen, ArrowRight } from 'lucide-react'
 import { Badge } from '@workspace/ui/components/badge'
 import { Card, CardContent } from '@workspace/ui/components/card'
-import type { Course } from './useCourses'
+import type { CourseSearchResponseDTO } from '@workspace/schemas'
 import { cn } from '@workspace/ui/lib/utils'
 import { formatNumber, formatCurrency } from '@/utils/format-utils'
 
-interface CourseCardProps extends Course {
+interface CourseCardProps extends CourseSearchResponseDTO {
     isLive?: boolean
     className?: string
 }
@@ -16,23 +16,23 @@ export function CourseCard(props: CourseCardProps) {
     const {
         title,
         slug,
-        thumbnail,
-        level,
+        thumbnailUrl,
+        jlptLevel,
         instructor,
-        rating = 0,
-        reviewCount = 0,
-        students = 0,
+        averageRating = 0,
+        totalReviews = 0,
+        totalStudents = 0,
         price = 0,
-        originalPrice = 0,
+        discountPrice,
         totalLessons = 0,
         isLive = false,
         className,
     } = props
 
-    const safeRating = typeof rating === 'number' ? rating : 0
-    const safeStudents = typeof students === 'number' ? students : 0
+    const safeRating = typeof averageRating === 'number' ? averageRating : 0
+    const safeStudents = typeof totalStudents === 'number' ? totalStudents : 0
     const safePrice = typeof price === 'number' ? price : 0
-    const safeOriginalPrice = typeof originalPrice === 'number' ? originalPrice : 0
+    const originalPrice = discountPrice ? price : 0
     const safeTotalLessons = typeof totalLessons === 'number' ? totalLessons : 0
     const isFree = safePrice === 0
 
@@ -42,7 +42,7 @@ export function CourseCard(props: CourseCardProps) {
                 {/* Thumbnail */}
                 <div className="relative aspect-video overflow-hidden bg-muted">
                     <Image
-                        src={thumbnail ?? '/default-thumbnail.jpg'}
+                        src={thumbnailUrl ?? '/default-thumbnail.jpg'}
                         alt={title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -53,7 +53,7 @@ export function CourseCard(props: CourseCardProps) {
                             HOT
                         </Badge>
                         <Badge variant="secondary" className="text-[10px] font-bold">
-                            {level}
+                            {jlptLevel}
                         </Badge>
                     </div>
                     {isLive && (
@@ -73,7 +73,7 @@ export function CourseCard(props: CourseCardProps) {
                             {title}
                         </h3>
                         <p className="text-xs text-muted-foreground line-clamp-1">
-                            {instructor?.name || 'Chuyên gia Torii'}
+                            {instructor?.displayName || 'Chuyên gia Torii'}
                         </p>
                     </div>
 
@@ -81,7 +81,7 @@ export function CourseCard(props: CourseCardProps) {
                         <span className="flex items-center gap-1">
                             <Star className="size-3.5 fill-amber-500 text-amber-500" />
                             <span className="font-bold text-foreground">{safeRating.toFixed(1)}</span>
-                            <span>({reviewCount})</span>
+                            <span>({totalReviews})</span>
                         </span>
                         <span className="flex items-center gap-1">
                             <Users className="size-3.5" />
@@ -95,9 +95,9 @@ export function CourseCard(props: CourseCardProps) {
 
                     <div className="flex items-center justify-between mt-auto pt-3 border-t">
                         <div>
-                            {safeOriginalPrice > 0 && safeOriginalPrice > safePrice && (
+                            {originalPrice > 0 && originalPrice > safePrice && (
                                 <p className="text-[10px] text-muted-foreground line-through">
-                                    {formatCurrency(safeOriginalPrice)}
+                                    {formatCurrency(originalPrice)}
                                 </p>
                             )}
                             <p className="text-sm font-bold text-primary">

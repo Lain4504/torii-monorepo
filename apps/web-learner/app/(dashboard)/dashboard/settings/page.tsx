@@ -5,7 +5,6 @@ import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'
 import { Label } from '@workspace/ui/components/label'
 import { Switch } from '@workspace/ui/components/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
 import { Bell, Globe, Trash2, Settings, Clock } from 'lucide-react'
 import { SecurityTab } from '@/components/settings/security-tab'
 import { SessionsManagement } from '@/components/settings/sessions-management'
@@ -84,11 +83,11 @@ export default function SettingsPage() {
                         </Card>
                     </div>
 
-                    {/* Privacy & Language */}
+                    {/* Privacy */}
                     <div className="space-y-4">
                         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                             <Globe className="w-4 h-4 text-emerald-500" />
-                            Riêng tư & Ngôn ngữ
+                            Quyền riêng tư
                         </h3>
                         <Card className="divide-y divide-border overflow-hidden">
                             <div className="flex items-center justify-between p-5 hover:bg-muted/30 transition-colors">
@@ -97,21 +96,6 @@ export default function SettingsPage() {
                                     <p className="text-xs text-muted-foreground">Hiển thị thông tin học tập của bạn với mọi người</p>
                                 </div>
                                 <Switch id="profile-visibility" className="data-[state=checked]:bg-primary" />
-                            </div>
-                            <div className="flex items-center justify-between p-5 hover:bg-muted/30 transition-colors">
-                                <div className="space-y-1">
-                                    <Label className="text-sm font-bold cursor-pointer">Ngôn ngữ giao diện</Label>
-                                    <p className="text-xs text-muted-foreground">Chọn ngôn ngữ bạn muốn sử dụng</p>
-                                </div>
-                                <Select defaultValue="vi">
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-border">
-                                        <SelectItem value="vi" className="text-xs font-medium">Tiếng Việt</SelectItem>
-                                        <SelectItem value="en" className="text-xs font-medium">English</SelectItem>
-                                    </SelectContent>
-                                </Select>
                             </div>
                         </Card>
                     </div>

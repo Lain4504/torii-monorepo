@@ -42,7 +42,9 @@ export default function PersonnelPage() {
         page,
         limit,
         search: debouncedSearch,
-        role: targetRole
+        role: targetRole,
+        sortBy,
+        sortOrder,
     });
 
     useEffect(() => {

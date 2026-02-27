@@ -4,7 +4,7 @@ import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { Gift, Star, Ticket, ArrowRight, CheckCircle2, AlertCircle, TrendingUp, Snowflake } from 'lucide-react'
+import { Gift, Star, Ticket, ArrowRight, CheckCircle2, TrendingUp, Snowflake } from 'lucide-react'
 import { useGamificationProfile, useRewards, useRedeemPoints } from '@/lib/api/services/gamification-api'
 import { useMyCoupons } from '@/lib/api/services/coupon-api'
 import { toast } from 'sonner'
@@ -12,20 +12,14 @@ import { Button } from '@workspace/ui/components/button'
 import { formatDate, formatCurrency, formatNumber } from '@/utils/format-utils'
 import { useState } from 'react'
 import { cn } from "@workspace/ui/lib/utils"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@workspace/ui/components/dialog"
 import Link from 'next/link'
+import { RedeemConfirmDialog } from '@/components/rewards/redeem-confirm-dialog'
+import { RedeemSuccessDialog } from '@/components/rewards/redeem-success-dialog'
 
 export default function RewardsPage() {
-    const { data: profile, isLoading: profileLoading } = useGamificationProfile()
+    const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useGamificationProfile()
     const { data: rewards, isLoading: rewardsLoading } = useRewards()
-    const { data: coupons } = useMyCoupons(!!profile)
+    const { data: coupons, refetch: refetchCoupons } = useMyCoupons(!!profile)
     const redeemMutation = useRedeemPoints()
 
     const [selectedDeal, setSelectedDeal] = useState<any>(null)
@@ -50,11 +44,21 @@ export default function RewardsPage() {
 
         try {
             const result = await redeemMutation.mutateAsync(selectedDeal.id)
+
+            // Manually refetch profile and coupons to ensure UI updates immediately
+            await Promise.all([
+                refetchProfile(),
+                refetchCoupons()
+            ])
+
             if (result.isInternal) {
                 setRedeemedCoupon(null)
                 toast.success(result.message || 'Đổi quà thành công!')
             } else {
-                setRedeemedCoupon(result.coupon)
+                setRedeemedCoupon({
+                    code: result.couponCode || result.coupon?.code,
+                    pointsDeducted: selectedDeal.points
+                })
                 toast.success('Đã nhận được mã giảm giá!')
             }
             setIsConfirmOpen(false)
@@ -204,71 +208,21 @@ export default function RewardsPage() {
             </div>
 
             {/* Confirm Dialog */}
-            <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Xác nhận đổi điểm</DialogTitle>
-                        <DialogDescription>
-                            Bạn muốn dùng <span className="font-bold text-primary">{selectedDeal?.points} Points</span> để đổi lấy <span className="font-bold">"{selectedDeal?.name}"</span>?
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4 flex items-center gap-4 text-amber-600 bg-amber-50 p-4 rounded-xl border border-amber-100">
-                        <AlertCircle className="size-5 shrink-0" />
-                        <p className="text-xs font-medium">Mã giảm giá sau khi đổi sẽ được gán cho tài khoản của bạn và không thể chuyển nhượng.</p>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsConfirmOpen(false)} disabled={redeemMutation.isPending}>Hủy</Button>
-                        <Button onClick={handleConfirmRedeem} disabled={redeemMutation.isPending}>
-                            {redeemMutation.isPending ? 'Đang lý...' : 'Xác nhận đổi'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <RedeemConfirmDialog
+                open={isConfirmOpen}
+                onOpenChange={setIsConfirmOpen}
+                selectedDeal={selectedDeal}
+                isLoading={redeemMutation.isPending}
+                onConfirm={handleConfirmRedeem}
+            />
 
             {/* Success Dialog */}
-            <Dialog open={!!redeemedCoupon} onOpenChange={(open) => !open && setRedeemedCoupon(null)}>
-                <DialogContent className="sm:max-w-[425px] text-center">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold text-center">🎉 Đổi quà thành công!</DialogTitle>
-                        <DialogDescription className="text-center pt-2">
-                            Bạn đã đổi thành công <span className="font-bold text-primary">{selectedDeal?.points} Points</span> lấy ưu đãi này.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="py-8 space-y-4">
-                        <div className="bg-primary/5 border-2 border-dashed border-primary/20 rounded-2xl p-6 relative overflow-hidden group">
-                            <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
-                                <Ticket className="size-24 text-primary" />
-                            </div>
-
-                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2">Mã giảm giá của bạn</p>
-                            <h3 className="text-4xl font-black text-primary tracking-[0.3em] mb-4 select-all">{redeemedCoupon?.code}</h3>
-
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="font-bold uppercase tracking-widest text-[10px] h-8 border-2"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(redeemedCoupon?.code)
-                                    toast.success('Đã sao chép mã!')
-                                }}
-                            >
-                                Sao chép mã
-                            </Button>
-                        </div>
-
-                        <div className="text-xs text-muted-foreground font-medium">
-                            Mã này đã được lưu vào <Link href="/dashboard/wallet" className="text-primary hover:underline font-bold">Ví của bạn</Link>.
-                        </div>
-                    </div>
-
-                    <DialogFooter>
-                        <Button className="w-full font-bold uppercase tracking-widest" onClick={() => setRedeemedCoupon(null)}>
-                            Tuyệt vời!
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <RedeemSuccessDialog
+                open={!!redeemedCoupon}
+                onOpenChange={(open) => !open && setRedeemedCoupon(null)}
+                coupon={redeemedCoupon}
+                pointsDeducted={selectedDeal?.points || null}
+            />
         </div>
     )
 }

@@ -15,7 +15,8 @@ import {
 import { Track } from "livekit-client";
 import "@livekit/components-styles";
 import { Button } from "@workspace/ui/components/button";
-import { Mic, Loader2 } from "lucide-react";
+import { Mic } from "lucide-react";
+import { Spinner } from "@workspace/ui/components/spinner";
 import { apiClient, extractErrorMessage } from "@/lib/api/api-client";
 import { toast } from "sonner";
 
@@ -54,7 +55,7 @@ export function LivekitVoiceAgent() {
                 <Button onClick={connectToVoice} disabled={isConnecting} size="lg" className="rounded-full px-8 mt-4">
                     {isConnecting ? (
                         <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Spinner className="mr-2 h-4 w-4" />
                             Connecting to Roleplay Cloud...
                         </>
                     ) : (
@@ -178,7 +179,7 @@ function AgentVisualizer() {
                             className="w-24 h-8 text-white/90"
                         />
                     ) : state === 'thinking' ? (
-                        <Loader2 className="w-16 h-16 text-white animate-spin opacity-50" />
+                        <Spinner className="w-16 h-16 text-white opacity-50" />
                     ) : state === 'listening' ? (
                         <div className="flex items-end gap-1.5 h-12">
                             {[0, 1, 2, 3, 4].map((i) => (

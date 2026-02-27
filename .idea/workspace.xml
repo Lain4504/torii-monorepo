@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: restructure course DTOs and add search request schema">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/schedule/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/schedule/page.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: restructure course DTOs and add search request schema" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -401,15 +398,7 @@
       <workItem from="1771996036213" duration="3105000" />
       <workItem from="1772038435231" duration="18000" />
       <workItem from="1772116512598" duration="1351000" />
-      <workItem from="1772173061622" duration="2530000" />
-    </task>
-    <task id="LOCAL-00835" summary="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency">
-      <option name="closed" value="true" />
-      <created>1771682661509</created>
-      <option name="number" value="00835" />
-      <option name="presentableId" value="LOCAL-00835" />
-      <option name="project" value="LOCAL" />
-      <updated>1771682661509</updated>
+      <workItem from="1772173061622" duration="2604000" />
     </task>
     <task id="LOCAL-00836" summary="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency">
       <option name="closed" value="true" />
@@ -795,7 +784,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772174246552</updated>
     </task>
-    <option name="localTasksCounter" value="884" />
+    <task id="LOCAL-00884" summary="refactor: restructure course DTOs and add search request schema">
+      <option name="closed" value="true" />
+      <created>1772175626733</created>
+      <option name="number" value="00884" />
+      <option name="presentableId" value="LOCAL-00884" />
+      <option name="project" value="LOCAL" />
+      <updated>1772175626733</updated>
+    </task>
+    <option name="localTasksCounter" value="885" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

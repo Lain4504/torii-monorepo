@@ -2,7 +2,7 @@
 
 import { CourseCard } from "./course-card"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@workspace/ui/components/pagination"
-import { useCourses } from "./useCourses"
+import { useCourses } from "@/lib/api/services/course-api"
 import { Inbox, Search } from 'lucide-react'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { cn } from "@workspace/ui/lib/utils";

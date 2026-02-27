@@ -12,18 +12,16 @@ interface CourseInstructorProps {
 }
 
 export function CourseInstructor({ course }: CourseInstructorProps) {
-    const instructors = course.instructors && course.instructors.length > 0
-        ? course.instructors
-        : null
+    const lecturer = course.lecturer;
 
-    if (!instructors) {
+    if (!lecturer) {
         return (
             <div className="space-y-6 animate-in fade-in duration-700">
                 <div className="flex items-center gap-3">
                     <div className="rounded bg-primary/10 p-1.5 text-primary">
                         <Users className="h-5 w-5" />
                     </div>
-                    <h2 className="text-2xl font-bold text-foreground">Đội ngũ Cố vấn</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Giảng viên</h2>
                 </div>
 
                 <Card className="p-6">
@@ -40,8 +38,8 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
 
                         <div className="flex-1 space-y-4">
                             <div className="space-y-1">
-                                <h3 className="text-lg font-bold">Học viện Torii Nihongo</h3>
-                                <p className="text-sm text-muted-foreground">Giảng viên ngôn ngữ & Chuyên gia đào tạo JLPT</p>
+                                <h3 className="text-lg font-bold">Giảng viên Torii Nihongo</h3>
+                                <p className="text-sm text-muted-foreground">Chuyên gia đào tạo JLPT</p>
                             </div>
 
                             <div className="grid grid-cols-3 gap-4">
@@ -50,7 +48,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                                     <div className="text-xs text-muted-foreground">Học viên</div>
                                 </div>
                                 <div>
-                                    <div className="text-lg font-bold">15+</div>
+                                    <div className="text-lg font-bold">10+</div>
                                     <div className="text-xs text-muted-foreground">Khóa học</div>
                                 </div>
                                 <div>
@@ -78,60 +76,56 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                 <h2 className="text-2xl font-bold text-foreground">Giảng viên hướng dẫn</h2>
             </div>
 
-            <div className="grid gap-4">
-                {instructors.map(instructor => (
-                    <Card key={instructor.id} className="p-6 transition-colors hover:border-primary/50">
-                        <div className="flex flex-col gap-6 md:flex-row">
-                            <div className="flex shrink-0 flex-col items-center gap-3">
-                                <Avatar className="size-16">
-                                    <AvatarImage src={instructor.user.avatarUrl ?? undefined} className="object-cover" />
-                                    <AvatarFallback className="bg-primary/10 text-xl font-bold text-primary">
-                                        {instructor?.user?.displayName?.[0]?.toUpperCase() || 'U'}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex flex-col items-center gap-0.5">
-                                    <div className="flex items-center gap-1 text-primary">
-                                        <Star className="size-3.5 fill-current" />
-                                        <span className="text-xs font-bold text-foreground">5.0</span>
-                                    </div>
-                                    <span className="text-[10px] text-muted-foreground">Đánh giá</span>
-                                </div>
+            <Card className="p-6 transition-colors hover:border-primary/50">
+                <div className="flex flex-col gap-6 md:flex-row">
+                    <div className="flex shrink-0 flex-col items-center gap-3">
+                        <Avatar className="size-16">
+                            <AvatarImage src={lecturer.avatarUrl ?? undefined} className="object-cover" />
+                            <AvatarFallback className="bg-primary/10 text-xl font-bold text-primary">
+                                {lecturer.displayName?.[0]?.toUpperCase() || 'U'}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col items-center gap-0.5">
+                            <div className="flex items-center gap-1 text-primary">
+                                <Star className="size-3.5 fill-current" />
+                                <span className="text-xs font-bold text-foreground">5.0</span>
                             </div>
+                            <span className="text-[10px] text-muted-foreground">Đánh giá</span>
+                        </div>
+                    </div>
 
-                            <div className="w-full flex-1 space-y-4">
-                                <div className="space-y-1">
-                                    <h3 className="text-xl font-bold text-foreground">
-                                        {instructor.user.displayName}
-                                    </h3>
-                                    <p className="text-sm font-medium text-muted-foreground">Trưởng nhóm Học thuật tại Torii Nihongo</p>
-                                </div>
+                    <div className="w-full flex-1 space-y-4">
+                        <div className="space-y-1">
+                            <h3 className="text-xl font-bold text-foreground">
+                                {lecturer.displayName}
+                            </h3>
+                            <p className="text-sm font-medium text-muted-foreground">Giảng viên tại Torii Nihongo</p>
+                        </div>
 
-                                <div className="flex flex-wrap gap-4 text-xs font-medium text-muted-foreground">
-                                    <div className="flex items-center gap-2">
-                                        <Users className="size-4 text-primary" />
-                                        <span>Kinh nghiệm dạy tốt</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Award className="size-4 text-primary" />
-                                        <span>Hệ thống bài giảng hay</span>
-                                    </div>
-                                </div>
-
-                                <p className="text-sm text-muted-foreground">
-                                    Mang đến trải nghiệm học tiếng Nhật hiện đại, đơn giản và cực kỳ hiệu quả thông qua lộ trình cá nhân hóa.
-                                </p>
-
-                                <Link href={`/lecturers/${instructor.userId}`}>
-                                    <Button variant="outline" size="sm" className="font-bold">
-                                        Xem hồ sơ chi tiết
-                                        <ChevronRight className="ml-1.5 size-4" />
-                                    </Button>
-                                </Link>
+                        <div className="flex flex-wrap gap-4 text-xs font-medium text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                                <Users className="size-4 text-primary" />
+                                <span>Kinh nghiệm giảng dạy</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Award className="size-4 text-primary" />
+                                <span>Chuyên gia JLPT</span>
                             </div>
                         </div>
-                    </Card>
-                ))}
-            </div>
+
+                        <p className="text-sm text-muted-foreground">
+                            Mang đến trải nghiệm học tiếng Nhật hiện đại, đơn giản và cực kỳ hiệu quả thông qua lộ trình cá nhân hóa.
+                        </p>
+
+                        <Link href={`/lecturers/${lecturer.id}`}>
+                            <Button variant="outline" size="sm" className="font-bold">
+                                Xem hồ sơ chi tiết
+                                <ChevronRight className="ml-1.5 size-4" />
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
+            </Card>
         </div>
     )
 }

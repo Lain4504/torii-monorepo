@@ -6,8 +6,9 @@ import {
     FileText, Search, MoreHorizontal, Plus, BookOpen, Upload,
     X, ChevronLeft, BrainCircuit, Trash2, Globe, Lock,
     FileSpreadsheet, Pencil, Layers, Hash, CheckCircle2,
-    ArrowRight, Loader2
+    ArrowRight
 } from 'lucide-react'
+import { Spinner } from '@workspace/ui/components/spinner'
 import { Input } from '@workspace/ui/components/input'
 import { Button } from '@workspace/ui/components/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
@@ -643,7 +644,7 @@ export default function NotesPage() {
                         <DialogFooter className="gap-2">
                             <Button variant="outline" onClick={() => setIsAddWordOpen(false)}>Hủy</Button>
                             <Button onClick={handleSaveWord} disabled={isSaving}>
-                                {isSaving && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
+                                {isSaving && <Spinner className="size-3.5 mr-1.5" />}
                                 Xong
                             </Button>
                         </DialogFooter>
@@ -752,7 +753,7 @@ export default function NotesPage() {
                                 disabled={importPreview.length === 0 || isSaving}
                                 className="rounded-xl font-bold"
                             >
-                                {isSaving && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
+                                {isSaving && <Spinner className="size-3.5 mr-1.5" />}
                                 Nhập {importPreview.length > 0 ? `${importPreview.length} từ` : ''}
                             </Button>
                         </DialogFooter>
@@ -796,7 +797,7 @@ export default function NotesPage() {
             {/* Loading skeleton */}
             {isLoading ? (
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="size-8 animate-spin text-muted-foreground/50" />
+                    <Spinner className="size-8 text-muted-foreground/50" />
                 </div>
             ) : (
                 <Tabs defaultValue="my">
@@ -935,7 +936,7 @@ export default function NotesPage() {
                     <DialogFooter className="gap-2">
                         <Button variant="outline" onClick={() => setIsCreateOpen(false)} className="rounded-xl">Hủy</Button>
                         <Button onClick={handleCreateNotebook} className="rounded-xl font-bold px-6" disabled={isSaving}>
-                            {isSaving && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
+                            {isSaving && <Spinner className="size-3.5 mr-1.5" />}
                             Tạo sổ tay
                         </Button>
                     </DialogFooter>

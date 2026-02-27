@@ -160,20 +160,22 @@ export class CourseRepository implements ICourseRepository {
     }
 
     /**
-     * Get instructors for a course
+     * Get lecturer for a course
      */
-    async getInstructors(courseId: string): Promise<any[]> {
-        const courseInstructors = await this.prisma.courseInstructor.findMany({
-            where: { courseId },
+    async getLecturer(courseId: string): Promise<any | null> {
+        const course = await this.prisma.course.findUnique({
+            where: { id: courseId },
+            select: {
+                lecturerId: true,
+            },
         });
 
-        if (courseInstructors.length === 0) {
-            return [];
+        if (!course?.lecturerId) {
+            return null;
         }
 
-        const lecturerIds = courseInstructors.map(ci => ci.lecturerId);
-        const users = await this.prisma.user.findMany({
-            where: { id: { in: lecturerIds } },
+        const lecturer = await this.prisma.user.findUnique({
+            where: { id: course.lecturerId },
             select: {
                 id: true,
                 displayName: true,
@@ -182,13 +184,7 @@ export class CourseRepository implements ICourseRepository {
             },
         });
 
-        return courseInstructors.map(ci => {
-            const user = users.find(u => u.id === ci.lecturerId);
-            return {
-                ...ci,
-                user,
-            };
-        }).filter(item => item.user);
+        return lecturer;
     }
 
     /**

@@ -7,6 +7,8 @@ export interface FindAllUsersParams {
     limit?: number;
     search?: string;
     role?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
 }
 
 // ============================================================================

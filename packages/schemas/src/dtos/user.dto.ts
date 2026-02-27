@@ -112,6 +112,8 @@ export const userSearchRequestDTOSchema = z.object({
     limit: z.number().int().min(1).optional().default(10),
     search: z.string().optional().default(''),
     role: z.string().optional().default(''),
+    sortBy: z.string().optional().default('updatedAt'),
+    sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
 export type UserSearchRequestDTO = z.infer<typeof userSearchRequestDTOSchema>;

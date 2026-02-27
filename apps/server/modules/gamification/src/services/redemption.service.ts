@@ -25,6 +25,12 @@ export class RedemptionService {
             throw new BadRequestException('Invalid or inactive reward');
         }
 
+        // Add validation to ensure the reward has a positive point cost
+        if (reward.points <= 0) {
+            this.logger.error(`Attempted to redeem a reward with non-positive points. Reward ID: ${rewardId}, Points: ${reward.points}`);
+            throw new BadRequestException('This reward cannot be redeemed as it has an invalid point cost.');
+        }
+
         const gamification = await this.prisma.userGamification.findUnique({
             where: { userId }
         });

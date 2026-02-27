@@ -268,7 +268,7 @@ default_role_permissions:
     - blog.manage
     - tag.manage
     
-  # Lecturer: Teaching permissions
+  # Lecturer: Teaching permissions (can update but NOT create courses)
   lecturer:
     - live_class.manage
     - class_member.view
@@ -283,11 +283,12 @@ default_role_permissions:
     - material.upload
     - material.view
     - schedule.view
+    - course.update        # Can edit assigned courses
+    - course.view_my       # Can view own courses
     - module.update
     - lesson.create
     - lesson.update
     - lesson.delete
-    - course.view_my
     
   # Learner: No admin permissions
   learner: []

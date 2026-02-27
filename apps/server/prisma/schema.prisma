@@ -69,7 +69,6 @@ model Course {
   wishlists         Wishlist[]
   reviews           Review[]
   quizzes           Quiz[]
-  instructors       CourseInstructor[]
   liveSessions      LiveSession[]
   teachingSchedules TeachingSchedule[]
   scheduleRequests  LiveSessionScheduleRequest[]
@@ -79,9 +78,13 @@ model Course {
   versions          CourseVersion[]
   cartItems         CartItem[]
 
+  lecturerId String? @map("lecturer_id") @db.Uuid
+  lecturer   User?   @relation("CoursesTaught", fields: [lecturerId], references: [id], onDelete: SetNull)
+
   @@index([jlptLevel])
   @@index([createdBy])
   @@index([approvedBy])
+  @@index([lecturerId])
   @@map("courses")
 }
 
@@ -319,28 +322,6 @@ model GradeHistory {
 // COURSE INSTRUCTOR
 // ============================================
 
-enum InstructorRole {
-  MAIN
-  ASSISTANT
-  RECORDER
-}
-
-// Course Instructor - Junction table linking courses to lecturers
-model CourseInstructor {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId     String         @map("course_id") @db.Uuid
-  lecturerId   String         @map("lecturer_id") @db.Uuid
-  role         InstructorRole @default(MAIN)
-  isPrimary    Boolean        @default(false) @map("is_primary")
-  assignedDate DateTime       @default(now()) @map("assigned_date")
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([courseId, lecturerId])
-  @@index([courseId])
-  @@index([lecturerId])
-  @@map("course_instructors")
-}
 
 // Live Session - Scheduled live classes for a course
 model LiveSession {
@@ -617,6 +598,8 @@ model User {
   giftEnrollments         Enrollment[]             @relation("GiftEnrollments")
   certificates            Certificate[]
   balance                 UserBalance?
+
+  coursesTaught Course[] @relation("CoursesTaught") // Mối quan hệ mới
 
   // Gamification Relations
   gamification    UserGamification?

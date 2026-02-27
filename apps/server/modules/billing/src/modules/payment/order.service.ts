@@ -104,7 +104,7 @@ export class OrderService implements IOrderService {
      */
     async findAll(query: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
         try {
-            const { page = 1, limit = 10, userId, status, startDate, endDate } = query;
+            const { page = 1, limit = 10, userId, status, startDate, endDate, search } = query;
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
             const validPage = pageNum > 0 ? pageNum : 1;
@@ -114,6 +114,16 @@ export class OrderService implements IOrderService {
             const whereClause: Prisma.OrderWhereInput = {};
             if (userId) whereClause.userId = userId;
             if (status) whereClause.status = status as any;
+
+            // Add search functionality
+            if (search && search.trim().length > 0) {
+                whereClause.OR = [
+                    { id: { contains: search, mode: 'insensitive' } },
+                    { userId: { contains: search, mode: 'insensitive' } },
+                    { user: { email: { contains: search, mode: 'insensitive' } } },
+                    { user: { displayName: { contains: search, mode: 'insensitive' } } },
+                ];
+            }
 
             if (startDate || endDate) {
                 whereClause.createdAt = {};

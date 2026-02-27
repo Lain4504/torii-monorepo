@@ -23,6 +23,7 @@ export type OrderCreateDTO = z.infer<typeof orderCreateDTOSchema>;
 export const orderQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).default(10),
+    search: z.string().optional(),
     userId: z.string().uuid().optional(),
     courseId: z.string().uuid().optional(),
     status: z.nativeEnum(OrderStatus).optional(),

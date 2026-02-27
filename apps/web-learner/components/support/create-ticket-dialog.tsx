@@ -31,7 +31,7 @@ import { TicketType } from '@workspace/schemas';
 import { useCreateTicket } from '@/lib/api/services/ticket-api';
 import { useEnrollments } from '@/lib/api/services/enrollment-api';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Spinner } from '@workspace/ui/components/spinner';
 
 const createTicketSchema = z.object({
     type: z.nativeEnum(TicketType),
@@ -190,7 +190,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                             Hủy
                         </Button>
                         <Button type="submit" disabled={createTicketMutation.isPending}>
-                            {createTicketMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {createTicketMutation.isPending && <Spinner className="mr-2 h-4 w-4" />}
                             Gửi yêu cầu
                         </Button>
                     </DialogFooter>

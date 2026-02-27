@@ -24,6 +24,8 @@ export const courseCreateDTOSchema = courseSchema.pick({
     liveConfig: true,
     maxStudents: true,
     aiMetadata: true,
+}).extend({
+    lecturerId: z.string().uuid().optional(),
 }).partial({
     description: true,
     shortDescription: true,
@@ -54,23 +56,41 @@ export const courseUpdateDTOSchema = courseCreateDTOSchema.extend({
 
 export type CourseUpdateDTO = z.infer<typeof courseUpdateDTOSchema>;
 
+// Basic User info for instructor
+export const courseInstructorDTOSchema = z.object({
+    id: z.string().uuid(),
+    displayName: z.string(),
+    avatarUrl: z.string().optional().nullable(),
+    email: z.string().optional(),
+});
+
+export type CourseInstructorDTO = z.infer<typeof courseInstructorDTOSchema>;
+
 export const courseResponseDTOSchema = courseSchema.extend({
-    instructors: z.array(z.object({
-        id: z.string().uuid(),
-        userId: z.string().uuid(),
-        courseId: z.string().uuid(),
-        isPrimary: z.boolean(),
-        assignedDate: z.date(),
-        user: z.object({
-            id: z.string().uuid(),
-            displayName: z.string(),
-            avatarUrl: z.string().optional().nullable(),
-            email: z.string(),
-        }),
-    })).optional().default([]),
+    lecturer: courseInstructorDTOSchema.optional().nullable(),
 });
 
 export type CourseResponseDTO = z.infer<typeof courseResponseDTOSchema>;
+
+// DTO for learner-facing course search/catalog results
+export const courseSearchResponseDTOSchema = courseSchema.pick({
+    id: true,
+    title: true,
+    slug: true,
+    thumbnailUrl: true,
+    jlptLevel: true,
+    price: true,
+    discountPrice: true,
+    totalStudents: true,
+    totalLessons: true,
+    durationWeeks: true,
+    averageRating: true,
+    totalReviews: true,
+}).extend({
+    lecturer: courseInstructorDTOSchema.optional().nullable(),
+});
+
+export type CourseSearchResponseDTO = z.infer<typeof courseSearchResponseDTOSchema>;
 
 export const courseSearchRequestDTOSchema = paginationOptionsDTOSchema.extend({
     status: z.nativeEnum(CourseStatus).optional(),

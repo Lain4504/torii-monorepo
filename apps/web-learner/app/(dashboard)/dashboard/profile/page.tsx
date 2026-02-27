@@ -25,21 +25,23 @@ import {
     Flame,
     Zap,
     Coins,
+    Camera,
 } from 'lucide-react'
+import { Spinner } from '@workspace/ui/components/spinner'
 import { formatDate } from '@/utils/format-utils'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { profileApi, type UpdateProfileDTO } from '@/lib/api/services/profile-api'
 import { UserRole } from '@workspace/schemas'
 import { useAvatarUrl } from '@/hooks/useAvatarUrl'
 import { learningProgressApi } from '@/lib/api/services/learning-progress-api'
-import { useAchievements, useGamificationProfile } from '@/lib/api/services/gamification-api'
+import { useAchievements, useGamificationProfile, useStreak } from '@/lib/api/services/gamification-api'
 import { fetchProfile } from '@/store/slices/authSlice'
 import { toast } from 'sonner'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
-import { EditProfileDialog } from './_components/edit-profile-dialog'
+import { EditProfileDialog } from '@/components/profile/edit-profile-dialog'
 import Link from 'next/link'
 
 // Map achievement icons
@@ -61,6 +63,7 @@ export default function ProfilePage() {
     const dispatch = useAppDispatch()
     const queryClient = useQueryClient()
     const { user } = useAppSelector((state) => state.auth)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
@@ -72,6 +75,9 @@ export default function ProfilePage() {
 
     // Fetch gamification profile
     const { data: gamifyData } = useGamificationProfile()
+
+    // Fetch streak status
+    const { data: streakData } = useStreak()
 
     // Fetch achievements
     const { data: achievementsData } = useAchievements()
@@ -103,6 +109,21 @@ export default function ProfilePage() {
             toast.error(error?.message || 'Cập nhật avatar thất bại')
         },
     })
+
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click()
+    }
+
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        if (!file.type.startsWith('image/')) {
+            toast.error('Vui lòng chọn file ảnh')
+            return
+        }
+        await uploadAvatarMutation.mutateAsync(file)
+        e.target.value = ''
+    }
 
     const avatarSrc = useAvatarUrl(user?.avatarUrl || null)
 
@@ -143,12 +164,34 @@ export default function ProfilePage() {
                 <div className="h-28 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent w-full" />
                 <CardContent className="px-8 pb-8 -mt-10">
                     <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
-                        <Avatar className="w-32 h-32 border-4 border-background shadow-xl rounded-full shrink-0">
-                            <AvatarImage src={avatarSrc || ''} alt={user?.displayName || 'Avatar'} />
-                            <AvatarFallback className="text-4xl bg-muted text-muted-foreground font-bold">
-                                {user?.displayName?.[0]?.toUpperCase() || 'U'}
-                            </AvatarFallback>
-                        </Avatar>
+                        <div className="relative group">
+                            <Avatar className="w-32 h-32 border-4 border-background shadow-xl rounded-full shrink-0">
+                                <AvatarImage src={avatarSrc || ''} alt={user?.displayName || 'Avatar'} />
+                                <AvatarFallback className="text-4xl bg-muted text-muted-foreground font-bold">
+                                    {user?.displayName?.[0]?.toUpperCase() || 'U'}
+                                </AvatarFallback>
+                            </Avatar>
+                            <Button
+                                variant="secondary"
+                                size="icon"
+                                className="absolute bottom-0 right-0 rounded-full w-10 h-10 shadow-md border group-hover:scale-110 transition-transform"
+                                onClick={handleAvatarClick}
+                                disabled={uploadAvatarMutation.isPending}
+                            >
+                                {uploadAvatarMutation.isPending ? (
+                                    <Spinner className="w-5 h-5" />
+                                ) : (
+                                    <Camera className="w-5 h-5" />
+                                )}
+                            </Button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleAvatarChange}
+                                className="hidden"
+                            />
+                        </div>
 
                         <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full pt-2">
                             <div className="space-y-3 text-center md:text-left">
@@ -198,19 +241,19 @@ export default function ProfilePage() {
             </Card>
 
             <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="bg-transparent border-b rounded-none p-0 h-auto gap-8 mb-8">
-                    <TabsTrigger value="overview" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 py-3 font-bold transition-all">
+                <TabsList>
+                    <TabsTrigger value="overview">
                         Tổng quan
                     </TabsTrigger>
-                    <TabsTrigger value="learning" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 py-3 font-bold transition-all">
+                    <TabsTrigger value="learning">
                         Học tập
                     </TabsTrigger>
-                    <TabsTrigger value="achievements" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 py-3 font-bold transition-all">
+                    <TabsTrigger value="achievements">
                         Thành tựu
                     </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="overview" className="mt-0 space-y-6">
+                <TabsContent value="overview" className="mt-6 space-y-6">
                     <div className="grid lg:grid-cols-12 gap-6">
                         {/* Summary & Bio combined */}
                         <div className="lg:col-span-8 space-y-6">
@@ -290,7 +333,7 @@ export default function ProfilePage() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="p-4 rounded-2xl bg-background shadow-sm border border-primary/5 space-y-1">
                                             <p className="text-[10px] font-bold text-muted-foreground uppercase">Hôm nay</p>
-                                            <p className="text-xl font-bold">{gamifyData?.isActiveToday ? 'Đã học' : 'Chưa học'}</p>
+                                            <p className="text-xl font-bold">{streakData?.isActiveToday ? 'Đã học' : 'Chưa học'}</p>
                                         </div>
                                         <div className="p-4 rounded-2xl bg-background shadow-sm border border-primary/5 space-y-1">
                                             <p className="text-[10px] font-bold text-muted-foreground uppercase">Điểm tin cậy</p>
@@ -309,7 +352,7 @@ export default function ProfilePage() {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="learning" className="mt-0">
+                <TabsContent value="learning" className="mt-6">
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {stats.map((stat, index) => (
                             <Card key={index} className="border-none shadow-md hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
@@ -327,7 +370,7 @@ export default function ProfilePage() {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="achievements" className="mt-0">
+                <TabsContent value="achievements" className="mt-6">
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="space-y-6">
                             <h3 className="text-lg font-bold flex items-center gap-2">
@@ -397,14 +440,9 @@ export default function ProfilePage() {
                     bio: bio,
                     location: location,
                     dateOfBirth: dateOfBirth,
-                    avatarUrl: avatarSrc
                 }}
                 onSubmit={(data) => updateProfileMutation.mutate(data)}
-                onUploadAvatar={async (file) => {
-                    await uploadAvatarMutation.mutateAsync(file)
-                }}
                 isSubmitting={updateProfileMutation.isPending}
-                isUploadingAvatar={false} // Managed within mutation state or passed down
             />
         </div>
     )

@@ -37,7 +37,9 @@ export default function LearnersPage() {
         page,
         limit,
         search: debouncedSearch,
-        role: 'learner'
+        role: 'learner',
+        sortBy,
+        sortOrder,
     });
 
     useEffect(() => {

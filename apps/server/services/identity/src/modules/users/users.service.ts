@@ -81,8 +81,8 @@ export class UsersService implements IUsersService {
     /**
      * Find all users with pagination and search
      */
-    async findAll(options: PaginationOptionsDTO & { role?: string }): Promise<PaginatedResponseDTO<UserResponseDTO>> {
-        const { page = 1, limit = 10, search = '', role = '' } = options;
+    async findAll(options: PaginationOptionsDTO & { role?: string; sortBy?: string; sortOrder?: 'asc' | 'desc' }): Promise<PaginatedResponseDTO<UserResponseDTO>> {
+        const { page = 1, limit = 10, search = '', role = '', sortBy = 'updatedAt', sortOrder = 'desc' } = options;
 
         const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
         const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
@@ -104,11 +104,17 @@ export class UsersService implements IUsersService {
             ]
         };
 
+        // Validate sortBy field to prevent SQL injection
+        const validSortFields = ['createdAt', 'updatedAt', 'email', 'displayName', 'role'];
+        const orderByField = validSortFields.includes(sortBy) ? sortBy : 'updatedAt';
+        const orderBy: Prisma.UserOrderByWithRelationInput = { [orderByField]: sortOrder };
+
         const [users, total] = await Promise.all([
             this.usersRepository.findMany({
                 where,
                 skip,
                 take: limitNum,
+                orderBy,
             }),
             this.usersRepository.count(where),
         ]);

@@ -346,15 +346,19 @@ export function useRedeemPoints() {
         mutationFn: (dealId: string) =>
             gamificationApi.redeemPoints(dealId),
         onSuccess: () => {
+            // Invalidate and refetch all related queries to ensure UI updates
             queryClient.invalidateQueries({
                 queryKey: ['gamification-profile'],
             });
             queryClient.invalidateQueries({
+                queryKey: ['gamification-history'],
+            });
+            queryClient.invalidateQueries({
                 queryKey: ['streak'],
             });
-            queryClient.invalidateQueries({ queryKey: ['gamification-profile'] });
-            queryClient.invalidateQueries({ queryKey: ['streak'] });
-            queryClient.invalidateQueries({ queryKey: ['my-coupons'] });
+            queryClient.invalidateQueries({
+                queryKey: ['my-coupons']
+            });
         },
     });
 }
