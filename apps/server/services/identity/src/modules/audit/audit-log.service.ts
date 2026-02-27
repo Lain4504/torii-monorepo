@@ -195,6 +195,25 @@ export class AuditLogService implements IAuditLogService {
     async getEntityActivity(entity: string, entityId: string, limit = 20): Promise<AuditLogActivityDTO[]> {
         return this.auditLogRepository.findByEntity(entity, entityId, limit);
     }
+
+    /**
+     * Delete old audit logs (for cleanup/retention policies)
+     */
+    async cleanupOldLogs(retentionMonths: number): Promise<number> {
+        const date = new Date();
+        date.setMonth(date.getMonth() - retentionMonths);
+
+        this.logger.log(`Cleaning up audit logs older than ${retentionMonths} months (before ${date.toISOString()})`);
+
+        try {
+            const deletedCount = await this.auditLogRepository.deleteOlderThan(date);
+            this.logger.log(`Successfully deleted ${deletedCount} old audit logs`);
+            return deletedCount;
+        } catch (error) {
+            this.logger.error('Failed to cleanup old audit logs:', error);
+            throw error;
+        }
+    }
 }
 
 

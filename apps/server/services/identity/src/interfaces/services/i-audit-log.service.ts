@@ -40,4 +40,11 @@ export interface IAuditLogService {
      * @returns Audit log entries for the entity
      */
     getEntityActivity(entity: string, entityId: string, limit?: number): Promise<AuditLogActivityDTO[]>;
+
+    /**
+     * Delete old audit logs (for cleanup/retention policies)
+     * @param retentionMonths - Delete logs older than this many months
+     * @returns Number of deleted records
+     */
+    cleanupOldLogs(retentionMonths: number): Promise<number>;
 }

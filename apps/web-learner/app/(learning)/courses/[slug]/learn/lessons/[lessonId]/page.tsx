@@ -224,7 +224,13 @@ export default function LessonDetailPage() {
                                         onNext={handleNext}
                                     />
                                     <Separator className="bg-border/30 mb-12" />
-                                    <LessonContent description={currentLesson.description || ''} courseId={course?.id} courseSlug={slug} />
+                                    <LessonContent
+                                        description={currentLesson.description || ''}
+                                        courseId={course?.id}
+                                        courseSlug={slug}
+                                        lessonId={lessonId}
+                                        moduleId={currentLesson.moduleId}
+                                    />
                                 </div>
                             </>
                         ) : currentLesson.contentType === 'assignment' ? (

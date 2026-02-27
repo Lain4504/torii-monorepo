@@ -12,6 +12,7 @@ export const commentCreateDTOSchema = z.object({
     authorId: z.string().uuid().optional(), // Alias
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
+    discussionId: z.string().uuid().optional(),
 });
 
 export type CommentCreateDTO = z.infer<typeof commentCreateDTOSchema>;
@@ -32,6 +33,7 @@ export const commentQueryDTOSchema = z.object({
     sortOrder: z.enum(['asc', 'desc']).optional(),
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
+    discussionId: z.string().uuid().optional(),
 });
 
 export type CommentQueryDTO = z.infer<typeof commentQueryDTOSchema>;
@@ -45,6 +47,7 @@ export const commentResponseDTOSchema: z.ZodType<any> = commentSchema.extend({
     }).optional(),
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
+    discussionId: z.string().uuid().optional(),
     replyCount: z.number().optional().default(0),
     likeCount: z.number().optional().default(0),
     isLiked: z.boolean().optional().default(false),

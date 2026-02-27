@@ -887,7 +887,7 @@ export class CourseService implements ICourseService {
   /**
    * Get course curriculum (modules with lessons)
    */
-  async getCurriculum(courseId: string, userId?: string): Promise<{
+  async getCurriculum(courseId: string, requester?: Requester): Promise<{
     modules: Array<{
       id: string;
       title: string;
@@ -906,6 +906,7 @@ export class CourseService implements ICourseService {
       }>;
     }>;
   }> {
+    const userId = requester?.sub;
     // Verify course exists
     const course = await this.courseRepository.findById(courseId);
     if (!course || course.deletedAt) {
@@ -917,6 +918,12 @@ export class CourseService implements ICourseService {
     let isInstructorForCourse = false;
     let isAdminOrStaff = false;
 
+    if (requester) {
+      isAdminOrStaff = this.hasPermission(requester, 'course.view_restricted') ||
+        this.hasPermission(requester, 'course.publish') ||
+        ['admin', 'staff'].includes(requester.role?.toLowerCase() || '');
+    }
+
     if (userId) {
       try {
         enrollment = await this.enrollmentService.findByUserAndCourse(userId, courseId);
@@ -925,12 +932,10 @@ export class CourseService implements ICourseService {
       }
       try {
         isInstructorForCourse = await this.isInstructor(userId, courseId);
-        // Note: For full accuracy, we'd also check if the user has 'course.publish' permission to act as admin/staff
-        // But for getCurriculum, we can assume instructors see staging/draft, while learners see snapshots.
       } catch (error) { }
     }
 
-    const showDraft = isInstructorForCourse;
+    const showDraft = isInstructorForCourse || isAdminOrStaff;
 
     if (!showDraft) {
       // It's a student or a public user. We should serve from CourseVersion snapshot.
@@ -954,16 +959,22 @@ export class CourseService implements ICourseService {
               description: mod.description || undefined,
               order: mod.orderIndex,
               durationMinutes: mod.durationMinutes || undefined,
-              lessons: (mod.lessons || []).map((lesson: any) => ({
-                id: lesson.id,
-                title: lesson.title,
-                contentType: lesson.contentType,
-                videoDuration: lesson.videoDuration || undefined,
-                videoUrl: (lesson.isPreview || showAllVideoUrl) ? (lesson.videoUrl || undefined) : undefined,
-                order: lesson.orderIndex,
-                isPreview: lesson.isPreview,
-                isUnlocked: lesson.isUnlocked,
-              })),
+              lessons: (mod.lessons || []).map((lesson: any) => {
+                // User with valid enrollment can access all published lessons
+                const isLessonPublished = !lesson.status || lesson.status === 'published';
+                const canAccess = (lesson.isPreview || !!enrollment) && isLessonPublished;
+
+                return {
+                  id: lesson.id,
+                  title: lesson.title,
+                  contentType: lesson.contentType,
+                  videoDuration: lesson.videoDuration || undefined,
+                  videoUrl: (lesson.isPreview || showAllVideoUrl) ? (lesson.videoUrl || undefined) : undefined,
+                  order: lesson.orderIndex,
+                  isPreview: lesson.isPreview,
+                  isUnlocked: canAccess,
+                };
+              }),
             };
           }),
         };
@@ -990,18 +1001,21 @@ export class CourseService implements ICourseService {
           order: module.orderIndex,
           durationMinutes: module.durationMinutes || undefined,
           lessons: lessons.map((lesson) => {
-            // Unlocked if (preview OR enrolled) AND marked unlocked in DB
-            const isAccessible = (lesson.isPreview || !!enrollment) && lesson.isUnlocked;
+            // User with valid enrollment can access all published lessons
+            // Instructors/admins can see draft lessons too
+            const isLessonPublished = !(lesson as any).status || (lesson as any).status === 'published';
+            const isAccessible = lesson.isPreview || !!enrollment || isInstructorForCourse || isAdminOrStaff;
+            const canAccess = isInstructorForCourse || isAdminOrStaff || (isAccessible && isLessonPublished);
 
             return {
               id: lesson.id,
               title: lesson.title,
               contentType: lesson.contentType,
               videoDuration: lesson.videoDuration || undefined,
-              videoUrl: isAccessible ? (lesson.videoUrl || undefined) : undefined,
+              videoUrl: canAccess ? (lesson.videoUrl || undefined) : undefined,
               order: lesson.orderIndex,
               isPreview: lesson.isPreview,
-              isUnlocked: isAccessible,
+              isUnlocked: canAccess,
             };
           }),
         };

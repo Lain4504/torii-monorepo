@@ -7,8 +7,8 @@ import { cn } from '@workspace/ui/lib/utils'
 const levels = [
     {
         level: 'N5',
-        label: 'Khởi đầu',
-        description: 'Lớp khí quyển đầu tiên. Làm quen với bảng chữ cái và giao tiếp căn bản.',
+        label: 'Sơ cấp',
+        description: 'Bước đầu tiên. Làm quen với bảng chữ cái và giao tiếp căn bản hàng ngày.',
         kanji: '100 Kanji',
         hours: '150 giờ học',
         lessons: '25 Module',
@@ -19,7 +19,7 @@ const levels = [
     {
         level: 'N4',
         label: 'Cơ bản',
-        description: 'Vượt khỏi tầng đối lưu. Giao tiếp tự tin trong các tình huống hàng ngày.',
+        description: 'Nâng cao kiến thức. Giao tiếp tự tin trong các tình huống hàng ngày.',
         kanji: '300 Kanji',
         hours: '300 giờ học',
         lessons: '30 Module',
@@ -30,7 +30,7 @@ const levels = [
     {
         level: 'N3',
         label: 'Trung cấp',
-        description: 'Quỹ đạo ổn định. Đọc hiểu văn bản và diễn đạt ý kiến chuyên sâu hơn.',
+        description: 'Trình độ vững chắc. Đọc hiểu văn bản và diễn đạt ý kiến chuyên sâu hơn.',
         kanji: '650 Kanji',
         hours: '450 giờ học',
         lessons: '35 Module',
@@ -42,7 +42,7 @@ const levels = [
     {
         level: 'N2',
         label: 'Cao cấp',
-        description: 'Tiếp cận mặt trăng. Đọc báo, xem tin tức và làm việc chuyên nghiệp.',
+        description: 'Tiến gần thành thạo. Đọc báo, xem tin tức và làm việc chuyên nghiệp.',
         kanji: '1000 Kanji',
         hours: '600 giờ học',
         lessons: '40 Module',
@@ -53,7 +53,7 @@ const levels = [
     {
         level: 'N1',
         label: 'Thành thạo',
-        description: 'Chinh phục vì sao. Giao tiếp như người bản xứ trong mọi lĩnh vực.',
+        description: 'Đỉnh cao ngôn ngữ. Giao tiếp như người bản xứ trong mọi lĩnh vực.',
         kanji: '2000 Kanji',
         hours: '900 giờ học',
         lessons: '50 Module',
@@ -74,18 +74,18 @@ export function CoursesSection() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                     <div className="space-y-4">
                         <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-sm font-medium">
-                            Tầng trình độ JLPT
+                            Các cấp độ JLPT
                         </Badge>
                         <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-                            Trạm Dừng N5 → N1
+                            Lộ Trình N5 → N1
                         </h2>
                         <p className="text-muted-foreground text-lg max-w-xl leading-relaxed">
-                            Mỗi cấp độ là một cột mốc quan trọng trong hành trình khám phá ngôn ngữ của bạn.
+                            Mỗi cấp độ là một bước tiến quan trọng trong hành trình học ngôn ngữ của bạn.
                         </p>
                     </div>
                     <Button variant="outline" asChild className="shrink-0 rounded-xl h-12 px-6">
                         <Link href="/courses">
-                            Khám phá toàn bộ <ArrowRight className="ml-2 size-4" />
+                            Xem tất cả khóa học <ArrowRight className="ml-2 size-4" />
                         </Link>
                     </Button>
                 </div>

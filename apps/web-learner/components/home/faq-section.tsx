@@ -8,11 +8,11 @@ import { cn } from '@workspace/ui/lib/utils'
 const faqs = [
     {
         q: 'Tôi cần trình độ ban đầu như thế nào?',
-        a: 'Torii phù hợp với tất cả mọi người — từ người mới hoàn toàn (N5) đến người muốn chinh phục N1. AI đánh giá trình độ ngay sau đăng ký và tạo lộ trình phù hợp.',
+        a: 'Torii phù hợp với tất cả mọc trình độ — từ người mới hoàn toàn (N5) đến người muốn chinh phục N1. AI đánh giá trình độ ngay sau đăng ký và tạo lộ trình phù hợp.',
     },
     {
-        q: 'Lớp học WebRTC hoạt động như thế nào?',
-        a: 'Lớp học sử dụng công nghệ WebRTC cho phép video call không độ trễ giữa giáo viên và học viên, tích hợp bảng trắng virtual và chia sẻ tài liệu real-time — gần như lớp học trực tiếp.',
+        q: 'Lớp học trực tuyến hoạt động như thế nào?',
+        a: 'Lớp học sử dụng công nghệ video chất lượng cao cho phép tương tác trực tiếp giữa giáo viên và học viên, tích hợp bảng trắng ảo và chia sẻ tài liệu trực tiếp — gần như lớp học trực tiếp.',
     },
     {
         q: 'AI Sensei có thể giúp tôi những gì cụ thể?',
@@ -28,7 +28,7 @@ const faqs = [
     },
     {
         q: 'Tôi có thể học offline không?',
-        a: 'Tài liệu, video bài giảng và Flashcard có thể tải về để học offline. Lớp học WebRTC và AI Sensei cần kết nối internet để hoạt động đầy đủ.',
+        a: 'Tài liệu, video bài giảng và Flashcard có thể tải về để học offline. Lớp học trực tiếp và AI Sensei cần kết nối internet để hoạt động đầy đủ.',
     },
 ]
 

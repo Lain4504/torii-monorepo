@@ -8,6 +8,7 @@ import type {
     DiscussionTopicQueryDTO,
     DiscussionTopicResponseDTO,
     DiscussionTopicPaginatedResponse,
+    DiscussionTopicUpdateDTO,
 } from '@workspace/schemas';
 import { Prisma } from '@prisma/generated';
 
@@ -36,12 +37,13 @@ export class DiscussionService {
             content: dto.content,
             isPinned: dto.isPinned || false,
             isLocked: dto.isLocked || false,
+            category: (dto.category as any) || 'GENERAL',
+            status: (dto.status as any) || 'OPEN',
             course: { connect: { id: dto.courseId } },
             author: { connect: { id: userId } },
             // Connect optional module/lesson if provided
-            ...(dto.moduleId ? { moduleId: dto.moduleId } : {}), // Using direct field assignment if relation update is tricky, or:
-            // module: dto.moduleId ? { connect: { id: dto.moduleId } } : undefined,
-            // lesson: dto.lessonId ? { connect: { id: dto.lessonId } } : undefined,
+            ...(dto.moduleId ? { moduleId: dto.moduleId } : {}),
+            ...(dto.lessonId ? { lessonId: dto.lessonId } : {}),
         });
 
         const created = await this.discussionRepository.findById(discussion.id);
@@ -63,6 +65,12 @@ export class DiscussionService {
         }
         if (query.lessonId) {
             where.lessonId = query.lessonId;
+        }
+        if (query.category) {
+            where.category = query.category as any;
+        }
+        if (query.status) {
+            where.status = query.status as any;
         }
 
         if (query.search) {
@@ -139,5 +147,22 @@ export class DiscussionService {
             this.logger.error(`Failed to delete Discussion ${id}: ${error}`);
             throw error;
         }
+    }
+
+    async updateDiscussion(id: string, dto: DiscussionTopicUpdateDTO): Promise<DiscussionTopicResponseDTO> {
+        const discussion = await this.discussionRepository.findById(id);
+        if (!discussion) throw new NotFoundException('Discussion not found');
+
+        const updated = await this.discussionRepository.update(id, {
+            title: dto.title,
+            content: dto.content,
+            isPinned: dto.isPinned,
+            isLocked: dto.isLocked,
+            category: dto.category as any,
+            status: dto.status as any,
+        });
+
+        const refreshed = await this.discussionRepository.findById(id);
+        return this.mapper.map<any, DiscussionTopicResponseDTO>(refreshed!, 'DiscussionTopic', 'DiscussionTopicResponseDTO');
     }
 }

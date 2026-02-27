@@ -73,15 +73,28 @@ export function Header() {
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
             <div className="container mx-auto px-4 max-w-7xl">
                 <div className="flex h-16 items-center justify-between gap-4">
-                    {/* Brand */}
-                    <Link href="/" className="flex items-center gap-2.5 shrink-0">
+                    {/* Mobile: Hamburger Menu (Left) */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="lg:hidden shrink-0"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+                    </Button>
+
+                    {/* Brand - Desktop: Left, Mobile: Center */}
+                    <Link href="/" className={cn(
+                        "flex items-center gap-2.5 shrink-0",
+                        "lg:order-none absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0"
+                    )}>
                         <Image src="/logo.png" alt="Torii Nihongo" width={36} height={36} className="rounded-lg" />
-                        <span className="font-bold text-lg tracking-tight hidden sm:inline">
-                            Torii <span className="text-primary">Nihongo</span>
+                        <span className="font-bold text-lg tracking-tight">
+                            Torii <span className="text-primary hidden sm:inline">Nihongo</span>
                         </span>
                     </Link>
 
-                    {/* Nav - Centered */}
+                    {/* Nav - Centered (Desktop only) */}
                     <nav className="hidden lg:flex items-center justify-center flex-1 gap-2">
                         {navigation.map((item) => (
                             <Button
@@ -98,16 +111,15 @@ export function Header() {
                         ))}
                     </nav>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-3 shrink-0 justify-end">
-                        {/* Balance */}
+                    {/* Actions - Desktop: Right with all items, Mobile: Right with avatar only */}
+                    <div className="flex items-center gap-3 shrink-0 justify-end ml-auto">
+                        {/* Balance - Desktop only */}
                         {isAuthenticated && (
-                            <Link href="/dashboard/wallet" className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-md bg-muted text-xs font-bold border hover:bg-muted/80 transition-colors">
+                            <Link href="/dashboard/wallet" className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-md bg-muted text-xs font-bold border hover:bg-muted/80 transition-colors">
                                 <Coins className="size-4 text-amber-500" />
                                 {formatNumber((user as any)?.balance || 0)}
                             </Link>
                         )}
-
 
                         {/* User Menu / Auth Buttons */}
                         {isAuthenticated ? (
@@ -172,7 +184,7 @@ export function Header() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
-                            <div className="hidden sm:flex items-center gap-2">
+                            <div className="hidden lg:flex items-center gap-2">
                                 <Button variant="ghost" size="sm" asChild>
                                     <Link href="/login">Đăng nhập</Link>
                                 </Button>
@@ -181,16 +193,6 @@ export function Header() {
                                 </Button>
                             </div>
                         )}
-
-                        {/* Mobile Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="lg:hidden"
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        >
-                            {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-                        </Button>
                     </div>
                 </div>
             </div>

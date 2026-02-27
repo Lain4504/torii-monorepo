@@ -12,14 +12,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/componen
 import { cn } from '@workspace/ui/lib/utils'
 import { Badge } from '@workspace/ui/components/badge'
 import { CourseAssignmentsList } from './course-assignments-list'
+import { LessonDiscussion } from './lesson-discussion'
 
 interface LessonContentProps {
     description: string;
     courseId?: string;
     courseSlug?: string;
+    lessonId?: string;
+    moduleId?: string;
 }
 
-export function LessonContent({ description, courseId, courseSlug }: LessonContentProps) {
+export function LessonContent({ description, courseId, courseSlug, lessonId, moduleId }: LessonContentProps) {
     return (
         <Tabs defaultValue="content" className="w-full">
             <TabsList>
@@ -111,23 +114,21 @@ export function LessonContent({ description, courseId, courseSlug }: LessonConte
             </TabsContent>
 
             <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-2 duration-300 outline-none mt-6">
-                <div className="flex flex-col items-center justify-center p-12 text-center space-y-4 rounded-lg border bg-muted/20">
-                    <div className="size-16 bg-background rounded-lg flex items-center justify-center border shadow-sm">
-                        <MessageSquare className="size-8 text-primary/40" />
+                {lessonId && courseId ? (
+                    <LessonDiscussion courseId={courseId} moduleId={moduleId} lessonId={lessonId} />
+                ) : (
+                    <div className="flex flex-col items-center justify-center p-12 text-center space-y-4 rounded-lg border bg-muted/20">
+                        <div className="size-16 bg-background rounded-lg flex items-center justify-center border shadow-sm">
+                            <MessageSquare className="size-8 text-primary/40" />
+                        </div>
+                        <div className="space-y-2">
+                            <h4 className="text-sm font-bold text-primary uppercase tracking-widest">Diễn đàn thảo luận</h4>
+                            <p className="text-2xl font-bold text-foreground tracking-tight">
+                                Không thể tải thảo luận
+                            </p>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <h4 className="text-sm font-bold text-primary uppercase tracking-widest">Diễn đàn thảo luận</h4>
-                        <p className="text-2xl font-bold text-foreground tracking-tight">
-                            Tham gia trao đổi kiến thức
-                        </p>
-                        <p className="text-xs text-muted-foreground font-medium max-w-sm mx-auto">
-                            Tương tác với các học viên khác và đội ngũ giảng viên chuyên môn để giải đáp thắc mắc.
-                        </p>
-                    </div>
-                    <Button variant="outline">
-                        Bắt đầu thảo luận
-                    </Button>
-                </div>
+                )}
             </TabsContent>
         </Tabs>
     );

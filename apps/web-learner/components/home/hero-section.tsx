@@ -40,11 +40,11 @@ export function HeroSection() {
                                 Học Tiếng Nhật.
                                 <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-primary/60">
-                                    Nhận Tương Lai.
+                                    Đổi Đời Tương Lai.
                                 </span>
                             </h1>
                             <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
-                                Nền tảng AI kết hợp lớp học WebRTC và lộ trình JLPT cá nhân hóa — giúp bạn chinh phục tiếng Nhật nhanh hơn <strong className="text-foreground">50%</strong>.
+                                Nền tảng học trực tuyến với công nghệ AI, lớp học video tương tác và lộ trình JLPT cá nhân hóa — giúp bạn đạt mục tiêu nhanh hơn <strong className="text-foreground">50%</strong>.
                             </p>
                         </div>
 
@@ -95,22 +95,18 @@ export function HeroSection() {
 
                     {/* RIGHT: Mascot visual */}
                     <div className="relative flex items-center justify-center">
-                        {/* Glow behind logo */}
+                        {/* Glow behind image */}
                         <div className="absolute size-80 rounded-full bg-primary/8 blur-3xl" />
                         <div className="absolute size-56 rounded-full bg-primary/5 blur-2xl" />
 
-                        {/* Orbit ring decoration */}
-                        <div className="absolute size-72 rounded-full border border-dashed border-primary/15 animate-spin" style={{ animationDuration: '30s' }} />
-                        <div className="absolute size-96 rounded-full border border-dashed border-primary/8 animate-spin" style={{ animationDuration: '50s', animationDirection: 'reverse' }} />
-
-                        {/* Logo */}
+                        {/* Hero Image */}
                         <div className="relative z-10">
                             <Image
-                                src="/logo.png"
-                                alt="Torii Nihongo Mascot"
-                                width={300}
-                                height={300}
-                                className="object-contain drop-shadow-xl"
+                                src="/herobanner.jpeg"
+                                alt="Phi hành gia hướng dẫn học tiếng Nhật"
+                                width={400}
+                                height={500}
+                                className="object-contain drop-shadow-2xl"
                                 priority
                             />
                         </div>
@@ -122,7 +118,7 @@ export function HeroSection() {
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-foreground leading-tight">Đỗ JLPT N2</p>
-                                <p className="text-[10px] text-muted-foreground">chỉ sau 6 tháng học</p>
+                                <p className="text-[10px] text-muted-foreground">chỉ sau 6 tháng</p>
                             </div>
                         </div>
 

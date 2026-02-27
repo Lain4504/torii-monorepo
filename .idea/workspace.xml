@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused community navigation item and clean up related files" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <change afterPath="$PROJECT_DIR$/apps/web-learner/public/herobanner.jpeg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/home/hero-section.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -153,7 +157,7 @@
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/test-app/next-app",
+    "last_opened_file_path": "E:/projectdev/demo/team-source/torii-monorepo/apps/web-learner/public",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -185,18 +189,18 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
       <recent name="E:\projectdev\demo\team-source\torii-monorepo" />
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public\images" />
       <recent name="$PROJECT_DIR$/apps/server/modules/communication/handlers" />
       <recent name="$PROJECT_DIR$/apps/server/modules/learning/src/handlers" />
       <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/handlers" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/storage/src/handlers" />
     </key>
   </component>
   <component name="RunManager" selected="JavaScript Debug.localhost:3000">
@@ -401,102 +405,6 @@
       <workItem from="1772116512598" duration="1351000" />
       <workItem from="1772173061622" duration="2604000" />
       <workItem from="1772200330099" duration="390000" />
-    </task>
-    <task id="LOCAL-00840" summary="refactor: update container widths and improve layout consistency across multiple sections">
-      <option name="closed" value="true" />
-      <created>1771687963435</created>
-      <option name="number" value="00840" />
-      <option name="presentableId" value="LOCAL-00840" />
-      <option name="project" value="LOCAL" />
-      <updated>1771687963437</updated>
-    </task>
-    <task id="LOCAL-00841" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
-      <option name="closed" value="true" />
-      <created>1771689574854</created>
-      <option name="number" value="00841" />
-      <option name="presentableId" value="LOCAL-00841" />
-      <option name="project" value="LOCAL" />
-      <updated>1771689574854</updated>
-    </task>
-    <task id="LOCAL-00842" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
-      <option name="closed" value="true" />
-      <created>1771690012748</created>
-      <option name="number" value="00842" />
-      <option name="presentableId" value="LOCAL-00842" />
-      <option name="project" value="LOCAL" />
-      <updated>1771690012748</updated>
-    </task>
-    <task id="LOCAL-00843" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
-      <option name="closed" value="true" />
-      <created>1771690467294</created>
-      <option name="number" value="00843" />
-      <option name="presentableId" value="LOCAL-00843" />
-      <option name="project" value="LOCAL" />
-      <updated>1771690467294</updated>
-    </task>
-    <task id="LOCAL-00844" summary="refactor: update text labels to Vietnamese for consistency across multiple components">
-      <option name="closed" value="true" />
-      <created>1771691195864</created>
-      <option name="number" value="00844" />
-      <option name="presentableId" value="LOCAL-00844" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691195864</updated>
-    </task>
-    <task id="LOCAL-00845" summary="refactor: update text labels to Vietnamese for consistency across multiple components">
-      <option name="closed" value="true" />
-      <created>1771691235973</created>
-      <option name="number" value="00845" />
-      <option name="presentableId" value="LOCAL-00845" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691235973</updated>
-    </task>
-    <task id="LOCAL-00846" summary="refactor: update button styles and labels for consistency across multiple sheets">
-      <option name="closed" value="true" />
-      <created>1771691864181</created>
-      <option name="number" value="00846" />
-      <option name="presentableId" value="LOCAL-00846" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691864182</updated>
-    </task>
-    <task id="LOCAL-00847" summary="refactor: update button styles and labels for consistency across multiple sheets">
-      <option name="closed" value="true" />
-      <created>1771692003490</created>
-      <option name="number" value="00847" />
-      <option name="presentableId" value="LOCAL-00847" />
-      <option name="project" value="LOCAL" />
-      <updated>1771692003490</updated>
-    </task>
-    <task id="LOCAL-00848" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771692669428</created>
-      <option name="number" value="00848" />
-      <option name="presentableId" value="LOCAL-00848" />
-      <option name="project" value="LOCAL" />
-      <updated>1771692669428</updated>
-    </task>
-    <task id="LOCAL-00849" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693019683</created>
-      <option name="number" value="00849" />
-      <option name="presentableId" value="LOCAL-00849" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693019684</updated>
-    </task>
-    <task id="LOCAL-00850" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693198458</created>
-      <option name="number" value="00850" />
-      <option name="presentableId" value="LOCAL-00850" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693198458</updated>
-    </task>
-    <task id="LOCAL-00851" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693324764</created>
-      <option name="number" value="00851" />
-      <option name="presentableId" value="LOCAL-00851" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693324764</updated>
     </task>
     <task id="LOCAL-00852" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
       <option name="closed" value="true" />
@@ -794,7 +702,103 @@
       <option name="project" value="LOCAL" />
       <updated>1772203459312</updated>
     </task>
-    <option name="localTasksCounter" value="889" />
+    <task id="LOCAL-00889" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772207360946</created>
+      <option name="number" value="00889" />
+      <option name="presentableId" value="LOCAL-00889" />
+      <option name="project" value="LOCAL" />
+      <updated>1772207360948</updated>
+    </task>
+    <task id="LOCAL-00890" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772208111011</created>
+      <option name="number" value="00890" />
+      <option name="presentableId" value="LOCAL-00890" />
+      <option name="project" value="LOCAL" />
+      <updated>1772208111012</updated>
+    </task>
+    <task id="LOCAL-00891" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772208659106</created>
+      <option name="number" value="00891" />
+      <option name="presentableId" value="LOCAL-00891" />
+      <option name="project" value="LOCAL" />
+      <updated>1772208659107</updated>
+    </task>
+    <task id="LOCAL-00892" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772209204318</created>
+      <option name="number" value="00892" />
+      <option name="presentableId" value="LOCAL-00892" />
+      <option name="project" value="LOCAL" />
+      <updated>1772209204318</updated>
+    </task>
+    <task id="LOCAL-00893" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772209405350</created>
+      <option name="number" value="00893" />
+      <option name="presentableId" value="LOCAL-00893" />
+      <option name="project" value="LOCAL" />
+      <updated>1772209405350</updated>
+    </task>
+    <task id="LOCAL-00894" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772209747932</created>
+      <option name="number" value="00894" />
+      <option name="presentableId" value="LOCAL-00894" />
+      <option name="project" value="LOCAL" />
+      <updated>1772209747932</updated>
+    </task>
+    <task id="LOCAL-00895" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772210136822</created>
+      <option name="number" value="00895" />
+      <option name="presentableId" value="LOCAL-00895" />
+      <option name="project" value="LOCAL" />
+      <updated>1772210136823</updated>
+    </task>
+    <task id="LOCAL-00896" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772210386517</created>
+      <option name="number" value="00896" />
+      <option name="presentableId" value="LOCAL-00896" />
+      <option name="project" value="LOCAL" />
+      <updated>1772210386523</updated>
+    </task>
+    <task id="LOCAL-00897" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772210850343</created>
+      <option name="number" value="00897" />
+      <option name="presentableId" value="LOCAL-00897" />
+      <option name="project" value="LOCAL" />
+      <updated>1772210850344</updated>
+    </task>
+    <task id="LOCAL-00898" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772211017862</created>
+      <option name="number" value="00898" />
+      <option name="presentableId" value="LOCAL-00898" />
+      <option name="project" value="LOCAL" />
+      <updated>1772211017862</updated>
+    </task>
+    <task id="LOCAL-00899" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772211222857</created>
+      <option name="number" value="00899" />
+      <option name="presentableId" value="LOCAL-00899" />
+      <option name="project" value="LOCAL" />
+      <updated>1772211222858</updated>
+    </task>
+    <task id="LOCAL-00900" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772211562041</created>
+      <option name="number" value="00900" />
+      <option name="presentableId" value="LOCAL-00900" />
+      <option name="project" value="LOCAL" />
+      <updated>1772211562042</updated>
+    </task>
+    <option name="localTasksCounter" value="901" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -829,7 +833,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: update text labels to Vietnamese for consistency across multiple components" />
     <MESSAGE value="refactor: update button styles and labels for consistency across multiple sheets" />
     <MESSAGE value="rules" />
     <MESSAGE value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
@@ -854,7 +857,8 @@
     <MESSAGE value="refactor storage service" />
     <MESSAGE value="refactor: restructure course DTOs and add search request schema" />
     <MESSAGE value="refactor: remove unused community navigation item and clean up related files" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove unused community navigation item and clean up related files" />
+    <MESSAGE value="feat: implement scheduled cleanup for old audit logs with retention policy" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement scheduled cleanup for old audit logs with retention policy" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

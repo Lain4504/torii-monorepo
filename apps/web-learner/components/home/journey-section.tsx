@@ -4,27 +4,27 @@ import { Badge } from '@workspace/ui/components/badge'
 const steps = [
     {
         icon: Rocket,
-        step: 'Mission 01',
-        title: 'Ghi danh & Khởi hành',
-        description: 'Chỉ mất 30 giây để thiết lập phi thuyền của bạn. AI đánh giá trình độ và chuẩn bị nhiên liệu học tập cho hành trình phía trước.',
+        step: 'Bước 01',
+        title: 'Đăng ký & Bắt đầu',
+        description: 'Chỉ mất 30 giây để tạo tài khoản. Hệ thống AI đánh giá trình độ và chuẩn bị lộ trình học tập phù hợp cho bạn.',
     },
     {
         icon: Map,
-        step: 'Mission 02',
-        title: 'Vẽ bản đồ quỹ đạo',
-        description: 'Dựa trên mục tiêu JLPT của bạn, hệ thống AI tính toán lộ trình tối ưu nhất — tránh những "hố đen" kiến thức và tối ưu thời gian học.',
+        step: 'Bước 02',
+        title: 'Tạo lộ trình học tập',
+        description: 'Dựa trên mục tiêu JLPT của bạn, hệ thống AI tạo lộ trình tối ưu nhất — tập trung vào điểm yếu và tối ưu thời gian học.',
     },
     {
         icon: Activity,
-        step: 'Mission 03',
-        title: 'Hành trình khám phá',
-        description: 'Tham gia lớp học trực tuyến WebRTC, thu thập kiến thức qua Flashcard SRS và nhận chỉ dẫn 24/7 từ trung tâm điều khiển AI Sensei.',
+        step: 'Bước 03',
+        title: 'Học tập & Thực hành',
+        description: 'Tham gia lớp học trực tuyến, học tập qua Flashcard SRS và nhận hướng dẫn 24/7 từ AI Sensei.',
     },
     {
         icon: Flag,
-        step: 'Mission 04',
-        title: 'Đổ bộ & Chạm đích',
-        description: 'Vượt qua bài thi mô phỏng, nhận chứng chỉ Torii và tự tin đổ bộ vào kỳ thi JLPT thực tế với tỉ lệ đỗ cao nhất.',
+        step: 'Bước 04',
+        title: 'Thi thử & Đạt mục tiêu',
+        description: 'Vượt qua bài thi mô phỏng, nhận chứng chỉ Torii và tự tin tham gia kỳ thi JLPT thực tế với tỉ lệ đỗ cao nhất.',
     },
 ]
 
@@ -39,13 +39,13 @@ export function JourneySection() {
                 {/* Header */}
                 <div className="max-w-xl mx-auto text-center mb-20 space-y-3">
                     <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-sm font-medium">
-                        Hành trình chinh phục
+                        Hành trình học tập
                     </Badge>
                     <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-                        4 Giai Đoạn Vượt Vũ Trụ
+                        4 Bước Đến Thành Công
                     </h2>
                     <p className="text-muted-foreground text-lg leading-relaxed">
-                        Quy trình học tập khoa học giúp bạn bay xa hơn trên con đường tiếng Nhật.
+                        Quy trình học tập khoa học giúp bạn tiến bộ nhanh hơn trên con đường tiếng Nhật.
                     </p>
                 </div>
 

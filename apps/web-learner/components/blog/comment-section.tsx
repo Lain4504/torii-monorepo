@@ -22,10 +22,11 @@ import { cn } from '@workspace/ui/lib/utils'
 interface CommentSectionProps {
     blogId?: string
     feedId?: string
+    discussionId?: string
     onCommentCountChange?: (delta: number) => void
 }
 
-export function CommentSection({ blogId, feedId, onCommentCountChange }: CommentSectionProps) {
+export function CommentSection({ blogId, feedId, discussionId, onCommentCountChange }: CommentSectionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const [comments, setComments] = useState<CommentResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
@@ -39,7 +40,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
             const response = await commentApi.findAll({
                 page: 1,
                 limit: 100,
-                ...(blogId ? { blogId } : { feedId }),
+                ...(blogId ? { blogId } : feedId ? { feedId } : { discussionId }),
             })
 
             // Flatten nested structure: backend returns root comments with nested replies
@@ -71,10 +72,10 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
     }
 
     useEffect(() => {
-        if (blogId || feedId) {
+        if (blogId || feedId || discussionId) {
             fetchComments()
         }
-    }, [blogId, feedId])
+    }, [blogId, feedId, discussionId])
 
     const handleSubmitComment = async (content: string, parentId?: string) => {
         if (!content.trim()) {
@@ -94,7 +95,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
             }
 
             const newComment = await commentApi.create({
-                ...(blogId ? { blogId } : { feedId: feedId! }),
+                ...(blogId ? { blogId } : feedId ? { feedId: feedId! } : { discussionId: discussionId! }),
                 userId: user.id,
                 content: content.trim(),
                 parentId: parentId || undefined,
@@ -242,7 +243,7 @@ export function CommentSection({ blogId, feedId, onCommentCountChange }: Comment
                             user={user}
                             onUpdateComment={handleUpdateComment}
                             onDeleteComment={handleDeleteComment}
-                            canLike={!!blogId || !!feedId}
+                            canLike={!!blogId || !!feedId || !!discussionId}
                         />
                     ))
                 ) : (

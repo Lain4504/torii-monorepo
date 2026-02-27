@@ -41,7 +41,7 @@ export class LessonController {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
-                    { cmd: 'learning.lesson.findAll' },
+                    { cmd: 'learning.lesson.search' },
                     dto
                 )
             );
@@ -63,7 +63,7 @@ export class LessonController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.findAll' },
-                    { page, limit, search, moduleId, contentType }
+                    { page, limit, search }
                 )
             );
             return successPaginatedResponse(result);

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
 import { SharedModule } from '@server/shared';
@@ -20,6 +21,7 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     AutomapperModule.forRoot({
       strategyInitializer: pojos(),
     }),

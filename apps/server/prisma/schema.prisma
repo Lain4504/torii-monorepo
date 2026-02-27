@@ -1126,6 +1126,19 @@ enum CommentTargetType {
   LESSON
 }
 
+enum DiscussionTopicStatus {
+  OPEN
+  ANSWERED
+  RESOLVED
+  CLOSED
+}
+
+enum DiscussionTopicCategory {
+  GENERAL
+  QUESTION
+  ANNOUNCEMENT
+}
+
 // Comments - Comments on posts with nested replies support
 model Comment {
   id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -1178,6 +1191,10 @@ model DiscussionTopic {
   moduleId String? @map("module_id") @db.Uuid
   lessonId String? @map("lesson_id") @db.Uuid
 
+  // Categorization & Status
+  category DiscussionTopicCategory @default(GENERAL)
+  status   DiscussionTopicStatus   @default(OPEN)
+
   // Status
   isPinned     Boolean @default(false) @map("is_pinned")
   isLocked     Boolean @default(false) @map("is_locked")
@@ -1195,6 +1212,8 @@ model DiscussionTopic {
   @@index([moduleId])
   @@index([lessonId])
   @@index([authorId])
+  @@index([status])
+  @@index([category])
   @@index([createdAt(sort: Desc)])
   @@map("discussion_topics")
 }

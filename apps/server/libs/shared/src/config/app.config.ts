@@ -88,6 +88,7 @@ const ConfigSchema = z.object({
             password: z.string().default('admin123'),
             displayName: z.string().default('System Administrator'),
         }),
+        auditLogRetentionMonths: z.number().default(6),
     }),
     upload: z.object({
         maxSizeMb: z.number().default(100),

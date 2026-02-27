@@ -23,7 +23,7 @@ const mockReviews: Review[] = [
         name: 'Trần Minh Quân',
         role: 'Học viên',
         result: 'Đỗ JLPT N3 sau 5 tháng',
-        content: 'AI Sensei là cuộc cách mạng thật sự. Mình hỏi một câu về ngữ pháp lúc 2 giờ sáng và được giải thích chi tiết ngay lập tức — điều này không thể có ở bất kỳ trung tâm nào.',
+        content: 'AI Sensei thật tuyệt vời. Mình hỏi một câu về ngữ pháp lúc 2 giờ sáng và được giải thích chi tiết ngay lập tức — điều này không thể có ở bất kỳ trung tâm nào.',
         rating: 5,
         avatar: 'MQ',
     },
@@ -39,7 +39,7 @@ const mockReviews: Review[] = [
         name: 'Nguyễn Hoàng Nam',
         role: 'Kỹ sư phần mềm',
         result: 'Làm việc tại Nhật sau N2',
-        content: 'Lớp học WebRTC khác hoàn toàn so với Zoom hay Meet thông thường. Tương tác với giáo viên qua bảng trắng ảo rất trực quan — cảm giác gần như ngồi học trực tiếp.',
+        content: 'Lớp học trực tuyến chất lượng cao, không bị giật lag. Tương tác với giáo viên qua bảng trắng ảo rất trực quan — cảm giác gần như ngồi học trực tiếp.',
         rating: 5,
         avatar: 'HN',
     },
@@ -92,7 +92,7 @@ export function TestimonialsSection() {
                             </span>
                         </h2>
                         <p className="text-muted-foreground text-lg leading-relaxed">
-                            Không phải lời hứa từ chúng tôi — mà là kết quả thật từ các học viên đã trải nghiệm.
+                            Kết quả thật sự từ các học viên đã học tại Torii.
                         </p>
 
                         {/* Navigation */}

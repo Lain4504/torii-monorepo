@@ -144,10 +144,11 @@ export interface ICourseService {
     /**
      * Get course curriculum (modules with lessons)
      * @param courseId - The course's unique identifier
+     * @param requester - The user making the request
      * @returns The curriculum data with modules and lessons
      * @throws NotFoundException if course not found
      */
-    getCurriculum(courseId: string, userId?: string): Promise<{
+    getCurriculum(courseId: string, requester?: Requester): Promise<{
         modules: Array<{
             id: string;
             title: string;
