@@ -1,340 +1,462 @@
-"use client"
+'use client';
 
-import {
-    CheckCircle,
-    ChevronRight,
-    Home,
-    Star,
-    PlayCircle,
-    FileQuestion,
-    BrainCircuit,
-    Signal,
-    Clock,
-    BookOpen,
-    Award,
-    ChevronDown
-} from "lucide-react"
-import Link from "next/link"
-import { useCourseBySlug, useCurriculum } from "@/lib/api/services/course-api"
-import { useCourseReviews } from "@/lib/api/services/review-api"
-import { Skeleton } from "@workspace/ui/components/skeleton"
-import { useState } from "react"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
+import React, { useState, useEffect } from 'react';
 
-interface CourseDetailClientProps {
-    slug: string
-}
+export function CourseDetailClient({ slug }: { slug: string }) {
+    const [isSticky, setIsSticky] = useState(false);
+    const [openAccordion, setOpenAccordion] = useState<number | null>(1);
 
-export function CourseDetailClient({ slug }: CourseDetailClientProps) {
-    const [isCurriculumOpen, setIsCurriculumOpen] = useState<Record<string, boolean>>({});
-
-    const { data: course, isLoading: isLoadingCourse, isError: isErrorCourse } = useCourseBySlug(slug);
-    const { data: curriculum, isLoading: isLoadingCurriculum } = useCurriculum(course?.id);
-    const { data: reviewsData, isLoading: isLoadingReviews } = useCourseReviews(course?.id);
-
-    const toggleModule = (moduleId: string) => {
-        setIsCurriculumOpen(prev => ({ ...prev, [moduleId]: !prev[moduleId] }));
-    };
-
-    if (isLoadingCourse) {
-        return (
-            <div className="container mx-auto px-4 lg:px-10 py-6 space-y-8">
-                <Skeleton className="h-6 w-1/3" />
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 space-y-6">
-                        <Skeleton className="aspect-video w-full rounded-xl" />
-                        <Skeleton className="h-10 w-2/3" />
-                        <Skeleton className="h-24 w-full" />
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (isErrorCourse || !course) {
-        return (
-            <div className="container mx-auto px-4 py-20 text-center">
-                <h2 className="text-2xl font-bold mb-4">Không tìm thấy khóa học</h2>
-                <Link href="/courses" className="text-primary hover:underline">
-                    Quay lại danh sách khóa học
-                </Link>
-            </div>
-        );
-    }
-
-    const learningOutcomes = Array.isArray(course.learningOutcomes) ? course.learningOutcomes : [];
-    const requirements = Array.isArray(course.requirements) ? course.requirements : [];
-    const reviews = reviewsData?.data || [];
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsSticky(window.scrollY > 500);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     return (
-        <main className="container mx-auto px-4 lg:px-10 py-6">
-            {/* Breadcrumbs */}
-            <nav className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-8">
-                <Link href="/" className="hover:text-primary flex items-center gap-1">
-                    <Home className="size-4" />
-                    Trang chủ
-                </Link>
-                <ChevronRight className="size-4" />
-                <Link href="/courses" className="hover:text-primary">
-                    Khóa học
-                </Link>
-                <ChevronRight className="size-4" />
-                <span className="text-slate-900 dark:text-slate-100 font-medium">{course.title}</span>
-            </nav>
+        <>
+            <style>{`
+        /* Smooth scrolling for anchor links */
+        html { scroll-behavior: smooth; }
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column */}
-                <div className="lg:col-span-2 space-y-10">
-                    {/* Hero Section */}
-                    <section className="space-y-6">
-                        <div className="relative aspect-video w-full overflow-hidden rounded-xl shadow-2xl">
-                            {course.thumbnailUrl ? (
-                                <img
-                                    src={course.thumbnailUrl}
-                                    alt={course.title}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5" />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
-                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary text-white text-xs font-bold w-fit mb-4 uppercase tracking-wider">
-                                    {course.jlptLevel || "Tổng quát"}
+        /* Sticky header shadow transition */
+        .sticky-nav-active {
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+          background-color: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(4px);
+          transform: translateY(0);
+          transition: all 0.3s ease;
+        }
+
+        /* Accordion styles mimic shadcn */
+        .accordion-content {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease-out;
+        }
+        .accordion-item.open .accordion-content {
+          max-height: 1000px;
+        }
+        .accordion-item.open .accordion-icon {
+          transform: rotate(180deg);
+        }
+      `}</style>
+
+            <div className="bg-slate-50 text-slate-900 antialiased font-sans">
+
+                {/*  BEGIN: Sticky Navigation  */}
+                <nav className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 transform transition-transform duration-300 md:block hidden ${isSticky ? 'sticky-nav-active' : '-translate-y-full'}`} data-purpose="sticky-header" id="sticky-header">
+                    <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <span className="text-xs font-semibold text-[oklch(0.55_0.15_15)] uppercase tracking-wider">Khóa học N3 Cấp tốc</span>
+                            <h2 className="text-sm font-bold truncate max-w-md">Luyện thi JLPT N3: Chinh phục tiếng Nhật trung cấp</h2>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right">
+                                <span className="block text-xs text-slate-500 line-through">1.800.000 ₫</span>
+                                <span className="block text-lg font-bold text-[oklch(0.55_0.15_15)]">1.200.000 ₫</span>
+                            </div>
+                            <button className="bg-[oklch(0.55_0.15_15)] hover:bg-[oklch(0.55_0.15_15)]Dark text-white px-6 py-2.5 rounded-lg font-bold transition-colors shadow-lg shadow-[oklch(0.55_0.15_15)]/20">
+                                Đăng ký ngay
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+                {/*  END: Sticky Navigation  */}
+                {/*  BEGIN: Hero Section  */}
+                <section className="relative bg-slate-900 text-white overflow-hidden" data-purpose="hero-section">
+                    {/*  Background Image with Overlay  */}
+                    <div className="absolute inset-0 z-0">
+                        <img alt="Course Thumbnail" className="w-full h-full object-cover opacity-40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH0qfeLJSZfv7vTOwYySWjp8dGMkc3Ddv5HZYDTDgUnhjKXc0WtE6-PbGJzXPwKfLsqEw6mTBSH0DHB6G7Bf84UkKmS0bKFAc2ik5J99nXD2wR6uKzCdYhiPwCdsS8leRQAavd6Q51EhvfcBUkTp-Mvspq-v8fQbUFCmOdKbawQFKgp5JtA05mp2hlhFFAq9i1WOpJNjb03fqYbu4crZtoN8lur6reRwaDho34B3dPsbznIRP5E2rIIsGyrCfb7tRRPJmjsRHckWo" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                    </div>
+                    <div className="relative z-10 max-w-7xl mx-auto px-4 pt-12 pb-16 md:pt-20 md:pb-24">
+                        {/*  Breadcrumbs  */}
+                        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-300 mb-6">
+                            <a className="hover:text-white transition-colors" href="#">Trang chủ</a>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                            <a className="hover:text-white transition-colors" href="#">Khóa học</a>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                            <span className="text-white font-medium">Luyện thi JLPT N3</span>
+                        </nav>
+                        <div className="grid lg:grid-cols-3 gap-12 items-center">
+                            <div className="lg:col-span-2">
+                                {/*  JLPT Badge  */}
+                                <span className="inline-block px-3 py-1 rounded-full bg-blue-600 text-xs font-bold uppercase tracking-widest mb-4">
+                                    Trình độ N3
                                 </span>
-                                <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
-                                    {course.title}
-                                    <br />
-                                    <span className="text-2xl font-semibold opacity-90">{course.aiMetadata?.titleEn || "Japanese Course"}</span>
-                                </h2>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-6">
-                            <div className="flex items-center gap-3">
-                                <div className="size-12 rounded-full ring-2 ring-primary/20 bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-xl font-bold">
-                                    {course.lecturer?.displayName?.split(' ').map(n => n[0]).join('') || "T"}
-                                </div>
-                                <div>
-                                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Instructor</p>
-                                    <p className="font-semibold">{course.lecturer?.displayName || "Torii Instructor"}</p>
-                                </div>
-                            </div>
-                            <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
-                            <div className="flex flex-col">
-                                <div className="flex items-center gap-1 text-yellow-500">
-                                    <Star className="size-5 fill-current" />
-                                    <span className="font-bold text-slate-900 dark:text-slate-100">{Number(course.averageRating).toFixed(1)}</span>
-                                    <span className="text-slate-400 font-normal ml-1">({course.totalReviews} reviews)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-300">
-                            {course.description || course.shortDescription}
-                        </p>
-                    </section>
-
-                    {/* What You'll Learn */}
-                    {learningOutcomes.length > 0 && (
-                        <section className="bg-white dark:bg-slate-900/50 p-8 rounded-xl border border-slate-200 dark:border-slate-800">
-                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                                <CheckCircle className="text-primary" />
-                                Nội dung học tập (What You'll Learn)
-                            </h3>
-                            <div className="grid sm:grid-cols-2 gap-4">
-                                {learningOutcomes.map((outcome: any, index: number) => (
-                                    <div key={index} className="flex gap-3">
-                                        <CheckCircle className="text-primary text-sm mt-1 shrink-0" />
-                                        <p className="text-sm">
-                                            {typeof outcome === 'string' ? outcome : (outcome.jp || JSON.stringify(outcome))}
-                                            <br />
-                                            <span className="text-slate-500">{typeof outcome === 'object' ? outcome.en : ""}</span>
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-                    {/* Curriculum */}
-                    <section className="space-y-4">
-                        <h3 className="text-xl font-bold mb-6">Chương trình học (Curriculum)</h3>
-                        {isLoadingCurriculum ? (
-                            <div className="space-y-3">
-                                <Skeleton className="h-14 w-full rounded-xl" />
-                                <Skeleton className="h-14 w-full rounded-xl" />
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {curriculum?.modules.map((module) => (
-                                    <div key={module.id} className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900/30">
-                                        <button
-                                            onClick={() => toggleModule(module.id)}
-                                            className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                                        >
-                                            <span className="font-bold">{module.title}</span>
-                                            <ChevronDown className={`size-5 transition-transform ${isCurriculumOpen[module.id] ? 'rotate-180' : ''}`} />
-                                        </button>
-                                        {isCurriculumOpen[module.id] && module.lessons.length > 0 && (
-                                            <div className="px-4 pb-4 space-y-3">
-                                                {module.lessons.map((lesson, idx) => (
-                                                    <div
-                                                        key={idx}
-                                                        className={`flex items-center justify-between p-3 rounded-lg text-sm ${lesson.isPreview
-                                                            ? 'bg-primary/5 border border-primary/20'
-                                                            : 'bg-slate-50 dark:bg-slate-800/80'
-                                                            }`}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            {lesson.contentType === 'video' && <PlayCircle className="text-blue-500 size-5" />}
-                                                            {lesson.contentType === 'assignment' && <FileQuestion className="text-green-500 size-5" />}
-                                                            {lesson.isPreview && <BrainCircuit className="text-primary size-5" />}
-                                                            <span className={lesson.isPreview ? 'font-medium' : ''}>{lesson.title}</span>
-                                                        </div>
-                                                        {lesson.isPreview ? (
-                                                            <span className="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
-                                                                LIVE AI
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-slate-400">
-                                                                {lesson.videoDuration ? `${Math.floor(lesson.videoDuration / 60)}:${(lesson.videoDuration % 60).toString().padStart(2, '0')}` : ""}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </section>
-
-                    {/* Requirements */}
-                    {requirements.length > 0 && (
-                        <section>
-                            <h3 className="text-xl font-bold mb-4">Điều kiện tham gia (Requirements)</h3>
-                            <ul className="list-disc list-inside space-y-2 text-slate-600 dark:text-slate-400 text-sm">
-                                {requirements.map((req: any, index: number) => (
-                                    <li key={index}>{typeof req === 'string' ? req : JSON.stringify(req)}</li>
-                                ))}
-                            </ul>
-                        </section>
-                    )}
-
-                    {/* Instructor Profile */}
-                    <section className="bg-slate-100 dark:bg-slate-800/40 p-8 rounded-2xl flex flex-col md:flex-row gap-8 items-start">
-                        <div className="size-32 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 shadow-lg flex items-center justify-center text-4xl font-bold">
-                            {course.lecturer?.displayName?.split(' ').map(n => n[0]).join('') || "T"}
-                        </div>
-                        <div className="space-y-4">
-                            <div>
-                                <h3 className="text-2xl font-bold">{course.lecturer?.displayName || "Torii Instructor"}</h3>
-                                <p className="text-primary font-medium">Giảng viên / Instructor</p>
-                            </div>
-                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                                {course.lecturer?.displayName ? `Giảng viên tại Torii Nihongo.` : "Đội ngũ giảng viên giàu kinh nghiệm tại Torii Nihongo."}
-                            </p>
-                            <div className="flex gap-4">
-                                <button className="text-sm font-bold text-primary hover:underline">Other Courses</button>
-                                <button className="text-sm font-bold text-primary hover:underline">Full Bio</button>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Reviews */}
-                    <section className="space-y-6">
-                        <h3 className="text-xl font-bold">Đánh giá từ học viên (Student Reviews)</h3>
-                        {isLoadingReviews ? (
-                            <div className="space-y-4">
-                                <Skeleton className="h-32 w-full rounded-xl" />
-                                <Skeleton className="h-32 w-full rounded-xl" />
-                            </div>
-                        ) : (
-                            <div className="grid gap-4">
-                                {reviews.map((review) => (
-                                    <div key={review.id} className="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500">
-                                                    {review.user?.displayName?.[0] || "U"}
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-sm">{review.user?.displayName}</p>
-                                                    <p className="text-xs text-slate-400">
-                                                        {review.createdAt ? format(new Date(review.createdAt), 'dd/MM/yyyy', { locale: vi }) : "Gần đây"}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex text-yellow-500 text-sm">
-                                                {Array.from({ length: 5 }).map((_, i) => (
-                                                    <Star key={i} className={`size-4 ${i < review.rating ? 'fill-current' : ''}`} />
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400">{review.comment}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </section>
-                </div>
-
-                {/* Right Column (Sidebar) */}
-                <div className="space-y-8">
-                    <div className="sticky top-24 space-y-6">
-                        {/* Enrollment Card */}
-                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
-                            <div className="space-y-1">
-                                <p className="text-3xl font-black text-slate-900 dark:text-slate-100">
-                                    {course.price === 0 ? "Free" : `¥${course.price.toLocaleString()}`}
+                                <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-6">
+                                    Luyện thi JLPT N3: Chinh phục tiếng Nhật trung cấp toàn diện
+                                </h1>
+                                <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl">
+                                    Lộ trình bài bản giúp bạn nắm vững 600 từ vựng, 100 cấu trúc ngữ pháp và kỹ năng đọc hiểu - nghe hiểu thực chiến để đạt điểm cao trong kỳ thi N3.
                                 </p>
-                                {course.discountPrice && course.discountPrice > 0 && (
-                                    <p className="text-sm text-slate-500 line-through">
-                                        ¥{course.discountPrice.toLocaleString()}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="space-y-3">
-                                <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-primary/20">
-                                    Bắt đầu học (Enroll Now)
-                                </button>
-                                <button className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold py-4 rounded-xl transition-all">
-                                    Thêm vào yêu thích
-                                </button>
-                            </div>
-                            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                                <p className="font-bold text-sm">Nội dung khóa học (Includes):</p>
-                                <div className="grid gap-3">
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <Signal className="text-primary size-5" />
-                                        <span className="font-medium text-slate-600 dark:text-slate-400">
-                                            Difficulty: <span className="text-slate-900 dark:text-slate-100">{course.jlptLevel || "N/A"}</span>
-                                        </span>
+                                {/*  Under Hero Metadata  */}
+                                <div className="flex flex-wrap items-center gap-6 text-sm">
+                                    <div className="flex items-center gap-2">
+                                        <img alt="Instructor" className="w-10 h-10 rounded-full border-2 border-white/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMW_r953YV3MvF0w4XxZsitbFK6T2LCFpX15UySmN4k09CY0oaxJO_cJgJg5N-dkS0fe1TUQFqVOj_5gKBykrD8hG6xHuzwxBJDwQF9UZp9pvvIk2drSeuqlXPeQ0Czxh2sOmH94O7Zr79UtK8A1udc-c1VQxYxEgNj0fhtgFrPOW-6waVvuUwDZ7nggaeI560w3NtXGHcABZ0zkB8x4NVLMXww-n5MhkYaaJAoWJAZsnkltbOKwz5HQrRCvHTig1IJbJk69DJQBo" />
+                                        <span className="font-medium text-white underline underline-offset-4 cursor-pointer">Sensei Minh Tú</span>
                                     </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <Clock className="text-primary size-5" />
-                                        <span className="font-medium text-slate-600 dark:text-slate-400">
-                                            Duration: <span className="text-slate-900 dark:text-slate-100">{course.durationWeeks || 8} weeks</span>
-                                        </span>
+                                    <div className="flex items-center gap-1 text-yellow-400">
+                                        <span className="font-bold text-white">4.8</span>
+                                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        <span className="text-slate-400">(2,450 đánh giá)</span>
                                     </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <BookOpen className="text-primary size-5" />
-                                        <span className="font-medium text-slate-600 dark:text-slate-400">
-                                            Lessons: <span className="text-slate-900 dark:text-slate-100">{course.totalLessons} Lessons</span>
-                                        </span>
+                                    <div className="flex items-center gap-1 text-slate-300">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                        <span>15,680 học viên</span>
                                     </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <Award className="text-primary size-5" />
-                                        <span className="font-medium text-slate-600 dark:text-slate-400">Certificate of Completion</span>
+                                    <div className="bg-white/10 px-3 py-1 rounded-md flex items-center gap-1.5 border border-white/10">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span>Cập nhật 12/2023</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </main>
-    )
+                </section>
+                {/*  END: Hero Section  */}
+                {/*  BEGIN: Main Content Layout  */}
+                <main className="max-w-7xl mx-auto px-4 py-12 relative">
+                    <div className="grid lg:grid-cols-3 gap-12">
+                        {/*  Left Column: Content (2/3)  */}
+                        <div className="lg:col-span-2 space-y-12">
+                            {/*  Social Proof Strip  */}
+                            <section className="grid grid-cols-3 gap-4 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm" data-purpose="social-proof-strip">
+                                <div className="text-center border-r border-slate-100 last:border-0">
+                                    <p className="text-2xl font-bold text-slate-900">120+</p>
+                                    <p className="text-sm text-slate-500">Bài học</p>
+                                </div>
+                                <div className="text-center border-r border-slate-100 last:border-0">
+                                    <p className="text-2xl font-bold text-slate-900">12</p>
+                                    <p className="text-sm text-slate-500">Tuần học</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-2xl font-bold text-slate-900">Trọn đời</p>
+                                    <p className="text-sm text-slate-500">Truy cập</p>
+                                </div>
+                            </section>
+                            {/*  What You Will Learn  */}
+                            <section data-purpose="outcomes-section" id="outcomes">
+                                <h3 className="text-2xl font-bold mb-6">Bạn sẽ học được gì?</h3>
+                                <div className="p-6 bg-white rounded-2xl border border-slate-200 grid md:grid-cols-2 gap-4">
+                                    <div className="flex gap-3">
+                                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path></svg>
+                                        <span className="text-slate-600">Nắm vững 100+ cấu trúc ngữ pháp N3 quan trọng nhất</span>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path></svg>
+                                        <span className="text-slate-600">Giao tiếp tự tin trong các tình huống công việc cơ bản</span>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path></svg>
+                                        <span className="text-slate-600">Phản xạ nghe hiểu tốt với tốc độ người bản xứ</span>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path></svg>
+                                        <span className="text-slate-600">Kỹ năng giải đề và quản lý thời gian thi thực chiến</span>
+                                    </div>
+                                </div>
+                            </section>
+                            {/*  Course Curriculum (Accordion)  */}
+                            <section data-purpose="curriculum-section" id="curriculum">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-2xl font-bold">Chương trình học</h3>
+                                    <span className="text-sm text-slate-500">12 chương • 120 bài học • 24 giờ tổng cộng</span>
+                                </div>
+                                <div className="space-y-3" id="course-accordion">
+                                    {/*  Accordion Item 1  */}
+                                    <div className={`accordion-item border border-slate-200 rounded-xl overflow-hidden bg-white ${openAccordion === 1 ? 'open' : ''}`}>
+                                        <button className="w-full px-6 py-4 flex items-center justify-between bg-slate-50/50 hover:bg-slate-100 transition-colors" onClick={() => setOpenAccordion(openAccordion === 1 ? null : 1)}>
+                                            <div className="flex items-center gap-4">
+                                                <svg className="w-5 h-5 text-slate-400 accordion-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                                                <span className="font-bold text-left">Chương 1: Khởi động và Lộ trình N3</span>
+                                            </div>
+                                            <div className="text-sm text-slate-500 hidden sm:block">5 bài học • 45 phút</div>
+                                        </button>
+                                        <div className="accordion-content">
+                                            <div className="px-6 py-2 border-t border-slate-100">
+                                                <div className="flex items-center justify-between py-3 group">
+                                                    <div className="flex items-center gap-3">
+                                                        <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        <span className="text-sm text-slate-600">1.1 Lời chào mừng và hướng dẫn học tập</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-600 font-medium">Xem thử</span>
+                                                        <span className="text-xs text-slate-400">05:20</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center justify-between py-3 border-t border-slate-50">
+                                                    <div className="flex items-center gap-3">
+                                                        <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                        <span className="text-sm text-slate-600">1.2 Tài liệu PDF tổng hợp lộ trình</span>
+                                                    </div>
+                                                    <span className="text-xs text-slate-400">10 trang</span>
+                                                </div>
+                                                <div className="flex items-center justify-between py-3 border-t border-slate-50">
+                                                    <div className="flex items-center gap-3">
+                                                        <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                                        <span className="text-sm text-slate-600">1.3 Kiểm tra đầu vào AI (Trình độ N4)</span>
+                                                    </div>
+                                                    <span className="text-xs text-slate-400">15 câu hỏi</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/*  Accordion Item 2  */}
+                                    <div className={`accordion-item border border-slate-200 rounded-xl overflow-hidden bg-white ${openAccordion === 2 ? 'open' : ''}`}>
+                                        <button className="w-full px-6 py-4 flex items-center justify-between bg-slate-50/50 hover:bg-slate-100 transition-colors" onClick={() => setOpenAccordion(openAccordion === 2 ? null : 2)}>
+                                            <div className="flex items-center gap-4">
+                                                <svg className="w-5 h-5 text-slate-400 accordion-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                                                <span className="font-bold text-left">Chương 2: Ngữ pháp N3 - Bài 1 đến 5</span>
+                                            </div>
+                                            <div className="text-sm text-slate-500 hidden sm:block">12 bài học • 3 giờ</div>
+                                        </button>
+                                        <div className="accordion-content">
+                                            <div className="px-6 py-2 border-t border-slate-100">
+                                                <p className="py-4 text-sm text-slate-500 italic text-center">Đăng ký để xem nội dung chi tiết của chương này.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            {/*  Prerequisites  */}
+                            <section data-purpose="prerequisites-section">
+                                <h3 className="text-2xl font-bold mb-6">Điều kiện tham gia</h3>
+                                <div className="p-6 bg-slate-100 rounded-2xl border border-slate-200">
+                                    <ul className="space-y-4">
+                                        <li className="flex gap-4">
+                                            <div className="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
+                                            <span className="text-slate-700">Đã hoàn thành chương trình sơ cấp N4 hoặc tương đương.</span>
+                                        </li>
+                                        <li className="flex gap-4">
+                                            <div className="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
+                                            <span className="text-slate-700">Có thiết bị kết nối internet ổn định để học qua video và làm bài tập AI.</span>
+                                        </li>
+                                        <li className="flex gap-4">
+                                            <div className="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
+                                            <span className="text-slate-700">Sẵn sàng dành ít nhất 5-7 giờ mỗi tuần cho việc tự học và ôn tập.</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </section>
+                            {/*  Instructor  */}
+                            <section data-purpose="instructor-section" id="instructor">
+                                <h3 className="text-2xl font-bold mb-6">Giảng viên</h3>
+                                <div className="p-8 bg-white rounded-2xl border border-slate-200 flex flex-col md:flex-row gap-8">
+                                    <div className="flex flex-col items-center text-center space-y-4 md:w-1/3">
+                                        <img alt="Instructor" className="w-32 h-32 rounded-full border-4 border-slate-50 shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByNQE5DnQNt1tFdDAT9lwOLEs3ZBb3tFrSbYnYf8Fq4Eu2_RDot_0BLscqt0ual2Q1VldPoqKG1Hb0jgeLAmJ9QhsZW6TyR44dDIy4bw64n4e3QT67TlgdOF6et8RGlhmjkOjBdSnzh-xbFvEm_TgKcuW7UkCj_QRuoK7UzOAaER56VgM-CUNElxgqOeVN31tOvtjt5sGY-JEp-ArWM3z8FRl1V_WG9lFUp7BTbOUNl0AtrkH7h-SkzRrZY9PF58mttBxjknZSCf8" />
+                                        <div>
+                                            <h4 className="text-xl font-bold">Minh Tú Sensei</h4>
+                                            <p className="text-slate-500 text-sm">Chuyên gia luyện thi JLPT</p>
+                                        </div>
+                                        <div className="flex gap-4 pt-2">
+                                            <div className="text-center">
+                                                <span className="block text-lg font-bold">4.9</span>
+                                                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">Xếp hạng</span>
+                                            </div>
+                                            <div className="text-center">
+                                                <span className="block text-lg font-bold">15k+</span>
+                                                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">Học viên</span>
+                                            </div>
+                                            <div className="text-center">
+                                                <span className="block text-lg font-bold">25+</span>
+                                                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">Khóa học</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="md:w-2/3 space-y-4 text-slate-600 leading-relaxed">
+                                        <p>Xin chào! Tôi là Minh Tú, với hơn 8 năm kinh nghiệm giảng dạy tiếng Nhật và luyện thi JLPT từ N5 đến N1. Tôi tin rằng việc học ngoại ngữ không chỉ là học từ vựng mà là học cách tư duy của người bản xứ.</p>
+                                        <p>Khóa học này được tôi đúc kết từ hàng ngàn giờ giảng dạy trực tiếp, tập trung vào những "điểm chạm" mà học viên thường gặp khó khăn nhất khi lên trình độ trung cấp.</p>
+                                        <div className="flex gap-4">
+                                            <button className="text-[oklch(0.55_0.15_15)] font-bold text-sm flex items-center gap-1 hover:underline">
+                                                Xem hồ sơ đầy đủ
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            {/*  Reviews  */}
+                            <section data-purpose="reviews-section" id="reviews">
+                                <h3 className="text-2xl font-bold mb-6">Đánh giá từ học viên</h3>
+                                <div className="grid md:grid-cols-4 gap-8 mb-8">
+                                    <div className="text-center flex flex-col justify-center">
+                                        <span className="text-5xl font-extrabold text-[oklch(0.55_0.15_15)]">4.8</span>
+                                        <div className="flex justify-center my-2 text-yellow-400">
+                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Xếp hạng khóa học</p>
+                                    </div>
+                                    <div className="md:col-span-3 space-y-2">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                <div className="h-full bg-slate-800" style={{ width: '85%' }}></div>
+                                            </div>
+                                            <div className="flex items-center gap-1 w-24">
+                                                <span className="text-sm text-slate-600">5 sao</span>
+                                                <span className="text-sm text-slate-400">85%</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                <div className="h-full bg-slate-800" style={{ width: '10%' }}></div>
+                                            </div>
+                                            <div className="flex items-center gap-1 w-24">
+                                                <span className="text-sm text-slate-600">4 sao</span>
+                                                <span className="text-sm text-slate-400">10%</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                <div className="h-full bg-slate-800" style={{ width: '5%' }}></div>
+                                            </div>
+                                            <div className="flex items-center gap-1 w-24">
+                                                <span className="text-sm text-slate-600">3 sao</span>
+                                                <span className="text-sm text-slate-400">5%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    {/*  Review Card 1  */}
+                                    <div className="p-6 bg-white rounded-2xl border border-slate-200">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">HN</div>
+                                                <div>
+                                                    <h5 className="font-bold">Hoàng Nam</h5>
+                                                    <p className="text-xs text-slate-400">Học viên đã xác thực • 2 tháng trước</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-yellow-400 flex">
+                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                            </div>
+                                        </div>
+                                        <p className="text-slate-600">Khóa học cực kỳ chi tiết, phần giải thích ngữ pháp rất dễ hiểu so với tự học trong sách. Đặc biệt là các bài tập bổ trợ trên app rất hiệu quả.</p>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        {/*  Right Column: Sidebar (1/3)  */}
+                        <aside className="lg:col-span-1" data-purpose="sidebar">
+                            <div className="sticky top-24 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden" data-purpose="enrollment-card">
+                                {/*  Thumbnail & Preview Button  */}
+                                <div className="relative group cursor-pointer aspect-video overflow-hidden">
+                                    <img alt="Preview Video" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFO3FHJFEuOp_NuOdhutPNQQD_b8opqGLq5Iyg2fVZ-GP6qy9diClug33bNZekfdG15yVSoRffAPpF0Od3uAD0unbU1nVbePnhJ7uDHdzwwiXySi-mcBaNV_TSb5jVCT_PrELqVTACwwzYR-Tx09yWIJyzW6zFboeK9SGNr673DJD5RRqJRpSI2gDAMD26aVtBFgaI4qBhCTcqE7X-hUyNZ40_NdJbTpJF1_M01SBHrlTq9ANzZjB4-Lncc8PT0Eutyzpx9HQpqPQ" />
+                                    <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="bg-white/90 p-4 rounded-full">
+                                            <svg className="w-8 h-8 text-[oklch(0.55_0.15_15)] fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                                        </div>
+                                    </div>
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full px-4">
+                                        <button className="w-full bg-white/10 backdrop-blur-md text-white border border-white/30 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-white/20 transition-all">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            Xem thử khóa học
+                                        </button>
+                                    </div>
+                                </div>
+                                {/*  Pricing & CTA  */}
+                                <div className="p-6 space-y-6">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-3xl font-extrabold text-slate-900">1.200.000 ₫</span>
+                                            <span className="text-slate-400 line-through">1.800.000 ₫</span>
+                                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">-33%</span>
+                                        </div>
+                                        <p className="text-xs text-[oklch(0.55_0.15_15)] font-medium flex items-center gap-1">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            Ưu đãi kết thúc trong 15:45:00
+                                        </p>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <button className="w-full bg-gradient-to-r from-[oklch(0.55_0.15_15)] to-rose-600 hover:from-[oklch(0.55_0.15_15)]Dark hover:to-rose-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-[oklch(0.55_0.15_15)]/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                                            Đăng ký ngay
+                                        </button>
+                                        <button className="w-full border border-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-50 transition-all">
+                                            Thêm vào giỏ hàng
+                                        </button>
+                                    </div>
+                                    <p className="text-[11px] text-slate-400 text-center">Cam kết hoàn tiền trong 7 ngày nếu không hài lòng</p>
+                                    <hr className="border-slate-100" />
+                                    {/*  Course Features  */}
+                                    <div className="space-y-4">
+                                        <h6 className="font-bold text-sm uppercase tracking-wider text-slate-400">Khóa học bao gồm:</h6>
+                                        <ul className="space-y-3">
+                                            <li className="flex items-start gap-3 text-sm text-slate-600">
+                                                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                                <span>120 bài giảng video Full HD</span>
+                                            </li>
+                                            <li className="flex items-start gap-3 text-sm text-slate-600">
+                                                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                <span>50+ tài liệu PDF độc quyền</span>
+                                            </li>
+                                            <li className="flex items-start gap-3 text-sm text-slate-600">
+                                                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                <span>Chứng nhận hoàn thành khóa học</span>
+                                            </li>
+                                            <li className="flex items-start gap-3 text-sm text-slate-600">
+                                                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                <span>Học trên mọi thiết bị (Web &amp; App)</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </main>
+                {/*  END: Main Content Layout  */}
+                {/*  BEGIN: Footer  */}
+                <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 mt-20" data-purpose="footer">
+                    <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-12">
+                        <div className="col-span-2">
+                            <h4 className="text-2xl font-bold text-white mb-4">Torii <span className="text-[oklch(0.55_0.15_15)]">Nihongo</span></h4>
+                            <p className="max-w-sm mb-6">Nền tảng học tiếng Nhật trực tuyến hàng đầu Việt Nam. Chinh phục JLPT dễ dàng hơn bao giờ hết.</p>
+                            <div className="flex gap-4">
+                                <a className="p-2 bg-slate-800 rounded-lg hover:text-white transition-colors" href="#">FB</a>
+                                <a className="p-2 bg-slate-800 rounded-lg hover:text-white transition-colors" href="#">YT</a>
+                                <a className="p-2 bg-slate-800 rounded-lg hover:text-white transition-colors" href="#">IG</a>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 className="text-white font-bold mb-4">Khám phá</h5>
+                            <ul className="space-y-2 text-sm">
+                                <li><a className="hover:text-[oklch(0.55_0.15_15)]" href="#">Khóa học JLPT</a></li>
+                                <li><a className="hover:text-[oklch(0.55_0.15_15)]" href="#">Tiếng Nhật công sở</a></li>
+                                <li><a className="hover:text-[oklch(0.55_0.15_15)]" href="#">Học từ vựng AI</a></li>
+                                <li><a className="hover:text-[oklch(0.55_0.15_15)]" href="#">Blog tiếng Nhật</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 className="text-white font-bold mb-4">Hỗ trợ</h5>
+                            <ul className="space-y-2 text-sm">
+                                <li><a className="hover:text-[oklch(0.55_0.15_15)]" href="#">Trung tâm trợ giúp</a></li>
+                                <li><a className="hover:text-[oklch(0.55_0.15_15)]" href="#">Chính sách hoàn tiền</a></li>
+                                <li><a className="hover:text-[oklch(0.55_0.15_15)]" href="#">Liên hệ hợp tác</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-slate-800 text-center text-xs">
+                        © 2024 Torii Nihongo. All rights reserved. Designed with love for learners.
+                    </div>
+                </footer>
+                {/*  END: Footer  */}
+                {/*  BEGIN: Scripts  */}
+
+
+                {/*  END: Scripts  */}
+
+            </div >
+        </>
+    );
 }

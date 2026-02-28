@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="updatr 2">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/privacy-policy/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/privacy-policy/page.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rebuild home page">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/placement-test/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/placement-test/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,13 +105,13 @@
     }
   ]
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Lain4504/torii-monorepo.git",
-    "accountId": "5126b88c-ccf3-4397-984d-7c1b52a2aa60"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   },
-  "editorReviewEnabled": false
-}]]></component>
+  &quot;editorReviewEnabled&quot;: false
+}</component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
@@ -134,47 +134,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#252 on refactor-backend-structure&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/projectdev/demo/team-source/torii-monorepo/apps/web-learner/public&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JavaScript Debug.localhost:3000.executor": "Debug",
+    "JavaScript Debug.localhost:5173.executor": "Debug",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "build-new-ui",
+    "go.import.settings.migrated": "true",
+    "ignore.virus.scanning.warn.message": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/projectdev/demo/team-source/torii-monorepo/apps/web-learner/public",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;redis&quot;,
-      &quot;mongo&quot;,
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "redis",
+      "mongo",
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="QodanaCIConfigService">
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
   </component>
@@ -403,110 +403,6 @@
       <workItem from="1772173061622" duration="2604000" />
       <workItem from="1772200330099" duration="390000" />
       <workItem from="1772259343193" duration="455000" />
-    </task>
-    <task id="LOCAL-00864" summary="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page">
-      <option name="closed" value="true" />
-      <created>1771853106093</created>
-      <option name="number" value="00864" />
-      <option name="presentableId" value="LOCAL-00864" />
-      <option name="project" value="LOCAL" />
-      <updated>1771853106094</updated>
-    </task>
-    <task id="LOCAL-00865" summary="refactor: enhance layout and styling across multiple components">
-      <option name="closed" value="true" />
-      <created>1771854114422</created>
-      <option name="number" value="00865" />
-      <option name="presentableId" value="LOCAL-00865" />
-      <option name="project" value="LOCAL" />
-      <updated>1771854114423</updated>
-    </task>
-    <task id="LOCAL-00866" summary="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components">
-      <option name="closed" value="true" />
-      <created>1771856774713</created>
-      <option name="number" value="00866" />
-      <option name="presentableId" value="LOCAL-00866" />
-      <option name="project" value="LOCAL" />
-      <updated>1771856774714</updated>
-    </task>
-    <task id="LOCAL-00867" summary="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components">
-      <option name="closed" value="true" />
-      <created>1771858589006</created>
-      <option name="number" value="00867" />
-      <option name="presentableId" value="LOCAL-00867" />
-      <option name="project" value="LOCAL" />
-      <updated>1771858589006</updated>
-    </task>
-    <task id="LOCAL-00868" summary="refactor: simplify layout and styling in dashboard and feed components">
-      <option name="closed" value="true" />
-      <created>1771859638489</created>
-      <option name="number" value="00868" />
-      <option name="presentableId" value="LOCAL-00868" />
-      <option name="project" value="LOCAL" />
-      <updated>1771859638489</updated>
-    </task>
-    <task id="LOCAL-00869" summary="refactor: update notebook API and enhance flashcard component functionality">
-      <option name="closed" value="true" />
-      <created>1771860695712</created>
-      <option name="number" value="00869" />
-      <option name="presentableId" value="LOCAL-00869" />
-      <option name="project" value="LOCAL" />
-      <updated>1771860695712</updated>
-    </task>
-    <task id="LOCAL-00870" summary="fix: update external media player text for clarity">
-      <option name="closed" value="true" />
-      <created>1771994879512</created>
-      <option name="number" value="00870" />
-      <option name="presentableId" value="LOCAL-00870" />
-      <option name="project" value="LOCAL" />
-      <updated>1771994879513</updated>
-    </task>
-    <task id="LOCAL-00871" summary="fix: update external media player text for clarity">
-      <option name="closed" value="true" />
-      <created>1771996995367</created>
-      <option name="number" value="00871" />
-      <option name="presentableId" value="LOCAL-00871" />
-      <option name="project" value="LOCAL" />
-      <updated>1771996995370</updated>
-    </task>
-    <task id="LOCAL-00872" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
-      <option name="closed" value="true" />
-      <created>1772111299316</created>
-      <option name="number" value="00872" />
-      <option name="presentableId" value="LOCAL-00872" />
-      <option name="project" value="LOCAL" />
-      <updated>1772111299317</updated>
-    </task>
-    <task id="LOCAL-00873" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
-      <option name="closed" value="true" />
-      <created>1772111335208</created>
-      <option name="number" value="00873" />
-      <option name="presentableId" value="LOCAL-00873" />
-      <option name="project" value="LOCAL" />
-      <updated>1772111335208</updated>
-    </task>
-    <task id="LOCAL-00874" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
-      <option name="closed" value="true" />
-      <created>1772111828245</created>
-      <option name="number" value="00874" />
-      <option name="presentableId" value="LOCAL-00874" />
-      <option name="project" value="LOCAL" />
-      <updated>1772111828246</updated>
-    </task>
-    <task id="LOCAL-00875" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
-      <option name="closed" value="true" />
-      <created>1772112211880</created>
-      <option name="number" value="00875" />
-      <option name="presentableId" value="LOCAL-00875" />
-      <option name="project" value="LOCAL" />
-      <updated>1772112211880</updated>
-    </task>
-    <task id="LOCAL-00876" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
-      <option name="closed" value="true" />
-      <created>1772112539041</created>
-      <option name="number" value="00876" />
-      <option name="presentableId" value="LOCAL-00876" />
-      <option name="project" value="LOCAL" />
-      <updated>1772112539041</updated>
     </task>
     <task id="LOCAL-00877" summary="refactor identity service">
       <option name="closed" value="true" />
@@ -796,7 +692,111 @@
       <option name="project" value="LOCAL" />
       <updated>1772259402802</updated>
     </task>
-    <option name="localTasksCounter" value="913" />
+    <task id="LOCAL-00913" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772261268375</created>
+      <option name="number" value="00913" />
+      <option name="presentableId" value="LOCAL-00913" />
+      <option name="project" value="LOCAL" />
+      <updated>1772261268375</updated>
+    </task>
+    <task id="LOCAL-00914" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772261580132</created>
+      <option name="number" value="00914" />
+      <option name="presentableId" value="LOCAL-00914" />
+      <option name="project" value="LOCAL" />
+      <updated>1772261580132</updated>
+    </task>
+    <task id="LOCAL-00915" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772261907436</created>
+      <option name="number" value="00915" />
+      <option name="presentableId" value="LOCAL-00915" />
+      <option name="project" value="LOCAL" />
+      <updated>1772261907436</updated>
+    </task>
+    <task id="LOCAL-00916" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772262870901</created>
+      <option name="number" value="00916" />
+      <option name="presentableId" value="LOCAL-00916" />
+      <option name="project" value="LOCAL" />
+      <updated>1772262870901</updated>
+    </task>
+    <task id="LOCAL-00917" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772263198562</created>
+      <option name="number" value="00917" />
+      <option name="presentableId" value="LOCAL-00917" />
+      <option name="project" value="LOCAL" />
+      <updated>1772263198563</updated>
+    </task>
+    <task id="LOCAL-00918" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772263510692</created>
+      <option name="number" value="00918" />
+      <option name="presentableId" value="LOCAL-00918" />
+      <option name="project" value="LOCAL" />
+      <updated>1772263510692</updated>
+    </task>
+    <task id="LOCAL-00919" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772263710921</created>
+      <option name="number" value="00919" />
+      <option name="presentableId" value="LOCAL-00919" />
+      <option name="project" value="LOCAL" />
+      <updated>1772263710923</updated>
+    </task>
+    <task id="LOCAL-00920" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772263806361</created>
+      <option name="number" value="00920" />
+      <option name="presentableId" value="LOCAL-00920" />
+      <option name="project" value="LOCAL" />
+      <updated>1772263806361</updated>
+    </task>
+    <task id="LOCAL-00921" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772263951919</created>
+      <option name="number" value="00921" />
+      <option name="presentableId" value="LOCAL-00921" />
+      <option name="project" value="LOCAL" />
+      <updated>1772263951919</updated>
+    </task>
+    <task id="LOCAL-00922" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772263967752</created>
+      <option name="number" value="00922" />
+      <option name="presentableId" value="LOCAL-00922" />
+      <option name="project" value="LOCAL" />
+      <updated>1772263967752</updated>
+    </task>
+    <task id="LOCAL-00923" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772264115181</created>
+      <option name="number" value="00923" />
+      <option name="presentableId" value="LOCAL-00923" />
+      <option name="project" value="LOCAL" />
+      <updated>1772264115181</updated>
+    </task>
+    <task id="LOCAL-00924" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772264153225</created>
+      <option name="number" value="00924" />
+      <option name="presentableId" value="LOCAL-00924" />
+      <option name="project" value="LOCAL" />
+      <updated>1772264153225</updated>
+    </task>
+    <task id="LOCAL-00925" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772264402961</created>
+      <option name="number" value="00925" />
+      <option name="presentableId" value="LOCAL-00925" />
+      <option name="project" value="LOCAL" />
+      <updated>1772264402961</updated>
+    </task>
+    <option name="localTasksCounter" value="926" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -831,7 +831,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
     <MESSAGE value="refactor: update layout and styling for user and module sheets" />
     <MESSAGE value="feat: add reset password functionality and update identity URLs" />
     <MESSAGE value="refactor: change location of api folder to lib" />
@@ -856,7 +855,8 @@
     <MESSAGE value="feat: implement scheduled cleanup for old audit logs with retention policy" />
     <MESSAGE value="stitch ui" />
     <MESSAGE value="updatr 2" />
-    <option name="LAST_COMMIT_MESSAGE" value="updatr 2" />
+    <MESSAGE value="rebuild home page" />
+    <option name="LAST_COMMIT_MESSAGE" value="rebuild home page" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
