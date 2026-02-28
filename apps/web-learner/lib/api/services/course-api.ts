@@ -117,6 +117,7 @@ export function useCourses(params: {
   q?: string;
   priceFilter?: 'all' | 'free' | 'paid';
   sortBy?: string;
+  instructorId?: string;
 }) {
   return useQuery({
     queryKey: ['courses', params],
@@ -139,8 +140,9 @@ export function useCourses(params: {
         levels: levelsString,
         priceMin,
         priceMax,
-        sort: params.sortBy
-      });
+        sort: params.sortBy,
+        instructorId: params.instructorId
+      } as any);
     },
   });
 }

@@ -88,6 +88,9 @@ export const courseSearchResponseDTOSchema = courseSchema.pick({
     durationWeeks: true,
     averageRating: true,
     totalReviews: true,
+    shortDescription: true,
+    description: true,
+    aiMetadata: true,
 }).extend({
     lecturer: courseInstructorDTOSchema.optional().nullable(),
 });

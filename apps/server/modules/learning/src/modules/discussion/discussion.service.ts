@@ -10,6 +10,7 @@ import type {
     DiscussionTopicPaginatedResponse,
     DiscussionTopicUpdateDTO,
 } from '@workspace/schemas';
+import { DiscussionTopicCategory, DiscussionTopicStatus } from '@workspace/schemas';
 import { Prisma } from '@prisma/generated';
 
 // No longer need aliases
@@ -37,8 +38,8 @@ export class DiscussionService {
             content: dto.content,
             isPinned: dto.isPinned || false,
             isLocked: dto.isLocked || false,
-            category: (dto.category as any) || 'GENERAL',
-            status: (dto.status as any) || 'OPEN',
+            category: (dto as any).category || DiscussionTopicCategory.GENERAL,
+            status: (dto as any).status || DiscussionTopicStatus.OPEN,
             course: { connect: { id: dto.courseId } },
             author: { connect: { id: userId } },
             // Connect optional module/lesson if provided
@@ -66,11 +67,11 @@ export class DiscussionService {
         if (query.lessonId) {
             where.lessonId = query.lessonId;
         }
-        if (query.category) {
-            where.category = query.category as any;
+        if ((query as any).category) {
+            where.category = (query as any).category as any;
         }
-        if (query.status) {
-            where.status = query.status as any;
+        if ((query as any).status) {
+            where.status = (query as any).status as any;
         }
 
         if (query.search) {
@@ -158,8 +159,8 @@ export class DiscussionService {
             content: dto.content,
             isPinned: dto.isPinned,
             isLocked: dto.isLocked,
-            category: dto.category as any,
-            status: dto.status as any,
+            category: (dto as any).category || DiscussionTopicCategory.GENERAL,
+            status: (dto as any).status || DiscussionTopicStatus.OPEN,
         });
 
         const refreshed = await this.discussionRepository.findById(id);

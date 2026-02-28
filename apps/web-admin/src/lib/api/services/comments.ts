@@ -5,7 +5,6 @@ import type {
     CommentCreateDTO,
     CommentUpdateDTO,
     CommentResponseDTO,
-    CommentPaginatedResponse,
     StandardApiResponse,
     PaginatedApiResponse
 } from '@workspace/schemas';
@@ -85,7 +84,7 @@ export function useCreateComment() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (dto: CommentCreateDTO) => commentApi.create(dto),
-        onSuccess: (_, variables) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['comments'] });
         },
     });

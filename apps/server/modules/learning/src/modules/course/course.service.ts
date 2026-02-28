@@ -184,6 +184,7 @@ export class CourseService implements ICourseService {
       durationWeeks: course.durationWeeks,
       averageRating: course.averageRating,
       totalReviews: course.totalReviews,
+      aiMetadata: course.aiMetadata || {},
       lecturer: course.lecturer ? {
         id: course.lecturer.id,
         displayName: course.lecturer.displayName,
