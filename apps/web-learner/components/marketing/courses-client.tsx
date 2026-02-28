@@ -1,341 +1,364 @@
-'use client';
+﻿'use client';
 
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import Link from 'next/link';
+import { Bot, RotateCcw, Star, User } from 'lucide-react';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@workspace/ui/components/breadcrumb';
+import { Button } from '@workspace/ui/components/button';
+import { Checkbox } from '@workspace/ui/components/checkbox';
+import { Label } from '@workspace/ui/components/label';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@workspace/ui/components/pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
+import { Separator } from '@workspace/ui/components/separator';
+import { Skeleton } from '@workspace/ui/components/skeleton';
+import { Input } from '@workspace/ui/components/input';
+import { ToggleGroup, ToggleGroupItem } from '@workspace/ui/components/toggle-group';
+import { useCourses } from '@/lib/api/services/course-api';
+
+const LEVEL_COLORS: Record<string, string> = {
+    N5: '#3b82f6',
+    N4: '#14b8a6',
+    N3: '#22c55e',
+    N2: '#f59e0b',
+    N1: '#f43f5e',
+};
 
 export function CoursesClient() {
-  return (
-    <>
-      <style>{`
-        .shadcn-card {
-          border: 1px solid #e5e7eb;
-          box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-          transition: all 0.2s ease;
-        }
-        .shadcn-card:hover {
-          box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        }
-        .sticky-sidebar {
-          height: calc(100vh - 2rem);
-          top: 1rem;
-        }
-      `}</style>
+    const [page, setPage] = useState(1);
+    const [searchInput, setSearchInput] = useState('');
+    const [search, setSearch] = useState('');
+    const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+    const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
+    const [sortBy, setSortBy] = useState('popularity');
 
-      <div className="bg-muted/30 text-foreground font-sans">
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearch(searchInput);
+            setPage(1);
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [searchInput]);
 
-{/*  BEGIN: MainHeader  */}
-<header className="bg-background border-b border-border pt-8 pb-6 mb-8">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/*  Breadcrumbs  */}
-        <nav aria-label="Breadcrumb" className="flex mb-4 text-sm text-muted-foreground">
-            <ol className="inline-flex items-center space-x-1 md:space-x-3">
-                <li className="inline-flex items-center">
-                    <a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Trang chủ</a>
-                </li>
-                <li>
-                    <div className="flex items-center">
-                        <svg aria-hidden="true" className="w-3 h-3 mx-1 text-muted-foreground" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
-                            <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                        </svg>
-                        <span className="ml-1 md:ml-2 font-medium text-gray-700">Khóa học</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-        <h1 className="text-3xl font-bold text-foreground mb-6">Danh Mục Khóa Học</h1>
-        {/*  Search Section  */}
-        <div className="relative max-w-2xl mb-6">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                </svg>
-            </div>
-            <input className="block w-full pl-12 pr-4 py-4 border-border rounded-xl focus:ring-[oklch(0.55_0.15_15)] focus:border-[oklch(0.55_0.15_15)] shadow-sm text-lg" placeholder="Tìm kiếm khóa học..." type="text"/>
-        </div>
-        {/*  Quick Filters  */}
-        <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
-            <button className="px-4 py-1.5 rounded-full bg-[oklch(0.55_0.15_15)] text-primary-foreground text-sm font-medium">Tất cả</button>
-            <button className="px-4 py-1.5 rounded-full bg-background border border-border text-muted-foreground text-sm font-medium hover:border-[oklch(0.55_0.15_15)] hover:text-[oklch(0.55_0.15_15)] transition-colors">N5</button>
-            <button className="px-4 py-1.5 rounded-full bg-background border border-border text-muted-foreground text-sm font-medium hover:border-[oklch(0.55_0.15_15)] hover:text-[oklch(0.55_0.15_15)] transition-colors">N4</button>
-            <button className="px-4 py-1.5 rounded-full bg-background border border-border text-muted-foreground text-sm font-medium hover:border-[oklch(0.55_0.15_15)] hover:text-[oklch(0.55_0.15_15)] transition-colors">N3</button>
-            <button className="px-4 py-1.5 rounded-full bg-background border border-border text-muted-foreground text-sm font-medium hover:border-[oklch(0.55_0.15_15)] hover:text-[oklch(0.55_0.15_15)] transition-colors">N2</button>
-            <button className="px-4 py-1.5 rounded-full bg-background border border-border text-muted-foreground text-sm font-medium hover:border-[oklch(0.55_0.15_15)] hover:text-[oklch(0.55_0.15_15)] transition-colors">N1</button>
-            <button className="px-4 py-1.5 rounded-full bg-background border border-border text-muted-foreground text-sm font-medium hover:border-[oklch(0.55_0.15_15)] hover:text-[oklch(0.55_0.15_15)] transition-colors">Miễn phí</button>
-        </div>
-    </div>
-</header>
-{/*  END: MainHeader  */}
-{/*  BEGIN: MainContent  */}
-<main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-    <div className="flex flex-col lg:flex-row gap-8">
-        {/*  BEGIN: Sidebar Filters  */}
-        <aside className="w-full lg:w-72 flex-shrink-0">
-            <div className="sticky-sidebar space-y-8 lg:overflow-y-auto pr-2">
-                {/*  JLPT Toggle Buttons  */}
-                <div>
-                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Trình độ JLPT</h3>
-                    <div className="grid grid-cols-5 gap-2">
-                        <button className="h-10 rounded border-2 border-[#3b82f6] text-[#3b82f6] font-bold hover:bg-[#3b82f6] hover:text-primary-foreground transition-colors" title="N5">N5</button>
-                        <button className="h-10 rounded border-2 border-[#14b8a6] text-[#14b8a6] font-bold hover:bg-[#14b8a6] hover:text-primary-foreground transition-colors" title="N4">N4</button>
-                        <button className="h-10 rounded border-2 border-[#22c55e] text-[#22c55e] font-bold hover:bg-[#22c55e] hover:text-primary-foreground transition-colors" title="N3">N3</button>
-                        <button className="h-10 rounded border-2 border-[#f59e0b] text-[#f59e0b] font-bold hover:bg-[#f59e0b] hover:text-primary-foreground transition-colors" title="N2">N2</button>
-                        <button className="h-10 rounded border-2 border-[#f43f5e] text-[#f43f5e] font-bold hover:bg-[#f43f5e] hover:text-primary-foreground transition-colors" title="N1">N1</button>
-                    </div>
-                </div>
-                {/*  Price Filter  */}
-                <div>
-                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Học phí</h3>
-                    <div className="flex p-1 bg-muted rounded-lg">
-                        <button className="flex-1 py-1.5 text-sm font-medium bg-background rounded-md shadow-sm">Tất cả</button>
-                        <button className="flex-1 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">Miễn phí</button>
-                        <button className="flex-1 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">Có phí</button>
-                    </div>
-                </div>
-                {/*  Topic Tags  */}
-                <div>
-                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Chủ đề</h3>
-                    <div className="space-y-3">
-                        <label className="flex items-center group cursor-pointer">
-                            <input className="w-4 h-4 rounded border-gray-300 text-[oklch(0.55_0.15_15)] focus:ring-[oklch(0.55_0.15_15)]" type="checkbox"/>
-                            <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground">Hội thoại thực tế</span>
-                        </label>
-                        <label className="flex items-center group cursor-pointer">
-                            <input className="w-4 h-4 rounded border-gray-300 text-[oklch(0.55_0.15_15)] focus:ring-[oklch(0.55_0.15_15)]" type="checkbox"/>
-                            <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground">Ngữ pháp chuyên sâu</span>
-                        </label>
-                        <label className="flex items-center group cursor-pointer">
-                            <input className="w-4 h-4 rounded border-gray-300 text-[oklch(0.55_0.15_15)] focus:ring-[oklch(0.55_0.15_15)]" type="checkbox"/>
-                            <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground">Hán tự (Kanji)</span>
-                        </label>
-                        <label className="flex items-center group cursor-pointer">
-                            <input className="w-4 h-4 rounded border-gray-300 text-[oklch(0.55_0.15_15)] focus:ring-[oklch(0.55_0.15_15)]" type="checkbox"/>
-                            <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground">Luyện thi Kaiwa</span>
-                        </label>
-                        <label className="flex items-center group cursor-pointer">
-                            <input className="w-4 h-4 rounded border-gray-300 text-[oklch(0.55_0.15_15)] focus:ring-[oklch(0.55_0.15_15)]" type="checkbox"/>
-                            <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground">Tiếng Nhật công sở</span>
-                        </label>
-                    </div>
-                </div>
-                {/*  Reset Filter  */}
-                <div className="pt-4 border-t border-border">
-                    <button className="text-sm font-medium text-[oklch(0.55_0.15_15)] hover:underline flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                        </svg>
-                        Xóa tất cả
-                    </button>
-                </div>
-            </div>
-        </aside>
-        {/*  END: Sidebar Filters  */}
-        {/*  BEGIN: Course Grid Content  */}
-        <section className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {/*  Course Card 1  */}
-                <article className="shadcn-card bg-background rounded-2xl overflow-hidden flex flex-col" data-purpose="course-card">
-                    <div className="relative aspect-video bg-gray-200">
-                        <img alt="Course Thumbnail" className="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT5bL-52hjnYamvPUlzoffVuKeLq8P5Ft7xB0sH0SdXUUhdw-WMJ5rwFlqzL4NbB4GPc-eS9XChYJNnwc6qNL-dX8quNMCFxX_zFPo1l1FURk_qSgonkRXnDITNJ7USLcsI1kadmLzKQ1t_MZWRxrmd7G2SOKDwlcEMwT9utj0fk8J3rdyYeqKqZD-msGfxNWpeMVTuiplkiXwt2UmsPsnkpyFO5fXPSpIRb7FrF_LSiuBtuP1aC4uozJfZv4MT3OJxq3fhfPFuNg"/>
-                        {/*  Badges  */}
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                            <span className="px-2 py-1 bg-[#3b82f6] text-primary-foreground text-[10px] font-bold rounded uppercase">N5</span>
-                            <span className="px-2 py-1 bg-emerald-500 text-primary-foreground text-[10px] font-bold rounded uppercase">Miễn phí</span>
-                        </div>
-                    </div>
-                    <div className="p-5 flex flex-col flex-1">
-                        <h2 className="text-lg font-bold text-foreground leading-tight mb-2 line-clamp-2">Lộ trình chinh phục N5 cấp tốc cho người mới bắt đầu</h2>
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 italic">Học tiếng Nhật từ con số 0 với phương pháp Torii, giúp bạn nắm vững 2 bảng chữ cái chỉ trong 1 tuần...</p>
-                        <div className="mt-auto">
-                            <div className="flex items-center mb-4">
-                                <img alt="Instructor" className="w-8 h-8 rounded-full border border-border mr-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO7-tVjr1jxVe9YiA9gejqYTg8yruQUp6RLd39f7fEmqPHGh3RDL-WfceI06YmxzaCjkGawdCl2A7qMt7m7cbA1T2dsVlUDkcviUFOSMnMrTwDg6r64WwMQkN648HhEIFl0OanuaG4iMjUsw0_KdLy4p5FTEV3A28Veaaggjs7sqtapjfwjQENQk56jcmW_67G3dM1Na4vDCj43L8Bz7rhQEVQdC76NSgwj1zATbBilMbAlXP-mYJQGuW85rtAPIZbH3qPXFLWygA"/>
-                                <span className="text-xs font-medium text-gray-700">Akira Sensei</span>
-                                <div className="ml-auto flex items-center">
-                                    <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    <span className="ml-1 text-xs font-bold">4.9</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xl font-bold text-[oklch(0.55_0.15_15)]">Miễn phí</span>
-                                <button className="p-2 rounded-full hover:bg-muted transition-colors">
-                                    <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                {/*  Course Card 2  */}
-                <article className="shadcn-card bg-background rounded-2xl overflow-hidden flex flex-col" data-purpose="course-card">
-                    <div className="relative aspect-video bg-gray-200">
-                        <img alt="Course Thumbnail" className="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1sUMRBjDrCYlu8BAtKNze0Yy0211cuFGqenC0DLIo3B389QI2PZIYXMo9XGAOwaQ5-ds-eo6Y3YLcomyR3fOsUF8BKVm1QPkzS-8jPu6XufBF55qcCt7aIrgSDSooGIyw90xT5WObgzbXK1odPGY_Zqp-0XcB2EI5uyfEaIzM9nitE4ePx5AR3udlSp_wDDt5jwSyn3ZrHNnKLj-LuZssXIlh5R9UrriaqEpJw3VPJzKDndwBtD-df6_0OGZUkx3Ddpc5zCRl8wY"/>
-                        {/*  Badges  */}
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                            <span className="px-2 py-1 bg-[#22c55e] text-primary-foreground text-[10px] font-bold rounded uppercase">N3</span>
-                            <span className="px-2 py-1 bg-red-600 text-primary-foreground text-[10px] font-bold rounded uppercase flex items-center">
-<span className="w-1.5 h-1.5 rounded-full bg-background mr-1 animate-pulse"></span> LIVE
-                </span>
-                        </div>
-                    </div>
-                    <div className="p-5 flex flex-col flex-1">
-                        <h2 className="text-lg font-bold text-foreground leading-tight mb-2 line-clamp-2">Luyện nói tiếng Nhật N3: Phản xạ tự nhiên &amp; Phát âm chuẩn</h2>
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 italic">Khóa học tập trung vào kỹ năng nghe nói thực tế trong môi trường công ty Nhật Bản...</p>
-                        <div className="mt-auto">
-                            <div className="flex items-center mb-4">
-                                <img alt="Instructor" className="w-8 h-8 rounded-full border border-border mr-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSrPzZg_QsfdWBEqH6yiLzL9jebfV_agXzgYS6SqSjECqIYfi4vraFUwfGsBSuCg_vNkDl1eeIbSGDDiuJW7f6vSkonh4_YIza7RhRV75-42QW-9YnlaopnzPM_ZJdunZQAwn9klr8cEyzEH9cX8zPSa38Jpfe-vmD5_L15-zvvZbej16Ty8expqmyHwomZRTiL6y4ay_frMk_MllBrGEXwnGAl5VwiIW-1OC8COtcGMRowHPlKNlwDNB81rPEuuKJsF4GWnQJKmI"/>
-                                <span className="text-xs font-medium text-gray-700">Yuki Nakamura</span>
-                                <div className="ml-auto flex items-center">
-                                    <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    <span className="ml-1 text-xs font-bold">5.0</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xl font-bold text-[oklch(0.55_0.15_15)]">1.250.000 ₫</span>
-                                <button className="p-2 rounded-full hover:bg-muted transition-colors">
-                                    <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                {/*  Course Card 3  */}
-                <article className="shadcn-card bg-background rounded-2xl overflow-hidden flex flex-col" data-purpose="course-card">
-                    <div className="relative aspect-video bg-gray-200">
-                        <img alt="Course Thumbnail" className="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ_rBUXXSVMbpWWH2E6yiVFkTk-wT28fxjACHVNCbW-c7TvLi_3wB_V3zobuUHLg-6JGHJvqx6RWWi3lMxxsEg-U-nldNa1Z8kgJ8T7hDdq85e-2mBgqQVrcda8oqC0_8eCVMpFQcu5S3T46e61YqrcEwgGGxKKFDuOjkReCsK3o6C4GEA86S54rSch64VwFgy3-t97pHZ-g1v-es3kfmfNmj4YXwxzWaXD1kmRiy4PwehxcPjYPwO4MZrrjRGY-X9zMzUVieswIo"/>
-                        {/*  Badges  */}
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                            <span className="px-2 py-1 bg-[#f59e0b] text-primary-foreground text-[10px] font-bold rounded uppercase">N2</span>
-                        </div>
-                    </div>
-                    <div className="p-5 flex flex-col flex-1">
-                        <h2 className="text-lg font-bold text-foreground leading-tight mb-2 line-clamp-2">Tuyệt chiêu ghi nhớ 1000 chữ Hán N2 qua câu chuyện</h2>
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 italic">Giải mã Kanji không còn là nỗi ác mộng. Phương pháp liên tưởng độc đáo giúp nhớ lâu...</p>
-                        <div className="mt-auto">
-                            <div className="flex items-center mb-4">
-                                <img alt="Instructor" className="w-8 h-8 rounded-full border border-border mr-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIwbrUKI9Y8TVvwdUfwINxRMaZ0cRo2HhQ23moHgsb5kyJ2J-NhuM9HBipMP6foKjEicvzRSsLBcUcrRixQy30z3fpmdXTW_eHt4W3KGu1_t77tXlzRilwYO_fbV_7TVORqkRDXVyb1fqmLPkoVbRV8_7a2w-oNb-Xa5IeWcesqzAhPn8SK-rF_-U6fkj9rJvFXx1tKc98iOtS5vQgm5uPcSfvOs8uqDuCBY2xLehw30jG4cNgUJ81VD9n2DxReSLzFTM9d9Fp_4k"/>
-                                <span className="text-xs font-medium text-gray-700">Thanh Hoa Sensei</span>
-                                <div className="ml-auto flex items-center">
-                                    <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    <span className="ml-1 text-xs font-bold">4.8</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xl font-bold text-[oklch(0.55_0.15_15)]">850.000 ₫</span>
-                                <button className="p-2 rounded-full hover:bg-muted transition-colors">
-                                    <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                {/*  Course Card 4  */}
-                <article className="shadcn-card bg-background rounded-2xl overflow-hidden flex flex-col" data-purpose="course-card">
-                    <div className="relative aspect-video bg-gray-200">
-                        <img alt="Course Thumbnail" className="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDo_czlpm8zHIGmAthLwMEzNo1v0jiLcguAwuf2mkwF3jRHvgjjyqrwnOdm8RDR6hgQd9_lvxW6vmToXVtAFG35jS6GiSQ3QN8UY8kvSrieggdG3wF2x8psbTjcfL9QuJWWNuXU3ASjo5OmaENm1R5RD1ps7iotE6afK5a8JHQmL6Wd7ZLx50qqQuPn-gk0HShk83x2uOEybT_j3tSt4cKiXHTSz-1cjVM9Ta5L5Bsy2rHhBC_Hj0LMNQMxHVaTSaJe7FFcYE4gvMs"/>
-                        {/*  Badges  */}
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                            <span className="px-2 py-1 bg-[#f43f5e] text-primary-foreground text-[10px] font-bold rounded uppercase">N1</span>
-                        </div>
-                    </div>
-                    <div className="p-5 flex flex-col flex-1">
-                        <h2 className="text-lg font-bold text-foreground leading-tight mb-2 line-clamp-2">Khóa học JLPT N1 - Thành thạo như người bản xứ</h2>
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 italic">Dành cho những ai muốn chinh phục trình độ cao nhất, đọc hiểu báo chí và tài liệu chuyên ngành...</p>
-                        <div className="mt-auto">
-                            <div className="flex items-center mb-4">
-                                <img alt="Instructor" className="w-8 h-8 rounded-full border border-border mr-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_QvbjLtTBJccWQfaJ_oqR2uesngUC0FFoefD705DXkejeuhNmv1RPpsusPZb3_s-JxvjRjy9ST0NgCx7dEzQ7Svqa1nsIPrT9f3N9LEjMebwTM1NZZItb2U5K0G0ySnvBgdYEy00vubvzjg1IJXkSpt6f1oYziUw8-Hu2GSJTQZ4NCl6M7Viy-PEm7PFzj5HDKZRl_Orvh2tuIp5Zm9qs_r7yHwQ_Y0wMsv3eC7n5pTndWPtEU4bt0XaiAnkUhU5A9wi3j4Gv6_k"/>
-                                <span className="text-xs font-medium text-gray-700">Kenji Tanaka</span>
-                                <div className="ml-auto flex items-center">
-                                    <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    <span className="ml-1 text-xs font-bold">4.7</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xl font-bold text-[oklch(0.55_0.15_15)]">2.100.000 ₫</span>
-                                <button className="p-2 rounded-full hover:bg-muted transition-colors">
-                                    <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                {/*  Course Card 5  */}
-                <article className="shadcn-card bg-background rounded-2xl overflow-hidden flex flex-col" data-purpose="course-card">
-                    <div className="relative aspect-video bg-gray-200">
-                        <img alt="Course Thumbnail" className="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKD5vzDHE60O_gzzxIPkTX-84uG2K12wPrEXNEob0Ax12rwtIUCnb0ns8kbVuAQOFuTP-ulPFmpL5nw8Y_watwFoS-z-p56Qnbj5NZ8pM7cik1msYQ7fpOyF5wnqjL6jROXVf3MqytUYb-qKqKJa_sKlj4Ayzd7HJ471KARK6RsDIX1oDN2SsYmxFfDIryQQ7XAdq-yIv2rhtRVNN1hwNhE9w4uZL-bfQzxZ6V__prXt8kPHxHD-f7pKQBAUa1VkfqvWa_pf4vuoA"/>
-                        {/*  Badges  */}
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                            <span className="px-2 py-1 bg-[#14b8a6] text-primary-foreground text-[10px] font-bold rounded uppercase">N4</span>
-                        </div>
-                    </div>
-                    <div className="p-5 flex flex-col flex-1">
-                        <h2 className="text-lg font-bold text-foreground leading-tight mb-2 line-clamp-2">Nâng tầm tiếng Nhật sơ cấp N4 cùng giảng viên Bản xứ</h2>
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 italic">Tiếp nối hành trình sau N5, củng cố ngữ pháp trung cấp và mở rộng vốn từ vựng thông dụng...</p>
-                        <div className="mt-auto">
-                            <div className="flex items-center mb-4">
-                                <img alt="Instructor" className="w-8 h-8 rounded-full border border-border mr-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjCKrDcaOQr7xXxXZWHJbfim-ZlNbLUJgTSwqOPKmTPaYAUMjYP10NPev5ylPw0ziHh258g0QBj--mOcd-Au-IOgjnLDUH1JlG8JyABMTdlQ3EOIyqfI5lkOVtXksFZk1sXY7vbn0qn-6SgjWItmAu4mBIvdfGTzYMB_AubL8f0AXzkiaERq1re37cZ5yazDP_JvVqXLcV-sAWEyfAOPsLsmCZR5AbmiMTFjRREJICVUfzM_MLOPnCw1V7FnsGwwlmLw4hVyGm1mk"/>
-                                <span className="text-xs font-medium text-gray-700">Mio Saito</span>
-                                <div className="ml-auto flex items-center">
-                                    <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    <span className="ml-1 text-xs font-bold">4.9</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xl font-bold text-[oklch(0.55_0.15_15)]">1.100.000 ₫</span>
-                                <button className="p-2 rounded-full hover:bg-muted transition-colors">
-                                    <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                {/*  Course Card 6  */}
-                <article className="shadcn-card bg-background rounded-2xl overflow-hidden flex flex-col" data-purpose="course-card">
-                    <div className="relative aspect-video bg-gray-200">
-                        <img alt="Course Thumbnail" className="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5gO3l_3xMMgPAkp3O6cro5D76sjGDdihJCDCN1rjPR2pNWxbj4h_hcRZZgW-F-0NHtlSkiitaEQJnTmWIRGIkZsIMZuq2sRupwTF0cm7f22mUkHy1kNWwex7v9mD5XM-j_Ll2PekhbR90ZS3HKH6PCLYcTeBcRuE7yXI28G0mK-LoAlG20c2S5zitUllAMAlsxeujx6IR8jckE8ju0PQbSt3WA-h9Xf8cNX1nBHDPdIytmanp3jPFMjy4vWKYhdItzoxM2SQkjF0"/>
-                        {/*  Badges  */}
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                            <span className="px-2 py-1 bg-[#22c55e] text-primary-foreground text-[10px] font-bold rounded uppercase">N3</span>
-                        </div>
-                    </div>
-                    <div className="p-5 flex flex-col flex-1">
-                        <h2 className="text-lg font-bold text-foreground leading-tight mb-2 line-clamp-2">Tổng ôn kiến thức &amp; Giải đề JLPT N3 thực tế</h2>
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 italic">Cung cấp các bộ đề thi thử sát với thực tế, hướng dẫn mẹo làm bài và phân bổ thời gian...</p>
-                        <div className="mt-auto">
-                            <div className="flex items-center mb-4">
-                                <img alt="Instructor" className="w-8 h-8 rounded-full border border-border mr-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUs6oPPsgEIvDf9sQve34BLF0c_z0sxBIZ6z1Svu6NMueCcTolGACK0lA-VVTo0iPixsdeMFvcMVCD4poM9nAv8hzg_lPXWzJSLa0p1zoVvyfdnXGnXyhLG0dLCXekfNyV95fsI_X_FxCCpGbrGDzusTrFuAkaE8NJWj64ld3xuNeL-QXLo0wARAmBtMZGVeohvIk5QJys9Yq6BfNzTU3i6e_bM7r0OqLa9YeRkyLjwZQXrTR9obGm274VaT7hzZRkC6N25Iy0Uxw"/>
-                                <span className="text-xs font-medium text-gray-700">Akira Sensei</span>
-                                <div className="ml-auto flex items-center">
-                                    <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    <span className="ml-1 text-xs font-bold">4.6</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xl font-bold text-[oklch(0.55_0.15_15)]">950.000 ₫</span>
-                                <button className="p-2 rounded-full hover:bg-muted transition-colors">
-                                    <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-            </div>
-            {/*  BEGIN: Pagination  */}
-            <nav aria-label="Pagination" className="flex justify-center mt-12 mb-8">
-                <div className="inline-flex items-center p-1 bg-background border border-border rounded-full shadow-sm gap-1">
-                    <a className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Trước</a>
-                    <a className="w-10 h-10 flex items-center justify-center rounded-full bg-[oklch(0.55_0.15_15)] text-primary-foreground text-sm font-bold shadow-md" href="#">1</a>
-                    <a className="w-10 h-10 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted text-sm font-medium transition-colors" href="#">2</a>
-                    <a className="w-10 h-10 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted text-sm font-medium transition-colors" href="#">3</a>
-                    <span className="px-2 text-muted-foreground">...</span>
-                    <a className="w-10 h-10 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted text-sm font-medium transition-colors" href="#">8</a>
-                    <a className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Tiếp</a>
-                </div>
-            </nav>
-            {/*  END: Pagination  */}
-        </section>
-        {/*  END: Course Grid Content  */}
-    </div>
-</main>
-{/*  END: MainContent  */}
+    const { data: coursesData, isLoading, isError } = useCourses({
+        page,
+        limit: 9,
+        levels: selectedLevels,
+        q: search,
+        priceFilter,
+        sortBy,
+    });
 
-      </div>
-    </>
-  );
+    const courses = coursesData?.data || [];
+    const totalPages = coursesData?.totalPages || 1;
+    const totalItems = coursesData?.total || 0;
+
+    const handlePriceFilter = useCallback((value: 'all' | 'free' | 'paid') => {
+        setPriceFilter(value);
+        setPage(1);
+    }, []);
+
+    const handleReset = useCallback(() => {
+        setSearchInput('');
+        setSearch('');
+        setSelectedLevels([]);
+        setPriceFilter('all');
+        setSortBy('popularity');
+        setPage(1);
+    }, []);
+
+    const renderPaginationItems = () => {
+        if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+        const pages: (number | '...')[] = [];
+        if (page <= 3) {
+            pages.push(1, 2, 3, '...', totalPages);
+        } else if (page >= totalPages - 2) {
+            pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages);
+        } else {
+            pages.push(1, '...', page - 1, page, page + 1, '...', totalPages);
+        }
+        return pages;
+    };
+
+    return (
+        <>
+            <style>{`
+                .shadcn-card {
+                    border: 1px solid #e5e7eb;
+                    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+                    transition: all 0.2s ease;
+                }
+                .shadcn-card:hover {
+                    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+                }
+                .sticky-sidebar {
+                    height: calc(100vh - 2rem);
+                    top: 1rem;
+                }
+            `}</style>
+
+            <div className="bg-muted/30 text-foreground font-sans">
+
+                {/*  BEGIN: MainHeader  */}
+                <header className="bg-background border-b border-border pt-8 pb-6 mb-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/*  Breadcrumbs  */}
+                        <Breadcrumb className="mb-4">
+                            <BreadcrumbList>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage>Khóa học</BreadcrumbPage>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
+                        <h1 className="text-3xl font-bold text-foreground mb-2">Danh Mục Khóa Học</h1>
+                    </div>
+                </header>
+                {/*  END: MainHeader  */}
+                {/*  BEGIN: MainContent  */}
+                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                        {/*  BEGIN: Sidebar Filters  */}
+                        <aside className="w-full lg:w-60 flex-shrink-0">
+                            <div className="sticky-sidebar space-y-8 lg:overflow-y-auto pr-2">
+                                {/*  Search  */}
+                                <div>
+                                    <Input
+                                        placeholder="Tìm kiếm khóa học..."
+                                        type="text"
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
+                                    />
+                                </div>
+                                {/*  JLPT Toggle Buttons  */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Trình độ JLPT</h3>
+                                    <ToggleGroup
+                                        type="multiple"
+                                        value={selectedLevels}
+                                        onValueChange={(vals) => { setSelectedLevels(vals); setPage(1); }}
+                                        className="grid grid-cols-5 gap-2"
+                                    >
+                                        {(['N5', 'N4', 'N3', 'N2', 'N1'] as const).map(level => {
+                                            const color = LEVEL_COLORS[level];
+                                            const isActive = selectedLevels.includes(level);
+                                            return (
+                                                <ToggleGroupItem
+                                                    key={level}
+                                                    value={level}
+                                                    style={{
+                                                        borderColor: color,
+                                                        color: isActive ? 'white' : color,
+                                                        backgroundColor: isActive ? color : 'transparent',
+                                                        borderWidth: 2,
+                                                        borderStyle: 'solid',
+                                                    }}
+                                                >{level}</ToggleGroupItem>
+                                            );
+                                        })}
+                                    </ToggleGroup>
+                                </div>
+                                {/*  Price Filter  */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Học phí</h3>
+                                    <ToggleGroup
+                                        type="single"
+                                        value={priceFilter}
+                                        onValueChange={(val) => { if (val) handlePriceFilter(val as 'all' | 'free' | 'paid'); }}
+                                        variant="outline"
+                                        className="w-full"
+                                    >
+                                        <ToggleGroupItem value="all" className="flex-1">Tất cả</ToggleGroupItem>
+                                        <ToggleGroupItem value="free" className="flex-1">Miễn phí</ToggleGroupItem>
+                                        <ToggleGroupItem value="paid" className="flex-1">Có phí</ToggleGroupItem>
+                                    </ToggleGroup>
+                                </div>
+                                {/*  Topic Tags  */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Chủ đề</h3>
+                                    <div className="space-y-3">
+                                        {[
+                                            { id: 'topic-conversation', label: 'Hội thoại thực tế' },
+                                            { id: 'topic-grammar', label: 'Ngữ pháp chuyên sâu' },
+                                            { id: 'topic-kanji', label: 'Hán tự (Kanji)' },
+                                            { id: 'topic-kaiwa', label: 'Luyện thi Kaiwa' },
+                                            { id: 'topic-business', label: 'Tiếng Nhật công sở' },
+                                        ].map(({ id, label }) => (
+                                            <div key={id} className="flex items-center space-x-2">
+                                                <Checkbox id={id} />
+                                                <Label htmlFor={id}>{label}</Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                {/*  Reset Filter  */}
+                                <div className="pt-4">
+                                    <Separator className="mb-4" />
+                                    <Button variant="ghost" size="sm" onClick={handleReset}>
+                                        <RotateCcw className="w-4 h-4 mr-1" />
+                                        Xóa tất cả
+                                    </Button>
+                                </div>
+                            </div>
+                        </aside>
+                        {/*  END: Sidebar Filters  */}
+                        {/*  BEGIN: Course Grid Content  */}
+                        <section className="flex-1">
+                            {/* Sort + count bar */}
+                            <div className="flex items-center justify-between mb-4">
+                                <p className="text-sm text-muted-foreground">
+                                    {isLoading ? 'Đang tải...' : `${totalItems} khóa học`}
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <Select value={sortBy} onValueChange={(val) => { setSortBy(val); setPage(1); }}>
+                                        <SelectTrigger className="w-48">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="popularity">Phổ biến nhất</SelectItem>
+                                            <SelectItem value="newest">Mới nhất</SelectItem>
+                                            <SelectItem value="price_asc">Giá: Thấp đến Cao</SelectItem>
+                                            <SelectItem value="price_desc">Giá: Cao đến Thấp</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            {/* Course Grid */}
+                            {isLoading ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    {Array(6).fill(0).map((_, i) => (
+                                        <div key={i} className="space-y-4 bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+                                            <Skeleton className="aspect-video w-full rounded-lg" />
+                                            <Skeleton className="h-6 w-3/4" />
+                                            <Skeleton className="h-4 w-full" />
+                                            <Skeleton className="h-10 w-full rounded-lg" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : isError ? (
+                                <div className="text-center py-20 bg-muted/10 rounded-xl border border-dashed border-slate-300">
+                                    <p className="text-slate-500">Đã có lỗi xảy ra khi tải danh sách khóa học.</p>
+                                </div>
+                            ) : courses.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    {courses.map((course) => (
+                                        <Link
+                                            key={course.id}
+                                            href={`/courses/${course.slug || course.id}`}
+                                            className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                                        >
+                                            <div className="relative aspect-video overflow-hidden">
+                                                {course.thumbnailUrl ? (
+                                                    <img
+                                                        src={course.thumbnailUrl}
+                                                        alt={course.title}
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 transition-transform duration-500 group-hover:scale-110" />
+                                                )}
+                                                <div className="absolute top-3 left-3 flex gap-2">
+                                                    <span className="bg-primary/90 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                                                        {course.jlptLevel || "N/A"}
+                                                    </span>
+                                                    <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                                                        {course.jlptLevel || "General"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="p-5 space-y-3">
+                                                <div>
+                                                    <h3 className="font-bold text-slate-900 dark:text-white line-clamp-1">{course.title}</h3>
+                                                    <p className="text-xs text-primary font-medium">{course.aiMetadata?.titleEn || "Japanese Course"}</p>
+                                                </div>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                                                    {course.shortDescription || course.description}
+                                                </p>
+                                                <div className="flex items-center gap-3 text-xs text-slate-400">
+                                                    <div className="flex items-center gap-1">
+                                                        {course.lecturer?.displayName === "AI Assistant" ? (
+                                                            <Bot className="size-4" />
+                                                        ) : (
+                                                            <User className="size-4" />
+                                                        )}
+                                                        <span>{course.lecturer?.displayName || "Torii Instructor"}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <Star className="size-4 text-yellow-400 fill-current" />
+                                                        <span className="font-bold text-slate-700 dark:text-slate-200">{Number(course.averageRating).toFixed(1)}</span>
+                                                        <span>({course.totalReviews?.toLocaleString()})</span>
+                                                    </div>
+                                                </div>
+                                                <div className="pt-2 flex items-center justify-between">
+                                                    {course.price === 0 ? (
+                                                        <span className="text-lg font-bold text-primary italic">Free</span>
+                                                    ) : (
+                                                        <span className="text-lg font-bold text-slate-900 dark:text-white">
+                                                            ¥{Number(course.price).toLocaleString()}
+                                                        </span>
+                                                    )}
+                                                    <Button size="sm">Xem chi tiết</Button>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed border-slate-300">
+                                    <p className="text-slate-500">Không tìm thấy khóa học nào phù hợp.</p>
+                                </div>
+                            )}
+                            {/*  BEGIN: Pagination  */}
+                            {!isLoading && totalPages > 1 && (
+                                <Pagination className="mt-12 mb-8">
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                href="#"
+                                                text="Trước"
+                                                onClick={(e) => { e.preventDefault(); setPage(p => Math.max(1, p - 1)); }}
+                                                aria-disabled={page === 1}
+                                            />
+                                        </PaginationItem>
+                                        {renderPaginationItems().map((p, idx) =>
+                                            p === '...'
+                                                ? (
+                                                    <PaginationItem key={`ellipsis-${idx}`}>
+                                                        <PaginationEllipsis />
+                                                    </PaginationItem>
+                                                )
+                                                : (
+                                                    <PaginationItem key={p}>
+                                                        <PaginationLink
+                                                            href="#"
+                                                            isActive={p === page}
+                                                            onClick={(e) => { e.preventDefault(); setPage(p as number); }}
+                                                        >{p}</PaginationLink>
+                                                    </PaginationItem>
+                                                )
+                                        )}
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                href="#"
+                                                text="Tiếp"
+                                                onClick={(e) => { e.preventDefault(); setPage(p => Math.min(totalPages, p + 1)); }}
+                                                aria-disabled={page === totalPages}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            )}
+                            {/*  END: Pagination  */}
+                        </section>
+                        {/*  END: Course Grid Content  */}
+                    </div>
+                </main>
+                {/*  END: MainContent  */}
+
+            </div>
+        </>
+    );
 }

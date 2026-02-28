@@ -17,9 +17,9 @@ import {
     X,
     LayoutDashboard,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { toast } from '@workspace/ui/components/sonner'
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
 import {
@@ -45,10 +45,21 @@ const navigation = [
 export function Header() {
     const dispatch = useAppDispatch()
     const router = useRouter()
+    const pathname = usePathname()
+    const isHome = pathname === '/'
     const { user, isAuthenticated } = useAppSelector((state) => state.auth)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [isLoggingOut, setIsLoggingOut] = useState(false)
+    const [scrolled, setScrolled] = useState(false)
     const { theme, setTheme } = useTheme()
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20)
+        }
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     const handleLogout = async () => {
         setIsLoggingOut(true)
@@ -65,11 +76,23 @@ export function Header() {
     }
 
     return (
-        <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800" data-purpose="main-nav">
+        <nav
+            className={cn(
+                "fixed top-0 z-50 w-full transition-all duration-500",
+                isHome
+                    ? scrolled
+                        ? "bg-background/90 backdrop-blur-xl border-b border-primary/20 py-1"
+                        : "bg-transparent py-2"
+                    : scrolled
+                        ? "bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm py-1"
+                        : "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-2"
+            )}
+            data-purpose="main-nav"
+        >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
-                    <Link href="/" className="flex items-center gap-2 group transition-all duration-300">
-                        <div className="relative size-8 transition-transform duration-300 group-hover:scale-110">
+                <div className="flex justify-between items-center h-14 sm:h-16">
+                    <Link href="/" className="flex items-center gap-3 group transition-all duration-300">
+                        <div className="relative size-7 sm:size-8 transition-transform duration-300 group-hover:scale-110">
                             <Image
                                 src="/logo.png"
                                 alt="Torii Nihongo Logo"
@@ -79,36 +102,59 @@ export function Header() {
                             />
                         </div>
                         <div className="flex flex-col leading-none">
-                            <span className="text-sm font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Torii</span>
-                            <span className="text-[10px] font-bold tracking-[0.2em] text-[oklch(0.55_0.15_15)] uppercase">Nihongo</span>
+                            <span className={cn(
+                                scrolled ? 'text-sm' : 'text-base',
+                                "font-black tracking-tighter uppercase italic transition-all duration-500",
+                                isHome && !scrolled ? "text-white" : "text-foreground"
+                            )}>
+                                Torii
+                            </span>
+                            <span className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase">
+                                Nihongo
+                            </span>
                         </div>
                     </Link>
 
-                    <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    <div className="hidden md:flex items-center space-x-10 text-sm font-medium">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="hover:text-[oklch(0.55_0.15_15)] transition-colors"
+                                className={cn(
+                                    "transition-all duration-300 relative group",
+                                    isHome && !scrolled ? "text-white/80 hover:text-white" : "text-foreground/70 hover:text-primary",
+                                    pathname === item.href && "text-primary font-bold"
+                                )}
                             >
-                                {item.name}
+                                <span className="[font-family:var(--font-space)] tracking-wider uppercase text-[10px]">{item.name}</span>
+                                <span className={cn(
+                                    "absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full",
+                                    isHome && !scrolled ? "bg-white" : "bg-primary",
+                                    pathname === item.href && "w-full"
+                                )}></span>
                             </Link>
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-6">
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-[oklch(0.55_0.15_15)]/50">
-                                        <Avatar className="size-9">
-                                            <AvatarFallback className="bg-[oklch(0.55_0.15_15)]/10 text-[oklch(0.55_0.15_15)] text-xs font-bold">
+                                    <button className="rounded-full focus:outline-none ring-offset-background focus:ring-2 focus:ring-primary/50">
+                                        <Avatar className={cn(
+                                            "size-9 transition-all duration-300",
+                                            isHome && !scrolled ? "ring-2 ring-white/30" : "ring-1 ring-slate-200 dark:ring-slate-800"
+                                        )}>
+                                            <AvatarFallback className={cn(
+                                                "text-xs font-bold",
+                                                isHome && !scrolled ? "bg-white/20 text-white" : "bg-primary/20 text-primary"
+                                            )}>
                                                 {user?.displayName?.[0]?.toUpperCase() || 'U'}
                                             </AvatarFallback>
                                         </Avatar>
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-64 p-2 shadow-md" align="end" forceMount>
+                                <DropdownMenuContent className="w-64 p-2 shadow-2xl border-primary/10" align="end" forceMount>
                                     <DropdownMenuLabel className="font-normal px-2 pb-3">
                                         <div className="flex flex-col space-y-1">
                                             <p className="text-sm font-bold leading-none">{user?.displayName || 'Người dùng'}</p>
@@ -120,7 +166,7 @@ export function Header() {
                                     <DropdownMenuSeparator className="mx-2 mb-2" />
                                     <DropdownMenuGroup className="space-y-1">
                                         <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard')}>
-                                            <LayoutDashboard className="mr-3 size-4 text-[oklch(0.55_0.15_15)]" />
+                                            <LayoutDashboard className="mr-3 size-4 text-primary" />
                                             <span>Dashboard</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
@@ -150,15 +196,34 @@ export function Header() {
                             </DropdownMenu>
                         ) : (
                             <>
-                                <Link href="/login" className="hidden md:block text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Đăng nhập</Link>
-                                <Link href="/register" className="hidden md:block px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold rounded-full hover:bg-slate-800 dark:hover:bg-slate-200 transition-all shadow-sm">Đăng ký</Link>
+                                <Link
+                                    href="/login"
+                                    className={cn(
+                                        "hidden md:block text-[10px] font-bold uppercase tracking-widest [font-family:var(--font-space)] transition-colors",
+                                        isHome && !scrolled ? "text-white/80 hover:text-white" : "text-foreground/70 hover:text-primary"
+                                    )}
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    className={cn(
+                                        "hidden md:block px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest [font-family:var(--font-space)] rounded-sm transition-all shadow-xl",
+                                        "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 active:scale-95"
+                                    )}
+                                >
+                                    Join Journey
+                                </Link>
                             </>
                         )}
                         <div className="md:hidden">
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="shrink-0"
+                                className={cn(
+                                    "shrink-0 transition-colors",
+                                    isHome && !scrolled ? "text-white" : "text-foreground"
+                                )}
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             >
                                 {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -170,36 +235,49 @@ export function Header() {
 
             {/* Mobile Dropdown Menu */}
             {mobileMenuOpen && (
-                <div className="md:hidden border-t bg-background absolute w-full left-0 p-6 shadow-xl animate-in fade-in slide-in-from-top-4 duration-200">
-                    <nav className="flex flex-col gap-1 mb-6">
+                <div className={cn(
+                    "md:hidden border-t absolute w-full left-0 p-8 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 border-border bg-background",
+                    isHome && "border-primary/20"
+                )}>
+                    <nav className="flex flex-col gap-2 mb-8">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="flex items-center gap-4 px-4 py-3 rounded-md text-base font-medium hover:bg-muted transition-colors"
+                                className={cn(
+                                    "flex items-center gap-4 px-4 py-4 rounded-sm text-xs font-bold uppercase tracking-[0.2em] [font-family:var(--font-space)] transition-all",
+                                    "text-foreground/80 hover:bg-primary/10 hover:text-primary",
+                                    pathname === item.href && "bg-primary/10 text-primary"
+                                )}
                             >
-                                <item.icon className="size-5 text-muted-foreground" />
+                                <item.icon className="size-4 opacity-50" />
                                 {item.name}
                             </Link>
                         ))}
                     </nav>
 
-                    <Separator className="mb-6" />
+                    <Separator className={cn("mb-8", isHome ? "bg-primary/10" : "bg-border")} />
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {!isAuthenticated && (
-                            <div className="grid gap-3">
-                                <Button variant="outline" className="w-full" asChild>
-                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
+                            <div className="grid gap-4">
+                                <Button variant="outline" className={cn(
+                                    "w-full rounded-sm font-bold uppercase tracking-widest text-xs py-5",
+                                    isHome && "border-primary/20 text-primary hover:bg-primary/5"
+                                )} asChild>
+                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link>
                                 </Button>
-                                <Button className="w-full bg-[oklch(0.55_0.15_15)] text-white hover:bg-[oklch(0.55_0.15_15)]/90" asChild>
-                                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Bắt đầu miễn phí</Link>
+                                <Button className="w-full rounded-sm font-bold uppercase tracking-widest text-xs py-5 shadow-xl bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Begin Journey</Link>
                                 </Button>
                             </div>
                         )}
-                        <div className="flex items-center justify-between px-4 py-3 rounded-md bg-muted/50">
-                            <div className="flex items-center gap-3">
+                        <div className={cn(
+                            "flex items-center justify-between px-6 py-4 rounded-sm transition-colors",
+                            isHome ? "bg-primary/5" : "bg-muted/50"
+                        )}>
+                            <div className="flex items-center gap-4">
                                 {theme === 'dark' ? <Sun className="size-4 text-muted-foreground" /> : <Moon className="size-4 text-muted-foreground" />}
                                 <span className="text-sm font-medium">Giao diện tối</span>
                             </div>

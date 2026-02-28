@@ -4,889 +4,118 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix logic web-admin">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/marketing/course-detail-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/marketing/course-detail-client.tsx" afterDir="false" />
+    <list default="true" id="024beb72-e267-481b-b3f6-b1026f58bed5" name="Changes" comment="feat: implement animated text and redesign home layout">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/marketing/blog-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/marketing/blog-client.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/marketing/home-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/marketing/home-client.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="CopilotPersistence">
-    <persistenceIdMap>
-      <entry key="_/home/lain4504/SEP490/torii-monorepo" value="37A0yfZgCJQYTxlmthXWuaUq33u" />
-    </persistenceIdMap>
-  </component>
-  <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1985" />
-    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="TypeScript File" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="PREVIOUS_COMMIT_AUTHORS">
-      <list>
-        <option value="Ngochieu3165 &lt;ngochieu3165@gmail.com&gt;" />
-      </list>
-    </option>
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="update-error-sheet" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;history&quot;: [
-    {
-      &quot;state&quot;: &quot;OPEN&quot;
-    }
-  ],
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;
-  }
-}</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: [
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66sc24&quot;,
-        &quot;number&quot;: 35
-      },
-      &quot;lastSeen&quot;: 1766837511440
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66twAD&quot;,
-        &quot;number&quot;: 38
-      },
-      &quot;lastSeen&quot;: 1766885614934
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66oPXy&quot;,
-        &quot;number&quot;: 31
-      },
-      &quot;lastSeen&quot;: 1766974161892
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM67ZerY&quot;,
-        &quot;number&quot;: 48
-      },
-      &quot;lastSeen&quot;: 1767495744090
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AaErH&quot;,
-        &quot;number&quot;: 113
-      },
-      &quot;lastSeen&quot;: 1769855142628
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AuiQ2&quot;,
-        &quot;number&quot;: 121
-      },
-      &quot;lastSeen&quot;: 1770017085445
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM7C-TdR&quot;,
-        &quot;number&quot;: 187
-      },
-      &quot;lastSeen&quot;: 1770817417849
-    }
-  ]
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
-  },
-  &quot;editorReviewEnabled&quot;: false
-}</component>
-  <component name="GoLibraries">
-    <option name="indexEntireGoPath" value="true" />
-  </component>
-  <component name="KubernetesApiPersistence">{}</component>
-  <component name="KubernetesApiProvider">{
-  &quot;isMigrated&quot;: true
-}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
-}</component>
-  <component name="ProjectId" id="37A0yfZgCJQYTxlmthXWuaUq33u" />
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "JavaScript Debug.localhost:3000.executor": "Debug",
-    "JavaScript Debug.localhost:5173.executor": "Debug",
     "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "#253 on build-new-ui",
-    "go.import.settings.migrated": "true",
-    "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/projectdev/demo/team-source/torii-monorepo/apps/web-learner/public",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
-  },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "redis",
-      "mongo",
-      "postgresql"
-    ]
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib"
   }
 }]]></component>
-  <component name="QodanaCIConfigService">
-    <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
-  </component>
-  <component name="QodanaCloudProjectLink">
-    <option name="lastReportId" value="Eg8e9w" />
-    <option name="linkedProjectId" value="Q6WDD" />
-    <option name="linkedProjectName" value="Torii Monorepo" />
-    <option name="organizationId" value="qbwwv" />
-    <option name="userId" value="w9R9J" />
-  </component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo" />
-      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
-      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
-      <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public\images" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/communication/handlers" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/learning/src/handlers" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/handlers" />
-    </key>
-  </component>
-  <component name="RunManager" selected="JavaScript Debug.localhost:3000">
-    <configuration name="localhost:3000" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3000">
-      <method v="2" />
-    </configuration>
-    <configuration name="localhost:5173" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:5173/">
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
-      <deployment type="docker-compose.yml">
-        <settings />
-      </deployment>
-      <method v="2" />
-    </configuration>
-    <configuration name="docker-compose.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="sourceFilePath" value="docker-compose.yml" />
-        </settings>
-      </deployment>
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="JavaScript Debug.localhost:3000" />
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-        <item itemvalue="JavaScript Debug.localhost:5173" />
-        <item itemvalue="JavaScript Debug.localhost:3000" />
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-      </list>
-    </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
-      </set>
-    </attachedChunks>
-  </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="SwiftWorkspaceSettings">
-    <option name="detectedToolchain" value="true" />
-  </component>
   <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="" />
-      <created>1765358737358</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1765358737358</updated>
-      <workItem from="1765358739792" duration="405000" />
-      <workItem from="1765364274073" duration="46000" />
-      <workItem from="1765419916192" duration="114000" />
-      <workItem from="1765442075664" duration="7001000" />
-      <workItem from="1765449186873" duration="25000" />
-      <workItem from="1765456305656" duration="449000" />
-      <workItem from="1765456975211" duration="422000" />
-      <workItem from="1765802001916" duration="13533000" />
-      <workItem from="1765819424134" duration="879000" />
-      <workItem from="1765820660014" duration="666000" />
-      <workItem from="1765849677488" duration="719000" />
-      <workItem from="1765855909748" duration="4405000" />
-      <workItem from="1766253712286" duration="774000" />
-      <workItem from="1766330829836" duration="8918000" />
-      <workItem from="1766380346197" duration="69000" />
-      <workItem from="1766388692239" duration="170000" />
-      <workItem from="1766389136679" duration="276000" />
-      <workItem from="1766389564407" duration="209000" />
-      <workItem from="1766389953908" duration="3574000" />
-      <workItem from="1766495967127" duration="4561000" />
-      <workItem from="1766538393698" duration="11108000" />
-      <workItem from="1766623545079" duration="8040000" />
-      <workItem from="1766649318307" duration="5427000" />
-      <workItem from="1766712184356" duration="8777000" />
-      <workItem from="1766734238257" duration="5995000" />
-      <workItem from="1766812088279" duration="123000" />
-      <workItem from="1766826149900" duration="3567000" />
-      <workItem from="1766929635077" duration="73000" />
-      <workItem from="1766929759619" duration="39000" />
-      <workItem from="1766929840821" duration="9339000" />
-      <workItem from="1766940341673" duration="161000" />
-      <workItem from="1766969621474" duration="4122000" />
-      <workItem from="1767005109359" duration="25000" />
-      <workItem from="1767013483400" duration="200000" />
-      <workItem from="1767016120401" duration="1615000" />
-      <workItem from="1767017792350" duration="2790000" />
-      <workItem from="1767061481612" duration="3000" />
-      <workItem from="1767139678426" duration="1450000" />
-      <workItem from="1767179041805" duration="1585000" />
-      <workItem from="1767182827516" duration="3496000" />
-      <workItem from="1767192481085" duration="10184000" />
-      <workItem from="1767234621203" duration="4843000" />
-      <workItem from="1767259125707" duration="9967000" />
-      <workItem from="1767285731463" duration="67000" />
-      <workItem from="1767312615857" duration="5665000" />
-      <workItem from="1767322940795" duration="310000" />
-      <workItem from="1767432341687" duration="5940000" />
-      <workItem from="1767441903721" duration="133000" />
-      <workItem from="1767453248086" duration="5731000" />
-      <workItem from="1767488214135" duration="5190000" />
-      <workItem from="1767587330164" duration="542000" />
-      <workItem from="1767602622981" duration="7446000" />
-      <workItem from="1767618667139" duration="1110000" />
-      <workItem from="1767623108138" duration="3167000" />
-      <workItem from="1767660570458" duration="7106000" />
-      <workItem from="1767759487749" duration="6686000" />
-      <workItem from="1767778404586" duration="2000" />
-      <workItem from="1767779186565" duration="43000" />
-      <workItem from="1767779643020" duration="455000" />
-      <workItem from="1767780214679" duration="224000" />
-      <workItem from="1767784611248" duration="3225000" />
-      <workItem from="1767920675580" duration="109000" />
-      <workItem from="1767920867700" duration="17000" />
-      <workItem from="1767933733732" duration="482000" />
-      <workItem from="1767937314619" duration="7276000" />
-      <workItem from="1767954560047" duration="1564000" />
-      <workItem from="1767962792348" duration="6426000" />
-      <workItem from="1767970155935" duration="4593000" />
-      <workItem from="1768010492981" duration="681000" />
-      <workItem from="1768073462770" duration="2244000" />
-      <workItem from="1768199989867" duration="83000" />
-      <workItem from="1768201864379" duration="7510000" />
-      <workItem from="1768266718590" duration="2263000" />
-      <workItem from="1768275244074" duration="4926000" />
-      <workItem from="1768466511682" duration="987000" />
-      <workItem from="1768471927655" duration="9066000" />
-      <workItem from="1768559182032" duration="3041000" />
-      <workItem from="1768575475930" duration="2293000" />
-      <workItem from="1768577911025" duration="356000" />
-      <workItem from="1768578281072" duration="171000" />
-      <workItem from="1768627022995" duration="2000" />
-      <workItem from="1768627036067" duration="93000" />
-      <workItem from="1768643728643" duration="4000" />
-      <workItem from="1768644143276" duration="315000" />
-      <workItem from="1768644465850" duration="221000" />
-      <workItem from="1768648788845" duration="212000" />
-      <workItem from="1768659243889" duration="917000" />
-      <workItem from="1768660231449" duration="47000" />
-      <workItem from="1768660312854" duration="497000" />
-      <workItem from="1768715285886" duration="626000" />
-      <workItem from="1768717036664" duration="747000" />
-      <workItem from="1768795231740" duration="1542000" />
-      <workItem from="1768825976336" duration="322000" />
-      <workItem from="1768826857511" duration="19000" />
-      <workItem from="1768829101896" duration="55000" />
-      <workItem from="1768911439183" duration="1357000" />
-      <workItem from="1768964656424" duration="7389000" />
-      <workItem from="1769043868595" duration="3959000" />
-      <workItem from="1769085026212" duration="45000" />
-      <workItem from="1769085321038" duration="12000" />
-      <workItem from="1769181804062" duration="422000" />
-      <workItem from="1769215771483" duration="3323000" />
-      <workItem from="1769677668828" duration="174000" />
-      <workItem from="1769776646079" duration="635000" />
-      <workItem from="1769784933135" duration="31000" />
-      <workItem from="1769833098000" duration="11000" />
-      <workItem from="1769833117426" duration="20000" />
-      <workItem from="1769846484321" duration="1011000" />
-      <workItem from="1769848661014" duration="95000" />
-      <workItem from="1769849840092" duration="424000" />
-      <workItem from="1769932867652" duration="613000" />
-      <workItem from="1769992747880" duration="9203000" />
-      <workItem from="1770003198839" duration="2337000" />
-      <workItem from="1770010510304" duration="439000" />
-      <workItem from="1770016457704" duration="2439000" />
-      <workItem from="1770022647481" duration="8671000" />
-      <workItem from="1770094105872" duration="1065000" />
-      <workItem from="1770110196183" duration="544000" />
-      <workItem from="1770111303810" duration="1716000" />
-      <workItem from="1770205775197" duration="4515000" />
-      <workItem from="1770211042025" duration="1549000" />
-      <workItem from="1770258916961" duration="101000" />
-      <workItem from="1770259118232" duration="391000" />
-      <workItem from="1770260684480" duration="1083000" />
-      <workItem from="1770263376444" duration="864000" />
-      <workItem from="1770264822708" duration="463000" />
-      <workItem from="1770282785185" duration="3025000" />
-      <workItem from="1770285990064" duration="133000" />
-      <workItem from="1770522195985" duration="5000" />
-      <workItem from="1770522531811" duration="63000" />
-      <workItem from="1770522694227" duration="28000" />
-      <workItem from="1771656031608" duration="52000" />
-      <workItem from="1771656283677" duration="780000" />
-      <workItem from="1771658110565" duration="1298000" />
-      <workItem from="1771661136662" duration="381000" />
-      <workItem from="1771662839658" duration="721000" />
-      <workItem from="1771674736995" duration="351000" />
-      <workItem from="1771676906109" duration="338000" />
-      <workItem from="1771723455405" duration="49000" />
-      <workItem from="1771745712088" duration="114000" />
-      <workItem from="1771745913938" duration="13000" />
-      <workItem from="1771816089601" duration="6372000" />
-      <workItem from="1771831921551" duration="1608000" />
-      <workItem from="1771893900153" duration="2000" />
-      <workItem from="1771980219330" duration="69000" />
-      <workItem from="1771986308534" duration="331000" />
-      <workItem from="1771990667306" duration="886000" />
-      <workItem from="1771996036213" duration="3105000" />
-      <workItem from="1772038435231" duration="18000" />
-      <workItem from="1772116512598" duration="1351000" />
-      <workItem from="1772173061622" duration="2604000" />
-      <workItem from="1772200330099" duration="390000" />
-      <workItem from="1772259343193" duration="455000" />
-      <workItem from="1772271753587" duration="12455000" />
-    </task>
-    <task id="LOCAL-00919" summary="rebuild home page">
+    <task id="LOCAL-00001" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772263710921</created>
-      <option name="number" value="00919" />
-      <option name="presentableId" value="LOCAL-00919" />
+      <created>1772290131104</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1772263710923</updated>
+      <updated>1772290131105</updated>
     </task>
-    <task id="LOCAL-00920" summary="rebuild home page">
+    <task id="LOCAL-00002" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772263806361</created>
-      <option name="number" value="00920" />
-      <option name="presentableId" value="LOCAL-00920" />
+      <created>1772290914446</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1772263806361</updated>
+      <updated>1772290914447</updated>
     </task>
-    <task id="LOCAL-00921" summary="rebuild home page">
+    <task id="LOCAL-00003" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772263951919</created>
-      <option name="number" value="00921" />
-      <option name="presentableId" value="LOCAL-00921" />
+      <created>1772291041605</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1772263951919</updated>
+      <updated>1772291041605</updated>
     </task>
-    <task id="LOCAL-00922" summary="rebuild home page">
+    <task id="LOCAL-00004" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772263967752</created>
-      <option name="number" value="00922" />
-      <option name="presentableId" value="LOCAL-00922" />
+      <created>1772291189608</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
-      <updated>1772263967752</updated>
+      <updated>1772291189608</updated>
     </task>
-    <task id="LOCAL-00923" summary="rebuild home page">
+    <task id="LOCAL-00005" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772264115181</created>
-      <option name="number" value="00923" />
-      <option name="presentableId" value="LOCAL-00923" />
+      <created>1772291489955</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
       <option name="project" value="LOCAL" />
-      <updated>1772264115181</updated>
+      <updated>1772291489955</updated>
     </task>
-    <task id="LOCAL-00924" summary="rebuild home page">
+    <task id="LOCAL-00006" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772264153225</created>
-      <option name="number" value="00924" />
-      <option name="presentableId" value="LOCAL-00924" />
+      <created>1772292213176</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
       <option name="project" value="LOCAL" />
-      <updated>1772264153225</updated>
+      <updated>1772292213176</updated>
     </task>
-    <task id="LOCAL-00925" summary="rebuild home page">
+    <task id="LOCAL-00007" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772264402961</created>
-      <option name="number" value="00925" />
-      <option name="presentableId" value="LOCAL-00925" />
+      <created>1772292407954</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
       <option name="project" value="LOCAL" />
-      <updated>1772264402961</updated>
+      <updated>1772292407954</updated>
     </task>
-    <task id="LOCAL-00926" summary="rebuild home page">
+    <task id="LOCAL-00008" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772264717940</created>
-      <option name="number" value="00926" />
-      <option name="presentableId" value="LOCAL-00926" />
+      <created>1772292634072</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
       <option name="project" value="LOCAL" />
-      <updated>1772264717940</updated>
+      <updated>1772292634072</updated>
     </task>
-    <task id="LOCAL-00927" summary="rebuild home page">
+    <task id="LOCAL-00009" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772264967209</created>
-      <option name="number" value="00927" />
-      <option name="presentableId" value="LOCAL-00927" />
+      <created>1772293002198</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
       <option name="project" value="LOCAL" />
-      <updated>1772264967209</updated>
+      <updated>1772293002202</updated>
     </task>
-    <task id="LOCAL-00928" summary="rebuild home page">
+    <task id="LOCAL-00010" summary="feat: implement animated text and redesign home layout">
       <option name="closed" value="true" />
-      <created>1772265036174</created>
-      <option name="number" value="00928" />
-      <option name="presentableId" value="LOCAL-00928" />
+      <created>1772293215407</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
       <option name="project" value="LOCAL" />
-      <updated>1772265036174</updated>
+      <updated>1772293215407</updated>
     </task>
-    <task id="LOCAL-00929" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772265313008</created>
-      <option name="number" value="00929" />
-      <option name="presentableId" value="LOCAL-00929" />
-      <option name="project" value="LOCAL" />
-      <updated>1772265313009</updated>
-    </task>
-    <task id="LOCAL-00930" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772266201003</created>
-      <option name="number" value="00930" />
-      <option name="presentableId" value="LOCAL-00930" />
-      <option name="project" value="LOCAL" />
-      <updated>1772266201003</updated>
-    </task>
-    <task id="LOCAL-00931" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772266420345</created>
-      <option name="number" value="00931" />
-      <option name="presentableId" value="LOCAL-00931" />
-      <option name="project" value="LOCAL" />
-      <updated>1772266420347</updated>
-    </task>
-    <task id="LOCAL-00932" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772266505960</created>
-      <option name="number" value="00932" />
-      <option name="presentableId" value="LOCAL-00932" />
-      <option name="project" value="LOCAL" />
-      <updated>1772266505962</updated>
-    </task>
-    <task id="LOCAL-00933" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772266848110</created>
-      <option name="number" value="00933" />
-      <option name="presentableId" value="LOCAL-00933" />
-      <option name="project" value="LOCAL" />
-      <updated>1772266848112</updated>
-    </task>
-    <task id="LOCAL-00934" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772267070765</created>
-      <option name="number" value="00934" />
-      <option name="presentableId" value="LOCAL-00934" />
-      <option name="project" value="LOCAL" />
-      <updated>1772267070766</updated>
-    </task>
-    <task id="LOCAL-00935" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772267246356</created>
-      <option name="number" value="00935" />
-      <option name="presentableId" value="LOCAL-00935" />
-      <option name="project" value="LOCAL" />
-      <updated>1772267246360</updated>
-    </task>
-    <task id="LOCAL-00936" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772268062480</created>
-      <option name="number" value="00936" />
-      <option name="presentableId" value="LOCAL-00936" />
-      <option name="project" value="LOCAL" />
-      <updated>1772268062480</updated>
-    </task>
-    <task id="LOCAL-00937" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772268584256</created>
-      <option name="number" value="00937" />
-      <option name="presentableId" value="LOCAL-00937" />
-      <option name="project" value="LOCAL" />
-      <updated>1772268584256</updated>
-    </task>
-    <task id="LOCAL-00938" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772269272155</created>
-      <option name="number" value="00938" />
-      <option name="presentableId" value="LOCAL-00938" />
-      <option name="project" value="LOCAL" />
-      <updated>1772269272162</updated>
-    </task>
-    <task id="LOCAL-00939" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772269497051</created>
-      <option name="number" value="00939" />
-      <option name="presentableId" value="LOCAL-00939" />
-      <option name="project" value="LOCAL" />
-      <updated>1772269497053</updated>
-    </task>
-    <task id="LOCAL-00940" summary="rebuild learn">
-      <option name="closed" value="true" />
-      <created>1772269623722</created>
-      <option name="number" value="00940" />
-      <option name="presentableId" value="LOCAL-00940" />
-      <option name="project" value="LOCAL" />
-      <updated>1772269623722</updated>
-    </task>
-    <task id="LOCAL-00941" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772270824221</created>
-      <option name="number" value="00941" />
-      <option name="presentableId" value="LOCAL-00941" />
-      <option name="project" value="LOCAL" />
-      <updated>1772270824221</updated>
-    </task>
-    <task id="LOCAL-00942" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772272292475</created>
-      <option name="number" value="00942" />
-      <option name="presentableId" value="LOCAL-00942" />
-      <option name="project" value="LOCAL" />
-      <updated>1772272292476</updated>
-    </task>
-    <task id="LOCAL-00943" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772272307312</created>
-      <option name="number" value="00943" />
-      <option name="presentableId" value="LOCAL-00943" />
-      <option name="project" value="LOCAL" />
-      <updated>1772272307312</updated>
-    </task>
-    <task id="LOCAL-00944" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772272330376</created>
-      <option name="number" value="00944" />
-      <option name="presentableId" value="LOCAL-00944" />
-      <option name="project" value="LOCAL" />
-      <updated>1772272330376</updated>
-    </task>
-    <task id="LOCAL-00945" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772272340105</created>
-      <option name="number" value="00945" />
-      <option name="presentableId" value="LOCAL-00945" />
-      <option name="project" value="LOCAL" />
-      <updated>1772272340105</updated>
-    </task>
-    <task id="LOCAL-00946" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772272365019</created>
-      <option name="number" value="00946" />
-      <option name="presentableId" value="LOCAL-00946" />
-      <option name="project" value="LOCAL" />
-      <updated>1772272365019</updated>
-    </task>
-    <task id="LOCAL-00947" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772272695550</created>
-      <option name="number" value="00947" />
-      <option name="presentableId" value="LOCAL-00947" />
-      <option name="project" value="LOCAL" />
-      <updated>1772272695550</updated>
-    </task>
-    <task id="LOCAL-00948" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772272723408</created>
-      <option name="number" value="00948" />
-      <option name="presentableId" value="LOCAL-00948" />
-      <option name="project" value="LOCAL" />
-      <updated>1772272723408</updated>
-    </task>
-    <task id="LOCAL-00949" summary="feat: update logo display across layout components">
-      <option name="closed" value="true" />
-      <created>1772272907315</created>
-      <option name="number" value="00949" />
-      <option name="presentableId" value="LOCAL-00949" />
-      <option name="project" value="LOCAL" />
-      <updated>1772272907315</updated>
-    </task>
-    <task id="LOCAL-00950" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772274734064</created>
-      <option name="number" value="00950" />
-      <option name="presentableId" value="LOCAL-00950" />
-      <option name="project" value="LOCAL" />
-      <updated>1772274734064</updated>
-    </task>
-    <task id="LOCAL-00951" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772274933371</created>
-      <option name="number" value="00951" />
-      <option name="presentableId" value="LOCAL-00951" />
-      <option name="project" value="LOCAL" />
-      <updated>1772274933371</updated>
-    </task>
-    <task id="LOCAL-00952" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772275439363</created>
-      <option name="number" value="00952" />
-      <option name="presentableId" value="LOCAL-00952" />
-      <option name="project" value="LOCAL" />
-      <updated>1772275439365</updated>
-    </task>
-    <task id="LOCAL-00953" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772275723741</created>
-      <option name="number" value="00953" />
-      <option name="presentableId" value="LOCAL-00953" />
-      <option name="project" value="LOCAL" />
-      <updated>1772275723741</updated>
-    </task>
-    <task id="LOCAL-00954" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772275862265</created>
-      <option name="number" value="00954" />
-      <option name="presentableId" value="LOCAL-00954" />
-      <option name="project" value="LOCAL" />
-      <updated>1772275862266</updated>
-    </task>
-    <task id="LOCAL-00955" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772277940973</created>
-      <option name="number" value="00955" />
-      <option name="presentableId" value="LOCAL-00955" />
-      <option name="project" value="LOCAL" />
-      <updated>1772277940973</updated>
-    </task>
-    <task id="LOCAL-00956" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772278955219</created>
-      <option name="number" value="00956" />
-      <option name="presentableId" value="LOCAL-00956" />
-      <option name="project" value="LOCAL" />
-      <updated>1772278955220</updated>
-    </task>
-    <task id="LOCAL-00957" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772279543569</created>
-      <option name="number" value="00957" />
-      <option name="presentableId" value="LOCAL-00957" />
-      <option name="project" value="LOCAL" />
-      <updated>1772279543569</updated>
-    </task>
-    <task id="LOCAL-00958" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772279662183</created>
-      <option name="number" value="00958" />
-      <option name="presentableId" value="LOCAL-00958" />
-      <option name="project" value="LOCAL" />
-      <updated>1772279662184</updated>
-    </task>
-    <task id="LOCAL-00959" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772279981771</created>
-      <option name="number" value="00959" />
-      <option name="presentableId" value="LOCAL-00959" />
-      <option name="project" value="LOCAL" />
-      <updated>1772279981771</updated>
-    </task>
-    <task id="LOCAL-00960" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772281071768</created>
-      <option name="number" value="00960" />
-      <option name="presentableId" value="LOCAL-00960" />
-      <option name="project" value="LOCAL" />
-      <updated>1772281071770</updated>
-    </task>
-    <task id="LOCAL-00961" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772281078402</created>
-      <option name="number" value="00961" />
-      <option name="presentableId" value="LOCAL-00961" />
-      <option name="project" value="LOCAL" />
-      <updated>1772281078402</updated>
-    </task>
-    <task id="LOCAL-00962" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772281477458</created>
-      <option name="number" value="00962" />
-      <option name="presentableId" value="LOCAL-00962" />
-      <option name="project" value="LOCAL" />
-      <updated>1772281477460</updated>
-    </task>
-    <task id="LOCAL-00963" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772282101181</created>
-      <option name="number" value="00963" />
-      <option name="presentableId" value="LOCAL-00963" />
-      <option name="project" value="LOCAL" />
-      <updated>1772282101182</updated>
-    </task>
-    <task id="LOCAL-00964" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772282974534</created>
-      <option name="number" value="00964" />
-      <option name="presentableId" value="LOCAL-00964" />
-      <option name="project" value="LOCAL" />
-      <updated>1772282974534</updated>
-    </task>
-    <task id="LOCAL-00965" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772283195987</created>
-      <option name="number" value="00965" />
-      <option name="presentableId" value="LOCAL-00965" />
-      <option name="project" value="LOCAL" />
-      <updated>1772283195991</updated>
-    </task>
-    <task id="LOCAL-00966" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772283923279</created>
-      <option name="number" value="00966" />
-      <option name="presentableId" value="LOCAL-00966" />
-      <option name="project" value="LOCAL" />
-      <updated>1772283923280</updated>
-    </task>
-    <task id="LOCAL-00967" summary="fix logic web-admin">
-      <option name="closed" value="true" />
-      <created>1772285629989</created>
-      <option name="number" value="00967" />
-      <option name="presentableId" value="LOCAL-00967" />
-      <option name="project" value="LOCAL" />
-      <updated>1772285629989</updated>
-    </task>
-    <option name="localTasksCounter" value="968" />
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="build-new-ui" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-              <option name="TEXT_FILTER_SETTINGS">
-                <TextFilterSettings>
-                  <option name="MATCH_CASE" value="true" />
-                </TextFilterSettings>
-              </option>
-            </State>
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add date-fns-tz dependency and implement formatNumber utility function" />
-    <MESSAGE value="refactor: improve layout and styling across multiple components" />
-    <MESSAGE value="refactor: reorganize dashboard components and update import paths" />
-    <MESSAGE value="feat: replace SVG logo with Image component for improved performance and consistency" />
-    <MESSAGE value="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page" />
-    <MESSAGE value="refactor: enhance layout and styling across multiple components" />
-    <MESSAGE value="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components" />
-    <MESSAGE value="refactor: simplify layout and styling in dashboard and feed components" />
-    <MESSAGE value="refactor: update notebook API and enhance flashcard component functionality" />
-    <MESSAGE value="fix: update external media player text for clarity" />
-    <MESSAGE value="feat: add initial setup for analytics and audit modules with corresponding handlers and services" />
-    <MESSAGE value="refactor identity service" />
-    <MESSAGE value="refactor communication service" />
-    <MESSAGE value="refactor: restructure backend modules and update service paths" />
-    <MESSAGE value="refactor meet service" />
-    <MESSAGE value="refactor storage service" />
-    <MESSAGE value="refactor: restructure course DTOs and add search request schema" />
-    <MESSAGE value="refactor: remove unused community navigation item and clean up related files" />
-    <MESSAGE value="feat: implement scheduled cleanup for old audit logs with retention policy" />
-    <MESSAGE value="stitch ui" />
-    <MESSAGE value="updatr 2" />
-    <MESSAGE value="rebuild home page" />
-    <MESSAGE value="rebuild learn" />
-    <MESSAGE value="feat: update logo display across layout components" />
-    <MESSAGE value="fix logic web-admin" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix logic web-admin" />
-  </component>
-  <component name="VgoProject">
-    <integration-enabled>false</integration-enabled>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/../../../bmap-capstone/torii-monorepo/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
-          <line>25</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
-  </component>
-  <component name="com.apollographql.ijplugin.settings.ProjectSettingsState">
-    <option name="lspPassPathToSuperGraphYaml" value="false" />
-    <option name="telemetryInstanceId" value="ac193a38-d2b2-47a8-93a3-6ed4529bb23e" />
-  </component>
-  <component name="github-copilot-workspace">
-    <instructionFileLocations>
-      <option value=".github/instructions" />
-    </instructionFileLocations>
-    <promptFileLocations>
-      <option value=".github/prompts" />
-    </promptFileLocations>
+    <MESSAGE value="feat: implement animated text and redesign home layout" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement animated text and redesign home layout" />
   </component>
 </project>
