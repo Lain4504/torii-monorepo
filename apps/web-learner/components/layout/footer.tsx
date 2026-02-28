@@ -51,11 +51,20 @@ export function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
                     {/* Brand */}
                     <div className="lg:col-span-2 space-y-6">
-                        <Link href="/" className="flex items-center gap-3">
-                            <Image src="/logo.png" alt="Torii Nihongo" width={36} height={36} className="rounded-lg" />
-                            <span className="font-bold text-lg tracking-tight">
-                                Torii <span className="text-primary">Nihongo</span>
-                            </span>
+                        <Link href="/" className="flex items-center gap-3 transition-all duration-300 group">
+                            <div className="relative size-10 transition-transform duration-300 group-hover:scale-110">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Torii Nihongo"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
+                            <div className="flex flex-col leading-none">
+                                <span className="text-xl font-black tracking-tighter text-foreground uppercase italic group-hover:text-primary transition-colors">Torii</span>
+                                <span className="text-xs font-bold tracking-[0.2em] text-primary uppercase">Nihongo</span>
+                            </div>
                         </Link>
 
                         <p className="text-sm text-muted-foreground leading-relaxed max-w-sm font-medium">

@@ -25,12 +25,20 @@ export function AuthLayout({
     return (
         <main className="min-h-screen flex flex-col md:flex-row font-sans">
             <style>{`
-                .glass-card {
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(8px);
-                    -webkit-backdrop-filter: blur(8px);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
+            .glass-card {
+                background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
                 }
+            .text-sharp {
+                text-shadow:
+                    2px 2px 0px rgba(0,0,0,1),
+                    -1px -1px 0px rgba(0,0,0,1),
+                    1px -1px 0px rgba(0,0,0,1),
+                    -1px 1px 0px rgba(0,0,0,1),
+                    0px 4px 10px rgba(0,0,0,0.5);
+            }
             `}</style>
 
             {/* BEGIN: Left Panel (Marketing & Branding) */}
@@ -44,14 +52,18 @@ export function AuthLayout({
                     style={{ backgroundImage: "url('/background.png')" }}
                 />
 
+                {/* Subtle overlay for text readability */}
+                <div className="absolute inset-0 z-0 bg-gradient-to-r from-black/50 via-black/10 to-transparent pointer-events-none" />
+
 
                 {/* Top Branding */}
                 <div className="relative z-10">
-                    <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-90">
-                        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 19V5h2v14H4zm14 0V5h2v14h-2zM2 3h20v2H2V3zm3 8h14v2H5v-2z"></path>
-                        </svg>
-                        <span className="text-white font-bold text-xl tracking-tight">Torii Nihongo</span>
+                    <Link href="/" className="flex items-center gap-3 group transition-opacity hover:opacity-90">
+                        <Image src="/logo.png" alt="Torii Nihongo Logo" width={48} height={48} className="h-10 w-auto object-contain" priority />
+                        <div className="flex flex-col">
+                            <span className="text-white text-xl font-black tracking-widest leading-none drop-shadow-md">TORII</span>
+                            <span className="text-white text-[10px] font-bold tracking-[0.4em] leading-none opacity-90 mt-0.5">NIHONGO</span>
+                        </div>
                     </Link>
                 </div>
 
@@ -59,7 +71,7 @@ export function AuthLayout({
                 <div className="relative z-10 mt-20 flex-1">
                     {false && leftPanel ? null : (
                         <>
-                            <h1 className="text-white text-5xl font-extrabold leading-tight mb-8 animate-in fade-in slide-in-from-bottom duration-700">
+                            <h1 className="text-white text-5xl font-black leading-tight mb-8 text-sharp animate-in fade-in slide-in-from-bottom duration-700">
                                 Học tiếng Nhật<br />Thông minh hơn.
                             </h1>
                             {/* Feature Cards */}
@@ -70,7 +82,7 @@ export function AuthLayout({
                                             <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                                         </svg>
                                     </div>
-                                    <span className="text-white font-medium text-lg">Lớp học trực tuyến</span>
+                                    <span className="text-white font-bold text-lg text-sharp">Lớp học trực tuyến</span>
                                 </div>
                                 <div className="glass-card rounded-xl p-4 flex items-center gap-4 transition-transform hover:translate-x-2 duration-300">
                                     <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0">
@@ -78,7 +90,7 @@ export function AuthLayout({
                                             <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                                         </svg>
                                     </div>
-                                    <span className="text-white font-medium text-lg">AI Sensei trợ lực</span>
+                                    <span className="text-white font-bold text-lg text-sharp">AI Sensei trợ lực</span>
                                 </div>
                                 <div className="glass-card rounded-xl p-4 flex items-center gap-4 transition-transform hover:translate-x-2 duration-300">
                                     <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0">
@@ -86,7 +98,7 @@ export function AuthLayout({
                                             <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                                         </svg>
                                     </div>
-                                    <span className="text-white font-medium text-lg">Lộ trình cá nhân</span>
+                                    <span className="text-white font-bold text-lg text-sharp">Lộ trình cá nhân</span>
                                 </div>
                             </div>
                         </>
@@ -95,7 +107,7 @@ export function AuthLayout({
 
                 {/* Bottom Footer */}
                 <div className="relative z-10 pt-8">
-                    <p className="text-white/60 text-sm">© {new Date().getFullYear()} Torii Nihongo. All rights reserved.</p>
+                    <p className="text-white/60 text-sm font-medium">© {new Date().getFullYear()} Torii Nihongo. All rights reserved.</p>
                 </div>
             </section>
 
@@ -106,17 +118,16 @@ export function AuthLayout({
                     <div className="text-center space-y-2">
                         {/* Mobile logo */}
                         <div className="md:hidden flex justify-center mb-6">
-                            <Link href="/">
-                                <div className="inline-flex items-center gap-2 mb-2">
-                                    <svg className="w-10 h-10 text-primary" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 19V5h2v14H4zm14 0V5h2v14h-2zM2 3h20v2H2V3zm3 8h14v2H5v-2z"></path>
-                                    </svg>
-                                    <span className="text-2xl font-black text-gray-900 tracking-tight">Torii Nihongo</span>
+                            <Link href="/" className="flex items-center gap-3">
+                                <Image src="/logo.png" alt="Torii Nihongo Logo" width={48} height={48} className="h-10 w-auto object-contain" priority />
+                                <div className="flex flex-col text-left">
+                                    <span className="text-slate-900 text-xl font-black tracking-widest leading-none">TORII</span>
+                                    <span className="text-slate-500 text-[10px] font-bold tracking-[0.4em] leading-none mt-0.5">NIHONGO</span>
                                 </div>
                             </Link>
                         </div>
-                        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">{title}</h2>
-                        {description && <p className="text-muted-foreground text-sm">{description}</p>}
+                        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">{title}</h2>
+                        {description && <p className="text-slate-500 text-sm font-medium">{description}</p>}
                     </div>
                     {/* END: Header Branding */}
 
@@ -135,6 +146,6 @@ export function AuthLayout({
                     )}
                 </div>
             </section>
-        </main>
+        </main >
     )
 }

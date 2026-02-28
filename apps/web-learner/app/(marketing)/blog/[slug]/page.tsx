@@ -7,7 +7,7 @@ import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Eye } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
-import { ModernBlogDetail } from '@/components/blog/modern-blog-detail'
+import { BlogDetail } from '@/components/blog/blog-detail'
 
 export default function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params)
@@ -62,5 +62,5 @@ export default function BlogDetailPage({ params }: { params: Promise<{ slug: str
         )
     }
 
-    return <ModernBlogDetail blog={blog} recentBlogs={recentBlogs} />
+    return <BlogDetail blog={blog} recentBlogs={recentBlogs} />
 }

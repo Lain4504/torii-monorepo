@@ -53,6 +53,7 @@ import NotFoundPage from '@/routes/error/not-found-page.tsx'
 import AccessDeniedPage from '@/routes/error/access-denied-page.tsx'
 import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
 import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
+import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -150,6 +151,7 @@ function App() {
                   </Route>
 
                   <Route path="access-denied" element={<AccessDeniedPage />} />
+                  <Route path="unauthorized" element={<UnauthorizedPage />} />
                   <Route path="503" element={<ServiceUnavailablePage />} />
                   <Route path="501" element={<NotImplementedPage />} />
                   <Route path="*" element={<NotFoundPage />} />

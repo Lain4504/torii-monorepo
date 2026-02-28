@@ -84,8 +84,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center text-center mb-6">
-          <img src="/logo.png" alt="Torii Admin" className="size-16 mb-4 rounded-xl shadow-sm" />
-          <h1 className="text-2xl font-bold">Torii Admin</h1>
+          <img src="/logo.png" alt="Torii Nihongo" className="h-12 w-auto object-contain mb-2" />
+          <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
         </div>
 
         <Card>

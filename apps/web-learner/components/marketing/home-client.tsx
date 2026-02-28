@@ -463,60 +463,6 @@ export function HomeClient() {
                     </section>
                     {/*  END: Final CTA  */}
                 </main>
-                {/*  BEGIN: Footer  */}
-                <footer className="bg-white pt-24 pb-12 border-t border-slate-100" data-purpose="footer">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
-                            <div className="col-span-2 lg:col-span-2">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <div className="w-8 h-8 bg-[oklch(0.55_0.15_15)] rounded-lg flex items-center justify-center text-white font-bold text-xl">鳥</div>
-                                    <span className="text-xl font-bold tracking-tight">Torii<span className="text-[oklch(0.55_0.15_15)]">Nihongo</span></span>
-                                </div>
-                                <p className="text-slate-500 max-w-sm mb-6 leading-relaxed">Nền tảng học tiếng Nhật ứng dụng công nghệ AI hàng đầu Việt Nam, giúp bạn rút ngắn 50% thời gian học tập.</p>
-                                <div className="flex gap-4">
-                                    <a className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center hover:bg-[oklch(0.55_0.15_15)] hover:text-white transition-colors" href="#">f</a>
-                                    <a className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center hover:bg-[oklch(0.55_0.15_15)] hover:text-white transition-colors" href="#">yt</a>
-                                    <a className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center hover:bg-[oklch(0.55_0.15_15)] hover:text-white transition-colors" href="#">in</a>
-                                </div>
-                            </div>
-                            <div>
-                                <h4 className="font-bold mb-6">Khóa học</h4>
-                                <ul className="space-y-4 text-sm text-slate-500">
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Khóa học N5-N4</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Khóa học N3</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Luyện thi N2-N1</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Giao tiếp Kaiwa</a></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="font-bold mb-6">Công ty</h4>
-                                <ul className="space-y-4 text-sm text-slate-500">
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Giới thiệu</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Tuyển dụng</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Liên hệ</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Chính sách</a></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="font-bold mb-6">Hỗ trợ</h4>
-                                <ul className="space-y-4 text-sm text-slate-500">
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Trung tâm hỗ trợ</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Hướng dẫn học</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Cộng đồng</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="pt-8 border-t border-slate-100 flex flex-col md:row justify-between items-center gap-4">
-                            <p className="text-sm text-slate-400">© 2024 Torii Nihongo. All rights reserved.</p>
-                            <div className="flex gap-8 text-sm text-slate-400">
-                                <a className="hover:text-slate-900" href="#">Privacy Policy</a>
-                                <a className="hover:text-slate-900" href="#">Terms of Service</a>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-                {/*  END: Footer  */}
-
             </div>
         </>
     );

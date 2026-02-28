@@ -74,10 +74,21 @@ export function Header() {
         <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800" data-purpose="main-nav">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-                        <div className="w-8 h-8 bg-[oklch(0.55_0.15_15)] rounded-lg flex items-center justify-center text-white font-bold text-xl">鳥</div>
-                        <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Torii<span className="text-[oklch(0.55_0.15_15)]">Nihongo</span></span>
-                    </div>
+                    <Link href="/" className="flex items-center gap-2 group transition-all duration-300">
+                        <div className="relative size-8 transition-transform duration-300 group-hover:scale-110">
+                            <Image
+                                src="/logo.png"
+                                alt="Torii Nihongo Logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <div className="flex flex-col leading-none">
+                            <span className="text-sm font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Torii</span>
+                            <span className="text-[10px] font-bold tracking-[0.2em] text-[oklch(0.55_0.15_15)] uppercase">Nihongo</span>
+                        </div>
+                    </Link>
 
                     <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600 dark:text-slate-300">
                         {navigation.map((item) => (

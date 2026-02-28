@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rebuild learn" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update logo display across layout components" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,7 +16,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1984" />
+    <option name="cachedIndexableFilesCount" value="1985" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -147,7 +147,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "build-new-ui",
+    "git-widget-placeholder": "#253 on build-new-ui",
     "go.import.settings.migrated": "true",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
@@ -401,86 +401,7 @@
       <workItem from="1772173061622" duration="2604000" />
       <workItem from="1772200330099" duration="390000" />
       <workItem from="1772259343193" duration="455000" />
-    </task>
-    <task id="LOCAL-00890" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772208111011</created>
-      <option name="number" value="00890" />
-      <option name="presentableId" value="LOCAL-00890" />
-      <option name="project" value="LOCAL" />
-      <updated>1772208111012</updated>
-    </task>
-    <task id="LOCAL-00891" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772208659106</created>
-      <option name="number" value="00891" />
-      <option name="presentableId" value="LOCAL-00891" />
-      <option name="project" value="LOCAL" />
-      <updated>1772208659107</updated>
-    </task>
-    <task id="LOCAL-00892" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772209204318</created>
-      <option name="number" value="00892" />
-      <option name="presentableId" value="LOCAL-00892" />
-      <option name="project" value="LOCAL" />
-      <updated>1772209204318</updated>
-    </task>
-    <task id="LOCAL-00893" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772209405350</created>
-      <option name="number" value="00893" />
-      <option name="presentableId" value="LOCAL-00893" />
-      <option name="project" value="LOCAL" />
-      <updated>1772209405350</updated>
-    </task>
-    <task id="LOCAL-00894" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772209747932</created>
-      <option name="number" value="00894" />
-      <option name="presentableId" value="LOCAL-00894" />
-      <option name="project" value="LOCAL" />
-      <updated>1772209747932</updated>
-    </task>
-    <task id="LOCAL-00895" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772210136822</created>
-      <option name="number" value="00895" />
-      <option name="presentableId" value="LOCAL-00895" />
-      <option name="project" value="LOCAL" />
-      <updated>1772210136823</updated>
-    </task>
-    <task id="LOCAL-00896" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772210386517</created>
-      <option name="number" value="00896" />
-      <option name="presentableId" value="LOCAL-00896" />
-      <option name="project" value="LOCAL" />
-      <updated>1772210386523</updated>
-    </task>
-    <task id="LOCAL-00897" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772210850343</created>
-      <option name="number" value="00897" />
-      <option name="presentableId" value="LOCAL-00897" />
-      <option name="project" value="LOCAL" />
-      <updated>1772210850344</updated>
-    </task>
-    <task id="LOCAL-00898" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772211017862</created>
-      <option name="number" value="00898" />
-      <option name="presentableId" value="LOCAL-00898" />
-      <option name="project" value="LOCAL" />
-      <updated>1772211017862</updated>
-    </task>
-    <task id="LOCAL-00899" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772211222857</created>
-      <option name="number" value="00899" />
-      <option name="presentableId" value="LOCAL-00899" />
-      <option name="project" value="LOCAL" />
-      <updated>1772211222858</updated>
+      <workItem from="1772271753587" duration="1037000" />
     </task>
     <task id="LOCAL-00900" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
       <option name="closed" value="true" />
@@ -794,7 +715,87 @@
       <option name="project" value="LOCAL" />
       <updated>1772269272162</updated>
     </task>
-    <option name="localTasksCounter" value="939" />
+    <task id="LOCAL-00939" summary="rebuild learn">
+      <option name="closed" value="true" />
+      <created>1772269497051</created>
+      <option name="number" value="00939" />
+      <option name="presentableId" value="LOCAL-00939" />
+      <option name="project" value="LOCAL" />
+      <updated>1772269497053</updated>
+    </task>
+    <task id="LOCAL-00940" summary="rebuild learn">
+      <option name="closed" value="true" />
+      <created>1772269623722</created>
+      <option name="number" value="00940" />
+      <option name="presentableId" value="LOCAL-00940" />
+      <option name="project" value="LOCAL" />
+      <updated>1772269623722</updated>
+    </task>
+    <task id="LOCAL-00941" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772270824221</created>
+      <option name="number" value="00941" />
+      <option name="presentableId" value="LOCAL-00941" />
+      <option name="project" value="LOCAL" />
+      <updated>1772270824221</updated>
+    </task>
+    <task id="LOCAL-00942" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772272292475</created>
+      <option name="number" value="00942" />
+      <option name="presentableId" value="LOCAL-00942" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272292476</updated>
+    </task>
+    <task id="LOCAL-00943" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772272307312</created>
+      <option name="number" value="00943" />
+      <option name="presentableId" value="LOCAL-00943" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272307312</updated>
+    </task>
+    <task id="LOCAL-00944" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772272330376</created>
+      <option name="number" value="00944" />
+      <option name="presentableId" value="LOCAL-00944" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272330376</updated>
+    </task>
+    <task id="LOCAL-00945" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772272340105</created>
+      <option name="number" value="00945" />
+      <option name="presentableId" value="LOCAL-00945" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272340105</updated>
+    </task>
+    <task id="LOCAL-00946" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772272365019</created>
+      <option name="number" value="00946" />
+      <option name="presentableId" value="LOCAL-00946" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272365019</updated>
+    </task>
+    <task id="LOCAL-00947" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772272695550</created>
+      <option name="number" value="00947" />
+      <option name="presentableId" value="LOCAL-00947" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272695550</updated>
+    </task>
+    <task id="LOCAL-00948" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772272723408</created>
+      <option name="number" value="00948" />
+      <option name="presentableId" value="LOCAL-00948" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272723408</updated>
+    </task>
+    <option name="localTasksCounter" value="949" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -811,7 +812,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="build-new-ui" />
                       </list>
                     </value>
                   </entry>
@@ -829,7 +830,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add reset password functionality and update identity URLs" />
     <MESSAGE value="refactor: change location of api folder to lib" />
     <MESSAGE value="feat: add date-fns-tz dependency and implement formatNumber utility function" />
     <MESSAGE value="refactor: improve layout and styling across multiple components" />
@@ -854,7 +854,8 @@
     <MESSAGE value="updatr 2" />
     <MESSAGE value="rebuild home page" />
     <MESSAGE value="rebuild learn" />
-    <option name="LAST_COMMIT_MESSAGE" value="rebuild learn" />
+    <MESSAGE value="feat: update logo display across layout components" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: update logo display across layout components" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

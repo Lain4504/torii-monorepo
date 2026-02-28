@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import type { BlogResponseDTO } from '@workspace/schemas';
 
-export function ModernBlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO | any, recentBlogs: BlogResponseDTO[] | any }) {
+export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO | any, recentBlogs: BlogResponseDTO[] | any }) {
     useEffect(() => {
         const handleScroll = () => {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
