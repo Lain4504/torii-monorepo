@@ -104,7 +104,7 @@ export class OrderService implements IOrderService {
      */
     async findAll(query: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>> {
         try {
-            const { page = 1, limit = 10, userId, status, startDate, endDate } = query;
+            const { page = 1, limit = 10, userId, status, startDate, endDate, search } = query;
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
             const validPage = pageNum > 0 ? pageNum : 1;
@@ -114,6 +114,23 @@ export class OrderService implements IOrderService {
             const whereClause: Prisma.OrderWhereInput = {};
             if (userId) whereClause.userId = userId;
             if (status) whereClause.status = status as any;
+
+            // Add search functionality
+            if (search && search.trim().length > 0) {
+                const searchOR: any[] = [
+                    { user: { email: { contains: search, mode: 'insensitive' } } },
+                    { user: { displayName: { contains: search, mode: 'insensitive' } } },
+                ];
+
+                // UUID fields (id, userId) only support exact match
+                const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                if (uuidRegex.test(search.trim())) {
+                    searchOR.push({ id: search.trim() });
+                    searchOR.push({ userId: search.trim() });
+                }
+
+                whereClause.OR = searchOR;
+            }
 
             if (startDate || endDate) {
                 whereClause.createdAt = {};
@@ -743,7 +760,18 @@ export class OrderService implements IOrderService {
      * Handle PayOS Webhook
      */
     async handleWebhook(webhookData: any): Promise<any> {
-        const { orderCode, amount, code, desc } = webhookData;
+        // Handle PayOS webhook data. 
+        // Note: webhookData might be the full body OR just the verified 'data' portion
+        const orderCode = webhookData.orderCode;
+        const amount = webhookData.amount;
+        const code = webhookData.code || '00'; // Assume success if code is missing but data is verified
+        const desc = webhookData.desc || webhookData.description || 'Success';
+
+        if (!orderCode) {
+            this.logger.error(`Webhook data missing orderCode: ${JSON.stringify(webhookData)}`);
+            return { success: false, message: 'Missing orderCode' };
+        }
+
         const payOsOrderCode = orderCode.toString();
         const order = await this.orderRepository.findByTransactionId(payOsOrderCode);
 

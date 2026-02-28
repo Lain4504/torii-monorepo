@@ -20,6 +20,7 @@ export type CoursesColumnsProps = {
     onDelete: (course: CourseResponseDTO) => void;
     onModules: (course: CourseResponseDTO) => void;
     onManageInstructors: (course: CourseResponseDTO) => void;
+    onManageEnrollments: (course: CourseResponseDTO) => void;
     onPublish: (course: CourseResponseDTO) => void;
     onSubmitForReview: (course: CourseResponseDTO) => void;
     onUnpublish: (course: CourseResponseDTO) => void;
@@ -32,7 +33,7 @@ export type CoursesColumnsProps = {
     limit: number;
 };
 
-export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, onManageLiveSessions, can, page, limit }: CoursesColumnsProps) => [
+export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onManageEnrollments, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, onManageLiveSessions, can, page, limit }: CoursesColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -70,6 +71,33 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                 </div>
             </div>
         ),
+    }),
+    columnHelper.accessor('lecturer.displayName', {
+        id: 'lecturer',
+        header: () => <div className="px-1 text-center">Giảng viên</div>,
+        cell: (info) => {
+            const lecturer = info.row.original.lecturer;
+            if (!lecturer) return (
+                <div className="flex justify-center italic text-muted-foreground/40 text-[10px]">Chưa phân công</div>
+            );
+            return (
+                <div className="flex justify-center">
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-primary/5 border border-primary/10 max-w-[150px]">
+                        <div className="w-5 h-5 rounded-md overflow-hidden bg-primary/20 flex-shrink-0">
+                            {lecturer.avatarUrl ? (
+                                <img src={lecturer.avatarUrl} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-primary">
+                                    {lecturer.displayName.charAt(0)}
+                                </div>
+                            )}
+                        </div>
+                        <span className="text-[10px] font-bold text-foreground truncate">{lecturer.displayName}</span>
+                    </div>
+                </div>
+            );
+        },
+        size: 150,
     }),
     columnHelper.accessor('jlptLevel', {
         header: () => <div className="px-1 text-center">Trình độ</div>,
@@ -249,7 +277,17 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 </DropdownMenuItem>
                             )}
 
-                            {course.type === 'live' && can('course.update') && (
+                            {can('class_member.view') && (
+                                <DropdownMenuItem
+                                    onClick={() => onManageEnrollments(course)}
+                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
+                                >
+                                    <Users className="h-4 w-4 opacity-50" />
+                                    <span>Danh sách học viên</span>
+                                </DropdownMenuItem>
+                            )}
+
+                            {course.type === 'live' && can('live_class.manage') && (
                                 <DropdownMenuItem
                                     onClick={() => onManageLiveSessions(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
@@ -269,7 +307,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
 
                             <DropdownMenuSeparator className="bg-border/40 m-1" />
 
-                            {(course.status === 'draft' || course.status === 'rejected') && can('course.update') ? (
+                            {(course.status === 'draft' || course.status === 'rejected') && (can('course.update') || can('module.update')) ? (
                                 <DropdownMenuItem
                                     onClick={() => onSubmitForReview(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium text-blue-600 focus:text-blue-700 focus:bg-blue-500/10 cursor-pointer flex gap-2.5"

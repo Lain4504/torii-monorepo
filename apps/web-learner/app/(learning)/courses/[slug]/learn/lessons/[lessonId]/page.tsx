@@ -172,7 +172,7 @@ export default function LessonDetailPage() {
         )
     }
 
-    const totalLessons = curriculum.reduce((sum, module) => sum + (module.lessons?.length || 0), 0)
+    const totalLessons = curriculum.reduce((sum: number, module: any) => sum + (module.lessons?.length || 0), 0)
     const completedLessons = completedLessonIds.length
     const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
     const videoUrl = currentLesson.videoUrl || "https://stream.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/low.mp4"
@@ -224,7 +224,13 @@ export default function LessonDetailPage() {
                                         onNext={handleNext}
                                     />
                                     <Separator className="bg-border/30 mb-12" />
-                                    <LessonContent description={currentLesson.description || ''} courseId={course?.id} courseSlug={slug} />
+                                    <LessonContent
+                                        description={currentLesson.description || ''}
+                                        courseId={course?.id}
+                                        courseSlug={slug}
+                                        lessonId={lessonId}
+                                        moduleId={currentLesson.moduleId}
+                                    />
                                 </div>
                             </>
                         ) : currentLesson.contentType === 'assignment' ? (

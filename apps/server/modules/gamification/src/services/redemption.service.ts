@@ -25,6 +25,12 @@ export class RedemptionService {
             throw new BadRequestException('Invalid or inactive reward');
         }
 
+        // Add validation to ensure the reward has a positive point cost
+        if (reward.points <= 0) {
+            this.logger.error(`Attempted to redeem a reward with non-positive points. Reward ID: ${rewardId}, Points: ${reward.points}`);
+            throw new BadRequestException('This reward cannot be redeemed as it has an invalid point cost.');
+        }
+
         const gamification = await this.prisma.userGamification.findUnique({
             where: { userId }
         });
@@ -71,17 +77,7 @@ export class RedemptionService {
         }
 
         // 2. Billing-based Reward (Coupons)
-        // Deduct points
-        await this.prisma.userGamification.update({
-            where: { userId },
-            data: {
-                points: { decrement: reward.points }
-            }
-        });
-
-        this.logger.log(`User ${userId} redeemed ${reward.points} points for coupon: ${reward.name}`);
-
-        // Request Billing to create a personal coupon
+        // Request Billing to create a personal coupon FIRST
         try {
             const coupon = await lastValueFrom(
                 this.natsClient.send({ cmd: 'billing.coupon.createRedeemed' }, {
@@ -95,16 +91,26 @@ export class RedemptionService {
                 })
             );
 
-            // Log history
-            await this.prisma.gamificationHistory.create({
-                data: {
-                    userId,
-                    amount: -reward.points,
-                    type: 'REDEEM' as any,
-                    description: `Đã đổi ${reward.points} điểm lấy mã giảm giá: ${reward.name}`,
-                    metadata: { rewardId, couponCode: coupon.code }
-                }
-            });
+            // 3. Atomically deduct points and log history
+            await this.prisma.$transaction([
+                this.prisma.userGamification.update({
+                    where: { userId },
+                    data: {
+                        points: { decrement: reward.points }
+                    }
+                }),
+                this.prisma.gamificationHistory.create({
+                    data: {
+                        userId,
+                        amount: -reward.points,
+                        type: 'REDEEM' as any,
+                        description: `Đã đổi ${reward.points} điểm lấy mã giảm giá: ${reward.name}`,
+                        metadata: { rewardId, couponCode: coupon.code }
+                    }
+                })
+            ]);
+
+            this.logger.log(`User ${userId} redeemed ${reward.points} points for coupon: ${reward.name} (Code: ${coupon.code})`);
 
             return {
                 success: true,
@@ -114,15 +120,10 @@ export class RedemptionService {
                 coupon
             };
         } catch (error: any) {
-            this.logger.error(`Failed to create redeemed coupon for user ${userId}: ${error.message}`);
-            // Rollback points if coupon creation fails
-            await this.prisma.userGamification.update({
-                where: { userId },
-                data: {
-                    points: { increment: reward.points }
-                }
-            });
-            throw new BadRequestException('Đã có lỗi xảy ra khi tạo mã giảm giá. Điểm của bạn đã được hoàn lại.');
+            this.logger.error(`Failed to complete point redemption for user ${userId}: ${error.message}`);
+            // If it's a BadRequestException from Billing, rethrow it
+            if (error instanceof BadRequestException) throw error;
+            throw new BadRequestException(error.message || 'Đã có lỗi xảy ra khi đổi điểm. Vui lòng thử lại sau.');
         }
     }
 

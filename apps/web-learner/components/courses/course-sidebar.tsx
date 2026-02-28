@@ -3,16 +3,12 @@
 import type { CourseResponseDTO } from '@workspace/schemas'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
-import { Card, CardContent } from '@workspace/ui/components/card'
 import { cn } from '@workspace/ui/lib/utils'
-import { Award, BookOpen, Clock, Globe, Heart, ShieldCheck, Sparkles } from 'lucide-react'
+import { Award, BookOpen, Clock, Sparkles, Heart, ShieldCheck, Signal } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from '@workspace/ui/components/sonner'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@workspace/ui/components/item'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { formatCurrency, formatDate } from '@/utils/format-utils'
-
-import { CourseVideoPreview } from './course-video-preview'
 
 interface CourseSidebarProps {
     course: CourseResponseDTO
@@ -49,10 +45,6 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
         router.push(`/checkout/${course.id}`)
     }
 
-    const formatPrice = (price: number) => {
-        return formatCurrency(price)
-    }
-
     const calculateDiscount = () => {
         if (!course.discountPrice || course.price === 0)
             return null
@@ -62,157 +54,175 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
 
     const discount = calculateDiscount()
 
+    const getLevelLabel = (jlptLevel: string) => {
+        const levelMap: Record<string, string> = {
+            'N5': 'N5',
+            'N4': 'N4',
+            'N3': 'N3',
+            'N2': 'N2',
+            'N1': 'N1',
+        }
+        return levelMap[jlptLevel] || 'N5'
+    }
+
     return (
-        <div className="sticky top-24 z-20 w-full max-w-full space-y-6">
-            {/* Video Preview Section */}
-            <div className="overflow-hidden rounded-xl border">
-                <CourseVideoPreview
-                    thumbnailUrl={course.thumbnailUrl}
-                    previewVideoUrl={course.previewVideoUrl}
-                    title={course.title}
-                />
-            </div>
+        <div className="space-y-6">
+            {/* Enrollment Card */}
+            <div className="bg-card p-6 rounded-2xl border shadow-xl space-y-6">
+                <div className="space-y-1">
+                    <p className="text-3xl font-black">
+                        {course.isFree
+                            ? 'MIỄN PHÍ'
+                            : course.discountPrice
+                                ? formatCurrency(Number(course.discountPrice))
+                                : formatCurrency(Number(course.price))}
+                    </p>
+                    {!course.isFree && course.discountPrice && (
+                        <p className="text-sm text-muted-foreground line-through">
+                            {formatCurrency(Number(course.price))}
+                            {discount && ` (${discount}% OFF)`}
+                        </p>
+                    )}
+                </div>
 
-            {/* Pricing Card */}
-            <Card className="overflow-hidden">
-                <CardContent className="space-y-6 p-6">
-                    <div className="space-y-3">
-                        <div className="text-sm font-bold text-primary flex items-center gap-2">
-                            <Sparkles className="h-4 w-4" />
-                            <span>Đăng ký Premium</span>
-                        </div>
+                <div className="space-y-3">
+                    {isEnrolled
+                        ? (
+                            <div className="flex flex-col gap-3">
+                                {isExpired
+                                    ? (
+                                        <Button
+                                            className="w-full h-12 font-bold"
+                                            variant="destructive"
+                                            onClick={handlePurchase}
+                                            disabled={isEnrolling || isLoadingEnrollment}
+                                        >
+                                            Gia hạn khóa học
+                                        </Button>
+                                    )
+                                    : (
+                                        <Button
+                                            className="w-full h-12 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                            onClick={() => router.push(`/courses/${course.slug}/learn`)}
+                                        >
+                                            Tiếp tục học tập
+                                        </Button>
+                                    )}
 
-                        <div className="flex flex-col">
-                            <div className="flex flex-wrap items-end gap-3">
-                                <span className="text-3xl font-extrabold tracking-tight text-foreground">
-                                    {course.isFree ? 'MIỄN PHÍ' : (course.discountPrice ? formatPrice(Number(course.discountPrice)) : formatPrice(Number(course.price)))}
-                                </span>
-                                {course.discountPrice && !course.isFree && (
-                                    <span className="mb-1.5 text-sm font-medium text-muted-foreground line-through">
-                                        {formatPrice(Number(course.price))}
-                                    </span>
+                                {enrollment && enrollment.completionPercentage >= 100 && !isExpired && (
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        className="w-full h-12 font-bold"
+                                    >
+                                        <Link href="/dashboard/certificates">
+                                            <Award className="mr-2 size-4" /> Tải chứng chỉ
+                                        </Link>
+                                    </Button>
                                 )}
                             </div>
-                            {discount && !course.isFree && (
-                                <div className="mt-2 text-sm font-bold text-destructive">
-                                    Tiết kiệm {discount}%
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                        )
+                        : (
+                            <>
+                                <Button
+                                    className="w-full h-12 bg-primary hover:bg-primary/90 font-bold shadow-lg shadow-primary/20"
+                                    onClick={handlePurchase}
+                                    disabled={isEnrolling || isLoadingEnrollment}
+                                >
+                                    {isEnrolling ? 'Đang xử lý...' : course.isFree ? 'Bắt đầu ngay' : 'Đăng ký ngay'}
+                                </Button>
 
-                    <div className="space-y-3">
-                        {isEnrolled
-                            ? (
-                                <div className="flex flex-col gap-3">
-                                    {isExpired
-                                        ? (
-                                            <Button
-                                                className="h-12 w-full font-bold"
-                                                variant="destructive"
-                                                onClick={handlePurchase}
-                                                disabled={isEnrolling || isLoadingEnrollment}
-                                            >
-                                                Gia hạn khóa học
-                                            </Button>
-                                        )
-                                        : (
-                                            <Button
-                                                className="h-12 w-full font-bold"
-                                                onClick={() => router.push(`/courses/${course.slug}/learn`)}
-                                            >
-                                                Tiếp tục học tập
-                                            </Button>
-                                        )}
-
-                                    {enrollment && enrollment.completionPercentage >= 100 && !isExpired && (
-                                        <Button
-                                            asChild
-                                            variant="outline"
-                                            className="h-12 w-full font-bold active:scale-[0.98]"
-                                        >
-                                            <Link href="/dashboard/certificates">
-                                                <Award className="mr-2 h-4 w-4" /> Tải chứng chỉ
-                                            </Link>
-                                        </Button>
-                                    )}
-                                </div>
-                            )
-                            : (
-                                <div className="flex gap-3">
+                                {isAuthenticated && (
                                     <Button
-                                        className="h-12 flex-1 font-bold"
-                                        onClick={handlePurchase}
-                                        disabled={isEnrolling || isLoadingEnrollment}
+                                        variant="outline"
+                                        className="w-full h-12 font-bold"
+                                        onClick={handleToggleWishlist}
+                                        disabled={isToggling || isLoadingWishlist}
                                     >
-                                        {isEnrolling ? 'Đang xử lý...' : course.isFree ? 'Bắt đầu ngay' : 'Mua khóa học'}
+                                        <Heart
+                                            className={cn(
+                                                'mr-2 size-4',
+                                                isInWishlist && 'fill-destructive text-destructive'
+                                            )}
+                                        />
+                                        {isInWishlist ? 'Đã thêm vào yêu thích' : 'Thêm vào yêu thích'}
                                     </Button>
+                                )}
+                            </>
+                        )}
+                </div>
 
-                                    {isAuthenticated && (
-                                        <Button
-                                            variant="outline"
-                                            size="icon"
-                                            className="h-12 w-12"
-                                            onClick={handleToggleWishlist}
-                                            disabled={isToggling || isLoadingWishlist}
-                                        >
-                                            <Heart
-                                                className={cn(
-                                                    'size-5',
-                                                    isInWishlist && 'fill-destructive text-destructive'
-                                                )}
-                                            />
-                                        </Button>
-                                    )}
-                                </div>
-                            )}
+                <div className="pt-6 border-t space-y-4">
+                    <p className="font-bold text-sm">Khóa học bao gồm:</p>
+                    <div className="grid gap-3">
+                        <div className="flex items-center gap-3 text-sm">
+                            <Signal className="size-5 text-primary shrink-0" />
+                            <span className="font-medium text-muted-foreground">
+                                Trình độ: <span className="text-foreground">JLPT {getLevelLabel(course.jlptLevel)}</span>
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm">
+                            <Clock className="size-5 text-primary shrink-0" />
+                            <span className="font-medium text-muted-foreground">
+                                Thời lượng: <span className="text-foreground">{course.durationWeeks ? `${course.durationWeeks} tuần` : 'Linh hoạt'}</span>
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm">
+                            <BookOpen className="size-5 text-primary shrink-0" />
+                            <span className="font-medium text-muted-foreground">
+                                Bài học: <span className="text-foreground">{course.totalLessons} bài học</span>
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm">
+                            <Award className="size-5 text-primary shrink-0" />
+                            <span className="font-medium text-muted-foreground">
+                                Chứng chỉ hoàn thành
+                            </span>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <div className="space-y-4 border-t border-border/50 pt-6">
-                        <h4 className="text-sm font-bold text-foreground">
-                            Khóa học bao gồm:
-                        </h4>
-                        <div className="space-y-2">
-                            {[
-                                { icon: BookOpen, text: `${course.totalLessons} bài giảng chi tiết` },
-                                { icon: Clock, text: course.totalQuizzes > 0 ? `${course.totalQuizzes} bài kiểm tra JLPT` : (course.durationWeeks ? `Thời lượng: ${course.durationWeeks} tuần` : 'Thời gian học không giới hạn') },
-                                {
-                                    icon: Globe,
-                                    text: isEnrolled && enrollment?.expiresAt
-                                        ? `Hết hạn: ${formatDate(enrollment.expiresAt)}`
-                                        : course.type === 'live'
-                                            ? ((course as any).expiresAt ? `Kết thúc: ${formatDate((course as any).expiresAt)}` : 'Xem lịch học')
-                                            : ((course as any).expirationMonths ? `Truy cập trong ${(course as any).expirationMonths} tháng` : 'Truy cập trọn đời'),
-                                },
-                                { icon: Award, text: 'Chứng chỉ hoàn thành Torii' },
-                            ].map((item, idx) => (
-                                <Item key={idx} variant="default" className="px-3 py-1.5 border-none">
-                                    <ItemMedia>
-                                        <div className="flex size-8 items-center justify-center rounded-lg bg-primary/5 text-primary">
-                                            <item.icon className="size-4" />
-                                        </div>
-                                    </ItemMedia>
-                                    <ItemContent>
-                                        <ItemTitle className="text-xs font-medium">
-                                            {item.text}
-                                        </ItemTitle>
-                                    </ItemContent>
-                                </Item>
-                            ))}
+            {/* Related Courses */}
+            <div className="space-y-4">
+                <h4 className="font-bold text-lg">Khóa học liên quan</h4>
+                <div className="space-y-4">
+                    {/* Placeholder Card 1 */}
+                    <div className="group bg-card rounded-xl overflow-hidden border hover:border-primary/50 transition-all cursor-pointer">
+                        <div className="aspect-video relative overflow-hidden bg-muted">
+                            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5" />
+                        </div>
+                        <div className="p-4 space-y-2">
+                            <p className="text-xs font-bold text-primary uppercase">Trung cấp</p>
+                            <p className="font-bold text-sm line-clamp-1">Khóa học tiếng Nhật N3</p>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1 text-xs text-yellow-500">
+                                    <Sparkles className="size-3 fill-current" />
+                                    <span className="text-foreground">4.9</span>
+                                </div>
+                                <p className="font-bold text-sm">350.000đ</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-center gap-2 pt-2 text-xs font-medium text-primary">
-                        <ShieldCheck className="h-4 w-4" />
-                        <span>Đảm bảo hoàn tiền trong 30 ngày</span>
+                    {/* Placeholder Card 2 */}
+                    <div className="group bg-card rounded-xl overflow-hidden border hover:border-primary/50 transition-all cursor-pointer">
+                        <div className="aspect-video relative overflow-hidden bg-muted">
+                            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5" />
+                        </div>
+                        <div className="p-4 space-y-2">
+                            <p className="text-xs font-bold text-primary uppercase">Sơ cấp</p>
+                            <p className="font-bold text-sm line-clamp-1">Tiếng Nhật cơ bản cho người mới</p>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1 text-xs text-yellow-500">
+                                    <Sparkles className="size-3 fill-current" />
+                                    <span className="text-foreground">4.7</span>
+                                </div>
+                                <p className="font-bold text-sm">250.000đ</p>
+                            </div>
+                        </div>
                     </div>
-                </CardContent>
-            </Card>
-
-            <div className="px-4 text-center">
-                <p className="text-xs font-medium leading-relaxed text-muted-foreground">
-                    Được tin dùng bởi hơn 50,000 học viên chuyên nghiệp trên toàn quốc.
-                </p>
+                </div>
             </div>
         </div>
     )

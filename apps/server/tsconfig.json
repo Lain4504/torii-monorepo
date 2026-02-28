@@ -29,8 +29,11 @@
       "@server/shared/*": [
         "./libs/shared/src/*"
       ],
+      "@server/identity": [
+        "./services/identity/src"
+      ],
       "@server/identity/*": [
-        "./modules/identity/src/*"
+        "./services/identity/src/*"
       ],
       "@server/gamification/*": [
         "./modules/gamification/src/*"
@@ -42,16 +45,16 @@
         "./modules/billing/src/*"
       ],
       "@server/meet/*": [
-        "./modules/meet/src/*"
+        "./services/meet/src/*"
       ],
       "@server/learning/*": [
         "./modules/learning/src/*"
       ],
       "@server/communication/*": [
-        "./modules/communication/src/*"
+        "./services/communication/src/*"
       ],
       "@server/storage/*": [
-        "./modules/storage/src/*"
+        "./services/storage/src/*"
       ],
       "@prisma/generated": [
         "./generated/prisma/client"

@@ -109,7 +109,7 @@ export function NavUser({
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem className="cursor-pointer">
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/profile')}>
                                 <BadgeCheck className="size-4 mr-2 text-muted-foreground" />
                                 Tài khoản
                             </DropdownMenuItem>

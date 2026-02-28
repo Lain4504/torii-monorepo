@@ -60,7 +60,7 @@ export function AuthLayout({
             {/* Background Image Layer */}
             <div
                 className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
-                style={{ backgroundImage: "url('/mascot.png')" }}
+                style={{ backgroundImage: "url('/background.png')" }}
             />
 
             {/* Content Layer */}

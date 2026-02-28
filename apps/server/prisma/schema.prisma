@@ -44,6 +44,7 @@ model Course {
   totalLessons         Int          @default(0) @map("total_lessons")
   totalQuizzes         Int          @default(0) @map("total_quizzes")
   totalStudents        Int          @default(0) @map("total_students")
+  maxStudents          Int?         @map("max_students") // Max students for live courses
   averageRating        Decimal      @default(0.00) @map("average_rating") @db.Decimal(3, 2)
   totalReviews         Int          @default(0) @map("total_reviews")
   status               CourseStatus @default(draft)
@@ -68,7 +69,6 @@ model Course {
   wishlists         Wishlist[]
   reviews           Review[]
   quizzes           Quiz[]
-  instructors       CourseInstructor[]
   liveSessions      LiveSession[]
   teachingSchedules TeachingSchedule[]
   scheduleRequests  LiveSessionScheduleRequest[]
@@ -78,9 +78,17 @@ model Course {
   versions          CourseVersion[]
   cartItems         CartItem[]
 
+  lecturerId String? @map("lecturer_id") @db.Uuid
+  lecturer   User?   @relation("CoursesTaught", fields: [lecturerId], references: [id], onDelete: SetNull)
+
+  // Live Course Specific
+  isReadyForScheduling Boolean @default(false) @map("is_ready_for_scheduling")
+  minimumLessons       Int?    @default(8) @map("minimum_lessons")
+
   @@index([jlptLevel])
   @@index([createdBy])
   @@index([approvedBy])
+  @@index([lecturerId])
   @@map("courses")
 }
 
@@ -141,13 +149,17 @@ model Lesson {
   updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
+  liveSessionId String? @map("live_session_id") @db.Uuid
+
   module         Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   quizzes        Quiz[]
   materials      LessonMaterial[]
   lessonProgress LessonProgress[]
   assignments    Assignment[]
+  liveSession    LiveSession?     @relation(fields: [liveSessionId], references: [id])
 
   @@index([moduleId])
+  @@index([liveSessionId])
   @@map("lessons")
 }
 
@@ -318,28 +330,6 @@ model GradeHistory {
 // COURSE INSTRUCTOR
 // ============================================
 
-enum InstructorRole {
-  MAIN
-  ASSISTANT
-  RECORDER
-}
-
-// Course Instructor - Junction table linking courses to lecturers
-model CourseInstructor {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId     String         @map("course_id") @db.Uuid
-  lecturerId   String         @map("lecturer_id") @db.Uuid
-  role         InstructorRole @default(MAIN)
-  isPrimary    Boolean        @default(false) @map("is_primary")
-  assignedDate DateTime       @default(now()) @map("assigned_date")
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([courseId, lecturerId])
-  @@index([courseId])
-  @@index([lecturerId])
-  @@map("course_instructors")
-}
 
 // Live Session - Scheduled live classes for a course
 model LiveSession {
@@ -356,13 +346,24 @@ model LiveSession {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   scheduleId  String?  @map("schedule_id") @db.Uuid
 
+  // Curriculum Link
+  moduleId String? @map("module_id") @db.Uuid
+  lessonId String? @map("lesson_id") @db.Uuid
+
+  // Recording
+  recordingUrl      String? @map("recording_url") @db.Text
+  recordingDuration Int?    @map("recording_duration")
+
   course      Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   schedule    TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
   attendances Attendance[]
+  lesson      Lesson[]
 
   @@index([courseId])
   @@index([lecturerId])
   @@index([scheduleId])
+  @@index([moduleId])
+  @@index([lessonId])
   @@map("live_sessions")
 }
 
@@ -439,6 +440,7 @@ model LessonMaterial {
   lessonId    String   @map("lesson_id") @db.Uuid
   fileAssetId String   @map("file_asset_id") @db.Uuid
   type        String   @db.VarChar(50) // 'slides' | 'video' | 'reading' | 'assignment'
+  usageType   String   @default("pre_class") @map("usage_type") @db.VarChar(20) // 'pre_class' | 'post_class' | 'recording'
   title       String?  @db.VarChar(255)
   orderIndex  Int      @default(0) @map("order_index")
   createdBy   String   @map("created_by") @db.Uuid
@@ -616,6 +618,8 @@ model User {
   giftEnrollments         Enrollment[]             @relation("GiftEnrollments")
   certificates            Certificate[]
   balance                 UserBalance?
+
+  coursesTaught Course[] @relation("CoursesTaught") // Mối quan hệ mới
 
   // Gamification Relations
   gamification    UserGamification?
@@ -1122,6 +1126,19 @@ enum CommentTargetType {
   LESSON
 }
 
+enum DiscussionTopicStatus {
+  OPEN
+  ANSWERED
+  RESOLVED
+  CLOSED
+}
+
+enum DiscussionTopicCategory {
+  GENERAL
+  QUESTION
+  ANNOUNCEMENT
+}
+
 // Comments - Comments on posts with nested replies support
 model Comment {
   id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -1174,6 +1191,10 @@ model DiscussionTopic {
   moduleId String? @map("module_id") @db.Uuid
   lessonId String? @map("lesson_id") @db.Uuid
 
+  // Categorization & Status
+  category DiscussionTopicCategory @default(GENERAL)
+  status   DiscussionTopicStatus   @default(OPEN)
+
   // Status
   isPinned     Boolean @default(false) @map("is_pinned")
   isLocked     Boolean @default(false) @map("is_locked")
@@ -1191,6 +1212,8 @@ model DiscussionTopic {
   @@index([moduleId])
   @@index([lessonId])
   @@index([authorId])
+  @@index([status])
+  @@index([category])
   @@index([createdAt(sort: Desc)])
   @@map("discussion_topics")
 }

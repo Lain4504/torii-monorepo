@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: update external media player text for clarity">
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/discussion-topic.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/discussion-topic.dto.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="updatr 2">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/privacy-policy/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/privacy-policy/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +18,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1892" />
+    <option name="cachedIndexableFilesCount" value="1984" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -38,7 +36,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="update-error-sheet" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -107,13 +105,13 @@
     }
   ]
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Lain4504/torii-monorepo.git",
+    "accountId": "5126b88c-ccf3-4397-984d-7c1b52a2aa60"
   },
-  &quot;editorReviewEnabled&quot;: false
-}</component>
+  "editorReviewEnabled": false
+}]]></component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
@@ -151,13 +149,13 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#250 on update-error-sheet&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#252 on refactor-backend-structure&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/test-app/next-app&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/projectdev/demo/team-source/torii-monorepo/apps/web-learner/public&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -189,18 +187,18 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
       <recent name="E:\projectdev\demo\team-source\torii-monorepo" />
       <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
       <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public" />
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\apps\web-learner\public\images" />
       <recent name="$PROJECT_DIR$/apps/server/modules/communication/handlers" />
       <recent name="$PROJECT_DIR$/apps/server/modules/learning/src/handlers" />
       <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/handlers" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/storage/src/handlers" />
     </key>
   </component>
   <component name="RunManager" selected="JavaScript Debug.localhost:3000">
@@ -226,9 +224,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
       </list>
@@ -237,8 +235,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
       </set>
     </attachedChunks>
   </component>
@@ -402,334 +399,10 @@
       <workItem from="1771990667306" duration="886000" />
       <workItem from="1771996036213" duration="3105000" />
       <workItem from="1772038435231" duration="18000" />
-    </task>
-    <task id="LOCAL-00823" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
-      <option name="closed" value="true" />
-      <created>1770199427314</created>
-      <option name="number" value="00823" />
-      <option name="presentableId" value="LOCAL-00823" />
-      <option name="project" value="LOCAL" />
-      <updated>1770199427314</updated>
-    </task>
-    <task id="LOCAL-00824" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
-      <option name="closed" value="true" />
-      <created>1770208275900</created>
-      <option name="number" value="00824" />
-      <option name="presentableId" value="LOCAL-00824" />
-      <option name="project" value="LOCAL" />
-      <updated>1770208275900</updated>
-    </task>
-    <task id="LOCAL-00825" summary="refactor: implement AppConfigService for centralized configuration management across services">
-      <option name="closed" value="true" />
-      <created>1770211151581</created>
-      <option name="number" value="00825" />
-      <option name="presentableId" value="LOCAL-00825" />
-      <option name="project" value="LOCAL" />
-      <updated>1770211151581</updated>
-    </task>
-    <task id="LOCAL-00826" summary="docs: update FEATURES.md to detail Agents Service architecture and user flows">
-      <option name="closed" value="true" />
-      <created>1770817607394</created>
-      <option name="number" value="00826" />
-      <option name="presentableId" value="LOCAL-00826" />
-      <option name="project" value="LOCAL" />
-      <updated>1770817607394</updated>
-    </task>
-    <task id="LOCAL-00827" summary="feat: add implementation checklist for Agents Service to track progress on AI-related tasks">
-      <option name="closed" value="true" />
-      <created>1770818642299</created>
-      <option name="number" value="00827" />
-      <option name="presentableId" value="LOCAL-00827" />
-      <option name="project" value="LOCAL" />
-      <updated>1770818642299</updated>
-    </task>
-    <task id="LOCAL-00828" summary="refactor: improve course repository and service methods, add analytics handlers">
-      <option name="closed" value="true" />
-      <created>1771658892653</created>
-      <option name="number" value="00828" />
-      <option name="presentableId" value="LOCAL-00828" />
-      <option name="project" value="LOCAL" />
-      <updated>1771658892653</updated>
-    </task>
-    <task id="LOCAL-00829" summary="refactor: improve course repository and service methods, add analytics handlers">
-      <option name="closed" value="true" />
-      <created>1771659261712</created>
-      <option name="number" value="00829" />
-      <option name="presentableId" value="LOCAL-00829" />
-      <option name="project" value="LOCAL" />
-      <updated>1771659261712</updated>
-    </task>
-    <task id="LOCAL-00830" summary="refactor: restructure agent handlers and update request payloads">
-      <option name="closed" value="true" />
-      <created>1771661489923</created>
-      <option name="number" value="00830" />
-      <option name="presentableId" value="LOCAL-00830" />
-      <option name="project" value="LOCAL" />
-      <updated>1771661489924</updated>
-    </task>
-    <task id="LOCAL-00831" summary="refactor: enhance prompt and resource loading with dynamic path resolution">
-      <option name="closed" value="true" />
-      <created>1771662928313</created>
-      <option name="number" value="00831" />
-      <option name="presentableId" value="LOCAL-00831" />
-      <option name="project" value="LOCAL" />
-      <updated>1771662928313</updated>
-    </task>
-    <task id="LOCAL-00832" summary="chore: update dependencies and improve project configuration">
-      <option name="closed" value="true" />
-      <created>1771678828103</created>
-      <option name="number" value="00832" />
-      <option name="presentableId" value="LOCAL-00832" />
-      <option name="project" value="LOCAL" />
-      <updated>1771678828104</updated>
-    </task>
-    <task id="LOCAL-00833" summary="chore: update dependencies and improve project configuration">
-      <option name="closed" value="true" />
-      <created>1771678903444</created>
-      <option name="number" value="00833" />
-      <option name="presentableId" value="LOCAL-00833" />
-      <option name="project" value="LOCAL" />
-      <updated>1771678903444</updated>
-    </task>
-    <task id="LOCAL-00834" summary="refactor: update imports from @radix-ui to radix-ui for consistency">
-      <option name="closed" value="true" />
-      <created>1771679448227</created>
-      <option name="number" value="00834" />
-      <option name="presentableId" value="LOCAL-00834" />
-      <option name="project" value="LOCAL" />
-      <updated>1771679448228</updated>
-    </task>
-    <task id="LOCAL-00835" summary="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency">
-      <option name="closed" value="true" />
-      <created>1771682661509</created>
-      <option name="number" value="00835" />
-      <option name="presentableId" value="LOCAL-00835" />
-      <option name="project" value="LOCAL" />
-      <updated>1771682661509</updated>
-    </task>
-    <task id="LOCAL-00836" summary="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency">
-      <option name="closed" value="true" />
-      <created>1771682935357</created>
-      <option name="number" value="00836" />
-      <option name="presentableId" value="LOCAL-00836" />
-      <option name="project" value="LOCAL" />
-      <updated>1771682935358</updated>
-    </task>
-    <task id="LOCAL-00837" summary="refactor: add AspectRatio and DirectionProvider components, update styles and structure for consistency">
-      <option name="closed" value="true" />
-      <created>1771683700993</created>
-      <option name="number" value="00837" />
-      <option name="presentableId" value="LOCAL-00837" />
-      <option name="project" value="LOCAL" />
-      <updated>1771683700994</updated>
-    </task>
-    <task id="LOCAL-00838" summary="refactor: add ServiceUnavailablePage and NotImplementedPage components, update routing and error handling across pages">
-      <option name="closed" value="true" />
-      <created>1771685372007</created>
-      <option name="number" value="00838" />
-      <option name="presentableId" value="LOCAL-00838" />
-      <option name="project" value="LOCAL" />
-      <updated>1771685372008</updated>
-    </task>
-    <task id="LOCAL-00839" summary="refactor: add ServiceUnavailablePage and NotImplementedPage components, update routing and error handling across pages">
-      <option name="closed" value="true" />
-      <created>1771685880773</created>
-      <option name="number" value="00839" />
-      <option name="presentableId" value="LOCAL-00839" />
-      <option name="project" value="LOCAL" />
-      <updated>1771685880773</updated>
-    </task>
-    <task id="LOCAL-00840" summary="refactor: update container widths and improve layout consistency across multiple sections">
-      <option name="closed" value="true" />
-      <created>1771687963435</created>
-      <option name="number" value="00840" />
-      <option name="presentableId" value="LOCAL-00840" />
-      <option name="project" value="LOCAL" />
-      <updated>1771687963437</updated>
-    </task>
-    <task id="LOCAL-00841" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
-      <option name="closed" value="true" />
-      <created>1771689574854</created>
-      <option name="number" value="00841" />
-      <option name="presentableId" value="LOCAL-00841" />
-      <option name="project" value="LOCAL" />
-      <updated>1771689574854</updated>
-    </task>
-    <task id="LOCAL-00842" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
-      <option name="closed" value="true" />
-      <created>1771690012748</created>
-      <option name="number" value="00842" />
-      <option name="presentableId" value="LOCAL-00842" />
-      <option name="project" value="LOCAL" />
-      <updated>1771690012748</updated>
-    </task>
-    <task id="LOCAL-00843" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
-      <option name="closed" value="true" />
-      <created>1771690467294</created>
-      <option name="number" value="00843" />
-      <option name="presentableId" value="LOCAL-00843" />
-      <option name="project" value="LOCAL" />
-      <updated>1771690467294</updated>
-    </task>
-    <task id="LOCAL-00844" summary="refactor: update text labels to Vietnamese for consistency across multiple components">
-      <option name="closed" value="true" />
-      <created>1771691195864</created>
-      <option name="number" value="00844" />
-      <option name="presentableId" value="LOCAL-00844" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691195864</updated>
-    </task>
-    <task id="LOCAL-00845" summary="refactor: update text labels to Vietnamese for consistency across multiple components">
-      <option name="closed" value="true" />
-      <created>1771691235973</created>
-      <option name="number" value="00845" />
-      <option name="presentableId" value="LOCAL-00845" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691235973</updated>
-    </task>
-    <task id="LOCAL-00846" summary="refactor: update button styles and labels for consistency across multiple sheets">
-      <option name="closed" value="true" />
-      <created>1771691864181</created>
-      <option name="number" value="00846" />
-      <option name="presentableId" value="LOCAL-00846" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691864182</updated>
-    </task>
-    <task id="LOCAL-00847" summary="refactor: update button styles and labels for consistency across multiple sheets">
-      <option name="closed" value="true" />
-      <created>1771692003490</created>
-      <option name="number" value="00847" />
-      <option name="presentableId" value="LOCAL-00847" />
-      <option name="project" value="LOCAL" />
-      <updated>1771692003490</updated>
-    </task>
-    <task id="LOCAL-00848" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771692669428</created>
-      <option name="number" value="00848" />
-      <option name="presentableId" value="LOCAL-00848" />
-      <option name="project" value="LOCAL" />
-      <updated>1771692669428</updated>
-    </task>
-    <task id="LOCAL-00849" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693019683</created>
-      <option name="number" value="00849" />
-      <option name="presentableId" value="LOCAL-00849" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693019684</updated>
-    </task>
-    <task id="LOCAL-00850" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693198458</created>
-      <option name="number" value="00850" />
-      <option name="presentableId" value="LOCAL-00850" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693198458</updated>
-    </task>
-    <task id="LOCAL-00851" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693324764</created>
-      <option name="number" value="00851" />
-      <option name="presentableId" value="LOCAL-00851" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693324764</updated>
-    </task>
-    <task id="LOCAL-00852" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693548937</created>
-      <option name="number" value="00852" />
-      <option name="presentableId" value="LOCAL-00852" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693548937</updated>
-    </task>
-    <task id="LOCAL-00853" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693927384</created>
-      <option name="number" value="00853" />
-      <option name="presentableId" value="LOCAL-00853" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693927384</updated>
-    </task>
-    <task id="LOCAL-00854" summary="refactor: update layout and styling for user and module sheets">
-      <option name="closed" value="true" />
-      <created>1771723497169</created>
-      <option name="number" value="00854" />
-      <option name="presentableId" value="LOCAL-00854" />
-      <option name="project" value="LOCAL" />
-      <updated>1771723497169</updated>
-    </task>
-    <task id="LOCAL-00855" summary="feat: add reset password functionality and update identity URLs">
-      <option name="closed" value="true" />
-      <created>1771817516446</created>
-      <option name="number" value="00855" />
-      <option name="presentableId" value="LOCAL-00855" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817516446</updated>
-    </task>
-    <task id="LOCAL-00856" summary="refactor: change location of api folder to lib">
-      <option name="closed" value="true" />
-      <created>1771817703777</created>
-      <option name="number" value="00856" />
-      <option name="presentableId" value="LOCAL-00856" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817703777</updated>
-    </task>
-    <task id="LOCAL-00857" summary="refactor: change location of api folder to lib">
-      <option name="closed" value="true" />
-      <created>1771817780327</created>
-      <option name="number" value="00857" />
-      <option name="presentableId" value="LOCAL-00857" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817780327</updated>
-    </task>
-    <task id="LOCAL-00858" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
-      <option name="closed" value="true" />
-      <created>1771823535746</created>
-      <option name="number" value="00858" />
-      <option name="presentableId" value="LOCAL-00858" />
-      <option name="project" value="LOCAL" />
-      <updated>1771823535747</updated>
-    </task>
-    <task id="LOCAL-00859" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
-      <option name="closed" value="true" />
-      <created>1771823552828</created>
-      <option name="number" value="00859" />
-      <option name="presentableId" value="LOCAL-00859" />
-      <option name="project" value="LOCAL" />
-      <updated>1771823552828</updated>
-    </task>
-    <task id="LOCAL-00860" summary="refactor: improve layout and styling across multiple components">
-      <option name="closed" value="true" />
-      <created>1771843343459</created>
-      <option name="number" value="00860" />
-      <option name="presentableId" value="LOCAL-00860" />
-      <option name="project" value="LOCAL" />
-      <updated>1771843343459</updated>
-    </task>
-    <task id="LOCAL-00861" summary="refactor: reorganize dashboard components and update import paths">
-      <option name="closed" value="true" />
-      <created>1771845443231</created>
-      <option name="number" value="00861" />
-      <option name="presentableId" value="LOCAL-00861" />
-      <option name="project" value="LOCAL" />
-      <updated>1771845443231</updated>
-    </task>
-    <task id="LOCAL-00862" summary="feat: replace SVG logo with Image component for improved performance and consistency">
-      <option name="closed" value="true" />
-      <created>1771851088973</created>
-      <option name="number" value="00862" />
-      <option name="presentableId" value="LOCAL-00862" />
-      <option name="project" value="LOCAL" />
-      <updated>1771851088973</updated>
-    </task>
-    <task id="LOCAL-00863" summary="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page">
-      <option name="closed" value="true" />
-      <created>1771852043726</created>
-      <option name="number" value="00863" />
-      <option name="presentableId" value="LOCAL-00863" />
-      <option name="project" value="LOCAL" />
-      <updated>1771852043726</updated>
+      <workItem from="1772116512598" duration="1351000" />
+      <workItem from="1772173061622" duration="2604000" />
+      <workItem from="1772200330099" duration="390000" />
+      <workItem from="1772259343193" duration="455000" />
     </task>
     <task id="LOCAL-00864" summary="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page">
       <option name="closed" value="true" />
@@ -795,7 +468,335 @@
       <option name="project" value="LOCAL" />
       <updated>1771996995370</updated>
     </task>
-    <option name="localTasksCounter" value="872" />
+    <task id="LOCAL-00872" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772111299316</created>
+      <option name="number" value="00872" />
+      <option name="presentableId" value="LOCAL-00872" />
+      <option name="project" value="LOCAL" />
+      <updated>1772111299317</updated>
+    </task>
+    <task id="LOCAL-00873" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772111335208</created>
+      <option name="number" value="00873" />
+      <option name="presentableId" value="LOCAL-00873" />
+      <option name="project" value="LOCAL" />
+      <updated>1772111335208</updated>
+    </task>
+    <task id="LOCAL-00874" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772111828245</created>
+      <option name="number" value="00874" />
+      <option name="presentableId" value="LOCAL-00874" />
+      <option name="project" value="LOCAL" />
+      <updated>1772111828246</updated>
+    </task>
+    <task id="LOCAL-00875" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772112211880</created>
+      <option name="number" value="00875" />
+      <option name="presentableId" value="LOCAL-00875" />
+      <option name="project" value="LOCAL" />
+      <updated>1772112211880</updated>
+    </task>
+    <task id="LOCAL-00876" summary="feat: add initial setup for analytics and audit modules with corresponding handlers and services">
+      <option name="closed" value="true" />
+      <created>1772112539041</created>
+      <option name="number" value="00876" />
+      <option name="presentableId" value="LOCAL-00876" />
+      <option name="project" value="LOCAL" />
+      <updated>1772112539041</updated>
+    </task>
+    <task id="LOCAL-00877" summary="refactor identity service">
+      <option name="closed" value="true" />
+      <created>1772112551026</created>
+      <option name="number" value="00877" />
+      <option name="presentableId" value="LOCAL-00877" />
+      <option name="project" value="LOCAL" />
+      <updated>1772112551026</updated>
+    </task>
+    <task id="LOCAL-00878" summary="refactor communication service">
+      <option name="closed" value="true" />
+      <created>1772113079342</created>
+      <option name="number" value="00878" />
+      <option name="presentableId" value="LOCAL-00878" />
+      <option name="project" value="LOCAL" />
+      <updated>1772113079342</updated>
+    </task>
+    <task id="LOCAL-00879" summary="refactor: restructure backend modules and update service paths">
+      <option name="closed" value="true" />
+      <created>1772114247962</created>
+      <option name="number" value="00879" />
+      <option name="presentableId" value="LOCAL-00879" />
+      <option name="project" value="LOCAL" />
+      <updated>1772114247962</updated>
+    </task>
+    <task id="LOCAL-00880" summary="refactor meet service">
+      <option name="closed" value="true" />
+      <created>1772114266944</created>
+      <option name="number" value="00880" />
+      <option name="presentableId" value="LOCAL-00880" />
+      <option name="project" value="LOCAL" />
+      <updated>1772114266944</updated>
+    </task>
+    <task id="LOCAL-00881" summary="refactor storage service">
+      <option name="closed" value="true" />
+      <created>1772114753356</created>
+      <option name="number" value="00881" />
+      <option name="presentableId" value="LOCAL-00881" />
+      <option name="project" value="LOCAL" />
+      <updated>1772114753356</updated>
+    </task>
+    <task id="LOCAL-00882" summary="refactor: restructure course DTOs and add search request schema">
+      <option name="closed" value="true" />
+      <created>1772173628485</created>
+      <option name="number" value="00882" />
+      <option name="presentableId" value="LOCAL-00882" />
+      <option name="project" value="LOCAL" />
+      <updated>1772173628486</updated>
+    </task>
+    <task id="LOCAL-00883" summary="refactor: restructure course DTOs and add search request schema">
+      <option name="closed" value="true" />
+      <created>1772174246552</created>
+      <option name="number" value="00883" />
+      <option name="presentableId" value="LOCAL-00883" />
+      <option name="project" value="LOCAL" />
+      <updated>1772174246552</updated>
+    </task>
+    <task id="LOCAL-00884" summary="refactor: restructure course DTOs and add search request schema">
+      <option name="closed" value="true" />
+      <created>1772175626733</created>
+      <option name="number" value="00884" />
+      <option name="presentableId" value="LOCAL-00884" />
+      <option name="project" value="LOCAL" />
+      <updated>1772175626733</updated>
+    </task>
+    <task id="LOCAL-00885" summary="refactor: remove unused community navigation item and clean up related files">
+      <option name="closed" value="true" />
+      <created>1772202507595</created>
+      <option name="number" value="00885" />
+      <option name="presentableId" value="LOCAL-00885" />
+      <option name="project" value="LOCAL" />
+      <updated>1772202507596</updated>
+    </task>
+    <task id="LOCAL-00886" summary="refactor: remove unused community navigation item and clean up related files">
+      <option name="closed" value="true" />
+      <created>1772202721172</created>
+      <option name="number" value="00886" />
+      <option name="presentableId" value="LOCAL-00886" />
+      <option name="project" value="LOCAL" />
+      <updated>1772202721173</updated>
+    </task>
+    <task id="LOCAL-00887" summary="refactor: remove unused community navigation item and clean up related files">
+      <option name="closed" value="true" />
+      <created>1772202808973</created>
+      <option name="number" value="00887" />
+      <option name="presentableId" value="LOCAL-00887" />
+      <option name="project" value="LOCAL" />
+      <updated>1772202808973</updated>
+    </task>
+    <task id="LOCAL-00888" summary="refactor: remove unused community navigation item and clean up related files">
+      <option name="closed" value="true" />
+      <created>1772203459312</created>
+      <option name="number" value="00888" />
+      <option name="presentableId" value="LOCAL-00888" />
+      <option name="project" value="LOCAL" />
+      <updated>1772203459312</updated>
+    </task>
+    <task id="LOCAL-00889" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772207360946</created>
+      <option name="number" value="00889" />
+      <option name="presentableId" value="LOCAL-00889" />
+      <option name="project" value="LOCAL" />
+      <updated>1772207360948</updated>
+    </task>
+    <task id="LOCAL-00890" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772208111011</created>
+      <option name="number" value="00890" />
+      <option name="presentableId" value="LOCAL-00890" />
+      <option name="project" value="LOCAL" />
+      <updated>1772208111012</updated>
+    </task>
+    <task id="LOCAL-00891" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772208659106</created>
+      <option name="number" value="00891" />
+      <option name="presentableId" value="LOCAL-00891" />
+      <option name="project" value="LOCAL" />
+      <updated>1772208659107</updated>
+    </task>
+    <task id="LOCAL-00892" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772209204318</created>
+      <option name="number" value="00892" />
+      <option name="presentableId" value="LOCAL-00892" />
+      <option name="project" value="LOCAL" />
+      <updated>1772209204318</updated>
+    </task>
+    <task id="LOCAL-00893" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772209405350</created>
+      <option name="number" value="00893" />
+      <option name="presentableId" value="LOCAL-00893" />
+      <option name="project" value="LOCAL" />
+      <updated>1772209405350</updated>
+    </task>
+    <task id="LOCAL-00894" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772209747932</created>
+      <option name="number" value="00894" />
+      <option name="presentableId" value="LOCAL-00894" />
+      <option name="project" value="LOCAL" />
+      <updated>1772209747932</updated>
+    </task>
+    <task id="LOCAL-00895" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772210136822</created>
+      <option name="number" value="00895" />
+      <option name="presentableId" value="LOCAL-00895" />
+      <option name="project" value="LOCAL" />
+      <updated>1772210136823</updated>
+    </task>
+    <task id="LOCAL-00896" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772210386517</created>
+      <option name="number" value="00896" />
+      <option name="presentableId" value="LOCAL-00896" />
+      <option name="project" value="LOCAL" />
+      <updated>1772210386523</updated>
+    </task>
+    <task id="LOCAL-00897" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772210850343</created>
+      <option name="number" value="00897" />
+      <option name="presentableId" value="LOCAL-00897" />
+      <option name="project" value="LOCAL" />
+      <updated>1772210850344</updated>
+    </task>
+    <task id="LOCAL-00898" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772211017862</created>
+      <option name="number" value="00898" />
+      <option name="presentableId" value="LOCAL-00898" />
+      <option name="project" value="LOCAL" />
+      <updated>1772211017862</updated>
+    </task>
+    <task id="LOCAL-00899" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772211222857</created>
+      <option name="number" value="00899" />
+      <option name="presentableId" value="LOCAL-00899" />
+      <option name="project" value="LOCAL" />
+      <updated>1772211222858</updated>
+    </task>
+    <task id="LOCAL-00900" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772211562041</created>
+      <option name="number" value="00900" />
+      <option name="presentableId" value="LOCAL-00900" />
+      <option name="project" value="LOCAL" />
+      <updated>1772211562042</updated>
+    </task>
+    <task id="LOCAL-00901" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
+      <option name="closed" value="true" />
+      <created>1772212114569</created>
+      <option name="number" value="00901" />
+      <option name="presentableId" value="LOCAL-00901" />
+      <option name="project" value="LOCAL" />
+      <updated>1772212114569</updated>
+    </task>
+    <task id="LOCAL-00902" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772213144237</created>
+      <option name="number" value="00902" />
+      <option name="presentableId" value="LOCAL-00902" />
+      <option name="project" value="LOCAL" />
+      <updated>1772213144238</updated>
+    </task>
+    <task id="LOCAL-00903" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772213641346</created>
+      <option name="number" value="00903" />
+      <option name="presentableId" value="LOCAL-00903" />
+      <option name="project" value="LOCAL" />
+      <updated>1772213641347</updated>
+    </task>
+    <task id="LOCAL-00904" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214077619</created>
+      <option name="number" value="00904" />
+      <option name="presentableId" value="LOCAL-00904" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214077619</updated>
+    </task>
+    <task id="LOCAL-00905" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214182851</created>
+      <option name="number" value="00905" />
+      <option name="presentableId" value="LOCAL-00905" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214182862</updated>
+    </task>
+    <task id="LOCAL-00906" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214431427</created>
+      <option name="number" value="00906" />
+      <option name="presentableId" value="LOCAL-00906" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214431428</updated>
+    </task>
+    <task id="LOCAL-00907" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214580679</created>
+      <option name="number" value="00907" />
+      <option name="presentableId" value="LOCAL-00907" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214580680</updated>
+    </task>
+    <task id="LOCAL-00908" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214852349</created>
+      <option name="number" value="00908" />
+      <option name="presentableId" value="LOCAL-00908" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214852349</updated>
+    </task>
+    <task id="LOCAL-00909" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772214973121</created>
+      <option name="number" value="00909" />
+      <option name="presentableId" value="LOCAL-00909" />
+      <option name="project" value="LOCAL" />
+      <updated>1772214973121</updated>
+    </task>
+    <task id="LOCAL-00910" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772215340698</created>
+      <option name="number" value="00910" />
+      <option name="presentableId" value="LOCAL-00910" />
+      <option name="project" value="LOCAL" />
+      <updated>1772215340699</updated>
+    </task>
+    <task id="LOCAL-00911" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772215742601</created>
+      <option name="number" value="00911" />
+      <option name="presentableId" value="LOCAL-00911" />
+      <option name="project" value="LOCAL" />
+      <updated>1772215742602</updated>
+    </task>
+    <task id="LOCAL-00912" summary="updatr 2">
+      <option name="closed" value="true" />
+      <created>1772259402801</created>
+      <option name="number" value="00912" />
+      <option name="presentableId" value="LOCAL-00912" />
+      <option name="project" value="LOCAL" />
+      <updated>1772259402802</updated>
+    </task>
+    <option name="localTasksCounter" value="913" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -812,7 +813,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="agent-refactor" />
+                        <option value="refactor-backend-structure" />
                       </list>
                     </value>
                   </entry>
@@ -830,17 +831,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: enhance prompt and resource loading with dynamic path resolution" />
-    <MESSAGE value="chore: update dependencies and improve project configuration" />
-    <MESSAGE value="refactor: update imports from @radix-ui to radix-ui for consistency" />
-    <MESSAGE value="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency" />
-    <MESSAGE value="refactor: add AspectRatio and DirectionProvider components, update styles and structure for consistency" />
-    <MESSAGE value="refactor: add ServiceUnavailablePage and NotImplementedPage components, update routing and error handling across pages" />
-    <MESSAGE value="refactor: update container widths and improve layout consistency across multiple sections" />
-    <MESSAGE value="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency" />
-    <MESSAGE value="refactor: update text labels to Vietnamese for consistency across multiple components" />
-    <MESSAGE value="refactor: update button styles and labels for consistency across multiple sheets" />
-    <MESSAGE value="rules" />
     <MESSAGE value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
     <MESSAGE value="refactor: update layout and styling for user and module sheets" />
     <MESSAGE value="feat: add reset password functionality and update identity URLs" />
@@ -855,7 +845,18 @@
     <MESSAGE value="refactor: simplify layout and styling in dashboard and feed components" />
     <MESSAGE value="refactor: update notebook API and enhance flashcard component functionality" />
     <MESSAGE value="fix: update external media player text for clarity" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: update external media player text for clarity" />
+    <MESSAGE value="feat: add initial setup for analytics and audit modules with corresponding handlers and services" />
+    <MESSAGE value="refactor identity service" />
+    <MESSAGE value="refactor communication service" />
+    <MESSAGE value="refactor: restructure backend modules and update service paths" />
+    <MESSAGE value="refactor meet service" />
+    <MESSAGE value="refactor storage service" />
+    <MESSAGE value="refactor: restructure course DTOs and add search request schema" />
+    <MESSAGE value="refactor: remove unused community navigation item and clean up related files" />
+    <MESSAGE value="feat: implement scheduled cleanup for old audit logs with retention policy" />
+    <MESSAGE value="stitch ui" />
+    <MESSAGE value="updatr 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="updatr 2" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
@@ -864,24 +865,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
+          <url>file://$PROJECT_DIR$/../../../bmap-capstone/torii-monorepo/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
           <line>25</line>
           <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
-          <line>46</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
-          <line>85</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts</url>
-          <line>66</line>
-          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

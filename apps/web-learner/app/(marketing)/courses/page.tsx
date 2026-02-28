@@ -1,64 +1,24 @@
-'use client'
+import { Metadata } from 'next';
+import { CoursesClient } from '@/components/marketing/courses-client';
 
-import { useState } from "react"
-import { SearchHeader } from "@/components/catalog/search-header"
-import { FilterSidebar } from "@/components/catalog/filter-sidebar"
-import { CourseGrid } from "@/components/catalog/course-grid"
+export const metadata: Metadata = {
+    title: 'Danh Sách Khóa Học Tiếng Nhật | Torii Nihongo',
+    description: 'Khám phá hàng trăm khóa học tiếng Nhật từ sơ cấp đến cao cấp (N5 - N1), luyện thi JLPT và tiếng Nhật thương mại cùng đội ngũ giảng viên chuyên nghiệp.',
+    keywords: ['khóa học tiếng nhật', 'luyện thi jlpt', 'học tiếng nhật online', 'tiếng nhật sơ cấp', 'tiếng nhật trung cấp', 'tiếng nhật cao cấp'],
+    openGraph: {
+        title: 'Danh Sách Khóa Học Tiếng Nhật | Torii Nihongo',
+        description: 'Nâng tầm trình độ tiếng Nhật của bạn với các lộ trình học tập bài bản và hiện đại.',
+        images: [
+            {
+                url: 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=2070&auto=format&fit=crop',
+                width: 1200,
+                height: 630,
+                alt: 'Torii Nihongo Courses',
+            },
+        ],
+    },
+};
 
 export default function CourseCatalogPage() {
-    const [searchQuery, setSearchQuery] = useState("")
-    const [selectedLevels, setSelectedLevels] = useState<string[]>([])
-    const [priceFilter, setPriceFilter] = useState<"all" | "free" | "paid">("all")
-    const [sortBy, setSortBy] = useState("popular")
-    const [currentPage, setCurrentPage] = useState(1)
-
-    const resetPage = () => setCurrentPage(1)
-
-    return (
-        <div className="min-h-screen bg-background">
-            {/* Page Header */}
-            <div className="border-b bg-muted/30">
-                <div className="container max-w-7xl mx-auto px-4 py-12">
-                    <div className="space-y-2">
-                        <p className="text-sm font-medium text-primary">Khóa học</p>
-                        <h1 className="text-3xl font-bold tracking-tight">Danh mục khóa học</h1>
-                        <p className="text-muted-foreground">Tìm kiếm khóa học phù hợp với lộ trình học tiếng Nhật của bạn.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
-                <SearchHeader
-                    searchQuery={searchQuery}
-                    onSearchChange={(q) => { setSearchQuery(q); resetPage() }}
-                    sortBy={sortBy}
-                    onSortChange={setSortBy}
-                />
-
-                <div className="grid lg:grid-cols-4 gap-8">
-                    <aside className="hidden lg:block">
-                        <div className="sticky top-20">
-                            <FilterSidebar
-                                selectedLevels={selectedLevels}
-                                onLevelChange={(levels) => { setSelectedLevels(levels); resetPage() }}
-                                priceFilter={priceFilter}
-                                onPriceChange={(price) => { setPriceFilter(price); resetPage() }}
-                            />
-                        </div>
-                    </aside>
-
-                    <main className="lg:col-span-3">
-                        <CourseGrid
-                            searchQuery={searchQuery}
-                            selectedLevels={selectedLevels}
-                            priceFilter={priceFilter}
-                            sortBy={sortBy}
-                            currentPage={currentPage}
-                            onPageChange={setCurrentPage}
-                        />
-                    </main>
-                </div>
-            </div>
-        </div>
-    )
+    return <CoursesClient />;
 }

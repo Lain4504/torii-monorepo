@@ -11,6 +11,7 @@ import type {
   CourseCreateDTO,
   CourseUpdateDTO,
   CourseResponseDTO,
+  CourseSearchResponseDTO,
   PaginationOptionsDTO,
   PaginatedResponseDTO,
   Requester,
@@ -119,13 +120,9 @@ export class CourseService implements ICourseService {
         where.jlptLevel = jlptLevel;
       }
 
-      // Filter by Instructor
+      // Filter by Instructor (lecturerId)
       if (instructorId) {
-        where.instructors = {
-          some: {
-            lecturerId: instructorId,
-          },
-        };
+        where.lecturerId = instructorId;
       }
 
       if (search) {
@@ -145,6 +142,16 @@ export class CourseService implements ICourseService {
           take: limitNum,
           where,
           orderBy: { createdAt: 'desc' },
+          include: {
+            lecturer: {
+              select: {
+                id: true,
+                displayName: true,
+                avatarUrl: true,
+                email: true,
+              },
+            },
+          },
         }),
       ]);
 
@@ -161,6 +168,30 @@ export class CourseService implements ICourseService {
       this.logger.error('Failed to retrieve courses', error);
       throw new BadRequestException('Failed to retrieve courses');
     }
+  }
+
+  private toCourseSearchResponseDTO(course: any): CourseSearchResponseDTO {
+    return {
+      id: course.id,
+      title: course.title,
+      slug: course.slug,
+      thumbnailUrl: course.thumbnailUrl,
+      jlptLevel: course.jlptLevel,
+      price: course.price,
+      discountPrice: course.discountPrice,
+      totalStudents: course.totalStudents,
+      totalLessons: course.totalLessons,
+      durationWeeks: course.durationWeeks,
+      averageRating: course.averageRating,
+      totalReviews: course.totalReviews,
+      aiMetadata: course.aiMetadata || {},
+      lecturer: course.lecturer ? {
+        id: course.lecturer.id,
+        displayName: course.lecturer.displayName,
+        avatarUrl: course.lecturer.avatarUrl,
+        email: course.lecturer.email,
+      } : null,
+    };
   }
 
   /**
@@ -206,8 +237,8 @@ export class CourseService implements ICourseService {
       // Filter by Price Range
       if (priceMin !== undefined || priceMax !== undefined) {
         where.price = {};
-        if (priceMin !== undefined) where.price.gte = priceMin;
-        if (priceMax !== undefined) where.price.lte = priceMax;
+        if (priceMin !== undefined) where.price.gte = Number(priceMin);
+        if (priceMax !== undefined) where.price.lte = Number(priceMax);
       }
 
       if (search) {
@@ -233,8 +264,6 @@ export class CourseService implements ICourseService {
             orderBy = { createdAt: 'asc' };
             break;
           case 'popular':
-            orderBy = { createdAt: 'desc' };
-            break;
           default:
             orderBy = { createdAt: 'desc' };
         }
@@ -247,13 +276,23 @@ export class CourseService implements ICourseService {
           take: limitNum,
           where,
           orderBy,
+          include: {
+            lecturer: {
+              select: {
+                id: true,
+                displayName: true,
+                avatarUrl: true,
+                email: true,
+              },
+            },
+          },
         }),
       ]);
 
       const totalPages = Math.ceil(total / limitNum);
 
       return {
-        data: courses.map(course => this.toCourseResponseDTO(course)),
+        data: courses.map(course => this.toCourseResponseDTO(course as any)),
         total,
         page: pageNum,
         limit: limitNum,
@@ -288,15 +327,13 @@ export class CourseService implements ICourseService {
       dto.totalQuizzes = updated.totalQuizzes;
     }
 
-    // Fetch instructors
+    // Fetch lecturer
     try {
-      const instructors = await this.courseRepository.getInstructors(course.id);
-      // @ts-ignore - Property 'instructors' does not exist on type 'CourseResponseDTO' until type definitions are fully propagated
-      dto.instructors = instructors;
+      const lecturer = await this.courseRepository.getLecturer(course.id);
+      dto.lecturer = lecturer;
     } catch (error) {
-      this.logger.warn(`Failed to fetch instructors for course ${course.id}`, error);
-      // @ts-ignore
-      dto.instructors = [];
+      this.logger.warn(`Failed to fetch lecturer for course ${course.id}`, error);
+      dto.lecturer = null;
     }
 
     return dto;
@@ -314,15 +351,13 @@ export class CourseService implements ICourseService {
 
     const dto = this.toCourseResponseDTO(course);
 
-    // Fetch instructors
+    // Fetch lecturer
     try {
-      const instructors = await this.courseRepository.getInstructors(course.id);
-      // @ts-ignore - Property 'instructors' does not exist on type 'CourseResponseDTO' until type definitions are fully propagated
-      dto.instructors = instructors;
+      const lecturer = await this.courseRepository.getLecturer(course.id);
+      dto.lecturer = lecturer;
     } catch (error) {
-      this.logger.warn(`Failed to fetch instructors for course ${course.id}`, error);
-      // @ts-ignore
-      dto.instructors = [];
+      this.logger.warn(`Failed to fetch lecturer for course ${course.id}`, error);
+      dto.lecturer = null;
     }
 
     return dto;
@@ -333,6 +368,12 @@ export class CourseService implements ICourseService {
    */
   async create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO> {
     try {
+      // Business Rule: Only admin and staff-lms can create courses
+      // Lecturers can only be assigned to courses by admin/staff
+      if (requester.role?.toLowerCase() === 'lecturer') {
+        throw new ForbiddenException('Lecturers cannot create courses. Courses must be assigned by admin or LMS staff.');
+      }
+
       // Generate unique slug
       const baseSlug = generateSlug(dto.title);
       const slug = await this.ensureUniqueSlug(baseSlug);
@@ -360,6 +401,10 @@ export class CourseService implements ICourseService {
         requirements: dto.requirements || [],
         createdBy: requester.sub,
         status: 'draft',
+        maxStudents: dto.maxStudents || null,
+        lecturerId: dto.lecturerId || null,
+        isReadyForScheduling: false,
+        minimumLessons: (dto as any).minimumLessons || 8,
       };
 
       // Validation: Paid courses must have price > 0
@@ -464,6 +509,10 @@ export class CourseService implements ICourseService {
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
+      if (dto.maxStudents !== undefined) updateData.maxStudents = dto.maxStudents;
+      if (dto.lecturerId !== undefined) updateData.lecturerId = dto.lecturerId;
+      if ((dto as any).isReadyForScheduling !== undefined) updateData.isReadyForScheduling = (dto as any).isReadyForScheduling;
+      if ((dto as any).minimumLessons !== undefined) updateData.minimumLessons = (dto as any).minimumLessons;
 
       // Validation: Paid courses must have price > 0
       const finalIsFree = dto.isFree !== undefined ? dto.isFree : existing.isFree;
@@ -839,7 +888,7 @@ export class CourseService implements ICourseService {
   /**
    * Get course curriculum (modules with lessons)
    */
-  async getCurriculum(courseId: string, userId?: string): Promise<{
+  async getCurriculum(courseId: string, requester?: Requester): Promise<{
     modules: Array<{
       id: string;
       title: string;
@@ -858,6 +907,7 @@ export class CourseService implements ICourseService {
       }>;
     }>;
   }> {
+    const userId = requester?.sub;
     // Verify course exists
     const course = await this.courseRepository.findById(courseId);
     if (!course || course.deletedAt) {
@@ -869,6 +919,12 @@ export class CourseService implements ICourseService {
     let isInstructorForCourse = false;
     let isAdminOrStaff = false;
 
+    if (requester) {
+      isAdminOrStaff = this.hasPermission(requester, 'course.view_restricted') ||
+        this.hasPermission(requester, 'course.publish') ||
+        ['admin', 'staff'].includes(requester.role?.toLowerCase() || '');
+    }
+
     if (userId) {
       try {
         enrollment = await this.enrollmentService.findByUserAndCourse(userId, courseId);
@@ -877,12 +933,10 @@ export class CourseService implements ICourseService {
       }
       try {
         isInstructorForCourse = await this.isInstructor(userId, courseId);
-        // Note: For full accuracy, we'd also check if the user has 'course.publish' permission to act as admin/staff
-        // But for getCurriculum, we can assume instructors see staging/draft, while learners see snapshots.
       } catch (error) { }
     }
 
-    const showDraft = isInstructorForCourse;
+    const showDraft = isInstructorForCourse || isAdminOrStaff;
 
     if (!showDraft) {
       // It's a student or a public user. We should serve from CourseVersion snapshot.
@@ -906,16 +960,22 @@ export class CourseService implements ICourseService {
               description: mod.description || undefined,
               order: mod.orderIndex,
               durationMinutes: mod.durationMinutes || undefined,
-              lessons: (mod.lessons || []).map((lesson: any) => ({
-                id: lesson.id,
-                title: lesson.title,
-                contentType: lesson.contentType,
-                videoDuration: lesson.videoDuration || undefined,
-                videoUrl: (lesson.isPreview || showAllVideoUrl) ? (lesson.videoUrl || undefined) : undefined,
-                order: lesson.orderIndex,
-                isPreview: lesson.isPreview,
-                isUnlocked: lesson.isUnlocked,
-              })),
+              lessons: (mod.lessons || []).map((lesson: any) => {
+                // User with valid enrollment can access all published lessons
+                const isLessonPublished = !lesson.status || lesson.status === 'published';
+                const canAccess = (lesson.isPreview || !!enrollment) && isLessonPublished;
+
+                return {
+                  id: lesson.id,
+                  title: lesson.title,
+                  contentType: lesson.contentType,
+                  videoDuration: lesson.videoDuration || undefined,
+                  videoUrl: (lesson.isPreview || showAllVideoUrl) ? (lesson.videoUrl || undefined) : undefined,
+                  order: lesson.orderIndex,
+                  isPreview: lesson.isPreview,
+                  isUnlocked: canAccess,
+                };
+              }),
             };
           }),
         };
@@ -942,18 +1002,21 @@ export class CourseService implements ICourseService {
           order: module.orderIndex,
           durationMinutes: module.durationMinutes || undefined,
           lessons: lessons.map((lesson) => {
-            // Unlocked if (preview OR enrolled) AND marked unlocked in DB
-            const isAccessible = (lesson.isPreview || !!enrollment) && lesson.isUnlocked;
+            // User with valid enrollment can access all published lessons
+            // Instructors/admins can see draft lessons too
+            const isLessonPublished = !(lesson as any).status || (lesson as any).status === 'published';
+            const isAccessible = lesson.isPreview || !!enrollment || isInstructorForCourse || isAdminOrStaff;
+            const canAccess = isInstructorForCourse || isAdminOrStaff || (isAccessible && isLessonPublished);
 
             return {
               id: lesson.id,
               title: lesson.title,
               contentType: lesson.contentType,
               videoDuration: lesson.videoDuration || undefined,
-              videoUrl: isAccessible ? (lesson.videoUrl || undefined) : undefined,
+              videoUrl: canAccess ? (lesson.videoUrl || undefined) : undefined,
               order: lesson.orderIndex,
               isPreview: lesson.isPreview,
-              isUnlocked: isAccessible,
+              isUnlocked: canAccess,
             };
           }),
         };
@@ -982,17 +1045,59 @@ export class CourseService implements ICourseService {
   }
 
   /**
-   * Check if a user is an instructor for a course
+   * Check if a user is the lecturer for a course
    */
   async isInstructor(userId: string, courseId: string): Promise<boolean> {
     try {
-      const instructors = await this.courseRepository.getInstructors(courseId);
-      return instructors.some(instructor => instructor.userId === userId);
+      const course = await this.courseRepository.findById(courseId);
+      return course?.lecturerId === userId;
     } catch (error) {
-      this.logger.error(`Failed to check if user ${userId} is instructor for course ${courseId}`, error);
+      this.logger.error(`Failed to check if user ${userId} is lecturer for course ${courseId}`, error);
       return false;
     }
   }
 
-}
+  /**
+   * Validate if a course is ready for scheduling
+   */
+  async validateForScheduling(courseId: string): Promise<{ isReady: boolean; message?: string }> {
+    try {
+      const course = await this.courseRepository.findById(courseId);
+      if (!course || course.deletedAt) {
+        return { isReady: false, message: 'Course not found' };
+      }
 
+      // 1. Check status
+      if (course.status !== 'published') {
+        return { isReady: false, message: 'Course must be published before scheduling' };
+      }
+
+      // 2. Check type
+      if (course.type !== 'live') {
+        return { isReady: false, message: 'Only live courses can be scheduled' };
+      }
+
+      // 3. Check lecturer
+      if (!course.lecturerId) {
+        return { isReady: false, message: 'Course must have an assigned lecturer' };
+      }
+
+      // 4. Check curriculum (minimum lessons)
+      const lessonCount = await this.courseRepository.countLessons(courseId);
+      const minLessons = course.minimumLessons || 8;
+
+      if (lessonCount < minLessons) {
+        return {
+          isReady: false,
+          message: `Course must have at least ${minLessons} lessons in curriculum (currently has ${lessonCount})`
+        };
+      }
+
+      return { isReady: true };
+    } catch (error: any) {
+      this.logger.error(`Failed to validate course ${courseId} for scheduling`, error);
+      return { isReady: false, message: 'Internal validation error' };
+    }
+  }
+
+}

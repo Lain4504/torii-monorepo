@@ -203,7 +203,8 @@ export class LiveSessionService implements ILiveSessionService {
         }
 
         // Create a room in Meet module if it doesn't exist
-        const roomId = existing.meetingId || `live-session-${id}`;
+        // meetingId is now generated lazily when the session starts
+        const roomId = existing.meetingId || `live-${id.substring(0, 8)}`;
         try {
             const createRoomReq = create(CreateRoomReqSchema, {
                 roomId: roomId,

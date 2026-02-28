@@ -25,6 +25,9 @@ import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
 import MyCoursesPage from '@/routes/courses/my-courses-page.tsx'
 import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
 import CourseLiveSessionsPage from '@/routes/courses/course-live-sessions-page.tsx'
+import CourseEnrollmentsPage from '@/routes/courses/course-enrollments-page.tsx'
+import AssignmentSubmissionsPage from '@/routes/courses/assignment-submissions-page.tsx'
+import CourseDiscussionsPage from '@/routes/courses/course-discussions-page.tsx'
 
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
@@ -32,6 +35,7 @@ import OrdersPage from '@/routes/finance/orders-page.tsx'
 
 import NotificationsPage from '@/routes/notification/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
+import ProfilePage from '@/routes/profile/profile-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
@@ -86,7 +90,10 @@ function App() {
                   <Route path="courses/reviews" element={<CourseReviewsPage />} />
                   <Route path="courses/requests" element={<ScheduleRequestsPage />} />
                   <Route path="courses/:id" element={<CourseDetailPage />} />
+                  <Route path="courses/discussions" element={<CourseDiscussionsPage />} />
                   <Route path="courses/:id/live-sessions" element={<CourseLiveSessionsPage />} />
+                  <Route path="courses/:id/enrollments" element={<CourseEnrollmentsPage />} />
+                  <Route path="courses/:id/assignments/:assignmentId/submissions" element={<AssignmentSubmissionsPage />} />
 
                   <Route path="rooms" element={<RoomsPage />} />
 
@@ -131,6 +138,8 @@ function App() {
                     <Route path="notifications" element={<NotificationsPage />} />
                     <Route path="settings" element={<SettingsPage />} />
                   </Route>
+
+                  <Route path="profile" element={<ProfilePage />} />
 
                   <Route element={<RoutePermissionGuard permission="support.handle" />}>
                     <Route path="tickets" element={<TicketsPage />} />

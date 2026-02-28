@@ -5,7 +5,6 @@ import { CourseController } from './controllers/course.controller';
 import { ModuleController } from './controllers/module.controller';
 import { LessonController } from './controllers/lesson.controller';
 import { LessonMaterialController } from './controllers/lesson-material.controller';
-import { CourseInstructorController } from './controllers/course-instructor.controller';
 import { StaffDashboardController } from './controllers/staff-dashboard.controller';
 import { ExamController } from './controllers/exam.controller';
 import { ExamAdminController } from './controllers/exam-admin.controller';
@@ -15,6 +14,7 @@ import { QuestionPoolController } from './controllers/question-pool.controller';
 import { ReviewController } from './controllers/review.controller';
 import { LiveSessionController } from './controllers/live-session.controller';
 import { TeachingScheduleController } from './controllers/teaching-schedule.controller';
+import { DiscussionController } from './controllers/discussion.controller';
 
 import { WishlistController } from './controllers/wishlist.controller';
 import { BlogController } from './controllers/blog.controller';
@@ -43,7 +43,6 @@ import { NotebookController } from './controllers/notebook.controller';
         ModuleController,
         LessonController,
         LessonMaterialController,
-        CourseInstructorController,
         StaffDashboardController,
         ExamController,
         ExamAdminController,
@@ -60,6 +59,7 @@ import { NotebookController } from './controllers/notebook.controller';
         FlashcardReviewController,
         LearningProgressController,
         LiveSessionController,
+        DiscussionController,
 
         CouponController,
         AssignmentController,

@@ -81,4 +81,17 @@ export class TicketController {
         );
         return successResponse(result, 'Ticket status updated successfully');
     }
+
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Post(':id/delete') // Or @Delete(':id') but let's use @Post(':id/delete') if they prefer or standard @Delete
+    async deleteTicket(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const requester = req.requester;
+        await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'communication.ticket.delete' },
+                { id, userId: requester.sub }
+            )
+        );
+        return successResponse(null, 'Ticket deleted successfully');
+    }
 }

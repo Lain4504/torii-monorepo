@@ -9,6 +9,7 @@ import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentTestGenerationResponseDTO as PlacementTestResponse, AgentTestEvaluationResponseDTO as PlacementEvaluationResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 
 
 import {
@@ -31,6 +32,10 @@ export function PlacementTest() {
     const [answers, setAnswers] = React.useState<Record<string, string>>({})
     const [result, setResult] = React.useState<PlacementEvaluationResponse | null>(null)
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
+
+    const pathname = usePathname()
+    const router = useRouter()
+    const isMarketing = pathname === "/placement-test"
 
     const handleStart = async () => {
         setIsLoading(true)
@@ -191,8 +196,14 @@ export function PlacementTest() {
                     ]}
                     questions={[]} // Placement test result from backend doesn't include detailed review by default
                     onSecondaryAction={{
-                        label: "Xác Nhận & Bắt Đầu Học",
-                        onClick: () => handleSelectLevel(result.assessedLevel ?? 'N5')
+                        label: isMarketing ? "Đăng Ký & Lưu Kết Quả" : "Xác Nhận & Bắt Đầu Học",
+                        onClick: () => {
+                            if (isMarketing) {
+                                router.push(`/register?level=${result.assessedLevel}`)
+                            } else {
+                                handleSelectLevel(result.assessedLevel ?? 'N5')
+                            }
+                        }
                     }}
                 />
 
@@ -253,9 +264,16 @@ export function PlacementTest() {
                 </div>
 
                 <div className="pt-12 text-center">
-                    <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
-                        <Link href="/assessment">Quay lại Assessment Center</Link>
-                    </Button>
+                    {!isMarketing && (
+                        <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+                            <Link href="/assessment">Quay lại Assessment Center</Link>
+                        </Button>
+                    )}
+                    {isMarketing && (
+                        <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+                            <Link href="/register">Tham gia ngay để nhận lộ trình chi tiết</Link>
+                        </Button>
+                    )}
                 </div>
             </QuizContainer>
         )

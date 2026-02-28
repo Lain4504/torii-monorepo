@@ -128,11 +128,11 @@ export default function StaffDashboardPage() {
                             <div className="text-xs text-muted-foreground">Tạo, chỉnh sửa và xuất bản khóa học</div>
                         </Link>
                         <Link
-                            to="/users"
+                            to="/learners"
                             className="block p-3 rounded-lg hover:bg-muted/50 transition-colors"
                         >
-                            <div className="text-sm font-semibold">Quản lý người dùng</div>
-                            <div className="text-xs text-muted-foreground">Thêm hoặc cập nhật tài khoản người dùng</div>
+                            <div className="text-sm font-semibold">Quản lý học viên</div>
+                            <div className="text-xs text-muted-foreground">Theo dõi danh sách học viên đăng ký</div>
                         </Link>
                     </CardContent>
                 </Card>

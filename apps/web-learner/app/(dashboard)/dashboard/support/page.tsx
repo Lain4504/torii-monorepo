@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import {
-    Plus,
     Search,
     LifeBuoy,
 } from 'lucide-react';
@@ -18,15 +17,13 @@ import {
 import {
     Card,
     CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
 } from "@workspace/ui/components/card";
-import { useTickets, useTicket } from '@/lib/api/services/ticket-api';
+import { useTickets, useTicket, useDeleteTicket } from '@/lib/api/services/ticket-api';
 import { TicketStatus } from '@workspace/schemas';
 import { TicketTable } from '@/components/support/ticket-table';
 import { CreateTicketDialog } from '@/components/support/create-ticket-dialog';
 import { TicketDetailDialog } from '@/components/support/ticket-detail-dialog';
+import { toast } from '@workspace/ui/components/sonner';
 
 export default function SupportPage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -45,6 +42,7 @@ export default function SupportPage() {
     });
 
     const { data: ticketDetail, isLoading: isLoadingDetail } = useTicket(selectedTicketId || '');
+    const deleteTicket = useDeleteTicket();
 
     const tickets = ticketsData?.data || [];
 
@@ -53,14 +51,26 @@ export default function SupportPage() {
         setIsDetailOpen(true);
     };
 
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('Bạn có chắc chắn muốn hủy yêu cầu này?')) return;
+
+        try {
+            await deleteTicket.mutateAsync(id);
+            toast.success('Đã hủy yêu cầu thành công');
+            setIsDetailOpen(false);
+        } catch (error: any) {
+            toast.error(error.message || 'Không thể hủy yêu cầu');
+        }
+    };
+
     return (
-        <div className="container mx-auto p-6 space-y-6 max-w-7xl">
+        <div className="container mx-auto p-6 space-y-6 max-w-7xl animate-in fade-in duration-500">
             {/* Header Section */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
                     <h1 className="text-3xl font-bold tracking-tight">Trung tâm hỗ trợ</h1>
                     <p className="text-muted-foreground">
-                        Gửi yêu cầu hỗ trợ hoặc hoàn tiền khóa học. Đội ngũ Torii luôn đồng hành cùng bạn.
+                        Gửi yêu cầu hỗ trợ hoặc báo lỗi. Đội ngũ Torii luôn đồng hành cùng bạn.
                     </p>
                 </div>
                 <Button
@@ -73,15 +83,14 @@ export default function SupportPage() {
             </div>
 
             {/* Filter Section */}
-            <Card>
+            <Card className="border-none shadow-sm bg-muted/20">
                 <CardContent className="p-4">
-
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Tìm kiếm theo tiêu đề..."
-                                className="pl-9"
+                                className="pl-9 bg-background"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -90,7 +99,7 @@ export default function SupportPage() {
                             value={statusFilter}
                             onValueChange={(val) => setStatusFilter(val as TicketStatus | 'ALL')}
                         >
-                            <SelectTrigger className="w-full md:w-[200px]">
+                            <SelectTrigger className="w-full md:w-[200px] bg-background">
                                 <SelectValue placeholder="Trạng thái" />
                             </SelectTrigger>
                             <SelectContent>
@@ -104,16 +113,16 @@ export default function SupportPage() {
                     </div>
                 </CardContent>
             </Card>
+
             {/* Tickets Table */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                <TicketTable
-                    data={tickets}
-                    onView={handleViewDetail}
-                    isLoading={isLoadingTickets}
-                    page={currentPage}
-                    limit={limit}
-                />
-            </div>
+            <TicketTable
+                data={tickets}
+                onView={handleViewDetail}
+                onDelete={handleDelete}
+                isLoading={isLoadingTickets}
+                page={currentPage}
+                limit={limit}
+            />
 
             {/* Modals */}
             <CreateTicketDialog
@@ -126,6 +135,7 @@ export default function SupportPage() {
                 onOpenChange={setIsDetailOpen}
                 ticket={ticketDetail || null}
                 isLoading={isLoadingDetail}
+                onCancel={handleDelete}
             />
         </div>
     );

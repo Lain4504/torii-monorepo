@@ -1,38 +1,19 @@
-import { HeroSection } from '@/components/home/hero-section'
-import { TrustSection } from '@/components/home/trust-section'
-import { FeaturesSection } from '@/components/home/features-section'
-import { CoursesSection } from '@/components/home/courses-section'
-import { JourneySection } from '@/components/home/journey-section'
-import { TestimonialsSection } from '@/components/home/testimonials-section'
-import { FaqSection } from '@/components/home/faq-section'
-import { CtaSection } from '@/components/home/cta-section'
+import { Metadata } from "next"
+import { HomeClient } from "@/components/marketing/home-client"
 
-export default function Page() {
-    return (
-        <div className="min-h-screen">
-            {/* 1. Hero */}
-            <HeroSection />
+export const metadata: Metadata = {
+    title: "Torii Nihongo - Học tiếng Nhật với AI Sensei",
+    description: "Nền tảng học tiếng Nhật hiện đại với các bài học tương tác, WebRTC thời gian thực và trợ lý AI Sensei cá nhân hóa.",
+    keywords: ["học tiếng Nhật", "JLPT", "tiếng Nhật thương mại", "AI Sensei", "học trực tuyến", "Torii Nihongo"],
+    openGraph: {
+        title: "Torii Nihongo - Chinh phục tiếng Nhật thật dễ dàng",
+        description: "Học tiếng Nhật mọi lúc mọi nơi với công nghệ AI hàng đầu và giảng viên bản ngữ chất lượng.",
+        type: "website",
+        locale: "vi_VN",
+        siteName: "Torii Nihongo",
+    }
+}
 
-            {/* 2. Trust — Social proof metrics bar */}
-            <TrustSection />
-
-            {/* 3. Features — Split layout: AI Sensei main + 5 secondary */}
-            <FeaturesSection />
-
-            {/* 4. Courses — JLPT N5–N1 colored level cards */}
-            <CoursesSection />
-
-            {/* 5. Journey — Zigzag timeline: 4 steps */}
-            <JourneySection />
-
-            {/* 6. Testimonials — Carousel with result badges */}
-            <TestimonialsSection />
-
-            {/* 7. FAQ — Accordion in bordered card */}
-            <FaqSection />
-
-            {/* 8. CTA — Typography-first conversion section */}
-            <CtaSection />
-        </div>
-    )
+export default function HomePage() {
+    return <HomeClient />
 }

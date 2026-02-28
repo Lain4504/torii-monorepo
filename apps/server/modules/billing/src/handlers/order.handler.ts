@@ -46,10 +46,9 @@ export class OrderHandler {
     // PayOS Webhook
     @MessagePattern({ cmd: 'billing.payos.webhook' })
     async handleWebhook(@Payload() webhookData: any) {
-        // Verify webhook data
-        const verifiedData = this.payOSService.verifyPaymentWebhookData(webhookData);
-        // Handle the webhook in OrderService
-        return this.orderService.handleWebhook(verifiedData);
+        this.payOSService.verifyPaymentWebhookData(webhookData);
+        // Handle the webhook in OrderService, passing only the data part
+        return this.orderService.handleWebhook(webhookData.data);
     }
 
     @MessagePattern({ cmd: 'billing.order.cancel' })

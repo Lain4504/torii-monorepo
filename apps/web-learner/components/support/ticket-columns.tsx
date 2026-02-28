@@ -59,11 +59,12 @@ const getTypeLabel = (type: TicketType) => {
 
 interface TicketColumnsProps {
     onView: (id: string) => void;
+    onDelete?: (id: string) => void;
     page: number;
     limit: number;
 }
 
-export const getTicketColumns = ({ onView, page, limit }: TicketColumnsProps) => [
+export const getTicketColumns = ({ onView, onDelete, page, limit }: TicketColumnsProps) => [
     columnHelper.display({
         id: 'stt',
         header: 'STT',
@@ -134,10 +135,22 @@ export const getTicketColumns = ({ onView, page, limit }: TicketColumnsProps) =>
         id: 'actions',
         header: '',
         cell: ({ row }) => (
-            <div className="text-right">
+            <div className="flex items-center justify-end gap-2">
+                {row.original.status === TicketStatus.PENDING && onDelete && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => onDelete(row.original.id)}
+                        title="Hủy yêu cầu"
+                    >
+                        <XCircle className="h-4 w-4" />
+                    </Button>
+                )}
                 <Button
                     variant="ghost"
                     size="sm"
+                    className="h-8"
                     onClick={() => onView(row.original.id)}
                 >
                     Chi tiết

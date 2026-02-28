@@ -49,7 +49,7 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Khóa học của tôi", url: "/courses/my", permission: "course.view_my" },
             { titleKey: "Quản lý khóa học", url: "/courses", permission: "course.view_restricted" },
             { titleKey: "Phản hồi học viên", url: "/courses/reviews", anyPermission: ["course.update", "course.view_restricted"] },
-            { titleKey: "Yêu cầu đổi lịch", url: "/courses/requests", anyPermission: ["course.update", "course.view_restricted"] },
+            { titleKey: "Yêu cầu đổi lịch", url: "/courses/requests", anyPermission: ["course.update", "course.view_restricted", "schedule.view"] },
         ]
     },
     {

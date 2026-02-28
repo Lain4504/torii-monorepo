@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
     BlogQueryDTO,
@@ -18,7 +19,6 @@ export const blogApi = {
             params,
         });
 
-        // Backend returns: { success: true, data: [...], total, page, limit, totalPages }
         const responseData = response.data;
         if (!responseData.success || !responseData.data) {
             throw new Error('Invalid response format from server');
@@ -67,8 +67,17 @@ export const blogApi = {
         try {
             await apiClient.patch(`/api/blogs/${id}/view`);
         } catch (error) {
-            // Silent fail - don't block the UI if view count fails
             console.error('Failed to increment view count:', error);
         }
     },
+};
+
+/**
+ * Hook to fetch blogs
+ */
+export const useBlogs = (params?: BlogQueryDTO) => {
+    return useQuery({
+        queryKey: ['blogs', params],
+        queryFn: () => blogApi.findAll(params),
+    });
 };

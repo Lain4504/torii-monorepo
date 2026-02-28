@@ -4,8 +4,6 @@ import {
     User,
     LayoutDashboard,
     BookOpen, // courses
-    Layers, // modules
-    FileText, // lessons
     Database, // question bank
     FileQuestion, // questions
     Video, // rooms
@@ -84,21 +82,17 @@ export function CommandMenu() {
                     <CommandSeparator />
 
                     <CommandGroup heading="Quản lý thực thể">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/users"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/learners"))}>
                             <User className="mr-2 h-4 w-4" />
-                            <span>Danh sách người dùng</span>
+                            <span>Danh sách học viên</span>
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => navigate("/courses"))}>
                             <BookOpen className="mr-2 h-4 w-4" />
                             <span>Quản lý khóa học</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/modules"))}>
-                            <Layers className="mr-2 h-4 w-4" />
-                            <span>Học phần</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/lessons"))}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            <span>Bài học</span>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/personnel/lecturers"))}>
+                            <User className="mr-2 h-4 w-4" />
+                            <span>Đội ngũ giảng viên</span>
                         </CommandItem>
                     </CommandGroup>
 

@@ -139,7 +139,7 @@ export function AssessmentDashboard() {
                                     {profile?.recommendations?.[0] || "Take more tests to get personalized insights."}
                                 </div>
                                 <Button variant="link" className="p-0 h-auto font-bold text-[10px] uppercase tracking-widest text-primary group" asChild>
-                                    <Link href="/ai-analytics">
+                                    <Link href="/analytics">
                                         Full Analysis <ArrowRight className="ml-1.5 size-3 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 </Button>

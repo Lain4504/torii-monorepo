@@ -262,4 +262,16 @@ export class CourseController {
         return successResponse({ course: result }, 'Course rejected successfully');
     }
 
+    @Get(':id/validate-scheduling')
+    @Permissions('course.update')
+    async validateScheduling(@Param('id') id: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.validateScheduling' },
+                { id }
+            )
+        );
+        return successResponse(result);
+    }
+
 }

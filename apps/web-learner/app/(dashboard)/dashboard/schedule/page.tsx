@@ -13,8 +13,15 @@ import {
     isFuture,
     isPast,
     parseISO,
+    differenceInWeeks,
 } from 'date-fns'
 import { vi } from 'date-fns/locale'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@workspace/ui/components/popover'
+import { Calendar as CalendarUI } from '@workspace/ui/components/calendar'
 import {
     Table,
     TableBody,
@@ -84,40 +91,65 @@ function SessionPill({
     return (
         <div
             className={cn(
-                'rounded-md border p-2 text-left space-y-1 text-xs',
-                isLive && 'border-destructive bg-destructive/10',
-                !isLive && !isEnded && 'border-primary bg-primary/10',
-                isEnded && 'border-border bg-muted opacity-60',
+                'group relative rounded-xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex flex-col overflow-hidden',
+                isLive
+                    ? 'border-destructive/40 bg-gradient-to-br from-destructive/10 to-destructive/5 ring-1 ring-destructive/20 shadow-destructive/10'
+                    : !isEnded
+                        ? 'border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/40'
+                        : 'border-border/60 bg-muted/40 grayscale-[0.8] opacity-60'
             )}
         >
-            {isLive && (
-                <Badge variant="destructive" className="text-[9px] font-bold uppercase tracking-widest mb-1 flex w-fit items-center gap-1">
-                    <Radio className="w-2.5 h-2.5" /> Live
-                </Badge>
-            )}
-            <p className="font-semibold leading-snug line-clamp-2 text-foreground">{session.title}</p>
-            <p className="text-muted-foreground flex items-center gap-1 truncate">
-                <BookOpen className="w-2.5 h-2.5 shrink-0" />
-                {session.courseTitle}
-            </p>
-            <p className="text-muted-foreground flex items-center gap-1">
-                <Clock className="w-2.5 h-2.5 shrink-0" />
-                {format(new Date(session.scheduledAt), 'HH:mm')} – {format(
-                    new Date(new Date(session.scheduledAt).getTime() + session.duration * 60000),
-                    'HH:mm'
-                )}
-            </p>
-            {isLive && (
-                <Button
-                    size="sm"
-                    variant="destructive"
-                    className="w-full h-7 text-[10px] font-bold uppercase tracking-widest mt-1"
-                    onClick={() => onJoin(session.id)}
-                    disabled={!!joiningId}
-                >
-                    {joiningId === session.id ? <Spinner className="size-3" /> : 'Vào phòng'}
-                </Button>
-            )}
+            {/* Top Indicator Line */}
+            <div className={cn(
+                "h-1 w-full shrink-0",
+                isLive ? "bg-destructive animate-pulse" : !isEnded ? "bg-primary/40" : "bg-muted-foreground/20"
+            )} />
+
+            <div className="p-2 flex flex-col gap-1.5 h-full min-h-[90px]">
+                <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-background/50 border border-border/50 shadow-sm text-[9px] font-bold text-muted-foreground">
+                        <Clock className="w-2.5 h-2.5" />
+                        {format(new Date(session.scheduledAt), 'HH:mm')}
+                    </div>
+                    {isLive && (
+                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-destructive text-[9px] font-black text-destructive-foreground shadow-sm animate-pulse whitespace-nowrap">
+                            <span className="relative flex h-1.5 w-1.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                            </span>
+                            LIVE
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex-1">
+                    <h4 className={cn(
+                        "text-[11px] font-bold leading-tight tracking-tight line-clamp-2 transition-colors",
+                        isLive ? "text-destructive" : "text-foreground group-hover:text-primary"
+                    )}>
+                        {session.title}
+                    </h4>
+                </div>
+
+                <div className="mt-auto space-y-1.5">
+                    <div className="flex items-center gap-1 text-[9px] font-medium text-muted-foreground/80 line-clamp-1">
+                        <BookOpen className="w-2.5 h-2.5 shrink-0" />
+                        <span className="truncate">{session.courseTitle}</span>
+                    </div>
+
+                    {isLive && (
+                        <Button
+                            size="sm"
+                            variant="destructive"
+                            className="w-full h-7 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-destructive/20 active:scale-95 transition-all rounded-lg"
+                            onClick={() => onJoin(session.id)}
+                            disabled={!!joiningId}
+                        >
+                            {joiningId === session.id ? <Spinner className="size-3" /> : 'Vào học'}
+                        </Button>
+                    )}
+                </div>
+            </div>
         </div>
     )
 }
@@ -127,13 +159,14 @@ export default function SchedulePage() {
     const [weekOffset, setWeekOffset] = React.useState(0)
     const [joiningId, setJoiningId] = React.useState<string | null>(null)
 
-    const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 1 }) // Mon–Sun
+    const today = new Date()
+    const weekStart = startOfWeek(addWeeks(today, weekOffset), { weekStartsOn: 1 }) // Mon–Sun
     const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
     const weekEnd = addDays(weekStart, 6)
 
     const weekSessions = allSessions.filter((s) => {
         const d = new Date(s.scheduledAt)
-        return d >= weekStart && d <= addDays(weekEnd, 1)
+        return d >= weekStart && d < addDays(weekEnd, 1)
     })
 
     const liveSessions = allSessions.filter((s) => s.status === 'live')
@@ -157,178 +190,174 @@ export default function SchedulePage() {
     const DAY_LABELS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 max-w-7xl">
+        <div className="space-y-6 animate-in fade-in duration-500">
             {/* Page Header */}
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight">Thời khóa biểu</h1>
-                <p className="text-sm text-muted-foreground">
-                    Lịch học trực tuyến từ tất cả các khóa học Live bạn đã đăng ký.
-                </p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="space-y-1">
+                    <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Thời khóa biểu</h1>
+                    <p className="text-sm text-muted-foreground max-w-lg">
+                        Theo dõi lịch học trực tuyến được cá nhân hóa cho các khóa học Live của bạn.
+                    </p>
+                </div>
+
+                {/* Week Navigation - Compact & Interactive */}
+                <div className="flex items-center bg-muted/50 p-1 rounded-xl glass-effect self-start md:self-auto border border-border/50 gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg hover:bg-background shrink-0"
+                        onClick={() => setWeekOffset((o) => o - 1)}
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-3 text-xs font-bold rounded-lg hover:bg-background flex items-center gap-2 min-w-[140px]"
+                            >
+                                <Calendar className="h-3.5 w-3.5 text-primary" />
+                                <span>{format(weekStart, 'dd/MM')} – {format(weekEnd, 'dd/MM')}</span>
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 rounded-2xl border-border/40 shadow-2xl" align="end">
+                            <CalendarUI
+                                mode="single"
+                                selected={weekStart}
+                                onSelect={(date) => {
+                                    if (date) {
+                                        const offset = differenceInWeeks(
+                                            startOfWeek(date, { weekStartsOn: 1 }),
+                                            startOfWeek(today, { weekStartsOn: 1 })
+                                        )
+                                        setWeekOffset(offset)
+                                    }
+                                }}
+                                initialFocus
+                                locale={vi}
+                                className="p-3"
+                            />
+                        </PopoverContent>
+                    </Popover>
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-3 text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-background shrink-0"
+                        onClick={() => setWeekOffset(0)}
+                    >
+                        Hiện tại
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg hover:bg-background shrink-0"
+                        onClick={() => setWeekOffset((o) => o + 1)}
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
 
-            <Separator />
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Tổng buổi học</CardTitle>
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{allSessions.length}</div>
-                        <p className="text-xs text-muted-foreground">toàn bộ khóa học live</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Đang LIVE</CardTitle>
-                        <Radio className="h-4 w-4 text-destructive" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-destructive">{liveSessions.length}</div>
-                        <p className="text-xs text-muted-foreground">đang diễn ra ngay lúc này</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Sắp tới</CardTitle>
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{upcomingSessions.length}</div>
-                        <p className="text-xs text-muted-foreground">buổi chưa diễn ra</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Tuần này</CardTitle>
-                        <Video className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{weekSessions.length}</div>
-                        <p className="text-xs text-muted-foreground">buổi trong tuần hiện tại</p>
-                    </CardContent>
-                </Card>
+            {/* Stats - Compact version */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                    { label: 'Tổng buổi học', value: allSessions.length, icon: Calendar, color: 'text-primary' },
+                    { label: 'Đang LIVE', value: liveSessions.length, icon: Radio, color: 'text-destructive', badge: 'Live' },
+                    { label: 'Sắp tới', value: upcomingSessions.length, icon: Clock, color: 'text-blue-500' },
+                    { label: 'Tuần này', value: weekSessions.length, icon: Video, color: 'text-green-500' },
+                ].map((stat, idx) => (
+                    <Card key={idx} className="overflow-hidden border-border/40 shadow-sm transition-all hover:shadow-md hover:border-border/80">
+                        <CardContent className="p-4 flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{stat.label}</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className={cn("text-xl font-black", stat.color)}>{stat.value}</span>
+                                    {stat.badge && (
+                                        <span className="text-[8px] font-bold px-1 rounded bg-destructive/10 text-destructive animate-pulse">
+                                            {stat.badge}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className={cn("p-2.5 rounded-xl bg-muted/50", stat.color)}>
+                                <stat.icon className="h-4 w-4" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
 
-            {/* Live now alert */}
-            {liveSessions.length > 0 && (
-                <Card className="border-destructive bg-destructive/5">
-                    <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
+            {/* Schedule Container */}
+            <Card className="border-border/40 overflow-hidden shadow-lg shadow-black/5 rounded-2xl">
+                <CardHeader className="bg-muted/30 border-b border-border/50 py-4">
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <Radio className="h-6 w-6 text-destructive" />
-                                <span className="absolute top-0 right-0 flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
-                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-destructive" />
-                                </span>
+                            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                <Calendar className="h-5 w-5" />
                             </div>
                             <div>
-                                <p className="font-semibold text-destructive text-sm">
-                                    {liveSessions.length} buổi học đang diễn ra
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {liveSessions.map((s) => s.title).join(' • ')}
-                                </p>
+                                <CardTitle className="text-lg font-bold">Lịch học chi tiết</CardTitle>
+                                <CardDescription className="text-xs">
+                                    {format(weekStart, 'dd/MM')} – {format(weekEnd, 'dd/MM/yyyy')}
+                                </CardDescription>
                             </div>
                         </div>
-                        <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => liveSessions[0] && handleJoin(liveSessions[0].id)}
-                            disabled={!!joiningId}
-                        >
-                            {joiningId ? <Spinner className="size-4" /> : 'Vào lớp ngay'}
-                        </Button>
-                    </CardContent>
-                </Card>
-            )}
 
-            {/* Week Navigation */}
-            <Card>
-                <CardHeader className="pb-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <CardTitle className="text-base">
-                                Tuần: {format(weekStart, 'dd/MM')} – {format(weekEnd, 'dd/MM/yyyy')}
-                            </CardTitle>
-                            <CardDescription>
-                                Click vào buổi học đang LIVE để vào phòng ngay
-                            </CardDescription>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => setWeekOffset((o) => o - 1)}
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setWeekOffset(0)}
-                            >
-                                Tuần này
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => setWeekOffset((o) => o + 1)}
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
+                        {/* Legend in header */}
+                        <div className="hidden lg:flex items-center gap-4 text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/60">
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-destructive" /> <span>LIVE</span></div>
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /> <span>Sắp tới</span></div>
+                            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-muted-foreground/30" /> <span>Đã xong</span></div>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
                     {isLoading ? (
-                        <div className="flex items-center justify-center h-64 gap-3">
-                            <Spinner className="size-6" />
-                            <span className="text-sm text-muted-foreground">Đang tải thời khóa biểu...</span>
+                        <div className="flex flex-col items-center justify-center h-80 gap-4">
+                            <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                            <span className="text-sm font-medium text-muted-foreground animate-pulse">Cập nhật thời khóa biểu...</span>
                         </div>
                     ) : allSessions.length === 0 ? (
-                        <div className="p-8">
-                            <Empty>
-                                <EmptyMedia>
-                                    <Calendar className="size-10 text-muted-foreground/30" />
-                                </EmptyMedia>
-                                <EmptyContent>
-                                    <EmptyTitle>Chưa có lịch học nào</EmptyTitle>
-                                    <EmptyDescription>
-                                        Bạn chưa đăng ký khóa học Live nào hoặc chưa có buổi học được lên lịch.
-                                    </EmptyDescription>
-                                    <Button asChild variant="outline" className="mt-4">
-                                        <a href="/courses?type=live">Khám phá khóa học Live</a>
-                                    </Button>
-                                </EmptyContent>
-                            </Empty>
+                        <div className="p-12 text-center">
+                            <div className="mx-auto w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                                <Calendar className="size-8 text-muted-foreground/20" />
+                            </div>
+                            <h3 className="text-lg font-bold">Chưa có lịch học nào</h3>
+                            <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-2">
+                                Bạn chưa đăng ký khóa học Live nào hoặc chưa có buổi học được lên lịch.
+                            </p>
+                            <Button asChild variant="default" className="mt-6 rounded-full px-8">
+                                <a href="/courses?type=live">Khám phá ngay</a>
+                            </Button>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <Table>
+                        <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-border">
+                            <Table className="border-collapse table-fixed w-full min-w-[800px]">
                                 <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-24 text-center font-bold">Slot</TableHead>
+                                    <TableRow className="hover:bg-transparent border-b border-border/50">
+                                        <TableHead className="w-16 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 bg-muted/10">STT</TableHead>
                                         {days.map((day, i) => (
                                             <TableHead
                                                 key={i}
                                                 className={cn(
-                                                    'text-center min-w-[130px]',
-                                                    isToday(day) && 'bg-primary/5',
+                                                    'text-center border-l border-border/30 px-0 h-16',
+                                                    isToday(day) && 'bg-primary/[0.03]',
                                                 )}
                                             >
-                                                <div className="flex flex-col items-center gap-0.5">
-                                                    <span className="text-xs font-bold text-muted-foreground uppercase">
+                                                <div className="flex flex-col items-center gap-0.5 py-2">
+                                                    <span className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-tighter">
                                                         {DAY_LABELS[i]}
                                                     </span>
                                                     <span
                                                         className={cn(
-                                                            'text-base font-bold h-8 w-8 flex items-center justify-center rounded-full',
+                                                            'text-lg font-black h-9 w-9 flex items-center justify-center rounded-xl transition-transform duration-300 hover:scale-110',
                                                             isToday(day)
-                                                                ? 'bg-primary text-primary-foreground'
-                                                                : 'text-foreground',
+                                                                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 ring-4 ring-primary/10'
+                                                                : 'text-foreground hover:bg-muted',
                                                         )}
                                                     >
                                                         {format(day, 'dd')}
@@ -339,20 +368,17 @@ export default function SchedulePage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {SLOTS.map((slot) => (
-                                        <TableRow key={slot.label}>
+                                    {SLOTS.map((slot, rowIndex) => (
+                                        <TableRow key={slot.label} className="group/row hover:bg-muted/5 border-b border-border/30">
                                             {/* Slot label */}
-                                            <TableCell className="text-center align-top">
-                                                <div className="flex flex-col items-center gap-1 pt-1">
-                                                    <span className="text-xs font-bold text-foreground">
-                                                        {slot.label}
+                                            <TableCell className="text-center align-middle bg-muted/5 border-r border-border/30">
+                                                <div className="flex flex-col items-center gap-0.5">
+                                                    <span className="text-[11px] font-black text-foreground/80">
+                                                        #{rowIndex + 1}
                                                     </span>
-                                                    <span className="text-[10px] text-muted-foreground">
+                                                    <div className="text-[9px] font-bold text-muted-foreground/60 leading-none">
                                                         {String(slot.startHour).padStart(2, '0')}:00
-                                                    </span>
-                                                    <span className="text-[10px] text-muted-foreground">
-                                                        {String(slot.endHour).padStart(2, '0')}:00
-                                                    </span>
+                                                    </div>
                                                 </div>
                                             </TableCell>
 
@@ -363,16 +389,18 @@ export default function SchedulePage() {
                                                     <TableCell
                                                         key={di}
                                                         className={cn(
-                                                            'align-top p-2',
-                                                            isToday(day) && 'bg-primary/[0.02]',
+                                                            'align-top p-1 border-l border-border/20 min-h-[100px] h-[1px] transition-all group-hover/row:bg-muted/5',
+                                                            isToday(day) && 'bg-primary/[0.01]',
                                                         )}
                                                     >
                                                         {cellSessions.length === 0 ? (
-                                                            <span className="flex items-center justify-center h-full text-muted-foreground/30 text-lg select-none">
-                                                                —
-                                                            </span>
+                                                            <div className="flex items-center justify-center h-full min-h-[100px]">
+                                                                <span className="text-muted-foreground/[0.1] text-[10px] font-bold font-mono">
+                                                                    —
+                                                                </span>
+                                                            </div>
                                                         ) : (
-                                                            <div className="space-y-2">
+                                                            <div className="h-full flex flex-col gap-1">
                                                                 {cellSessions.map((s) => (
                                                                     <SessionPill
                                                                         key={s.id}
@@ -395,22 +423,13 @@ export default function SchedulePage() {
                 </CardContent>
             </Card>
 
-            {/* Legend */}
-            <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                <span className="font-semibold">Chú thích:</span>
-                <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-destructive/20 border border-destructive/40" />
-                    <span>Đang LIVE</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-primary/20 border border-primary/40" />
-                    <span>Sắp diễn ra</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-muted border border-border" />
-                    <span>Đã kết thúc</span>
-                </div>
+            {/* Mobile Legend (only visible on small screens) */}
+            <div className="lg:hidden flex flex-wrap items-center justify-center gap-5 text-[10px] font-bold uppercase text-muted-foreground/60 p-4 border border-border/30 rounded-2xl bg-muted/20">
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-destructive animate-pulse" /> <span>Đang LIVE</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /> <span>Sắp tới</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-muted-foreground/40" /> <span>Đã xong</span></div>
             </div>
         </div>
     )
 }
+

@@ -11,6 +11,7 @@ import type {
   PaginationOptionsDTO,
   PaginatedResponseDTO,
   Requester,
+  LessonQueryDTO,
 } from '@workspace/schemas';
 
 import type { ILessonService, ICourseService, IEnrollmentService } from '@server/learning/interfaces/services';
@@ -117,24 +118,11 @@ export class LessonService implements ILessonService {
         deletedAt: null,
       };
 
-      // Add filtering for status if needed, currently findAll used by Admin likely
-      // If we want to strictly filter published for non-admins here, we'd need requester in findAll too
-      // But keeping it flexible for now.
-
       if (search) {
         where.OR = [
           { title: { contains: search, mode: 'insensitive' } },
           { articleContent: { contains: search, mode: 'insensitive' } },
         ];
-      }
-
-      const queryParams = options as any;
-      if (queryParams.moduleId) {
-        where.moduleId = queryParams.moduleId;
-      }
-
-      if (queryParams.contentType) {
-        where.contentType = queryParams.contentType;
       }
 
       const [total, lessons] = await Promise.all([
@@ -159,6 +147,60 @@ export class LessonService implements ILessonService {
     } catch (error: any) {
       this.logger.error('Failed to retrieve lessons', error);
       throw new BadRequestException('Failed to retrieve lessons');
+    }
+  }
+
+  /**
+   * Search lessons with complex filters
+   */
+  async search(options: LessonQueryDTO): Promise<PaginatedResponseDTO<LessonResponseDTO>> {
+    try {
+      const { page = 1, limit = 10, search, moduleId, contentType, status } = options;
+      const skip = (page - 1) * limit;
+
+      const where: any = {
+        deletedAt: null,
+      };
+
+      if (search) {
+        where.OR = [
+          { title: { contains: search, mode: 'insensitive' } },
+          { articleContent: { contains: search, mode: 'insensitive' } },
+        ];
+      }
+
+      if (moduleId) {
+        where.moduleId = moduleId;
+      }
+
+      if (contentType) {
+        where.contentType = contentType;
+      }
+
+      if (status) {
+        where.status = status;
+      }
+
+      const [total, lessons] = await Promise.all([
+        this.lessonRepository.count(where),
+        this.lessonRepository.findMany({
+          skip,
+          take: limit,
+          where,
+          orderBy: { orderIndex: 'asc' },
+        }),
+      ]);
+
+      return {
+        data: lessons.map(lesson => this.toLessonResponseDTO(lesson)),
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error: any) {
+      this.logger.error('Failed to search lessons', error);
+      throw new BadRequestException('Failed to search lessons');
     }
   }
 
@@ -198,8 +240,10 @@ export class LessonService implements ILessonService {
       }
     }
 
-    // Accessible if (preview OR authorized) AND marked unlocked in DB
-    isAuthorized = isAuthorized && lesson.isUnlocked;
+    // Only block if lesson is not published or explicitly locked
+    // Users who are enrolled should access all published lessons
+    const isLessonAvailable = (lesson as any).status === 'published' || (lesson as any).status === undefined;
+    isAuthorized = isAuthorized && isLessonAvailable;
     return this.buildProtectedDTO(lesson, isAuthorized);
   }
 
@@ -243,8 +287,10 @@ export class LessonService implements ILessonService {
       } else if (Array.isArray(accessibleLessonIds) && accessibleLessonIds.includes(lesson.id)) {
         isUserAuthorized = true;
       }
-      
-      const isAuthorized = isUserAuthorized && lesson.isUnlocked;
+
+      // Only block if lesson is not published
+      const isLessonAvailable = (lesson as any).status === 'published' || (lesson as any).status === undefined;
+      const isAuthorized = isUserAuthorized && isLessonAvailable;
       return this.buildProtectedDTO(lesson, isAuthorized);
     });
   }

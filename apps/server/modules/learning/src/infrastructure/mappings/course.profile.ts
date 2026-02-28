@@ -143,6 +143,21 @@ export class CourseProfile extends AutomapperProfile {
           (dest: CourseResponseDTO) => dest.deletedAt,
           mapFrom((src: Course) => src.deletedAt || undefined),
         ),
+        forMember(
+          (dest: CourseResponseDTO) => dest.lecturer,
+          mapFrom((src: Course) => {
+            const lecturer = (src as any).lecturer;
+            if (lecturer) {
+              return {
+                id: lecturer.id,
+                displayName: lecturer.displayName,
+                avatarUrl: lecturer.avatarUrl || undefined,
+                email: lecturer.email || undefined,
+              };
+            }
+            return undefined;
+          }),
+        ),
       );
     };
   }

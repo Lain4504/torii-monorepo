@@ -1,6 +1,6 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { PayOS } from '@payos/node';
 import { AppConfigService } from '@server/shared';
+import { PayOS } from '@payos/node';
 
 @Injectable()
 export class PayOSService {
@@ -14,7 +14,8 @@ export class PayOSService {
             this.logger.warn('PayOS configuration is missing. Payment features will not work.');
         } else {
             this.logger.log(`Initializing PayOS with ClientID: ${clientId}`);
-            this.payOS = new PayOS({ clientId, apiKey, checksumKey });
+            // Use type assertion (as any) to work around faulty type definitions from the library
+            this.payOS = new (PayOS as any)({ clientId, apiKey, checksumKey });
         }
     }
 
@@ -31,7 +32,7 @@ export class PayOSService {
         }
 
         try {
-            const paymentLinkResponse = await this.payOS.createPaymentLink(data);
+            const paymentLinkResponse = await this.payOS.paymentRequests.create(data);
             return paymentLinkResponse;
         } catch (error: any) {
             this.logger.error(`Error creating PayOS payment link: ${error.message}`, error.stack);
@@ -44,7 +45,7 @@ export class PayOSService {
             throw new BadRequestException('PayOS is not configured');
         }
         // Verify signature
-        const isValid = this.payOS.verifyPaymentWebhookData(webhookData);
+        const isValid = this.payOS.webhooks.verify(webhookData);
 
         return isValid;
     }

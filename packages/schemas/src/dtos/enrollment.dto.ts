@@ -4,7 +4,19 @@ import { EnrollmentStatus } from '../enums/enrollment.enum';
 import { paginationQuerySchema } from './common.dto';
 
 // Response DTO - includes backward compatibility aliases
-export const enrollmentResponseDTOSchema = enrollmentSchema;
+export const enrollmentResponseDTOSchema = enrollmentSchema.extend({
+    user: z.object({
+        id: z.string().uuid(),
+        displayName: z.string(),
+        email: z.string(),
+        avatarUrl: z.string().nullable().optional(),
+    }).optional(),
+    course: z.object({
+        id: z.string().uuid(),
+        title: z.string(),
+        slug: z.string(),
+    }).optional(),
+});
 
 export type EnrollmentResponseDTO = z.infer<typeof enrollmentResponseDTOSchema>;
 
