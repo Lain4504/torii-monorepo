@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="024beb72-e267-481b-b3f6-b1026f58bed5" name="Changes" comment="feat: implement animated text and redesign home layout">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/marketing/blog-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/marketing/blog-client.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/marketing/home-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/marketing/home-client.tsx" afterDir="false" />
+    <list default="true" id="024beb72-e267-481b-b3f6-b1026f58bed5" name="Changes" comment="mapping api">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[slug]/learn/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[slug]/learn/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,11 +111,156 @@
       <option name="project" value="LOCAL" />
       <updated>1772293215407</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="feat: implement animated text and redesign home layout">
+      <option name="closed" value="true" />
+      <created>1772293534146</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1772293534146</updated>
+    </task>
+    <task id="LOCAL-00012" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772293827626</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1772293827626</updated>
+    </task>
+    <task id="LOCAL-00013" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772294252461</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1772294252461</updated>
+    </task>
+    <task id="LOCAL-00014" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772294565011</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1772294565011</updated>
+    </task>
+    <task id="LOCAL-00015" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772294749974</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1772294749975</updated>
+    </task>
+    <task id="LOCAL-00016" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772294756842</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1772294756842</updated>
+    </task>
+    <task id="LOCAL-00017" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772294954640</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1772294954640</updated>
+    </task>
+    <task id="LOCAL-00018" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772294999180</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1772294999180</updated>
+    </task>
+    <task id="LOCAL-00019" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772295571507</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1772295571508</updated>
+    </task>
+    <task id="LOCAL-00020" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772295576971</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1772295576971</updated>
+    </task>
+    <task id="LOCAL-00021" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772295661513</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1772295661515</updated>
+    </task>
+    <task id="LOCAL-00022" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772295665898</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1772295665898</updated>
+    </task>
+    <task id="LOCAL-00023" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772296193157</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1772296193157</updated>
+    </task>
+    <task id="LOCAL-00024" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772297332772</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1772297332772</updated>
+    </task>
+    <task id="LOCAL-00025" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772298154773</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1772298154775</updated>
+    </task>
+    <task id="LOCAL-00026" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772298616266</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1772298616266</updated>
+    </task>
+    <task id="LOCAL-00027" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772298672413</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1772298672413</updated>
+    </task>
+    <task id="LOCAL-00028" summary="mapping api">
+      <option name="closed" value="true" />
+      <created>1772299766424</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1772299766426</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: implement animated text and redesign home layout" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: implement animated text and redesign home layout" />
+    <MESSAGE value="mapping api" />
+    <option name="LAST_COMMIT_MESSAGE" value="mapping api" />
   </component>
 </project>

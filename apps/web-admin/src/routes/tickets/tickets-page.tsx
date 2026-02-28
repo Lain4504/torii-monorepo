@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { TicketResponseDTO, TicketQueryDTO } from '@workspace/schemas';
+import { TicketType, TicketStatus } from '@workspace/schemas';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { PageHeader } from '@/components/common/page-header';
 import { TicketsPrimaryToolbar } from '@/components/tickets/tickets-primary-toolbar';
@@ -17,8 +18,8 @@ export default function TicketsPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
-    const [typeFilter, setTypeFilter] = useState<string>('');
-    const [statusFilter, setStatusFilter] = useState<string>('');
+    const [typeFilter, setTypeFilter] = useState<TicketType | ''>('');
+    const [statusFilter, setStatusFilter] = useState<TicketStatus | ''>('');
 
     const [viewingTicket, setViewingTicket] = useState<TicketResponseDTO | null>(null);
     const [changingStatusTicket, setChangingStatusTicket] = useState<TicketResponseDTO | null>(null);
@@ -29,8 +30,8 @@ export default function TicketsPage() {
         page,
         limit: 10,
         search: debouncedSearch,
-        type: typeFilter || undefined,
-        status: statusFilter || undefined,
+        type: typeFilter as TicketType || undefined,
+        status: statusFilter as TicketStatus || undefined,
     };
 
     const { data, isLoading } = useQuery({
@@ -62,9 +63,9 @@ export default function TicketsPage() {
                     search={search}
                     onSearchChange={setSearch}
                     type={typeFilter}
-                    onTypeChange={(v) => setTypeFilter(v === 'all' ? '' : v)}
+                    onTypeChange={(v) => setTypeFilter(v === 'all' ? '' : v as TicketType)}
                     status={statusFilter}
-                    onStatusChange={(v) => setStatusFilter(v === 'all' ? '' : v)}
+                    onStatusChange={(v) => setStatusFilter(v === 'all' ? '' : v as TicketStatus)}
                 />
                 <Card>
                     <CardContent className="p-0">

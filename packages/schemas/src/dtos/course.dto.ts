@@ -91,6 +91,10 @@ export const courseSearchResponseDTOSchema = courseSchema.pick({
     shortDescription: true,
     description: true,
     aiMetadata: true,
+    type: true,
+    startDate: true,
+    expiresAt: true,
+    maxStudents: true,
 }).extend({
     lecturer: courseInstructorDTOSchema.optional().nullable(),
 });

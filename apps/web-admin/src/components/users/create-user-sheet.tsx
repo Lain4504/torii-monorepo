@@ -187,7 +187,7 @@ export function CreateUserSheet({
     };
 
     const handleStaffVariantSelect = (variantId: UserRole) => {
-        form.setValue('role', variantId, { shouldValidate: true });
+        form.setValue('role', variantId as UserRole.STAFF_LMS | UserRole.STAFF_SUPPORT | UserRole.STAFF_SALES | UserRole.STAFF_FINANCE, { shouldValidate: true });
     };
 
     const handleBackToRoles = () => {

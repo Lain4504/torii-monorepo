@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@workspace/ui/components/button';
+import Iphone15Pro from '@workspace/ui/components/ui/iphone-15-pro';
+import { AppMockup } from './app-mockup';
 
 export function HomeClient() {
     const [typedText, setTypedText] = useState("");
@@ -198,42 +200,90 @@ export function HomeClient() {
                     </div>
                 </section>
 
-                {/* Premium Features Showcase */}
+                {/* Premium Bento Features Showcase */}
                 <section className="py-32 relative overflow-hidden bg-background">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
 
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 lg:gap-12">
-                            {[
-                                {
-                                    icon: <svg className="size-6 transition-transform duration-500 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12" y2="18"></line></svg>,
-                                    title: "Đa Nền Tảng",
-                                    desc: "TRUY CẬP MỌI NƠI"
-                                },
-                                {
-                                    icon: <svg className="size-6 transition-transform duration-500 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
-                                    title: "Mock Test",
-                                    desc: "CHALLENGE JLPT"
-                                },
-                                {
-                                    icon: <svg className="size-6 transition-transform duration-500 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
-                                    title: "Cộng Đồng",
-                                    desc: "ĐỒNG ĐỘI TORII"
-                                },
-                                {
-                                    icon: <svg className="size-6 transition-transform duration-500 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>,
-                                    title: "Flashcard",
-                                    desc: "SPACED REPETITION"
-                                }
-                            ].map((feature, idx) => (
-                                <div key={idx} className="group flex flex-col items-center text-center p-8 transition-all duration-300 hover:bg-primary/5 rounded-sm">
-                                    <div className="size-16 mb-6 flex items-center justify-center border border-primary/20 bg-primary/5 text-primary rounded-sm transition-all duration-500 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary group-hover:shadow-[0_0_20px_rgba(var(--primary),0.3)]">
-                                        {feature.icon}
-                                    </div>
-                                    <h4 className="serif-jp font-bold text-lg mb-2 group-hover:text-primary transition-colors">{feature.title}</h4>
-                                    <p className="text-[10px] space-grotesk text-muted-foreground font-bold tracking-[0.2em] opacity-60 group-hover:opacity-100 transition-opacity uppercase">{feature.desc}</p>
+                        <div className="text-center mb-16 space-y-4">
+                            <h3 className="serif-jp text-3xl md:text-4xl font-black">Hệ Sinh Thái <span className="text-primary italic">Toàn Diện</span></h3>
+                            <p className="text-muted-foreground font-medium max-w-xl mx-auto text-sm opacity-70">Mọi công cụ bạn cần để chinh phục tiếng Nhật, từ căn bản đến chuyên sâu, đều được tích hợp trong một nền tảng duy nhất.</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[240px]">
+                            {/* Card 1: Đa Nền Tảng - Big Card */}
+                            <div className="md:col-span-2 md:row-span-1 group relative overflow-hidden rounded-sm border border-primary/10 bg-primary/5 p-8 flex flex-col justify-between transition-all duration-500 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5">
+                                <div className="absolute right-8 -bottom-16 opacity-100 transition-all duration-700 pointer-events-none rotate-2 group-hover:rotate-0 translate-y-4 group-hover:translate-y-0 filter drop-shadow-[0_20px_40px_rgba(var(--color-primary),0.3)]">
+                                    <Iphone15Pro width={260} height={529}>
+                                        <AppMockup />
+                                    </Iphone15Pro>
                                 </div>
-                            ))}
+                                <div className="space-y-4 relative z-10">
+                                    <div className="size-10 flex items-center justify-center bg-primary text-primary-foreground rounded-sm shadow-lg shadow-primary/20">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12" y2="18"></line></svg>
+                                    </div>
+                                    <h4 className="serif-jp text-2xl font-bold">Trải Nghiệm Đa Thiết Bị</h4>
+                                    <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">Đồng bộ hóa tiến độ học tập tức thì giữa Máy tính, Máy tính bảng và Điện thoại di động.</p>
+                                </div>
+                                <div className="flex items-center gap-4 text-[10px] space-grotesk font-bold tracking-widest text-primary">
+                                    <span>WEB</span>
+                                    <div className="size-1 rounded-full bg-primary/30"></div>
+                                    <span>TABLET</span>
+                                    <div className="size-1 rounded-full bg-primary/30"></div>
+                                    <span>MOBILE</span>
+                                </div>
+                            </div>
+
+                            {/* Card 2: Flashcard - Tall Card */}
+                            <div className="md:col-span-1 md:row-span-2 group relative overflow-hidden rounded-sm border border-primary/20 bg-background shadow-lg p-8 flex flex-col items-center justify-center text-center transition-all duration-500 hover:-translate-y-2">
+                                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent"></div>
+                                <div className="relative mb-8">
+                                    <div className="size-20 flex items-center justify-center bg-primary/10 text-primary rounded-full animate-pulse-slow">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                    </div>
+                                    <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-primary text-[8px] font-bold text-primary-foreground rounded-full">SRS</div>
+                                </div>
+                                <h4 className="serif-jp text-2xl font-black mb-4 group-hover:text-primary transition-colors">Flashcard Thông Minh</h4>
+                                <p className="text-muted-foreground text-sm leading-relaxed mb-6 italic opacity-80">"Ghi nhớ 90% từ vựng vĩnh viễn với thuật toán Spaced Repetition độc quyền."</p>
+                                <div className="w-full h-1.5 bg-primary/10 rounded-full overflow-hidden">
+                                    <div className="w-2/3 h-full bg-primary animate-shimmer"></div>
+                                </div>
+                            </div>
+
+                            {/* Card 3: Mock Test */}
+                            <div className="md:col-span-1 md:row-span-1 group relative overflow-hidden rounded-sm border border-primary/10 bg-primary/5 p-8 flex flex-col justify-between transition-all duration-500 hover:bg-primary/10">
+                                <div className="space-y-4">
+                                    <div className="size-10 flex items-center justify-center border border-primary text-primary rounded-sm transition-transform duration-500 group-hover:rotate-12">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h4 className="serif-jp text-xl font-bold">Thử Thách JLPT</h4>
+                                        <p className="text-muted-foreground text-xs font-bold space-grotesk tracking-tighter opacity-70 italic">MOCK TEST N1 - N5</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Card 4: Cộng Đồng */}
+                            <div className="md:col-span-1 md:row-span-1 group relative overflow-hidden rounded-sm border border-primary/10 bg-primary/5 p-8 flex flex-col justify-between transition-all duration-500 hover:bg-primary/10">
+                                <div className="space-y-4">
+                                    <div className="size-10 flex items-center justify-center border border-primary text-primary rounded-sm transition-transform duration-500 group-hover:-rotate-12">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h4 className="serif-jp text-xl font-bold">Đồng Đội Torii</h4>
+                                        <div className="flex -space-x-2">
+                                            {[1, 2, 3, 4].map(i => (
+                                                <div key={i} className="size-6 rounded-full border-2 border-background bg-muted overflow-hidden">
+                                                    <div className="w-full h-full bg-gradient-to-br from-primary/40 to-primary/10"></div>
+                                                </div>
+                                            ))}
+                                            <div className="size-6 rounded-full border-2 border-background bg-primary flex items-center justify-center">
+                                                <span className="text-[8px] font-bold text-white">+5k</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>

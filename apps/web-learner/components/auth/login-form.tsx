@@ -147,7 +147,7 @@ export function LoginForm() {
                     <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t border-border"></span>
                     </div>
-                    <span className="relative bg-white px-4 text-xs font-medium text-muted-foreground uppercase tracking-widest">Hoặc</span>
+                    <span className="relative bg-background px-4 text-xs font-medium text-muted-foreground uppercase tracking-widest">Hoặc</span>
                 </div>
             </div>
             {/* END: OAuth Section */}

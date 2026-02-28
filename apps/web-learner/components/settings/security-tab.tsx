@@ -32,9 +32,9 @@ export function SecurityTab() {
     return (
         <div className="space-y-4">
             {/* Security Header */}
-            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Shield className="w-4 h-4 text-amber-500" />
-                Bảo mật & Xác thực
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-4">
+                <Shield className="w-4 h-4 text-primary" />
+                Xác thực hai yếu tố (2FA)
             </h3>
 
             {/* Two-Factor Authentication Card */}
@@ -42,14 +42,14 @@ export function SecurityTab() {
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-6">
                     <div className="space-y-1">
                         <CardTitle className="text-lg font-bold">
-                            Xác thực hai yếu tố (2FA)
+                            Tăng cường bảo mật
                         </CardTitle>
                         <CardDescription>
-                            Thêm lớp bảo mật bổ sung cho tài khoản của bạn bằng cách yêu cầu mã xác thực.
+                            Sử dụng Authenticator App để tạo mã xác minh khi đăng nhập.
                         </CardDescription>
                     </div>
-                    <Badge variant="secondary" className={isEnabled ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : ""}>
-                        {isEnabled ? 'Đã bật' : 'Đã tắt'}
+                    <Badge variant="secondary" className={isEnabled ? "bg-primary/20 text-primary border-primary/20" : "bg-muted text-muted-foreground"}>
+                        {isEnabled ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
                     </Badge>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -103,11 +103,11 @@ export function SecurityTab() {
 
                     {/* Warning for backup codes */}
                     {isEnabled && status && status.backupCodesRemaining !== undefined && status.backupCodesRemaining < 3 && (
-                        <Alert className="bg-amber-500/10 text-amber-600 border-amber-500/20">
-                            <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle className="text-amber-600">Mã dự phòng sắp hết</AlertTitle>
-                            <AlertDescription className="text-amber-600/90">
-                                Bạn còn {status.backupCodesRemaining} mã. Hãy tạo mã mới.
+                        <Alert className="bg-destructive/10 text-destructive border-destructive/20">
+                            <AlertTriangle className="h-4 w-4 text-destructive" />
+                            <AlertTitle className="text-destructive font-bold">Mã dự phòng sắp hết</AlertTitle>
+                            <AlertDescription className="text-destructive/90">
+                                Bạn chỉ còn {status.backupCodesRemaining} mã dự phòng. Hãy tạo mã mới để tránh bị khóa tài khoản.
                             </AlertDescription>
                         </Alert>
                     )}

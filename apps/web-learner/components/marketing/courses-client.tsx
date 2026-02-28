@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { Bot, RotateCcw, Star, User } from 'lucide-react';
+import { Bot, RotateCcw, Search, Star, User } from 'lucide-react';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@workspace/ui/components/breadcrumb';
 import { Button } from '@workspace/ui/components/button';
 import { Checkbox } from '@workspace/ui/components/checkbox';
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@workspace/ui/components/separator';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Input } from '@workspace/ui/components/input';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@workspace/ui/components/input-group';
 import { ToggleGroup, ToggleGroupItem } from '@workspace/ui/components/toggle-group';
 import { useCourses } from '@/lib/api/services/course-api';
 
@@ -81,25 +82,11 @@ export function CoursesClient() {
 
     return (
         <>
-            <style>{`
-                .shadcn-card {
-                    border: 1px solid #e5e7eb;
-                    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-                    transition: all 0.2s ease;
-                }
-                .shadcn-card:hover {
-                    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-                }
-                .sticky-sidebar {
-                    height: calc(100vh - 2rem);
-                    top: 1rem;
-                }
-            `}</style>
 
-            <div className="bg-muted/30 text-foreground font-sans">
+            <div className="bg-background text-foreground font-sans">
 
                 {/*  BEGIN: MainHeader  */}
-                <header className="bg-background border-b border-border pt-8 pb-6 mb-8">
+                <header className="bg-background border-b border-border pt-24 pb-12 mb-8">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         {/*  Breadcrumbs  */}
                         <Breadcrumb className="mb-4">
@@ -122,7 +109,7 @@ export function CoursesClient() {
                     <div className="flex flex-col lg:flex-row gap-8">
                         {/*  BEGIN: Sidebar Filters  */}
                         <aside className="w-full lg:w-60 flex-shrink-0">
-                            <div className="sticky-sidebar space-y-8 lg:overflow-y-auto pr-2">
+                            <div className="lg:sticky lg:top-24 space-y-8 lg:overflow-y-auto pr-2">
                                 {/*  Search  */}
                                 <div>
                                     <Input
@@ -230,7 +217,7 @@ export function CoursesClient() {
                             {isLoading ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                     {Array(6).fill(0).map((_, i) => (
-                                        <div key={i} className="space-y-4 bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+                                        <div key={i} className="space-y-4 bg-card rounded-xl p-4 border border-border shadow-sm">
                                             <Skeleton className="aspect-video w-full rounded-lg" />
                                             <Skeleton className="h-6 w-3/4" />
                                             <Skeleton className="h-4 w-full" />
@@ -239,7 +226,7 @@ export function CoursesClient() {
                                     ))}
                                 </div>
                             ) : isError ? (
-                                <div className="text-center py-20 bg-muted/10 rounded-xl border border-dashed border-slate-300">
+                                <div className="text-center py-20 bg-muted/10 rounded-xl border border-dashed border-border">
                                     <p className="text-slate-500">Đã có lỗi xảy ra khi tải danh sách khóa học.</p>
                                 </div>
                             ) : courses.length > 0 ? (
@@ -248,7 +235,7 @@ export function CoursesClient() {
                                         <Link
                                             key={course.id}
                                             href={`/courses/${course.slug || course.id}`}
-                                            className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                                            className="group bg-card text-card-foreground rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                                         >
                                             <div className="relative aspect-video overflow-hidden">
                                                 {course.thumbnailUrl ? (
@@ -271,13 +258,13 @@ export function CoursesClient() {
                                             </div>
                                             <div className="p-5 space-y-3">
                                                 <div>
-                                                    <h3 className="font-bold text-slate-900 dark:text-white line-clamp-1">{course.title}</h3>
+                                                    <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{course.title}</h3>
                                                     <p className="text-xs text-primary font-medium">{course.aiMetadata?.titleEn || "Japanese Course"}</p>
                                                 </div>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                                                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                                                     {course.shortDescription || course.description}
                                                 </p>
-                                                <div className="flex items-center gap-3 text-xs text-slate-400">
+                                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                                     <div className="flex items-center gap-1">
                                                         {course.lecturer?.displayName === "AI Assistant" ? (
                                                             <Bot className="size-4" />
@@ -287,8 +274,8 @@ export function CoursesClient() {
                                                         <span>{course.lecturer?.displayName || "Torii Instructor"}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1">
-                                                        <Star className="size-4 text-yellow-400 fill-current" />
-                                                        <span className="font-bold text-slate-700 dark:text-slate-200">{Number(course.averageRating).toFixed(1)}</span>
+                                                        <Star className="size-4 text-yellow-500 fill-current" />
+                                                        <span className="font-bold text-foreground">{Number(course.averageRating).toFixed(1)}</span>
                                                         <span>({course.totalReviews?.toLocaleString()})</span>
                                                     </div>
                                                 </div>
@@ -296,7 +283,7 @@ export function CoursesClient() {
                                                     {course.price === 0 ? (
                                                         <span className="text-lg font-bold text-primary italic">Free</span>
                                                     ) : (
-                                                        <span className="text-lg font-bold text-slate-900 dark:text-white">
+                                                        <span className="text-lg font-bold text-foreground">
                                                             ¥{Number(course.price).toLocaleString()}
                                                         </span>
                                                     )}
@@ -307,7 +294,7 @@ export function CoursesClient() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed border-slate-300">
+                                <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed border-border">
                                     <p className="text-slate-500">Không tìm thấy khóa học nào phù hợp.</p>
                                 </div>
                             )}

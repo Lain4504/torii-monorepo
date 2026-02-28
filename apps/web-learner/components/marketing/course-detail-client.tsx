@@ -1,10 +1,32 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useCourseBySlug, useCurriculum } from '@/lib/api/services/course-api';
+import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
+import { useCheckWishlist, useToggleWishlist } from '@/lib/api/services/wishlist-api';
+import { useCart, useAddToCart } from '@/lib/api/services/cart-api';
+import { toast } from '@workspace/ui/components/sonner';
+import { Skeleton } from '@workspace/ui/components/skeleton';
+import { PlayCircle, FileText, HelpCircle, ChevronDown, Star, Users, Clock, Calendar, CheckCircle2, Heart, ShoppingCart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export function CourseDetailClient({ slug }: { slug: string }) {
+    const router = useRouter();
     const [isSticky, setIsSticky] = useState(false);
     const [openAccordion, setOpenAccordion] = useState<number | null>(1);
+
+    const { data: course, isLoading: isCourseLoading } = useCourseBySlug(slug);
+    const { data: curriculum, isLoading: isCurriculumLoading } = useCurriculum(course?.id);
+    const { data: enrollmentData } = useCheckEnrollment(course?.id || '');
+    const { data: wishlistData } = useCheckWishlist(course?.id || '');
+    const { data: cartData } = useCart();
+
+    const addToCart = useAddToCart();
+    const toggleWishlist = useToggleWishlist();
+
+    const isEnrolled = enrollmentData?.isEnrolled;
+    const isInWishlist = wishlistData?.isInWishlist;
+    const isInCart = cartData?.items?.some(item => item.courseId === course?.id);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -13,6 +35,23 @@ export function CourseDetailClient({ slug }: { slug: string }) {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    if (isCourseLoading) {
+        return (
+            <div className="min-h-screen space-y-8 p-8">
+                <Skeleton className="h-[400px] w-full rounded-2xl" />
+                <div className="grid grid-cols-3 gap-8">
+                    <div className="col-span-2 space-y-4">
+                        <Skeleton className="h-12 w-3/4" />
+                        <Skeleton className="h-32 w-full" />
+                    </div>
+                    <Skeleton className="h-[600px] w-full" />
+                </div>
+            </div>
+        );
+    }
+
+    if (!course) return <div className="p-20 text-center font-bold">Khóa học không tồn tại.</div>;
 
     return (
         <>
@@ -49,8 +88,8 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                 <section className="relative bg-foreground text-primary-foreground overflow-hidden" data-purpose="hero-section">
                     {/*  Background Image with Overlay  */}
                     <div className="absolute inset-0 z-0">
-                        <img alt="Course Thumbnail" className="w-full h-full object-cover opacity-40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH0qfeLJSZfv7vTOwYySWjp8dGMkc3Ddv5HZYDTDgUnhjKXc0WtE6-PbGJzXPwKfLsqEw6mTBSH0DHB6G7Bf84UkKmS0bKFAc2ik5J99nXD2wR6uKzCdYhiPwCdsS8leRQAavd6Q51EhvfcBUkTp-Mvspq-v8fQbUFCmOdKbawQFKgp5JtA05mp2hlhFFAq9i1WOpJNjb03fqYbu4crZtoN8lur6reRwaDho34B3dPsbznIRP5E2rIIsGyrCfb7tRRPJmjsRHckWo" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                        <img alt={course.title} className="w-full h-full object-cover opacity-40" src={course.thumbnailUrl || "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=2000&auto=format&fit=crop"} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
                     </div>
                     <div className="relative z-10 max-w-7xl mx-auto px-4 pt-12 pb-16 md:pt-20 md:pb-24">
                         {/*  Breadcrumbs  */}
@@ -59,38 +98,44 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
                             <a className="hover:text-primary-foreground transition-colors" href="#">Khóa học</a>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                            <span className="text-primary-foreground font-medium">Luyện thi JLPT N3</span>
+                            <span className="text-primary-foreground font-medium">{course.title}</span>
                         </nav>
                         <div className="grid lg:grid-cols-3 gap-12 items-center">
                             <div className="lg:col-span-2">
                                 {/*  JLPT Badge  */}
-                                <span className="inline-block px-3 py-1 rounded-full bg-blue-600 text-xs font-bold uppercase tracking-widest mb-4">
-                                    Trình độ N3
+                                <span className="inline-block px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest mb-4">
+                                    Trình độ {course.jlptLevel || 'ALL'}
                                 </span>
-                                <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-6">
-                                    Luyện thi JLPT N3: Chinh phục tiếng Nhật trung cấp toàn diện
+                                <h1 className="serif-jp text-3xl md:text-5xl font-extrabold leading-tight mb-6">
+                                    {course.title}
                                 </h1>
-                                <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl">
-                                    Lộ trình bài bản giúp bạn nắm vững 600 từ vựng, 100 cấu trúc ngữ pháp và kỹ năng đọc hiểu - nghe hiểu thực chiến để đạt điểm cao trong kỳ thi N3.
+                                <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl opacity-90">
+                                    {course.shortDescription || course.description}
                                 </p>
                                 {/*  Under Hero Metadata  */}
                                 <div className="flex flex-wrap items-center gap-6 text-sm">
                                     <div className="flex items-center gap-2">
-                                        <img alt="Instructor" className="w-10 h-10 rounded-full border-2 border-background/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMW_r953YV3MvF0w4XxZsitbFK6T2LCFpX15UySmN4k09CY0oaxJO_cJgJg5N-dkS0fe1TUQFqVOj_5gKBykrD8hG6xHuzwxBJDwQF9UZp9pvvIk2drSeuqlXPeQ0Czxh2sOmH94O7Zr79UtK8A1udc-c1VQxYxEgNj0fhtgFrPOW-6waVvuUwDZ7nggaeI560w3NtXGHcABZ0zkB8x4NVLMXww-n5MhkYaaJAoWJAZsnkltbOKwz5HQrRCvHTig1IJbJk69DJQBo" />
-                                        <span className="font-medium text-primary-foreground underline underline-offset-4 cursor-pointer">Sensei Minh Tú</span>
+                                        <div className="w-10 h-10 rounded-full border-2 border-background/20 bg-muted flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
+                                            {course.lecturer?.avatarUrl ? (
+                                                <img src={course.lecturer.avatarUrl} alt={course.lecturer.displayName} className="size-full object-cover" />
+                                            ) : (
+                                                course.lecturer?.displayName?.substring(0, 2) || "S"
+                                            )}
+                                        </div>
+                                        <span className="font-medium text-primary-foreground underline underline-offset-4 cursor-pointer">{course.lecturer?.displayName || "Torii Sensei"}</span>
                                     </div>
                                     <div className="flex items-center gap-1 text-yellow-400">
-                                        <span className="font-bold text-primary-foreground">4.8</span>
-                                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                        <span className="text-muted-foreground">(2,450 đánh giá)</span>
+                                        <span className="font-bold text-primary-foreground">{course.averageRating || 0}</span>
+                                        <Star className="w-4 h-4 fill-current" />
+                                        <span className="text-muted-foreground">({course.totalReviews || 0} đánh giá)</span>
                                     </div>
                                     <div className="flex items-center gap-1 text-muted-foreground">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                        <span>15,680 học viên</span>
+                                        <Users className="w-4 h-4" />
+                                        <span>{course.totalStudents || 0} học viên</span>
                                     </div>
                                     <div className="bg-background/10 px-3 py-1 rounded-md flex items-center gap-1.5 border border-background/10">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <span>Cập nhật 12/2023</span>
+                                        <Clock className="w-4 h-4" />
+                                        <span>Cập nhật {new Date(course.updatedAt).toLocaleDateString('vi-VN')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -106,11 +151,11 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                             {/*  Social Proof Strip  */}
                             <section className="grid grid-cols-3 gap-4 p-6 bg-background rounded-2xl border border-border shadow-sm" data-purpose="social-proof-strip">
                                 <div className="text-center border-r border-border last:border-0">
-                                    <p className="text-2xl font-bold text-foreground">120+</p>
+                                    <p className="text-2xl font-bold text-foreground">{course.totalLessons || 0}</p>
                                     <p className="text-sm text-muted-foreground">Bài học</p>
                                 </div>
                                 <div className="text-center border-r border-border last:border-0">
-                                    <p className="text-2xl font-bold text-foreground">12</p>
+                                    <p className="text-2xl font-bold text-foreground">{course.durationWeeks || '?'}</p>
                                     <p className="text-sm text-muted-foreground">Tuần học</p>
                                 </div>
                                 <div className="text-center">
@@ -120,117 +165,105 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                             </section>
                             {/*  What You Will Learn  */}
                             <section data-purpose="outcomes-section" id="outcomes">
-                                <h3 className="text-2xl font-bold mb-6">Bạn sẽ học được gì?</h3>
+                                <h3 className="serif-jp text-2xl font-bold mb-6">Bạn sẽ học được gì?</h3>
                                 <div className="p-6 bg-background rounded-2xl border border-border grid md:grid-cols-2 gap-4">
-                                    <div className="flex gap-3">
-                                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path></svg>
-                                        <span className="text-muted-foreground">Nắm vững 100+ cấu trúc ngữ pháp N3 quan trọng nhất</span>
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path></svg>
-                                        <span className="text-muted-foreground">Giao tiếp tự tin trong các tình huống công việc cơ bản</span>
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path></svg>
-                                        <span className="text-muted-foreground">Phản xạ nghe hiểu tốt với tốc độ người bản xứ</span>
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path></svg>
-                                        <span className="text-muted-foreground">Kỹ năng giải đề và quản lý thời gian thi thực chiến</span>
-                                    </div>
+                                    {Array.isArray(course.learningOutcomes) ? course.learningOutcomes.map((outcome: string, i: number) => (
+                                        <div key={i} className="flex gap-3">
+                                            <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                                            <span className="text-muted-foreground/90">{outcome}</span>
+                                        </div>
+                                    )) : (
+                                        <p className="text-muted-foreground italic col-span-2">Chi tiết nội dung học tập đang được cập nhật...</p>
+                                    )}
                                 </div>
                             </section>
                             {/*  Course Curriculum (Accordion)  */}
                             <section data-purpose="curriculum-section" id="curriculum">
                                 <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-2xl font-bold">Chương trình học</h3>
-                                    <span className="text-sm text-muted-foreground">12 chương • 120 bài học • 24 giờ tổng cộng</span>
+                                    <h3 className="serif-jp text-2xl font-bold">Chương trình học</h3>
+                                    <span className="text-sm text-muted-foreground">
+                                        {curriculum?.modules?.length || 0} chương • {course.totalLessons || 0} bài học
+                                    </span>
                                 </div>
-                                <div className="space-y-3" id="course-accordion">
-                                    {/*  Accordion Item 1  */}
-                                    <div className={`accordion-item border border-border rounded-xl overflow-hidden bg-background ${openAccordion === 1 ? 'open' : ''}`}>
-                                        <button className="w-full px-6 py-4 flex items-center justify-between bg-muted/30/50 hover:bg-muted transition-colors" onClick={() => setOpenAccordion(openAccordion === 1 ? null : 1)}>
-                                            <div className="flex items-center gap-4">
-                                                <svg className="w-5 h-5 text-muted-foreground accordion-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                                                <span className="font-bold text-left">Chương 1: Khởi động và Lộ trình N3</span>
-                                            </div>
-                                            <div className="text-sm text-muted-foreground hidden sm:block">5 bài học • 45 phút</div>
-                                        </button>
-                                        <div className="accordion-content">
-                                            <div className="px-6 py-2 border-t border-border">
-                                                <div className="flex items-center justify-between py-3 group">
-                                                    <div className="flex items-center gap-3">
-                                                        <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                        <span className="text-sm text-muted-foreground">1.1 Lời chào mừng và hướng dẫn học tập</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-600 font-medium">Xem thử</span>
-                                                        <span className="text-xs text-muted-foreground">05:20</span>
-                                                    </div>
+                                <div className="space-y-3">
+                                    {isCurriculumLoading ? (
+                                        <Skeleton className="h-40 w-full rounded-xl" />
+                                    ) : curriculum?.modules?.map((module, mIdx) => (
+                                        <div key={module.id} className={`accordion-item border border-border rounded-xl overflow-hidden bg-background ${openAccordion === mIdx ? 'open' : ''}`}>
+                                            <button
+                                                className="w-full px-6 py-5 flex items-center justify-between bg-muted/20 hover:bg-muted/40 transition-all"
+                                                onClick={() => setOpenAccordion(openAccordion === mIdx ? null : mIdx)}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <ChevronDown className="w-5 h-5 text-muted-foreground accordion-icon transition-transform duration-300" />
+                                                    <span className="font-bold text-left">{module.title}</span>
                                                 </div>
-                                                <div className="flex items-center justify-between py-3 border-t border-slate-50">
-                                                    <div className="flex items-center gap-3">
-                                                        <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                                        <span className="text-sm text-muted-foreground">1.2 Tài liệu PDF tổng hợp lộ trình</span>
-                                                    </div>
-                                                    <span className="text-xs text-muted-foreground">10 trang</span>
+                                                <div className="text-sm text-muted-foreground hidden sm:block">
+                                                    {module.lessons?.length || 0} bài học {module.durationMinutes ? `• ${module.durationMinutes} phút` : ''}
                                                 </div>
-                                                <div className="flex items-center justify-between py-3 border-t border-slate-50">
-                                                    <div className="flex items-center gap-3">
-                                                        <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-                                                        <span className="text-sm text-muted-foreground">1.3 Kiểm tra đầu vào AI (Trình độ N4)</span>
-                                                    </div>
-                                                    <span className="text-xs text-muted-foreground">15 câu hỏi</span>
+                                            </button>
+                                            <div className="accordion-content">
+                                                <div className="px-6 py-2 border-t border-border">
+                                                    {module.lessons?.map((lesson) => (
+                                                        <div key={lesson.id} className="flex items-center justify-between py-4 group last:border-0 border-b border-border/50">
+                                                            <div className="flex items-center gap-3">
+                                                                {lesson.contentType === 'video' ? <PlayCircle className="w-4 h-4 text-primary" /> :
+                                                                    lesson.contentType === 'document' ? <FileText className="w-4 h-4 text-primary" /> :
+                                                                        <HelpCircle className="w-4 h-4 text-primary" />}
+                                                                <span className="text-sm font-medium text-foreground/80 group-hover:text-primary transition-colors">
+                                                                    {lesson.title}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-3">
+                                                                {lesson.isPreview && (
+                                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase">Xem thử</span>
+                                                                )}
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {lesson.videoDuration ? `${Math.floor(lesson.videoDuration / 60)}:${(lesson.videoDuration % 60).toString().padStart(2, '0')}` : ''}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    {/*  Accordion Item 2  */}
-                                    <div className={`accordion-item border border-border rounded-xl overflow-hidden bg-background ${openAccordion === 2 ? 'open' : ''}`}>
-                                        <button className="w-full px-6 py-4 flex items-center justify-between bg-muted/30/50 hover:bg-muted transition-colors" onClick={() => setOpenAccordion(openAccordion === 2 ? null : 2)}>
-                                            <div className="flex items-center gap-4">
-                                                <svg className="w-5 h-5 text-muted-foreground accordion-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                                                <span className="font-bold text-left">Chương 2: Ngữ pháp N3 - Bài 1 đến 5</span>
-                                            </div>
-                                            <div className="text-sm text-muted-foreground hidden sm:block">12 bài học • 3 giờ</div>
-                                        </button>
-                                        <div className="accordion-content">
-                                            <div className="px-6 py-2 border-t border-border">
-                                                <p className="py-4 text-sm text-muted-foreground italic text-center">Đăng ký để xem nội dung chi tiết của chương này.</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
                             </section>
                             {/*  Prerequisites  */}
                             <section data-purpose="prerequisites-section">
-                                <h3 className="text-2xl font-bold mb-6">Điều kiện tham gia</h3>
+                                <h3 className="serif-jp text-2xl font-bold mb-6">Điều kiện tham gia</h3>
                                 <div className="p-6 bg-muted rounded-2xl border border-border">
                                     <ul className="space-y-4">
-                                        <li className="flex gap-4">
-                                            <div className="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
-                                            <span className="text-foreground">Đã hoàn thành chương trình sơ cấp N4 hoặc tương đương.</span>
-                                        </li>
-                                        <li className="flex gap-4">
-                                            <div className="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
-                                            <span className="text-foreground">Có thiết bị kết nối internet ổn định để học qua video và làm bài tập AI.</span>
-                                        </li>
-                                        <li className="flex gap-4">
-                                            <div className="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
-                                            <span className="text-foreground">Sẵn sàng dành ít nhất 5-7 giờ mỗi tuần cho việc tự học và ôn tập.</span>
-                                        </li>
+                                        {Array.isArray(course.requirements) ? course.requirements.map((req: string, i: number) => (
+                                            <li key={i} className="flex gap-4">
+                                                <div className="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
+                                                <span className="text-foreground/90">{req}</span>
+                                            </li>
+                                        )) : (
+                                            <li className="flex gap-4">
+                                                <div className="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
+                                                <span className="text-foreground/90">Phù hợp với mọi đối tượng yêu thích tiếng Nhật.</span>
+                                            </li>
+                                        )}
                                     </ul>
                                 </div>
                             </section>
                             {/*  Instructor  */}
                             <section data-purpose="instructor-section" id="instructor">
-                                <h3 className="text-2xl font-bold mb-6">Giảng viên</h3>
+                                <h3 className="serif-jp text-2xl font-bold mb-6">Giảng viên</h3>
                                 <div className="p-8 bg-background rounded-2xl border border-border flex flex-col md:flex-row gap-8">
                                     <div className="flex flex-col items-center text-center space-y-4 md:w-1/3">
-                                        <img alt="Instructor" className="w-32 h-32 rounded-full border-4 border-slate-50 shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByNQE5DnQNt1tFdDAT9lwOLEs3ZBb3tFrSbYnYf8Fq4Eu2_RDot_0BLscqt0ual2Q1VldPoqKG1Hb0jgeLAmJ9QhsZW6TyR44dDIy4bw64n4e3QT67TlgdOF6et8RGlhmjkOjBdSnzh-xbFvEm_TgKcuW7UkCj_QRuoK7UzOAaER56VgM-CUNElxgqOeVN31tOvtjt5sGY-JEp-ArWM3z8FRl1V_WG9lFUp7BTbOUNl0AtrkH7h-SkzRrZY9PF58mttBxjknZSCf8" />
+                                        <div className="w-32 h-32 rounded-full border-4 border-slate-50 shadow-sm bg-muted flex items-center justify-center font-bold text-2xl uppercase overflow-hidden">
+                                            {course.lecturer?.avatarUrl ? (
+                                                <img src={course.lecturer.avatarUrl} alt={course.lecturer.displayName} className="size-full object-cover" />
+                                            ) : (
+                                                course.lecturer?.displayName?.substring(0, 2) || "S"
+                                            )}
+                                        </div>
                                         <div>
-                                            <h4 className="text-xl font-bold">Minh Tú Sensei</h4>
-                                            <p className="text-muted-foreground text-sm">Chuyên gia luyện thi JLPT</p>
+                                            <h4 className="text-xl font-bold">{course.lecturer?.displayName || "Sensei"}</h4>
+                                            <p className="text-muted-foreground text-sm">Chuyên gia Torii Nihongo</p>
                                         </div>
                                         <div className="flex gap-4 pt-2">
                                             <div className="text-center">
@@ -248,12 +281,11 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                         </div>
                                     </div>
                                     <div className="md:w-2/3 space-y-4 text-muted-foreground leading-relaxed">
-                                        <p>Xin chào! Tôi là Minh Tú, với hơn 8 năm kinh nghiệm giảng dạy tiếng Nhật và luyện thi JLPT từ N5 đến N1. Tôi tin rằng việc học ngoại ngữ không chỉ là học từ vựng mà là học cách tư duy của người bản xứ.</p>
-                                        <p>Khóa học này được tôi đúc kết từ hàng ngàn giờ giảng dạy trực tiếp, tập trung vào những "điểm chạm" mà học viên thường gặp khó khăn nhất khi lên trình độ trung cấp.</p>
+                                        <p>Giảng viên có nhiều năm kinh nghiệm trong việc giảng dạy ngôn ngữ và luyện thi JLPT. Với phương pháp học tập hiện đại kết hợp AI, Sensei sẽ giúp bạn chinh phục tiếng Nhật một cách dễ dàng và hiệu quả nhất.</p>
                                         <div className="flex gap-4">
                                             <button className="text-[oklch(0.55_0.15_15)] font-bold text-sm flex items-center gap-1 hover:underline">
                                                 Xem hồ sơ đầy đủ
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                                                <ChevronDown className="w-4 h-4 -rotate-90" />
                                             </button>
                                         </div>
                                     </div>
@@ -350,9 +382,20 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                 <div className="p-6 space-y-6">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-3xl font-extrabold text-foreground">1.200.000 ₫</span>
-                                            <span className="text-muted-foreground line-through">1.800.000 ₫</span>
-                                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">-33%</span>
+                                            <span className="text-3xl font-extrabold text-foreground">
+                                                {course.discountPrice != null
+                                                    ? `${course.discountPrice.toLocaleString()} ₫`
+                                                    : course.price != null
+                                                        ? `${course.price.toLocaleString()} ₫` : 'Miễn phí'}
+                                            </span>
+                                            {course.price != null && course.discountPrice != null && course.price > course.discountPrice && (
+                                                <>
+                                                    <span className="text-muted-foreground line-through">{course.price.toLocaleString()} ₫</span>
+                                                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
+                                                        -{Math.round(((course.price - course.discountPrice) / course.price) * 100)}%
+                                                    </span>
+                                                </>
+                                            )}
                                         </div>
                                         <p className="text-xs text-[oklch(0.55_0.15_15)] font-medium flex items-center gap-1">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -360,11 +403,61 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                         </p>
                                     </div>
                                     <div className="space-y-3">
-                                        <button className="w-full bg-gradient-to-r from-[oklch(0.55_0.15_15)] to-rose-600 hover:from-[oklch(0.55_0.15_15)]Dark hover:to-rose-700 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg shadow-[oklch(0.55_0.15_15)]/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
-                                            Đăng ký ngay
-                                        </button>
-                                        <button className="w-full border border-border text-foreground py-3 rounded-xl font-bold hover:bg-muted/30 transition-all">
-                                            Thêm vào giỏ hàng
+                                        {isEnrolled ? (
+                                            <button
+                                                onClick={() => router.push(`/learning/${course.id}`)}
+                                                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg transition-all"
+                                            >
+                                                Ghé thăm lớp học
+                                            </button>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    onClick={() => router.push(`/checkout/${course.id}`)}
+                                                    className="w-full bg-gradient-to-r from-[oklch(0.55_0.15_15)] to-rose-600 hover:from-[oklch(0.55_0.15_15)]Dark hover:to-rose-700 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg shadow-[oklch(0.55_0.15_15)]/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                                                    Đăng ký ngay
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if (isInCart) {
+                                                            router.push('/dashboard/cart');
+                                                        } else {
+                                                            addToCart.mutate(course.id, {
+                                                                onSuccess: () => toast.success('Đã thêm vào giỏ hàng!'),
+                                                                onError: () => toast.error('Không thể thêm vào giỏ hàng'),
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={addToCart.isPending}
+                                                    className="w-full border border-border text-foreground py-3 rounded-xl font-bold hover:bg-muted/30 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                                                    {isInCart ? (
+                                                        <>
+                                                            <ShoppingCart className="size-4 fill-primary text-primary" />
+                                                            Đã trong giỏ hàng
+                                                        </>
+                                                    ) : addToCart.isPending ? (
+                                                        'Đang thêm...'
+                                                    ) : (
+                                                        <>
+                                                            <ShoppingCart className="size-4" />
+                                                            Thêm vào giỏ hàng
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </>
+                                        )}
+
+                                        <button
+                                            onClick={() => {
+                                                toggleWishlist.mutate(course.id, {
+                                                    onSuccess: (data) => toast.success(data.isInWishlist ? 'Đã thêm vào danh sách yêu thích!' : 'Đã xóa khỏi danh sách yêu thích'),
+                                                    onError: () => toast.error('Không thể cập nhật danh sách yêu thích'),
+                                                });
+                                            }}
+                                            disabled={toggleWishlist.isPending}
+                                            className="w-full border border-border text-foreground py-3 rounded-xl font-bold hover:bg-muted/30 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                                            <Heart className={`size-4 transition-colors ${isInWishlist ? 'fill-rose-500 text-rose-500' : ''}`} />
+                                            {isInWishlist ? 'Đã yêu thích' : 'Yêu thích'}
                                         </button>
                                     </div>
                                     <p className="text-[11px] text-muted-foreground text-center">Cam kết hoàn tiền trong 7 ngày nếu không hài lòng</p>

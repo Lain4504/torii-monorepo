@@ -21,7 +21,7 @@ import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import { useRouter, usePathname } from 'next/navigation'
 import { toast } from '@workspace/ui/components/sonner'
-import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -84,8 +84,8 @@ export function Header() {
                         ? "bg-background/90 backdrop-blur-xl border-b border-primary/20 py-1"
                         : "bg-transparent py-2"
                     : scrolled
-                        ? "bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm py-1"
-                        : "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-2"
+                        ? "bg-background/90 backdrop-blur-md border-b border-border shadow-sm py-1"
+                        : "bg-background/80 backdrop-blur-md border-b border-border py-2"
             )}
             data-purpose="main-nav"
         >
@@ -143,8 +143,9 @@ export function Header() {
                                     <button className="rounded-full focus:outline-none ring-offset-background focus:ring-2 focus:ring-primary/50">
                                         <Avatar className={cn(
                                             "size-9 transition-all duration-300",
-                                            isHome && !scrolled ? "ring-2 ring-white/30" : "ring-1 ring-slate-200 dark:ring-slate-800"
+                                            isHome && !scrolled ? "ring-2 ring-white/30" : "ring-1 border-border shadow-sm"
                                         )}>
+                                            <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
                                             <AvatarFallback className={cn(
                                                 "text-xs font-bold",
                                                 isHome && !scrolled ? "bg-white/20 text-white" : "bg-primary/20 text-primary"

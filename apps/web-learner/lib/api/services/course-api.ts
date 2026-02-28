@@ -160,6 +160,17 @@ export function useCourseBySlug(slug: string) {
 }
 
 /**
+ * Hook: Get course by ID
+ */
+export function useCourseById(courseId?: string) {
+  return useQuery({
+    queryKey: ['courses', 'id', courseId],
+    queryFn: () => courseApi.getCourseById(courseId!),
+    enabled: !!courseId,
+  });
+}
+
+/**
  * Hook: Get curriculum
  */
 export function useCurriculum(courseId?: string) {
@@ -167,5 +178,15 @@ export function useCurriculum(courseId?: string) {
     queryKey: ['curriculum', courseId],
     queryFn: () => courseApi.getCurriculum(courseId!),
     enabled: !!courseId,
+  });
+}
+
+/**
+ * Hook: Get live courses only (type === 'live')
+ */
+export function useLiveCourses() {
+  return useQuery({
+    queryKey: ['courses', 'live'],
+    queryFn: () => courseApi.getByType('live'),
   });
 }

@@ -112,7 +112,7 @@ export function AuthLayout({
             </section>
 
             {/* BEGIN: Right Panel (Auth Form) */}
-            <section className="flex-1 flex flex-col justify-center items-center p-6 md:p-12 bg-white" data-purpose="auth-container">
+            <section className="flex-1 flex flex-col justify-center items-center p-6 md:p-12 bg-background" data-purpose="auth-container">
                 <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-right duration-700">
                     {/* BEGIN: Header Branding */}
                     <div className="text-center space-y-2">
@@ -121,13 +121,13 @@ export function AuthLayout({
                             <Link href="/" className="flex items-center gap-3">
                                 <Image src="/logo.png" alt="Torii Nihongo Logo" width={48} height={48} className="h-10 w-auto object-contain" priority />
                                 <div className="flex flex-col text-left">
-                                    <span className="text-slate-900 text-xl font-black tracking-widest leading-none">TORII</span>
-                                    <span className="text-slate-500 text-[10px] font-bold tracking-[0.4em] leading-none mt-0.5">NIHONGO</span>
+                                    <span className="text-foreground text-xl font-black tracking-widest leading-none">TORII</span>
+                                    <span className="text-muted-foreground text-[10px] font-bold tracking-[0.4em] leading-none mt-0.5">NIHONGO</span>
                                 </div>
                             </Link>
                         </div>
-                        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">{title}</h2>
-                        {description && <p className="text-slate-500 text-sm font-medium">{description}</p>}
+                        <h2 className="text-3xl font-extrabold text-foreground tracking-tight">{title}</h2>
+                        {description && <p className="text-muted-foreground text-sm font-medium">{description}</p>}
                     </div>
                     {/* END: Header Branding */}
 
@@ -139,7 +139,7 @@ export function AuthLayout({
                     {/* Footer Links */}
                     {footerText && (
                         <div className="text-center pt-4">
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted-foreground">
                                 {footerText}
                             </p>
                         </div>

@@ -1,3 +1,4 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import {
     AgentChatResponseDTO,
@@ -11,6 +12,14 @@ import {
     AgentTestEvaluationResponseDTO,
     AgentReadinessProfileResponseDTO
 } from '@workspace/schemas';
+
+export interface AnalyticsSnapshot {
+    progressData: any;
+    studyPathData: any;
+    profileData: any;
+    generatedAt: string;
+    targetLevel: string;
+}
 
 // Non-AI metrics/track types
 export interface RoleplayResponse {
@@ -239,3 +248,61 @@ export const agentApi = {
         }
     }
 };
+
+// ── Analytics Snapshot API (Redis-cached, on-demand AI) ───────────────────────
+
+export const analyticsSnapshotApi = {
+    /**
+     * Check Redis for existing snapshot (no AI call). Returns null if cache miss.
+     */
+    getSnapshot: async (targetLevel: string = 'N5'): Promise<{ snapshot: AnalyticsSnapshot | null; isStale: boolean }> => {
+        const response = await apiClient.get<{ success: boolean; data: { snapshot: AnalyticsSnapshot | null; isStale: boolean }; message?: string }>(
+            `/api/agents/analytics/snapshot?targetLevel=${targetLevel}`
+        );
+        return response.data.data ?? { snapshot: null, isStale: true };
+    },
+
+    /**
+     * Trigger AI generation. Stores result in Redis (24h TTL). Returns fresh snapshot.
+     */
+    generateSnapshot: async (targetLevel: string = 'N5'): Promise<AnalyticsSnapshot> => {
+        const response = await apiClient.post<{ success: boolean; data: AnalyticsSnapshot; message?: string }>(
+            '/api/agents/analytics/snapshot/generate',
+            { targetLevel }
+        );
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to generate AI analytics');
+        }
+        return response.data.data;
+    },
+};
+
+/**
+ * Hook: Read cached analytics snapshot from Redis — no AI call.
+ * staleTime = 24h mirrors the Redis TTL on the server side.
+ */
+export function useAnalyticsSnapshot(targetLevel: string = 'N5') {
+    return useQuery({
+        queryKey: ['analytics-snapshot', targetLevel],
+        queryFn: () => analyticsSnapshotApi.getSnapshot(targetLevel),
+        staleTime: 24 * 60 * 60 * 1000,
+        retry: 1,
+    });
+}
+
+/**
+ * Hook: Trigger AI generation on user request.
+ * Invalidates the snapshot query after success so UI refreshes.
+ */
+export function useGenerateAnalyticsSnapshot() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (targetLevel: string = 'N5') => analyticsSnapshotApi.generateSnapshot(targetLevel),
+        onSuccess: (data) => {
+            queryClient.setQueryData(['analytics-snapshot', data.targetLevel], {
+                snapshot: data,
+                isStale: false,
+            });
+        },
+    });
+}
