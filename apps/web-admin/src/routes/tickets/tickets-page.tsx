@@ -1,119 +1,103 @@
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
+'use client';
 
-import { SmartPagination } from '@/components/common/smart-pagination';
-import { TicketsPrimaryToolbar } from '@/components/tickets/tickets-primary-toolbar';
-import { useTickets } from '@/lib/api/services/tickets-hook';
-import { TicketsTable } from '@/components/tickets/tickets-table';
-import { TicketDetailSheet } from '@/components/tickets/ticket-detail-sheet';
-import type { TicketResponseDTO } from '@workspace/schemas';
-import { TicketStatus, TicketType } from '@workspace/schemas';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import type { TicketResponseDTO, TicketQueryDTO } from '@workspace/schemas';
+import { TicketType, TicketStatus } from '@workspace/schemas';
+import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { PageHeader } from '@/components/common/page-header';
+import { TicketsPrimaryToolbar } from '@/components/tickets/tickets-primary-toolbar';
+import { TicketsTable } from '@/components/tickets/tickets-table';
+import { TicketDetailDialog } from '@/components/tickets/ticket-detail-dialog';
+import { ChangeTicketStatusDialog } from '@/components/tickets/change-ticket-status-dialog';
+import { ticketApi, useTicketStats } from '@/lib/api/services/tickets';
+import { SmartPagination } from "@/components/common/smart-pagination";
 import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function TicketsPage() {
-    const [searchParams, setSearchParams] = useSearchParams();
-
-    // State
-    const [search, setSearch] = useState(searchParams.get('search') || '');
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const status = searchParams.get('status') || undefined;
-    const type = searchParams.get('type') || undefined;
+    const [typeFilter, setTypeFilter] = useState<TicketType | ''>('');
+    const [statusFilter, setStatusFilter] = useState<TicketStatus | ''>('');
 
-    // View State
-    const [selectedTicket, setSelectedTicket] = useState<TicketResponseDTO | null>(null);
-    const [detailOpen, setDetailOpen] = useState(false);
+    const [viewingTicket, setViewingTicket] = useState<TicketResponseDTO | null>(null);
+    const [changingStatusTicket, setChangingStatusTicket] = useState<TicketResponseDTO | null>(null);
 
-    // Data Fetching
-    const { data, isLoading } = useTickets({
+    const { data: stats } = useTicketStats();
+
+    const queryParams: TicketQueryDTO = {
         page,
-        limit,
-        search: debouncedSearch || undefined,
-        status: status as TicketStatus,
-        type: type as TicketType,
+        limit: 10,
+        search: debouncedSearch,
+        type: typeFilter as TicketType || undefined,
+        status: statusFilter as TicketStatus || undefined,
+    };
+
+    const { data, isLoading } = useQuery({
+        queryKey: ['tickets', queryParams],
+        queryFn: () => ticketApi.findAll(queryParams),
     });
 
     const tickets = data?.data || [];
-    const totalPages = data?.totalPages || 0;
-
-    // Handlers
-    const handleSearch = (value: string) => {
-        setSearch(value);
-        setSearchParams(prev => {
-            if (value) prev.set('search', value);
-            else prev.delete('search');
-            prev.set('page', '1');
-            return prev;
-        });
-    };
-
-    const handleFilterChange = (key: string, value: string) => {
-        setSearchParams(prev => {
-            if (value && value !== 'all') prev.set(key, value);
-            else prev.delete(key);
-            prev.set('page', '1');
-            return prev;
-        });
-    };
-
-    const handlePageChange = (newPage: number) => {
-        setSearchParams(prev => {
-            prev.set('page', newPage.toString());
-            return prev;
-        });
-    };
-
-    const handleViewTicket = (ticket: TicketResponseDTO) => {
-        setSelectedTicket(ticket);
-        setDetailOpen(true);
-    };
+    const meta = data ? {
+        total: data.total,
+        totalPages: data.totalPages,
+        page: data.page,
+        limit: data.limit,
+    } : null;
 
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title="Yêu cầu & Hỗ trợ"
-                subtitle="Quản lý các ticket hỗ trợ kỹ thuật và hoàn tiền"
+                title="Yêu cầu hỗ trợ"
+                subtitle="Quản lý và giải quyết các yêu cầu từ người dùng"
+                stats={[
+                    { label: 'Đang chờ', value: stats?.pendingCount || 0 },
+                    { label: 'Yêu cầu hoàn tiền', value: stats?.refundCount || 0 },
+                    { label: 'Tổng số', value: stats?.totalCount || 0 },
+                ]}
             />
-
             <div className="space-y-4">
                 <TicketsPrimaryToolbar
                     search={search}
-                    onSearchChange={handleSearch}
-                    type={type}
-                    onTypeChange={(val) => handleFilterChange('type', val)}
-                    status={status}
-                    onStatusChange={(val) => handleFilterChange('status', val)}
+                    onSearchChange={setSearch}
+                    type={typeFilter}
+                    onTypeChange={(v) => setTypeFilter(v === 'all' ? '' : v as TicketType)}
+                    status={statusFilter}
+                    onStatusChange={(v) => setStatusFilter(v === 'all' ? '' : v as TicketStatus)}
                 />
-
-                <Card className="overflow-hidden">
-                <CardContent className="p-0">
-
-                                    <TicketsTable
-                                        data={tickets}
-                                        isLoading={isLoading}
-                                        onView={handleViewTicket}
-                                    />
-                                
-                </CardContent>
+                <Card>
+                    <CardContent className="p-0">
+                        <TicketsTable
+                            data={tickets}
+                            isLoading={isLoading}
+                            onView={setViewingTicket}
+                            onChangeStatus={setChangingStatusTicket}
+                            page={page}
+                            limit={queryParams.limit || 10}
+                        />
+                    </CardContent>
                 </Card>
-
                 <SmartPagination
                     page={page}
-                    totalPages={totalPages}
-                    totalItems={data?.total || 0}
-                    onPageChange={handlePageChange}
+                    totalPages={meta?.totalPages || 0}
+                    totalItems={meta?.total || 0}
+                    onPageChange={setPage}
                     itemName="yêu cầu"
                 />
             </div>
 
-            {/* Ticket Detail Detail Detail Sheet */}
-            <TicketDetailSheet
-                ticket={selectedTicket}
-                open={detailOpen}
-                onOpenChange={setDetailOpen}
+            <TicketDetailDialog
+                open={!!viewingTicket}
+                onOpenChange={(open) => !open && setViewingTicket(null)}
+                ticket={viewingTicket}
+            />
+
+            <ChangeTicketStatusDialog
+                open={!!changingStatusTicket}
+                onOpenChange={(open) => !open && setChangingStatusTicket(null)}
+                ticket={changingStatusTicket}
             />
         </div>
     );

@@ -10,7 +10,6 @@ export default function VerifyPage() {
         <AuthLayout
             title="Xác thực tài khoản"
             description="Đang xác minh thông tin của bạn..."
-            showHomeLink={false}
             leftPanel={
                 <div className="space-y-8">
                     <div className="space-y-3">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { OrdersTable } from '@/components/finance/orders-table';
@@ -26,19 +26,27 @@ import { XCircle } from 'lucide-react';
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { cn } from "@workspace/ui/lib/utils";
 import { toast } from 'sonner';
+import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 
 export default function OrdersPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounceValue(search, 500);
   const [status, setStatus] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [selectedOrder, setSelectedOrder] = useState<OrderResponseDTO | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, status, startDate, endDate]);
+
   const { data: ordersResponse, isLoading } = useOrders({
     page,
     limit: 10,
+    search: debouncedSearch || undefined,
     status: status !== 'all' ? status as OrderStatus : undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,

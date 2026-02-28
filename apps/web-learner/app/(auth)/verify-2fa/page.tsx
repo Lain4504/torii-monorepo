@@ -129,7 +129,6 @@ export default function TwoFactorVerifyPage() {
                 ? 'Nhập một trong các mã dự phòng của bạn'
                 : 'Nhập mã 6 chữ số từ ứng dụng xác thực'
             }
-            showHomeLink={false}
             leftPanel={
                 <div className="space-y-8">
                     <div className="space-y-3">

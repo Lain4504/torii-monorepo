@@ -23,8 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select";
-import { InstructorRole, type CourseResponseDTO } from '@workspace/schemas';
-import { useCourseInstructors } from '@/lib/api/services/course-instructors';
+import { type CourseResponseDTO } from '@workspace/schemas';
 import {
     useTeachingSchedules,
     useAssignTeachingSchedule,
@@ -66,7 +65,6 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
         },
     });
 
-    const { data: instructors } = useCourseInstructors(course?.id || '');
     const { data: schedules, refetch } = useTeachingSchedules(course?.id || '');
     const assignMutation = useAssignTeachingSchedule();
     const removeMutation = useRemoveTeachingSchedule();
@@ -221,16 +219,11 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         <SelectLabel>Danh sách giảng viên</SelectLabel>
-                                                        {instructors?.map((instructor) => (
-                                                            <SelectItem
-                                                                key={instructor.id}
-                                                                value={instructor.lecturerId}
-                                                            >
-                                                                {instructor.lecturer?.displayName || instructor.lecturerId}
-                                                                {' '}
-                                                                ({instructor.role === InstructorRole.MAIN ? 'Chính' : 'Phụ'})
+                                                        {course?.lecturer && (
+                                                            <SelectItem key={course.lecturer.id} value={course.lecturer.id}>
+                                                                {course.lecturer.displayName} (Chính)
                                                             </SelectItem>
-                                                        ))}
+                                                        )}
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>

@@ -62,6 +62,7 @@ export function BlogPrimaryToolbar({
                         <SelectItem value="all">Tất cả</SelectItem>
                         <SelectItem value="draft">Bản nháp</SelectItem>
                         <SelectItem value="published">Đã xuất bản</SelectItem>
+                        <SelectItem value="scheduled">Đã lên lịch</SelectItem>
                         <SelectItem value="archived">Đã lưu trữ</SelectItem>
                     </SelectContent>
                 </Select>

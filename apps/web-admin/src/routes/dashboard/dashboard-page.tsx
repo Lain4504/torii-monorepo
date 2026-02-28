@@ -157,7 +157,7 @@ function AdminDashboard() {
                 tag="NỘI DUNG"
                 tagColor="amber"
                 time="1 giờ trước"
-                link="/reviews"
+                link="/courses/reviews"
               />
               {/* High Value Transaction */}
               <OperationItem

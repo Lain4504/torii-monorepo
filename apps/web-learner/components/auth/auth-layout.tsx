@@ -1,19 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { type ReactNode } from 'react'
-import { ChevronLeft } from 'lucide-react'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@workspace/ui/components/card'
 
 interface AuthLayoutProps {
     /** Nội dung panel bên trái (desktop only) */
-    leftPanel: ReactNode
+    leftPanel?: ReactNode
     /** Tiêu đề trang */
     title: string
     /** Mô tả ngắn dưới tiêu đề */
@@ -22,29 +13,6 @@ interface AuthLayoutProps {
     children: ReactNode
     /** Footer text - phần "Đã có tài khoản?" */
     footerText?: ReactNode
-    /** Hiển thị link quay về trang chủ */
-    showHomeLink?: boolean
-}
-
-/** Logo dùng chung */
-export function ToriiLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
-    const imgSize = size === 'sm' ? 32 : 40
-    const textSize = size === 'sm' ? 'text-lg' : 'text-xl'
-
-    return (
-        <Link href="/" className="flex items-center gap-3 group transition-opacity hover:opacity-90">
-            <Image
-                src="/logo.png"
-                alt="Torii Nihongo"
-                width={imgSize}
-                height={imgSize}
-                className="rounded-xl"
-            />
-            <span className={`${textSize} font-bold tracking-tight`}>
-                Torii <span className="text-primary">Nihongo</span>
-            </span>
-        </Link>
-    )
 }
 
 export function AuthLayout({
@@ -53,77 +21,131 @@ export function AuthLayout({
     description,
     children,
     footerText,
-    showHomeLink = true,
 }: AuthLayoutProps) {
     return (
-        <div className="min-h-screen w-full relative flex flex-col lg:flex-row font-sans overflow-x-hidden">
-            {/* Background Image Layer */}
-            <div
-                className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
-                style={{ backgroundImage: "url('/mascot.png')" }}
-            />
+        <main className="min-h-screen flex flex-col md:flex-row font-sans">
+            <style>{`
+            .glass-card {
+                background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+                }
+            .text-sharp {
+                text-shadow:
+                    2px 2px 0px rgba(0,0,0,1),
+                    -1px -1px 0px rgba(0,0,0,1),
+                    1px -1px 0px rgba(0,0,0,1),
+                    -1px 1px 0px rgba(0,0,0,1),
+                    0px 4px 10px rgba(0,0,0,0.5);
+            }
+            `}</style>
 
-            {/* Content Layer */}
-            <div className="relative z-10 w-full min-h-screen flex flex-col lg:flex-row">
-                {/* Left Panel - Branding & Intro */}
-                <div className="hidden lg:flex flex-col justify-between p-12 lg:p-20 flex-1">
-                    <ToriiLogo />
-                    <div className="max-w-xl animate-in fade-in slide-in-from-left duration-700">
-                        {leftPanel}
-                    </div>
-                    <div className="text-sm font-semibold text-foreground/60">
-                        © {new Date().getFullYear()} Torii Nihongo
-                    </div>
-                </div>
+            {/* BEGIN: Left Panel (Marketing & Branding) */}
+            <section
+                className="hidden md:flex md:w-[60%] relative overflow-hidden flex-col justify-between p-12"
+                data-purpose="marketing-sidebar"
+            >
+                {/* Background Image Layer from previous design */}
+                <div
+                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+                    style={{ backgroundImage: "url('/background.png')" }}
+                />
 
-                {/* Right Panel - Auth Form */}
-                <div className="flex items-center justify-center p-6 lg:p-12 flex-1">
-                    <div className="w-full max-w-[460px] animate-in fade-in slide-in-from-bottom lg:slide-in-from-right duration-700">
-                        {/* Mobile logo only visible on small screens */}
-                        <div className="lg:hidden flex justify-center mb-10">
-                            <ToriiLogo size="sm" />
+                {/* Subtle overlay for text readability */}
+                <div className="absolute inset-0 z-0 bg-gradient-to-r from-black/50 via-black/10 to-transparent pointer-events-none" />
+
+
+                {/* Top Branding */}
+                <div className="relative z-10">
+                    <Link href="/" className="flex items-center gap-3 group transition-opacity hover:opacity-90">
+                        <Image src="/logo.png" alt="Torii Nihongo Logo" width={48} height={48} className="h-10 w-auto object-contain" priority />
+                        <div className="flex flex-col">
+                            <span className="text-white text-xl font-black tracking-widest leading-none drop-shadow-md">TORII</span>
+                            <span className="text-white text-[10px] font-bold tracking-[0.4em] leading-none opacity-90 mt-0.5">NIHONGO</span>
                         </div>
-
-                        <Card className="border shadow-2xl bg-card/95 backdrop-blur-sm overflow-hidden rounded-2xl">
-                            <CardHeader className="space-y-2 pt-8 px-8">
-                                <CardTitle className="text-3xl font-extrabold text-center tracking-tight">
-                                    {title}
-                                </CardTitle>
-                                {description && (
-                                    <CardDescription className="text-center text-base font-medium">
-                                        {description}
-                                    </CardDescription>
-                                )}
-                            </CardHeader>
-                            <CardContent className="p-8 font-sans">
-                                {children}
-                            </CardContent>
-                            {footerText && (
-                                <CardFooter className="flex flex-col gap-6 bg-muted/30 py-6 px-8 border-t">
-                                    <div className="text-center w-full">
-                                        <p className="text-sm font-medium text-muted-foreground">
-                                            {footerText}
-                                        </p>
-                                    </div>
-                                </CardFooter>
-                            )}
-                        </Card>
-
-                        {/* Home Link positioned below the card */}
-                        {showHomeLink && (
-                            <div className="mt-8 flex justify-center">
-                                <Link
-                                    href="/"
-                                    className="inline-flex items-center gap-2 text-sm font-bold text-foreground/60 hover:text-foreground transition-all duration-200 group"
-                                >
-                                    <ChevronLeft className="size-4 transition-transform group-hover:-translate-x-1" />
-                                    Quay về trang chủ
-                                </Link>
-                            </div>
-                        )}
-                    </div>
+                    </Link>
                 </div>
-            </div>
-        </div>
+
+                {/* Main Content */}
+                <div className="relative z-10 mt-20 flex-1">
+                    {false && leftPanel ? null : (
+                        <>
+                            <h1 className="text-white text-5xl font-black leading-tight mb-8 text-sharp animate-in fade-in slide-in-from-bottom duration-700">
+                                Học tiếng Nhật<br />Thông minh hơn.
+                            </h1>
+                            {/* Feature Cards */}
+                            <div className="space-y-4 max-w-md animate-in fade-in slide-in-from-bottom duration-700 delay-150 fill-mode-both">
+                                <div className="glass-card rounded-xl p-4 flex items-center gap-4 transition-transform hover:translate-x-2 duration-300">
+                                    <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                                        </svg>
+                                    </div>
+                                    <span className="text-white font-bold text-lg text-sharp">Lớp học trực tuyến</span>
+                                </div>
+                                <div className="glass-card rounded-xl p-4 flex items-center gap-4 transition-transform hover:translate-x-2 duration-300">
+                                    <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                                        </svg>
+                                    </div>
+                                    <span className="text-white font-bold text-lg text-sharp">AI Sensei trợ lực</span>
+                                </div>
+                                <div className="glass-card rounded-xl p-4 flex items-center gap-4 transition-transform hover:translate-x-2 duration-300">
+                                    <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                                        </svg>
+                                    </div>
+                                    <span className="text-white font-bold text-lg text-sharp">Lộ trình cá nhân</span>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* Bottom Footer */}
+                <div className="relative z-10 pt-8">
+                    <p className="text-white/60 text-sm font-medium">© {new Date().getFullYear()} Torii Nihongo. All rights reserved.</p>
+                </div>
+            </section>
+
+            {/* BEGIN: Right Panel (Auth Form) */}
+            <section className="flex-1 flex flex-col justify-center items-center p-6 md:p-12 bg-background" data-purpose="auth-container">
+                <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-right duration-700">
+                    {/* BEGIN: Header Branding */}
+                    <div className="text-center space-y-2">
+                        {/* Mobile logo */}
+                        <div className="md:hidden flex justify-center mb-6">
+                            <Link href="/" className="flex items-center gap-3">
+                                <Image src="/logo.png" alt="Torii Nihongo Logo" width={48} height={48} className="h-10 w-auto object-contain" priority />
+                                <div className="flex flex-col text-left">
+                                    <span className="text-foreground text-xl font-black tracking-widest leading-none">TORII</span>
+                                    <span className="text-muted-foreground text-[10px] font-bold tracking-[0.4em] leading-none mt-0.5">NIHONGO</span>
+                                </div>
+                            </Link>
+                        </div>
+                        <h2 className="text-3xl font-extrabold text-foreground tracking-tight">{title}</h2>
+                        {description && <p className="text-muted-foreground text-sm font-medium">{description}</p>}
+                    </div>
+                    {/* END: Header Branding */}
+
+                    {/* Content */}
+                    <div className="font-sans">
+                        {children}
+                    </div>
+
+                    {/* Footer Links */}
+                    {footerText && (
+                        <div className="text-center pt-4">
+                            <p className="text-sm text-muted-foreground">
+                                {footerText}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </section>
+        </main >
     )
 }

@@ -1,7 +1,8 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { LESSON_SERVICE_TOKEN, ILessonService } from '@server/learning/interfaces/services';
-import { LessonCreateDTO, LessonUpdateDTO, Requester, UserRole } from '@workspace/schemas';
+import { LESSON_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import type { ILessonService } from '../interfaces/services/i-lesson.service';
+import { LessonCreateDTO, LessonUpdateDTO, Requester, UserRole, LessonQueryDTO } from '@workspace/schemas';
 
 @Controller()
 export class LessonHandler {
@@ -16,12 +17,13 @@ export class LessonHandler {
     }
 
     @MessagePattern({ cmd: 'learning.lesson.findAll' })
-    async findAll(@Payload() query: { page?: number; limit?: number; search?: string }) {
-        return this.lessonService.findAll({
-            page: query.page ?? 1,
-            limit: query.limit ?? 10,
-            search: query.search
-        });
+    async findAll(@Payload() query: any) {
+        return this.lessonService.findAll(query);
+    }
+
+    @MessagePattern({ cmd: 'learning.lesson.search' })
+    async search(@Payload() query: LessonQueryDTO) {
+        return this.lessonService.search(query);
     }
 
     @MessagePattern({ cmd: 'learning.lesson.findByModuleId' })

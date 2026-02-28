@@ -1,11 +1,13 @@
 import {
     Controller,
     Post,
+    Get,
     Body,
     Inject,
     Req,
     UseGuards,
     Logger,
+    Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -23,6 +25,58 @@ export class AnalyticsHandler {
     constructor(
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
+
+    // ── Cached Snapshot Endpoints (Solution A) ───────────────────────────────
+
+    /**
+     * GET /api/agents/analytics/snapshot
+     * Returns cached AI snapshot if still valid (< 24h).
+     * Returns { snapshot: null, isStale: true } when no cache or expired.
+     */
+    @Get('analytics/snapshot')
+    @UseGuards(GatewayAuthGuard)
+    async getSnapshot(@Req() req: ReqWithRequester, @Query('targetLevel') targetLevel: string = 'N5') {
+        const requester = req.requester;
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.analytics.getSnapshot' },
+                    { requester, targetLevel }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Get snapshot failed for user ${requester?.sub}`, error.stack);
+            return errorResponse(error.message || 'Failed to get analytics snapshot');
+        }
+    }
+
+    /**
+     * POST /api/agents/analytics/snapshot/generate
+     * Triggers AI generation (Gemini). Saves result to DB as a snapshot.
+     * Only called when user explicitly requests AI analysis.
+     */
+    @Post('analytics/snapshot/generate')
+    @UseGuards(GatewayAuthGuard)
+    async generateSnapshot(@Req() req: ReqWithRequester, @Body() body: { targetLevel?: string }) {
+        const requester = req.requester;
+        const userId = requester?.sub;
+        try {
+            this.logger.log(`🤖 AI snapshot generation requested by user ${userId}`);
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'agents.analytics.generateSnapshot' },
+                    { requester, targetLevel: body.targetLevel || 'N5' }
+                )
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Snapshot generation failed for user ${userId}`, error.stack);
+            return errorResponse(error.message || 'Failed to generate AI analytics');
+        }
+    }
+
+    // ── Legacy Direct AI Endpoints (kept for backward compatibility) ──────────
 
     @Post('progress/track')
     @UseGuards(GatewayAuthGuard)

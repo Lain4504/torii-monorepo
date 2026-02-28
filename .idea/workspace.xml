@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: update external media player text for clarity">
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/common.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/discussion-topic.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/discussion-topic.dto.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: enhance course live class logic">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,224 +14,57 @@
   </component>
   <component name="CopilotPersistence">
     <persistenceIdMap>
-      <entry key="_/home/lain4504/SEP490/torii-monorepo" value="37A0yfZgCJQYTxlmthXWuaUq33u" />
+      <entry key="_/home/lain4504/SEP490/torii-monorepo" value="3AJuzETpsQRTDgsSxGzPnG3UJUp" />
     </persistenceIdMap>
   </component>
-  <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1892" />
-    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="TypeScript File" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="PREVIOUS_COMMIT_AUTHORS">
-      <list>
-        <option value="Ngochieu3165 &lt;ngochieu3165@gmail.com&gt;" />
-      </list>
-    </option>
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="main" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;history&quot;: [
-    {
-      &quot;state&quot;: &quot;OPEN&quot;
-    }
-  ],
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Lain4504"
   }
-}</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: [
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66sc24&quot;,
-        &quot;number&quot;: 35
-      },
-      &quot;lastSeen&quot;: 1766837511440
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66twAD&quot;,
-        &quot;number&quot;: 38
-      },
-      &quot;lastSeen&quot;: 1766885614934
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM66oPXy&quot;,
-        &quot;number&quot;: 31
-      },
-      &quot;lastSeen&quot;: 1766974161892
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM67ZerY&quot;,
-        &quot;number&quot;: 48
-      },
-      &quot;lastSeen&quot;: 1767495744090
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AaErH&quot;,
-        &quot;number&quot;: 113
-      },
-      &quot;lastSeen&quot;: 1769855142628
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM7AuiQ2&quot;,
-        &quot;number&quot;: 121
-      },
-      &quot;lastSeen&quot;: 1770017085445
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOQmD9iM7C-TdR&quot;,
-        &quot;number&quot;: 187
-      },
-      &quot;lastSeen&quot;: 1770817417849
-    }
-  ]
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
-  },
-  &quot;editorReviewEnabled&quot;: false
-}</component>
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:Lain4504/torii-monorepo.git",
+    "accountId": "36ac2fd8-9a60-42a4-b2bf-7fe947db4431"
+  }
+}]]></component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
-  <component name="KubernetesApiPersistence">{}</component>
-  <component name="KubernetesApiProvider">{
-  &quot;isMigrated&quot;: true
-}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
-}</component>
-  <component name="ProjectId" id="37A0yfZgCJQYTxlmthXWuaUq33u" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 6
+}]]></component>
+  <component name="ProjectId" id="3AJuzETpsQRTDgsSxGzPnG3UJUp" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.localhost:3000.executor&quot;: &quot;Debug&quot;,
-    &quot;JavaScript Debug.localhost:5173.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#250 on update-error-sheet&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/test-app/next-app&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
-  },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;redis&quot;,
-      &quot;mongo&quot;,
-      &quot;postgresql&quot;
-    ]
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "go.import.settings.migrated": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "kotlin-language-version-configured": "true",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "pnpm",
+    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="QodanaCIConfigService">
-    <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
-  </component>
-  <component name="QodanaCloudProjectLink">
-    <option name="lastReportId" value="Eg8e9w" />
-    <option name="linkedProjectId" value="Q6WDD" />
-    <option name="linkedProjectName" value="Torii Monorepo" />
-    <option name="organizationId" value="qbwwv" />
-    <option name="userId" value="w9R9J" />
-  </component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\projectdev\demo\team-source\torii-monorepo" />
-      <recent name="E:\projectdev\bmap-capstone\torii-monorepo\apps\server" />
-      <recent name="E:\Ky8\bmap-capstone\torii-monorepo\apps\web-learner\components\layout" />
-      <recent name="E:\Ky8\bmap-capstone\torii-monorepo" />
-      <recent name="E:\demo\team-source\torii-monorepo\apps\server\modules\billing\src\modules" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/apps/server/modules/communication/handlers" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/learning/src/handlers" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/handlers" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/meet/src/interfaces" />
-      <recent name="$PROJECT_DIR$/apps/server/modules/storage/src/handlers" />
-    </key>
-  </component>
-  <component name="RunManager" selected="JavaScript Debug.localhost:3000">
-    <configuration name="localhost:3000" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3000">
-      <method v="2" />
-    </configuration>
-    <configuration name="localhost:5173" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:5173/">
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
-      <deployment type="docker-compose.yml">
-        <settings />
-      </deployment>
-      <method v="2" />
-    </configuration>
-    <configuration name="docker-compose.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="sourceFilePath" value="docker-compose.yml" />
-        </settings>
-      </deployment>
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="JavaScript Debug.localhost:5173" />
-        <item itemvalue="JavaScript Debug.localhost:3000" />
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-        <item itemvalue="JavaScript Debug.localhost:3000" />
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
-      </list>
-    </recent_temporary>
-  </component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -243,9 +74,6 @@
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="SwiftWorkspaceSettings">
-    <option name="detectedToolchain" value="true" />
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="" />
@@ -402,14 +230,7 @@
       <workItem from="1771990667306" duration="886000" />
       <workItem from="1771996036213" duration="3105000" />
       <workItem from="1772038435231" duration="18000" />
-    </task>
-    <task id="LOCAL-00823" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
-      <option name="closed" value="true" />
-      <created>1770199427314</created>
-      <option name="number" value="00823" />
-      <option name="presentableId" value="LOCAL-00823" />
-      <option name="project" value="LOCAL" />
-      <updated>1770199427314</updated>
+      <workItem from="1772323258542" duration="267000" />
     </task>
     <task id="LOCAL-00824" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
       <option name="closed" value="true" />
@@ -795,7 +616,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771996995370</updated>
     </task>
-    <option name="localTasksCounter" value="872" />
+    <task id="LOCAL-00872" summary="fix: enhance course live class logic">
+      <option name="closed" value="true" />
+      <created>1772302526060</created>
+      <option name="number" value="00872" />
+      <option name="presentableId" value="LOCAL-00872" />
+      <option name="project" value="LOCAL" />
+      <updated>1772302526060</updated>
+    </task>
+    <option name="localTasksCounter" value="873" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -812,7 +641,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="agent-refactor" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -830,69 +659,15 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: enhance prompt and resource loading with dynamic path resolution" />
-    <MESSAGE value="chore: update dependencies and improve project configuration" />
-    <MESSAGE value="refactor: update imports from @radix-ui to radix-ui for consistency" />
-    <MESSAGE value="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency" />
-    <MESSAGE value="refactor: add AspectRatio and DirectionProvider components, update styles and structure for consistency" />
-    <MESSAGE value="refactor: add ServiceUnavailablePage and NotImplementedPage components, update routing and error handling across pages" />
-    <MESSAGE value="refactor: update container widths and improve layout consistency across multiple sections" />
-    <MESSAGE value="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency" />
-    <MESSAGE value="refactor: update text labels to Vietnamese for consistency across multiple components" />
-    <MESSAGE value="refactor: update button styles and labels for consistency across multiple sheets" />
-    <MESSAGE value="rules" />
-    <MESSAGE value="refactor: enhance order management with additional fields and update API methods for improved data handling" />
-    <MESSAGE value="refactor: update layout and styling for user and module sheets" />
-    <MESSAGE value="feat: add reset password functionality and update identity URLs" />
-    <MESSAGE value="refactor: change location of api folder to lib" />
-    <MESSAGE value="feat: add date-fns-tz dependency and implement formatNumber utility function" />
-    <MESSAGE value="refactor: improve layout and styling across multiple components" />
-    <MESSAGE value="refactor: reorganize dashboard components and update import paths" />
-    <MESSAGE value="feat: replace SVG logo with Image component for improved performance and consistency" />
-    <MESSAGE value="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page" />
-    <MESSAGE value="refactor: enhance layout and styling across multiple components" />
-    <MESSAGE value="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components" />
-    <MESSAGE value="refactor: simplify layout and styling in dashboard and feed components" />
-    <MESSAGE value="refactor: update notebook API and enhance flashcard component functionality" />
-    <MESSAGE value="fix: update external media player text for clarity" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: update external media player text for clarity" />
+    <MESSAGE value="feat: implement animated text and redesign home layout" />
+    <MESSAGE value="mapping api" />
+    <MESSAGE value="stitch ui" />
+    <MESSAGE value="fix: enhance course live class logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: enhance course live class logic" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/libs/shared/src/providers/jwt-token.provider.ts</url>
-          <line>25</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
-          <line>46</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/gateway/src/modules/meet/controllers/breakout.controller.ts</url>
-          <line>85</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/apps/server/modules/meet/src/modules/breakout/breakout.service.ts</url>
-          <line>66</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
-  </component>
-  <component name="com.apollographql.ijplugin.settings.ProjectSettingsState">
-    <option name="lspPassPathToSuperGraphYaml" value="false" />
-    <option name="telemetryInstanceId" value="ac193a38-d2b2-47a8-93a3-6ed4529bb23e" />
+    <settings-migrated>true</settings-migrated>
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

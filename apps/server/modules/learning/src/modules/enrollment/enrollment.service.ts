@@ -59,6 +59,10 @@ export class EnrollmentService implements IEnrollmentService {
 
             const course = await this.courseRepository.findById(enrollment.courseId);
 
+        if (course?.type === 'live') {
+            await this.courseRepository.incrementTotalStudents(course.id);
+        }
+
             // Audit Log
             await this.logAudit({
                 action: 'enrollment.activate',
@@ -343,9 +347,12 @@ export class EnrollmentService implements IEnrollmentService {
         }
 
         // Validation: For Live courses, check registration deadline
-        if (course.type === 'live' && course.registrationClosedAt) {
-            if (new Date() > new Date(course.registrationClosedAt)) {
+        if (course.type === 'live') {
+            if (course.registrationClosedAt && new Date() > new Date(course.registrationClosedAt)) {
                 throw new BadRequestException('Registration for this course is closed');
+            }
+            if (course.maxStudents && course.totalStudents >= course.maxStudents) {
+                throw new BadRequestException('This course is full');
             }
         }
 

@@ -149,7 +149,7 @@ export default function WishlistPage() {
                                     </button>
                                 </div>
                                 <p className="text-sm text-muted-foreground font-medium">
-                                    {course.instructors?.[0]?.user?.displayName || 'Giảng viên Torii'}
+                                    {course.lecturer?.displayName || 'Giảng viên Torii'}
                                 </p>
                             </div>
 

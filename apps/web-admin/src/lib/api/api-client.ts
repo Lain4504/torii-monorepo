@@ -156,7 +156,7 @@ const redirectToLogin = async () => {
         return;
     }
 
-    window.location.href = '/login';
+    window.location.href = `/login?from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
 };
 
 // Request interceptor - Add platform header for web

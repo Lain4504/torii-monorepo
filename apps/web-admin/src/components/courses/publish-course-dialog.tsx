@@ -1,5 +1,4 @@
 import { usePublishCourse } from '@/lib/api/services/courses';
-import { useCourseInstructors } from '@/lib/api/services/course-instructors';
 import {
     Dialog,
     DialogContent,
@@ -27,7 +26,6 @@ interface PublishCourseDialogProps {
 
 export function PublishCourseDialog({ open, onOpenChange, course }: PublishCourseDialogProps) {
     const publishMutation = usePublishCourse();
-    const { data: instructors } = useCourseInstructors(course?.id || '');
 
     const handlePublish = async () => {
         if (!course) return;
@@ -67,7 +65,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
         },
         {
             label: 'Giảng Viên',
-            valid: (instructors?.length || 0) > 0,
+            valid: !!course?.lecturer,
             icon: Users,
         },
         {
@@ -91,7 +89,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
         },
         {
             label: 'Giảng Viên Chính',
-            valid: instructors?.some(i => i.isPrimary) || false,
+            valid: !!course?.lecturer,
             icon: Users,
         },
         {

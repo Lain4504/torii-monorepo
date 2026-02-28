@@ -9,6 +9,7 @@ import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentTestGenerationResponseDTO as PlacementTestResponse, AgentTestEvaluationResponseDTO as PlacementEvaluationResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 
 
 import {
@@ -31,6 +32,10 @@ export function PlacementTest() {
     const [answers, setAnswers] = React.useState<Record<string, string>>({})
     const [result, setResult] = React.useState<PlacementEvaluationResponse | null>(null)
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
+
+    const pathname = usePathname()
+    const router = useRouter()
+    const isMarketing = pathname === "/placement-test"
 
     const handleStart = async () => {
         setIsLoading(true)
@@ -85,43 +90,60 @@ export function PlacementTest() {
 
     if (step === "intro") {
         return (
-            <div className="max-w-4xl mx-auto py-12 px-6 text-center space-y-12 animate-in fade-in duration-700">
-                <div className="space-y-6">
-                    <div className="size-16 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-primary/20">
-                        <Sparkles className="size-8" />
+            <div className="space-y-10 animate-in fade-in duration-500">
+                {/* Header */}
+                <div className="text-center space-y-4">
+                    <div className="size-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto">
+                        <Sparkles className="size-8 text-primary" />
                     </div>
                     <div className="space-y-2">
-                        <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">Placement Test</h1>
-                        <p className="text-muted-foreground max-w-xl mx-auto font-medium">
-                            Xác định trình độ tiếng Nhật của bạn chỉ trong 10 phút. AI sẽ điều chỉnh câu hỏi để tìm lộ trình học tối ưu nhất.
+                        <h2 className="text-3xl font-black font-serif tracking-tight">Bài Thi Xác Định Trình Độ</h2>
+                        <p className="text-muted-foreground text-base max-w-lg mx-auto leading-relaxed">
+                            Hãy trả lời 15 câu hỏi để AI phân tích và đề xuất lộ trình học tập tối ưu cho bạn.
                         </p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto">
                     {[
-                        { icon: BookCheck, val: "15", label: "Questions" },
-                        { icon: Clock, val: "~10", label: "Minutes" },
-                        { icon: Sparkles, val: "AI", label: "Adaptive" },
+                        { icon: BookCheck, val: '15', label: 'Câu hỏi' },
+                        { icon: Clock, val: '~10', label: 'Phút' },
+                        { icon: Sparkles, val: 'AI', label: 'Thích nghi' },
                     ].map((item, i) => (
-                        <Card key={i} className="border-border shadow-none rounded-xl">
-                            <CardContent className="flex flex-col items-center p-6 space-y-2">
-                                <div className="p-2 bg-primary/5 rounded-lg mb-1">
-                                    <item.icon className="size-5 text-primary" />
-                                </div>
-                                <div className="font-bold text-2xl tracking-tighter">{item.val}</div>
-                                <div className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{item.label}</div>
-                            </CardContent>
-                        </Card>
+                        <div key={i} className="bg-card border border-border/60 rounded-2xl p-5 flex flex-col items-center gap-2 hover:border-primary/30 transition-colors">
+                            <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                                <item.icon className="size-5 text-primary" />
+                            </div>
+                            <div className="font-black text-2xl tracking-tighter">{item.val}</div>
+                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.label}</div>
+                        </div>
                     ))}
                 </div>
 
-                <Button size="lg" onClick={handleStart} disabled={isLoading} className="font-bold uppercase tracking-widest text-[10px] h-11 px-10 rounded-xl shadow-md">
-                    {isLoading ? <><Spinner className="mr-2" /> Preparing...</> : "Start Assessment"}
-                </Button>
+                {/* Info box */}
+                <div className="flex gap-3 p-5 rounded-2xl bg-primary/5 border border-primary/20 max-w-xl mx-auto">
+                    <Sparkles className="size-5 text-primary flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                        Bài thi gồm các câu từ N5 đến N1. AI sẽ điều chỉnh độ khó theo từng câu trả lời để đưa ra phân loại <strong className="text-foreground">chuẩn xác nhất</strong>.
+                    </p>
+                </div>
+
+                {/* CTA */}
+                <div className="flex justify-center">
+                    <Button
+                        size="lg"
+                        onClick={handleStart}
+                        disabled={isLoading}
+                        className="h-12 px-10 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    >
+                        {isLoading ? <><Spinner className="mr-2 size-4" /> Đang chuẩn bị...</> : <><Sparkles className="mr-2 size-4" /> Bắt đầu kiểm tra</>}
+                    </Button>
+                </div>
             </div>
         )
     }
+
 
     if (step === "test" && testData) {
         const totalQuestions = testData.questions.length
@@ -191,8 +213,14 @@ export function PlacementTest() {
                     ]}
                     questions={[]} // Placement test result from backend doesn't include detailed review by default
                     onSecondaryAction={{
-                        label: "Xác Nhận & Bắt Đầu Học",
-                        onClick: () => handleSelectLevel(result.assessedLevel ?? 'N5')
+                        label: isMarketing ? "Đăng Ký & Lưu Kết Quả" : "Xác Nhận & Bắt Đầu Học",
+                        onClick: () => {
+                            if (isMarketing) {
+                                router.push(`/register?level=${result.assessedLevel}`)
+                            } else {
+                                handleSelectLevel(result.assessedLevel ?? 'N5')
+                            }
+                        }
                     }}
                 />
 
@@ -253,9 +281,16 @@ export function PlacementTest() {
                 </div>
 
                 <div className="pt-12 text-center">
-                    <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
-                        <Link href="/assessment">Quay lại Assessment Center</Link>
-                    </Button>
+                    {!isMarketing && (
+                        <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+                            <Link href="/assessment">Quay lại Assessment Center</Link>
+                        </Button>
+                    )}
+                    {isMarketing && (
+                        <Button variant="ghost" asChild className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+                            <Link href="/register">Tham gia ngay để nhận lộ trình chi tiết</Link>
+                        </Button>
+                    )}
                 </div>
             </QuizContainer>
         )

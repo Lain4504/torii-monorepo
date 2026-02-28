@@ -9,6 +9,7 @@ import {
     Req,
     Inject,
     Logger,
+    BadRequestException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -201,7 +202,8 @@ export class OrderController {
             );
             return successResponse({ order: result });
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to create order');
+            this.logger.error(`Failed to create order: ${error.message}`, error.stack);
+            throw new BadRequestException(error.message || 'Failed to create order');
         }
     }
 

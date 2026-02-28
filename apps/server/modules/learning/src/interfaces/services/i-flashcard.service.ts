@@ -16,7 +16,7 @@ export interface IFlashcardService {
     getFlashcards(params: FlashcardQueryDTO & { userId: string }): Promise<PaginatedResponseDTO<FlashcardResponseDTO>>;
     getFlashcardById(id: string): Promise<FlashcardResponseDTO>;
     updateFlashcard(data: FlashcardUpdateDTO & { userId: string }): Promise<FlashcardResponseDTO>;
-    deleteFlashcard(id: string): Promise<void>;
+    deleteFlashcard(id: string, userId: string): Promise<void>;
     bulkOperations(data: BulkFlashcardOperationsDTO & { userId: string }): Promise<BulkFlashcardOperationsResponseDTO>;
     generateFlashcardsFromAI(userId: string, deckId: string, topic: string, level: string): Promise<{ success: boolean; count: number }>;
 }

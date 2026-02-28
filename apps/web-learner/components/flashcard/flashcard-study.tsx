@@ -71,6 +71,12 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
         enabled: !!session,
     })
 
+    // 2b. Fetch Deck Info for empty check
+    const { data: deck, isLoading: isLoadingDeck } = useQuery({
+        queryKey: ["flashcard-deck", deckId],
+        queryFn: () => flashcardApi.getDeckById(deckId),
+    })
+
     // 3. Submit Review Mutation
     const { mutate: submitReview } = useMutation({
         mutationFn: flashcardApi.submitReview,
@@ -139,25 +145,41 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
         }
     }
 
-    if (isStartingSession || isLoadingCards) {
+    if (isStartingSession || isLoadingCards || isLoadingDeck) {
         return <PageLoading text="Đang chuẩn bị lộ trình ôn tập..." />
     }
 
     if (!cardsDue || cardsDue.length === 0) {
+        const isEmptyDeck = deck?.cardCount === 0
+
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in duration-700">
-                <div className="p-6 rounded-full bg-primary/10 border border-primary/20 text-primary animate-bounce">
-                    <Trophy className="size-12" />
+                <div className={cn(
+                    "p-6 rounded-full border animate-bounce",
+                    isEmptyDeck ? "bg-muted/10 border-muted text-muted-foreground" : "bg-primary/10 border-primary/20 text-primary"
+                )}>
+                    {isEmptyDeck ? <BrainCircuit className="size-12" /> : <Trophy className="size-12" />}
                 </div>
                 <div className="text-center space-y-2 max-w-sm">
-                    <h2 className="text-3xl font-bold tracking-tight">Tuyệt vời!</h2>
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        {isEmptyDeck ? "Chưa có thẻ nào" : "Tuyệt vời!"}
+                    </h2>
                     <p className="text-muted-foreground">
-                        Bạn đã hoàn thành tất cả các thẻ cần ôn tập trong bộ nhớ này. Hãy quay lại vào ngày mai!
+                        {isEmptyDeck
+                            ? "Bộ thẻ này hiện tại đang trống. Hãy thêm một vài thẻ trước khi bắt đầu hành trình chinh phục kiến thức!"
+                            : "Bạn đã hoàn thành tất cả các thẻ cần ôn tập trong bộ nhớ này. Hãy quay lại vào ngày mai!"}
                     </p>
                 </div>
-                <Button onClick={() => router.push("/dashboard/flashcards")} size="lg" className="font-bold uppercase tracking-widest text-[10px] px-8">
-                    Quay lại kho thẻ
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <Button variant="outline" onClick={() => router.push("/dashboard/flashcards")} size="lg" className="font-bold uppercase tracking-widest text-[10px] px-8">
+                        Quay lại kho thẻ
+                    </Button>
+                    {isEmptyDeck && (
+                        <Button onClick={() => router.push(`/dashboard/flashcards/${deckId}/manage`)} size="lg" className="font-bold uppercase tracking-widest text-[10px] px-8">
+                            Quản lý nội dung
+                        </Button>
+                    )}
+                </div>
             </div>
         )
     }

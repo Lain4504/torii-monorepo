@@ -7,6 +7,7 @@ import type {
     CommentPaginatedResponse,
     StandardApiResponse,
     PaginatedApiResponse,
+    CommentTargetType,
 } from '@workspace/schemas';
 
 /**
@@ -43,6 +44,10 @@ export const commentApi = {
                 backendParams.entityId = params.feedId;
                 backendParams.targetType = 'FEED';
                 delete backendParams.feedId;
+            } else if (params.discussionId) {
+                backendParams.entityId = params.discussionId;
+                backendParams.targetType = 'DISCUSSION';
+                delete backendParams.discussionId;
             }
 
             const response = await apiClient.get<PaginatedApiResponse<CommentResponseDTO>>('/api/comments', {
@@ -91,6 +96,10 @@ export const commentApi = {
             backendDto.entityId = dto.feedId;
             backendDto.targetType = 'FEED';
             delete backendDto.feedId;
+        } else if (dto.discussionId) {
+            backendDto.entityId = dto.discussionId;
+            backendDto.targetType = 'DISCUSSION';
+            delete backendDto.discussionId;
         }
 
         const response = await apiClient.post<StandardApiResponse<CommentResponseDTO>>('/api/comments', backendDto);

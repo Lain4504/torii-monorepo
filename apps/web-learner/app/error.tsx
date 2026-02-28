@@ -1,16 +1,16 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from "@workspace/ui/components/button"
-import { ServerCrash, ArrowLeft, RotateCcw } from "lucide-react"
 import {
     Empty,
     EmptyContent,
-    EmptyMedia,
-    EmptyTitle,
     EmptyDescription,
+    EmptyHeader,
+    EmptyTitle,
 } from "@workspace/ui/components/empty"
+import { AlertCircle, RotateCcw, ArrowLeft } from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
+import { useRouter } from "next/navigation"
 
 export default function Error({
     error,
@@ -26,33 +26,36 @@ export default function Error({
     }, [error])
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background">
-            <Empty className="max-w-md border-none">
-                <EmptyMedia>
-                    <div className="size-16 flex items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
-                        <ServerCrash className="size-8" />
+        <div className="flex items-center justify-center min-h-screen p-6 bg-background">
+            <Empty className="border-none">
+                <EmptyHeader>
+                    <div className="size-12 flex items-center justify-center rounded-full bg-destructive/10 text-destructive mb-2">
+                        <AlertCircle className="size-6" />
                     </div>
-                </EmptyMedia>
-                <EmptyContent>
-                    <div className="text-6xl font-black text-muted-foreground/10 select-none leading-none">
-                        500
-                    </div>
-                    <EmptyTitle className="text-xl font-semibold mt-4">
-                        Đã xảy ra lỗi hệ thống
-                    </EmptyTitle>
+                    <EmptyTitle className="text-2xl font-black text-destructive">Đã xảy ra lỗi hệ thống</EmptyTitle>
                     <EmptyDescription>
-                        Hệ thống gặp sự cố không mong muốn trong quá trình xử lý. Đội ngũ kỹ thuật của Torii đã được thông báo.
+                        Chúng tôi xin lỗi vì sự bất tiện này. Một lỗi không mong muốn đã xảy ra.
                     </EmptyDescription>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-6 w-full">
-                        <Button variant="outline" onClick={() => router.back()} className="w-full sm:w-auto">
-                            <ArrowLeft className="mr-2 size-4" />
+                </EmptyHeader>
+                <EmptyContent>
+                    <div className="bg-muted/30 p-4 rounded-lg border border-border w-full max-w-sm mb-6">
+                        <p className="text-xs font-mono text-muted-foreground break-all">
+                            Error ID: {error.digest || 'Internal Server Error'}
+                        </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center">
+                        <Button variant="outline" onClick={() => router.back()} className="gap-2 w-full sm:w-auto">
+                            <ArrowLeft className="size-4" />
                             Quay lại
                         </Button>
-                        <Button onClick={() => reset()} className="w-full sm:w-auto">
-                            <RotateCcw className="mr-2 size-4" />
+                        <Button onClick={() => reset()} className="gap-2 w-full sm:w-auto">
+                            <RotateCcw className="size-4" />
                             Thử lại
                         </Button>
                     </div>
+                    <EmptyDescription className="mt-8">
+                        Vẫn gặp sự cố? <a href="#" className="font-medium text-primary hover:underline">Báo cáo lỗi cho chúng tôi</a>
+                    </EmptyDescription>
                 </EmptyContent>
             </Empty>
         </div>

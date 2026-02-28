@@ -97,10 +97,11 @@ export class TeachingScheduleController {
     }
 
     @Get('requests/pending')
-    @Permissions('live_class.schedule')
-    async getPendingRequests() {
+    @Permissions('live_class.schedule', 'schedule.view')
+    async getPendingRequests(@Req() req: ReqWithRequester) {
+        const requester = req.requester;
         const data = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.teachingSchedule.getPendingRequests' }, {})
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.getPendingRequests' }, { requester })
         );
         return successResponse(data);
     }

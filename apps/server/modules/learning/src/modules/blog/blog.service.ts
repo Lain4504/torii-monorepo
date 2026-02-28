@@ -85,6 +85,13 @@ export class BlogService implements IBlogService {
     }
 
     // Create blog
+    if (finalDto.status === BlogStatus.PUBLISHED && !finalDto.publishedAt) {
+      finalDto.publishedAt = new Date();
+    } else if (finalDto.publishedAt && new Date(finalDto.publishedAt) > new Date()) {
+      finalDto.status = BlogStatus.SCHEDULED;
+    }
+
+    // Create blog
     const blog = await this.blogRepository.create({
       title: finalDto.title,
       slug: finalDto.slug,
@@ -93,7 +100,7 @@ export class BlogService implements IBlogService {
       coverImageUrl: finalDto.coverImageUrl,
       authorId: finalDto.authorId,
       status: finalDto.status || BlogStatus.DRAFT,
-      publishedAt: (finalDto.status === BlogStatus.PUBLISHED && !finalDto.publishedAt) ? new Date() : finalDto.publishedAt || null,
+      publishedAt: finalDto.publishedAt || null,
       tags: finalDto.tags || [],
       seoTitle: finalDto.seoTitle,
       seoDescription: finalDto.seoDescription,
@@ -114,6 +121,17 @@ export class BlogService implements IBlogService {
 
     if (query.status) {
       where.status = query.status;
+      // If status is published, only show posts with publishedAt <= now unless showScheduled is requested (admin)
+      if (query.status === BlogStatus.PUBLISHED && !query.showScheduled) {
+        where.publishedAt = {
+          lte: new Date(),
+        };
+      } else if (query.status === BlogStatus.SCHEDULED && !query.showScheduled) {
+        // Exclude scheduled posts from public view unless requested
+        where.status = {
+          not: BlogStatus.SCHEDULED,
+        };
+      }
     }
 
     if (query.authorId) {
@@ -164,10 +182,16 @@ export class BlogService implements IBlogService {
   /**
    * Find blog by ID
    */
-  async findBlogById(id: string): Promise<BlogResponseDTO> {
+  async findBlogById(id: string, showScheduled = false): Promise<BlogResponseDTO> {
     const blog = await this.blogRepository.findById(id);
 
     if (!blog) {
+      throw new NotFoundException(`Blog with id "${id}" not found`);
+    }
+
+    // Check if scheduled
+    const isScheduled = blog.status === BlogStatus.SCHEDULED;
+    if (isScheduled && !showScheduled) {
       throw new NotFoundException(`Blog with id "${id}" not found`);
     }
 
@@ -184,6 +208,10 @@ export class BlogService implements IBlogService {
       throw new NotFoundException(`Blog with id "${id}" not found`);
     }
 
+    // Check if scheduled (don't count views for scheduled posts if public)
+    const isScheduled = blog.status === BlogStatus.SCHEDULED;
+    if (isScheduled) return;
+
     // IP Throttling: 1 view per IP per blog every 5 seconds
     if (ip && ip !== 'unknown') {
       const key = `blog_view_throttle:${ip}:${id}`;
@@ -199,10 +227,16 @@ export class BlogService implements IBlogService {
   /**
    * Find blog by slug
    */
-  async findBlogBySlug(slug: string): Promise<BlogResponseDTO> {
+  async findBlogBySlug(slug: string, showScheduled = false): Promise<BlogResponseDTO> {
     const blog = await this.blogRepository.findBySlug(slug);
 
     if (!blog) {
+      throw new NotFoundException(`Blog with slug "${slug}" not found`);
+    }
+
+    // Check if scheduled
+    const isScheduled = blog.status === BlogStatus.SCHEDULED;
+    if (isScheduled && !showScheduled) {
       throw new NotFoundException(`Blog with slug "${slug}" not found`);
     }
 
@@ -250,6 +284,8 @@ export class BlogService implements IBlogService {
       updateData.publishedAt = dto.publishedAt;
       if (dto.status === BlogStatus.PUBLISHED && !dto.publishedAt) {
         updateData.publishedAt = new Date();
+      } else if (dto.publishedAt && new Date(dto.publishedAt) > new Date()) {
+        updateData.status = BlogStatus.SCHEDULED;
       }
     }
 

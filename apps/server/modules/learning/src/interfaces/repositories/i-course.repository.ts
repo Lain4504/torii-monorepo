@@ -78,9 +78,9 @@ export interface ICourseRepository {
     }): Promise<Course>;
 
     /**
-     * Get instructors for a course
+     * Get lecturer for a course
      */
-    getInstructors(courseId: string): Promise<any[]>;
+    getLecturer(courseId: string): Promise<any | null>;
 
     /**
      * Create a new course version snapshot
@@ -106,4 +106,9 @@ export interface ICourseRepository {
      * Count published lessons for a course
      */
     countLessons(courseId: string): Promise<number>;
+
+    /**
+     * Increment total students for a course
+     */
+    incrementTotalStudents(courseId: string): Promise<void>;
 }

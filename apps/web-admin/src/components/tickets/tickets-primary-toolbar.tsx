@@ -69,8 +69,8 @@ export function TicketsPrimaryToolbar({
                         <SelectItem value="all">Tất cả trạng thái</SelectItem>
                         <SelectItem value={TicketStatus.PENDING}>Đang chờ</SelectItem>
                         <SelectItem value={TicketStatus.PROCESSING}>Đang xử lý</SelectItem>
-                        <SelectItem value={TicketStatus.APPROVED}>Thành công</SelectItem>
-                        <SelectItem value={TicketStatus.REJECTED}>Đã từ chối</SelectItem>
+                        <SelectItem value={TicketStatus.RESOLVED}>Đã giải quyết</SelectItem>
+                        <SelectItem value={TicketStatus.CANCELLED}>Đã hủy</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

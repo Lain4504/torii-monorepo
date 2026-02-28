@@ -4,6 +4,7 @@ import { DiscussionService } from '@server/learning/modules/discussion/discussio
 import {
     DiscussionTopicCreateDTO,
     DiscussionTopicQueryDTO,
+    DiscussionTopicUpdateDTO,
 } from '@workspace/schemas';
 
 @Controller()
@@ -28,5 +29,10 @@ export class DiscussionHandler {
     @MessagePattern('discussion.delete')
     async delete(@Payload() data: { id: string; userId: string }) {
         return this.discussionService.deleteDiscussion(data.id, data.userId);
+    }
+
+    @MessagePattern('discussion.update')
+    async update(@Payload() data: { id: string; userId: string; dto: DiscussionTopicUpdateDTO }) {
+        return this.discussionService.updateDiscussion(data.id, data.dto);
     }
 }

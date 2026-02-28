@@ -158,7 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {...props}
             className="border-r border-border/10 bg-card/60 backdrop-blur-xl"
         >
-            <SidebarHeader className="h-auto py-2 px-2 flex flex-col gap-2 group-data-[collapsible=icon]:px-0">
+            <SidebarHeader className="h-auto py-4 px-4 flex flex-col gap-4 group-data-[collapsible=icon]:px-0">
                 <TeamSwitcher
                     teams={availableWorkspaces}
                     activeTeam={activeWorkspace}

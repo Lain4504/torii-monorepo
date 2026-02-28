@@ -15,9 +15,15 @@ import type {
 
 export const lessonsApi = {
     // POST /api/lessons/search
-    async findAll(params: LessonQueryDTO): Promise<PaginatedApiResponse<LessonResponseDTO>> {
+    async search(params: LessonQueryDTO): Promise<PaginatedApiResponse<LessonResponseDTO>> {
         const response = await apiClient.post<PaginatedApiResponse<LessonResponseDTO>>('/api/lessons/search', params);
         return response.data;
+    },
+
+    // GET /api/lessons/by-module/:moduleId
+    async findByModuleId(moduleId: string): Promise<LessonResponseDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<{ lessons: LessonResponseDTO[] }>>(`/api/lessons/by-module/${moduleId}`);
+        return response.data.data!.lessons;
     },
 
     // GET /api/admin/lessons/:id
@@ -49,6 +55,12 @@ export const lessonsApi = {
         const response = await apiClient.patch<StandardApiResponse<{ lesson: LessonResponseDTO }>>(`/api/lessons/${id}/restore`);
         return response.data.data!.lesson;
     },
+
+    // POST /api/lessons/reorder/:moduleId
+    async reorder(moduleId: string, lessonOrders: { id: string; orderIndex: number }[]): Promise<boolean> {
+        const response = await apiClient.post<StandardApiResponse<{ lessons: LessonResponseDTO[] }>>(`/api/lessons/reorder/${moduleId}`, lessonOrders);
+        return response.data.success;
+    },
 };
 
 // ============================================================================
@@ -56,12 +68,27 @@ export const lessonsApi = {
 // ============================================================================
 
 /**
+ * Hook: Reorder lessons
+ */
+export function useReorderLessons() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ moduleId, lessonOrders }: { moduleId: string; lessonOrders: { id: string; orderIndex: number }[] }) =>
+            lessonsApi.reorder(moduleId, lessonOrders),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['lessons', 'module', variables.moduleId] });
+        },
+    });
+}
+
+/**
  * Hook: Get lessons list with pagination and filters
  */
 export function useLessons(params: LessonQueryDTO) {
     return useQuery({
         queryKey: ['lessons', params.moduleId || 'all', params],
-        queryFn: () => lessonsApi.findAll(params),
+        queryFn: () => lessonsApi.search(params),
         staleTime: 30000,
     });
 }
@@ -142,7 +169,11 @@ export function useModulesLessons(modules: { id: string }[]) {
     return useQueries({
         queries: modules.map((module) => ({
             queryKey: ['lessons', 'module', module.id],
-            queryFn: () => lessonsApi.findAll({ page: 1, limit: 100, moduleId: module.id }),
+            queryFn: async () => {
+                const lessons = await lessonsApi.findByModuleId(module.id);
+                // Wrap in standard response format for compatibility with existing UI
+                return { success: true, data: lessons, message: '' };
+            },
             staleTime: 1000 * 60 * 5, // 5 minutes
             enabled: !!module.id,
         })),

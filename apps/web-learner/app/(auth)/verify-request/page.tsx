@@ -8,7 +8,6 @@ export default function VerifyRequestPage() {
         <AuthLayout
             title="Kiểm tra hộp thư"
             description="Email xác thực đã được gửi tới hòm thư của bạn"
-            showHomeLink={false}
             leftPanel={
                 <div className="space-y-8">
                     <div className="space-y-3">

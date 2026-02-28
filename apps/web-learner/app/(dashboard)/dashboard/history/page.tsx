@@ -1,9 +1,16 @@
 'use client'
 
 import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@workspace/ui/components/empty'
-import { Card, CardContent } from '@workspace/ui/components/card'
+import {
+    Item,
+    ItemMedia,
+    ItemContent,
+    ItemTitle,
+    ItemDescription,
+    ItemActions,
+    ItemGroup
+} from '@workspace/ui/components/item'
 import Link from 'next/link'
-import { cn } from '@workspace/ui/lib/utils'
 import { Calendar, BookOpen, Clock, ArrowRight, ChevronRight } from 'lucide-react'
 
 import { useLearningHistory } from '@/lib/api/services/learning-progress-api'
@@ -36,9 +43,9 @@ export default function HistoryPage() {
                     <div className="h-8 w-48 bg-muted/20 animate-pulse rounded-md" />
                     <div className="h-4 w-64 bg-muted/20 animate-pulse rounded-md" />
                 </div>
-                <div className="space-y-6">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="h-32 bg-muted/10 animate-pulse rounded-xl" />
+                <div className="space-y-4">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="h-16 bg-muted/10 animate-pulse rounded-lg" />
                     ))}
                 </div>
             </div>
@@ -48,72 +55,65 @@ export default function HistoryPage() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-4xl animate-in fade-in duration-500">
             {/* Header */}
-            <div className="space-y-4 pb-2 border-b border-border">
-                <h1 className="text-3xl font-bold text-foreground">
+            <div className="space-y-2 pb-6 border-b border-border">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">
                     Lịch sử học tập
                 </h1>
-                <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                <p className="text-muted-foreground">
                     Nhìn lại chặng đường phát triển và các bài học bạn đã hoàn thành.
                 </p>
             </div>
 
-            {/* Timeline List */}
-            <div className="space-y-6 relative before:absolute before:inset-y-0 before:left-5 before:w-px before:bg-border">
+            {/* List */}
+            <ItemGroup>
                 {historyItems.map((item) => (
-                    <div key={item.id} className="relative pl-12 group">
-                        <div className="absolute left-3 top-2 w-4 h-4 rounded-full bg-background border-2 border-primary group-hover:scale-125 transition-transform z-10" />
-
-                        <Card className="hover:shadow-md transition-all cursor-pointer overflow-hidden border-l-4 border-l-primary/40">
-                            <CardContent className="p-5">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                    <div className="space-y-1.5 flex-1">
-                                        <div className="flex items-center gap-2 text-xs font-bold text-primary">
-                                            <Calendar className="w-3.5 h-3.5" />
-                                            <span>{item.timestamp}</span>
-                                        </div>
-                                        <h3 className="text-base font-bold text-foreground">{item.lessonTitle}</h3>
-                                        <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                                            <BookOpen className="w-3.5 h-3.5" />
-                                            {item.courseTitle}
-                                        </p>
-                                    </div>
-
-                                    <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-border/20 pt-3 md:pt-0">
-                                        <div className="text-right">
-                                            <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                                                <Clock className="w-3.5 h-3.5" />
-                                                {item.duration}
-                                            </span>
-                                        </div>
-                                        <Link
-                                            href={item.isExpired ? `/courses/${item.slug}` : `/courses/${item.slug}/learn`}
-                                            onClick={() => {
-                                                if (item.isExpired) {
-                                                    // Redirection handled by href, just let it through to the course info page
-                                                }
-                                            }}
-                                        >
-                                            <Button variant="ghost" size="icon" className={item.isExpired ? "text-destructive" : ""}>
-                                                {item.isExpired ? <ArrowRight className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                    <Item key={item.id} variant="outline" className="group">
+                        <ItemMedia variant="icon" className="bg-primary/5 text-primary">
+                            <Clock className="size-4" />
+                        </ItemMedia>
+                        <ItemContent>
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <ItemTitle className="text-base font-semibold">{item.lessonTitle}</ItemTitle>
+                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider bg-muted px-1.5 py-0.5 rounded">
+                                    {item.duration}
+                                </span>
+                            </div>
+                            <ItemDescription className="flex items-center gap-4">
+                                <span className="flex items-center gap-1.5 font-medium">
+                                    <BookOpen className="size-3.5 opacity-60" />
+                                    {item.courseTitle}
+                                </span>
+                                <span className="flex items-center gap-1.5 font-medium tabular-nums opacity-60">
+                                    <Calendar className="size-3.5" />
+                                    {item.timestamp}
+                                </span>
+                            </ItemDescription>
+                        </ItemContent>
+                        <ItemActions>
+                            <Button asChild variant="ghost" size="icon" className="rounded-full">
+                                <Link
+                                    href={item.isExpired ? `/courses/${item.slug}` : `/courses/${item.slug}/learn`}
+                                >
+                                    {item.isExpired ? <ArrowRight className="size-4" /> : <ChevronRight className="size-4" />}
+                                </Link>
+                            </Button>
+                        </ItemActions>
+                    </Item>
                 ))}
-            </div>
+            </ItemGroup>
 
             {historyItems.length === 0 && (
-                <Empty>
-                    <EmptyMedia variant="icon" className="bg-muted/20">
-                        <Clock className="size-8 text-muted-foreground/30" />
+                <Empty className="py-20 border-2 border-dashed rounded-2xl">
+                    <EmptyMedia variant="icon" className="bg-muted/30">
+                        <Clock className="size-8 text-muted-foreground/40" />
                     </EmptyMedia>
                     <EmptyContent>
                         <EmptyTitle>Chưa có lịch sử học tập</EmptyTitle>
-                        <EmptyDescription>Bắt đầu học để ghi lại tiến trình của bạn.</EmptyDescription>
+                        <EmptyDescription>Bắt đầu học một bài hổi ngay để ghi lại tiến trình của bạn.</EmptyDescription>
                     </EmptyContent>
+                    <Button asChild variant="secondary" className="mt-4">
+                        <Link href="/courses">Khám phá khóa học</Link>
+                    </Button>
                 </Empty>
             )}
         </div>

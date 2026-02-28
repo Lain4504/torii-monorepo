@@ -7,17 +7,34 @@ import {
     XCircle,
     Clock,
     AlertCircle,
+    Eye,
+    Edit,
 } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from '@workspace/ui/components/dropdown-menu';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
+import { cn } from "@workspace/ui/lib/utils";
 
 interface TicketsColumnsProps {
     onView: (ticket: TicketResponseDTO) => void;
+    onChangeStatus: (ticket: TicketResponseDTO) => void;
     page?: number;
     limit?: number;
 }
 
-export const getTicketsColumns = ({ onView, page = 1, limit = 10 }: TicketsColumnsProps): ColumnDef<TicketResponseDTO>[] => [
+const statusConfig: Record<TicketStatus, { label: string; icon: React.ElementType; className: string }> = {
+    [TicketStatus.PENDING]: { label: 'Đang chờ', icon: AlertCircle, className: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+    [TicketStatus.PROCESSING]: { label: 'Đang xử lý', icon: Clock, className: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
+    [TicketStatus.RESOLVED]: { label: 'Đã giải quyết', icon: CheckCircle2, className: 'bg-green-500/10 text-green-700 border-green-500/20' },
+    [TicketStatus.CANCELLED]: { label: 'Đã hủy', icon: XCircle, className: 'bg-zinc-500/10 text-zinc-600 border-zinc-500/20' },
+};
+
+export const getTicketsColumns = ({ onView, onChangeStatus, page = 1, limit = 10 }: TicketsColumnsProps): ColumnDef<TicketResponseDTO>[] => [
     {
         id: 'stt',
         header: () => <div className="text-center">#</div>,
@@ -69,36 +86,13 @@ export const getTicketsColumns = ({ onView, page = 1, limit = 10 }: TicketsColum
         header: 'Trạng thái',
         cell: ({ row }) => {
             const status = row.original.status as TicketStatus;
-            const getStatusBadge = (status: TicketStatus) => {
-                switch (status) {
-                    case TicketStatus.APPROVED:
-                        return (
-                            <Badge variant="default" className="gap-1.5 px-2 py-0.5">
-                                <CheckCircle2 className="w-3 h-3" /> Thành công
-                            </Badge>
-                        );
-                    case TicketStatus.REJECTED:
-                        return (
-                            <Badge variant="destructive" className="gap-1.5 px-2 py-0.5">
-                                <XCircle className="w-3 h-3" /> Từ chối
-                            </Badge>
-                        );
-                    case TicketStatus.PROCESSING:
-                        return (
-                            <Badge variant="secondary" className="gap-1.5 px-2 py-0.5">
-                                <Clock className="w-3 h-3" /> Đang xử lý
-                            </Badge>
-                        );
-                    case TicketStatus.PENDING:
-                    default:
-                        return (
-                            <Badge variant="outline" className="gap-1.5 px-2 py-0.5">
-                                <AlertCircle className="w-3 h-3" /> Chờ xử lý
-                            </Badge>
-                        );
-                }
-            };
-            return getStatusBadge(status);
+            const config = statusConfig[status] || statusConfig[TicketStatus.PENDING];
+            const Icon = config.icon;
+            return (
+                <Badge variant="outline" className={cn("gap-1.5 px-2 py-0.5 font-semibold", config.className)}>
+                    <Icon className="w-3 h-3" /> {config.label}
+                </Badge>
+            );
         },
     },
     {
@@ -109,17 +103,31 @@ export const getTicketsColumns = ({ onView, page = 1, limit = 10 }: TicketsColum
     {
         id: 'actions',
         header: () => <div className="text-right">Thao tác</div>,
-        cell: ({ row }) => (
-            <div className="flex justify-end">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-                    onClick={() => onView(row.original)}
-                >
-                    <MoreVertical className="size-4" />
-                </Button>
-            </div>
-        ),
+        cell: ({ row }) => {
+            const ticket = row.original;
+            return (
+                <div className="text-right">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">Mở menu</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onView(ticket)}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                Xem chi tiết
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onChangeStatus(ticket)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Thay đổi trạng thái
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            )
+        },
+        size: 50,
     },
 ];

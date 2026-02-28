@@ -8,6 +8,8 @@ export const discussionTopicCreateDTOSchema = z.object({
   courseId: z.string().uuid('Invalid Course ID'),
   moduleId: z.string().uuid('Invalid Module ID').nullable().optional(),
   lessonId: z.string().uuid('Invalid Lesson ID').nullable().optional(),
+  category: z.string().optional(),
+  status: z.string().optional(),
   isPinned: z.boolean().optional(),
   isLocked: z.boolean().optional(),
 });
@@ -19,6 +21,8 @@ export const discussionTopicUpdateDTOSchema = z.object({
   content: z.string().min(1, 'Content is required').optional(),
   isPinned: z.boolean().optional(),
   isLocked: z.boolean().optional(),
+  category: z.string().optional(),
+  status: z.string().optional(),
 });
 
 export type DiscussionTopicUpdateDTO = z.infer<typeof discussionTopicUpdateDTOSchema>;
@@ -28,6 +32,8 @@ export const discussionTopicQueryDTOSchema = paginationQuerySchema.extend({
   moduleId: z.string().uuid('Invalid Module ID').nullable().optional(),
   lessonId: z.string().uuid('Invalid Lesson ID').nullable().optional(),
   authorId: z.string().uuid('Invalid Author ID').optional(),
+  category: z.string().optional(),
+  status: z.string().optional(),
   sortBy: z.enum(['createdAt', 'viewCount', 'commentCount']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });
@@ -35,13 +41,13 @@ export const discussionTopicQueryDTOSchema = paginationQuerySchema.extend({
 export type DiscussionTopicQueryDTO = z.infer<typeof discussionTopicQueryDTOSchema>;
 
 export type DiscussionTopicResponseDTO = z.infer<typeof discussionTopicModelSchema> & {
-    author?: {
-        id: string;
-        displayName: string;
-        avatarUrl?: string | null;
-    };
-    isLiked?: boolean;
-    replies?: DiscussionTopicResponseDTO[];
+  author?: {
+    id: string;
+    displayName: string;
+    avatarUrl?: string | null;
+  };
+  isLiked?: boolean;
+  replies?: DiscussionTopicResponseDTO[];
 };
 
 export const discussionTopicResponseDTOSchema: z.ZodType<DiscussionTopicResponseDTO, z.ZodTypeDef, any> = discussionTopicModelSchema.extend({

@@ -40,7 +40,7 @@ export interface ITeachingScheduleService {
     /**
      * Get pending requests (for staff)
      */
-    getPendingRequests(): Promise<ScheduleRequestResponseDTO[]>;
+    getPendingRequests(requester: Requester): Promise<ScheduleRequestResponseDTO[]>;
 
     /**
      * Handle a schedule request (approve/reject)

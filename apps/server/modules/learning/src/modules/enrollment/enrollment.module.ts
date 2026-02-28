@@ -10,6 +10,8 @@ import { CourseModule } from '@server/learning/modules/course/course.module';
 import { LessonModule } from '@server/learning/modules/lesson/lesson.module';
 import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';
 
+import { EnrollmentController } from './enrollment.controller';
+
 /**
  * Enrollment Module
  */
@@ -21,7 +23,7 @@ import { CertificateModule } from '@server/learning/modules/certificate/certific
         forwardRef(() => CertificateModule),
         forwardRef(() => LessonModule)
     ],
-    controllers: [],
+    controllers: [EnrollmentController],
     providers: [
         EnrollmentService,
         {

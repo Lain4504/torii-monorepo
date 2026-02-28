@@ -2,9 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { ChevronDown, PlayCircle, FileText, Lock, Sparkles, Clock, Layers } from 'lucide-react'
+import { ChevronDown, PlayCircle, FileText, Lock, CheckCircle } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@workspace/ui/components/item'
 import { cn } from '@workspace/ui/lib/utils'
 import type { CurriculumResponse } from '@/lib/api/services/course-api'
 
@@ -16,7 +15,6 @@ interface CourseCurriculumProps {
 export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumProps) {
     const router = useRouter()
     const [openChapters, setOpenChapters] = useState<number[]>([0])
-    const [allExpanded, setAllExpanded] = useState(false)
 
     const toggleChapter = (index: number) => {
         setOpenChapters(prev =>
@@ -26,46 +24,12 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
         )
     }
 
-    const toggleAllSections = () => {
-        if (allExpanded) {
-            setOpenChapters([])
-        } else {
-            setOpenChapters(curriculum.modules.map((_, index) => index))
-        }
-        setAllExpanded(!allExpanded)
-    }
-
     const formatDuration = (seconds?: number) => {
         if (!seconds) return ''
         const minutes = Math.floor(seconds / 60)
         const secs = seconds % 60
         return `${minutes}:${String(secs).padStart(2, '0')}`
     }
-
-    const formatDurationMinutes = (minutes?: number) => {
-        if (!minutes) return ''
-        if (minutes < 60) {
-            return `${minutes} phút`
-        }
-        const hours = Math.floor(minutes / 60)
-        const mins = minutes % 60
-        return mins > 0 ? `${hours} giờ ${mins} phút` : `${hours} giờ`
-    }
-
-    const getTotalDuration = () => {
-        let totalSeconds = 0
-        curriculum.modules.forEach(module => {
-            module.lessons.forEach(lesson => {
-                if (lesson.videoDuration) {
-                    totalSeconds += lesson.videoDuration
-                }
-            })
-        })
-        const totalMinutes = Math.round(totalSeconds / 60)
-        return formatDurationMinutes(totalMinutes)
-    }
-
-    const totalLessons = curriculum.modules.reduce((acc, module) => acc + module.lessons.length, 0)
 
     const handleLessonClick = (lessonId: string, isUnlocked: boolean) => {
         if (isUnlocked) {
@@ -74,140 +38,72 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border">
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                            <Clock className="w-5 h-5" />
-                        </div>
-                        <h2 className="text-2xl font-bold text-foreground">
-                            Nội dung khóa học
-                        </h2>
-                    </div>
+        <div className="space-y-4">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <CheckCircle className="text-primary size-6" />
+                Nội dung khóa học
+            </h3>
 
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground font-medium">
-                        <div className="flex items-center gap-2">
-                            <Layers className="size-4" />
-                            <span>{curriculum.modules.length} chương</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <PlayCircle className="size-4" />
-                            <span>{totalLessons} bài học</span>
-                        </div>
-                        {getTotalDuration() && (
-                            <div className="flex items-center gap-2">
-                                <Clock className="size-4" />
-                                <span>{getTotalDuration()}</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <Button
-                    variant="link"
-                    size="sm"
-                    onClick={toggleAllSections}
-                    className="h-auto p-0 font-bold"
-                >
-                    {allExpanded ? 'Thu gọn tất cả' : 'Mở rộng tất cả'}
-                </Button>
-            </div>
-
-            {/* Modules List */}
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {curriculum.modules.map((module, index) => (
                     <div
                         key={module.id}
-                        className={cn(
-                            "rounded-lg overflow-hidden border transition-all",
-                            openChapters.includes(index)
-                                ? "bg-card shadow-sm"
-                                : "bg-muted/30 hover:bg-muted/50"
-                        )}
+                        className="border border-border rounded-xl overflow-hidden bg-card"
                     >
-                        <Button
-                            variant="ghost"
+                        <button
+                            className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
                             onClick={() => toggleChapter(index)}
-                            className="w-full justify-between h-auto p-6"
                         >
-                            <div className="flex items-center gap-4">
-                                <div className={cn(
-                                    "size-10 rounded flex items-center justify-center shrink-0",
-                                    openChapters.includes(index)
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-muted text-muted-foreground"
-                                )}>
-                                    <Sparkles className="size-5" />
-                                </div>
-                                <div className="text-left">
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Chương {index + 1}</p>
-                                    <h3 className="text-lg font-bold">{module.title}</h3>
-                                </div>
-                            </div>
+                            <span className="font-bold">{module.title}</span>
+                            <ChevronDown
+                                className={cn(
+                                    "size-5 transition-transform",
+                                    openChapters.includes(index) && "rotate-180"
+                                )}
+                            />
+                        </button>
 
-                            <div className="flex items-center gap-6">
-                                <div className="hidden sm:flex items-center gap-3 text-xs font-medium text-muted-foreground">
-                                    <span>{module.lessons.length} bài giảng</span>
-                                    {module.durationMinutes && (
-                                        <span>{formatDurationMinutes(module.durationMinutes)}</span>
-                                    )}
-                                </div>
-                                <ChevronDown
-                                    className={cn(
-                                        "size-5 text-muted-foreground transition-transform",
-                                        openChapters.includes(index) && "rotate-180"
-                                    )}
-                                />
-                            </div>
-                        </Button>
-
-                        <div className={cn(
-                            "grid transition-all duration-300 ease-in-out",
-                            openChapters.includes(index) ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                        )}>
-                            <div className="overflow-hidden border-t border-border/50">
-                                <div className="divide-y p-2">
+                        <div
+                            className={cn(
+                                "grid transition-all duration-300",
+                                openChapters.includes(index)
+                                    ? "grid-rows-[1fr]"
+                                    : "grid-rows-[0fr]"
+                            )}
+                        >
+                            <div className="overflow-hidden">
+                                <div className="px-4 pb-4 space-y-3">
                                     {module.lessons.map((lesson) => (
-                                        <Item
+                                        <div
                                             key={lesson.id}
-                                            variant="default"
                                             className={cn(
-                                                "px-4 py-3",
-                                                !lesson.isUnlocked && "opacity-50 pointer-events-none"
+                                                "flex items-center justify-between p-3 rounded-lg text-sm",
+                                                lesson.isUnlocked
+                                                    ? "bg-muted/50 hover:bg-muted cursor-pointer"
+                                                    : "bg-muted/30 opacity-60"
                                             )}
                                             onClick={() => handleLessonClick(lesson.id, lesson.isUnlocked)}
                                         >
-                                            <ItemMedia>
-                                                <div className={cn(
-                                                    "size-8 rounded flex items-center justify-center shrink-0",
-                                                    lesson.isUnlocked ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                                                )}>
-                                                    {lesson.contentType === 'video' ? <PlayCircle className="size-4" /> : <FileText className="size-4" />}
-                                                </div>
-                                            </ItemMedia>
-                                            <ItemContent>
-                                                <ItemTitle className="text-sm">
-                                                    {lesson.title}
-                                                </ItemTitle>
-                                                <ItemDescription className="text-xs">
-                                                    {lesson.contentType === 'video' ? 'Video' : 'Tài liệu'}
-                                                </ItemDescription>
-                                            </ItemContent>
-                                            <ItemActions>
-                                                {lesson.isPreview && (
-                                                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">Xem thử</span>
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                {lesson.contentType === 'video' ? (
+                                                    <PlayCircle className="size-5 text-blue-500 shrink-0" />
+                                                ) : (
+                                                    <FileText className="size-5 text-green-500 shrink-0" />
                                                 )}
-                                                <div className="flex items-center gap-3">
-                                                    {lesson.isUnlocked && lesson.videoDuration ? (
-                                                        <span className="text-xs font-medium text-muted-foreground">{formatDuration(lesson.videoDuration)}</span>
-                                                    ) : !lesson.isUnlocked ? (
-                                                        <Lock className="size-4 text-muted-foreground" />
-                                                    ) : null}
-                                                </div>
-                                            </ItemActions>
-                                        </Item>
+                                                <span className="truncate">{lesson.title}</span>
+                                                {lesson.isPreview && (
+                                                    <span className="bg-primary text-primary-foreground text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0">
+                                                        Xem thử
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                {!lesson.isUnlocked && <Lock className="size-4 text-muted-foreground" />}
+                                                {lesson.videoDuration && (
+                                                    <span className="text-muted-foreground">{formatDuration(lesson.videoDuration)}</span>
+                                                )}
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             </div>

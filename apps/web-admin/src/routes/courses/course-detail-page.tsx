@@ -15,7 +15,9 @@ import {
     StopCircle,
     Settings,
     FileText,
-    PenTool
+    PenTool,
+    ArrowUp,
+    ArrowDown
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { Card, CardContent } from '@workspace/ui/components/card';
@@ -35,8 +37,8 @@ import {
 } from '@workspace/ui/components/dropdown-menu';
 import { Badge } from '@workspace/ui/components/badge';
 import { useCourse } from '@/lib/api/services/courses';
-import { useCourseModules } from '@/lib/api/services/modules';
-import { useModulesLessons } from '@/lib/api/services/lesson';
+import { useCourseModules, useReorderModules } from '@/lib/api/services/modules';
+import { useModulesLessons, useReorderLessons } from '@/lib/api/services/lesson';
 import {
     useLiveSessions,
     useDeleteLiveSession,
@@ -62,7 +64,7 @@ import { TeachingScheduleSheet } from '@/components/courses/teaching-schedule-sh
 import { AssignmentsTable } from '@/components/assignments/assignments-table';
 import { CreateAssignmentSheet } from '@/components/assignments/create-assignment-sheet';
 import { EditAssignmentSheet } from '@/components/assignments/edit-assignment-sheet';
-import { SubmissionsSheet } from '@/components/submissions/submissions-sheet';
+
 import { cn } from '@workspace/ui/lib/utils';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { PageHeader } from '@/components/common/page-header';
@@ -94,7 +96,7 @@ export default function CourseDetailPage() {
     const [selectedLessonIdForAssignment, setSelectedLessonIdForAssignment] = useState<string | null>(null);
     const [editAssignmentOpen, setEditAssignmentOpen] = useState(false);
     const [selectedAssignment, setSelectedAssignment] = useState<AssignmentResponseDTO | null>(null);
-    const [viewSubmissionsOpen, setViewSubmissionsOpen] = useState(false);
+
     const [assignmentPage, setAssignmentPage] = useState(1);
 
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
@@ -105,6 +107,47 @@ export default function CourseDetailPage() {
     const deleteLiveSessionMutation = useDeleteLiveSession();
     const startMutation = useStartLiveSession();
     const endMutation = useEndLiveSession();
+
+    const reorderModulesMutation = useReorderModules();
+    const reorderLessonsMutation = useReorderLessons();
+
+    const handleMoveModule = async (index: number, direction: 'up' | 'down') => {
+        const newModules = [...modules];
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= newModules.length) return;
+
+        // Swap
+        const temp = newModules[index];
+        newModules[index] = newModules[targetIndex];
+        newModules[targetIndex] = temp;
+
+        const moduleOrders = newModules.map((m, i) => ({ id: m.id, orderIndex: i + 1 }));
+        try {
+            await reorderModulesMutation.mutateAsync({ courseId: id!, moduleOrders });
+            toast.success('Đã cập nhật thứ tự học phần');
+        } catch (error) {
+            toast.error('Không thể cập nhật thứ tự');
+        }
+    };
+
+    const handleMoveLesson = async (moduleIdx: number, lessonIdx: number, direction: 'up' | 'down') => {
+        const lessons = [...(lessonQueries[moduleIdx]?.data?.data || [])];
+        const targetIndex = direction === 'up' ? lessonIdx - 1 : lessonIdx + 1;
+        if (targetIndex < 0 || targetIndex >= lessons.length) return;
+
+        // Swap
+        const temp = lessons[lessonIdx];
+        lessons[lessonIdx] = lessons[targetIndex];
+        lessons[targetIndex] = temp;
+
+        const lessonOrders = lessons.map((l, i) => ({ id: l.id, orderIndex: i + 1 }));
+        try {
+            await reorderLessonsMutation.mutateAsync({ moduleId: modules[moduleIdx].id, lessonOrders });
+            toast.success('Đã cập nhật thứ tự bài học');
+        } catch (error) {
+            toast.error('Không thể cập nhật thứ tự');
+        }
+    };
 
     // Assignment Hooks
     const { data: assignmentsData, isLoading: isLoadingAssignments } = useAssignments({
@@ -189,8 +232,7 @@ export default function CourseDetailPage() {
     };
 
     const handleViewSubmissions = (assignment: AssignmentResponseDTO) => {
-        setSelectedAssignment(assignment);
-        setViewSubmissionsOpen(true);
+        navigate(`/courses/${id}/assignments/${assignment.id}/submissions`);
     };
 
     if (isLoadingCourse) {
@@ -352,6 +394,12 @@ export default function CourseDetailPage() {
                                                                     <DropdownMenuItem onClick={() => { setSelectedModule(module); setEditModuleOpen(true); }} className="rounded-lg gap-2 py-2">
                                                                         <Edit className="size-3.5" /> <span className="font-bold text-xs uppercase">Sửa</span>
                                                                     </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => handleMoveModule(moduleIdx, 'up')} disabled={moduleIdx === 0} className="rounded-lg gap-2 py-2">
+                                                                        <ArrowUp className="size-3.5" /> <span className="font-bold text-xs uppercase">Di chuyển lên</span>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => handleMoveModule(moduleIdx, 'down')} disabled={moduleIdx === modules.length - 1} className="rounded-lg gap-2 py-2">
+                                                                        <ArrowDown className="size-3.5" /> <span className="font-bold text-xs uppercase">Di chuyển xuống</span>
+                                                                    </DropdownMenuItem>
                                                                     <DropdownMenuItem onClick={() => { setSelectedModule(module); setDeleteModuleOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
                                                                         <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
                                                                     </DropdownMenuItem>
@@ -393,6 +441,12 @@ export default function CourseDetailPage() {
                                                                             setCreateAssignmentOpen(true);
                                                                         }} className="rounded-lg gap-2 py-2">
                                                                             <PenTool className="size-3.5" /> <span className="font-bold text-xs uppercase">Thêm bài tập</span>
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem onClick={() => handleMoveLesson(moduleIdx, lessonIdx, 'up')} disabled={lessonIdx === 0} className="rounded-lg gap-2 py-2">
+                                                                            <ArrowUp className="size-3.5" /> <span className="font-bold text-xs uppercase">Di chuyển lên</span>
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem onClick={() => handleMoveLesson(moduleIdx, lessonIdx, 'down')} disabled={lessonIdx === lessons.length - 1} className="rounded-lg gap-2 py-2">
+                                                                            <ArrowDown className="size-3.5" /> <span className="font-bold text-xs uppercase">Di chuyển xuống</span>
                                                                         </DropdownMenuItem>
                                                                         <DropdownMenuItem onClick={() => { setSelectedLesson(lesson); setDeleteLessonOpen(true); }} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
                                                                             <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
@@ -610,11 +664,6 @@ export default function CourseDetailPage() {
             <EditAssignmentSheet
                 open={editAssignmentOpen}
                 onOpenChange={setEditAssignmentOpen}
-                assignment={selectedAssignment}
-            />
-            <SubmissionsSheet
-                open={viewSubmissionsOpen}
-                onOpenChange={setViewSubmissionsOpen}
                 assignment={selectedAssignment}
             />
         </div>

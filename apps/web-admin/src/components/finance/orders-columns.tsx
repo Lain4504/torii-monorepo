@@ -91,7 +91,6 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
     },
     {
         accessorKey: 'amount',
-        id: 'amount',
         header: () => <div className="text-center font-bold">Số tiền</div>,
         cell: ({ row }) => <div className="text-center font-medium">{formatCurrency(row.getValue('amount'))}</div>
     },
@@ -114,7 +113,6 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
     },
     {
         accessorKey: 'status',
-        id: 'statusCol',
         header: () => <div className="text-center">Trạng thái</div>,
         cell: ({ row }) => {
             const status = row.getValue('status') as OrderStatus;
@@ -129,7 +127,6 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
     },
     {
         accessorKey: 'createdAt',
-        id: 'createdAtCol',
         header: () => <div className="text-center">Ngày ghi nhận</div>,
         cell: ({ row }) => (
             <div className="text-center text-xs text-muted-foreground">

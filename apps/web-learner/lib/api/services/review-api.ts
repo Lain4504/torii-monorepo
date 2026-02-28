@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type { StandardApiResponse, PaginatedApiResponse } from '@workspace/schemas';
 
@@ -101,6 +102,38 @@ export const reviewApi = {
     return true;
   },
 };
+
+/**
+ * Hook: Get all reviews for homepage/marketing
+ */
+export function useAllReviews(params: { page?: number; limit?: number; rating?: number; search?: string } = {}) {
+  return useQuery({
+    queryKey: ['reviews', 'all', params],
+    queryFn: () => reviewApi.getAllReviews(params.page, params.limit, params.rating, params.search),
+  });
+}
+
+/**
+ * Hook: Get reviews by course
+ */
+export function useCourseReviews(courseId?: string, page: number = 1, limit: number = 10) {
+  return useQuery({
+    queryKey: ['reviews', 'course', courseId, page, limit],
+    queryFn: () => reviewApi.getReviewsByCourse(courseId!, page, limit),
+    enabled: !!courseId,
+  });
+}
+
+/**
+ * Hook: Get rating distribution
+ */
+export function useRatingDistribution(courseId?: string) {
+  return useQuery({
+    queryKey: ['reviews', 'distribution', courseId],
+    queryFn: () => reviewApi.getRatingDistribution(courseId!),
+    enabled: !!courseId,
+  });
+}
 
 
 

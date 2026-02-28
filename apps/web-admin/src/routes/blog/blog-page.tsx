@@ -40,6 +40,7 @@ export function BlogPage() {
         ...(statusFilter && { status: statusFilter as any }),
         sortBy,
         sortOrder,
+        showScheduled: true,
     };
 
     const { data, isLoading, error } = useBlogs(queryParams);

@@ -24,7 +24,7 @@ export interface IBlogService {
     /**
      * Find blog by ID
      */
-    findBlogById(id: string): Promise<BlogResponseDTO>;
+    findBlogById(id: string, showScheduled?: boolean): Promise<BlogResponseDTO>;
 
     /**
      * Update blog
@@ -44,7 +44,7 @@ export interface IBlogService {
     /**
      * Find blog by slug
      */
-    findBlogBySlug(slug: string): Promise<BlogResponseDTO>;
+    findBlogBySlug(slug: string, showScheduled?: boolean): Promise<BlogResponseDTO>;
 
     /**
      * Publish blog
