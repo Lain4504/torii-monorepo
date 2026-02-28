@@ -106,6 +106,7 @@ export default function PrivacyPolicyPage() {
                                     <Calendar className="size-4" />
                                     <p className="text-sm font-medium leading-normal">Cập nhật lần cuối: 15 tháng 3 năm 2024</p>
                                 </div>
+                            </h1>
                         </div>
 
                         {/* Policy Content */}
