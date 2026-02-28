@@ -21,12 +21,12 @@ import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 
 const categories = [
-    { icon: BookOpen, name: 'Ngữ pháp / 文法', href: '#', active: true },
-    { icon: Globe, name: 'Từ vựng / 単語', href: '#', active: false },
-    { icon: Building2, name: 'Văn hóa / 文化', href: '#', active: false },
-    { icon: GraduationCap, name: 'JLPT / 試験対策', href: '#', active: false },
-    { icon: Clock, name: 'Phương pháp học / 学習法', href: '#', active: false },
-    { icon: Brain, name: 'AI Sensei / AI先生', href: '#', active: false },
+    { icon: BookOpen, name: 'Ngữ pháp', href: '#', active: true },
+    { icon: Globe, name: 'Từ vựng', href: '#', active: false },
+    { icon: Building2, name: 'Văn hóa', href: '#', active: false },
+    { icon: GraduationCap, name: 'JLPT', href: '#', active: false },
+    { icon: Clock, name: 'Phương pháp học', href: '#', active: false },
+    { icon: Brain, name: 'AI Sensei', href: '#', active: false },
 ]
 
 const popularTags = ['#Kanji', '#Keigo', '#N2', '#Listening', '#Anime']

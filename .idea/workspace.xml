@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="stitch ui">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="stitch ui" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -405,14 +402,6 @@
       <workItem from="1772173061622" duration="2604000" />
       <workItem from="1772200330099" duration="390000" />
     </task>
-    <task id="LOCAL-00862" summary="feat: replace SVG logo with Image component for improved performance and consistency">
-      <option name="closed" value="true" />
-      <created>1771851088973</created>
-      <option name="number" value="00862" />
-      <option name="presentableId" value="LOCAL-00862" />
-      <option name="project" value="LOCAL" />
-      <updated>1771851088973</updated>
-    </task>
     <task id="LOCAL-00863" summary="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page">
       <option name="closed" value="true" />
       <created>1771852043726</created>
@@ -797,7 +786,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772215340699</updated>
     </task>
-    <option name="localTasksCounter" value="911" />
+    <task id="LOCAL-00911" summary="stitch ui">
+      <option name="closed" value="true" />
+      <created>1772215742601</created>
+      <option name="number" value="00911" />
+      <option name="presentableId" value="LOCAL-00911" />
+      <option name="project" value="LOCAL" />
+      <updated>1772215742602</updated>
+    </task>
+    <option name="localTasksCounter" value="912" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -45,7 +45,7 @@ const navigation = [
     { name: 'Khóa học', href: '/courses', icon: BookOpen },
     { name: 'Lớp trực tuyến', href: '/live-classes', icon: Users },
     { name: 'Cộng đồng', href: '/blog', icon: Newspaper },
-    { name: 'Kiểm tra', href: '/assessment', icon: Award },
+    { name: 'Kiểm tra', href: '/placement-test', icon: Award },
 ]
 
 export function Header() {
@@ -123,56 +123,56 @@ export function Header() {
                                     </Avatar>
                                 </button>
                             </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-64 p-2 shadow-md" align="end" forceMount>
-                                    <DropdownMenuLabel className="font-normal px-2 pb-3">
-                                        <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-bold leading-none">{user?.displayName || 'Người dùng'}</p>
-                                            <p className="text-xs leading-none text-muted-foreground font-medium">
-                                                {user?.email || 'Học viên'}
-                                            </p>
-                                        </div>
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="mx-2 mb-2" />
-                                    <DropdownMenuGroup className="space-y-1">
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard')}>
-                                            <LayoutDashboard className="mr-3 size-4 text-primary" />
-                                            <span>Dashboard</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/profile')}>
-                                            <BadgeCheck className="mr-3 size-4 text-primary" />
-                                            <span>Hồ sơ cá nhân</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/notifications')}>
-                                            <Bell className="mr-3 size-4 text-muted-foreground" />
-                                            <span>Thông báo</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/wishlist')}>
-                                            <Heart className="mr-3 size-4 text-muted-foreground" />
-                                            <span>Khóa học yêu thích</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/settings')}>
-                                            <Settings className="mr-3 size-4 text-muted-foreground" />
-                                            <span>Cài đặt tài khoản</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                    <DropdownMenuSeparator className="mx-2 my-2" />
-                                    <DropdownMenuGroup className="space-y-1">
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                                            {theme === 'dark' ? <Sun className="mr-3 size-4 text-muted-foreground" /> : <Moon className="mr-3 size-4 text-muted-foreground" />}
-                                            <span>Đổi giao diện ({theme === 'dark' ? 'Sáng' : 'Tối'})</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                    <DropdownMenuSeparator className="mx-2 my-2" />
-                                    <DropdownMenuItem
-                                        onClick={handleLogout}
-                                        disabled={isLoggingOut}
-                                        className="cursor-pointer text-destructive focus:text-destructive py-2 font-medium"
-                                    >
-                                        <LogOut className="mr-3 size-4" />
-                                        {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
+                            <DropdownMenuContent className="w-64 p-2 shadow-md" align="end" forceMount>
+                                <DropdownMenuLabel className="font-normal px-2 pb-3">
+                                    <div className="flex flex-col space-y-1">
+                                        <p className="text-sm font-bold leading-none">{user?.displayName || 'Người dùng'}</p>
+                                        <p className="text-xs leading-none text-muted-foreground font-medium">
+                                            {user?.email || 'Học viên'}
+                                        </p>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator className="mx-2 mb-2" />
+                                <DropdownMenuGroup className="space-y-1">
+                                    <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard')}>
+                                        <LayoutDashboard className="mr-3 size-4 text-primary" />
+                                        <span>Dashboard</span>
                                     </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/profile')}>
+                                        <BadgeCheck className="mr-3 size-4 text-primary" />
+                                        <span>Hồ sơ cá nhân</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/notifications')}>
+                                        <Bell className="mr-3 size-4 text-muted-foreground" />
+                                        <span>Thông báo</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/wishlist')}>
+                                        <Heart className="mr-3 size-4 text-muted-foreground" />
+                                        <span>Khóa học yêu thích</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/settings')}>
+                                        <Settings className="mr-3 size-4 text-muted-foreground" />
+                                        <span>Cài đặt tài khoản</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator className="mx-2 my-2" />
+                                <DropdownMenuGroup className="space-y-1">
+                                    <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                                        {theme === 'dark' ? <Sun className="mr-3 size-4 text-muted-foreground" /> : <Moon className="mr-3 size-4 text-muted-foreground" />}
+                                        <span>Đổi giao diện ({theme === 'dark' ? 'Sáng' : 'Tối'})</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator className="mx-2 my-2" />
+                                <DropdownMenuItem
+                                    onClick={handleLogout}
+                                    disabled={isLoggingOut}
+                                    className="cursor-pointer text-destructive focus:text-destructive py-2 font-medium"
+                                >
+                                    <LogOut className="mr-3 size-4" />
+                                    {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     ) : (
                         <div className="flex items-center gap-2">
                             <Link href="/login" className="text-sm font-medium px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">

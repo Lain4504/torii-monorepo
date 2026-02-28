@@ -140,7 +140,7 @@ export function CourseDetailClient({ slug }: CourseDetailClientProps) {
                         <section className="bg-white dark:bg-slate-900/50 p-8 rounded-xl border border-slate-200 dark:border-slate-800">
                             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                                 <CheckCircle className="text-primary" />
-                                学習内容 (What You'll Learn)
+                                Nội dung học tập (What You'll Learn)
                             </h3>
                             <div className="grid sm:grid-cols-2 gap-4">
                                 {learningOutcomes.map((outcome: any, index: number) => (
@@ -159,7 +159,7 @@ export function CourseDetailClient({ slug }: CourseDetailClientProps) {
 
                     {/* Curriculum */}
                     <section className="space-y-4">
-                        <h3 className="text-xl font-bold mb-6">カリキュラム (Curriculum)</h3>
+                        <h3 className="text-xl font-bold mb-6">Chương trình học (Curriculum)</h3>
                         {isLoadingCurriculum ? (
                             <div className="space-y-3">
                                 <Skeleton className="h-14 w-full rounded-xl" />
@@ -214,7 +214,7 @@ export function CourseDetailClient({ slug }: CourseDetailClientProps) {
                     {/* Requirements */}
                     {requirements.length > 0 && (
                         <section>
-                            <h3 className="text-xl font-bold mb-4">受講条件 (Requirements)</h3>
+                            <h3 className="text-xl font-bold mb-4">Điều kiện tham gia (Requirements)</h3>
                             <ul className="list-disc list-inside space-y-2 text-slate-600 dark:text-slate-400 text-sm">
                                 {requirements.map((req: any, index: number) => (
                                     <li key={index}>{typeof req === 'string' ? req : JSON.stringify(req)}</li>
@@ -245,7 +245,7 @@ export function CourseDetailClient({ slug }: CourseDetailClientProps) {
 
                     {/* Reviews */}
                     <section className="space-y-6">
-                        <h3 className="text-xl font-bold">受講生の声 (Student Reviews)</h3>
+                        <h3 className="text-xl font-bold">Đánh giá từ học viên (Student Reviews)</h3>
                         {isLoadingReviews ? (
                             <div className="space-y-4">
                                 <Skeleton className="h-32 w-full rounded-xl" />
@@ -298,14 +298,14 @@ export function CourseDetailClient({ slug }: CourseDetailClientProps) {
                             </div>
                             <div className="space-y-3">
                                 <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-primary/20">
-                                    受講開始 (Enroll Now)
+                                    Bắt đầu học (Enroll Now)
                                 </button>
                                 <button className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold py-4 rounded-xl transition-all">
-                                    お気に入りに追加
+                                    Thêm vào yêu thích
                                 </button>
                             </div>
                             <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                                <p className="font-bold text-sm">コース内容 (Includes):</p>
+                                <p className="font-bold text-sm">Nội dung khóa học (Includes):</p>
                                 <div className="grid gap-3">
                                     <div className="flex items-center gap-3 text-sm">
                                         <Signal className="text-primary size-5" />

@@ -244,7 +244,7 @@ export function CoursesClient() {
                                                 </span>
                                             )}
                                             <button className="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors">
-                                                詳細を見る
+                                                Xem chi tiết
                                             </button>
                                         </div>
                                     </div>

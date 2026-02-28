@@ -7,28 +7,28 @@ export default function SupportPage() {
         {
             id: "1",
             icon: Video,
-            title: "WebRTCレッスンの参加方法",
+            title: "Cách tham gia bài học WebRTC",
             titleEn: "Joining WebRTC Lessons",
             color: "blue"
         },
         {
             id: "2",
             icon: Bot,
-            title: "AI先生の使い方",
+            title: "Cách sử dụng AI Sensei",
             titleEn: "How to use AI Sensei",
             color: "purple"
         },
         {
             id: "3",
             icon: CreditCard,
-            title: "支払い・プラン",
+            title: "Thanh toán & Gói dịch vụ",
             titleEn: "Payments & Plans",
             color: "emerald"
         },
         {
             id: "4",
             icon: Settings,
-            title: "アカウント設定",
+            title: "Cài đặt tài khoản",
             titleEn: "Account Settings",
             color: "amber"
         }
@@ -46,15 +46,15 @@ export default function SupportPage() {
     const faqs = [
         {
             id: "1",
-            question: "パスワードを忘れました。どうすればいいですか？",
+            question: "Tôi quên mật khẩu. Phải làm gì?",
             questionEn: "I forgot my password. What should I do?",
-            answer: "ログイン画面の「パスワードをお忘れですか？」リンクをクリックしてください。登録されたメールアドレスにリセット用のリンクをお送りします。",
+            answer: "Nhấn vào liên kết 'Quên mật khẩu?' trên màn hình đăng nhập. Chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến địa chỉ email đã đăng ký của bạn.",
             answerEn: "Click the \"Forgot Password?\" link on the login screen. We will send a reset link to your registered email address.",
             expanded: true
         },
         {
             id: "2",
-            question: "メールアドレスの変更方法は？",
+            question: "Làm thế nào để thay đổi địa chỉ email?",
             questionEn: "How can I change my email address?",
             answer: "",
             answerEn: "",
@@ -62,7 +62,7 @@ export default function SupportPage() {
         },
         {
             id: "3",
-            question: "プロフィールの編集方法を教えてください。",
+            question: "Làm thế nào để chỉnh sửa hồ sơ cá nhân?",
             questionEn: "How do I edit my profile?",
             answer: "",
             answerEn: "",
@@ -70,7 +70,7 @@ export default function SupportPage() {
         },
         {
             id: "4",
-            question: "アカウントを削除したい場合は？",
+            question: "Tôi muốn xóa tài khoản thì làm thế nào?",
             questionEn: "What if I want to delete my account?",
             answer: "",
             answerEn: "",
@@ -94,14 +94,14 @@ export default function SupportPage() {
             {/* Hero Search Section */}
             <section className="text-center mb-16">
                 <h1 className="text-4xl md:text-5xl font-black mb-4 text-slate-900 dark:text-white">Help &amp; Support</h1>
-                <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 italic">なにかお困りですか？ How can we help you today?</p>
+                <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 italic">Bạn cần hỗ trợ gì? Chúng tôi có thể giúp gì cho bạn hôm nay?</p>
                 <div className="max-w-2xl mx-auto relative group">
                     <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                         <Search className="text-slate-400 group-focus-within:text-primary transition-colors" />
                     </div>
                     <input
                         className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none text-lg"
-                        placeholder="Search for help... (なにかお困りですか？)"
+                        placeholder="Tìm kiếm trợ giúp...(Bạn cần hỗ trợ gì?)"
                         type="text"
                     />
                 </div>
@@ -145,11 +145,10 @@ export default function SupportPage() {
                                 <a
                                     key={category.name}
                                     href="#"
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-colors ${
-                                        category.active
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-colors ${category.active
                                             ? 'bg-primary/10 text-primary'
                                             : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                    }`}
+                                        }`}
                                 >
                                     <Icon className="size-5" />
                                     {category.name}
