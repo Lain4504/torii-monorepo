@@ -1,4 +1,6 @@
-import Link from 'next/link'
+import re
+
+layout_content = """import Link from 'next/link'
 import Image from 'next/image'
 import { type ReactNode } from 'react'
 
@@ -32,19 +34,25 @@ export function AuthLayout({
                     border: 1px solid rgba(255, 255, 255, 0.2);
                 }
             `}</style>
-
+            
             {/* BEGIN: Left Panel (Marketing & Branding) */}
-            <section
-                className="hidden md:flex md:w-[60%] relative overflow-hidden flex-col justify-between p-12"
+            <section 
+                className="hidden md:flex md:w-[45%] lg:w-[40%] relative overflow-hidden flex-col justify-between p-12 bg-gradient-to-br from-primary via-[oklch(0.50_0.15_15/0.9)] to-primary/80" 
                 data-purpose="marketing-sidebar"
             >
                 {/* Background Image Layer from previous design */}
                 <div
-                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none mix-blend-overlay opacity-30"
                     style={{ backgroundImage: "url('/background.png')" }}
                 />
-
-
+                
+                {/* Subtle Torii Gate Watermark */}
+                <div className="absolute inset-0 z-0 opacity-10 pointer-events-none flex items-center justify-center translate-x-1/4">
+                    <svg fill="white" height="600" viewBox="0 0 24 24" width="600" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 5V3H22V5H20V19H22V21H2V19H4V5H2M6 5V19H10V14H14V19H18V5H6M10 5V12H14V5H10Z"></path>
+                    </svg>
+                </div>
+                
                 {/* Top Branding */}
                 <div className="relative z-10">
                     <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-90">
@@ -54,13 +62,13 @@ export function AuthLayout({
                         <span className="text-white font-bold text-xl tracking-tight">Torii Nihongo</span>
                     </Link>
                 </div>
-
+                
                 {/* Main Content */}
                 <div className="relative z-10 mt-20 flex-1">
-                    {false && leftPanel ? null : (
+                    {leftPanel || (
                         <>
                             <h1 className="text-white text-5xl font-extrabold leading-tight mb-8 animate-in fade-in slide-in-from-bottom duration-700">
-                                Học tiếng Nhật<br />Thông minh hơn.
+                                Học tiếng Nhật<br/>Thông minh hơn.
                             </h1>
                             {/* Feature Cards */}
                             <div className="space-y-4 max-w-md animate-in fade-in slide-in-from-bottom duration-700 delay-150 fill-mode-both">
@@ -92,15 +100,24 @@ export function AuthLayout({
                         </>
                     )}
                 </div>
-
+                
                 {/* Bottom Footer */}
                 <div className="relative z-10 pt-8">
                     <p className="text-white/60 text-sm">© {new Date().getFullYear()} Torii Nihongo. All rights reserved.</p>
                 </div>
             </section>
-
+            
             {/* BEGIN: Right Panel (Auth Form) */}
             <section className="flex-1 flex flex-col justify-center items-center p-6 md:p-12 bg-white" data-purpose="auth-container">
+                <style>{`
+                    .input-focus-ring:focus-within {
+                      border-color: oklch(0.55 0.15 15 / 0.5);
+                      box-shadow: 0 0 0 2px oklch(0.55 0.15 15 / 0.2);
+                    }
+                    .input-focus-ring:focus-within svg {
+                      color: oklch(0.55 0.15 15);
+                    }
+                `}</style>
                 <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-right duration-700">
                     {/* BEGIN: Header Branding */}
                     <div className="text-center space-y-2">
@@ -119,12 +136,12 @@ export function AuthLayout({
                         {description && <p className="text-muted-foreground text-sm">{description}</p>}
                     </div>
                     {/* END: Header Branding */}
-
+                    
                     {/* Content */}
                     <div className="font-sans">
                         {children}
                     </div>
-
+                    
                     {/* Footer Links */}
                     {footerText && (
                         <div className="text-center pt-4">
@@ -138,3 +155,7 @@ export function AuthLayout({
         </main>
     )
 }
+"""
+
+with open('e:/projectdev/demo/team-source/torii-monorepo/apps/web-learner/components/auth/auth-layout.tsx', 'w', encoding='utf-8') as f:
+    f.write(layout_content)
