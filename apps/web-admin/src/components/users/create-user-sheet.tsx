@@ -35,7 +35,7 @@ import {
 import { UserRole, adminCreateInternalUserDTOSchema } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useCreateInternalUser } from "@/lib/api/services/users.ts";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Spinner } from "@workspace/ui/components/spinner";
 
@@ -57,25 +57,25 @@ const internalRoles = [
 
 const staffVariants = [
     {
-        id: 'staff-lms' as const,
+        id: UserRole.STAFF_LMS,
         label: 'Quản trị viên LMS',
         icon: BookOpen,
         description: 'Giám sát hoạt động học tập và vận hành học thuật.',
     },
     {
-        id: 'staff-support' as const,
+        id: UserRole.STAFF_SUPPORT,
         label: 'Chuyên viên Hỗ trợ',
         icon: MessageCircle,
         description: 'Quản lý yêu cầu hỗ trợ và giải đáp thắc mắc người dùng.',
     },
     {
-        id: 'staff-sales' as const,
+        id: UserRole.STAFF_SALES,
         label: 'Chuyên viên Phát triển',
         icon: TrendingUp,
         description: 'Thúc đẩy kinh doanh và mở rộng thị trường.',
     },
     {
-        id: 'staff-finance' as const,
+        id: UserRole.STAFF_FINANCE,
         label: 'Chuyên viên Tài chính',
         icon: TrendingUp, // Or another icon like 'CreditCard' or 'Wallet' if available
         description: 'Quản lý mã giảm giá và các vấn đề tài chính.',
@@ -91,14 +91,20 @@ type FormValues = z.infer<typeof formSchema>;
 interface CreateUserSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    fixedRole?: UserRole.LECTURER | UserRole.STAFF;
 }
 
 export function CreateUserSheet({
     open,
     onOpenChange,
+    fixedRole,
 }: CreateUserSheetProps) {
-    const [showStaffVariants, setShowStaffVariants] = useState(false);
-    const [currentStep, { goToNextStep, goToPrevStep, reset }] = useStep(2);
+    const isLecturerOnly = fixedRole === UserRole.LECTURER;
+    const isStaffOnly = fixedRole === UserRole.STAFF;
+    const totalSteps = isLecturerOnly ? 1 : 2;
+
+    const [showStaffVariants, setShowStaffVariants] = useState(isStaffOnly);
+    const [currentStep, { goToNextStep, goToPrevStep, reset }] = useStep(totalSteps);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -106,11 +112,24 @@ export function CreateUserSheet({
         defaultValues: {
             displayName: '',
             email: '',
-            role: UserRole.LECTURER,
+            role: fixedRole || UserRole.LECTURER,
         },
     });
 
     const createInternalUser = useCreateInternalUser();
+
+    // Sync state when opening/changing roles
+    useEffect(() => {
+        if (open) {
+            setShowStaffVariants(isStaffOnly);
+            reset();
+            form.reset({
+                displayName: '',
+                email: '',
+                role: fixedRole || UserRole.LECTURER,
+            });
+        }
+    }, [open, fixedRole, isStaffOnly, form, reset]);
 
     const onSubmit = async (data: FormValues) => {
         try {
@@ -119,7 +138,7 @@ export function CreateUserSheet({
                 description: `Tài khoản ${data.displayName} đã được tạo thành công.`,
             });
             form.reset();
-            setShowStaffVariants(false);
+            setShowStaffVariants(isStaffOnly);
             reset();
             onOpenChange(false);
         } catch (error: unknown) {
@@ -133,7 +152,7 @@ export function CreateUserSheet({
     const handleOpenChange = (newOpen: boolean) => {
         if (!newOpen) {
             form.reset();
-            setShowStaffVariants(false);
+            setShowStaffVariants(isStaffOnly);
             reset();
         }
         onOpenChange(newOpen);
@@ -142,13 +161,19 @@ export function CreateUserSheet({
     const handleNextToRole = async () => {
         const valid = await form.trigger(['displayName', 'email']);
         if (valid) {
-            goToNextStep();
+            if (isLecturerOnly) {
+                form.handleSubmit(onSubmit)();
+            } else {
+                goToNextStep();
+            }
         }
     };
 
     const handleBackToDetails = () => {
         goToPrevStep();
-        setShowStaffVariants(false);
+        if (!isStaffOnly) {
+            setShowStaffVariants(false);
+        }
     };
 
     const handleRoleSelect = (roleId: string) => {
@@ -161,8 +186,8 @@ export function CreateUserSheet({
         }
     };
 
-    const handleStaffVariantSelect = (variantId: 'staff-lms' | 'staff-support' | 'staff-sales' | 'staff-finance') => {
-        form.setValue('role', variantId as any, { shouldValidate: false });
+    const handleStaffVariantSelect = (variantId: UserRole) => {
+        form.setValue('role', variantId, { shouldValidate: true });
     };
 
     const handleBackToRoles = () => {
@@ -175,15 +200,23 @@ export function CreateUserSheet({
     const email = form.watch('email');
     const detailsValid = !!displayName && !!email;
 
+    const sheetTitle = isLecturerOnly
+        ? 'Thêm Giảng Viên Mới'
+        : isStaffOnly
+            ? 'Thêm Nhân Viên Mới'
+            : 'Thêm Người Dùng Mới';
+
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>
             <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
-                    <SheetTitle>Thêm Người Dùng Mới</SheetTitle>
+                    <SheetTitle>{sheetTitle}</SheetTitle>
                     <SheetDescription>
-                        {currentStep === 1
-                            ? 'Bước 01: Thông tin cá nhân'
-                            : 'Bước 02: Phân quyền vai trò'}
+                        {totalSteps === 1
+                            ? 'Thông tin cá nhân và tài khoản'
+                            : currentStep === 1
+                                ? 'Bước 01: Thông tin cá nhân'
+                                : 'Bước 02: Phân quyền vai trò'}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -261,57 +294,61 @@ export function CreateUserSheet({
                                 <div className="space-y-5">
                                     {!showStaffVariants ? (
                                         <div className="grid grid-cols-1 gap-3">
-                                            {internalRoles.map((role) => {
-                                                const Icon = role.icon;
-                                                const isSelected = currentRole === role.id ||
-                                                    (role.id === UserRole.STAFF && currentRole.toString().startsWith('staff-'));
+                                            {internalRoles
+                                                .filter(role => !fixedRole || role.id === fixedRole)
+                                                .map((role) => {
+                                                    const Icon = role.icon;
+                                                    const isSelected = currentRole === role.id ||
+                                                        (role.id === UserRole.STAFF && currentRole.toString().startsWith('staff-'));
 
-                                                return (
-                                                    <div
-                                                        key={role.id}
-                                                        role="button"
-                                                        tabIndex={0}
-                                                        onClick={() => handleRoleSelect(role.id)}
-                                                        className={cn(
-                                                            "cursor-pointer rounded-lg p-4 border transition-colors",
-                                                            isSelected
-                                                                ? "bg-primary/5 border-primary shadow-sm"
-                                                                : "bg-background border-border hover:bg-muted/50"
-                                                        )}
-                                                    >
-                                                        <div className="flex items-center gap-4">
-                                                            <div className={cn(
-                                                                "p-2 rounded-lg transition-colors",
-                                                                isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
-                                                            )}>
-                                                                <Icon className="size-5" />
-                                                            </div>
-                                                            <div className="flex-1 min-h-0">
-                                                                <div className="flex items-center justify-between">
-                                                                    <span className="font-semibold text-sm">{role.label}</span>
-                                                                    {isSelected && <BadgeCheck className="size-4 text-primary" />}
+                                                    return (
+                                                        <div
+                                                            key={role.id}
+                                                            role="button"
+                                                            tabIndex={0}
+                                                            onClick={() => handleRoleSelect(role.id)}
+                                                            className={cn(
+                                                                "cursor-pointer rounded-lg p-4 border transition-colors",
+                                                                isSelected
+                                                                    ? "bg-primary/5 border-primary shadow-sm"
+                                                                    : "bg-background border-border hover:bg-muted/50"
+                                                            )}
+                                                        >
+                                                            <div className="flex items-center gap-4">
+                                                                <div className={cn(
+                                                                    "p-2 rounded-lg transition-colors",
+                                                                    isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                                                                )}>
+                                                                    <Icon className="size-5" />
                                                                 </div>
-                                                                <p className="text-[11px] text-muted-foreground mt-0.5">
-                                                                    {role.description}
-                                                                </p>
+                                                                <div className="flex-1 min-h-0">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <span className="font-semibold text-sm">{role.label}</span>
+                                                                        {isSelected && <BadgeCheck className="size-4 text-primary" />}
+                                                                    </div>
+                                                                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                                                                        {role.description}
+                                                                    </p>
+                                                                </div>
+                                                                {role.hasVariants && <ChevronRight className="size-4 text-muted-foreground/50" />}
                                                             </div>
-                                                            {role.hasVariants && <ChevronRight className="size-4 text-muted-foreground/50" />}
                                                         </div>
-                                                    </div>
-                                                );
-                                            })}
+                                                    );
+                                                })}
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={handleBackToRoles}
-                                                className="h-8 px-0 text-muted-foreground hover:text-foreground">
-                                                <ArrowLeft className="size-3.5 mr-2" />
-                                                Quay lại vai trò chính
-                                            </Button>
+                                            {!isStaffOnly && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={handleBackToRoles}
+                                                    className="h-8 px-0 text-muted-foreground hover:text-foreground">
+                                                    <ArrowLeft className="size-3.5 mr-2" />
+                                                    Quay lại vai trò chính
+                                                </Button>
+                                            )}
 
                                             <div className="grid gap-2">
                                                 {staffVariants.map((variant) => {
@@ -367,15 +404,27 @@ export function CreateUserSheet({
                                         e.stopPropagation();
                                         handleNextToRole();
                                     }}
-                                    disabled={!detailsValid}
+                                    disabled={!detailsValid || createInternalUser.isPending}
                                 >
-                                    Tiếp tục
-                                    <ChevronRight className="ml-2 size-3.5" />
+                                    {isLecturerOnly ? (
+                                        createInternalUser.isPending ? (
+                                            <>
+                                                <Spinner className="mr-2 size-3.5" />
+                                                Đang tạo...
+                                            </>
+                                        ) : 'Tạo giảng viên'
+                                    ) : (
+                                        <>
+                                            Tiếp tục
+                                            <ChevronRight className="ml-2 size-3.5" />
+                                        </>
+                                    )}
                                 </Button>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => handleOpenChange(false)}
+                                    disabled={createInternalUser.isPending}
                                 >
                                     Hủy Bỏ
                                 </Button>
@@ -384,7 +433,7 @@ export function CreateUserSheet({
                             <>
                                 <Button
                                     type="submit"
-                                    disabled={createInternalUser.isPending}
+                                    disabled={createInternalUser.isPending || (isStaffOnly && currentRole === UserRole.STAFF)}
                                 >
                                     {createInternalUser.isPending ? (
                                         <>

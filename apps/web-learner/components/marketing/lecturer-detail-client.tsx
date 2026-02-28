@@ -73,7 +73,7 @@ export function LecturerDetailClient({ id }: { id: string }) {
                     <span className="text-[oklch(0.45_0.02_15)]">(128 đánh giá)</span>
                 </div>
                 <div className="flex flex-wrap gap-4 pt-2">
-                    <button className="px-8 py-3 bg-[oklch(0.55_0.15_15)] text-white font-bold rounded-xl shadow-lg shadow-[oklch(0.55_0.15_15)/0.25] hover:opacity-90 transition-all">
+                    <button className="px-8 py-3 bg-[oklch(0.55_0.15_15)] text-primary-foreground font-bold rounded-xl shadow-lg shadow-[oklch(0.55_0.15_15)/0.25] hover:opacity-90 transition-all">
                         Đặt lịch tư vấn
                     </button>
                     <button className="px-8 py-3 border-2 border-[oklch(0.55_0.15_15)/0.2] text-[oklch(0.55_0.15_15)] font-bold rounded-xl hover:bg-[oklch(0.55_0.15_15)/0.05] transition-all">
@@ -91,8 +91,8 @@ export function LecturerDetailClient({ id }: { id: string }) {
                 <div className="w-52 h-52 md:w-64 md:h-64 rounded-3xl ring-4 ring-[oklch(0.55_0.15_15)/0.2] overflow-hidden bg-[oklch(0.95_0.01_15)]">
                     <img alt="Nguyễn Minh Anh Avatar" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzs3gRPojGNnw0h-v5-4xBYNGnKqkyqQxhr8P3BKIe40_zUKtA1aIs987yLW50b6OPicYz2UCBIV7iWBzj2eo41lLr33FwQaVzMGgMer6QsysAWOWsM2otOkl_hwssdCR9WNJ4ULWZoBSPKVIjxgmjlxgrpmsdhc3JBTyENoon_ck7R6NsXgNP1FJ7p4W-Eu8dk9hn8MPh299YN4lzQuLw6d0Katk3ggtdGQYrJF6dnhNX9gJg-rGOR9VG_lOr0sD3m1la1dAVs70"/>
                 </div>
-                <div className="absolute -bottom-4 -right-4 bg-white p-2 rounded-2xl shadow-xl border border-[oklch(0.9_0.02_15)]">
-                    <div className="bg-emerald-500 text-white p-2 rounded-xl">
+                <div className="absolute -bottom-4 -right-4 bg-background p-2 rounded-2xl shadow-xl border border-[oklch(0.9_0.02_15)]">
+                    <div className="bg-emerald-500 text-primary-foreground p-2 rounded-xl">
                         <svg className="lucide lucide-check" fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M20 6 9 17l-5-5"/></svg>
                     </div>
                 </div>
@@ -143,7 +143,7 @@ export function LecturerDetailClient({ id }: { id: string }) {
                     <div className="group bg-[oklch(1_0_0)] border border-[oklch(0.9_0.02_15)] rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
                         <div className="relative aspect-video">
                             <img alt="JLPT N3 Course" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZu3Rz_UNDkakPi06pHdsMYmfmks6rjU9HkJeDFeYi3C-RdbLaqaLJMGcywLveOlLQCYKRxtUH-_imu8ba8loziE88bzkuuIGx5HUV3n8x_mzBsybu9Ni1D6MxIbtdGaXK9irRFgFugH9eZSiLiKZgzSkh__hoPwXkiZZjkM9ayrCV68fBv9g_XPw7vhl71V94FiLQcIeY2XjuxfF788KYnK-UfnnHRtp-kcWkF9Hu3JSJn5NqwEiGbLEiPWEWe9CERPyfGdN5haI"/>
-                            <div className="absolute top-3 left-3 px-3 py-1 bg-[oklch(0.55_0.15_15)] text-white text-xs font-bold rounded-full">JLPT N3</div>
+                            <div className="absolute top-3 left-3 px-3 py-1 bg-[oklch(0.55_0.15_15)] text-primary-foreground text-xs font-bold rounded-full">JLPT N3</div>
                         </div>
                         <div className="p-5 space-y-4">
                             <h3 className="font-bold text-lg leading-snug group-hover:text-[oklch(0.55_0.15_15)] transition-colors">Chinh phục JLPT N3 trong 3 tháng</h3>
@@ -161,7 +161,7 @@ export function LecturerDetailClient({ id }: { id: string }) {
                     <div className="group bg-[oklch(1_0_0)] border border-[oklch(0.9_0.02_15)] rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
                         <div className="relative aspect-video">
                             <img alt="Business Japanese" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiTvxdHmdSCjp7M5ispA8ZqU1bpBxZPSHd2xhnXV6YTstkkNMo2N0q2SkligVK6M4OTZvQNnEPaiYImylOC1JFItNtLW5JRFJE0Hw8i5mbNJsn3R3ENonfpdie5XLZlUT-vGUwRe7HK7q2eM51xPvucCWiRtDEsUvT5wxvLdJmrPcCbbtl0VAiV7sgYwwi-B1XuHo9ykgoN2qvFfzHCgy1r85Va8jwJNXpUHcv8NsqnAl9mh8E4qoaIu0BQdlKM-nmKq89A7LSn7g"/>
-                            <div className="absolute top-3 left-3 px-3 py-1 bg-[oklch(0.55_0.15_15)] text-white text-xs font-bold rounded-full">Kaiwa</div>
+                            <div className="absolute top-3 left-3 px-3 py-1 bg-[oklch(0.55_0.15_15)] text-primary-foreground text-xs font-bold rounded-full">Kaiwa</div>
                         </div>
                         <div className="p-5 space-y-4">
                             <h3 className="font-bold text-lg leading-snug group-hover:text-[oklch(0.55_0.15_15)] transition-colors">Tiếng Nhật Giao tiếp Thương mại</h3>
@@ -312,7 +312,7 @@ export function LecturerDetailClient({ id }: { id: string }) {
                     </div>
                 </div>
                 <p className="text-sm text-[oklch(0.55_0.15_15)/0.8] mb-6 font-medium">Đang có chỗ trống cho buổi tư vấn tiếp theo: <strong>Ngày mai, 14:00</strong></p>
-                <button className="w-full py-4 bg-[oklch(0.55_0.15_15)] text-white font-black rounded-2xl hover:opacity-90 transition-all shadow-md">
+                <button className="w-full py-4 bg-[oklch(0.55_0.15_15)] text-primary-foreground font-black rounded-2xl hover:opacity-90 transition-all shadow-md">
                     Xem lịch giảng dạy
                 </button>
             </div>

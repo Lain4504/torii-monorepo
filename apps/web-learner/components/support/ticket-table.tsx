@@ -42,7 +42,7 @@ export function TicketTable({
 }: TicketTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns = getTicketColumns({ onView, onDelete, page, limit });
+    const columns = getTicketColumns({ onView, onCancel: onDelete || (() => { }), page, limit });
 
     const table = useReactTable({
         data,

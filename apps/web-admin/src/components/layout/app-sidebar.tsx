@@ -159,9 +159,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             className="border-r border-border/10 bg-card/60 backdrop-blur-xl"
         >
             <SidebarHeader className="h-auto py-4 px-4 flex flex-col gap-4 group-data-[collapsible=icon]:px-0">
-                <div className="flex items-center group-data-[collapsible=icon]:justify-center">
-                    <img src="/logo.png" alt="Torii Nihongo" className="h-8 max-w-full object-contain group-data-[collapsible=icon]:h-6" />
-                </div>
                 <TeamSwitcher
                     teams={availableWorkspaces}
                     activeTeam={activeWorkspace}

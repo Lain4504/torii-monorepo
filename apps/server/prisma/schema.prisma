@@ -1865,8 +1865,8 @@ enum TicketType {
 enum TicketStatus {
   PENDING
   PROCESSING
-  APPROVED
-  REJECTED
+  RESOLVED
+  CANCELLED
 }
 
 model Ticket {

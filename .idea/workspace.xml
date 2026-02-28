@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update logo display across layout components" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix logic web-admin">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/marketing/course-detail-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/marketing/course-detail-client.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -401,159 +403,7 @@
       <workItem from="1772173061622" duration="2604000" />
       <workItem from="1772200330099" duration="390000" />
       <workItem from="1772259343193" duration="455000" />
-      <workItem from="1772271753587" duration="1037000" />
-    </task>
-    <task id="LOCAL-00900" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772211562041</created>
-      <option name="number" value="00900" />
-      <option name="presentableId" value="LOCAL-00900" />
-      <option name="project" value="LOCAL" />
-      <updated>1772211562042</updated>
-    </task>
-    <task id="LOCAL-00901" summary="feat: implement scheduled cleanup for old audit logs with retention policy">
-      <option name="closed" value="true" />
-      <created>1772212114569</created>
-      <option name="number" value="00901" />
-      <option name="presentableId" value="LOCAL-00901" />
-      <option name="project" value="LOCAL" />
-      <updated>1772212114569</updated>
-    </task>
-    <task id="LOCAL-00902" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772213144237</created>
-      <option name="number" value="00902" />
-      <option name="presentableId" value="LOCAL-00902" />
-      <option name="project" value="LOCAL" />
-      <updated>1772213144238</updated>
-    </task>
-    <task id="LOCAL-00903" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772213641346</created>
-      <option name="number" value="00903" />
-      <option name="presentableId" value="LOCAL-00903" />
-      <option name="project" value="LOCAL" />
-      <updated>1772213641347</updated>
-    </task>
-    <task id="LOCAL-00904" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772214077619</created>
-      <option name="number" value="00904" />
-      <option name="presentableId" value="LOCAL-00904" />
-      <option name="project" value="LOCAL" />
-      <updated>1772214077619</updated>
-    </task>
-    <task id="LOCAL-00905" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772214182851</created>
-      <option name="number" value="00905" />
-      <option name="presentableId" value="LOCAL-00905" />
-      <option name="project" value="LOCAL" />
-      <updated>1772214182862</updated>
-    </task>
-    <task id="LOCAL-00906" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772214431427</created>
-      <option name="number" value="00906" />
-      <option name="presentableId" value="LOCAL-00906" />
-      <option name="project" value="LOCAL" />
-      <updated>1772214431428</updated>
-    </task>
-    <task id="LOCAL-00907" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772214580679</created>
-      <option name="number" value="00907" />
-      <option name="presentableId" value="LOCAL-00907" />
-      <option name="project" value="LOCAL" />
-      <updated>1772214580680</updated>
-    </task>
-    <task id="LOCAL-00908" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772214852349</created>
-      <option name="number" value="00908" />
-      <option name="presentableId" value="LOCAL-00908" />
-      <option name="project" value="LOCAL" />
-      <updated>1772214852349</updated>
-    </task>
-    <task id="LOCAL-00909" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772214973121</created>
-      <option name="number" value="00909" />
-      <option name="presentableId" value="LOCAL-00909" />
-      <option name="project" value="LOCAL" />
-      <updated>1772214973121</updated>
-    </task>
-    <task id="LOCAL-00910" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772215340698</created>
-      <option name="number" value="00910" />
-      <option name="presentableId" value="LOCAL-00910" />
-      <option name="project" value="LOCAL" />
-      <updated>1772215340699</updated>
-    </task>
-    <task id="LOCAL-00911" summary="stitch ui">
-      <option name="closed" value="true" />
-      <created>1772215742601</created>
-      <option name="number" value="00911" />
-      <option name="presentableId" value="LOCAL-00911" />
-      <option name="project" value="LOCAL" />
-      <updated>1772215742602</updated>
-    </task>
-    <task id="LOCAL-00912" summary="updatr 2">
-      <option name="closed" value="true" />
-      <created>1772259402801</created>
-      <option name="number" value="00912" />
-      <option name="presentableId" value="LOCAL-00912" />
-      <option name="project" value="LOCAL" />
-      <updated>1772259402802</updated>
-    </task>
-    <task id="LOCAL-00913" summary="rebuild home page">
-      <option name="closed" value="true" />
-      <created>1772261268375</created>
-      <option name="number" value="00913" />
-      <option name="presentableId" value="LOCAL-00913" />
-      <option name="project" value="LOCAL" />
-      <updated>1772261268375</updated>
-    </task>
-    <task id="LOCAL-00914" summary="rebuild home page">
-      <option name="closed" value="true" />
-      <created>1772261580132</created>
-      <option name="number" value="00914" />
-      <option name="presentableId" value="LOCAL-00914" />
-      <option name="project" value="LOCAL" />
-      <updated>1772261580132</updated>
-    </task>
-    <task id="LOCAL-00915" summary="rebuild home page">
-      <option name="closed" value="true" />
-      <created>1772261907436</created>
-      <option name="number" value="00915" />
-      <option name="presentableId" value="LOCAL-00915" />
-      <option name="project" value="LOCAL" />
-      <updated>1772261907436</updated>
-    </task>
-    <task id="LOCAL-00916" summary="rebuild home page">
-      <option name="closed" value="true" />
-      <created>1772262870901</created>
-      <option name="number" value="00916" />
-      <option name="presentableId" value="LOCAL-00916" />
-      <option name="project" value="LOCAL" />
-      <updated>1772262870901</updated>
-    </task>
-    <task id="LOCAL-00917" summary="rebuild home page">
-      <option name="closed" value="true" />
-      <created>1772263198562</created>
-      <option name="number" value="00917" />
-      <option name="presentableId" value="LOCAL-00917" />
-      <option name="project" value="LOCAL" />
-      <updated>1772263198563</updated>
-    </task>
-    <task id="LOCAL-00918" summary="rebuild home page">
-      <option name="closed" value="true" />
-      <created>1772263510692</created>
-      <option name="number" value="00918" />
-      <option name="presentableId" value="LOCAL-00918" />
-      <option name="project" value="LOCAL" />
-      <updated>1772263510692</updated>
+      <workItem from="1772271753587" duration="12455000" />
     </task>
     <task id="LOCAL-00919" summary="rebuild home page">
       <option name="closed" value="true" />
@@ -795,7 +645,159 @@
       <option name="project" value="LOCAL" />
       <updated>1772272723408</updated>
     </task>
-    <option name="localTasksCounter" value="949" />
+    <task id="LOCAL-00949" summary="feat: update logo display across layout components">
+      <option name="closed" value="true" />
+      <created>1772272907315</created>
+      <option name="number" value="00949" />
+      <option name="presentableId" value="LOCAL-00949" />
+      <option name="project" value="LOCAL" />
+      <updated>1772272907315</updated>
+    </task>
+    <task id="LOCAL-00950" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772274734064</created>
+      <option name="number" value="00950" />
+      <option name="presentableId" value="LOCAL-00950" />
+      <option name="project" value="LOCAL" />
+      <updated>1772274734064</updated>
+    </task>
+    <task id="LOCAL-00951" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772274933371</created>
+      <option name="number" value="00951" />
+      <option name="presentableId" value="LOCAL-00951" />
+      <option name="project" value="LOCAL" />
+      <updated>1772274933371</updated>
+    </task>
+    <task id="LOCAL-00952" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772275439363</created>
+      <option name="number" value="00952" />
+      <option name="presentableId" value="LOCAL-00952" />
+      <option name="project" value="LOCAL" />
+      <updated>1772275439365</updated>
+    </task>
+    <task id="LOCAL-00953" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772275723741</created>
+      <option name="number" value="00953" />
+      <option name="presentableId" value="LOCAL-00953" />
+      <option name="project" value="LOCAL" />
+      <updated>1772275723741</updated>
+    </task>
+    <task id="LOCAL-00954" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772275862265</created>
+      <option name="number" value="00954" />
+      <option name="presentableId" value="LOCAL-00954" />
+      <option name="project" value="LOCAL" />
+      <updated>1772275862266</updated>
+    </task>
+    <task id="LOCAL-00955" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772277940973</created>
+      <option name="number" value="00955" />
+      <option name="presentableId" value="LOCAL-00955" />
+      <option name="project" value="LOCAL" />
+      <updated>1772277940973</updated>
+    </task>
+    <task id="LOCAL-00956" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772278955219</created>
+      <option name="number" value="00956" />
+      <option name="presentableId" value="LOCAL-00956" />
+      <option name="project" value="LOCAL" />
+      <updated>1772278955220</updated>
+    </task>
+    <task id="LOCAL-00957" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772279543569</created>
+      <option name="number" value="00957" />
+      <option name="presentableId" value="LOCAL-00957" />
+      <option name="project" value="LOCAL" />
+      <updated>1772279543569</updated>
+    </task>
+    <task id="LOCAL-00958" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772279662183</created>
+      <option name="number" value="00958" />
+      <option name="presentableId" value="LOCAL-00958" />
+      <option name="project" value="LOCAL" />
+      <updated>1772279662184</updated>
+    </task>
+    <task id="LOCAL-00959" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772279981771</created>
+      <option name="number" value="00959" />
+      <option name="presentableId" value="LOCAL-00959" />
+      <option name="project" value="LOCAL" />
+      <updated>1772279981771</updated>
+    </task>
+    <task id="LOCAL-00960" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772281071768</created>
+      <option name="number" value="00960" />
+      <option name="presentableId" value="LOCAL-00960" />
+      <option name="project" value="LOCAL" />
+      <updated>1772281071770</updated>
+    </task>
+    <task id="LOCAL-00961" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772281078402</created>
+      <option name="number" value="00961" />
+      <option name="presentableId" value="LOCAL-00961" />
+      <option name="project" value="LOCAL" />
+      <updated>1772281078402</updated>
+    </task>
+    <task id="LOCAL-00962" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772281477458</created>
+      <option name="number" value="00962" />
+      <option name="presentableId" value="LOCAL-00962" />
+      <option name="project" value="LOCAL" />
+      <updated>1772281477460</updated>
+    </task>
+    <task id="LOCAL-00963" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772282101181</created>
+      <option name="number" value="00963" />
+      <option name="presentableId" value="LOCAL-00963" />
+      <option name="project" value="LOCAL" />
+      <updated>1772282101182</updated>
+    </task>
+    <task id="LOCAL-00964" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772282974534</created>
+      <option name="number" value="00964" />
+      <option name="presentableId" value="LOCAL-00964" />
+      <option name="project" value="LOCAL" />
+      <updated>1772282974534</updated>
+    </task>
+    <task id="LOCAL-00965" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772283195987</created>
+      <option name="number" value="00965" />
+      <option name="presentableId" value="LOCAL-00965" />
+      <option name="project" value="LOCAL" />
+      <updated>1772283195991</updated>
+    </task>
+    <task id="LOCAL-00966" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772283923279</created>
+      <option name="number" value="00966" />
+      <option name="presentableId" value="LOCAL-00966" />
+      <option name="project" value="LOCAL" />
+      <updated>1772283923280</updated>
+    </task>
+    <task id="LOCAL-00967" summary="fix logic web-admin">
+      <option name="closed" value="true" />
+      <created>1772285629989</created>
+      <option name="number" value="00967" />
+      <option name="presentableId" value="LOCAL-00967" />
+      <option name="project" value="LOCAL" />
+      <updated>1772285629989</updated>
+    </task>
+    <option name="localTasksCounter" value="968" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -830,7 +832,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: change location of api folder to lib" />
     <MESSAGE value="feat: add date-fns-tz dependency and implement formatNumber utility function" />
     <MESSAGE value="refactor: improve layout and styling across multiple components" />
     <MESSAGE value="refactor: reorganize dashboard components and update import paths" />
@@ -855,7 +856,8 @@
     <MESSAGE value="rebuild home page" />
     <MESSAGE value="rebuild learn" />
     <MESSAGE value="feat: update logo display across layout components" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: update logo display across layout components" />
+    <MESSAGE value="fix logic web-admin" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix logic web-admin" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

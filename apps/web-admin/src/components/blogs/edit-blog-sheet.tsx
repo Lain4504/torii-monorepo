@@ -50,7 +50,36 @@ const editBlogSchema = blogUpdateDTOSchema.omit({
     status: z.nativeEnum(BlogStatus).optional(),
     tags: z.string().optional(), // String input, will be parsed to array
     publishedAt: z.date().optional(), // Date from calendar
-});
+    publishedTime: z.string().optional(), // Time string HH:mm
+}).refine(
+    (data) => {
+        if (data.status === BlogStatus.SCHEDULED) {
+            return !!data.publishedAt;
+        }
+        return true;
+    },
+    {
+        message: 'Ngày đăng là bắt buộc khi trạng thái là "Đã lên lịch"',
+        path: ['publishedAt'],
+    }
+).refine(
+    (data) => {
+        if (data.status === BlogStatus.SCHEDULED && data.publishedAt) {
+            const now = new Date();
+            const publishedDateTime = new Date(data.publishedAt);
+            if (data.publishedTime) {
+                const [hours, minutes] = data.publishedTime.split(':').map(Number);
+                publishedDateTime.setHours(hours, minutes);
+            }
+            return publishedDateTime > now;
+        }
+        return true;
+    },
+    {
+        message: 'Ngày đăng phải là một ngày trong tương lai',
+        path: ['publishedAt'],
+    }
+);
 
 type EditBlogFormData = z.infer<typeof editBlogSchema>;
 
@@ -90,6 +119,7 @@ export function EditBlogSheet({
                 status: blog.status,
                 tags: blog.tags ? blog.tags.join(', ') : '',
                 publishedAt: blog.publishedAt ? new Date(blog.publishedAt) : undefined,
+                publishedTime: blog.publishedAt ? format(new Date(blog.publishedAt), 'HH:mm') : '00:00',
             });
             // Set cover image preview if exists
             if (blog.coverImageUrl) {
@@ -160,7 +190,13 @@ export function EditBlogSheet({
                 ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
                 : [];
 
-            const publishedAt = data.publishedAt;
+            // Parse publishedAt date and combine with publishedTime if provided
+            let publishedAt = data.publishedAt;
+            if (publishedAt && data.publishedTime) {
+                const [hours, minutes] = data.publishedTime.split(':').map(Number);
+                publishedAt = new Date(publishedAt);
+                publishedAt.setHours(hours, minutes, 0, 0);
+            }
 
             const dto: BlogUpdateDTO = {
                 title: data.title,
@@ -289,9 +325,10 @@ export function EditBlogSheet({
                                                             <SelectValue placeholder="Chọn trạng thái" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value={BlogStatus.DRAFT}>Bản nháp</SelectItem>
-                                                            <SelectItem value={BlogStatus.PUBLISHED}>Đã xuất bản</SelectItem>
-                                                            <SelectItem value={BlogStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
+<SelectItem value={BlogStatus.DRAFT}>Bản nháp</SelectItem>
+<SelectItem value={BlogStatus.PUBLISHED}>Đã xuất bản</SelectItem>
+<SelectItem value={BlogStatus.SCHEDULED}>Đã lên lịch</SelectItem>
+<SelectItem value={BlogStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
                                                         </SelectContent>
                                                     </Select>
                                                     <FieldError errors={[fieldState.error]} />
@@ -304,7 +341,7 @@ export function EditBlogSheet({
                                             name="publishedAt"
                                             render={({ field, fieldState }) => (
                                                 <Field data-invalid={fieldState.invalid}>
-                                                    <FieldLabel htmlFor={field.name}>Ngày xuất bản</FieldLabel>
+                                                    <FieldLabel htmlFor={field.name}>Ngày đăng</FieldLabel>
                                                     <Popover>
                                                         <PopoverTrigger asChild>
                                                             <Button
@@ -315,7 +352,7 @@ export function EditBlogSheet({
                                                                 )}
                                                             >
                                                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                                                {field.value ? format(field.value, "PPP") : <span>Chọn ngày</span>}
+                                                                {field.value ? format(field.value, "PP") : <span>Chọn ngày</span>}
                                                             </Button>
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-auto p-0" align="start">
@@ -327,6 +364,23 @@ export function EditBlogSheet({
                                                             />
                                                         </PopoverContent>
                                                     </Popover>
+                                                    <FieldError errors={[fieldState.error]} />
+                                                </Field>
+                                            )}
+                                        />
+
+                                        <Controller
+                                            control={control}
+                                            name="publishedTime"
+                                            render={({ field, fieldState }) => (
+                                                <Field data-invalid={fieldState.invalid}>
+                                                    <FieldLabel htmlFor={field.name}>Giờ đăng</FieldLabel>
+                                                    <Input
+                                                        id={field.name}
+                                                        type="time"
+                                                        {...field}
+                                                        className="w-full"
+                                                    />
                                                     <FieldError errors={[fieldState.error]} />
                                                 </Field>
                                             )}

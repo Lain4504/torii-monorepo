@@ -11,24 +11,17 @@ import {
     Newspaper,
     Award,
     LogOut,
-    Settings,
     Moon,
     Sun,
     Menu,
     X,
     LayoutDashboard,
-    Coins,
-    BadgeCheck,
-    Bell,
-    Heart,
-    Search,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { toast } from '@workspace/ui/components/sonner'
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
-import { formatNumber } from '@/utils/format-utils'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -39,6 +32,7 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
 import { Separator } from '@workspace/ui/components/separator'
+import { Switch } from '@workspace/ui/components/switch'
 import { cn } from "@workspace/ui/lib/utils"
 
 const navigation = [
@@ -103,13 +97,6 @@ export function Header() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        {isAuthenticated && (
-                            <Link href="/dashboard/wallet" className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                                <Coins className="size-4 text-amber-500" />
-                                {formatNumber((user as any)?.balance || 0)}
-                            </Link>
-                        )}
-
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -136,28 +123,18 @@ export function Header() {
                                             <LayoutDashboard className="mr-3 size-4 text-[oklch(0.55_0.15_15)]" />
                                             <span>Dashboard</span>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/profile')}>
-                                            <BadgeCheck className="mr-3 size-4 text-[oklch(0.55_0.15_15)]" />
-                                            <span>Hồ sơ cá nhân</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/notifications')}>
-                                            <Bell className="mr-3 size-4 text-muted-foreground" />
-                                            <span>Thông báo</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/wishlist')}>
-                                            <Heart className="mr-3 size-4 text-muted-foreground" />
-                                            <span>Khóa học yêu thích</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/settings')}>
-                                            <Settings className="mr-3 size-4 text-muted-foreground" />
-                                            <span>Cài đặt tài khoản</span>
-                                        </DropdownMenuItem>
                                     </DropdownMenuGroup>
                                     <DropdownMenuSeparator className="mx-2 my-2" />
                                     <DropdownMenuGroup className="space-y-1">
-                                        <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                                            {theme === 'dark' ? <Sun className="mr-3 size-4 text-muted-foreground" /> : <Moon className="mr-3 size-4 text-muted-foreground" />}
-                                            <span>Đổi giao diện ({theme === 'dark' ? 'Sáng' : 'Tối'})</span>
+                                        <DropdownMenuItem className="py-2 font-medium flex items-center justify-between" onSelect={(e) => e.preventDefault()}>
+                                            <div className="flex items-center">
+                                                {theme === 'dark' ? <Sun className="mr-3 size-4 text-muted-foreground" /> : <Moon className="mr-3 size-4 text-muted-foreground" />}
+                                                <span>Giao diện tối</span>
+                                            </div>
+                                            <Switch
+                                                checked={theme === 'dark'}
+                                                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                                            />
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
                                     <DropdownMenuSeparator className="mx-2 my-2" />
@@ -222,16 +199,14 @@ export function Header() {
                             </div>
                         )}
                         <div className="flex items-center justify-between px-4 py-3 rounded-md bg-muted/50">
-                            <span className="text-sm font-medium">Chế độ giao diện</span>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="rounded-full"
-                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            >
-                                <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                            </Button>
+                            <div className="flex items-center gap-3">
+                                {theme === 'dark' ? <Sun className="size-4 text-muted-foreground" /> : <Moon className="size-4 text-muted-foreground" />}
+                                <span className="text-sm font-medium">Giao diện tối</span>
+                            </div>
+                            <Switch
+                                checked={theme === 'dark'}
+                                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                            />
                         </div>
                     </div>
                 </div>

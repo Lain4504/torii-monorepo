@@ -6,6 +6,7 @@ import {
     Inject,
     ConflictException,
     Logger,
+    forwardRef,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
@@ -31,9 +32,9 @@ import {
 } from '@workspace/schemas';
 import type { User, Prisma } from '@prisma/generated';
 import type { IUsersRepository } from '@server/identity/interfaces/repositories';
-import type { IUsersService, IAuthorizationService, UserWithPermissions } from '@server/identity/interfaces/services';
+import type { IUsersService, IAuthorizationService, UserWithPermissions, ISessionService } from '@server/identity/interfaces/services';
 import { USERS_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
-import { AUTHORIZATION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
+import { AUTHORIZATION_SERVICE_TOKEN, SESSION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 import { REDIS_CLIENT, generateSecureRandomString, AppConfigService } from '@server/shared';
 import * as argon2 from 'argon2';
 
@@ -43,6 +44,7 @@ export class UsersService implements IUsersService {
         private readonly appConfig: AppConfigService,
         @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
         @Inject(AUTHORIZATION_SERVICE_TOKEN) private readonly authorizationService: IAuthorizationService,
+        @Inject(forwardRef(() => SESSION_SERVICE_TOKEN)) private readonly sessionService: ISessionService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
         @InjectMapper() private readonly mapper: Mapper,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
@@ -361,5 +363,63 @@ export class UsersService implements IUsersService {
         });
 
         return { message: hardDelete ? 'User permanently deleted' : 'User soft deleted' };
+    }
+
+    /**
+     * Change user status (active, banned, deleted)
+     */
+    async changeStatus(requester: Requester, userId: string, dto: any): Promise<UserResponseDTO> {
+        // Only admin can change status
+        if (!this.hasPermission(requester, 'user.manage')) {
+            throw new ForbiddenException('Forbidden');
+        }
+
+        const user = await this.usersRepository.findById(userId);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Prevent self-ban
+        if (userId === requester.sub) {
+            throw new BadRequestException('Bạn không thể tự thay đổi trạng thái của chính mình.');
+        }
+
+        const updateData: Prisma.UserUpdateInput = {};
+
+        switch (dto.status) {
+            case 'active':
+                updateData.bannedUntil = null;
+                updateData.deletedAt = null;
+                // If user was never verified, should we verify them? 
+                // Usually 'active' means 'not banned and not deleted'.
+                break;
+            case 'banned':
+                updateData.bannedUntil = dto.bannedUntil ? new Date(dto.bannedUntil) : new Date('9999-12-31');
+                updateData.deletedAt = null;
+                break;
+            case 'deleted':
+                updateData.deletedAt = new Date();
+                updateData.bannedUntil = null;
+                break;
+        }
+
+        const updatedUser = await this.usersRepository.update(userId, updateData);
+
+        // If banned or deleted, revoke all sessions
+        if (dto.status === 'banned' || dto.status === 'deleted') {
+            await this.sessionService.revokeAllUserSessions(userId);
+        }
+
+        await this.createAuditLog({
+            userId: requester.sub,
+            action: 'user.change_status',
+            entity: 'user',
+            entityId: userId,
+            description: `Admin changed user status to ${dto.status} for ${user.email}`,
+            oldValues: { bannedUntil: user.bannedUntil, deletedAt: user.deletedAt },
+            newValues: { bannedUntil: updatedUser.bannedUntil, deletedAt: updatedUser.deletedAt },
+        });
+
+        return this.mapper.map<User, UserResponseDTO>(updatedUser, 'User', 'UserResponseDTO');
     }
 }

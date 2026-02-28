@@ -1,4 +1,4 @@
-import { formatDistanceToNow, subDays } from "date-fns"
+import { formatDistanceToNow, subDays, format } from "date-fns"
 import { vi } from "date-fns/locale"
 import { formatInTimeZone } from "date-fns-tz"
 export { vi }
@@ -74,4 +74,14 @@ export function formatNumber(value: number | string | undefined | null): string 
     if (value === undefined || value === null) return "0"
     const num = typeof value === "string" ? parseFloat(value) : value
     return new Intl.NumberFormat("vi-VN").format(num)
+}
+
+export function formatTimeToNow(date: Date | string | number | undefined | null): string {
+    if (!date) return "--";
+    try {
+        const d = new Date(date);
+        return formatDistanceToNow(d, { addSuffix: true, locale: vi });
+    } catch (e) {
+        return "--";
+    }
 }

@@ -98,4 +98,15 @@ export interface IUsersService {
      * @throws NotFoundException if user not found
      */
     delete(requester: Requester, userId: string, hardDelete?: boolean): Promise<{ message: string }>;
+
+    /**
+     * Change user status (active, banned, deleted)
+     * @param requester - The user making the request
+     * @param userId - The user's unique identifier
+     * @param dto - Status change data
+     * @returns The updated user
+     * @throws ForbiddenException if requester is not admin
+     * @throws NotFoundException if user not found
+     */
+    changeStatus(requester: Requester, userId: string, dto: any): Promise<UserResponseDTO>;
 }

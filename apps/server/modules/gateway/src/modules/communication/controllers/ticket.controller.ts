@@ -57,6 +57,15 @@ export class TicketController {
         return successPaginatedResponse(result);
     }
 
+    @Get('stats')
+    @Permissions('support.view')
+    async getTicketStats() {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'communication.analytics.tickets' }, {})
+        );
+        return successResponse(result);
+    }
+
     @Get(':id')
     async getTicket(@Param('id') id: string) {
         const result = await firstValueFrom(

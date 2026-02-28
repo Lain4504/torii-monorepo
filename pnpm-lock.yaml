@@ -19826,7 +19826,7 @@ snapshots:
       strict-event-emitter-types: 2.0.0
       undici: 7.19.2
       uri-templates: 0.2.0
-      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.6)
+      xsschema: 0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.6))(zod@4.3.6)
       yargs: 18.0.0
       zod: 4.3.6
       zod-to-json-schema: 3.25.1(zod@4.3.6)
@@ -25541,7 +25541,7 @@ snapshots:
 
   xmlchars@2.2.0: {}
 
-  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@4.3.6):
+  xsschema@0.4.0-beta.5(effect@3.18.4)(zod-to-json-schema@3.25.1(zod@4.3.6))(zod@4.3.6):
     optionalDependencies:
       effect: 3.18.4
       zod: 4.3.6

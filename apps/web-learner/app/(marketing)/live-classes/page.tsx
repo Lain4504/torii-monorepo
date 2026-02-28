@@ -271,54 +271,6 @@ export default function LiveClassesPage() {
                     </section>
                     {/*  END: Course Grid  */}
                 </main>
-                {/*  BEGIN: Footer  */}
-                <footer className="bg-slate-950 border-t border-white/10 py-12">
-                    <div className="max-w-7xl mx-auto px-4">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                            <div className="col-span-1 md:col-span-1">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <div className="w-8 h-8 bg-[oklch(0.55_0.15_15)] rounded-full flex items-center justify-center font-bold text-white">T</div>
-                                    <span className="text-xl font-bold tracking-tight text-white">Torii <span className="text-[oklch(0.55_0.15_15)]">Nihongo</span></span>
-                                </div>
-                                <p className="text-slate-400 text-sm leading-relaxed">
-                                    Học tiếng Nhật hiệu quả nhất Việt Nam qua nền tảng WebRTC độc quyền. Cam kết đầu ra bằng văn bản.
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="text-white font-bold mb-6">Khóa Học</h4>
-                                <ul className="space-y-4 text-sm text-slate-400">
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Lớp Live N5-N1</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Video bài giảng</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Luyện đề JLPT</a></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="text-white font-bold mb-6">Hỗ Trợ</h4>
-                                <ul className="space-y-4 text-sm text-slate-400">
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Chính sách hoàn tiền</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Hướng dẫn WebRTC</a></li>
-                                    <li><a className="hover:text-[oklch(0.55_0.15_15)] transition-colors" href="#">Liên hệ tư vấn</a></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="text-white font-bold mb-6">Liên Hệ</h4>
-                                <p className="text-sm text-slate-400 mb-2">📍 Tầng 12, Tòa nhà Bitexco, TP.HCM</p>
-                                <p className="text-sm text-slate-400 mb-2">📞 1900 88 88 88</p>
-                                <p className="text-sm text-slate-400">✉️ hello@toriinihongo.vn</p>
-                            </div>
-                        </div>
-                        <div className="pt-8 border-t border-white/5 flex flex-col md:row items-center justify-between gap-4 text-xs text-slate-500">
-                            <p>© 2024 Torii Nihongo. All rights reserved.</p>
-                            <div className="flex gap-6">
-                                <a className="hover:text-white" href="#">Facebook</a>
-                                <a className="hover:text-white" href="#">TikTok</a>
-                                <a className="hover:text-white" href="#">YouTube</a>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-                {/*  END: Footer  */}
-
             </div>
         </>
     );

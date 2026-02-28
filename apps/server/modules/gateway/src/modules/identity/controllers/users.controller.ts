@@ -19,12 +19,14 @@ import {
     userAdminUpdateDTOSchema,
     adminCreateInternalUserDTOSchema,
     userSearchRequestDTOSchema,
+    userChangeStatusDTOSchema,
 } from '@workspace/schemas';
 import type {
     UserCreateDTO,
     UserAdminUpdateDTO,
     AdminCreateInternalUserDTO,
     UserSearchRequestDTO,
+    UserChangeStatusDTO,
 } from '@workspace/schemas';
 
 @Controller('api/admin/users')
@@ -135,6 +137,27 @@ export class UsersController {
             return successResponse(null, 'User deleted successfully');
         } catch (error: unknown) {
             return errorResponse(error instanceof Error ? error.message : 'Failed to delete user');
+        }
+    }
+
+    @Patch(':id/status')
+    @Permissions('user.manage')
+    async changeStatus(
+        @Req() req: ReqWithRequester,
+        @Param('id') id: string,
+        @Body(new ZodValidationPipe(userChangeStatusDTOSchema)) dto: UserChangeStatusDTO,
+    ) {
+        try {
+            const requester = req.requester;
+            const updatedUser = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'identity.users.changeStatus' },
+                    { id, dto, requester: { sub: requester.sub, permissions: requester.permissions || [] } },
+                ),
+            );
+            return successResponse({ user: updatedUser }, 'User status updated successfully');
+        } catch (error: unknown) {
+            return errorResponse(error instanceof Error ? error.message : 'Failed to update user status');
         }
     }
 }

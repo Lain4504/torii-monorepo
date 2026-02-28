@@ -52,5 +52,12 @@ export class UsersHandler {
         await this.usersService.delete(data.requester, data.id, data.hardDelete);
         return { success: true };
     }
+
+    @MessagePattern({ cmd: 'identity.users.changeStatus' })
+    async changeStatus(@Payload() data: { id: string; dto: any; requester: Requester }) {
+        return {
+            user: await this.usersService.changeStatus(data.requester, data.id, data.dto)
+        };
+    }
 }
 

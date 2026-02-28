@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { RedisModule, NatsClientModule } from '@server/shared';
 import { AuthService } from '@server/identity/modules/auth/auth.service';
 import { SessionService } from '@server/identity/modules/auth/session.service';
@@ -28,7 +28,7 @@ import { AuthHandler } from '@server/identity/modules/auth/auth.handler';
         NatsClientModule,
         AuthorizationModule,
         TwoFactorAuthModule,
-        UsersModule,
+        forwardRef(() => UsersModule),
     ],
     controllers: [AuthHandler],
     providers: [

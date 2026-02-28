@@ -36,11 +36,11 @@ export const useCreateTicket = () => {
     });
 };
 
-export const useDeleteTicket = () => {
+export const useCancelTicket = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (id: string) => {
-            await apiClient.post(`/api/tickets/${id}/delete`);
+            await apiClient.post(`/api/tickets/${id}/cancel`);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tickets'] });

@@ -145,7 +145,7 @@ export class TicketService implements ITicketService {
         }
 
         // Handle Refund Logic
-        if (dto.status === TicketStatus.APPROVED && ticket.type === TicketType.REFUND) {
+        if (dto.status === TicketStatus.RESOLVED && ticket.type === TicketType.REFUND) {
             const courseId = (ticket.metadata as any)?.courseId;
             const userId = ticket.userId;
 
@@ -234,7 +234,7 @@ export class TicketService implements ITicketService {
                                     currency: 'Coin',
                                     ticketId: ticket.id,
                                     reason: dto.response,
-                                    status: 'APPROVED'
+                                    status: 'RESOLVED'
                                 }
                             });
                         }
@@ -272,14 +272,14 @@ export class TicketService implements ITicketService {
             let title = '';
             let message = '';
 
-            if (dto.status === TicketStatus.APPROVED) {
-                title = ticket.type === TicketType.REFUND ? 'Yêu cầu hoàn tiền được chấp nhận' : 'Yêu cầu hỗ trợ được chấp nhận';
+            if (dto.status === TicketStatus.RESOLVED) {
+                title = ticket.type === TicketType.REFUND ? 'Yêu cầu hoàn tiền đã được giải quyết' : 'Yêu cầu hỗ trợ đã được giải quyết';
                 message = ticket.type === TicketType.REFUND
                     ? `Yêu cầu hoàn tiền cho khóa học của bạn đã được phê duyệt. ${dto.response || ''}`
                     : `Yêu cầu hỗ trợ của bạn đã được xử lý thành công. ${dto.response || ''}`;
-            } else if (dto.status === TicketStatus.REJECTED) {
-                title = ticket.type === TicketType.REFUND ? 'Yêu cầu hoàn tiền bị từ chối' : 'Yêu cầu hỗ trợ bị từ chối';
-                message = `Rất tiếc, yêu cầu của bạn đã bị từ chối. Lý do: ${dto.response || 'Không có lý do cụ thể.'}`;
+            } else if (dto.status === TicketStatus.CANCELLED) {
+                title = 'Yêu cầu đã bị hủy';
+                message = `Yêu cầu của bạn đã bị hủy. Lý do: ${dto.response || 'Không có lý do cụ thể.'}`;
             } else if (dto.status === TicketStatus.PROCESSING) {
                 title = 'Yêu cầu đang được xử lý';
                 message = `Yêu cầu của bạn đã được tiếp nhận và đang trong quá trình xử lý.`;
@@ -335,13 +335,13 @@ export class TicketService implements ITicketService {
 
         await this.ticketRepository.delete(id);
 
-        await this.createAuditLog({
+        this.createAuditLog({
             userId,
             action: 'ticket.delete',
             entity: 'ticket',
             entityId: id,
-            description: `Deleted pending ticket ${id}`,
+            description: `User deleted ticket ${id}`,
             metadata: { subject: ticket.subject, type: ticket.type },
-        });
+        }).catch(err => this.logger.error(`Audit log failed: ${err.message}`));
     }
 }

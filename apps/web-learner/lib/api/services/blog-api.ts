@@ -60,6 +60,24 @@ export const blogApi = {
         }
     },
 
+    getBlogBySlugForPreview: async (slug: string): Promise<BlogResponseDTO | null> => {
+        try {
+            const response = await apiClient.get<StandardApiResponse<{ blog: BlogResponseDTO }>>(`/api/blogs/slug/${slug}`, {
+                params: { showScheduled: true },
+            });
+
+            const responseData = response.data;
+            if (!responseData.success || !responseData.data) {
+                return null;
+            }
+
+            return responseData.data.blog;
+        } catch (error) {
+            console.error('Failed to fetch blog by slug for preview:', error);
+            return null;
+        }
+    },
+
     /**
      * Increment view count for a blog
      */

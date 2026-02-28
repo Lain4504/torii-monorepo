@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, NotFoundException, Inject, BadRequestException, forwardRef } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import Redis from 'ioredis';
@@ -33,7 +33,7 @@ import type { TwoFactorTempTokenPayload } from '@server/shared';
 export class AuthService implements IAuthService {
     constructor(
         private readonly appConfig: AppConfigService,
-        @Inject(USERS_REPOSITORY_TOKEN) private readonly usersRepository: IUsersRepository,
+        @Inject(forwardRef(() => USERS_REPOSITORY_TOKEN)) private readonly usersRepository: IUsersRepository,
 
         private readonly jwtTokenProvider: JwtTokenProvider,
         @Inject(AUTHORIZATION_SERVICE_TOKEN) private readonly authorizationService: IAuthorizationService,
@@ -198,9 +198,7 @@ export class AuthService implements IAuthService {
 
         // Check if user is active or pending
         // Check if user is banned or deleted
-        if (user.deletedAt || (user.bannedUntil && user.bannedUntil > new Date())) {
-            throw new UnauthorizedException('Account is disabled or deleted');
-        }
+        this.checkUserStatus(user);
 
         // Check if email is verified
         if (!user.verifiedAt) {
@@ -220,6 +218,9 @@ export class AuthService implements IAuthService {
                 tempToken,
             };
         }
+
+        // Update last sign in
+        await this.usersRepository.update(user.id, { lastSignInAt: new Date() });
 
         // Create session
         const { refreshToken, sessionId } = await this.sessionService.createSession(user.id);
@@ -325,8 +326,14 @@ export class AuthService implements IAuthService {
             throw new NotFoundException('User not found');
         }
 
+        // Check if user is banned or deleted
+        this.checkUserStatus(user);
+
         // Complete login
         const role = user.role;
+
+        // Update last sign in
+        await this.usersRepository.update(user.id, { lastSignInAt: new Date() });
 
         // Create session
         const { refreshToken, sessionId } = await this.sessionService.createSession(user.id);
@@ -373,6 +380,9 @@ export class AuthService implements IAuthService {
         if (!user) {
             throw new NotFoundException('User not found');
         }
+
+        // Check if user is banned or deleted
+        this.checkUserStatus(user as unknown as User);
 
         // Get permissions
         const { permissions } = await this.authorizationService.getUserPermissions(user.id, user.role);
@@ -435,6 +445,9 @@ export class AuthService implements IAuthService {
             throw new NotFoundException('User not found');
         }
 
+        // Block if banned or deleted
+        this.checkUserStatus(user);
+
         // Only allow resend for PENDING users (not yet verified)
         if (user.verifiedAt) {
             throw new BadRequestException('Email already verified or account is not active');
@@ -489,6 +502,9 @@ export class AuthService implements IAuthService {
         if (!user) {
             return;
         }
+
+        // Block if banned or deleted
+        this.checkUserStatus(user);
 
         // Only allow password reset for users with password (not OAuth-only users)
         if (!user.password) {
@@ -859,6 +875,9 @@ export class AuthService implements IAuthService {
                 throw new NotFoundException('User not found');
             }
 
+            // Check if user is banned or deleted
+            this.checkUserStatus(user);
+
             // Update last sign in
             await this.usersRepository.update(user.id, { lastSignInAt: new Date() });
 
@@ -904,6 +923,9 @@ export class AuthService implements IAuthService {
         const existingUser = await this.usersRepository.findByEmail(googleUser.email);
 
         if (existingUser) {
+            // Check if user is banned or deleted
+            this.checkUserStatus(existingUser);
+
             // Link Google to existing account
             await this.userIdentityRepository.create({
                 user: { connect: { id: existingUser.id } },
@@ -1055,7 +1077,14 @@ export class AuthService implements IAuthService {
 
         // Update user metadata
         const user = await this.usersRepository.findById(userId);
-        const currentMetadata = (user?.appMetadata as unknown as AppMetadata) || { provider: 'email', providers: ['email'] };
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Block if banned or deleted
+        this.checkUserStatus(user);
+
+        const currentMetadata = (user.appMetadata as unknown as AppMetadata) || { provider: 'email', providers: ['email'] };
         const providers = currentMetadata.providers || ['email'];
 
         await this.usersRepository.update(userId, {
@@ -1172,6 +1201,9 @@ export class AuthService implements IAuthService {
             throw new NotFoundException('User not found');
         }
 
+        // Block if banned or deleted (onboarding check)
+        this.checkUserStatus(user);
+
         // Note: Users now have a default password from creation
         // This method allows changing the default password to a new one
 
@@ -1244,6 +1276,19 @@ export class AuthService implements IAuthService {
             sub: userId,
             sid: sessionId,
         });
+    }
+
+    /**
+     * Internal helper to check if user is banned or deleted
+     */
+    private checkUserStatus(user: User): void {
+        if (user.deletedAt) {
+            throw new UnauthorizedException('Account has been deleted');
+        }
+        if (user.bannedUntil && new Date(user.bannedUntil) > new Date()) {
+            const dateStr = new Date(user.bannedUntil).toLocaleDateString();
+            throw new UnauthorizedException(`Account is banned until ${dateStr}`);
+        }
     }
 
     /**
