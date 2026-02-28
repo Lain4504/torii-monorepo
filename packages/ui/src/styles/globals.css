@@ -145,3 +145,13 @@
     @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors duration-200;
   }
 }
+
+@utility rounded-tlbl-d {
+  border-top-left-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+@utility rounded-trbr-d {
+  border-top-right-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+}

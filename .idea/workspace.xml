@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rebuild home page">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/placement-test/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/placement-test/page.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="rebuild learn">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(agents)/layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[slug]/learn/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[slug]/learn/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -404,46 +405,6 @@
       <workItem from="1772200330099" duration="390000" />
       <workItem from="1772259343193" duration="455000" />
     </task>
-    <task id="LOCAL-00877" summary="refactor identity service">
-      <option name="closed" value="true" />
-      <created>1772112551026</created>
-      <option name="number" value="00877" />
-      <option name="presentableId" value="LOCAL-00877" />
-      <option name="project" value="LOCAL" />
-      <updated>1772112551026</updated>
-    </task>
-    <task id="LOCAL-00878" summary="refactor communication service">
-      <option name="closed" value="true" />
-      <created>1772113079342</created>
-      <option name="number" value="00878" />
-      <option name="presentableId" value="LOCAL-00878" />
-      <option name="project" value="LOCAL" />
-      <updated>1772113079342</updated>
-    </task>
-    <task id="LOCAL-00879" summary="refactor: restructure backend modules and update service paths">
-      <option name="closed" value="true" />
-      <created>1772114247962</created>
-      <option name="number" value="00879" />
-      <option name="presentableId" value="LOCAL-00879" />
-      <option name="project" value="LOCAL" />
-      <updated>1772114247962</updated>
-    </task>
-    <task id="LOCAL-00880" summary="refactor meet service">
-      <option name="closed" value="true" />
-      <created>1772114266944</created>
-      <option name="number" value="00880" />
-      <option name="presentableId" value="LOCAL-00880" />
-      <option name="project" value="LOCAL" />
-      <updated>1772114266944</updated>
-    </task>
-    <task id="LOCAL-00881" summary="refactor storage service">
-      <option name="closed" value="true" />
-      <created>1772114753356</created>
-      <option name="number" value="00881" />
-      <option name="presentableId" value="LOCAL-00881" />
-      <option name="project" value="LOCAL" />
-      <updated>1772114753356</updated>
-    </task>
     <task id="LOCAL-00882" summary="refactor: restructure course DTOs and add search request schema">
       <option name="closed" value="true" />
       <created>1772173628485</created>
@@ -796,7 +757,47 @@
       <option name="project" value="LOCAL" />
       <updated>1772264402961</updated>
     </task>
-    <option name="localTasksCounter" value="926" />
+    <task id="LOCAL-00926" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772264717940</created>
+      <option name="number" value="00926" />
+      <option name="presentableId" value="LOCAL-00926" />
+      <option name="project" value="LOCAL" />
+      <updated>1772264717940</updated>
+    </task>
+    <task id="LOCAL-00927" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772264967209</created>
+      <option name="number" value="00927" />
+      <option name="presentableId" value="LOCAL-00927" />
+      <option name="project" value="LOCAL" />
+      <updated>1772264967209</updated>
+    </task>
+    <task id="LOCAL-00928" summary="rebuild home page">
+      <option name="closed" value="true" />
+      <created>1772265036174</created>
+      <option name="number" value="00928" />
+      <option name="presentableId" value="LOCAL-00928" />
+      <option name="project" value="LOCAL" />
+      <updated>1772265036174</updated>
+    </task>
+    <task id="LOCAL-00929" summary="rebuild learn">
+      <option name="closed" value="true" />
+      <created>1772265313008</created>
+      <option name="number" value="00929" />
+      <option name="presentableId" value="LOCAL-00929" />
+      <option name="project" value="LOCAL" />
+      <updated>1772265313009</updated>
+    </task>
+    <task id="LOCAL-00930" summary="rebuild learn">
+      <option name="closed" value="true" />
+      <created>1772266201003</created>
+      <option name="number" value="00930" />
+      <option name="presentableId" value="LOCAL-00930" />
+      <option name="project" value="LOCAL" />
+      <updated>1772266201003</updated>
+    </task>
+    <option name="localTasksCounter" value="931" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -831,7 +832,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: update layout and styling for user and module sheets" />
     <MESSAGE value="feat: add reset password functionality and update identity URLs" />
     <MESSAGE value="refactor: change location of api folder to lib" />
     <MESSAGE value="feat: add date-fns-tz dependency and implement formatNumber utility function" />
@@ -856,7 +856,8 @@
     <MESSAGE value="stitch ui" />
     <MESSAGE value="updatr 2" />
     <MESSAGE value="rebuild home page" />
-    <option name="LAST_COMMIT_MESSAGE" value="rebuild home page" />
+    <MESSAGE value="rebuild learn" />
+    <option name="LAST_COMMIT_MESSAGE" value="rebuild learn" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
