@@ -1,0 +1,7 @@
+export enum CourseRunStatus {
+    PLANNING = 'PLANNING',
+    ENROLLING = 'ENROLLING',
+    IN_PROGRESS = 'IN_PROGRESS',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED',
+}

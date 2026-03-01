@@ -6,8 +6,10 @@ import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCheckWishlist, useToggleWishlist } from '@/lib/api/services/wishlist-api';
 import { useCart, useAddToCart } from '@/lib/api/services/cart-api';
 import { useCourseReviews, useRatingDistribution } from '@/lib/api/services/review-api';
+import { useAvailableCourseRuns } from '@/lib/api/services/course-run-api';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import { Badge } from '@workspace/ui/components/badge';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@workspace/ui/components/dialog';
 import { PlayCircle, FileText, HelpCircle, ChevronDown, Star, Users, Clock, Calendar, CheckCircle2, Heart, ShoppingCart, BookOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -23,6 +25,8 @@ export function CourseDetailClient({ slug }: { slug: string }) {
     const { data: enrollmentData } = useCheckEnrollment(course?.id || '');
     const { data: wishlistData } = useCheckWishlist(course?.id || '');
     const { data: cartData } = useCart();
+    const { data: availableRuns, isLoading: isRunsLoading } = useAvailableCourseRuns(course?.id);
+    const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
 
     // Fetch Reviews & Distribution
     const { data: reviewsData } = useCourseReviews(course?.id);
@@ -239,6 +243,88 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                     ))}
                                 </div>
                             </section>
+                            {/*  Course Schedule / Available Runs (For LIVE courses)  */}
+                            {course.type?.toUpperCase() === 'LIVE' && (
+                                <section data-purpose="runs-section" id="schedule">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div>
+                                            <h3 className="serif-jp text-2xl font-bold mb-1">Lịch khai giảng sắp tới</h3>
+                                            <p className="text-sm text-muted-foreground">Chọn lịch học phù hợp nhất với thời gian của bạn.</p>
+                                        </div>
+                                        <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors">
+                                            {availableRuns?.length || 0} lớp đang mở
+                                        </Badge>
+                                    </div>
+
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        {isRunsLoading ? (
+                                            [1, 2].map(i => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)
+                                        ) : availableRuns && availableRuns.length > 0 ? (
+                                            availableRuns.map((run) => (
+                                                <div
+                                                    key={run.id}
+                                                    onClick={() => !isEnrolled && setSelectedRunId(run.id)}
+                                                    className={`group relative p-6 rounded-2xl border-2 transition-all cursor-pointer overflow-hidden ${selectedRunId === run.id
+                                                        ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                                                        : 'border-border bg-background hover:border-primary/50'
+                                                        } ${isEnrolled ? 'opacity-80 cursor-not-allowed' : ''}`}
+                                                >
+                                                    {/* Glassmorphism background effect */}
+                                                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-all"></div>
+
+                                                    <div className="relative z-10 flex flex-col h-full">
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <div>
+                                                                <h4 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-1">{run.title}</h4>
+                                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                                                    <Users className="size-3" />
+                                                                    <span>Cần tối thiểu {run.minStudents} học viên</span>
+                                                                </div>
+                                                            </div>
+                                                            {selectedRunId === run.id && (
+                                                                <CheckCircle2 className="size-5 text-primary fill-primary/10" />
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-2.5 mt-auto">
+                                                            <div className="flex items-center gap-3 text-sm">
+                                                                <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                                                    <Calendar className="size-4 text-primary" />
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-0.5">Khai giảng</span>
+                                                                    <span className="font-semibold text-foreground/90">
+                                                                        {run.startDate ? new Date(run.startDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Sắp ra mắt'}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center gap-3 text-sm">
+                                                                <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                                                    <Users className="size-4 text-primary" />
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-0.5">Trạng thái</span>
+                                                                    <span className="font-semibold text-foreground/90">
+                                                                        {(run as any).totalEnrolled || 0} / {run.maxStudents || '∞'} học viên
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="col-span-2 p-12 text-center rounded-2xl border-2 border-dashed border-border bg-muted/5">
+                                                <Calendar className="size-10 text-muted-foreground/30 mx-auto mb-4" />
+                                                <p className="text-muted-foreground font-medium">Hiện chưa có lịch khai giảng mới cho khóa học này.</p>
+                                                <p className="text-xs text-muted-foreground/60 mt-1">Đăng ký nhận thông báo để không bỏ lỡ đợt tuyển sinh tiếp theo.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
+                            )}
+
                             {/*  Prerequisites  */}
                             <section data-purpose="prerequisites-section">
                                 <h3 className="serif-jp text-2xl font-bold mb-6">Điều kiện tham gia</h3>
@@ -451,7 +537,17 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                         ) : (
                                             <>
                                                 <button
-                                                    onClick={() => router.push(`/checkout/${course.id}`)}
+                                                    onClick={() => {
+                                                        if (course.type?.toUpperCase() === 'LIVE' && !selectedRunId) {
+                                                            toast.error('Vui lòng chọn lịch khai giảng phù hợp');
+                                                            const scheduleSection = document.getElementById('schedule');
+                                                            if (scheduleSection) {
+                                                                scheduleSection.scrollIntoView({ behavior: 'smooth' });
+                                                            }
+                                                            return;
+                                                        }
+                                                        router.push(`/checkout/${course.id}${selectedRunId ? `?runId=${selectedRunId}` : ''}`);
+                                                    }}
                                                     className="w-full bg-gradient-to-r from-[oklch(0.55_0.15_15)] to-rose-600 hover:from-[oklch(0.55_0.15_15)]Dark hover:to-rose-700 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg shadow-[oklch(0.55_0.15_15)]/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
                                                     Đăng ký ngay
                                                 </button>

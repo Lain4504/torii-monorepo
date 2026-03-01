@@ -6,12 +6,14 @@ import type { Mapper } from '@automapper/core';
 
 import {
     type EnrollmentCreateDTO,
+    type TrialEnrollmentCreateDTO,
     type EnrollmentQueryDTO,
     type EnrollmentResponseDTO,
     type PaginatedResponseDTO,
     EnrollmentStatus,
     CourseStatus,
 } from '@workspace/schemas';
+import { PrismaService } from '@server/shared';
 import type { IEnrollmentService, ICertificateService } from '@server/learning/interfaces/services';
 import { CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
@@ -28,6 +30,7 @@ export class EnrollmentService implements IEnrollmentService {
 
     constructor(
         private readonly enrollmentRepository: EnrollmentRepository,
+        private readonly prisma: PrismaService,
         @Inject(COURSE_REPOSITORY_TOKEN)
         private readonly courseRepository: ICourseRepository,
         @Inject(LESSON_REPOSITORY_TOKEN)
@@ -58,9 +61,17 @@ export class EnrollmentService implements IEnrollmentService {
             });
 
             const course = await this.courseRepository.findById(enrollment.courseId);
+            const courseRunId = (enrollment as any).courseRunId;
 
             if (course?.type === 'live') {
-                await this.courseRepository.incrementTotalStudents(course.id);
+                if (courseRunId) {
+                    await this.prisma.courseRun.update({
+                        where: { id: courseRunId },
+                        data: { totalStudents: { increment: 1 } },
+                    });
+                } else {
+                    await this.courseRepository.incrementTotalStudents(course.id);
+                }
             }
 
             // Audit Log
@@ -232,11 +243,17 @@ export class EnrollmentService implements IEnrollmentService {
                 }
             }
 
+            const inProgressStatus = [
+                EnrollmentStatus.IN_PROGRESS,
+                EnrollmentStatus.COMPLETED,
+                EnrollmentStatus.TRIAL,
+                EnrollmentStatus.SUSPENDED as any,
+            ];
+
             return {
                 isEnrolled: !!enrollment && (
-                    enrollment.completionStatus === 'in_progress' ||
-                    enrollment.completionStatus === 'completed' ||
-                    (enrollment.completionStatus === 'trial' && !!enrollment.trialExpiresAt && new Date(enrollment.trialExpiresAt).getTime() > Date.now())
+                    inProgressStatus.includes(enrollment.completionStatus as any) ||
+                    (enrollment.completionStatus === EnrollmentStatus.TRIAL && !!enrollment.trialExpiresAt && new Date(enrollment.trialExpiresAt).getTime() > Date.now())
                 ),
                 enrollment,
                 hasNewerVersion,
@@ -250,7 +267,8 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Create a new trial enrollment
      */
-    async createTrial(userId: string, courseId: string): Promise<EnrollmentResponseDTO> {
+    async createTrial(userId: string, input: TrialEnrollmentCreateDTO): Promise<EnrollmentResponseDTO> {
+        const courseId = input.courseId;
         // Check if course exists
         const course = await this.courseRepository.findById(courseId);
         if (!course) {
@@ -281,13 +299,14 @@ export class EnrollmentService implements IEnrollmentService {
                 user: { connect: { id: userId } },
                 course: { connect: { id: courseId } },
                 ...(versionId ? { version: { connect: { id: versionId } } } : {}),
+                ...((input as any).courseRunId ? { courseRun: { connect: { id: (input as any).courseRunId } } } : {}),
                 enrollmentDate: now,
                 lastAccessedAt: now,
                 completionStatus: EnrollmentStatus.TRIAL,
                 completionPercentage: 0,
                 finalPrice: 0,
                 trialExpiresAt: trialExpiresAt,
-            });
+            } as any);
 
             // Log Audit
             await this.logAudit({
@@ -347,38 +366,41 @@ export class EnrollmentService implements IEnrollmentService {
         }
 
         // Validation: For Live courses, check registration deadline
+        let courseRun: any = null;
         if (course.type === 'live') {
-            if (course.registrationClosedAt && new Date() > new Date(course.registrationClosedAt)) {
-                throw new BadRequestException('Registration for this course is closed');
-            }
-            if (course.maxStudents && course.totalStudents >= course.maxStudents) {
-                throw new BadRequestException('This course is full');
+            const courseRunId = (input as any).courseRunId;
+            if (courseRunId) {
+                courseRun = await this.prisma.courseRun.findUnique({ where: { id: courseRunId } });
+                if (!courseRun) throw new NotFoundException('Course run not found');
+
+                if (courseRun.enrollmentEnd && new Date() > new Date(courseRun.enrollmentEnd)) {
+                    throw new BadRequestException('Registration for this class has ended');
+                }
+                if (courseRun.maxStudents && courseRun.totalStudents >= courseRun.maxStudents) {
+                    throw new BadRequestException('This class is full');
+                }
+            } else {
+                if (course.registrationClosedAt && new Date() > new Date(course.registrationClosedAt)) {
+                    throw new BadRequestException('Registration for this course is closed');
+                }
+                if (course.maxStudents && course.totalStudents >= course.maxStudents) {
+                    throw new BadRequestException('This course is full');
+                }
             }
         }
 
         try {
-            const expiresAt = this.computeEnrollmentExpiry(course);
-            const finalPrice = course.discountPrice ? Number(course.discountPrice) : Number(course.price);
+            const expiresAt = this.computeEnrollmentExpiry(course, courseRun);
+            const finalPrice = (input as any).courseRunId && courseRun?.price !== undefined && courseRun?.price !== null
+                ? (courseRun.discountPrice ?? courseRun.price)
+                : (course.discountPrice ? Number(course.discountPrice) : Number(course.price));
 
             // Get latest course version for snapshot tracking
             const latestVersion = await this.courseRepository.getLatestVersion(input.courseId);
-            const versionId = latestVersion ? latestVersion.id : undefined;
+            const versionId = courseRun?.versionId || latestVersion?.id;
 
-            const created = await this.enrollmentRepository.create({
-                user: { connect: { id: userId } },
-                course: { connect: { id: input.courseId } },
-                ...(versionId ? { version: { connect: { id: versionId } } } : {}),
-                enrollmentDate: new Date(),
-                lastAccessedAt: new Date(),
-                completionStatus: finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS,
-                completionPercentage: 0,
-                finalPrice,
-                isGift: (input as any).isGift || false,
-                giftMessage: (input as any).giftMessage,
-                sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
-            });
-            let result;
             const completionStatus = finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS;
+            let result;
 
             if (existing) {
                 // Renewal logic: Update existing record
@@ -386,16 +408,18 @@ export class EnrollmentService implements IEnrollmentService {
                     enrollmentDate: new Date(),
                     lastAccessedAt: new Date(),
                     completionStatus,
-                    // Keep existing progress or reset if it was 100? 
-                    // Usually keep for Gia hạn để tiếp tục
+                    ...(versionId ? { version: { connect: { id: versionId } } } : {}),
+                    ...((input as any).courseRunId ? { courseRun: { connect: { id: (input as any).courseRunId } } } : {}),
                     expiresAt,
                     finalPrice,
-                });
+                } as any);
             } else {
                 // New enrollment logic
                 result = await this.enrollmentRepository.create({
                     user: { connect: { id: userId } },
                     course: { connect: { id: input.courseId } },
+                    ...(versionId ? { version: { connect: { id: versionId } } } : {}),
+                    ...((input as any).courseRunId ? { courseRun: { connect: { id: (input as any).courseRunId } } } : {}),
                     enrollmentDate: new Date(),
                     lastAccessedAt: new Date(),
                     completionStatus,
@@ -405,7 +429,7 @@ export class EnrollmentService implements IEnrollmentService {
                     giftMessage: (input as any).giftMessage,
                     sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
                     expiresAt,
-                });
+                } as any);
             }
 
             // If it's a free enrollment (finalPrice is 0) or explicitly active, emit success event for notification/email
@@ -707,21 +731,23 @@ export class EnrollmentService implements IEnrollmentService {
      * WebRTC:  enrollment.expiresAt = course.expiresAt (fixed course end date)
      *          + registrationClosedAt is REQUIRED — enrollment blocked past this date
      */
-    private computeEnrollmentExpiry(course: any): Date | undefined {
+    private computeEnrollmentExpiry(course: any, courseRun?: any): Date | undefined {
         const now = new Date();
 
         if (course.type === 'live') {
-            // Gate: registrationClosedAt is required for live courses
+            if (courseRun) {
+                return courseRun.endDate ? new Date(courseRun.endDate) : undefined;
+            }
+
+            // Fallback to master course dates (legacy)
             if (!course.registrationClosedAt) {
                 throw new BadRequestException('This live course is not open for registration (missing registration deadline)');
             }
 
-            // Gate: block enrollment past registration deadline
             if (now > new Date(course.registrationClosedAt)) {
                 throw new BadRequestException('Registration for this course is closed');
             }
 
-            // WebRTC: enrollment access expires when the course itself expires
             return course.expiresAt ? new Date(course.expiresAt) : undefined;
         }
 

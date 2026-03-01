@@ -16,12 +16,17 @@ export const enrollmentResponseDTOSchema = enrollmentSchema.extend({
         title: z.string(),
         slug: z.string(),
     }).optional(),
+    courseRun: z.object({
+        id: z.string().uuid(),
+        title: z.string(),
+    }).optional().nullable(),
 });
 
 export type EnrollmentResponseDTO = z.infer<typeof enrollmentResponseDTOSchema>;
 
 export const enrollmentCreateDTOSchema = z.object({
     courseId: z.string().uuid(),
+    courseRunId: z.string().uuid().optional(),
     isGift: z.boolean().optional(),
     giftMessage: z.string().optional(),
     senderId: z.string().uuid().optional(),
@@ -31,6 +36,7 @@ export type EnrollmentCreateDTO = z.infer<typeof enrollmentCreateDTOSchema>;
 
 export const trialEnrollmentCreateDTOSchema = z.object({
     courseId: z.string().uuid(),
+    courseRunId: z.string().uuid().optional(),
 });
 
 export type TrialEnrollmentCreateDTO = z.infer<typeof trialEnrollmentCreateDTOSchema>;

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
 import { CourseController } from './controllers/course.controller';
+import { CourseRunController } from './controllers/course-run.controller';
 
 import { ModuleController } from './controllers/module.controller';
 import { LessonController } from './controllers/lesson.controller';
@@ -41,6 +42,7 @@ import { NotebookController } from './controllers/notebook.controller';
         ReviewController,
         TeachingScheduleController,
         CourseController,
+        CourseRunController,
         ModuleController,
         LessonController,
         LessonMaterialController,

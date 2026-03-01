@@ -38,7 +38,8 @@ export const orderApi = {
             ...data,
             metadata: {
                 ...(data.metadata || {}),
-                courseId: data.courseId, // Store courseId in metadata for later enrollment creation
+                courseId: data.courseId,
+                courseRunId: (data as any).courseRunId,
             },
         };
         const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>('/api/orders', payload);

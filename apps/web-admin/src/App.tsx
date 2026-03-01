@@ -22,6 +22,7 @@ import CouponsPage from '@/routes/coupons/coupons-page.tsx'
 import CoursesPage from '@/routes/courses/courses-page.tsx'
 import CourseReviewsPage from '@/routes/courses/course-reviews-page.tsx'
 import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
+import CourseRunDetailPage from '@/routes/courses/course-run-detail-page.tsx'
 import MyCoursesPage from '@/routes/courses/my-courses-page.tsx'
 import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
 import CourseLiveSessionsPage from '@/routes/courses/course-live-sessions-page.tsx'
@@ -91,6 +92,7 @@ function App() {
                   <Route path="courses/reviews" element={<CourseReviewsPage />} />
                   <Route path="courses/requests" element={<ScheduleRequestsPage />} />
                   <Route path="courses/:id" element={<CourseDetailPage />} />
+                  <Route path="courses/runs/:runId" element={<CourseRunDetailPage />} />
                   <Route path="courses/discussions" element={<CourseDiscussionsPage />} />
                   <Route path="courses/:id/live-sessions" element={<CourseLiveSessionsPage />} />
                   <Route path="courses/:id/enrollments" element={<CourseEnrollmentsPage />} />

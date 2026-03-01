@@ -15,6 +15,7 @@ import { LessonMaterialModule } from '@server/learning/modules/lesson-material/l
 import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
 import { LearningProgressModule } from '@server/learning/modules/learning-progress/learning-progress.module';
 import { LiveSessionModule } from '@server/learning/modules/live-session/live-session.module';
+import { CourseRunModule } from '@server/learning/modules/course-run/course-run.module';
 import { TeachingScheduleModule } from '@server/learning/modules/teaching-schedule/teaching-schedule.module';
 import { CouponModule } from '@server/learning/modules/coupon/coupon.module';
 import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';

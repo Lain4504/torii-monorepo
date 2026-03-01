@@ -2,6 +2,7 @@
 export * from './models/user.model';
 export * from './models/course.model';
 export * from './models/course-version.model';
+export * from './models/course-run.model';
 export * from './models/module.model';
 export * from './models/lesson.model';
 export * from './models/question.model';
@@ -55,6 +56,7 @@ export * from './dtos/lesson-material.dto';
 export * from './dtos/course-instructor.dto';
 export * from './dtos/staff-dashboard.dto';
 export * from './dtos/course.dto';
+export * from './dtos/course-run.dto';
 export * from './dtos/enrollment.dto';
 export * from './dtos/order.dto';
 export * from './dtos/coupon.dto';
@@ -71,6 +73,8 @@ export * from './dtos/attendance.dto';
 
 // Enums
 export * from './enums/enrollment.enum';
+export * from './enums/course-run.enum';
+export * from './enums/live-session.enum';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

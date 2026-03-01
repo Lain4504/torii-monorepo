@@ -22,6 +22,32 @@ enum CourseStatus {
   archived
 }
 
+// Thêm các Enums mới cho mô hình Master/Run
+enum CourseRunStatus {
+  PLANNING
+  ENROLLING
+  IN_PROGRESS
+  POSTPONED
+  CANCELLED_BY_SYSTEM
+  COMPLETED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  SUSPENDED
+  REFUNDED
+  CANCELLED
+  COMPLETED
+}
+
+enum LiveSessionStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  RESCHEDULED
+  CANCELLED
+}
+
 model Course {
   id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title                String       @db.VarChar(255)
@@ -77,6 +103,7 @@ model Course {
   certificates      Certificate[]
   versions          CourseVersion[]
   cartItems         CartItem[]
+  courseRuns        CourseRun[]
 
   lecturerId String? @map("lecturer_id") @db.Uuid
   lecturer   User?   @relation("CoursesTaught", fields: [lecturerId], references: [id], onDelete: SetNull)
@@ -103,8 +130,51 @@ model CourseVersion {
 
   course      Course       @relation(fields: [courseId], references: [id])
   enrollments Enrollment[]
+  courseRuns  CourseRun[]
 
   @@map("course_versions")
+}
+
+model CourseRun {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId  String  @map("course_id") @db.Uuid
+  versionId String? @map("version_id") @db.Uuid
+
+  title String @db.VarChar(255)
+  slug  String @unique @db.VarChar(255)
+
+  lecturerId String? @map("lecturer_id") @db.Uuid
+
+  startDate DateTime? @map("start_date")
+  endDate   DateTime? @map("end_date")
+
+  enrollmentStart DateTime? @map("enrollment_start")
+  enrollmentEnd   DateTime? @map("enrollment_end")
+
+  maxStudents   Int? @map("max_students")
+  minStudents   Int? @default(1) @map("min_students")
+  totalStudents Int  @default(0) @map("total_students")
+
+  price         Decimal? @db.Decimal(10, 2)
+  discountPrice Decimal? @map("discount_price") @db.Decimal(10, 2)
+
+  status CourseRunStatus @default(PLANNING)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  course   Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  version  CourseVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  lecturer User?          @relation("RunLecturer", fields: [lecturerId], references: [id], onDelete: SetNull)
+
+  enrollments  Enrollment[]
+  liveSessions LiveSession[]
+
+  @@index([courseId])
+  @@index([versionId])
+  @@index([lecturerId])
+  @@index([status])
+  @@map("course_runs")
 }
 
 // Modules: chapters/sections that belong to a Course
@@ -330,7 +400,6 @@ model GradeHistory {
 // COURSE INSTRUCTOR
 // ============================================
 
-
 // Live Session - Scheduled live classes for a course
 model LiveSession {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -346,6 +415,10 @@ model LiveSession {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   scheduleId  String?  @map("schedule_id") @db.Uuid
 
+  courseRunId       String?   @map("course_run_id") @db.Uuid
+  originalStartTime DateTime? @map("original_start_time")
+  rescheduleReason  String?   @map("reschedule_reason") @db.Text
+
   // Curriculum Link
   moduleId String? @map("module_id") @db.Uuid
   lessonId String? @map("lesson_id") @db.Uuid
@@ -355,11 +428,13 @@ model LiveSession {
   recordingDuration Int?    @map("recording_duration")
 
   course      Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseRun   CourseRun?        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   schedule    TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
   attendances Attendance[]
   lesson      Lesson[]
 
   @@index([courseId])
+  @@index([courseRunId])
   @@index([lecturerId])
   @@index([scheduleId])
   @@index([moduleId])
@@ -619,7 +694,8 @@ model User {
   certificates            Certificate[]
   balance                 UserBalance?
 
-  coursesTaught Course[] @relation("CoursesTaught") // Mối quan hệ mới
+  coursesTaught Course[]    @relation("CoursesTaught") // Mối quan hệ mới
+  runsTaught    CourseRun[] @relation("RunLecturer")
 
   // Gamification Relations
   gamification    UserGamification?
@@ -1455,6 +1531,7 @@ model Enrollment {
   id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId               String    @map("user_id") @db.Uuid
   courseId             String    @map("course_id") @db.Uuid
+  courseRunId          String?   @map("course_run_id") @db.Uuid
   versionId            String?   @map("version_id") @db.Uuid // Reference to CourseVersion for snapshot tracking
   enrollmentDate       DateTime  @default(now()) @map("enrollment_date")
   completionStatus     String    @default("in_progress") @map("completion_status") @db.VarChar(20) // pending_payment, in_progress, completed, dropped
@@ -1473,9 +1550,12 @@ model Enrollment {
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
 
+  enrollmentStatus EnrollmentStatus @default(ACTIVE) @map("enrollment_status")
+
   // Relations
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseRun      CourseRun?       @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   version        CourseVersion?   @relation(fields: [versionId], references: [id], onDelete: SetNull)
   order          Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
   sender         User?            @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
@@ -1485,6 +1565,7 @@ model Enrollment {
   @@unique([userId, courseId]) // Mỗi user chỉ enroll 1 lần cho 1 course
   @@index([userId])
   @@index([courseId])
+  @@index([courseRunId])
   @@index([versionId])
   @@index([completionStatus])
   @@index([enrollmentDate])

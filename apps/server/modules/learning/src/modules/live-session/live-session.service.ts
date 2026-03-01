@@ -115,6 +115,7 @@ export class LiveSessionService implements ILiveSessionService {
                 scheduledAt: date,
                 duration: dto.duration,
                 lecturerId: dto.lecturerId,
+                ...((dto as any).courseRunId ? { courseRun: { connect: { id: (dto as any).courseRunId } } } : {}),
             });
             createdSessions.push(session);
         }
@@ -144,6 +145,7 @@ export class LiveSessionService implements ILiveSessionService {
             scheduledAt: new Date(dto.scheduledAt),
             duration: dto.duration,
             lecturerId: dto.lecturerId,
+            ...((dto as any).courseRunId ? { courseRun: { connect: { id: (dto as any).courseRunId } } } : {}),
         });
 
         return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');

@@ -3,6 +3,8 @@ import type {
     EnrollmentQueryDTO,
     EnrollmentResponseDTO,
     PaginatedResponseDTO,
+    TrialEnrollmentCreateDTO,
+    Requester,
 } from '@workspace/schemas';
 
 /**
@@ -38,7 +40,7 @@ export interface IEnrollmentService {
     /**
      * Create a new trial enrollment
      */
-    createTrial(userId: string, courseId: string): Promise<EnrollmentResponseDTO>;
+    createTrial(userId: string, input: TrialEnrollmentCreateDTO): Promise<EnrollmentResponseDTO>;
 
     /**
      * Check if user has access to a course or specific lesson (handling trial logic)

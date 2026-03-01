@@ -5,4 +5,8 @@ export enum EnrollmentStatus {
   DROPPED = 'dropped',
   EXPIRED = 'expired',
   TRIAL = 'trial',
+  REFUND_PENDING = 'refund_pending',
+  REFUNDED = 'refunded',
+  DEFERRED = 'deferred',
+  SUSPENDED = 'suspended',
 }

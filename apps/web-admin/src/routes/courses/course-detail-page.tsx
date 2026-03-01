@@ -6,14 +6,10 @@ import {
     ChevronLeft,
     AlertCircle,
     Layers,
-    Video,
     CalendarCheck2,
     Edit,
     Trash,
     MoreVertical,
-    PlayCircle,
-    StopCircle,
-    Settings,
     FileText,
     PenTool,
     ArrowUp,
@@ -42,15 +38,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import { useCourse } from '@/lib/api/services/courses';
 import { useCourseModules, useReorderModules } from '@/lib/api/services/modules';
 import { useModulesLessons, useReorderLessons } from '@/lib/api/services/lesson';
-import {
-    useLiveSessions,
-    useDeleteLiveSession,
-    useStartLiveSession,
-    useEndLiveSession,
-    liveSessionsApi
-} from '@/lib/api/services/live-sessions';
 import { EnrollmentStatus, type ModuleResponseDTO, type LessonResponseDTO, type AssignmentResponseDTO } from '@workspace/schemas';
-import { formatDateTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 import {
     useAssignments,
@@ -63,7 +51,7 @@ const CreateLessonSheet = lazy(() => import('@/components/lessons/create-lesson-
 import { EditLessonSheet } from '@/components/lessons/edit-lesson-sheet.tsx';
 import { DeleteModuleDialog } from '@/components/modules/delete-module-dialog';
 import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog';
-import { TeachingScheduleSheet } from '@/components/courses/teaching-schedule-sheet';
+import { PageHeader } from '@/components/common/page-header';
 import { AssignmentsTable } from '@/components/assignments/assignments-table';
 import { CreateAssignmentSheet } from '@/components/assignments/create-assignment-sheet';
 import { EditAssignmentSheet } from '@/components/assignments/edit-assignment-sheet';
@@ -77,15 +65,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 
 import { cn } from '@workspace/ui/lib/utils';
 import { PageLoading } from '@workspace/ui/components/page-loading';
-import { PageHeader } from '@/components/common/page-header';
 import { SmartPagination } from '@/components/common/smart-pagination';
+import { CourseRunsTable } from '@/components/courses/course-runs-table';
 
 export default function CourseDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: course, isLoading: isLoadingCourse } = useCourse(id || '');
     const { data: modulesData } = useCourseModules(id || '');
-    const { data: liveSessions } = useLiveSessions(id || '');
     const { data: enrollments, isLoading: isLoadingEnrollments } = useEnrollmentsByCourse(id || '');
 
     // Dialog States
@@ -99,7 +86,6 @@ export default function CourseDetailPage() {
     const [editLessonOpen, setEditLessonOpen] = useState(false);
     const [deleteLessonOpen, setDeleteLessonOpen] = useState(false);
     const [selectedLesson, setSelectedLesson] = useState<LessonResponseDTO | null>(null);
-    const [isScheduleSheetOpen, setIsScheduleSheetOpen] = useState(false);
 
     // Assignment States
     const [createAssignmentOpen, setCreateAssignmentOpen] = useState(false);
@@ -124,10 +110,6 @@ export default function CourseDetailPage() {
 
     const modules = modulesData || [];
     const lessonQueries = useModulesLessons(modules);
-
-    const deleteLiveSessionMutation = useDeleteLiveSession();
-    const startMutation = useStartLiveSession();
-    const endMutation = useEndLiveSession();
 
     const reorderModulesMutation = useReorderModules();
     const reorderLessonsMutation = useReorderLessons();
@@ -197,45 +179,6 @@ export default function CourseDetailPage() {
             newExpanded.add(moduleId);
         }
         setExpandedModules(newExpanded);
-    };
-
-    const handleDeleteLiveSession = async (sessionId: string) => {
-        if (!confirm('Bạn có chắc chắn muốn xóa buổi học này?')) return;
-        try {
-            await deleteLiveSessionMutation.mutateAsync({ id: sessionId, courseId: course!.id });
-            toast.success('Đã xóa buổi học');
-        } catch (error) {
-            toast.error('Không thể xóa buổi học');
-        }
-    };
-
-    const handleStartLiveSession = async (sessionId: string) => {
-        try {
-            await startMutation.mutateAsync(sessionId);
-            toast.success('Đã bắt đầu buổi học');
-        } catch (error) {
-            toast.error('Không thể bắt đầu buổi học');
-        }
-    };
-
-    const handleEndLiveSession = async (sessionId: string) => {
-        try {
-            await endMutation.mutateAsync(sessionId);
-            toast.info('Đã kết thúc buổi học');
-        } catch (error) {
-            toast.error('Không thể kết thúc buổi học');
-        }
-    };
-
-    const handleJoinLiveSession = async (sessionId: string) => {
-        try {
-            const joinData = await liveSessionsApi.join(sessionId);
-            const meetUrl = import.meta.env.VITE_MEET_URL || 'https://meet.torii.com';
-            window.open(`${meetUrl}?access_token=${joinData.token}`, '_blank');
-            toast.success('Đang tham gia buổi học');
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Không thể tham gia buổi học');
-        }
     };
 
     const handlePublishAssignment = async (assignment: AssignmentResponseDTO) => {
@@ -315,9 +258,6 @@ export default function CourseDetailPage() {
         );
     }
 
-    const sortedSessions = liveSessions?.sort((a, b) =>
-        new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
-    ) || [];
 
     return (
         <div className="flex flex-col gap-8">
@@ -339,7 +279,7 @@ export default function CourseDetailPage() {
                         { label: "Trình độ", value: course.jlptLevel || 'N/A' },
                         { label: "Bài học", value: course.totalLessons || 0 },
                         { label: "Quiz", value: course.totalQuizzes || 0 },
-                        { label: "Live session", value: liveSessions?.length || 0 },
+                        { label: "Live session", value: course.type === 'live' ? 'Lớp học' : 'VOD' },
                     ]}
                     actions={
                         <Button
@@ -359,9 +299,9 @@ export default function CourseDetailPage() {
                         Chương Trình
                     </TabsTrigger>
                     {course?.type === 'live' && (
-                        <TabsTrigger value="live-schedule" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
+                        <TabsTrigger value="course-runs" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
                             <CalendarCheck2 className="size-4" />
-                            Lịch học Live
+                            Danh sách Lớp (Runs)
                         </TabsTrigger>
                     )}
                     <TabsTrigger value="assignments" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
@@ -533,131 +473,10 @@ export default function CourseDetailPage() {
                     )}
                 </TabsContent>
 
-                {/* Live Schedule Tab - only for live courses */}
+                {/* Course Runs Tab - only for live courses */}
                 {course?.type === 'live' && (
-                    <TabsContent value="live-schedule" className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm text-muted-foreground">Quản lý lịch dạy live và thời khóa biểu cố định</p>
-                            <Button
-                                onClick={() => setIsScheduleSheetOpen(true)}
-                                className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 transition-all"
-                            >
-                                <Settings className="mr-2 size-4" />
-                                Quản lý lịch cố định
-                            </Button>
-                        </div>
-
-                        {sortedSessions.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center p-20 text-center gap-6 border border-dashed rounded-xl bg-muted/5">
-                                <div className="size-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground/40">
-                                    <Video className="size-6" />
-                                </div>
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-semibold uppercase tracking-tight">Chưa có lịch dạy nào</h3>
-                                    <p className="text-sm text-muted-foreground/60 max-w-xs mx-auto">Hãy bắt đầu bằng cách thiết lập lịch cố định hàng tuần cho khóa học này.</p>
-                                </div>
-                                <Button onClick={() => setIsScheduleSheetOpen(true)} variant="outline">
-                                    <Settings className="mr-2 size-4" />
-                                    Thiết lập lịch cố định
-                                </Button>
-                            </div>
-                        ) : (
-                            <Card className="overflow-hidden shadow-sm border-border">
-                                <CardContent className="p-0">
-                                    <Table>
-                                        <TableHeader className="bg-muted/30 border-b border-border">
-                                            <TableRow className="hover:bg-transparent border-none">
-                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-12">#</TableHead>
-                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Trạng thái</TableHead>
-                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Tiêu đề</TableHead>
-                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Thời gian</TableHead>
-                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Thời lượng</TableHead>
-                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Giảng viên</TableHead>
-                                                <TableHead className="text-right h-11 text-xs font-semibold text-muted-foreground px-4">Thao tác</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {sortedSessions.map((session, idx) => (
-                                                <TableRow key={session.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                                                    <TableCell className="font-mono text-xs text-muted-foreground border-r border-border/30">{idx + 1}</TableCell>
-                                                    <TableCell className="border-r border-border/30">
-                                                        <div className="flex items-center gap-2">
-                                                            {session.status === 'live' && (
-                                                                <span className="relative flex h-2 w-2">
-                                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                                                                </span>
-                                                            )}
-                                                            <Badge
-                                                                variant={session.status === 'scheduled' ? "outline" : session.status === 'live' ? "destructive" : "secondary"}
-                                                                className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg"
-                                                            >
-                                                                {session.status === 'scheduled' ? "Sắp diễn ra" : session.status === 'live' ? "Đang live" : "Hoàn thành"}
-                                                            </Badge>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="border-r border-border/30">
-                                                        <div className="space-y-1">
-                                                            <p className="font-semibold text-sm">{session.title}</p>
-                                                            <p className="text-[10px] text-muted-foreground font-mono">Mã: {session.id.slice(0, 8)}</p>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="border-r border-border/30">
-                                                        <div className="text-sm">
-                                                            <p className="font-medium">{formatDateTime(session.scheduledAt, 'HH:mm')}</p>
-                                                            <p className="text-xs text-muted-foreground">{formatDateTime(session.scheduledAt, 'EEEE, dd/MM/yyyy')}</p>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="border-r border-border/30">
-                                                        <span className="text-sm font-medium">{session.duration} phút</span>
-                                                    </TableCell>
-                                                    <TableCell className="border-r border-border/30">
-                                                        <span className="text-sm">{session.lecturer?.displayName || 'Chưa chỉ định'}</span>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            {session.status === 'live' && (
-                                                                <Button
-                                                                    variant="default"
-                                                                    size="sm"
-                                                                    className="rounded-lg h-8 px-3 text-[10px] font-bold uppercase tracking-widest gap-1.5"
-                                                                    onClick={() => handleJoinLiveSession(session.id)}
-                                                                >
-                                                                    <Video className="size-3" />
-                                                                    Vào dạy
-                                                                </Button>
-                                                            )}
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" size="icon">
-                                                                        <MoreVertical className="size-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
-                                                                    {session.status === 'scheduled' && (
-                                                                        <DropdownMenuItem onClick={() => handleStartLiveSession(session.id)} className="rounded-lg text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 gap-2 py-2">
-                                                                            <PlayCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Bắt đầu</span>
-                                                                        </DropdownMenuItem>
-                                                                    )}
-                                                                    {session.status === 'live' && (
-                                                                        <DropdownMenuItem onClick={() => handleEndLiveSession(session.id)} className="rounded-lg text-orange-600 focus:text-orange-700 focus:bg-orange-50 gap-2 py-2">
-                                                                            <StopCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Kết thúc</span>
-                                                                        </DropdownMenuItem>
-                                                                    )}
-                                                                    <DropdownMenuItem onClick={() => handleDeleteLiveSession(session.id)} className="rounded-lg text-destructive focus:bg-destructive/10 gap-2 py-2">
-                                                                        <Trash className="size-3.5" /> <span className="font-bold text-xs uppercase">Xóa</span>
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </CardContent>
-                            </Card>
-                        )}
+                    <TabsContent value="course-runs" className="space-y-4">
+                        <CourseRunsTable courseId={id!} />
                     </TabsContent>
                 )}
 
@@ -806,12 +625,12 @@ export default function CourseDetailPage() {
                         </CardContent>
                     </Card>
                 </TabsContent>
-            </Tabs>
+            </Tabs >
 
 
             {/* Dialogs & Sheets */}
-            <CreateModuleSheet open={createModuleOpen} onOpenChange={setCreateModuleOpen} courseId={id || ''} />
-            <EditModuleSheet open={editModuleOpen} onOpenChange={setEditModuleOpen} module={selectedModule} />
+            < CreateModuleSheet open={createModuleOpen} onOpenChange={setCreateModuleOpen} courseId={id || ''} />
+            < EditModuleSheet open={editModuleOpen} onOpenChange={setEditModuleOpen} module={selectedModule} />
             <DeleteModuleDialog open={deleteModuleOpen} onOpenChange={setDeleteModuleOpen} module={selectedModule} />
 
             <Suspense fallback={<div>Đang tải...</div>}>
@@ -819,8 +638,6 @@ export default function CourseDetailPage() {
             </Suspense>
             <EditLessonSheet open={editLessonOpen} onOpenChange={setEditLessonOpen} lesson={selectedLesson} />
             <DeleteLessonDialog open={deleteLessonOpen} onOpenChange={setDeleteLessonOpen} lesson={selectedLesson} />
-
-            <TeachingScheduleSheet open={isScheduleSheetOpen} onOpenChange={setIsScheduleSheetOpen} course={course} />
 
             <CreateAssignmentSheet
                 open={createAssignmentOpen}
@@ -846,6 +663,6 @@ export default function CourseDetailPage() {
                 onOpenChange={setEditQuizOpen}
                 quiz={selectedQuiz as any}
             />
-        </div>
+        </div >
     );
 }
