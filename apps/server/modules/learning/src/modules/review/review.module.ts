@@ -9,6 +9,6 @@ import { ReviewProfile } from '@server/learning/infrastructure/mappings/review.p
   imports: [PrismaModule, EnrollmentModule],
   controllers: [],
   providers: [ReviewRepository, ReviewService, ReviewProfile],
-  exports: [ReviewService],
+  exports: [ReviewRepository, ReviewService],
 })
 export class ReviewModule { }

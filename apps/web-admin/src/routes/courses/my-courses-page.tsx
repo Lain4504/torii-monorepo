@@ -105,12 +105,10 @@ export default function MyCoursesPage() {
                 onEdit={setSelectedCourse}
                 onDelete={() => { }}
                 onModules={(course) => navigate(`/courses/${course.id}`)}
-                onManageEnrollments={(course) => navigate(`/courses/${course.id}/enrollments`)}
                 onManageInstructors={setManagingInstructorsCourse}
                 onPublish={setPublishingCourse}
                 onReject={setRejectingCourse}
                 onViewAuditLog={setViewingAuditLogCourse}
-                onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
                 onSubmitForReview={handleSubmitForReview}
                 onUnpublish={() => { }}
                 onTitleClick={(course) => navigate(`/courses/${course.id}`)}

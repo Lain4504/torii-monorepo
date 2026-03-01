@@ -147,15 +147,12 @@ export default function CoursesPage() {
               data={courses}
               onEdit={setEditingCourse}
               onDelete={setDeletingCourse}
-
               onTitleClick={(course) => navigate(`/courses/${course.id}`)}
               onModules={(course) => navigate(`/courses/${course.id}`)}
-              onManageEnrollments={(course) => navigate(`/courses/${course.id}/enrollments`)}
               onManageInstructors={setManagingInstructorsCourse}
               onPublish={setPublishingCourse}
               onReject={setRejectingCourse}
               onViewAuditLog={setViewingAuditLogCourse}
-              onManageLiveSessions={(course) => navigate(`/courses/${course.id}/live-sessions`)}
               onSubmitForReview={handleSubmitForReview}
               onUnpublish={handleUnpublish}
               can={can}

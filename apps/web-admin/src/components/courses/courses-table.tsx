@@ -27,14 +27,12 @@ interface CoursesTableProps {
     onDelete: (course: CourseMasterResponseDTO) => void;
     onModules: (course: CourseMasterResponseDTO) => void;
     onManageInstructors: (course: CourseMasterResponseDTO) => void;
-    onManageEnrollments: (course: CourseMasterResponseDTO) => void;
     onPublish: (course: CourseMasterResponseDTO) => void;
     onSubmitForReview: (course: CourseMasterResponseDTO) => void;
     onUnpublish: (course: CourseMasterResponseDTO) => void;
     onReject: (course: CourseMasterResponseDTO) => void;
     onTitleClick: (course: CourseMasterResponseDTO) => void;
     onViewAuditLog: (course: CourseMasterResponseDTO) => void;
-    onManageLiveSessions: (course: CourseMasterResponseDTO) => void;
     can: (permission: string) => boolean;
     page: number;
     limit: number;
@@ -47,14 +45,12 @@ export function CoursesTable({
     onDelete,
     onModules,
     onManageInstructors,
-    onManageEnrollments,
     onPublish,
     onSubmitForReview,
     onUnpublish,
     onReject,
     onTitleClick,
     onViewAuditLog,
-    onManageLiveSessions,
     can,
     page,
     limit,
@@ -67,14 +63,12 @@ export function CoursesTable({
         onDelete,
         onModules,
         onManageInstructors,
-        onManageEnrollments,
         onPublish,
         onSubmitForReview,
         onUnpublish,
         onReject,
         onTitleClick,
         onViewAuditLog,
-        onManageLiveSessions,
         can,
         page,
         limit

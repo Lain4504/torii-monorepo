@@ -25,8 +25,8 @@ import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
 import CourseRunDetailPage from '@/routes/courses/course-run-detail-page.tsx'
 import MyCoursesPage from '@/routes/courses/my-courses-page.tsx'
 import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
-import CourseLiveSessionsPage from '@/routes/courses/course-live-sessions-page.tsx'
-import CourseEnrollmentsPage from '@/routes/courses/course-enrollments-page.tsx'
+import CourseRunLiveSessionsPage from '@/routes/courses/course-run-live-sessions-page.tsx'
+import CourseRunEnrollmentsPage from '@/routes/courses/course-run-enrollments-page.tsx'
 import AssignmentSubmissionsPage from '@/routes/courses/assignment-submissions-page.tsx'
 import CourseDiscussionsPage from '@/routes/courses/course-discussions-page.tsx'
 
@@ -94,9 +94,10 @@ function App() {
                   <Route path="courses/:id" element={<CourseDetailPage />} />
                   <Route path="courses/runs/:runId" element={<CourseRunDetailPage />} />
                   <Route path="courses/discussions" element={<CourseDiscussionsPage />} />
-                  <Route path="courses/:id/live-sessions" element={<CourseLiveSessionsPage />} />
-                  <Route path="courses/:id/enrollments" element={<CourseEnrollmentsPage />} />
                   <Route path="courses/:id/assignments/:assignmentId/submissions" element={<AssignmentSubmissionsPage />} />
+                  {/* Course Run Management Routes - New Structure */}
+                  <Route path="courses/runs/:runId/live-sessions" element={<CourseRunLiveSessionsPage />} />
+                  <Route path="courses/runs/:runId/enrollments" element={<CourseRunEnrollmentsPage />} />
 
                   <Route path="rooms" element={<RoomsPage />} />
 

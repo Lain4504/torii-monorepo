@@ -38,7 +38,7 @@ import { EnrollmentController } from './enrollment.controller';
         EnrollmentExpirationScheduler,
         EnrollmentProfile,
     ],
-    exports: [ENROLLMENT_SERVICE_TOKEN, ENROLLMENT_REPOSITORY_TOKEN],
+    exports: [EnrollmentRepository, EnrollmentService, ENROLLMENT_SERVICE_TOKEN, ENROLLMENT_REPOSITORY_TOKEN],
 })
 export class EnrollmentModule { }
 

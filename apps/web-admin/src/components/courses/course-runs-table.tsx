@@ -15,7 +15,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
-import { MoreVertical, Edit, Plus, Calendar, Users, LayoutDashboard } from 'lucide-react';
+import { MoreVertical, Edit, Plus, Calendar, Users, LayoutDashboard, Trash } from 'lucide-react';
 import { useCourseRuns, useDeleteCourseRun } from '@/lib/api/services/course-runs';
 import { CourseRunStatus } from '@workspace/schemas';
 import { formatDateTime } from '@/lib/format-utils';
@@ -131,15 +131,23 @@ export function CourseRunsTable({ courseId }: CourseRunsTableProps) {
                                                 <DropdownMenuContent align="end" className="p-1.5 rounded-xl border-border/40 shadow-xl min-w-[160px]">
                                                     <DropdownMenuItem onClick={() => navigate(`/courses/runs/${run.id}`)} className="rounded-lg gap-2 py-2">
                                                         <LayoutDashboard className="h-4 w-4 opacity-50" />
-                                                        <span className="font-bold text-xs uppercase">Chi tiết vận hành</span>
+                                                        <span className="font-bold text-xs uppercase">Tổng quan</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => navigate(`/courses/runs/${run.id}/live-sessions`)} className="rounded-lg gap-2 py-2">
+                                                        <Users className="h-4 w-4 opacity-50" />
+                                                        <span className="font-bold text-xs uppercase">Buổi học</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => navigate(`/courses/runs/${run.id}/enrollments`)} className="rounded-lg gap-2 py-2">
+                                                        <Users className="h-4 w-4 opacity-50" />
+                                                        <span className="font-bold text-xs uppercase">Học viên</span>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem className="rounded-lg gap-2 py-2">
                                                         <Edit className="h-4 w-4 opacity-50" />
                                                         <span className="font-bold text-xs uppercase">Sửa nhanh</span>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => handleDelete(run.id)} className="rounded-lg gap-2 py-2 text-rose-600 focus:text-rose-700 focus:bg-rose-500/10">
-                                                        <Edit className="h-4 w-4 opacity-50" />
-                                                        <span className="font-bold text-xs uppercase">Hủy đợt khai giảng</span>
+                                                        <Trash className="h-4 w-4 opacity-50" />
+                                                        <span className="font-bold text-xs uppercase">Hủy đợt</span>
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
