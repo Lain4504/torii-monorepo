@@ -54,8 +54,8 @@ export function Footer() {
     const pathname = usePathname()
 
     return (
-        <footer className="bg-white border-t border-slate-100 pt-24 pb-12 relative overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-red-100 to-transparent" />
+        <footer className="bg-background border-t border-border pt-24 pb-12 relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
             <div className="container mx-auto px-6 max-w-[1200px] relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 mb-20">
@@ -72,7 +72,7 @@ export function Footer() {
                                 />
                             </div>
                             <div className="flex flex-col leading-none">
-                                <span className="text-2xl font-black tracking-tighter uppercase text-slate-900 group-hover:text-primary transition-colors">
+                                <span className="text-2xl font-black tracking-tighter uppercase text-foreground group-hover:text-primary transition-colors">
                                     Torii
                                 </span>
                                 <span className="text-[10px] font-black tracking-[0.3em] text-primary uppercase">
@@ -81,22 +81,22 @@ export function Footer() {
                             </div>
                         </Link>
 
-                        <p className="text-slate-500 text-sm leading-relaxed max-w-sm font-semibold">
+                        <p className="text-muted-foreground text-sm leading-relaxed max-w-sm font-semibold">
                             Nền tảng học tiếng Nhật thế hệ mới, kết hợp tinh hoa sư phạm truyền thống cùng sức mạnh trí tuệ nhân tạo AI Sensei.
                         </p>
 
                         <div className="space-y-6">
                             <div className="flex items-center gap-4 text-sm font-bold group cursor-pointer">
-                                <div className="size-10 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center transition-all group-hover:bg-primary group-hover:text-white group-hover:shadow-lg group-hover:shadow-red-200">
+                                <div className="size-10 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/20">
                                     <MapPin className="size-5" />
                                 </div>
-                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors">TP. Thủ Đức, TP. Hồ Chí Minh</span>
+                                <span className="text-muted-foreground group-hover:text-foreground transition-colors">TP. Thủ Đức, TP. Hồ Chí Minh</span>
                             </div>
                             <div className="flex items-center gap-4 text-sm font-bold group cursor-pointer">
-                                <div className="size-10 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center transition-all group-hover:bg-primary group-hover:text-white group-hover:shadow-lg group-hover:shadow-red-200">
+                                <div className="size-10 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/20">
                                     <Mail className="size-5" />
                                 </div>
-                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors">contact@toriinihongo.vn</span>
+                                <span className="text-muted-foreground group-hover:text-foreground transition-colors">contact@toriinihongo.vn</span>
                             </div>
                         </div>
                     </div>
@@ -105,7 +105,7 @@ export function Footer() {
                     <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-8">
                         {Object.entries(footerLinks).map(([key, section]) => (
                             <div key={key} className="space-y-8">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/70">
                                     {section.title}
                                 </h3>
                                 <ul className="space-y-5">
@@ -113,7 +113,7 @@ export function Footer() {
                                         <li key={link.href}>
                                             <Link
                                                 href={link.href}
-                                                className="text-sm font-bold text-slate-500 hover:text-primary transition-all flex items-center group"
+                                                className="text-sm font-bold text-muted-foreground hover:text-primary transition-all flex items-center group"
                                             >
                                                 <div className="w-0 h-0.5 bg-primary mr-0 group-hover:w-3 group-hover:mr-2 transition-all duration-300 rounded-full" />
                                                 {link.name}
@@ -127,15 +127,15 @@ export function Footer() {
 
                     {/* Newsletter */}
                     <div className="lg:col-span-3 space-y-10">
-                        <div className="bg-slate-50 border border-slate-100 rounded-[2.5rem] p-8 space-y-6 hover:bg-white hover:shadow-xl hover:shadow-slate-100 transition-all duration-500">
-                            <h3 className="text-lg font-black italic text-slate-900 tracking-tight">Đăng ký nhận ưu đãi</h3>
-                            <p className="text-xs text-slate-400 font-bold leading-relaxed">Nhận thông báo về các khoá học mới và tài liệu JLPT miễn phí hàng tuần.</p>
+                        <div className="bg-muted/30 border border-border rounded-[2.5rem] p-8 space-y-6 hover:bg-muted/50 transition-all duration-500">
+                            <h3 className="text-lg font-black italic text-foreground tracking-tight">Đăng ký nhận ưu đãi</h3>
+                            <p className="text-xs text-muted-foreground font-bold leading-relaxed">Nhận thông báo về các khoá học mới và tài liệu JLPT miễn phí hàng tuần.</p>
                             <div className="flex gap-2">
                                 <Input
                                     placeholder="Email..."
-                                    className="h-12 bg-white border-slate-200 rounded-xl px-4 text-xs font-bold focus:ring-primary/20"
+                                    className="h-12 bg-background border-input rounded-xl px-4 text-xs font-bold focus:ring-primary/20"
                                 />
-                                <Button size="icon" className="size-12 rounded-xl shrink-0 bg-slate-900 hover:bg-primary shadow-lg shadow-slate-200 transition-all">
+                                <Button size="icon" className="size-12 rounded-xl shrink-0 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all">
                                     <Send className="size-4" />
                                 </Button>
                             </div>
@@ -146,7 +146,7 @@ export function Footer() {
                                 <Link
                                     key={s.label}
                                     href={s.href}
-                                    className="size-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm hover:shadow-red-200 hover:-translate-y-1"
+                                    className="size-11 rounded-2xl bg-background border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all shadow-sm hover:shadow-primary/20 hover:-translate-y-1"
                                     aria-label={s.label}
                                 >
                                     <s.icon className="size-5" />
@@ -156,7 +156,7 @@ export function Footer() {
                     </div>
                 </div>
 
-                <div className="pt-12 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                <div className="pt-12 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">
                     <p>© {year} Torii Nihongo. Crafted for Excellence.</p>
                     <div className="flex items-center gap-8">
                         <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>

@@ -99,10 +99,10 @@ export function Header() {
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "px-4 py-2 text-sm font-bold transition-all rounded-full hover:bg-slate-50",
+                                    "px-4 py-2 text-base font-bold transition-all rounded-full hover:bg-muted",
                                     pathname === item.href
                                         ? "text-primary bg-primary/5"
-                                        : "text-slate-600 hover:text-primary"
+                                        : "text-muted-foreground hover:text-primary"
                                 )}
                             >
                                 {item.name}
@@ -114,22 +114,20 @@ export function Header() {
                     <div className="flex items-center gap-3">
                         {isAuthenticated ? (
                             <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="h-10 w-10 sm:h-11 sm:w-auto sm:px-2 rounded-xl gap-2 hover:bg-slate-50 border border-transparent hover:border-slate-100">
-                                        <Avatar className="size-8">
-                                            <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
-                                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
-                                                {user?.displayName?.[0]?.toUpperCase() || 'U'}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <ChevronDown className="hidden sm:block size-4 text-slate-400" />
-                                    </Button>
+                                <DropdownMenuTrigger className="flex items-center gap-2 outline-none group rounded-full p-1 pr-2 hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary">
+                                    <Avatar className="size-10 border border-border">
+                                        <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
+                                            {user?.displayName?.[0]?.toUpperCase() || 'U'}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <ChevronDown className="hidden sm:block size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-64 p-2 rounded-2xl" align="end">
                                     <DropdownMenuLabel className="font-normal p-3">
                                         <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-bold leading-none">{user?.displayName}</p>
-                                            <p className="text-xs leading-none text-slate-500 truncate">
+                                            <p className="text-base font-bold leading-none">{user?.displayName}</p>
+                                            <p className="text-sm leading-none text-muted-foreground truncate">
                                                 {user?.email}
                                             </p>
                                         </div>
@@ -137,19 +135,19 @@ export function Header() {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuGroup className="p-1">
                                         <DropdownMenuItem onClick={() => router.push('/dashboard')} className="cursor-pointer rounded-xl h-10">
-                                            <LayoutDashboard className="mr-2 size-4 text-slate-400" />
-                                            <span className="font-bold text-slate-700">Bảng điều khiển</span>
+                                            <LayoutDashboard className="mr-2 size-4 text-muted-foreground" />
+                                            <span className="font-bold text-foreground">Bảng điều khiển</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem className="cursor-pointer rounded-xl h-10">
-                                            <BookOpen className="mr-2 size-4 text-slate-400" />
-                                            <span className="font-bold text-slate-700">Khoá học của tôi</span>
+                                            <BookOpen className="mr-2 size-4 text-muted-foreground" />
+                                            <span className="font-bold text-foreground">Khoá học của tôi</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between rounded-xl h-10">
                                         <div className="flex items-center">
-                                            {theme === 'dark' ? <Sun className="mr-2 size-4 text-slate-400" /> : <Moon className="mr-2 size-4 text-slate-400" />}
-                                            <span className="font-bold text-slate-700">Chùm tối</span>
+                                            {theme === 'dark' ? <Sun className="mr-2 size-4 text-muted-foreground" /> : <Moon className="mr-2 size-4 text-muted-foreground" />}
+                                            <span className="font-bold text-foreground">Giao diện tối</span>
                                         </div>
                                         <Switch
                                             checked={theme === 'dark'}
@@ -169,11 +167,11 @@ export function Header() {
                             </DropdownMenu>
                         ) : (
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" className="hidden sm:flex text-sm font-black h-11 px-5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-primary transition-all" asChild>
-                                    <Link href="/login">Vào học</Link>
+                                <Button variant="ghost" size="lg" className="hidden sm:flex text-base font-bold" asChild>
+                                    <Link href="/login">Đăng nhập</Link>
                                 </Button>
-                                <Button className="h-11 px-6 font-black text-xs uppercase tracking-[0.1em] rounded-xl bg-primary hover:bg-red-700 shadow-lg shadow-red-200" asChild>
-                                    <Link href="/register">Tham gia</Link>
+                                <Button size="lg" className="text-base font-bold" asChild>
+                                    <Link href="/register">Tham gia ngay</Link>
                                 </Button>
                             </div>
                         )}
@@ -218,10 +216,10 @@ export function Header() {
                         </div>
                         {!isAuthenticated && (
                             <div className="grid grid-cols-2 gap-3 mt-4">
-                                <Button variant="outline" className="h-12 w-full font-bold" asChild>
+                                <Button variant="outline" size="lg" className="w-full text-base font-bold" asChild>
                                     <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Vào học</Link>
                                 </Button>
-                                <Button className="h-12 w-full font-bold" asChild>
+                                <Button size="lg" className="w-full text-base font-bold" asChild>
                                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Tham gia</Link>
                                 </Button>
                             </div>
