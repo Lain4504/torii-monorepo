@@ -1025,7 +1025,12 @@ export class CourseMasterService implements ICourseMasterService {
 
       // 4. Check curriculum (minimum lessons)
       const lessonCount = await this.courseRepository.countLessons(courseMasterId);
-      const minLessons = 8;
+
+      // Support short/specialized courses by allowing minLessons to be configured in liveConfig
+      const liveConfig = course.liveConfig as any;
+      const minLessons = (liveConfig && typeof liveConfig.minLessons === 'number')
+        ? liveConfig.minLessons
+        : 1; // Default to 1 to allow short courses/workshops
 
       if (lessonCount < minLessons) {
         return {

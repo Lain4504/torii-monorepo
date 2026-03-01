@@ -67,16 +67,16 @@ export default function CoursesPage() {
   const handleUnpublish = async (course: CourseMasterResponseDTO) => {
     try {
       await unpublishMutation.mutateAsync(course.id);
-      toast.success('Hủy xuất bản khóa học thành công');
+      toast.success('Hủy xuất bản khung chương trình thành công');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể hủy xuất bản khóa học');
+      toast.error(error.response?.data?.message || 'Không thể hủy xuất bản khung chương trình');
     }
   };
 
   const handleSubmitForReview = async (course: CourseMasterResponseDTO) => {
     try {
       await submitForReviewMutation.mutateAsync(course.id);
-      toast.success('Đã gửi yêu cầu kiểm duyệt khóa học');
+      toast.success('Đã gửi yêu cầu kiểm duyệt khung chương trình');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Không thể gửi yêu cầu kiểm duyệt');
     }
@@ -109,10 +109,10 @@ export default function CoursesPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="Quản lý Khóa học"
-        subtitle="Hệ sinh thái chương trình giảng dạy Torii Academy"
+        title="Quản lý Khung chương trình"
+        subtitle="Xây dựng và quản lý các bộ giáo trình chuẩn (Course Master) của Torii Academy"
         stats={[
-          { label: "Tổng số khóa học", value: formatNumber(meta?.total) || 0 }
+          { label: "Tổng số khung chương trình", value: formatNumber(meta?.total) || 0 }
         ]}
         actions={
           /* 
@@ -123,7 +123,7 @@ export default function CoursesPage() {
           <Can permission="course.create">
             <Button onClick={() => setShowCreateDialog(true)} size="lg">
               <Plus />
-              Tạo Khóa học Mới
+              Tạo Khung chương trình mới
             </Button>
           </Can>
         }
@@ -173,7 +173,7 @@ export default function CoursesPage() {
           totalPages={meta?.totalPages || 0}
           totalItems={meta?.total || 0}
           onPageChange={setPage}
-          itemName="khóa học"
+          itemName="khung chương trình"
         />
       </div>
 

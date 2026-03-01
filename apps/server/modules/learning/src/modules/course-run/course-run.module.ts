@@ -3,9 +3,10 @@ import { CourseRunService } from './course-run.service';
 import { CourseRunRepository } from './course-run.repository';
 import { COURSE_RUN_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { CourseMasterModule } from '../course-master/course-master.module';
+import { NatsClientModule } from '@server/shared';
 
 @Module({
-    imports: [CourseMasterModule],
+    imports: [CourseMasterModule, NatsClientModule],
     providers: [
         CourseRunService,
         {
@@ -13,6 +14,6 @@ import { CourseMasterModule } from '../course-master/course-master.module';
             useClass: CourseRunRepository,
         },
     ],
-    exports: [CourseRunService],
+    exports: [CourseRunService, COURSE_RUN_REPOSITORY_TOKEN],
 })
 export class CourseRunModule { }

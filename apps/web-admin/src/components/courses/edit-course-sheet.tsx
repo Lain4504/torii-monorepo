@@ -125,7 +125,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
         // Validation: Paid courses must have price > 0
         if (!data.isFree && (data.price === undefined || data.price <= 0)) {
             toast.error('Giá tiền không hợp lệ', {
-                description: 'Khóa học trả phí bắt buộc phải có học phí lớn hơn 0.',
+                description: 'Khung chương trình trả phí bắt buộc phải có giá niêm yết lớn hơn 0.',
             });
             return;
         }
@@ -149,8 +149,8 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
             };
 
             await updateCourse.mutateAsync({ id: course.id, course: updateData });
-            toast.success('Đã Cập Nhật Khóa Học', {
-                description: `Thông tin chi tiết khóa học đã được cập nhật.`,
+            toast.success('Đã Cập Nhật Khung Chương Trình', {
+                description: `Thông tin chi tiết khung chương trình đã được cập nhật.`,
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -168,9 +168,9 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
-                    <SheetTitle>Chỉnh Sửa Khóa Học</SheetTitle>
+                    <SheetTitle>Chỉnh Sửa Khung Chương Trình</SheetTitle>
                     <SheetDescription>
-                        Cập nhật thông tin chi tiết và cấu hình khóa học.
+                        Cập nhật thông tin chi tiết và cấu hình cho khung chương trình (Syllabus).
                     </SheetDescription>
                 </SheetHeader>
 
@@ -221,12 +221,12 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-1.5" data-invalid={fieldState.invalid}>
                                             <FieldLabel htmlFor={field.name} className="">
-                                                Tên Khóa Học <span className="text-destructive">*</span>
+                                                Tên Khung Chương Trình <span className="text-destructive">*</span>
                                             </FieldLabel>
                                             <Input
                                                 id={field.name}
                                                 {...field}
-                                                placeholder="Nhập tên khóa học..."
+                                                placeholder="Nhập tên khung chương trình..."
                                                 className="mt-1"
                                                 aria-invalid={fieldState.invalid}
                                             />
@@ -262,7 +262,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
                                                 <FieldLabel htmlFor={field.name} className="">
-                                                    Học Phí <span className="text-destructive">*</span>
+                                                    Giá Niêm Yết <span className="text-destructive">*</span>
                                                 </FieldLabel>
                                                 <Input
                                                     id={field.name}

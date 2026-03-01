@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import type { CourseMasterResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
-import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, MoreVertical, Target, Layers, History, Video } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, MoreVertical, Target, Layers, History } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,20 +20,18 @@ export type CoursesColumnsProps = {
     onDelete: (course: CourseMasterResponseDTO) => void;
     onModules: (course: CourseMasterResponseDTO) => void;
     onManageInstructors: (course: CourseMasterResponseDTO) => void;
-    onManageEnrollments: (course: CourseMasterResponseDTO) => void;
     onPublish: (course: CourseMasterResponseDTO) => void;
     onSubmitForReview: (course: CourseMasterResponseDTO) => void;
     onUnpublish: (course: CourseMasterResponseDTO) => void;
     onReject: (course: CourseMasterResponseDTO) => void;
     onTitleClick: (course: CourseMasterResponseDTO) => void;
     onViewAuditLog: (course: CourseMasterResponseDTO) => void;
-    onManageLiveSessions: (course: CourseMasterResponseDTO) => void;
     can: (permission: string) => boolean;
     page: number;
     limit: number;
 };
 
-export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onManageEnrollments, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, onManageLiveSessions, can, page, limit }: CoursesColumnsProps) => [
+export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, can, page, limit }: CoursesColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -52,7 +50,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group"
                 >
-                    Tên khóa học
+                    Tên khung chương trình
                     <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -122,7 +120,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                     className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
                 >
-                    Học phí
+                    Giá niêm yết
                     <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </Button>
             );
@@ -200,7 +198,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
         cell: (info) => (
             <div className="flex flex-col items-center">
                 <div className="font-bold text-sm text-foreground">{info.getValue() || 0}</div>
-                <div className="text-[9px] font-medium text-muted-foreground/60">đã đăng ký</div>
+                <div className="text-[9px] font-medium text-muted-foreground/60">lượt mua</div>
             </div>
         ),
         size: 100,
@@ -274,27 +272,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
                                 >
                                     <Users className="h-4 w-4 opacity-50" />
-                                    <span>Quản lý giảng viên</span>
-                                </DropdownMenuItem>
-                            )}
-
-                            {can('class_member.view') && (
-                                <DropdownMenuItem
-                                    onClick={() => onManageEnrollments(course)}
-                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
-                                >
-                                    <Users className="h-4 w-4 opacity-50" />
-                                    <span>Danh sách học viên</span>
-                                </DropdownMenuItem>
-                            )}
-
-                            {course.type === 'live' && can('live_class.manage') && (
-                                <DropdownMenuItem
-                                    onClick={() => onManageLiveSessions(course)}
-                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
-                                >
-                                    <Video className="h-4 w-4 opacity-50" />
-                                    <span>Lịch dạy Live</span>
+                                    <span>Quản lý nhóm giảng viên</span>
                                 </DropdownMenuItem>
                             )}
 
@@ -347,7 +325,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                         className="rounded-lg px-3 py-2.5 text-xs font-medium text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer flex gap-2.5"
                                     >
                                         <XCircle className="h-4 w-4 opacity-60" />
-                                        <span>Gỡ bỏ khóa học</span>
+                                        <span>Gỡ bỏ khung chương trình</span>
                                     </DropdownMenuItem>
                                 </>
                             ) : null}
@@ -360,7 +338,7 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                         className="rounded-lg px-3 py-2.5 text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-500/10 cursor-pointer flex gap-2.5"
                                     >
                                         <Trash className="h-4 w-4 opacity-50" />
-                                        <span>Xóa khóa học</span>
+                                        <span>Xóa khung chương trình</span>
                                     </DropdownMenuItem>
                                 </>
                             )}

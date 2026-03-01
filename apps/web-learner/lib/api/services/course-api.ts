@@ -41,7 +41,7 @@ export const courseApi = {
     status?: string;
     search?: string;
   } = {}): Promise<PaginatedApiResponse<CourseMasterResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseMasterResponseDTO>>('/api/courses', {
+    const response = await apiClient.get<PaginatedApiResponse<CourseMasterResponseDTO>>('/api/course-masters', {
       params,
     });
     return response.data;
@@ -60,7 +60,7 @@ export const courseApi = {
     rating?: number;
     sort?: string;
   } = {}): Promise<PaginatedApiResponse<CourseMasterSearchResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseMasterSearchResponseDTO>>('/api/courses/advanced-search', {
+    const response = await apiClient.get<PaginatedApiResponse<CourseMasterSearchResponseDTO>>('/api/course-masters/advanced-search', {
       params,
     });
     return response.data;
@@ -70,7 +70,7 @@ export const courseApi = {
    * Validate if a course is ready for scheduling
    */
   validateForScheduling: async (courseId: string): Promise<{ isReady: boolean; message?: string }> => {
-    const response = await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/courses/${courseId}/validate-scheduling`);
+    const response = await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/course-masters/${courseId}/validate-scheduling`);
     return response.data.data!;
   },
 
@@ -78,7 +78,7 @@ export const courseApi = {
    * Get course by slug
    */
   getCourseBySlug: async (slug: string): Promise<CourseMasterResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/slug/${slug}`);
+    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/slug/${slug}`);
     return response.data.data!.course;
   },
 
@@ -86,7 +86,7 @@ export const courseApi = {
    * Get course by id
    */
   getCourseById: async (id: string): Promise<CourseMasterResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}`);
+    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}`);
     return response.data.data!.course;
   },
 
@@ -94,7 +94,7 @@ export const courseApi = {
    * Get course curriculum (modules with lessons)
    */
   getCurriculum: async (courseId: string): Promise<CurriculumResponse> => {
-    const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/courses/${courseId}/curriculum`);
+    const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/course-masters/${courseId}/curriculum`);
     return response.data.data!;
   },
 
@@ -102,7 +102,7 @@ export const courseApi = {
    * Get courses by type (vod | live)
    */
   getByType: async (type: 'vod' | 'live'): Promise<CourseMasterResponseDTO[]> => {
-    const response = await apiClient.get<StandardApiResponse<{ courses: CourseMasterResponseDTO[] }>>(`/api/courses/by-type/${type}`);
+    const response = await apiClient.get<StandardApiResponse<{ courses: CourseMasterResponseDTO[] }>>(`/api/course-masters/by-type/${type}`);
     return response.data.data?.courses ?? [];
   },
 
@@ -110,7 +110,7 @@ export const courseApi = {
    * Get student count for a course
    */
   getStudentCount: async (courseId: string): Promise<{ count: number }> => {
-    const response = await apiClient.get<StandardApiResponse<{ count: number }>>(`/api/courses/${courseId}/students/count`);
+    const response = await apiClient.get<StandardApiResponse<{ count: number }>>(`/api/course-masters/${courseId}/students/count`);
     return response.data.data!;
   },
 };

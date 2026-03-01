@@ -21,8 +21,8 @@ import {
     ReqWithRequester,
 } from '@server/shared';
 
-@Controller('api/courses')
-export class ReviewController {
+@Controller('api/course-masters')
+export class CourseMasterReviewController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Delete('reviews/:id')

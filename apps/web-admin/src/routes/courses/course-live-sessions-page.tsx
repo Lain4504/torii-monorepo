@@ -58,13 +58,13 @@ export default function CourseLiveSessionsPage() {
     const endMutation = useEndLiveSession();
 
     if (isLoadingCourse) {
-        return <PageLoading text="Đang tải thông tin khóa học..." />;
+        return <PageLoading text="Đang tải khung chương trình..." />;
     }
 
     if (!course) {
         return (
             <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
-                <p className="text-muted-foreground">Không tìm thấy khóa học</p>
+                <p className="text-muted-foreground">Không tìm thấy khung chương trình</p>
                 <Button onClick={() => navigate('/courses')}>Quay lại danh sách</Button>
             </div>
         );
@@ -73,7 +73,7 @@ export default function CourseLiveSessionsPage() {
     const handleDelete = async (sessionId: string) => {
         if (!confirm('Bạn có chắc chắn muốn xóa buổi học này?')) return;
         try {
-            await deleteMutation.mutateAsync({ id: sessionId, courseId: course.id });
+            await deleteMutation.mutateAsync({ id: sessionId, courseMasterId: course.id });
             toast.success('Đã xóa buổi học');
         } catch (error) {
             toast.error('Không thể xóa buổi học');
@@ -123,12 +123,12 @@ export default function CourseLiveSessionsPage() {
                     onClick={() => navigate(`/courses/${id}`)}
                 >
                     <ChevronLeft className="size-4" />
-                    <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại chi tiết khóa học</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Chi tiết khung chương trình</span>
                 </Button>
 
                 <PageHeader
-                    title="Quản lý Lịch dạy Live"
-                    subtitle={`Khóa học: ${course.title}`}
+                    title="Quản lý Lịch dạy Trực tuyến"
+                    subtitle={`Khung chương trình: ${course.title}`}
                     actions={
                         <Button
                             onClick={() => setIsScheduleSheetOpen(true)}
@@ -164,7 +164,7 @@ export default function CourseLiveSessionsPage() {
                     </div>
                     <div className="space-y-2">
                         <h3 className="text-xl font-sans font-bold italic text-muted-foreground/50 uppercase tracking-tight">Chưa có lịch dạy nào</h3>
-                        <p className="text-sm text-muted-foreground/40 max-w-sm mx-auto">Hãy bắt đầu bằng cách thiết lập lịch cố định hàng tuần cho khóa học này.</p>
+                        <p className="text-sm text-muted-foreground/40 max-w-sm mx-auto">Hãy bắt đầu bằng cách thiết lập lịch cố định hàng tuần cho khung chương trình này.</p>
                     </div>
                     <Button
                         onClick={() => setIsScheduleSheetOpen(true)}

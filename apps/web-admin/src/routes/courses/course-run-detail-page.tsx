@@ -13,7 +13,7 @@ export default function CourseRunDetailPage() {
     const { runId } = useParams<{ runId: string }>();
     const navigate = useNavigate();
     const { data: run, isLoading: isLoadingRun } = useCourseRun(runId!);
-    const { data: course, isLoading: isLoadingCourse } = useCourse(run?.courseId || '');
+    const { data: course, isLoading: isLoadingCourse } = useCourse(run?.courseMasterId || '');
 
     const isLoading = isLoadingRun || isLoadingCourse;
 
@@ -60,7 +60,7 @@ export default function CourseRunDetailPage() {
                         </div>
                         <h1 className="text-3xl font-bold tracking-tight">{run.title}</h1>
                         <p className="text-muted-foreground mt-1">
-                            Thuộc khóa học: <span className="font-medium text-foreground">{course?.title}</span>
+                            Thuộc khung chương trình: <span className="font-medium text-foreground">{course?.title}</span>
                         </p>
                     </div>
                 </div>
@@ -76,9 +76,9 @@ export default function CourseRunDetailPage() {
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-lg flex items-center gap-2">
+                            <CardTitle className="text-lg flex items-center gap-2 uppercase tracking-tight font-bold">
                                 <LayoutDashboard className="h-5 w-5 text-primary" />
-                                Tổng quan lớp học
+                                Thông tin đợt khai giảng
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="grid sm:grid-cols-2 gap-6">

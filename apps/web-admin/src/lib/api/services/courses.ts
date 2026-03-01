@@ -7,68 +7,68 @@ import type { PaginatedApiResponse, CourseMasterResponseDTO, CourseMasterCreateD
 // ============================================================================
 
 export const coursesApi = {
-    // POST /api/courses/search
+    // GET /api/course-masters
     async findAll(params: CourseMasterQueryDTO): Promise<PaginatedApiResponse<CourseMasterResponseDTO>> {
-        const response = await apiClient.post<PaginatedApiResponse<CourseMasterResponseDTO>>('/api/courses/search', params);
+        const response = await apiClient.get<PaginatedApiResponse<CourseMasterResponseDTO>>('/api/course-masters', { params });
         return response.data;
     },
 
-    // GET /api/admin/courses/:id
+    // GET /api/course-masters/:id
     async findById(id: string): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}`);
+        const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}`);
         return response.data.data!.course;
     },
 
-    // POST /api/admin/courses
+    // POST /api/course-masters
     async create(course: CourseMasterCreateDTO): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>('/api/courses', course);
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>('/api/course-masters', course);
         return response.data.data!.course;
     },
 
-    // PUT /api/courses/:id
+    // PUT /api/course-masters/:id
     async update(id: string, course: CourseMasterUpdateDTO): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.put<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}`, course);
+        const response = await apiClient.put<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}`, course);
         return response.data.data!.course;
     },
 
-    // DELETE /api/admin/courses/:id
+    // DELETE /api/course-masters/:id
     async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/courses/${id}`);
+        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/course-masters/${id}`);
         return response.data.success;
     },
 
-    // PATCH /api/admin/courses/:id/restore
+    // PATCH /api/course-masters/:id/restore
     async restore(id: string): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.patch<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/restore`);
+        const response = await apiClient.patch<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/restore`);
         return response.data.data!.course;
     },
 
-    // POST /api/courses/:id/publish
+    // POST /api/course-masters/:id/publish
     async publish(id: string): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/publish`);
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/publish`);
         return response.data.data!.course;
     },
 
-    // POST /api/courses/:id/submit-for-review
+    // POST /api/course-masters/:id/submit-for-review
     async submitForReview(id: string): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/submit-for-review`);
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/submit-for-review`);
         return response.data.data!.course;
     },
 
-    // POST /api/courses/:id/unpublish
+    // POST /api/course-masters/:id/unpublish
     async unpublish(id: string): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/unpublish`);
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/unpublish`);
         return response.data.data!.course;
     },
 
     async updateLiveConfig(id: string, config: any): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.patch<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/live-config`, config);
+        const response = await apiClient.patch<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/live-config`, config);
         return response.data.data!.course;
     },
 
-    // POST /api/courses/:id/reject
+    // POST /api/course-masters/:id/reject
     async reject(id: string, reason: string): Promise<CourseMasterResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/reject`, { reason });
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/reject`, { reason });
         return response.data.data!.course;
     },
 };

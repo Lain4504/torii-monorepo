@@ -37,12 +37,12 @@ type CreateModuleFormData = ModuleCreateDTO;
 interface CreateModuleDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    courseId?: string;
+    courseMasterId?: string;
     existingModules?: ModuleResponseDTO[];
     courseTitle?: string;
 }
 
-export function CreateModuleSheet({ open, onOpenChange, courseId, existingModules = [], courseTitle }: CreateModuleDialogProps) {
+export function CreateModuleSheet({ open, onOpenChange, courseMasterId, existingModules = [], courseTitle }: CreateModuleDialogProps) {
     const createModule = useCreateModule();
 
     const existingTitles = existingModules.map((m) => m.title.trim());
@@ -58,7 +58,7 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
         // The schema is compatible with ModuleCreateDTO, but we cast to satisfy React Hook Form's Resolver typing.
         resolver: zodResolver(createModuleSchema) as any,
         defaultValues: {
-            courseMasterId: courseId || '',
+            courseMasterId: courseMasterId || '',
             title: '',
             orderIndex: existingModules.length + 1,
             durationMinutes: 0,
@@ -67,15 +67,15 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
 
     // Reset form when courseId changes
     useEffect(() => {
-        if (courseId) {
+        if (courseMasterId) {
             reset({
-                courseMasterId: courseId,
+                courseMasterId: courseMasterId,
                 title: '',
                 orderIndex: existingModules.length + 1,
                 durationMinutes: 0,
             });
         }
-    }, [courseId, reset, existingModules.length]);
+    }, [courseMasterId, reset, existingModules.length]);
 
     const onSubmitForm: SubmitHandler<CreateModuleFormData> = async (data) => {
         try {

@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: Implement attendance processing for live sessions and add course run status update functionality" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: Implement attendance processing for live sessions and add course run status update functionality">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/modules/create-module-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/modules/create-module-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-live-sessions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-live-sessions-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-run-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-run-detail-page.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -237,14 +242,7 @@
       <workItem from="1772323258542" duration="267000" />
       <workItem from="1772369862741" duration="5365000" />
       <workItem from="1772380160724" duration="1294000" />
-    </task>
-    <task id="LOCAL-00842" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
-      <option name="closed" value="true" />
-      <created>1771690012748</created>
-      <option name="number" value="00842" />
-      <option name="presentableId" value="LOCAL-00842" />
-      <option name="project" value="LOCAL" />
-      <updated>1771690012748</updated>
+      <workItem from="1772382138028" duration="734000" />
     </task>
     <task id="LOCAL-00843" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
       <option name="closed" value="true" />
@@ -630,7 +628,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772381405376</updated>
     </task>
-    <option name="localTasksCounter" value="891" />
+    <task id="LOCAL-00891" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
+      <option name="closed" value="true" />
+      <created>1772382406461</created>
+      <option name="number" value="00891" />
+      <option name="presentableId" value="LOCAL-00891" />
+      <option name="project" value="LOCAL" />
+      <updated>1772382406461</updated>
+    </task>
+    <option name="localTasksCounter" value="892" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

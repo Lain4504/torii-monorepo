@@ -126,8 +126,8 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                 previewVideoUrl,
             });
 
-            toast.success('Đã tạo khóa học', {
-                description: 'Khóa học mới đã được tạo thành công.',
+            toast.success('Đã tạo khung chương trình', {
+                description: 'Khung chương trình mới đã được tạo thành công.',
             });
             handleClose();
         } catch (error: any) {
@@ -173,9 +173,9 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         <Sheet open={open} onOpenChange={handleClose}>
             <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
-                    <SheetTitle>Tạo Khóa Học Mới</SheetTitle>
+                    <SheetTitle>Tạo Khung chương trình mới</SheetTitle>
                     <SheetDescription>
-                        Nhập thông tin chi tiết khóa học và chương trình giảng dạy bên dưới.
+                        Nhập thông tin chi tiết cho khung chương trình (Syllabus) mới.
                     </SheetDescription>
                 </SheetHeader>
 
@@ -195,12 +195,12 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <Field>
                                     <FieldLabel htmlFor="title" className="">
-                                        Tên Khóa Học <span className="text-destructive">*</span>
+                                        Tên Khung chương trình <span className="text-destructive">*</span>
                                     </FieldLabel>
                                     <Input
                                         id="title"
                                         {...register('title')}
-                                        placeholder="Nhập tên khóa học..."
+                                        placeholder="Nhập tên khung chương trình..."
                                         className="mt-1"
                                     />
                                     {errors.title && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.title.message}</FieldError>}
@@ -223,7 +223,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
                                         <FieldLabel htmlFor="price" className="">
-                                            Học Phí <span className="text-destructive">*</span>
+                                            Giá Niêm Yết <span className="text-destructive">*</span>
                                         </FieldLabel>
                                         <Input
                                             id="price"
@@ -596,7 +596,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                             ) : (
                                 <>
                                     <UploadCloud className="mr-2 h-4 w-4" />
-                                    Tạo Khóa Học
+                                    Tạo Khung chương trình
                                 </>
                             )}
                         </Button>

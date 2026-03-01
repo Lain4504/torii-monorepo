@@ -69,20 +69,20 @@ export function CourseRunsTable({ courseId }: CourseRunsTableProps) {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-lg font-semibold">Danh sách lớp học (Course Runs)</h3>
-                    <p className="text-sm text-muted-foreground">Quản lý các khóa khai giảng cụ thể cho Master Course này.</p>
+                    <h3 className="text-lg font-semibold uppercase tracking-tight">Các đợt khai giảng (Course Runs)</h3>
+                    <p className="text-sm text-muted-foreground">Quản lý và vận hành các lớp học cụ thể từ khung chương trình này.</p>
                 </div>
-                <Button onClick={() => setIsCreateOpen(true)} size="sm">
+                <Button onClick={() => setIsCreateOpen(true)} size="sm" className="font-bold">
                     <Plus className="mr-2 h-4 w-4" />
-                    Thêm Lớp Mới
+                    Mở đợt khai giảng mới
                 </Button>
             </div>
 
             {runs.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-12 border border-dashed rounded-xl bg-muted/5">
                     <Calendar className="h-12 w-12 text-muted-foreground/40 mb-4" />
-                    <p className="text-muted-foreground">Chưa có lớp học nào được tạo.</p>
-                    <Button variant="link" onClick={() => setIsCreateOpen(true)}>Bắt đầu tạo lớp khai giảng đầu tiên</Button>
+                    <p className="text-muted-foreground">Chưa có đợt khai giảng nào được khởi tạo cho khung chương trình này.</p>
+                    <Button variant="link" onClick={() => setIsCreateOpen(true)} className="font-bold uppercase text-[10px] tracking-widest text-primary">Bắt đầu mở đợt khai giảng đầu tiên</Button>
                 </div>
             ) : (
                 <div className="border rounded-lg overflow-hidden">
@@ -117,26 +117,33 @@ export function CourseRunsTable({ courseId }: CourseRunsTableProps) {
                                         {run.lecturer?.displayName || <span className="text-muted-foreground italic">Chưa phân công</span>}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon">
-                                                    <MoreVertical className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => navigate(`/courses/runs/${run.id}`)}>
-                                                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                                                    Quản lý lớp
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <Edit className="mr-2 h-4 w-4" />
-                                                    Chỉnh sửa nhanh
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDelete(run.id)} className="text-destructive">
-                                                    Xóa lớp
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        <div className="flex justify-end items-center gap-2">
+                                            <Button variant="outline" size="sm" onClick={() => navigate(`/courses/runs/${run.id}`)} className="h-8 text-xs font-bold gap-2">
+                                                <LayoutDashboard className="h-3.5 w-3.5" />
+                                                Quản lý
+                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                        <MoreVertical className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="p-1.5 rounded-xl border-border/40 shadow-xl min-w-[160px]">
+                                                    <DropdownMenuItem onClick={() => navigate(`/courses/runs/${run.id}`)} className="rounded-lg gap-2 py-2">
+                                                        <LayoutDashboard className="h-4 w-4 opacity-50" />
+                                                        <span className="font-bold text-xs uppercase">Chi tiết vận hành</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="rounded-lg gap-2 py-2">
+                                                        <Edit className="h-4 w-4 opacity-50" />
+                                                        <span className="font-bold text-xs uppercase">Sửa nhanh</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleDelete(run.id)} className="rounded-lg gap-2 py-2 text-rose-600 focus:text-rose-700 focus:bg-rose-500/10">
+                                                        <Edit className="h-4 w-4 opacity-50" />
+                                                        <span className="font-bold text-xs uppercase">Hủy đợt khai giảng</span>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}

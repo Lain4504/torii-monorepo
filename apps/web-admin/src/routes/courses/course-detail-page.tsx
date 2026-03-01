@@ -4,7 +4,6 @@ import { Button } from '@workspace/ui/components/button';
 import {
     Plus,
     ChevronLeft,
-    AlertCircle,
     Layers,
     CalendarCheck2,
     Edit,
@@ -15,7 +14,6 @@ import {
     ArrowUp,
     ArrowDown,
     HelpCircle,
-    Users,
 } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
@@ -38,7 +36,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import { useCourse } from '@/lib/api/services/courses';
 import { useCourseModules, useReorderModules } from '@/lib/api/services/modules';
 import { useModulesLessons, useReorderLessons } from '@/lib/api/services/lesson';
-import { EnrollmentStatus, type ModuleResponseDTO, type LessonResponseDTO, type AssignmentResponseDTO } from '@workspace/schemas';
+import { type ModuleResponseDTO, type LessonResponseDTO, type AssignmentResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import {
     useAssignments,
@@ -59,10 +57,6 @@ import { QuizzesTable } from '@/components/quizzes/quizzes-table';
 import { CreateQuizSheet } from '@/components/quizzes/create-quiz-sheet';
 import { EditQuizSheet } from '@/components/quizzes/edit-quiz-sheet';
 import { useQuizzes, useDeleteQuiz, usePublishQuiz, type QuizDTO } from '@/lib/api/services/quizzes';
-import { useEnrollmentsByCourse } from '@/lib/api/services/enrollments';
-import { Progress } from '@workspace/ui/components/progress';
-import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
-
 import { cn } from '@workspace/ui/lib/utils';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { SmartPagination } from '@/components/common/smart-pagination';
@@ -73,7 +67,6 @@ export default function CourseDetailPage() {
     const navigate = useNavigate();
     const { data: course, isLoading: isLoadingCourse } = useCourse(id || '');
     const { data: modulesData } = useCourseModules(id || '');
-    const { data: enrollments, isLoading: isLoadingEnrollments } = useEnrollmentsByCourse(id || '');
 
     // Dialog States
     const [createModuleOpen, setCreateModuleOpen] = useState(false);
@@ -243,12 +236,9 @@ export default function CourseDetailPage() {
     if (!course) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
-                <div className="size-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive">
-                    <AlertCircle className="size-6" />
-                </div>
                 <div className="space-y-1">
-                    <h2 className="text-xl font-semibold">Không tìm thấy khóa học</h2>
-                    <p className="text-sm text-muted-foreground">Khóa học bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
+                    <h2 className="text-xl font-semibold uppercase">Không tìm thấy khung chương trình</h2>
+                    <p className="text-sm text-muted-foreground">Khung giáo trình bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
                 </div>
                 <Button variant="outline" onClick={() => navigate('/courses')}>
                     <ChevronLeft className="mr-2 size-4" />
@@ -269,24 +259,24 @@ export default function CourseDetailPage() {
                     onClick={() => navigate('/courses')}
                 >
                     <ChevronLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Quay lại danh sách</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Danh sách khung chương trình</span>
                 </Button>
 
                 <PageHeader
                     title={course.title}
                     subtitle={course.shortDescription || "Chưa có mô tả ngắn cho khóa học này."}
                     stats={[
-                        { label: "Trình độ", value: course.jlptLevel || 'N/A' },
-                        { label: "Bài học", value: course.totalLessons || 0 },
-                        { label: "Quiz", value: course.totalQuizzes || 0 },
-                        { label: "Live session", value: course.type === 'live' ? 'Lớp học' : 'VOD' },
+                        { label: "Trình độ JLPT", value: course.jlptLevel || 'N/A' },
+                        { label: "Số bài học", value: course.totalLessons || 0 },
+                        { label: "Tổng số Quiz", value: course.totalQuizzes || 0 },
+                        { label: "Hình thức", value: course.type === 'live' ? 'Livestream' : 'VOD' },
                     ]}
                     actions={
                         <Button
                             onClick={() => setCreateModuleOpen(true)}
                         >
                             <Plus className="mr-2 size-4" />
-                            Thêm Học Phần
+                            Thiết kế Syllabus
                         </Button>
                     }
                 />
@@ -296,27 +286,22 @@ export default function CourseDetailPage() {
                 <TabsList className="bg-muted/40 p-1 h-auto gap-1">
                     <TabsTrigger value="curriculum" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
                         <Layers className="size-4" />
-                        Chương Trình
+                        Syllabus & Giáo trình
                     </TabsTrigger>
                     {course?.type === 'live' && (
                         <TabsTrigger value="course-runs" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
                             <CalendarCheck2 className="size-4" />
-                            Danh sách Lớp (Runs)
+                            Đợt khai giảng (Runs)
                         </TabsTrigger>
                     )}
                     <TabsTrigger value="assignments" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
                         <PenTool className="size-4" />
-                        Bài Tập
+                        Kho bài tập
                     </TabsTrigger>
                     <TabsTrigger value="quizzes" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
                         <HelpCircle className="size-4" />
-                        Quiz
+                        Kho Quiz
                     </TabsTrigger>
-                    <TabsTrigger value="students" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
-                        <Users className="size-4" />
-                        Học viên
-                    </TabsTrigger>
-
                 </TabsList>
 
                 {/* Curriculum Tab */}
@@ -327,12 +312,12 @@ export default function CourseDetailPage() {
                                 <Layers className="size-6" />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-lg font-semibold uppercase tracking-tight">Chưa có nội dung</h3>
-                                <p className="text-sm text-muted-foreground/60 max-w-xs mx-auto">Khóa học này chưa có học phần nào. Hãy bắt đầu xây dựng chương trình học ngay.</p>
+                                <h3 className="text-lg font-semibold uppercase tracking-tight">Chưa có Syllabus</h3>
+                                <p className="text-sm text-muted-foreground/60 max-w-xs mx-auto">Khung chương trình này chưa được thiết kế syllabus. Hãy bắt đầu ngay.</p>
                             </div>
                             <Button onClick={() => setCreateModuleOpen(true)} variant="outline">
                                 <Plus className="mr-2 size-4" />
-                                Tạo Học Phần Mới
+                                Thiết kế Syllabus ngay
                             </Button>
                         </div>
                     ) : (
@@ -529,14 +514,14 @@ export default function CourseDetailPage() {
                 {/* Quizzes Tab */}
                 <TabsContent value="quizzes" className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">Quản lý quiz kiểm tra kiến thức cho học viên</p>
+                        <p className="text-sm text-muted-foreground">Kho câu hỏi trắc nghiệm của khung chương trình</p>
                         <Button onClick={() => {
                             setSelectedLessonIdForQuiz(null);
                             setSelectedModuleIdForQuiz(null);
                             setCreateQuizOpen(true);
                         }}>
                             <Plus className="mr-2 size-4" />
-                            Thêm Quiz mới
+                            Thêm Quiz vào kho
                         </Button>
                     </div>
 
@@ -554,82 +539,11 @@ export default function CourseDetailPage() {
                         </CardContent>
                     </Card>
                 </TabsContent>
-
-                {/* Students Tab */}
-                <TabsContent value="students" className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">Danh sách học viên đang tham gia khóa học này</p>
-                    </div>
-
-                    <Card className="overflow-hidden shadow-sm border-border">
-                        <CardContent className="p-0">
-                            <Table>
-                                <TableHeader className="bg-muted/30 border-b border-border">
-                                    <TableRow className="hover:bg-transparent border-none">
-                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Học viên</TableHead>
-                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Ngày tham gia</TableHead>
-                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Tiến độ</TableHead>
-                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Trạng thái</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {isLoadingEnrollments ? (
-                                        Array.from({ length: 3 }).map((_, i) => (
-                                            <TableRow key={i}>
-                                                <TableCell colSpan={4}><PageLoading text="Đang tải..." /></TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : enrollments && enrollments.length > 0 ? (
-                                        enrollments.map((enrollment) => (
-                                            <TableRow key={enrollment.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                                                <TableCell className="px-4 py-3">
-                                                    <div className="flex items-center gap-3">
-                                                        <Avatar className="size-8">
-                                                            <AvatarImage src={enrollment.user?.avatarUrl || ''} />
-                                                            <AvatarFallback>{enrollment.user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                                                        </Avatar>
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sm font-semibold">{enrollment.user?.displayName || 'Unknown'}</span>
-                                                            <span className="text-[10px] text-muted-foreground font-mono">{enrollment.user?.email}</span>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="px-4 py-3 text-sm">
-                                                    {new Date(enrollment.enrollmentDate).toLocaleDateString('vi-VN')}
-                                                </TableCell>
-                                                <TableCell className="px-4 py-3 w-[200px]">
-                                                    <div className="space-y-1.5">
-                                                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-tighter">
-                                                            <span>Tiến độ</span>
-                                                            <span className="text-primary">{Math.round(enrollment.completionPercentage)}%</span>
-                                                        </div>
-                                                        <Progress value={enrollment.completionPercentage} className="h-1.5" />
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="px-4 py-3">
-                                                    <Badge variant={enrollment.completionStatus === EnrollmentStatus.COMPLETED ? 'success' as any : 'secondary'}>
-                                                        {enrollment.completionStatus === EnrollmentStatus.COMPLETED ? 'Hoàn thành' : 'Đang học'}
-                                                    </Badge>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell colSpan={4} className="h-40 text-center text-muted-foreground">
-                                                Chưa có học viên nào tham gia
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
             </Tabs >
 
 
             {/* Dialogs & Sheets */}
-            < CreateModuleSheet open={createModuleOpen} onOpenChange={setCreateModuleOpen} courseId={id || ''} />
+            <CreateModuleSheet open={createModuleOpen} onOpenChange={setCreateModuleOpen} courseMasterId={id || ''} />
             < EditModuleSheet open={editModuleOpen} onOpenChange={setEditModuleOpen} module={selectedModule} />
             <DeleteModuleDialog open={deleteModuleOpen} onOpenChange={setDeleteModuleOpen} module={selectedModule} />
 
